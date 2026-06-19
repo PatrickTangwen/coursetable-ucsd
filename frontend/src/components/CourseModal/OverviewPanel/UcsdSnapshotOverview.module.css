@@ -1,0 +1,78 @@
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.summaryItem {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.summaryLabel {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 550;
+}
+
+.summaryValue {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 650;
+}
+
+.sectionTitle {
+  margin: 1rem 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.metadataList {
+  margin: 0;
+  padding: 0;
+}
+
+.metadataRow {
+  display: grid;
+  grid-template-columns: minmax(7rem, 34%) minmax(0, 1fr);
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.metadataRow:last-child {
+  border-bottom: none;
+}
+
+.metadataLabel {
+  color: var(--color-text-secondary);
+  font-weight: 550;
+}
+
+.metadataValue {
+  font-weight: 600;
+  min-width: 0;
+}
+
+.recordTable {
+  margin-bottom: 0;
+  font-size: 0.9rem;
+}
+
+.recordTable th,
+.recordTable td {
+  white-space: nowrap;
+}
+
+@media (max-width: 575px) {
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .metadataRow {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+}

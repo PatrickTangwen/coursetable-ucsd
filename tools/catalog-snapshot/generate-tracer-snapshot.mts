@@ -1,8 +1,10 @@
 import {
+  attachGradeArchiveRecords,
   buildTracerCatalogSnapshot,
   loadCatalogSnapshotConfig,
   publishCatalogSnapshot,
 } from './catalogSnapshot.js';
+import { fetchInstructorGradeArchiveForSubjects } from './instructorGradeArchive.js';
 
 function readConfigPath() {
   const index = process.argv.indexOf('--config');
@@ -13,7 +15,20 @@ function readConfigPath() {
 }
 
 const config = await loadCatalogSnapshotConfig(readConfigPath());
-const snapshot = buildTracerCatalogSnapshot(config);
+const baseSnapshot = buildTracerCatalogSnapshot(config);
+const gradeArchiveRecords = await fetchInstructorGradeArchiveForSubjects(
+  config.configured_subjects,
+);
+const snapshot = attachGradeArchiveRecords(
+  {
+    ...baseSnapshot,
+    source_timestamps: {
+      ...baseSnapshot.source_timestamps,
+      instructor_grade_archive: baseSnapshot.generated_at,
+    },
+  },
+  gradeArchiveRecords,
+);
 const result = await publishCatalogSnapshot(snapshot, config);
 
 console.log(

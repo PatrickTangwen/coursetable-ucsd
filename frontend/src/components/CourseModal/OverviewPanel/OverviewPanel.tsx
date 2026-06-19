@@ -3,9 +3,11 @@ import { MdWarning } from 'react-icons/md';
 
 import OverviewInfo from './OverviewInfo';
 import OverviewRatings from './OverviewRatings';
+import UcsdSnapshotOverview from './UcsdSnapshotOverview';
 
 import type { CourseModalPrefetchListingDataFragment } from '../../../generated/graphql-types';
 import { useCourseModalOverviewDataQuery } from '../../../queries/graphql-queries';
+import { getUcsdArchiveDetails } from '../../../queries/ucsdCatalogSnapshot';
 import { useStore } from '../../../store';
 import { getListingId } from '../../../utilities/course';
 import Spinner from '../../Spinner';
@@ -19,6 +21,7 @@ function OverviewPanel({
   readonly prefetched: CourseModalPrefetchListingDataFragment;
 }) {
   const user = useStore((state) => state.user);
+  const ucsdArchive = getUcsdArchiveDetails(prefetched.course);
 
   const { data, loading, error } = useCourseModalOverviewDataQuery({
     variables: {
@@ -26,7 +29,11 @@ function OverviewPanel({
       hasEvals: Boolean(user?.hasEvals),
       sameCourseId: prefetched.course.same_course_id,
     },
+    skip: Boolean(ucsdArchive),
   });
+
+  if (ucsdArchive)
+    return <UcsdSnapshotOverview listing={prefetched} archive={ucsdArchive} />;
 
   // Wait until data is fetched
   if (loading) return <Spinner message="Loading course details..." />;

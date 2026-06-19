@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { CUR_YEAR } from '../../../config';
 import type { CourseModalPrefetchListingDataFragment } from '../../../generated/graphql-types';
 import { useModalHistory } from '../../../hooks/useModalHistory';
+import { getUcsdArchiveDetails } from '../../../queries/ucsdCatalogSnapshot';
 import WishlistToggleButton from '../../Wishlist/WishlistToggleButton';
 import WorksheetToggleButton from '../../Worksheet/WorksheetToggleButton';
 import styles from './ControlsRow.module.css';
@@ -72,6 +73,7 @@ function MoreButton({
   readonly listing: CourseModalPrefetchListingDataFragment;
 }) {
   const { closeModal } = useModalHistory();
+  const ucsdArchive = getUcsdArchiveDetails(listing.course);
   return (
     <DropdownButton
       as="div"
@@ -87,21 +89,34 @@ function MoreButton({
       >
         Report an error
       </Dropdown.Item>
-      <Dropdown.Item
-        href={`https://courses.yale.edu/?details&srcdb=${listing.course.season_code}&crn=${listing.crn}`}
-        target="_blank"
-        rel="noreferrer"
-      >
-        Open in Yale Course Search
-      </Dropdown.Item>
-      <Dropdown.Item
-        href={`https://ivy.yale.edu/course-stats/course/courseDetail?termCode=${listing.course.season_code}&courseNumber=${listing.course_code.split(' ')[1]!}&subjectCode=${encodeURIComponent(listing.course_code.split(' ')[0]!)}`}
-        target="_blank"
-        rel="noreferrer"
-      >
-        Open Course Demand Statistics
-      </Dropdown.Item>
-      {!CUR_YEAR.includes(listing.course.season_code) && (
+      {ucsdArchive?.catalog_url && (
+        <Dropdown.Item
+          href={ucsdArchive.catalog_url}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Open UCSD Catalog
+        </Dropdown.Item>
+      )}
+      {!ucsdArchive && (
+        <>
+          <Dropdown.Item
+            href={`https://courses.yale.edu/?details&srcdb=${listing.course.season_code}&crn=${listing.crn}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open in Yale Course Search
+          </Dropdown.Item>
+          <Dropdown.Item
+            href={`https://ivy.yale.edu/course-stats/course/courseDetail?termCode=${listing.course.season_code}&courseNumber=${listing.course_code.split(' ')[1]!}&subjectCode=${encodeURIComponent(listing.course_code.split(' ')[0]!)}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open Course Demand Statistics
+          </Dropdown.Item>
+        </>
+      )}
+      {!ucsdArchive && !CUR_YEAR.includes(listing.course.season_code) && (
         <Dropdown.Item
           href={`https://oce.app.yale.edu/ocedashboard/studentViewer/courseSummary?termCode=${listing.course.season_code}&crn=${listing.crn}`}
           target="_blank"
@@ -177,21 +192,22 @@ export default function ModalHeaderControls({
   readonly view: 'overview' | 'evals';
   readonly setView: (value: 'overview' | 'evals') => void;
 }) {
+  const isUcsdSnapshotCourse = Boolean(getUcsdArchiveDetails(listing.course));
+  const tabs: Tab[] = isUcsdSnapshotCourse
+    ? [{ label: 'Overview', value: 'overview' }]
+    : [
+        { label: 'Overview', value: 'overview' },
+        {
+          label: 'Evaluations',
+          value: 'evals',
+          // Don't show eval tab if there are no responses to show
+          disabled: !listing.course.evaluation_statistic,
+        },
+      ];
+
   return (
     <div className={styles.modalControls}>
-      <ViewTabs
-        tabs={[
-          { label: 'Overview', value: 'overview' },
-          {
-            label: 'Evaluations',
-            value: 'evals',
-            // Don't show eval tab if there are no responses to show
-            disabled: !listing.course.evaluation_statistic,
-          },
-        ]}
-        onSelectTab={setView}
-        currentTab={view}
-      />
+      <ViewTabs tabs={tabs} onSelectTab={setView} currentTab={view} />
       <div className={styles.toolBar}>
         <WorksheetToggleButton listing={listing} modal />
         <div className={styles.toolbarIconSlot}>

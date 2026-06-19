@@ -8,6 +8,7 @@ import type {
   CourseModalPrefetchListingDataFragment,
 } from '../../../generated/graphql-types';
 import { useCourseSectionsQuery } from '../../../queries/graphql-queries';
+import { getUcsdArchiveDetails } from '../../../queries/ucsdCatalogSnapshot';
 import type { Option } from '../../../search/searchTypes';
 import { useStore } from '../../../store';
 import { extraInfo, subjects } from '../../../utilities/constants';
@@ -151,12 +152,14 @@ export default function ModalHeaderInfo({
   const user = useStore((state) => state.user);
   const [searchParams] = useSearchParams();
   const backTarget = useStore((state) => state.backTarget);
+  const isUcsdSnapshotCourse = Boolean(getUcsdArchiveDetails(listing.course));
   const { data, loading, error } = useCourseSectionsQuery({
     variables: {
       courseCode: listing.course_code,
       seasonCode: listing.course.season_code,
       hasEvals: Boolean(user?.hasEvals),
     },
+    skip: isUcsdSnapshotCourse,
   });
   const sections =
     loading || error || !data?.listings

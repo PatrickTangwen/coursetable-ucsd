@@ -3,6 +3,7 @@ import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import pathModule from 'node:path';
 import { parse } from 'yaml';
 import { z } from 'zod';
+import type { GradeArchiveRecord } from './instructorGradeArchive';
 
 const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/u);
 const termCodeSchema = z
@@ -58,6 +59,7 @@ const gradeArchiveRecordSchema = z
     w: z.number().nullable(),
     p: z.number().nullable(),
     np: z.number().nullable(),
+    raw: z.record(z.string()),
   })
   .strict();
 
@@ -338,6 +340,46 @@ export function buildTracerCatalogSnapshot(
             },
           },
         ],
+      };
+    }),
+  };
+}
+
+function gradeArchiveCourseId(record: GradeArchiveRecord): string {
+  return `${record.subject.trim().toUpperCase()}:${record.course
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/gu, '')}`;
+}
+
+function meanGpa(records: GradeArchiveRecord[]): number | null {
+  const gpas = records
+    .map((record) => record.gpa)
+    .filter((gpa): gpa is number => gpa !== null);
+  if (!gpas.length) return null;
+  return gpas.reduce((sum, gpa) => sum + gpa, 0) / gpas.length;
+}
+
+export function attachGradeArchiveRecords(
+  snapshot: CatalogSnapshot,
+  records: GradeArchiveRecord[],
+): CatalogSnapshot {
+  const recordsByCourseId = new Map<string, GradeArchiveRecord[]>();
+  for (const record of records) {
+    const courseId = gradeArchiveCourseId(record);
+    const courseRecords = recordsByCourseId.get(courseId) ?? [];
+    courseRecords.push(record);
+    recordsByCourseId.set(courseId, courseRecords);
+  }
+  return {
+    ...snapshot,
+    courses: snapshot.courses.map((course) => {
+      const gradeArchiveRecords = recordsByCourseId.get(course.course_id) ?? [];
+      return {
+        ...course,
+        archive_avg_gpa: meanGpa(gradeArchiveRecords),
+        archive_record_count: gradeArchiveRecords.length,
+        grade_archive_records: gradeArchiveRecords,
       };
     }),
   };

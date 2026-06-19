@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  attachGradeArchiveRecords,
   buildTracerCatalogSnapshot,
   loadCatalogSnapshotConfig,
   publishCatalogSnapshot,
@@ -141,6 +142,150 @@ describe('Catalog Snapshot validation', () => {
         'excluded field $.courses[0].sections[0].raw.demand',
       ]),
     );
+  });
+});
+
+describe('Catalog Snapshot Grade Archive enrichment', () => {
+  it('attaches matching Grade Archive Records and computes unweighted Archive Avg GPA', () => {
+    const config = makeConfig();
+    const snapshot = buildTracerCatalogSnapshot(config, {
+      runId: 'run-test',
+      generatedAt: '2026-06-19T12:00:00.000Z',
+    });
+
+    const enriched = attachGradeArchiveRecords(snapshot, [
+      {
+        subject: 'CSE',
+        course: '1',
+        year: '2025',
+        quarter: 'FA',
+        title: 'CSE Tracer Course',
+        instructor: 'Hopper, Grace',
+        gpa: 3,
+        a: 40,
+        b: 30,
+        c: 20,
+        d: 5,
+        f: 1,
+        w: 4,
+        p: 0,
+        np: 0,
+        raw: {
+          Subject: 'CSE',
+          Course: '1',
+          Year: '2025',
+          Quarter: 'FA',
+          Title: 'CSE Tracer Course',
+          Instructor: 'Hopper, Grace',
+          GPA: '3.00',
+          A: '40',
+          B: '30',
+          C: '20',
+          D: '5',
+          F: '1',
+          W: '4',
+          P: '0',
+          NP: '0',
+        },
+      },
+      {
+        subject: 'CSE',
+        course: '1',
+        year: '2024',
+        quarter: 'WI',
+        title: 'CSE Tracer Course',
+        instructor: 'Lovelace, Ada',
+        gpa: null,
+        a: null,
+        b: 30,
+        c: 20,
+        d: 5,
+        f: 1,
+        w: 4,
+        p: 0,
+        np: 0,
+        raw: {
+          Subject: 'CSE',
+          Course: '1',
+          Year: '2024',
+          Quarter: 'WI',
+          Title: 'CSE Tracer Course',
+          Instructor: 'Lovelace, Ada',
+          GPA: '',
+          A: '',
+          B: '30',
+          C: '20',
+          D: '5',
+          F: '1',
+          W: '4',
+          P: '0',
+          NP: '0',
+        },
+      },
+      {
+        subject: 'MATH',
+        course: '1',
+        year: '2024',
+        quarter: 'SP',
+        title: 'MATH Tracer Course',
+        instructor: 'Noether, Emmy',
+        gpa: 4,
+        a: 80,
+        b: 15,
+        c: 5,
+        d: 0,
+        f: 0,
+        w: 0,
+        p: 0,
+        np: 0,
+        raw: {
+          Subject: 'MATH',
+          Course: '1',
+          Year: '2024',
+          Quarter: 'SP',
+          Title: 'MATH Tracer Course',
+          Instructor: 'Noether, Emmy',
+          GPA: '4.00',
+          A: '80',
+          B: '15',
+          C: '5',
+          D: '0',
+          F: '0',
+          W: '0',
+          P: '0',
+          NP: '0',
+        },
+      },
+    ]);
+
+    expect(enriched.courses[0]).toMatchObject({
+      archive_avg_gpa: 3,
+      archive_record_count: 2,
+      grade_archive_records: [
+        {
+          instructor: 'Hopper, Grace',
+          gpa: 3,
+          raw: {
+            GPA: '3.00',
+          },
+        },
+        {
+          instructor: 'Lovelace, Ada',
+          gpa: null,
+          raw: {
+            GPA: '',
+          },
+        },
+      ],
+    });
+    expect(enriched.courses[1]).toMatchObject({
+      archive_avg_gpa: 4,
+      archive_record_count: 1,
+    });
+    expect(validateCatalogSnapshot(enriched, config)).toEqual({
+      success: true,
+      errors: [],
+    });
   });
 });
 

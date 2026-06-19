@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { catalogResponseToCourseMap } from './ucsdCatalogSnapshot';
+import {
+  catalogResponseToCourseMap,
+  getUcsdArchiveDetails,
+} from './ucsdCatalogSnapshot';
 
 describe('UCSD Catalog Snapshot frontend adapter', () => {
   it('converts a Published Snapshot fixture into the existing catalog map shape', () => {
@@ -29,9 +32,44 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
           prerequisites_text: 'None',
           restrictions_text: null,
           catalog_url: null,
-          archive_avg_gpa: null,
-          archive_record_count: 0,
-          grade_archive_records: [],
+          archive_avg_gpa: 3.42,
+          archive_record_count: 1,
+          grade_archive_records: [
+            {
+              subject: 'CSE',
+              course: '1',
+              year: '2025',
+              quarter: 'FA',
+              title: 'Tracer Course',
+              instructor: 'Ada Lovelace',
+              gpa: 3.42,
+              a: 48.1,
+              b: 32.2,
+              c: 12.3,
+              d: 2.4,
+              f: 1,
+              w: 3,
+              p: 0.8,
+              np: 0.2,
+              raw: {
+                Subject: 'CSE',
+                Course: '1',
+                Year: '2025',
+                Quarter: 'FA',
+                Title: 'Tracer Course',
+                Instructor: 'Ada Lovelace',
+                GPA: '3.42',
+                A: '48.1',
+                B: '32.2',
+                C: '12.3',
+                D: '2.4',
+                F: '1.0',
+                W: '3.0',
+                P: '0.8',
+                NP: '0.2',
+              },
+            },
+          ],
           ge_matches: [],
           sections: [
             {
@@ -99,5 +137,48 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
       section_id: 'FA26:CSE-TRACER-001',
     });
     expect(typeof listing!.crn).toBe('number');
+
+    expect(getUcsdArchiveDetails(course)).toEqual({
+      archive_avg_gpa: 3.42,
+      archive_record_count: 1,
+      source_timestamp: null,
+      catalog_url: null,
+      grade_archive_records: [
+        {
+          subject: 'CSE',
+          course: '1',
+          year: '2025',
+          quarter: 'FA',
+          title: 'Tracer Course',
+          instructor: 'Ada Lovelace',
+          gpa: 3.42,
+          a: 48.1,
+          b: 32.2,
+          c: 12.3,
+          d: 2.4,
+          f: 1,
+          w: 3,
+          p: 0.8,
+          np: 0.2,
+          raw: {
+            Subject: 'CSE',
+            Course: '1',
+            Year: '2025',
+            Quarter: 'FA',
+            Title: 'Tracer Course',
+            Instructor: 'Ada Lovelace',
+            GPA: '3.42',
+            A: '48.1',
+            B: '32.2',
+            C: '12.3',
+            D: '2.4',
+            F: '1.0',
+            W: '3.0',
+            P: '0.8',
+            NP: '0.2',
+          },
+        },
+      ],
+    });
   });
 });

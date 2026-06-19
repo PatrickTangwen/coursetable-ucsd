@@ -5,7 +5,10 @@ import type { CourseModalPrefetchListingDataFragment } from '../generated/graphq
 import { useFerry } from '../hooks/useFerry';
 import { useCourseModalFromUrlQuery } from '../queries/graphql-queries';
 import { useStore } from '../store';
-import { parseCourseModalQuery } from '../utilities/modalHistoryUrl';
+import {
+  getStaticCourseFromModalUrl,
+  parseCourseModalQuery,
+} from '../utilities/modalHistoryUrl';
 
 function useCourseInfoFromURL(
   isInitial: boolean,
@@ -15,18 +18,22 @@ function useCourseInfoFromURL(
   const courseModal = searchParams.get('course-modal');
   const variables = parseCourseModalQuery(courseModal);
   const { courses } = useFerry();
-  const inStaticCatalog =
-    variables !== undefined && Object.hasOwn(courses, variables.seasonCode);
+  const staticCourse = getStaticCourseFromModalUrl(courses, variables);
+  const isStaticOnlyCourse =
+    variables !== undefined && !Number.isFinite(Number(variables.seasonCode));
   const { data } = useCourseModalFromUrlQuery({
     variables: {
       listingId: variables?.listingId ?? 0,
       hasEvals: Boolean(user?.hasEvals),
     },
-    skip: !variables || !isInitial || inStaticCatalog,
+    skip:
+      !variables ||
+      !isInitial ||
+      staticCourse !== undefined ||
+      isStaticOnlyCourse,
   });
   if (variables === undefined) return undefined;
-  if (inStaticCatalog)
-    return courses[variables.seasonCode]!.data.get(variables.crn);
+  if (staticCourse) return staticCourse;
   return data?.listings_by_pk ?? undefined;
 }
 

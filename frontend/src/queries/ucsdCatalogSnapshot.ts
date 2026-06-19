@@ -21,6 +21,33 @@ const sourceTimestampsSchema = z.object({
   instructor_grade_archive: z.string().nullable(),
 });
 
+const ucsdGradeArchiveRecordSchema = z.object({
+  subject: z.string(),
+  course: z.string(),
+  year: z.string(),
+  quarter: z.string(),
+  title: z.string().nullable(),
+  instructor: z.string().nullable(),
+  gpa: z.number().nullable(),
+  a: z.number().nullable(),
+  b: z.number().nullable(),
+  c: z.number().nullable(),
+  d: z.number().nullable(),
+  f: z.number().nullable(),
+  w: z.number().nullable(),
+  p: z.number().nullable(),
+  np: z.number().nullable(),
+  raw: z.record(z.string()),
+});
+
+const ucsdCourseArchiveSchema = z.object({
+  archive_avg_gpa: z.number().nullable(),
+  archive_record_count: z.number(),
+  source_timestamp: z.string().nullable(),
+  catalog_url: z.string().nullable(),
+  grade_archive_records: z.array(ucsdGradeArchiveRecordSchema),
+});
+
 const ucsdMeetingSchema = z.object({
   days: z.array(z.string()),
   start_time: z.string().nullable(),
@@ -55,7 +82,7 @@ const ucsdCourseSchema = z.object({
   catalog_url: z.string().nullable(),
   archive_avg_gpa: z.number().nullable(),
   archive_record_count: z.number(),
-  grade_archive_records: z.array(z.unknown()),
+  grade_archive_records: z.array(ucsdGradeArchiveRecordSchema),
   ge_matches: z.array(z.unknown()),
   sections: z.array(ucsdSectionSchema),
 });
@@ -77,6 +104,7 @@ const ucsdCatalogSnapshotSchema = z.object({
 type UcsdCatalogSnapshot = z.infer<typeof ucsdCatalogSnapshotSchema>;
 type UcsdCourse = UcsdCatalogSnapshot['courses'][number];
 type UcsdSection = UcsdCourse['sections'][number];
+export type UcsdCourseArchive = z.infer<typeof ucsdCourseArchiveSchema>;
 
 const dayValues: { [day: string]: number } = {
   Su: 0,
@@ -179,8 +207,15 @@ function toCoursePublic(
     section_id: section.section_id,
     subject: course.subject,
   };
+  const ucsdArchive: UcsdCourseArchive = {
+    archive_avg_gpa: course.archive_avg_gpa,
+    archive_record_count: course.archive_record_count,
+    source_timestamp: snapshot.source_timestamps.instructor_grade_archive,
+    catalog_url: course.catalog_url,
+    grade_archive_records: course.grade_archive_records,
+  };
 
-  return {
+  const coursePublic: CoursePublic & { ucsd_archive: UcsdCourseArchive } = {
     areas: [],
     colsem: false,
     course_id: stableCompatNumber(section.section_id),
@@ -208,7 +243,9 @@ function toCoursePublic(
     course_professors: instructors,
     listings: [listing],
     course_meetings: courseMeetings,
+    ucsd_archive: ucsdArchive,
   };
+  return coursePublic;
 }
 
 export function adaptUcsdCatalogSnapshot(
@@ -233,4 +270,16 @@ export function catalogResponseToCourseMap(response: unknown): CourseMap {
   const info = new Map<number, CoursePublic>();
   for (const course of data) info.set(course.course_id, course);
   return info;
+}
+
+export function getUcsdArchiveDetails(
+  course: unknown,
+): UcsdCourseArchive | null {
+  const parsed = z
+    .object({
+      ucsd_archive: ucsdCourseArchiveSchema,
+    })
+    .passthrough()
+    .safeParse(course);
+  return parsed.success ? parsed.data.ucsd_archive : null;
 }
