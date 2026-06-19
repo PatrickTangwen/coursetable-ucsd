@@ -1,0 +1,14 @@
+active_planning_term: FA26
+term_label: Fall 2026
+term_date_range:
+  start: '2026-09-24'
+  end: '2026-12-12'
+configured_subjects:
+  - CSE
+  - MATH
+paths:
+  raw_dir: data/raw
+  normalized_dir: data/normalized
+  reports_dir: data/reports
+  public_catalog_dir: api/static/catalogs/public
+  metadata_path: api/static/metadata.json

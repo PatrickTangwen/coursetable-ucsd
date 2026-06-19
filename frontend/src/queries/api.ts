@@ -13,6 +13,7 @@ import {
   type Crn,
   type NetId,
 } from './graphql-types';
+import { catalogResponseToCourseMap } from './ucsdCatalogSnapshot';
 import { API_ENDPOINT } from '../config';
 import type {
   CatalogBySeasonQuery,
@@ -452,10 +453,7 @@ export async function fetchCatalog(season: Season) {
     breadcrumb,
   });
   if (!res) return undefined;
-  const data = res as CatalogBySeasonQuery['courses'];
-  const info = new Map<number, CoursePublic>();
-  for (const course of data) info.set(course.course_id, course);
-  return info;
+  return catalogResponseToCourseMap(res);
 }
 
 type CourseEvals = EvalsBySeasonQuery['courses'][number];

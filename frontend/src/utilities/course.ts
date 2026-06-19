@@ -44,7 +44,37 @@ export function isInWishlist(
   );
 }
 
+function parseUcsdTermCode(seasonCode: Season) {
+  const match = /^(?<term>fa|wi|sp|s1|s2|s3|su)(?<shortYear>\d{2})$/u.exec(
+    seasonCode.toLowerCase(),
+  );
+  const term = match?.groups?.term;
+  const shortYear = match?.groups?.shortYear;
+  if (!term || !shortYear) return null;
+
+  return {
+    term,
+    yearLabel: `20${shortYear}`,
+    yearNumber: Number(`20${shortYear}`),
+  };
+}
+
 export function toSeasonString(seasonCode: Season): string {
+  const ucsdTerm = parseUcsdTermCode(seasonCode);
+  if (ucsdTerm) {
+    const label =
+      {
+        fa: 'Fall',
+        wi: 'Winter',
+        sp: 'Spring',
+        s1: 'Summer Session 1',
+        s2: 'Summer Session 2',
+        s3: 'Summer Session 3',
+        su: 'Summer',
+      }[ucsdTerm.term] ?? ucsdTerm.term.toUpperCase();
+    return `${label} ${ucsdTerm.yearLabel}`;
+  }
+
   const year = seasonCode.substring(0, 4);
   const season = ['Spring', 'Summer', 'Fall'][Number(seasonCode[5]) - 1]!;
   return `${season} ${year}`;
@@ -53,6 +83,21 @@ export function toSeasonString(seasonCode: Season): string {
 // A "best guess" for when the season's courses are first published.
 // TODO this should be pulled from Ferry once Ferry records this info
 export function toSeasonDate(seasonCode: Season): string {
+  const ucsdTerm = parseUcsdTermCode(seasonCode);
+  if (ucsdTerm) {
+    return (
+      {
+        wi: `${ucsdTerm.yearNumber}-01-01`,
+        sp: `${ucsdTerm.yearNumber}-03-01`,
+        s1: `${ucsdTerm.yearNumber}-06-01`,
+        s2: `${ucsdTerm.yearNumber}-07-01`,
+        s3: `${ucsdTerm.yearNumber}-08-01`,
+        su: `${ucsdTerm.yearNumber}-06-01`,
+        fa: `${ucsdTerm.yearNumber}-09-01`,
+      }[ucsdTerm.term] ?? `${ucsdTerm.yearNumber}-01-01`
+    );
+  }
+
   const season = Number(seasonCode[5]);
   const date = ['11-01', '01-02', '04-01'][season - 1]!;
   let year = Number(seasonCode.substring(0, 4));

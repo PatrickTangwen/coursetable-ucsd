@@ -140,6 +140,7 @@ export const subjects: { [code: string]: string } = {
   CSCC: 'Coll Sem:Calhoun Coll',
   CSDC: 'Coll Sem:Davenport Coll',
   CSEC: 'Computer Science and Economics',
+  CSE: 'Computer Science and Engineering',
   CSES: 'Coll Sem:Ezra Stiles Coll',
   CSGH: 'Coll Sem:Grace Hopper Coll',
   CSJE: 'Coll Sem:Jonathan Edwards Coll',

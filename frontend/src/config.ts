@@ -8,13 +8,11 @@ export const GRAPHQL_API_ENDPOINT = isDev
   ? 'https://localhost:8085'
   : `${import.meta.env.VITE_API_ENDPOINT}/ferry`;
 
-// Used for which season to show by default in catalog and worksheet
-export const CUR_SEASON = '202603' as Season;
+// Active Planning Term shown by default in catalog and worksheet.
+export const CUR_SEASON = 'FA26' as Season;
 
-// Courses in the current year have no evaluations yet. Also: if both the
-// listing and the API "latest" term are in this set, we skip the worksheet
-// "add latest offering?" modal (avoids false "past semester" across that window).
-export const CUR_YEAR = ['202602', '202603', '202701'] as Season[];
+// Active UCSD terms in MVP-1 have no legacy CourseTable evaluation data.
+export const CUR_YEAR = ['FA26'] as Season[];
 
 // We use this format to avoid dealing with time zones.
 // TODO: this should be a Temporal.PlainDate

@@ -1,8 +1,8 @@
 import { type Filters, type Option, sortByOptions } from './searchTypes';
 import { CUR_SEASON } from '../config';
+import { seasons } from '../data/catalogSeasons';
 import buildingsData from '../generated/buildings.json';
 import type { Buildings } from '../generated/graphql-types';
-import seasonsData from '../generated/seasons.json';
 import type { Season } from '../queries/graphql-types';
 import {
   skillsAreas,
@@ -48,8 +48,6 @@ export const buildingOptions = buildings.map(
       : building.code,
   }),
 );
-
-const seasons = seasonsData as Season[];
 
 export const seasonsOptions = seasons.map(
   (x): Option<Season> => ({
