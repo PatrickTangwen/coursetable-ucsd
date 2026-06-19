@@ -30,8 +30,8 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
           units: '4',
           description: 'A Course Snapshot fixture.',
           prerequisites_text: 'None',
-          restrictions_text: null,
-          catalog_url: null,
+          restrictions_text: 'Restricted to configured fixture students.',
+          catalog_url: 'https://catalog.ucsd.edu/courses/CSE.html#cse1',
           archive_avg_gpa: 3.42,
           archive_record_count: 1,
           grade_archive_records: [
@@ -108,6 +108,7 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
       title: 'Tracer Course',
       credits: 4,
       section: 'A00',
+      requirements: 'None\nRestricted to configured fixture students.',
       course_professors: [
         {
           professor: {
@@ -142,7 +143,11 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
       archive_avg_gpa: 3.42,
       archive_record_count: 1,
       source_timestamp: null,
-      catalog_url: null,
+      catalog_source_timestamp: null,
+      catalog_url: 'https://catalog.ucsd.edu/courses/CSE.html#cse1',
+      units: '4',
+      prerequisites_text: 'None',
+      restrictions_text: 'Restricted to configured fixture students.',
       grade_archive_records: [
         {
           subject: 'CSE',

@@ -3,6 +3,7 @@ import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import pathModule from 'node:path';
 import { parse } from 'yaml';
 import { z } from 'zod';
+import type { GeneralCatalogCourse } from './generalCatalog';
 import type { GradeArchiveRecord } from './instructorGradeArchive';
 
 const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/u);
@@ -281,10 +282,16 @@ export function buildTracerCatalogSnapshot(
   options: {
     runId?: string;
     generatedAt?: string;
+    generalCatalogCourses?: GeneralCatalogCourse[];
   } = {},
 ): CatalogSnapshot {
   const generatedAt = options.generatedAt ?? new Date().toISOString();
   const runId = options.runId ?? `tracer-${generatedAt}`;
+  const generalCatalogCourseBySubject = new Map<string, GeneralCatalogCourse>();
+  for (const course of options.generalCatalogCourses ?? []) {
+    if (generalCatalogCourseBySubject.has(course.subject)) continue;
+    generalCatalogCourseBySubject.set(course.subject, course);
+  }
 
   return {
     run_id: runId,
@@ -299,25 +306,29 @@ export function buildTracerCatalogSnapshot(
       instructor_grade_archive: null,
     },
     courses: config.configured_subjects.map((subject) => {
-      const courseNumber = '1';
-      const courseId = `${subject}:${courseNumber}`;
+      const generalCatalogCourse = generalCatalogCourseBySubject.get(subject);
+      const courseNumber = generalCatalogCourse?.course_number ?? '1';
+      const courseId =
+        generalCatalogCourse?.course_id ?? `${subject}:${courseNumber}`;
+      const sectionSuffix = generalCatalogCourse ? courseNumber : '001';
       return {
         course_id: courseId,
         subject,
         course_number: courseNumber,
-        title: `${subject} Tracer Course`,
-        units: null,
-        description: `Tracer course for ${subject}.`,
-        prerequisites_text: null,
-        restrictions_text: null,
-        catalog_url: null,
+        title: generalCatalogCourse?.title ?? `${subject} Tracer Course`,
+        units: generalCatalogCourse?.units ?? null,
+        description:
+          generalCatalogCourse?.description ?? `Tracer course for ${subject}.`,
+        prerequisites_text: generalCatalogCourse?.prerequisites_text ?? null,
+        restrictions_text: generalCatalogCourse?.restrictions_text ?? null,
+        catalog_url: generalCatalogCourse?.catalog_url ?? null,
         archive_avg_gpa: null,
         archive_record_count: 0,
         grade_archive_records: [],
         ge_matches: [],
         sections: [
           {
-            section_id: `${config.active_planning_term}:${subject}-TRACER-001`,
+            section_id: `${config.active_planning_term}:${subject}-TRACER-${sectionSuffix}`,
             course_id: courseId,
             section_code: 'A00',
             meeting_type: 'Lecture',
@@ -380,6 +391,31 @@ export function attachGradeArchiveRecords(
         archive_avg_gpa: meanGpa(gradeArchiveRecords),
         archive_record_count: gradeArchiveRecords.length,
         grade_archive_records: gradeArchiveRecords,
+      };
+    }),
+  };
+}
+
+export function attachGeneralCatalogMetadata(
+  snapshot: CatalogSnapshot,
+  catalogCourses: GeneralCatalogCourse[],
+): CatalogSnapshot {
+  const coursesByCourseId = new Map(
+    catalogCourses.map((course) => [course.course_id, course]),
+  );
+  return {
+    ...snapshot,
+    courses: snapshot.courses.map((course) => {
+      const catalogCourse = coursesByCourseId.get(course.course_id);
+      if (!catalogCourse) return course;
+      return {
+        ...course,
+        title: catalogCourse.title,
+        units: catalogCourse.units,
+        description: catalogCourse.description,
+        prerequisites_text: catalogCourse.prerequisites_text,
+        restrictions_text: catalogCourse.restrictions_text,
+        catalog_url: catalogCourse.catalog_url,
       };
     }),
   };

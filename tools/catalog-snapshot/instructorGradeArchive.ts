@@ -92,7 +92,7 @@ function normalizeCell(value: string): string {
 
 function parseCellNumber(value: string): number | null {
   if (!value) return null;
-  const parsed = Number(value);
+  const parsed = Number(value.trim().replace(/%$/u, ''));
   return Number.isFinite(parsed) ? parsed : null;
 }
 

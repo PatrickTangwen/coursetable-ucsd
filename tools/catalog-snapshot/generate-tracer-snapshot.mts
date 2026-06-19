@@ -4,6 +4,7 @@ import {
   loadCatalogSnapshotConfig,
   publishCatalogSnapshot,
 } from './catalogSnapshot.js';
+import { fetchGeneralCatalogForSubjects } from './generalCatalog.js';
 import { fetchInstructorGradeArchiveForSubjects } from './instructorGradeArchive.js';
 
 function readConfigPath() {
@@ -15,7 +16,12 @@ function readConfigPath() {
 }
 
 const config = await loadCatalogSnapshotConfig(readConfigPath());
-const baseSnapshot = buildTracerCatalogSnapshot(config);
+const generalCatalogCourses = await fetchGeneralCatalogForSubjects(
+  config.configured_subjects,
+);
+const baseSnapshot = buildTracerCatalogSnapshot(config, {
+  generalCatalogCourses,
+});
 const gradeArchiveRecords = await fetchInstructorGradeArchiveForSubjects(
   config.configured_subjects,
 );
@@ -24,6 +30,7 @@ const snapshot = attachGradeArchiveRecords(
     ...baseSnapshot,
     source_timestamps: {
       ...baseSnapshot.source_timestamps,
+      general_catalog: baseSnapshot.generated_at,
       instructor_grade_archive: baseSnapshot.generated_at,
     },
   },

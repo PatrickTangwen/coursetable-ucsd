@@ -54,6 +54,8 @@
 .metadataValue {
   font-weight: 600;
   min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 .recordTable {

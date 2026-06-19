@@ -12,7 +12,6 @@ type RuntimeCourse = Omit<
   CourseModalPrefetchListingDataFragment['course'],
   'course_professors'
 > & {
-  readonly requirements?: string | null;
   readonly credits?: number | null;
   readonly course_professors: readonly {
     readonly professor: {
@@ -50,25 +49,34 @@ function meetingText(course: RuntimeCourse): string {
 }
 
 function SnapshotMetadata({
+  archive,
   listing,
 }: {
+  readonly archive: UcsdCourseArchive;
   readonly listing: CourseModalPrefetchListingDataFragment;
 }) {
   const course = listing.course as RuntimeCourse;
   const rows = [
-    ['Professor', professorText(course)],
-    ['Meetings', meetingText(course)],
-    ['Section', course.section],
-    ['Credits', course.credits ?? 'N/A'],
-    ['Requirements', course.requirements],
-  ].filter(
-    ([, value]) => value !== null && value !== undefined && value !== '',
-  );
+    { label: 'Professor', value: professorText(course) },
+    { label: 'Meetings', value: meetingText(course) },
+    { label: 'Section', value: course.section },
+    { label: 'Units', value: archive.units ?? course.credits ?? 'N/A' },
+    { label: 'Prerequisites', value: archive.prerequisites_text },
+    { label: 'Restrictions', value: archive.restrictions_text },
+    {
+      label: 'Catalog Source',
+      value: archive.catalog_url ? (
+        <a href={archive.catalog_url} rel="noopener noreferrer" target="_blank">
+          {archive.catalog_url}
+        </a>
+      ) : null,
+    },
+  ].filter(({ value }) => value !== null && value !== '');
 
   return (
     <dl className={styles.metadataList}>
-      {rows.map(([label, value]) => (
-        <div className={styles.metadataRow} key={String(label)}>
+      {rows.map(({ label, value }) => (
+        <div className={styles.metadataRow} key={label}>
           <dt className={styles.metadataLabel}>{label}</dt>
           <dd className={styles.metadataValue}>{value}</dd>
         </div>
@@ -146,7 +154,7 @@ function UcsdSnapshotOverview({
     <Row className="m-auto">
       <Col className="px-0">
         <p>{listing.course.description || 'No description available.'}</p>
-        <SnapshotMetadata listing={listing} />
+        <SnapshotMetadata listing={listing} archive={archive} />
         <div className={styles.summaryGrid}>
           <div className={styles.summaryItem}>
             <span className={styles.summaryLabel}>Archive Avg GPA</span>

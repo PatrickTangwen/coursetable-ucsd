@@ -106,7 +106,7 @@ export const defaultFilters: Filters = {
   selectCredits: [],
   selectCourseInfoAttributes: [],
   selectBuilding: [],
-  searchDescription: false,
+  searchDescription: true,
   enableQuist: false,
   hideCancelled: true,
   hideConflicting: false,

@@ -47,14 +47,14 @@ const cseFixture = `
       <td> Design &amp; Analysis of Algorithms </td>
       <td> Hopper, Grace </td>
       <td> 3.42 </td>
-      <td> 48.1 </td>
-      <td> 32.2 </td>
-      <td> 12.3 </td>
-      <td> 2.4 </td>
-      <td> 1.0 </td>
-      <td> 3.0 </td>
-      <td> 0.8 </td>
-      <td> 0.2 </td>
+      <td> 48.1% </td>
+      <td> 32.2% </td>
+      <td> 12.3% </td>
+      <td> 2.4% </td>
+      <td> 1.0% </td>
+      <td> 3.0% </td>
+      <td> 0.8% </td>
+      <td> 0.2% </td>
     </tr>
   </tbody>
 </table>
@@ -149,14 +149,14 @@ describe('Instructor Grade Archive parser', () => {
           Title: 'Design & Analysis of Algorithms',
           Instructor: 'Hopper, Grace',
           GPA: '3.42',
-          A: '48.1',
-          B: '32.2',
-          C: '12.3',
-          D: '2.4',
-          F: '1.0',
-          W: '3.0',
-          P: '0.8',
-          NP: '0.2',
+          A: '48.1%',
+          B: '32.2%',
+          C: '12.3%',
+          D: '2.4%',
+          F: '1.0%',
+          W: '3.0%',
+          P: '0.8%',
+          NP: '0.2%',
         },
       },
     ]);

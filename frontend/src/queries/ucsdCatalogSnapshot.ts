@@ -44,7 +44,11 @@ const ucsdCourseArchiveSchema = z.object({
   archive_avg_gpa: z.number().nullable(),
   archive_record_count: z.number(),
   source_timestamp: z.string().nullable(),
+  catalog_source_timestamp: z.string().nullable(),
   catalog_url: z.string().nullable(),
+  units: z.string().nullable(),
+  prerequisites_text: z.string().nullable(),
+  restrictions_text: z.string().nullable(),
   grade_archive_records: z.array(ucsdGradeArchiveRecordSchema),
 });
 
@@ -211,7 +215,11 @@ function toCoursePublic(
     archive_avg_gpa: course.archive_avg_gpa,
     archive_record_count: course.archive_record_count,
     source_timestamp: snapshot.source_timestamps.instructor_grade_archive,
+    catalog_source_timestamp: snapshot.source_timestamps.general_catalog,
     catalog_url: course.catalog_url,
+    units: course.units,
+    prerequisites_text: course.prerequisites_text,
+    restrictions_text: course.restrictions_text,
     grade_archive_records: course.grade_archive_records,
   };
 

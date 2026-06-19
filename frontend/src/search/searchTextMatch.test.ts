@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { defaultFilters } from './searchConstants';
 import { matchesSearchText } from './searchTextMatch';
 import type { CatalogListing } from '../queries/api';
 import type { Crn } from '../queries/graphql-types';
@@ -39,6 +40,12 @@ const defaultOpts = { searchDescription: false };
 const withDescription = { searchDescription: true };
 
 // Existing matching behavior
+
+describe('default catalog search behavior', () => {
+  it('includes course descriptions in keyword search by default', () => {
+    expect(defaultFilters.searchDescription).toBe(true);
+  });
+});
 
 describe('matchesSearchText — subject code prefix matching', () => {
   it('matches subject code by prefix (lowercase token)', () => {

@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  attachGeneralCatalogMetadata,
   attachGradeArchiveRecords,
   buildTracerCatalogSnapshot,
   loadCatalogSnapshotConfig,
@@ -84,6 +85,73 @@ describe('Catalog Snapshot validation', () => {
     const result = validateCatalogSnapshot(snapshot, config);
 
     expect(result).toEqual({ success: true, errors: [] });
+  });
+
+  it('can seed tracer Courses with General Catalog metadata', () => {
+    const config = makeConfig();
+    const snapshot = buildTracerCatalogSnapshot(config, {
+      runId: 'run-test',
+      generatedAt: '2026-06-19T12:00:00.000Z',
+      generalCatalogCourses: [
+        {
+          course_id: 'CSE:3',
+          subject: 'CSE',
+          course_number: '3',
+          title: 'Fluency in Information Technology',
+          units: '4',
+          description:
+            'Introduces the concepts and skills necessary to effectively use information technology.',
+          prerequisites_text: 'none.',
+          restrictions_text: null,
+          catalog_url: 'https://catalog.ucsd.edu/courses/CSE.html#cse3',
+        },
+        {
+          course_id: 'MATH:2',
+          subject: 'MATH',
+          course_number: '2',
+          title: 'Introduction to College Mathematics',
+          units: '4',
+          description:
+            'A highly adaptive course designed to build mathematical understanding.',
+          prerequisites_text: 'Math Placement Exam qualifying score.',
+          restrictions_text: null,
+          catalog_url: 'https://catalog.ucsd.edu/courses/MATH.html#math2',
+        },
+      ],
+    });
+
+    expect(snapshot.courses).toMatchObject([
+      {
+        course_id: 'CSE:3',
+        course_number: '3',
+        title: 'Fluency in Information Technology',
+        units: '4',
+        description:
+          'Introduces the concepts and skills necessary to effectively use information technology.',
+        sections: [
+          {
+            section_id: 'FA26:CSE-TRACER-3',
+            course_id: 'CSE:3',
+          },
+        ],
+      },
+      {
+        course_id: 'MATH:2',
+        course_number: '2',
+        title: 'Introduction to College Mathematics',
+        units: '4',
+        sections: [
+          {
+            section_id: 'FA26:MATH-TRACER-2',
+            course_id: 'MATH:2',
+          },
+        ],
+      },
+    ]);
+    expect(validateCatalogSnapshot(snapshot, config)).toEqual({
+      success: true,
+      errors: [],
+    });
   });
 
   it('rejects snapshots missing a configured subject', () => {
@@ -286,6 +354,88 @@ describe('Catalog Snapshot Grade Archive enrichment', () => {
       success: true,
       errors: [],
     });
+  });
+});
+
+describe('Catalog Snapshot General Catalog enrichment', () => {
+  it('attaches General Catalog metadata to matching Courses by Course ID', () => {
+    const config = makeConfig();
+    const snapshot = buildTracerCatalogSnapshot(config, {
+      runId: 'run-test',
+      generatedAt: '2026-06-19T12:00:00.000Z',
+    });
+
+    const enriched = attachGeneralCatalogMetadata(snapshot, [
+      {
+        course_id: 'CSE:1',
+        subject: 'CSE',
+        course_number: '1',
+        title: 'Fluency in Information Technology',
+        units: '4',
+        description:
+          'Introduces the concepts and skills necessary to effectively use information technology.',
+        prerequisites_text: 'none.',
+        restrictions_text: null,
+        catalog_url: 'https://catalog.ucsd.edu/courses/CSE.html#cse1',
+      },
+      {
+        course_id: 'MATH:1',
+        subject: 'MATH',
+        course_number: '1',
+        title: 'Adaptive Mathematics',
+        units: '2',
+        description:
+          'A highly adaptive course designed to build mathematical understanding.',
+        prerequisites_text: 'Math Placement Exam qualifying score.',
+        restrictions_text: 'Must be taken for P/NP grading.',
+        catalog_url: 'https://catalog.ucsd.edu/courses/MATH.html#math1',
+      },
+    ]);
+
+    expect(enriched.courses[0]).toMatchObject({
+      title: 'Fluency in Information Technology',
+      units: '4',
+      description:
+        'Introduces the concepts and skills necessary to effectively use information technology.',
+      prerequisites_text: 'none.',
+      restrictions_text: null,
+      catalog_url: 'https://catalog.ucsd.edu/courses/CSE.html#cse1',
+    });
+    expect(enriched.courses[1]).toMatchObject({
+      title: 'Adaptive Mathematics',
+      units: '2',
+      prerequisites_text: 'Math Placement Exam qualifying score.',
+      restrictions_text: 'Must be taken for P/NP grading.',
+    });
+    expect(validateCatalogSnapshot(enriched, config)).toEqual({
+      success: true,
+      errors: [],
+    });
+  });
+
+  it('leaves Courses unchanged when no General Catalog metadata matches', () => {
+    const config = makeConfig();
+    const snapshot = buildTracerCatalogSnapshot(config, {
+      runId: 'run-test',
+      generatedAt: '2026-06-19T12:00:00.000Z',
+    });
+
+    const enriched = attachGeneralCatalogMetadata(snapshot, [
+      {
+        course_id: 'CSE:101',
+        subject: 'CSE',
+        course_number: '101',
+        title: 'Design and Analysis of Algorithms',
+        units: '4',
+        description: 'Design and analysis of efficient algorithms.',
+        prerequisites_text: 'CSE 21 and CSE 12.',
+        restrictions_text: null,
+        catalog_url: 'https://catalog.ucsd.edu/courses/CSE.html#cse101',
+      },
+    ]);
+
+    expect(enriched.courses[0]).toEqual(snapshot.courses[0]);
+    expect(enriched.courses[1]).toEqual(snapshot.courses[1]);
   });
 });
 
