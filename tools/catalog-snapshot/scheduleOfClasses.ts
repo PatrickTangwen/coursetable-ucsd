@@ -1,0 +1,653 @@
+import type { CatalogSnapshot, CatalogSnapshotConfig } from './catalogSnapshot';
+
+type FetchAdapter = typeof fetch;
+type SnapshotCourse = CatalogSnapshot['courses'][number];
+type SnapshotSection = SnapshotCourse['sections'][number];
+type SnapshotMeeting = SnapshotSection['meetings'][number];
+
+export type ParsedScheduleOfClasses = {
+  subject: string;
+  term: string;
+  source_url: string;
+  fetched_at: string;
+  source_timestamp: string | null;
+  courses: SnapshotCourse[];
+};
+
+type ParseOptions = {
+  subject: string;
+  term: string;
+  sourceUrl: string;
+  fetchedAt: string;
+};
+
+type FetchOptions = {
+  term: string;
+  fetch?: FetchAdapter;
+  fetchedAt?: string;
+};
+
+type Cell = {
+  html: string;
+  text: string;
+  colSpan: number;
+};
+
+const scheduleBaseUrl = 'https://act.ucsd.edu/scheduleOfClasses';
+const scheduleResultUrl = `${scheduleBaseUrl}/scheduleOfClassesStudentResult.htm`;
+const dayNames: { [key: string]: string } = {
+  F: 'Friday',
+  M: 'Monday',
+  S: 'Saturday',
+  Su: 'Sunday',
+  Th: 'Thursday',
+  Tu: 'Tuesday',
+  W: 'Wednesday',
+};
+
+const courseOptionFields = [
+  'schedOption1',
+  'schedOption2',
+  'schedOption3',
+  'schedOption4',
+  'schedOption5',
+  'schedOption7',
+  'schedOption8',
+  'schedOption9',
+  'schedOption10',
+  'schedOption11',
+  'schedOption12',
+  'schedOption13',
+];
+
+const namedEntities: { [key: string]: string } = {
+  amp: '&',
+  gt: '>',
+  lt: '<',
+  nbsp: ' ',
+  quot: '"',
+};
+
+function decodeEntity(entity: string, fallback: string): string {
+  if (entity.startsWith('#x'))
+    return String.fromCodePoint(parseInt(entity.slice(2), 16));
+  if (entity.startsWith('#'))
+    return String.fromCodePoint(Number(entity.slice(1)));
+  return namedEntities[entity] ?? fallback;
+}
+
+function decodeHtml(value: string): string {
+  let decoded = '';
+  let lastIndex = 0;
+  for (const match of value.matchAll(/&(?<entity>#\d+|#x[\da-f]+|\w+);/giu)) {
+    const entity = match.groups?.entity;
+    if (!entity) continue;
+    decoded +=
+      value.slice(lastIndex, match.index) + decodeEntity(entity, match[0]);
+    lastIndex = match.index + match[0].length;
+  }
+  return decoded + value.slice(lastIndex);
+}
+
+function stripTags(value: string): string {
+  let text = '';
+  let insideTag = false;
+  for (const char of value) {
+    if (char === '<') {
+      insideTag = true;
+      text += ' ';
+    } else if (char === '>') {
+      insideTag = false;
+      text += ' ';
+    } else if (!insideTag) {
+      text += char;
+    }
+  }
+  return text;
+}
+
+function normalizeText(value: string): string {
+  return decodeHtml(stripTags(value)).replace(/\s+/gu, ' ').trim();
+}
+
+function nullIfBlank(value: string): string | null {
+  return value || null;
+}
+
+function attrValue(attrs: string, name: string): string | null {
+  const pattern = new RegExp(
+    `\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`,
+    'iu',
+  );
+  const match = pattern.exec(attrs);
+  if (!match) return null;
+  return decodeHtml(match[1] ?? match[2] ?? match[3] ?? '');
+}
+
+function tagContents(html: string, tagName: string): string[] {
+  const tagPattern = new RegExp(
+    `<${tagName}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tagName}>`,
+    'giu',
+  );
+  return [...html.matchAll(tagPattern)].map((match) => match[1] ?? '');
+}
+
+function extractCells(rowHtml: string): Cell[] {
+  const cellPattern = /<td\b(?<attrs>[^>]*)>(?<html>[\s\S]*?)<\/td>/giu;
+  return [...rowHtml.matchAll(cellPattern)].map((match) => {
+    const attrs = match.groups?.attrs ?? '';
+    const html = match.groups?.html ?? '';
+    const colSpan = Number(attrValue(attrs, 'colspan') ?? '1');
+    return {
+      html,
+      text: normalizeText(html),
+      colSpan: Number.isFinite(colSpan) && colSpan > 0 ? colSpan : 1,
+    };
+  });
+}
+
+function expandedCells(cells: Cell[]): Cell[] {
+  return cells.flatMap((cell) =>
+    Array.from({ length: cell.colSpan }, () => cell),
+  );
+}
+
+function classNameMatches(html: string, className: string): boolean {
+  return new RegExp(`\\bclass\\s*=\\s*["'][^"']*\\b${className}\\b`, 'iu').test(
+    html,
+  );
+}
+
+function parseSourceTimestamp(html: string): string | null {
+  const match = /as of:\s*(?<timestamp>[^<]+)/iu.exec(html);
+  return match ? normalizeText(match.groups?.timestamp ?? '') : null;
+}
+
+function normalizeSubject(value: string): string {
+  return value.trim().toUpperCase();
+}
+
+function normalizeCourseNumber(value: string): string {
+  return value.trim().toUpperCase().replace(/\s+/gu, '');
+}
+
+function courseId(subject: string, courseNumber: string): string {
+  return `${normalizeSubject(subject)}:${normalizeCourseNumber(courseNumber)}`;
+}
+
+function sectionFamily(sectionCode: string | null): string {
+  return sectionCode?.match(/^[A-Za-z]+/u)?.[0]?.toUpperCase() ?? '';
+}
+
+function firstSpanText(cellHtml: string, className: string): string | null {
+  for (const match of cellHtml.matchAll(
+    /<span\b(?<attrs>[^>]*)>(?<html>[\s\S]*?)<\/span>/giu,
+  )) {
+    if (!classNameMatches(match.groups?.attrs ?? '', className)) continue;
+    return normalizeText(match.groups?.html ?? '');
+  }
+  return null;
+}
+
+function firstHref(cellHtml: string): string | null {
+  const match = /<a\b(?<attrs>[^>]*)>/iu.exec(cellHtml);
+  if (!match) return null;
+  const href = attrValue(match.groups?.attrs ?? '', 'href');
+  if (!href) return null;
+  const openWindowMatch = /opennewwindow\('(?<url>[^']+)'/iu.exec(href);
+  return openWindowMatch?.groups?.url ?? href;
+}
+
+function parseUnits(value: string): string | null {
+  const match = /\(\s*(?<units>\d+(?:\.\d+)?)\s*units?\s*\)/iu.exec(value);
+  return match?.groups?.units ?? null;
+}
+
+function parseCourseHeader(
+  cells: Cell[],
+  subject: string,
+): SnapshotCourse | null {
+  if (!cells.some((cell) => classNameMatches(cell.html, 'boldtxt')))
+    return null;
+  const courseNumber = normalizeCourseNumber(cells[1]?.text ?? '');
+  if (!courseNumber) return null;
+  const titleCell = cells.find((cell) => firstSpanText(cell.html, 'boldtxt'));
+  const title = titleCell ? firstSpanText(titleCell.html, 'boldtxt') : null;
+  if (!title) return null;
+  const id = courseId(subject, courseNumber);
+
+  return {
+    course_id: id,
+    subject: normalizeSubject(subject),
+    course_number: courseNumber,
+    title,
+    units: parseUnits(cells.map((cell) => cell.text).join(' ')),
+    description: null,
+    prerequisites_text: null,
+    restrictions_text: null,
+    catalog_url: titleCell ? firstHref(titleCell.html) : null,
+    archive_avg_gpa: null,
+    archive_record_count: 0,
+    grade_archive_records: [],
+    ge_matches: [],
+    sections: [],
+  };
+}
+
+function meetingType(cell: Cell): string | null {
+  const spanMatch = /<span\b(?<attrs>[^>]*)>/iu.exec(cell.html);
+  const title = spanMatch
+    ? attrValue(spanMatch.groups?.attrs ?? '', 'title')
+    : null;
+  return nullIfBlank(title ?? cell.text);
+}
+
+function rawMeetingType(cell: Cell): string | null {
+  return nullIfBlank(cell.text);
+}
+
+function parseDays(rawDays: string | null): string[] {
+  if (!rawDays || isUntimedValue(rawDays)) return [];
+  const compact = rawDays.replace(/\s+/gu, '');
+  const days: string[] = [];
+  let index = 0;
+  const tokens = [
+    'Sun',
+    'Su',
+    'Thu',
+    'Th',
+    'Tue',
+    'Tu',
+    'Mon',
+    'M',
+    'Wed',
+    'W',
+    'Fri',
+    'F',
+    'Sat',
+    'S',
+  ];
+
+  while (index < compact.length) {
+    const token = tokens.find((candidate) =>
+      compact.slice(index).toLowerCase().startsWith(candidate.toLowerCase()),
+    );
+    if (!token) return [];
+    const normalized = token.length > 1 ? token.slice(0, 2) : token;
+    const dayName = dayNames[normalized];
+    if (dayName) days.push(dayName);
+    index += token.length;
+  }
+
+  return days;
+}
+
+function isUntimedValue(value: string | null): boolean {
+  return Boolean(
+    value && /^(?:tba|tbd|arr|arranged|arrange)$/iu.test(value.trim()),
+  );
+}
+
+function parseClock(
+  hourText: string,
+  minuteText: string,
+  amPm: string,
+): string {
+  let hour = Number(hourText);
+  const minute = Number(minuteText);
+  if (amPm.toLowerCase() === 'a' && hour === 12) hour = 0;
+  if (amPm.toLowerCase() === 'p' && hour !== 12) hour += 12;
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+}
+
+function parseTimeRange(rawTime: string | null): {
+  start_time: string | null;
+  end_time: string | null;
+} {
+  if (!rawTime || isUntimedValue(rawTime)) {
+    return {
+      start_time: null,
+      end_time: null,
+    };
+  }
+  const match =
+    /^(?<startHour>\d{1,2}):(?<startMinute>\d{2})\s*(?<startAmPm>[ap])\s*-\s*(?<endHour>\d{1,2}):(?<endMinute>\d{2})\s*(?<endAmPm>[ap])$/iu.exec(
+      rawTime.trim(),
+    );
+  if (!match) {
+    return {
+      start_time: null,
+      end_time: null,
+    };
+  }
+  const groups = match.groups!;
+  return {
+    start_time: parseClock(
+      groups.startHour!,
+      groups.startMinute!,
+      groups.startAmPm!,
+    ),
+    end_time: parseClock(groups.endHour!, groups.endMinute!, groups.endAmPm!),
+  };
+}
+
+function locationPart(value: string | null): string | null {
+  if (!value || isUntimedValue(value)) return null;
+  return value;
+}
+
+function rawLocation(
+  rawBuilding: string | null,
+  rawRoom: string | null,
+): string | null {
+  const values = [rawBuilding, rawRoom].filter((value): value is string =>
+    Boolean(value),
+  );
+  if (!values.length) return null;
+  if (values.every((value) => value === values[0])) return values[0]!;
+  return values.join(' ');
+}
+
+function parseMeeting(cells: Cell[]): SnapshotMeeting {
+  const rawDays = nullIfBlank(cells[5]?.text ?? '');
+  const rawTime = nullIfBlank(cells[6]?.text ?? '');
+  const rawBuilding = nullIfBlank(cells[7]?.text ?? '');
+  const rawRoom = nullIfBlank(cells[8]?.text ?? '');
+  const times = parseTimeRange(rawTime);
+  const explicitlyUntimed =
+    isUntimedValue(rawDays) ||
+    isUntimedValue(rawTime) ||
+    isUntimedValue(rawBuilding) ||
+    isUntimedValue(rawRoom);
+
+  return {
+    days: parseDays(rawDays),
+    start_time: times.start_time,
+    end_time: times.end_time,
+    building: locationPart(rawBuilding),
+    room: locationPart(rawRoom),
+    is_tba: explicitlyUntimed,
+    raw_days: rawDays,
+    raw_time: rawTime,
+    raw_location: rawLocation(rawBuilding, rawRoom),
+  };
+}
+
+function parseInstructors(cell: Cell): string[] {
+  const linkedNames = tagContents(cell.html, 'a')
+    .map(normalizeText)
+    .filter(Boolean);
+  if (linkedNames.length) return [...new Set(linkedNames)];
+  const text = normalizeText(cell.html);
+  return text ? [text] : [];
+}
+
+function mergeUnique(values: string[], additions: string[]): string[] {
+  const merged = [...values];
+  for (const addition of additions)
+    if (!merged.includes(addition)) merged.push(addition);
+
+  return merged;
+}
+
+function sectionRaw(
+  options: ParseOptions,
+  course: SnapshotCourse,
+  cells: Cell[],
+) {
+  return {
+    source: 'ucsd_schedule_of_classes',
+    source_url: options.sourceUrl,
+    fetched_at: options.fetchedAt,
+    raw_term: options.term,
+    raw_subject: options.subject,
+    raw_course_number: course.course_number,
+    raw_section_identifier: cells[2]?.text ?? '',
+    raw_section_code: cells[4]?.text ?? '',
+    raw_meeting_type: rawMeetingType(cells[3]!) ?? '',
+  };
+}
+
+export function parseScheduleOfClassesHtml(
+  html: string,
+  options: ParseOptions,
+): ParsedScheduleOfClasses {
+  const coursesById = new Map<string, SnapshotCourse>();
+  const sectionLookup = new Map<string, SnapshotSection>();
+  const pendingSharedMeetings = new Map<
+    string,
+    { meetings: SnapshotMeeting[]; instructors: string[] }
+  >();
+  let currentCourse: SnapshotCourse | null = null;
+
+  for (const rowMatch of html.matchAll(
+    /<tr\b[^>]*>(?<html>[\s\S]*?)<\/tr>/giu,
+  )) {
+    const rowHtml = rowMatch.groups?.html ?? '';
+    const cells = extractCells(rowHtml);
+    if (!cells.length) continue;
+
+    const courseHeader = parseCourseHeader(cells, options.subject);
+    if (courseHeader) {
+      currentCourse = coursesById.get(courseHeader.course_id) ?? courseHeader;
+      if (!coursesById.has(courseHeader.course_id))
+        coursesById.set(courseHeader.course_id, currentCourse);
+      pendingSharedMeetings.clear();
+      continue;
+    }
+
+    if (!classNameMatches(rowMatch[0], 'sectxt')) continue;
+    if (!currentCourse) {
+      throw new Error(
+        `Schedule section row found before course header for ${options.subject}`,
+      );
+    }
+
+    const logicalCells = expandedCells(cells);
+    const sourceSectionId = logicalCells[2]?.text ?? '';
+    const sectionCode = nullIfBlank(logicalCells[4]?.text ?? '');
+    const family = sectionFamily(sectionCode);
+    const meeting = parseMeeting(logicalCells);
+    const instructors = parseInstructors(
+      logicalCells[9] ?? { html: '', text: '', colSpan: 1 },
+    );
+
+    if (!sourceSectionId) {
+      const pendingShared = pendingSharedMeetings.get(family) ?? {
+        meetings: [],
+        instructors: [],
+      };
+      pendingShared.meetings.push(meeting);
+      pendingShared.instructors = mergeUnique(
+        pendingShared.instructors,
+        instructors,
+      );
+      pendingSharedMeetings.set(family, pendingShared);
+      continue;
+    }
+
+    const sectionKey = `${currentCourse.course_id}:${sourceSectionId}`;
+    const existingSection = sectionLookup.get(sectionKey);
+    if (existingSection) {
+      existingSection.meetings.push(meeting);
+      existingSection.instructors = mergeUnique(
+        existingSection.instructors,
+        instructors,
+      );
+      continue;
+    }
+
+    const pending = pendingSharedMeetings.get(family);
+    const section: SnapshotSection = {
+      section_id: `${options.term}:${sourceSectionId}`,
+      course_id: currentCourse.course_id,
+      section_code: sectionCode,
+      meeting_type: meetingType(logicalCells[3]!),
+      instructors: mergeUnique(pending?.instructors ?? [], instructors),
+      meetings: [
+        ...(pending?.meetings ?? []).map((item) => ({ ...item })),
+        meeting,
+      ],
+      raw: sectionRaw(options, currentCourse, logicalCells),
+    };
+    currentCourse.sections.push(section);
+    sectionLookup.set(sectionKey, section);
+  }
+
+  return {
+    subject: normalizeSubject(options.subject),
+    term: options.term,
+    source_url: options.sourceUrl,
+    fetched_at: options.fetchedAt,
+    source_timestamp: parseSourceTimestamp(html),
+    courses: [...coursesById.values()],
+  };
+}
+
+function scheduleSearchBody(
+  term: string,
+  subjectCode: string,
+): URLSearchParams {
+  const body = new URLSearchParams({
+    selectedTerm: term,
+    xsoc_term: '',
+    loggedIn: 'false',
+    tabNum: 'tabs-sub',
+    _selectedSubjects: '1',
+    _schDay: 'on',
+    _hideFullSec: 'on',
+    _showPopup: 'on',
+  });
+  body.append('selectedSubjects', subjectCode);
+  for (const field of courseOptionFields) {
+    body.append(field, 'true');
+    body.append(`_${field}`, 'on');
+  }
+  return body;
+}
+
+async function fetchSubjectList(term: string, fetchAdapter: FetchAdapter) {
+  const response = await fetchAdapter(
+    `${scheduleBaseUrl}/subject-list.json?selectedTerm=${encodeURIComponent(term)}`,
+  );
+  if (!response.ok) {
+    throw new Error(
+      `UCSD Schedule subject list failed for ${term}: ${response.status} ${response.statusText}`,
+    );
+  }
+  const data = (await response.json()) as unknown;
+  if (!Array.isArray(data))
+    throw new Error(`UCSD Schedule subject list is invalid for ${term}`);
+
+  return data.map((item) => {
+    if (!item || typeof item !== 'object') {
+      return {
+        code: '',
+        value: '',
+      };
+    }
+    const record = item as { code?: unknown; value?: unknown };
+    return {
+      code: typeof record.code === 'string' ? record.code : '',
+      value: typeof record.value === 'string' ? record.value : '',
+    };
+  });
+}
+
+export async function fetchScheduleOfClassesForSubject(
+  subject: string,
+  options: FetchOptions,
+): Promise<ParsedScheduleOfClasses> {
+  const fetchAdapter = options.fetch ?? fetch;
+  const fetchedAt = options.fetchedAt ?? new Date().toISOString();
+  const subjectList = await fetchSubjectList(options.term, fetchAdapter);
+  const subjectEntry = subjectList.find(
+    (item) => normalizeSubject(item.code) === normalizeSubject(subject),
+  );
+  if (!subjectEntry) {
+    throw new Error(
+      `UCSD Schedule subject ${subject} is not available for term ${options.term}`,
+    );
+  }
+
+  const response = await fetchAdapter(scheduleResultUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: scheduleSearchBody(options.term, subjectEntry.code),
+  });
+  if (!response.ok) {
+    throw new Error(
+      `UCSD Schedule query failed for ${subject} ${options.term}: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  const parsed = parseScheduleOfClassesHtml(await response.text(), {
+    subject,
+    term: options.term,
+    sourceUrl: scheduleResultUrl,
+    fetchedAt,
+  });
+  if (!parsed.courses.length) {
+    throw new Error(
+      `UCSD Schedule returned no courses for ${subject} ${options.term}`,
+    );
+  }
+  return parsed;
+}
+
+export async function fetchScheduleOfClassesForSubjects(
+  subjects: string[],
+  options: FetchOptions,
+): Promise<ParsedScheduleOfClasses[]> {
+  const parsed: ParsedScheduleOfClasses[] = [];
+  for (const subject of subjects)
+    parsed.push(await fetchScheduleOfClassesForSubject(subject, options));
+
+  return parsed;
+}
+
+export function buildScheduleCatalogSnapshot(
+  config: CatalogSnapshotConfig,
+  parsedSubjects: ParsedScheduleOfClasses[],
+  options: {
+    runId?: string;
+    generatedAt?: string;
+  } = {},
+): CatalogSnapshot {
+  const generatedAt = options.generatedAt ?? new Date().toISOString();
+  const runId = options.runId ?? `schedule-${generatedAt}`;
+  const coursesById = new Map<string, SnapshotCourse>();
+
+  for (const parsed of parsedSubjects) {
+    for (const course of parsed.courses) {
+      const existing = coursesById.get(course.course_id);
+      if (existing) {
+        existing.sections.push(...course.sections);
+      } else {
+        coursesById.set(course.course_id, {
+          ...course,
+          sections: [...course.sections],
+        });
+      }
+    }
+  }
+
+  return {
+    run_id: runId,
+    generated_at: generatedAt,
+    active_planning_term: config.active_planning_term,
+    term_label: config.term_label,
+    term_date_range: config.term_date_range,
+    configured_subjects: config.configured_subjects,
+    source_timestamps: {
+      schedule_of_classes:
+        parsedSubjects.find((parsed) => parsed.source_timestamp)
+          ?.source_timestamp ?? generatedAt,
+      general_catalog: null,
+      instructor_grade_archive: null,
+    },
+    courses: [...coursesById.values()],
+  };
+}
