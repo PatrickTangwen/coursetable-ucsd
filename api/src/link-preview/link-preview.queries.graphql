@@ -1,0 +1,10 @@
+query courseMetadata($listingId: Int!) {
+  listings_by_pk(listing_id: $listingId) {
+    course_code
+    section
+    course {
+      title
+      description
+    }
+  }
+}

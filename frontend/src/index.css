@@ -1,0 +1,185 @@
+:root {
+  --color-text-dark: #141414;
+  --color-text-light: #fafafa;
+  --color-text: var(--color-text-dark);
+  --color-text-secondary: #454545;
+  --color-text-tertiary: #7a7a7a;
+  --color-bg: #fff;
+  --color-surface: #fff; /* All surfaces are white */
+  --color-surface-elevated: #fff;
+  --color-surface-contrast: #f5f5f5; /* Establish visual contrast with plain surfaces */
+  --color-surface-hover: #fafafa; /* For controls that have surface color by default */
+  --color-surface-active: #f0f0f0;
+  --color-border: #ededed;
+  --color-border-control: rgb(0 0 0 / 10%);
+  --color-select: #fff;
+  --color-hidden: #b9b8b8;
+  --color-disabled: #f2f2f2;
+  --color-bg-button: #e6e6e6;
+  --color-icon: #ccc;
+  --color-icon-hover: #9b9b9b;
+  --color-icon-focus: #666;
+  --color-icon-focus-hover: #3c3c3c;
+  --color-shadow: rgb(0 0 0 / 20%);
+  --color-primary: #468ff2;
+  --color-primary-light: #5ca8fa;
+  --color-primary-hover: #007bff;
+  --color-primary-subdued: #468ff24d;
+  --color-primary-subdued-2: #468ff226;
+  --trans-dur: 0.35s;
+
+  /* Bootstrap variables */
+  --font-family-sans-serif:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+    Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  --font-family-monospace:
+    source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  --bs-link-color: var(--color-primary) !important;
+  --bs-link-hover-color: var(--color-primary-hover) !important;
+}
+
+:root[data-theme='dark'] {
+  --color-text: var(--color-text-light);
+  --color-text-secondary: #dbdbdb;
+  --color-text-tertiary: #bababa;
+  --color-bg: #121212;
+  --color-surface: #242424;
+  --color-surface-elevated: #363636;
+  --color-surface-contrast: #202020;
+  --color-surface-hover: #ffffff05;
+  --color-surface-active: #ffffff0d;
+  --color-border: #303030;
+  --color-select: #303030;
+  --color-hidden: #4d4d4d;
+  --color-disabled: #f2f2f21a;
+  --color-bg-button: #4d4d4d;
+  --color-icon: #666;
+  --color-icon-hover: #949494;
+  --color-icon-focus: #ccc;
+  --color-icon-focus-hover: #fff;
+  --color-primary: #61adff;
+  --color-primary-hover: #007bff;
+  --color-primary-subdued: #446491bf;
+  --color-primary-subdued-2: #44649140;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-family-sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color var(--trans-dur);
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  color: inherit;
+}
+
+button:focus:not(:focus-visible) {
+  outline: none !important;
+  box-shadow: none;
+}
+
+code {
+  font-family: var(--font-family-monospace);
+}
+
+hr {
+  border-color: var(--color-text-tertiary);
+}
+
+#root {
+  height: 100vh;
+}
+
+#base {
+  height: auto;
+}
+
+.form-control::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.btn {
+  border: none;
+}
+
+.btn:not(.btn-none, .btn-dark, .btn-danger) {
+  --bs-btn-bg: var(--color-primary);
+}
+
+/* TODO: can we modularized the below? */
+.container,
+.dropdown,
+.dropdown-menu,
+.dropdown-toggle {
+  width: 100%;
+}
+
+.dropdown-menu {
+  max-height: 50vh;
+  min-width: 0 !important;
+  overflow: scroll;
+}
+
+.dropdown-menu,
+.dropdown-item {
+  color: var(--color-text);
+  background-color: var(--color-surface-elevated);
+}
+
+.dropdown-item:hover {
+  color: var(--color-text);
+  background-color: var(--color-primary-subdued);
+}
+
+.dropdown-toggle {
+  border-radius: 0 !important;
+}
+
+.dropdown-toggle:focus,
+.dropdown-toggle:active {
+  box-shadow: none !important;
+}
+
+.w-mx {
+  max-width: 100%;
+}
+
+/* TODO: we should add custom classes to Markdown code blocks */
+pre {
+  background-color: rgb(220 220 220 / 20%);
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+pre code {
+  color: var(--color-text);
+}
+
+/*
+ * Sonner sets --width inline (356px). Plain rules lose to that, so !important
+ * is needed to theme from our stylesheet.
+ */
+[data-sonner-toaster] {
+  --width: min(20rem, calc(100vw - 2rem)) !important;
+}

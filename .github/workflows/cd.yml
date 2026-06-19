@@ -1,0 +1,123 @@
+name: Production CD
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'frontend/**'
+      - 'api/**'
+      - '.github/workflows/cd.yml'
+
+  workflow_dispatch:
+    inputs:
+      api:
+        description: 'Deploy API'
+        type: boolean
+      frontend:
+        description: 'Deploy Frontend'
+        type: boolean
+
+jobs:
+  cancel-previous-runs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.12.1
+        with:
+          access_token: ${{ secrets.GITHUB_TOKEN }}
+          only_status: 'waiting'
+  changes:
+    runs-on: ubuntu-latest
+    needs: cancel-previous-runs
+    permissions:
+      pull-requests: read
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      db: ${{ steps.filter.outputs.db }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          ref: ${{ github.ref }}
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            api:
+              - 'api/**'
+              - '.github/workflows/cd.yml'
+            frontend:
+              - 'frontend/**'
+              - '.github/workflows/cd.yml'
+            db:
+              - 'api/drizzle/schema.ts'
+
+  frontend-build-and-deploy:
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' || inputs.frontend}}
+    environment:
+      name: Production
+      url: https://coursetable.com
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
+      - uses: dopplerhq/secrets-fetch-action@v1.2.0
+        id: doppler
+        with:
+          doppler-token: ${{ secrets.DOPPLER_TOKEN }}
+          doppler-project: coursetable
+          doppler-config: prod
+          inject-env-vars: true
+      - name: Build Frontend
+        run: cd frontend && bun run build
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ env.CLOUDFLARE_KEY_VALUE }}
+        run: |
+          bunx wrangler pages deploy frontend/build --project-name=coursetable --branch=master
+
+  api-build-and-deploy:
+    needs: changes
+    if: ${{ ( needs.changes.outputs.api == 'true' || inputs.api ) && needs.changes.outputs.db == 'false'}}
+    environment:
+      name: Production
+      url: https://coursetable.com
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - name: Sync Local Repository with Remote
+        run: cd /home/app/coursetable && git pull
+
+      - uses: dopplerhq/secrets-fetch-action@v1.2.0
+        id: doppler
+        with:
+          doppler-token: ${{ secrets.DOPPLER_TOKEN }}
+          doppler-project: coursetable
+          doppler-config: prod
+          inject-env-vars: true
+
+      - name: Build and Deploy Docker containers
+        working-directory: ./api
+        if: github.event_name == 'push'
+        run: ./start.sh -p
+        env:
+          SENTRY_AUTH_TOKEN: ${{ env.SENTRY_AUTH_TOKEN }}
+
+      - name: Build and Deploy Docker containers (Manual)
+        working-directory: ./api
+        if: github.event_name == 'workflow_dispatch'
+        run: ./start.sh -p -o
+        env:
+          SENTRY_AUTH_TOKEN: ${{ env.SENTRY_AUTH_TOKEN }}

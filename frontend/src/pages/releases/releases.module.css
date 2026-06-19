@@ -1,0 +1,37 @@
+.container {
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 28px;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background-color: var(--color-surface);
+  box-shadow: 0 4px 6px var(--color-shadow);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px var(--color-shadow);
+}
+
+@media (max-width: calc(768px - 0.5px)) {
+  .title {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: calc(576px - 0.5px)) {
+  .container {
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+  }
+}

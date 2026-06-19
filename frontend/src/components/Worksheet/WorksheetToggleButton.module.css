@@ -1,0 +1,71 @@
+.container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.worksheetDropdown {
+  font-size: 14px;
+  font-weight: bold;
+  text-wrap: nowrap;
+  background-color: var(--color-select);
+  color: var(--color-text);
+}
+
+.popoutOption {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.worksheetDropdown:hover {
+  opacity: 1 !important;
+}
+
+.toggleContainer {
+  position: relative;
+}
+
+.scaleIcon {
+  transition: 0.1s !important;
+}
+
+.scaleIcon:hover {
+  transform: scale(1.15);
+}
+
+.toggleButton {
+  background-color: transparent;
+  color: var(--color-primary) !important;
+}
+
+.toggleButton:active,
+.toggleButton:focus {
+  box-shadow: none !important;
+}
+
+.toggleButton:hover {
+  opacity: 0.5;
+}
+
+.courseConflictIcon {
+  position: absolute;
+  top: -10px;
+  left: -6px;
+}
+
+.disabledButton {
+  cursor: not-allowed !important;
+  background-color: transparent !important;
+  border-width: 0 !important;
+}
+
+.disabledButtonIcon {
+  color: var(--color-icon-focus);
+}
+
+.disabledButton:active,
+.disabledButton:focus {
+  box-shadow: none !important;
+}

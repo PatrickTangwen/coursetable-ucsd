@@ -1,0 +1,33 @@
+.banner {
+  min-height: 3em;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: center;
+  background: linear-gradient(
+    90deg,
+    rgb(68 103 196) 0%,
+    rgb(75 127 192) 50%,
+    rgb(99 166 208) 100%
+  );
+  transition: background-color 0.2s linear;
+  color: white;
+}
+
+.banner .content {
+  flex-grow: 1;
+  font-size: 0.9em;
+  padding: 10px 5px;
+  text-align: center;
+}
+
+.banner a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+.closeButton {
+  margin-right: 15px;
+  transition: 0.33s ease-out;
+}

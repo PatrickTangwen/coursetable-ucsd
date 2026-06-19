@@ -1,0 +1,36 @@
+.container {
+  width: 900px;
+  margin-bottom: 3rem;
+  line-height: 1.5;
+}
+
+.container h1 {
+  font-weight: bold;
+  font-size: x-large;
+  text-align: center;
+  margin-top: 3em;
+  margin-bottom: 0.5em;
+}
+
+.container h2 {
+  font-weight: bold;
+  font-size: larger;
+  text-transform: uppercase;
+}
+
+.container h3 {
+  font-weight: bold;
+  font-size: large;
+}
+
+@media (max-width: calc(768px - 0.5px)) {
+  .container {
+    width: 80vw;
+  }
+}
+
+@media (max-width: calc(576px - 0.5px)) {
+  .container {
+    width: 90vw;
+  }
+}

@@ -1,0 +1,118 @@
+name: Staging CD
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'frontend/**'
+      - 'api/**'
+      - '.github/workflows/staging_cd.yml'
+
+  workflow_dispatch:
+    inputs:
+      api:
+        description: 'Deploy API'
+        type: boolean
+      frontend:
+        description: 'Deploy Frontend'
+        type: boolean
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    # Required permissions
+    permissions:
+      pull-requests: read
+    # Set job outputs to values from filter step
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      db: ${{ steps.filter.outputs.db }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          ref: ${{ github.ref }}
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            api:
+              - 'api/**'
+              - '.github/workflows/staging_cd.yml'
+            frontend:
+              - 'frontend/**'
+              - '.github/workflows/staging_cd.yml'
+            db:
+                - 'api/drizzle/schema.ts'
+
+  frontend-build-and-deploy:
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' || inputs.frontend}}
+
+    environment:
+      name: Staging
+      url: https://staging.coursetable.com
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
+      - uses: dopplerhq/secrets-fetch-action@v1.2.0
+        id: doppler
+        with:
+          doppler-token: ${{ secrets.DOPPLER_TOKEN }}
+          doppler-project: coursetable
+          doppler-config: prod_staging
+          inject-env-vars: true
+      - name: Build Frontend
+        run: cd frontend && bun run build
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ env.CLOUDFLARE_KEY_VALUE }}
+        run: |
+          bunx wrangler pages deploy frontend/build --project-name=coursetable --branch=staging
+
+  api-build-and-deploy:
+    needs: changes
+    if: ${{ ( needs.changes.outputs.api == 'true' || inputs.api ) && needs.changes.outputs.db == 'false'}}
+
+    environment:
+      name: Staging
+      url: https://staging.coursetable.com
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - uses: dopplerhq/secrets-fetch-action@v1.2.0
+        id: doppler
+        with:
+          doppler-token: ${{ secrets.DOPPLER_TOKEN }}
+          doppler-project: coursetable
+          doppler-config: prod_staging
+          inject-env-vars: true
+
+      - name: Build and Deploy Docker containers
+        working-directory: ./api
+        if: github.event_name == 'push'
+        run: ./start.sh -s
+        env:
+          SENTRY_AUTH_TOKEN: ${{ env.SENTRY_AUTH_TOKEN }}
+
+      - name: Build and Deploy Docker containers (Manual)
+        working-directory: ./api
+        if: github.event_name == 'workflow_dispatch'
+        run: ./start.sh -s -o
+        env:
+          SENTRY_AUTH_TOKEN: ${{ env.SENTRY_AUTH_TOKEN }}

@@ -1,0 +1,17 @@
+name: Docker Cleanup
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/docker_cleanup.yml'
+  schedule:
+    - cron: '0 0 * * 2' # Every Tuesday
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: Docker Cleanup
+        run: |
+          docker system prune -a -f

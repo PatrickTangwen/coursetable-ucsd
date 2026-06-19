@@ -1,0 +1,7 @@
+.container {
+  background-color: rgb(168 216 34 / 50%);
+}
+
+.containerError {
+  background-color: rgb(255 170 165 / 50%);
+}

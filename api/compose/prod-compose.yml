@@ -1,0 +1,10 @@
+services:
+  api:
+    volumes:
+      - /home/app/coursetable-catalog/prod/:/usr/src/app/api/static
+    restart: always
+    labels:
+      traefik.http.routers.coursetable.rule: Host(`api.coursetable.com`)
+      traefik.http.routers.coursetable.tls: true
+      traefik.http.routers.coursetable.tls.certResolver: ctresolver
+      traefik.http.routers.coursetable.middlewares: gzip-compress@file

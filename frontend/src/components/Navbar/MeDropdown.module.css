@@ -1,0 +1,77 @@
+.collapseContainer {
+  width: 200px;
+  position: absolute;
+  top: 56px;
+  right: 0;
+  z-index: calc(420 + 69);
+  box-shadow: 0 2px 6px 0 var(--color-shadow);
+  border-radius: 10px;
+  transform: translate(0, -10px);
+}
+
+.dropdownItem {
+  display: block;
+  margin: 0.75rem 0;
+}
+
+.itemText {
+  font-weight: 500;
+}
+
+.dropdownItem:hover .itemText {
+  color: var(--color-primary);
+}
+
+.navbarMe {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.meIcon,
+.anonIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  display: flex;
+  transition:
+    border-color var(--trans-dur),
+    background-color var(--trans-dur),
+    color var(--trans-dur);
+}
+
+.meIcon {
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
+  align-items: center;
+  justify-content: center;
+}
+
+.meIcon span {
+  font-weight: bold;
+  transform: scaleX(0.8);
+}
+
+.meIcon:hover {
+  color: var(--color-text-light);
+}
+
+.anonIcon {
+  background-color: var(--color-bg-button);
+  color: var(--color-text-secondary);
+}
+
+.anonIcon:hover {
+  color: var(--color-primary);
+}
+
+[data-theme='dark'] .anonIcon {
+  background-color: #525252;
+}
+
+[data-theme='dark'] .meIcon {
+  color: var(--color-text-dark);
+}
+
+.linkIcon {
+  margin-right: 0.5rem;
+}

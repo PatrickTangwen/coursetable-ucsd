@@ -1,0 +1,56 @@
+/* TODO: this is duplicated from Privacy.module.css.
+   We should have a shared MDX layout. */
+
+.container {
+  width: 900px;
+  margin-bottom: 3rem;
+  line-height: 1.5;
+}
+
+.container h1 {
+  font-weight: bold;
+  font-size: x-large;
+  text-align: center;
+  margin-top: 3em;
+  margin-bottom: 0.5em;
+}
+
+.container h2 {
+  font-weight: bold;
+  font-size: larger;
+}
+
+.container h3 {
+  font-weight: bold;
+  font-size: large;
+}
+
+.container img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100%;
+}
+
+.container p img {
+  display: inline-block;
+}
+
+.container blockquote {
+  margin-left: 1em;
+  padding-left: 1em;
+  color: var(--color-text-tertiary);
+  border-left: 2px solid var(--color-text-tertiary);
+}
+
+@media (max-width: calc(768px - 0.5px)) {
+  .container {
+    width: 80vw;
+  }
+}
+
+@media (max-width: calc(576px - 0.5px)) {
+  .container {
+    width: 90vw;
+  }
+}

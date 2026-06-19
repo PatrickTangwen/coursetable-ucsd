@@ -1,0 +1,38 @@
+{
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "[javascript]": {
+    "editor.formatOnSave": true
+  },
+  "[javascriptreact]": {
+    "editor.formatOnSave": true
+  },
+  "[typescript]": {
+    "editor.formatOnSave": true
+  },
+  "[typescriptreact]": {
+    "editor.formatOnSave": true
+  },
+  "files.exclude": {
+    "dist": true
+  },
+  "javascript.preferences.importModuleSpecifier": "relative",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "search.exclude": {
+    "dist/**": true,
+    "api/static": true,
+    "**/node_modules": true,
+    "**/.eslintcache": true
+  },
+  "cSpell.words": [
+    "Unflatten",
+    "colormap",
+    "evals",
+    "noopener",
+    "noreferrer",
+    "toastify",
+    "unstyled"
+  ],
+  "eslint.workingDirectories": ["api", "frontend"]
+}

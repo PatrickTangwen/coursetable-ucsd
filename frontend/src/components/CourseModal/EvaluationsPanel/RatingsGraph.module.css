@@ -1,0 +1,41 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.graph {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.bar {
+  text-align: center;
+}
+
+.column {
+  width: 15px;
+  border-radius: 10px;
+}
+
+.value {
+  font-size: 13px;
+  font-weight: 600;
+  height: 18px;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.label {
+  font-size: 10px !important;
+  width: 55px;
+  text-align: center;
+  color: var(--color-primary);
+}
+
+.container > p {
+  font-size: 12px;
+}

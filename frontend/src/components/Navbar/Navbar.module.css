@@ -1,0 +1,101 @@
+.container {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+}
+
+.catalogSearchNavbar {
+  padding-bottom: 0;
+}
+
+.navLogo {
+  font-size: 1.6rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.navToggle {
+  border-color: var(--color-border) !important;
+}
+
+.navToggle :global(.navbar-toggler-icon) {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgb(69 69 69)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+[data-theme='dark'] .navToggle :global(.navbar-toggler-icon) {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgb(219 219 219)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+@media (min-width: 768px) {
+  .navbar {
+    height: var(--height-navbar);
+  }
+
+  .navbarCollapse {
+    display: flex;
+    flex-grow: 0;
+  }
+}
+
+.navbarDarkModeBtn {
+  padding-right: 1rem !important;
+  transition: 0.1s;
+  display: flex;
+}
+
+.navbarLinks {
+  position: relative;
+}
+
+@media (max-width: calc(768px - 0.5px)) {
+  .navbarLinks {
+    align-items: start;
+    padding-top: 0.5rem;
+  }
+}
+
+.navLink {
+  padding: 0.5rem 1rem 0.5rem 0;
+  user-select: none;
+  font-weight: 500;
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  transition: color var(--trans-dur);
+}
+
+.navLink:hover {
+  text-decoration: none !important;
+  color: var(--color-primary);
+}
+
+.navLink:global(.active) {
+  color: var(--color-primary);
+}
+
+.challengeIndicator {
+  position: absolute;
+  top: -7px;
+  left: -7px;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: var(--color-primary);
+}
+
+.navLogoWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  height: 100%;
+}
+
+@media (max-width: calc(1320px - 0.5px)) {
+  .navLink {
+    font-size: 0.9rem;
+  }
+
+  .navLogoWrapper {
+    gap: 0.75rem;
+  }
+}

@@ -1,0 +1,28 @@
+.container {
+  width: 400px;
+  margin-bottom: 3rem;
+}
+
+.joinHeader {
+  font-weight: 600;
+  font-size: 25px;
+  text-align: center;
+}
+
+.joinDescription {
+  font-weight: 500;
+  font-size: 15px;
+  text-align: center;
+}
+
+@media (max-width: calc(768px - 0.5px)) {
+  .container {
+    width: 60vw;
+  }
+}
+
+@media (max-width: calc(576px - 0.5px)) {
+  .container {
+    width: 80vw;
+  }
+}

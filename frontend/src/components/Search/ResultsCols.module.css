@@ -1,0 +1,59 @@
+.controlCol {
+  display: flex;
+  justify-content: center;
+  width: 2.5rem;
+}
+
+.seasonCol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--width-col-season);
+}
+
+.codeCol {
+  width: var(--width-col-code);
+}
+
+.titleCol {
+  flex-grow: 1;
+  width: var(--width-col-title);
+}
+
+.overallCol {
+  white-space: nowrap;
+  width: var(--width-col-overall);
+}
+
+.workloadCol {
+  white-space: nowrap;
+  width: var(--width-col-workload);
+}
+
+.profCol {
+  width: var(--width-col-prof);
+}
+
+.meetCol {
+  width: var(--width-col-meet);
+}
+
+.locCol {
+  width: var(--width-col-loc);
+}
+
+.enrollCol {
+  width: var(--width-col-enroll);
+}
+
+.friendsCol {
+  width: var(--width-col-friends);
+}
+
+.addedCol {
+  width: var(--width-col-added);
+}
+
+.skillAreaCol {
+  width: var(--width-col-skill-area);
+}

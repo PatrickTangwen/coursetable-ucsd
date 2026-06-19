@@ -1,0 +1,103 @@
+.modalControls {
+  width: calc(100% - 1rem);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap-reverse;
+  margin-left: 0.5rem;
+}
+
+.tabs {
+  width: 220px;
+  display: flex;
+  align-items: end;
+}
+
+.tabButton {
+  width: 50%;
+  padding: 0.5em 0;
+  border: none;
+  border-radius: 8px 8px 0 0;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.tabButton.tabSelected {
+  background-color: var(--color-primary-subdued);
+  color: var(--color-text);
+}
+
+.tabButton.tabDisabled {
+  cursor: not-allowed;
+  color: var(--color-text-tertiary);
+}
+
+.shareDropdown {
+  cursor: pointer;
+  padding: 0;
+}
+
+.moreDropdown {
+  cursor: pointer;
+  padding: 0;
+}
+
+.moreDropdown svg,
+.shareDropdown svg {
+  color: var(--color-primary);
+}
+
+.moreDropdown:hover svg,
+.shareDropdown:hover svg {
+  color: var(--color-primary-hover);
+}
+
+.moreDropdown :global(.dropdown-toggle),
+.shareDropdown :global(.dropdown-toggle) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 0;
+}
+
+.moreDropdown :global(.dropdown-toggle)::after,
+.shareDropdown :global(.dropdown-toggle)::after {
+  display: none;
+}
+
+.moreDropdown :global(.dropdown-menu),
+.shareDropdown :global(.dropdown-menu) {
+  width: 250px;
+
+  /* Overrides .toolbarIconSlot line-height:0 so items stay readable */
+  line-height: normal;
+}
+
+.toolBar {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+
+/*
+ * Single-height track for 20px icons: inline SVGs default to baseline alignment;
+ * block + line-height 0 matches Button vs Dropdown toggle.
+ */
+.toolbarIconSlot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  line-height: 0;
+}
+
+.toolbarIconSlot :global(svg) {
+  display: block;
+}
+
+.toolbarIconSlot :global(.btn) {
+  line-height: 0;
+}
