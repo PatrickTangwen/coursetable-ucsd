@@ -13,6 +13,7 @@ import './sentry-instrument.js';
 
 import { passportConfig } from './auth/auth.handlers.js';
 import casAuth from './auth/auth.routes.js';
+import { createDatabaseUcsdAuthStore } from './auth/ucsdAuth.database.js';
 import canny from './canny/canny.routes.js';
 import catalog from './catalog/catalog.routes.js';
 import { fetchCatalog } from './catalog/catalog.utils.js';
@@ -33,6 +34,7 @@ import linkPreview from './link-preview/link-preview.routes.js';
 import morgan from './logging/morgan.js';
 import winston from './logging/winston.js';
 import profile from './profile/profile.routes.js';
+import { createDatabaseSavedSearchStore } from './savedSearches/savedSearches.database.js';
 import savedSearches from './savedSearches/savedSearches.routes.js';
 import user from './user/user.routes.js';
 
@@ -83,7 +85,7 @@ app.use(
     // Recommended by the connect-redis documentation.
     store: redisStore,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
 
     cookie: {
       // Cookie lifetime of one year.
@@ -134,17 +136,20 @@ app.use(morgan);
 // and the http-proxy needs a stream to consume.
 app.use(express.json());
 
-// Activate catalog and CAS authentication
+// Activate catalog, UCSD email auth, and dormant legacy CAS authentication.
 challenge(app);
 catalog(app);
-casAuth(app);
+casAuth(app, {
+  store: createDatabaseUcsdAuthStore(),
+  exposeVerificationCode: isDev,
+});
 demand(app);
 friends(app);
 canny(app);
 user(app);
 profile(app);
 linkPreview(app);
-savedSearches(app);
+savedSearches(app, createDatabaseSavedSearchStore());
 
 app.get('/api/ping', (req, res) => {
   res.json('pong');

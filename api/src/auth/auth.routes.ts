@@ -1,21 +1,33 @@
 import type express from 'express';
 
 import { casLogin } from './auth.handlers.js';
+import {
+  registerUcsdAuthRoutes,
+  type UcsdAuthRoutesOptions,
+} from './ucsdAuth.routes.js';
+import { getAppSessionUser } from './ucsdAuth.session.js';
+import { toAppUserResponse } from './ucsdIdentity.js';
 
-export default (app: express.Express): void => {
+export default (
+  app: express.Express,
+  options?: UcsdAuthRoutesOptions,
+): void => {
   app.get('/api/auth/check', (req, res) => {
-    if (req.user)
+    const appUser = getAppSessionUser(req);
+    if (appUser) {
+      res.json({
+        auth: true,
+        netId: null,
+        user: toAppUserResponse(appUser),
+      });
+    } else if (req.user) {
       res.json({ auth: true, netId: req.user.netId, user: req.user });
-    else res.json({ auth: false, netId: null, user: null });
+    } else {
+      res.json({ auth: false, netId: null, user: null });
+    }
   });
+
+  if (options) registerUcsdAuthRoutes(app, options);
 
   app.get('/api/auth/cas', casLogin);
-
-  app.post('/api/auth/logout', (req, res, next) => {
-    if (!req.user) return res.status(400).json({ error: 'USER_NOT_FOUND' });
-    req.logOut((err) => {
-      if (err) next(err);
-    });
-    return res.sendStatus(200);
-  });
 };

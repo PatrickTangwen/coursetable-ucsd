@@ -9,6 +9,7 @@ import { useShallow } from 'zustand/react/shallow';
 import SeasonDropdown from './SeasonDropdown';
 import WorksheetNumDropdown from './WorksheetNumberDropdown';
 
+import { isLegacyUserInfo } from '../../queries/api';
 import type { WorksheetView } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
 import styles from './NavbarWorksheetSearch.module.css';
@@ -32,16 +33,18 @@ export function NavbarWorksheetSearch({
     changeWorksheetView,
     isExoticWorksheet,
     exitExoticWorksheet,
+    user,
   } = useStore(
     useShallow((state) => ({
       worksheetView: state.worksheetView,
       changeWorksheetView: state.changeWorksheetView,
       isExoticWorksheet: state.worksheetMemo.getIsExoticWorksheet(state),
       exitExoticWorksheet: state.exitExoticWorksheet,
+      user: state.user,
     })),
   );
 
-  const authStatus = useStore((state) => state.authStatus);
+  const hasLegacyWorksheetAccount = isLegacyUserInfo(user);
   const visibleWorksheetView =
     worksheetView === 'list' ? worksheetView : 'calendar';
 
@@ -116,7 +119,7 @@ export function NavbarWorksheetSearch({
             Exit
           </Button>
         </div>
-      ) : authStatus === 'authenticated' ? (
+      ) : hasLegacyWorksheetAccount ? (
         <>
           <SeasonDropdown mobile={false} />
           <WorksheetNumDropdown mobile={false} />

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useShallow } from 'zustand/react/shallow';
-import { API_ENDPOINT } from '../config';
 import Authentication from '../images/authentication.svg';
+import { isLegacyUserInfo } from '../queries/api';
 import { useStore } from '../store';
 
 function NeedsLogin({
@@ -14,25 +14,34 @@ function NeedsLogin({
   const { authStatus, user } = useStore(
     useShallow((state) => ({ authStatus: state.authStatus, user: state.user })),
   );
+  const hasLegacyEvaluationAccount = isLegacyUserInfo(user);
+  const needsEvaluationChallenge = isLegacyUserInfo(user) && !user.hasEvals;
   return (
     <div className="text-center py-5">
       <h3>No access</h3>
       <div>
-        To access {message}, you need to be a fully verified user. Please{' '}
-        {authStatus === 'unauthenticated' ? (
-          <a
-            href={`${API_ENDPOINT}/api/auth/cas?redirect=${window.location.origin}${redirect}`}
-          >
-            log in
-          </a>
-        ) : !user?.hasEvals ? (
-          <Link to="/challenge">complete the challenge</Link>
+        {authStatus !== 'unauthenticated' && !hasLegacyEvaluationAccount ? (
+          <>
+            To access {message}, you need a legacy evaluation-enabled account.
+            This feature is not available for UCSD email sign-in.
+          </>
         ) : (
-          <button type="button" onClick={() => window.location.reload()}>
-            refresh the page
-          </button>
+          <>
+            To access {message}, you need to be a fully verified user. Please{' '}
+            {authStatus === 'unauthenticated' ? (
+              <Link to={`/login?redirect=${encodeURIComponent(redirect)}`}>
+                log in
+              </Link>
+            ) : needsEvaluationChallenge ? (
+              <Link to="/challenge">complete the challenge</Link>
+            ) : (
+              <button type="button" onClick={() => window.location.reload()}>
+                refresh the page
+              </button>
+            )}
+            .
+          </>
         )}
-        .
       </div>
       <img
         alt="Not logged in"

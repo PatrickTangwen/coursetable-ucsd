@@ -17,6 +17,7 @@ import { useFerry, useWorksheetInfo } from '../hooks/useFerry';
 import { useWishlist } from '../hooks/useWishlist';
 import {
   getMyProfile,
+  isLegacyUserInfo,
   revokeEvaluationsAccess,
   updateMyProfile,
   type MyProfile,
@@ -127,6 +128,7 @@ function Profile() {
   } = useStore(useShallow(selectProfileStore));
   const { requestSeasons } = useFerry();
   const apolloClient = useApolloClient();
+  const hasLegacyProfile = isLegacyUserInfo(currentUser);
 
   const [catalogRefreshing, setCatalogRefreshing] = useState(false);
   const [preferredFirstNameInput, setPreferredFirstNameInput] = useState('');
@@ -170,18 +172,18 @@ function Profile() {
   }, [currentUser, userRefresh]);
 
   useEffect(() => {
-    if (!worksheets) void worksheetsRefresh();
-  }, [worksheets, worksheetsRefresh]);
+    if (hasLegacyProfile && !worksheets) void worksheetsRefresh();
+  }, [hasLegacyProfile, worksheets, worksheetsRefresh]);
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!hasLegacyProfile) return;
     if (activeTabKey !== 'overview') return;
     void friendRefresh();
     void friendReqRefresh();
-  }, [activeTabKey, currentUser, friendRefresh, friendReqRefresh]);
+  }, [activeTabKey, hasLegacyProfile, friendRefresh, friendReqRefresh]);
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!hasLegacyProfile) return;
     void getMyProfile().then((data) => {
       if (!data) return;
       setPreferredFirstNameInput(data.preferredFirstName ?? '');
@@ -193,7 +195,7 @@ function Profile() {
       setPlaceholderFirstName(first);
       setPlaceholderLastName(last);
     });
-  }, [currentUser]);
+  }, [currentUser, hasLegacyProfile]);
 
   useEffect(() => {
     if (wishlistError) Sentry.captureException(wishlistError);
@@ -302,6 +304,35 @@ function Profile() {
       <div className={clsx(styles.container, 'mx-auto')}>
         <h1 className={clsx(styles.profileHeader, 'mt-5 mb-3')}>Profile</h1>
         <TextComponent type="secondary">Loading...</TextComponent>
+      </div>
+    );
+  }
+
+  if (!hasLegacyProfile) {
+    return (
+      <div className={clsx(styles.container, 'mx-auto')}>
+        <h1 className={clsx(styles.profileHeader, 'mt-5 mb-3')}>Account</h1>
+        <Card className={styles.profileCard}>
+          <Card.Body className={styles.cardBody}>
+            <h3 className={styles.sectionTitle}>UCSD Identity</h3>
+            <div className={styles.infoRow}>
+              <TextComponent type="secondary" className={styles.label}>
+                Verified UCSD email
+              </TextComponent>
+              <TextComponent className={styles.value}>
+                {currentUser.verifiedEmail}
+              </TextComponent>
+            </div>
+            <div className={styles.infoRow}>
+              <TextComponent type="secondary" className={styles.label}>
+                App User ID
+              </TextComponent>
+              <TextComponent className={styles.value}>
+                {currentUser.user_id}
+              </TextComponent>
+            </div>
+          </Card.Body>
+        </Card>
       </div>
     );
   }

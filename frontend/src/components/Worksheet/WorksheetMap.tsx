@@ -459,12 +459,19 @@ function MarkerPopup({ group }: { readonly group: MarkerGroup }) {
 }
 
 function WorksheetMap() {
-  const { courses, hoverCourse, isMobile, isExoticWorksheet } = useStore(
+  const {
+    courses,
+    hoverCourse,
+    isMobile,
+    isExoticWorksheet,
+    isAnonymousWorksheet,
+  } = useStore(
     useShallow((state) => ({
       courses: state.courses,
       hoverCourse: state.hoverCourse,
       isMobile: state.isMobile,
       isExoticWorksheet: state.worksheetMemo.getIsExoticWorksheet(state),
+      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
     })),
   );
 
@@ -566,7 +573,7 @@ function WorksheetMap() {
 
   return (
     <div className={styles.container}>
-      {isMobile && !isExoticWorksheet && (
+      {isMobile && !isExoticWorksheet && !isAnonymousWorksheet && (
         <div className={styles.dropdowns}>
           <WorksheetNumDropdown mobile />
           <div className="d-flex">

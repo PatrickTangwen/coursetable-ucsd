@@ -1,4 +1,5 @@
 import 'express';
+import 'express-session';
 import 'passport';
 
 export {};
@@ -11,5 +12,14 @@ declare global {
       firstName?: string;
       lastName?: string;
     }
+  }
+}
+
+declare module 'express-session' {
+  interface SessionData {
+    appUser?: {
+      user_id: number;
+      verified_email: string;
+    };
   }
 }

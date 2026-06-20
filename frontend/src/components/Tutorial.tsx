@@ -4,6 +4,7 @@ import { Button } from 'react-bootstrap';
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 import Tour, { type ReactourStep, type ReactourStepPosition } from 'reactour';
 import { useShallow } from 'zustand/react/shallow';
+import { isLegacyUserInfo } from '../queries/api';
 import { useStore } from '../store';
 import styles from './Tutorial.module.css';
 import './reactour-override.css';
@@ -136,6 +137,7 @@ function Tutorial() {
   const {
     currentStep,
     authStatus,
+    user,
     isMobile,
     isTablet,
     hasShownTutorial,
@@ -145,6 +147,7 @@ function Tutorial() {
     useShallow((state) => ({
       currentStep: state.currentStep,
       authStatus: state.authStatus,
+      user: state.user,
       isMobile: state.isMobile,
       isTablet: state.isTablet,
       hasShownTutorial: state.hasShownTutorial,
@@ -158,11 +161,19 @@ function Tutorial() {
       !isMobile &&
       !isTablet &&
       authStatus === 'authenticated' &&
+      isLegacyUserInfo(user) &&
       !hasShownTutorial
     )
       return location.pathname === '/catalog';
     return false;
-  }, [location.pathname, authStatus, isMobile, isTablet, hasShownTutorial]);
+  }, [
+    location.pathname,
+    authStatus,
+    user,
+    isMobile,
+    isTablet,
+    hasShownTutorial,
+  ]);
 
   const theme = useStore((state) => state.theme);
 

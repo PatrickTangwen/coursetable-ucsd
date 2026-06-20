@@ -9,7 +9,7 @@ import { useShallow } from 'zustand/react/shallow';
 import type { CourseModalPrefetchListingDataFragment } from '../../generated/graphql-types';
 import { useModalHistory } from '../../hooks/useModalHistory';
 import { useWishlist } from '../../hooks/useWishlist';
-import { updateWishlistCourses } from '../../queries/api';
+import { isLegacyUserInfo, updateWishlistCourses } from '../../queries/api';
 import type { Crn, Season } from '../../queries/graphql-types';
 import { useStore } from '../../store';
 import { isInWishlist } from '../../utilities/course';
@@ -22,11 +22,12 @@ function WishlistToggleButton({
   readonly listing: CourseModalPrefetchListingDataFragment;
   readonly modal: boolean;
 }) {
-  const { worksheets, wishlistRefresh, isLgDesktop } = useStore(
+  const { worksheets, wishlistRefresh, isLgDesktop, user } = useStore(
     useShallow((state) => ({
       worksheets: state.worksheets,
       wishlistRefresh: state.wishlistRefresh,
       isLgDesktop: state.isLgDesktop,
+      user: state.user,
     })),
   );
   const { closeModal } = useModalHistory();
@@ -51,7 +52,6 @@ function WishlistToggleButton({
   const buttonLabel = inWishlist
     ? 'Remove from Wishlist'
     : 'Add to Wishlist (Beta!)';
-  const loggedOutLabel = 'Log in to add to your wishlist';
 
   const toggleWishlist = useCallback(
     async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -128,23 +128,7 @@ function WishlistToggleButton({
   const size = modal ? 20 : isLgDesktop ? 16 : 14;
   const Icon = inWishlist ? FaBookmark : FaRegBookmark;
 
-  // Disabled wishlist add/remove button if not logged in
-  if (!worksheets) {
-    return (
-      <OverlayTrigger
-        placement="top"
-        overlay={<Tooltip id={tooltipId}>{loggedOutLabel}</Tooltip>}
-      >
-        <Button
-          className={clsx('p-0', styles.toggleButton, styles.disabledButton)}
-          disabled
-          aria-label={loggedOutLabel}
-        >
-          <FaBookmark size={size} className={styles.disabledButtonIcon} />
-        </Button>
-      </OverlayTrigger>
-    );
-  }
+  if (!isLegacyUserInfo(user) || !worksheets) return null;
 
   return (
     <div className={styles.container}>

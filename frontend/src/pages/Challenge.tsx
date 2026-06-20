@@ -8,9 +8,9 @@ import { toast } from 'sonner';
 
 import Spinner from '../components/Spinner';
 import { TextComponent, SurfaceComponent } from '../components/Typography';
-import { API_ENDPOINT } from '../config';
 import ChallengeError from '../images/error.svg';
 import {
+  isLegacyUserInfo,
   requestChallenge,
   verifyChallenge,
   type RequestChallengeResBody,
@@ -24,12 +24,10 @@ function renderRequestError(requestError: string, navigate: NavigateFunction) {
       errorTitle: 'Please log in!',
       errorMessage: (
         <div>
-          You need to be logged in via CAS to enable your account.
+          You need to be logged in with a verified UCSD email to enable your
+          account.
           <br />
-          <a
-            href={`${API_ENDPOINT}/api/auth/cas?redirect=${window.location.origin}/catalog`}
-            className="btn btn-primary mt-3"
-          >
+          <a href="/login" className="btn btn-primary mt-3">
             Log in
           </a>
         </div>
@@ -60,6 +58,23 @@ function renderRequestError(requestError: string, navigate: NavigateFunction) {
           You've used up all your challenge attempts. Please{' '}
           <NavLink to="/feedback">contact us</NavLink> if you would like to gain
           access.
+        </div>
+      ),
+    };
+  } else if (requestError === 'UCSD_EMAIL_UNSUPPORTED') {
+    return {
+      errorTitle: 'Not available',
+      errorMessage: (
+        <div>
+          Evaluation verification is not available for UCSD email sign-in.
+          <br />
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="btn btn-primary mt-3"
+          >
+            Go back
+          </button>
         </div>
       ),
     };
@@ -100,6 +115,7 @@ function renderVerifyError(verifyError: string, navigate: NavigateFunction) {
 function Challenge() {
   const client = useApolloClient();
   const userRefresh = useStore((state) => state.userRefresh);
+  const user = useStore((state) => state.user);
   const navigate = useNavigate();
   // Has the form been validated for submission?
   const [validated, setValidated] = useState(false);
@@ -129,7 +145,15 @@ function Challenge() {
 
   // Fetch questions on component mount
   useEffect(() => {
+    let active = true;
+    if (user && !isLegacyUserInfo(user)) {
+      setRequestError('UCSD_EMAIL_UNSUPPORTED');
+      return () => {
+        active = false;
+      };
+    }
     void requestChallenge().then((res) => {
+      if (!active) return;
       if (res.status === 'success') {
         setResBody(res.data);
         setNumTries(res.data.challengeTries);
@@ -138,7 +162,10 @@ function Challenge() {
         setRequestError(res.message);
       }
     });
-  }, []);
+    return () => {
+      active = false;
+    };
+  }, [user]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     const form = event.currentTarget;

@@ -176,19 +176,62 @@ export const wishlistCourses = pgTable(
   }),
 );
 
+export const appUsers = pgTable(
+  'appUsers',
+  {
+    id: serial('id').primaryKey().notNull(),
+    verifiedEmail: varchar('verifiedEmail', { length: 256 }).notNull(),
+    createdAt: bigint('createdAt', { mode: 'number' }).notNull(),
+    updatedAt: bigint('updatedAt', { mode: 'number' }).notNull(),
+  },
+  (table) => ({
+    appUsersVerifiedEmailUniqueIdx: uniqueIndex(
+      'app_users_verified_email_unique_idx',
+    ).on(table.verifiedEmail),
+  }),
+);
+
+export const emailVerificationCodes = pgTable(
+  'emailVerificationCodes',
+  {
+    id: serial('id').primaryKey().notNull(),
+    normalizedEmail: varchar('normalizedEmail', { length: 256 }).notNull(),
+    codeHash: varchar('codeHash', { length: 128 }).notNull(),
+    createdAt: bigint('createdAt', { mode: 'number' }).notNull(),
+    expiresAt: bigint('expiresAt', { mode: 'number' }).notNull(),
+    consumedAt: bigint('consumedAt', { mode: 'number' }),
+  },
+  (table) => ({
+    emailVerificationEmailIdx: index('email_verification_email_idx').on(
+      table.normalizedEmail,
+    ),
+    emailVerificationLookupIdx: index('email_verification_lookup_idx').on(
+      table.normalizedEmail,
+      table.codeHash,
+    ),
+  }),
+);
+
 export const savedSearches = pgTable(
   'savedSearches',
   {
     id: serial('id').primaryKey().notNull(),
     netId: varchar('netId', { length: 8 }).notNull(),
+    userId: integer('userId').references(() => appUsers.id),
     name: varchar('name', { length: 64 }).notNull(),
     queryString: varchar('queryString', { length: 2048 }).notNull(),
     createdAt: bigint('createdAt', { mode: 'number' }).notNull(),
   },
   (table) => ({
     savedSearchesNetidIdx: index('saved_searches_netid_idx').on(table.netId),
+    savedSearchesUserIdIdx: index('saved_searches_user_id_idx').on(
+      table.userId,
+    ),
     savedSearchesNameUniqueIdx: uniqueIndex(
       'saved_searches_name_unique_idx',
     ).on(table.netId, table.name),
+    savedSearchesUserNameUniqueIdx: uniqueIndex(
+      'saved_searches_user_name_unique_idx',
+    ).on(table.userId, table.name),
   }),
 );

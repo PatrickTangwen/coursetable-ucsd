@@ -14,7 +14,7 @@ import {
   type OptionProps,
 } from 'react-select';
 import { useShallow } from 'zustand/react/shallow';
-import { searchProfiles } from '../../queries/api';
+import { isLegacyUserInfo, searchProfiles } from '../../queries/api';
 import type { NetId } from '../../queries/graphql-types';
 import { useStore } from '../../store';
 import { Popout } from '../Search/Popout';
@@ -181,13 +181,14 @@ function AddFriendDropdownDesktop({
     const timeoutId = setTimeout(() => {
       void (async () => {
         try {
+          const currentNetId = isLegacyUserInfo(user) ? user.netId : undefined;
           const data = await searchProfiles(searchText, 20);
           if (cancelled) return;
           const nextResults =
             data?.profiles
               .filter(
                 (profile) =>
-                  profile.netId !== user?.netId && !isFriend(profile.netId),
+                  profile.netId !== currentNetId && !isFriend(profile.netId),
               )
               .map(
                 (profile): OptionType => ({
@@ -209,7 +210,7 @@ function AddFriendDropdownDesktop({
       cancelled = true;
       clearTimeout(timeoutId);
     };
-  }, [isFriend, searchText, user?.netId]);
+  }, [isFriend, searchText, user]);
   const friendRequestOptions = useMemo(
     (): OptionType[] =>
       friendRequests?.map((request) => ({

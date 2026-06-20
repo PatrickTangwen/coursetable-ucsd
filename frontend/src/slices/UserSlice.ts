@@ -14,6 +14,7 @@ import {
   type FriendRecord,
   type FriendRequests,
   fetchUserWishlist,
+  isLegacyUserInfo,
 } from '../queries/api';
 import type { NetId } from '../queries/graphql-types';
 import type { Store } from '../store';
@@ -90,6 +91,8 @@ export const createUserSlice: StateCreator<Store, [], [], UserSlice> = (
     const { user } = get();
     if (!user) {
       toast.error('You are not logged in!');
+    } else if (!isLegacyUserInfo(user)) {
+      toast.error('Friend features are not available for UCSD email sign-in.');
     } else if (friendNetId === user.netId) {
       toast.error('You cannot request yourself as friend!');
     } else if (get().friends?.[friendNetId]) {
