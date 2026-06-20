@@ -145,7 +145,9 @@ link or label should be cleaned up in Beta-0.
     `Header/InfoRow.tsx`, `Header/ControlsRow.tsx`, and
     `OverviewPanel/OverviewPanel.tsx` use that detection to skip inherited
     GraphQL overview queries, evaluation tabs, OCE/demand/Yale external links,
-    and evaluation-panel navigation for UCSD snapshot courses.
+    and evaluation-panel navigation for UCSD snapshot courses. The merged
+    Beta-0 review also updates the UCSD snapshot-course browser title to use
+    `UCSD Course Planner` instead of inherited `CourseTable` branding.
   - `frontend/src/components/CourseModal/OverviewPanel/UcsdSnapshotOverview.tsx`
     keeps UCSD catalog metadata, `Archive Avg GPA`, `Record Count`, and
     `Grade Archive Records`, and now renders a UCSD-specific missing

@@ -42,7 +42,10 @@ function CourseModal({
   const { isUcsdSnapshotCourse } = getUcsdSnapshotCourseDetails(listing);
   const visibleView = isUcsdSnapshotCourse ? 'overview' : view;
   const institution = isUcsdSnapshotCourse ? 'UCSD' : 'Yale';
-  const title = `${listing.course_code} ${listing.course.section.padStart(2, '0')}: ${listing.course.title} - ${institution} ${toSeasonString(listing.course.season_code)} | CourseTable`;
+  const productName = isUcsdSnapshotCourse
+    ? 'UCSD Course Planner'
+    : 'CourseTable';
+  const title = `${listing.course_code} ${listing.course.section.padStart(2, '0')}: ${listing.course.title} - ${institution} ${toSeasonString(listing.course.season_code)} | ${productName}`;
   const description = truncatedText(
     listing.course.description,
     300,
