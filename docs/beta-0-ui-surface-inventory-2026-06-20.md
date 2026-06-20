@@ -1,8 +1,8 @@
 # Beta-0 UI Surface Inventory - 2026-06-20
 
-This document is the planned inventory artifact for `Beta-0 UI Surface Cleanup`.
-It should be updated during implementation with exact file paths and observed
-browser-smoke evidence.
+This document is the dated inventory artifact for `Beta-0 UI Surface Cleanup`.
+It records exact file paths, retained dormant source surfaces, and observed
+browser-smoke evidence from the per-surface slices and final acceptance pass.
 
 ## Scope
 
@@ -60,15 +60,10 @@ If any of these pages are linked from `/catalog`, `/worksheet`, course modal, or
 shared chrome with labels that imply currently supported UCSD capabilities, the
 link or label should be cleaned up in Beta-0.
 
-## Implementation Evidence To Fill In
+## Implementation Evidence
 
-- Browser smoke URL(s):
-- Browser smoke confirms absent unsupported wording:
-- Browser smoke confirms present supported UCSD concepts:
-- Hidden/retained source inventory:
-- Focused frontend test command(s):
-- Typecheck/check command(s):
-- Remaining follow-up cleanup:
+The following sections preserve the per-surface implementation evidence and end
+with the final cross-surface #19 acceptance pass.
 
 ### Agent 1 / #15 Catalog Discovery Surface Cleanup
 
@@ -255,3 +250,60 @@ ModalHistoryBridge modalHistoryUrl`; full frontend test command:
   GraphiQL, FAQ, About, Privacy, Release notes, Profile, and Login still need
   later inventory/adaptation before they are re-linked as current UCSD product
   surfaces.
+
+### Agent 5 / #19 Beta-0 Final Cross-Surface Acceptance
+
+- Browser smoke URL(s): `https://127.0.0.1:3031/catalog`,
+  `https://127.0.0.1:3031/catalog?course-modal=S126-3171542616`, and
+  `https://127.0.0.1:3031/worksheet?t=S126&sections=S126%3ACSE-TRACER-3%2CS126%3AMATH-TRACER-2`.
+  The worksheet route consumed the anonymous share parameters and rendered at
+  `https://127.0.0.1:3031/worksheet`. Smoke used Google Chrome via the Chrome
+  DevTools Protocol with a temporary headed profile. The frontend pointed to a
+  local static API shim at `http://127.0.0.1:4199` serving the tracked
+  `api/static/catalogs/public/S126.json`, `api/static/metadata.json`, and an
+  anonymous `/api/auth/check` response.
+- Browser smoke confirms absent unsupported wording: full visible text checks
+  on `/catalog`, course modal, `/worksheet`, and the worksheet export menu found
+  no `workload`, `professor quality`, `rating`, `OCE`, `evaluation`, `friends`,
+  `social`, `open seats`, `waitlist`, `enrollment`, `demand`,
+  `Google Calendar`, `PNG`, `GraphQL playground`, `GraphiQL`,
+  `I'm feeling lucky`, `CourseTable`, or `Yale` wording.
+- Browser smoke confirms present supported UCSD concepts: `/catalog` showed
+  `UCSD Course Planner`, `Archive Avg GPA`, and `Record Count`; opening Saved
+  Search as an anonymous user showed `Sign in required.` and the smoke API
+  recorded zero `/api/savedSearches` requests. The course modal showed
+  `Grade Archive Records`, `Archive Avg GPA`, and `Record Count`. The worksheet
+  showed `Anonymous Worksheet`, `Calendar`, `List`, `CSE 3`, and `MATH 2`.
+  The export menu showed `Download as ICS` and `Export worksheet as URL`.
+  Share export produced the `Anonymous worksheet URL copied to clipboard` toast
+  and wrote
+  `https://127.0.0.1:3031/worksheet?t=S126&sections=S126%3ACSE-TRACER-3%2CS126%3AMATH-TRACER-2`
+  to the browser clipboard. The tracked tracer snapshot contains only TBA
+  meetings, so the final smoke verified the ICS click path and TBA warning
+  rather than producing a timed `.ics` file; timed ICS content remains covered
+  by `frontend/src/utilities/calendar.test.ts`, and #17 previously verified a
+  browser `.ics` download with timed worksheet data.
+- Hidden/retained source inventory: primary shared chrome now links only
+  `Catalog`, `Worksheet`, and beta sign-in/profile actions from
+  `frontend/src/components/Navbar/Navbar.tsx`; primary footer links only
+  `Catalog` and `Anonymous Worksheet` from `frontend/src/components/Footer.tsx`.
+  FAQ, About, Privacy, release notes, Profile, Login, Challenge, and GraphiQL
+  remain inventory-only static/history pages because they are not linked from
+  `/catalog`, `/worksheet`, course modal, navbar, or footer with labels that
+  imply currently supported UCSD capabilities. Dormant Saved Search
+  backend/schema/API, auth/session scaffolding, worksheet persistence
+  structures, backend/schema/GraphQL/generated code, map/walking-time files,
+  Google Calendar export, PNG export, friends/social components, and worksheet
+  demand code remain retained only where they are unreachable from the primary
+  public UCSD paths.
+- Focused frontend test command(s):
+  `bun run --cwd frontend test src/queries/ucsdCatalogSnapshot.test.ts src/utilities/anonymousWorksheet.test.ts src/utilities/calendar.test.ts`
+  passed with 3 test files and 10 tests.
+- Typecheck/check command(s): `bun run typecheck` passed; `git diff --check`
+  passed before this inventory update. Final #19 closeout reran the repository
+  gates after this documentation change.
+- Remaining follow-up cleanup: no Beta-0 primary-path blocker remains. The
+  retained dormant source surfaces are intentionally available for later
+  Beta-1 App DB/Auth and saved-data adaptation; static/history pages should
+  stay inventory-only until a later slice rewrites and re-links them as current
+  UCSD product surfaces.
