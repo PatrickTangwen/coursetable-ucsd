@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useRef } from 'react';
 import { decompressFromEncodedURIComponent } from 'lz-string';
 import { memoize } from 'proxy-memoize';
 import { toast } from 'sonner';
@@ -6,7 +7,7 @@ import type { StateCreator } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 import { CUR_SEASON } from '../config';
 import { seasons as allSeasons } from '../data/catalogSeasons';
-import { useWorksheetInfo } from '../hooks/useFerry';
+import { useCourseData, useWorksheetInfo } from '../hooks/useFerry';
 import type { UserWorksheets } from '../queries/api';
 import {
   type Season,
@@ -18,6 +19,22 @@ import {
 import type { Option } from '../search/searchTypes';
 import { type Store, useStore } from '../store';
 import type { WorksheetCourse } from '../types/worksheetCourse';
+import {
+  ANONYMOUS_WORKSHEET_NAME,
+  addListingToAnonymousWorksheet,
+  anonymousWorksheetFromShare,
+  readAnonymousWorksheetStorage,
+  removeListingFromAnonymousWorksheet,
+  resolveAnonymousWorksheet,
+  setAllAnonymousWorksheetCoursesHidden,
+  setAnonymousWorksheetCourseColor,
+  setAnonymousWorksheetCourseHidden,
+  writeAnonymousWorksheetStorage,
+  type AnonymousWorksheetListing,
+  type AnonymousWorksheetShare,
+  type AnonymousWorksheetState,
+} from '../utilities/anonymousWorksheet';
+import { worksheetColors } from '../utilities/constants';
 
 // Utility Types
 export type WorksheetView = 'calendar' | 'list' | 'map';
@@ -54,6 +71,9 @@ interface WorksheetState {
   exoticWorksheet:
     | { data: ExoticWorksheet; worksheets: UserWorksheets }
     | undefined;
+  viewAnonymousWorksheet: boolean;
+  anonymousWorksheet: AnonymousWorksheetState;
+  anonymousWorksheetMissingSectionIds: string[];
 
   // Affect visual display
   worksheetView: WorksheetView;
@@ -84,6 +104,25 @@ interface WorksheetActions {
   getRelevantWorksheetNumber: (seasonCode: Season) => number;
 
   exitExoticWorksheet: () => void;
+  restoreAnonymousWorksheetFromShare: (share: AnonymousWorksheetShare) => void;
+  addAnonymousWorksheetListing: (
+    listing: AnonymousWorksheetListing,
+    color: string,
+  ) => boolean;
+  removeAnonymousWorksheetListing: (
+    listing: AnonymousWorksheetListing,
+  ) => boolean;
+  setAnonymousWorksheetListingHidden: (
+    listing: AnonymousWorksheetListing,
+    hidden: boolean,
+  ) => void;
+  setAnonymousWorksheetListingColor: (
+    listing: AnonymousWorksheetListing,
+    color: string,
+  ) => void;
+  setAllAnonymousWorksheetHidden: (hidden: boolean) => void;
+  clearAnonymousWorksheet: () => void;
+  setAnonymousWorksheetMissingSectionIds: (sectionIds: string[]) => void;
 
   changeWorksheetView: (view: WorksheetState['worksheetView']) => void;
   setHoverCourse: (course: WorksheetState['hoverCourse']) => void;
@@ -101,6 +140,7 @@ interface WorksheetSliceMemo {
     getCurWorksheet: (state: Store) => UserWorksheets;
     getSeasonCodes: (state: Store) => Season[];
     getIsExoticWorksheet: (state: Store) => boolean;
+    getIsAnonymousWorksheet: (state: Store) => boolean;
     getIsReadonlyWorksheet: (state: Store) => boolean;
     getViewedWorksheetName: (state: Store) => string;
     getIsViewedWorksheetPrivate: (state: Store) => boolean;
@@ -150,120 +190,251 @@ export const createWorksheetSlice: StateCreator<
   [],
   [],
   WorksheetSlice
-> = (set, get) => ({
-  viewedPerson: 'me',
-  viewedSeason: CUR_SEASON,
-  viewedWorksheetNumber: 0,
-  changeViewedPerson(newPerson) {
-    set({ viewedWorksheetNumber: 0, viewedPerson: newPerson });
-  },
-  changeViewedSeason(seasonCode) {
-    set({ viewedWorksheetNumber: 0, viewedSeason: seasonCode });
-  },
-  changeViewedWorksheetNumber(worksheetNumber) {
-    set({ viewedWorksheetNumber: worksheetNumber });
-  },
-  getRelevantWorksheetNumber(seasonCode) {
-    if (get().viewedPerson !== 'me' || seasonCode !== get().viewedSeason)
-      return 0;
-    return get().viewedWorksheetNumber;
-  },
-  exoticWorksheet: undefined,
-  exitExoticWorksheet() {
+> = (set, get) => {
+  const setAnonymousWorksheet = (worksheet: AnonymousWorksheetState) => {
+    writeAnonymousWorksheetStorage(worksheet);
     set({
-      exoticWorksheet: undefined,
+      anonymousWorksheet: worksheet,
+      viewedPerson: 'me',
+      viewedSeason: worksheet.term,
+      viewedWorksheetNumber: 0,
     });
-    const searchParams = new URLSearchParams(window.location.search);
-    searchParams.delete('ws');
-    window.history.replaceState(
-      {},
-      '',
-      `${window.location.pathname}${searchParams}`,
-    );
-    void get().worksheetsRefresh();
-  },
-  worksheetView: 'calendar',
-  hoverCourse: null,
-  changeWorksheetView(view) {
-    set({ worksheetView: view });
-    window.scrollTo({ top: 0, left: 0 });
-  },
-  setHoverCourse(course) {
-    set({ hoverCourse: course });
-  },
-  seasonCodes: [],
-  courses: [],
-  worksheetLoading: false,
-  worksheetError: null,
-  setWorksheetInfo(courses, worksheetLoading, worksheetError) {
-    set({ courses, worksheetLoading, worksheetError });
-  },
-  worksheetMemo: {
-    getCurWorksheet: memoize(
-      (state: Store): UserWorksheets =>
-        ((state.viewedPerson === 'me'
-          ? state.worksheets
-          : state.friends?.[state.viewedPerson]?.worksheets) ??
-          new Map()) as UserWorksheets,
-    ),
-    getSeasonCodes: memoize(() => allSeasons),
-    getIsExoticWorksheet: memoize((state: Store) =>
-      Boolean(state.exoticWorksheet),
-    ),
-    // A readonly worksheet is anything that doesn't belong to the user—either
-    // exotic or a friend's worksheet.
-    getIsReadonlyWorksheet: memoize(
-      (state: Store) =>
-        state.worksheetMemo.getIsExoticWorksheet(state) ||
-        state.viewedPerson !== 'me',
-    ),
-    getViewedWorksheetName: memoize(
-      (state: Store) =>
-        state.exoticWorksheet?.data.name ??
-        state.worksheetMemo
-          .getCurWorksheet(state)
-          .get(state.viewedSeason)
-          ?.get(state.viewedWorksheetNumber)?.name ??
-        (state.viewedWorksheetNumber === 0
-          ? 'Main Worksheet'
-          : 'Unnamed Worksheet'),
-    ),
-    getIsViewedWorksheetPrivate: memoize(
-      (state: Store) =>
-        state.worksheetMemo
-          .getCurWorksheet(state)
-          .get(state.viewedSeason)
-          ?.get(state.viewedWorksheetNumber)?.private ?? false,
-    ),
-  },
-});
+  };
+
+  return {
+    viewedPerson: 'me',
+    viewedSeason: CUR_SEASON,
+    viewedWorksheetNumber: 0,
+    changeViewedPerson(newPerson) {
+      set({ viewedWorksheetNumber: 0, viewedPerson: newPerson });
+    },
+    changeViewedSeason(seasonCode) {
+      set({ viewedWorksheetNumber: 0, viewedSeason: seasonCode });
+    },
+    changeViewedWorksheetNumber(worksheetNumber) {
+      set({ viewedWorksheetNumber: worksheetNumber });
+    },
+    getRelevantWorksheetNumber(seasonCode) {
+      if (get().viewedPerson !== 'me' || seasonCode !== get().viewedSeason)
+        return 0;
+      return get().viewedWorksheetNumber;
+    },
+    exoticWorksheet: undefined,
+    viewAnonymousWorksheet: false,
+    anonymousWorksheet: readAnonymousWorksheetStorage(CUR_SEASON),
+    anonymousWorksheetMissingSectionIds: [],
+    exitExoticWorksheet() {
+      set({
+        exoticWorksheet: undefined,
+      });
+      const searchParams = new URLSearchParams(window.location.search);
+      searchParams.delete('ws');
+      window.history.replaceState(
+        {},
+        '',
+        `${window.location.pathname}${searchParams}`,
+      );
+      if (get().authStatus === 'authenticated') void get().worksheetsRefresh();
+    },
+    restoreAnonymousWorksheetFromShare(share) {
+      setAnonymousWorksheet(
+        anonymousWorksheetFromShare(
+          share,
+          (index) => worksheetColors[index % worksheetColors.length]!,
+        ),
+      );
+      set({ viewAnonymousWorksheet: true });
+    },
+    addAnonymousWorksheetListing(listing, color) {
+      const current = get().anonymousWorksheet;
+      const next = addListingToAnonymousWorksheet(current, listing, color);
+      if (next === current) return false;
+      setAnonymousWorksheet(next);
+      return true;
+    },
+    removeAnonymousWorksheetListing(listing) {
+      const current = get().anonymousWorksheet;
+      const next = removeListingFromAnonymousWorksheet(current, listing);
+      if (next === current) return false;
+      setAnonymousWorksheet(next);
+      return true;
+    },
+    setAnonymousWorksheetListingHidden(listing, hidden) {
+      setAnonymousWorksheet(
+        setAnonymousWorksheetCourseHidden(
+          get().anonymousWorksheet,
+          listing,
+          hidden,
+        ),
+      );
+    },
+    setAnonymousWorksheetListingColor(listing, color) {
+      setAnonymousWorksheet(
+        setAnonymousWorksheetCourseColor(
+          get().anonymousWorksheet,
+          listing,
+          color,
+        ),
+      );
+    },
+    setAllAnonymousWorksheetHidden(hidden) {
+      setAnonymousWorksheet(
+        setAllAnonymousWorksheetCoursesHidden(get().anonymousWorksheet, hidden),
+      );
+    },
+    clearAnonymousWorksheet() {
+      setAnonymousWorksheet({
+        term: get().anonymousWorksheet.term,
+        courses: [],
+      });
+    },
+    setAnonymousWorksheetMissingSectionIds(sectionIds) {
+      set({ anonymousWorksheetMissingSectionIds: sectionIds });
+    },
+    worksheetView: 'calendar',
+    hoverCourse: null,
+    changeWorksheetView(view) {
+      set({ worksheetView: view });
+      window.scrollTo({ top: 0, left: 0 });
+    },
+    setHoverCourse(course) {
+      set({ hoverCourse: course });
+    },
+    seasonCodes: [],
+    courses: [],
+    worksheetLoading: false,
+    worksheetError: null,
+    setWorksheetInfo(courses, worksheetLoading, worksheetError) {
+      set({ courses, worksheetLoading, worksheetError });
+    },
+    worksheetMemo: {
+      getCurWorksheet: memoize(
+        (state: Store): UserWorksheets =>
+          ((state.viewedPerson === 'me'
+            ? state.worksheets
+            : state.friends?.[state.viewedPerson]?.worksheets) ??
+            new Map()) as UserWorksheets,
+      ),
+      getSeasonCodes: memoize(() => allSeasons),
+      getIsExoticWorksheet: memoize((state: Store) =>
+        Boolean(state.exoticWorksheet),
+      ),
+      getIsAnonymousWorksheet: memoize(
+        (state: Store) =>
+          (state.authStatus === 'unauthenticated' ||
+            state.viewAnonymousWorksheet) &&
+          !state.exoticWorksheet,
+      ),
+      // A readonly worksheet is anything that doesn't belong to the user—either
+      // exotic or a friend's worksheet.
+      getIsReadonlyWorksheet: memoize(
+        (state: Store) =>
+          state.worksheetMemo.getIsExoticWorksheet(state) ||
+          state.viewedPerson !== 'me',
+      ),
+      getViewedWorksheetName: memoize(
+        (state: Store) =>
+          state.exoticWorksheet?.data.name ??
+          (state.worksheetMemo.getIsAnonymousWorksheet(state)
+            ? ANONYMOUS_WORKSHEET_NAME
+            : undefined) ??
+          state.worksheetMemo
+            .getCurWorksheet(state)
+            .get(state.viewedSeason)
+            ?.get(state.viewedWorksheetNumber)?.name ??
+          (state.viewedWorksheetNumber === 0
+            ? 'Main Worksheet'
+            : 'Unnamed Worksheet'),
+      ),
+      getIsViewedWorksheetPrivate: memoize((state: Store) =>
+        state.worksheetMemo.getIsAnonymousWorksheet(state)
+          ? false
+          : (state.worksheetMemo
+              .getCurWorksheet(state)
+              .get(state.viewedSeason)
+              ?.get(state.viewedWorksheetNumber)?.private ?? false),
+      ),
+    },
+  };
+};
 
 // Effects should be used for values with React dependencies
 export const useWorksheetEffects = () => {
   const {
     exoticWorksheet,
+    anonymousWorksheet,
+    isAnonymousWorksheet,
     curWorksheet,
     viewedSeason,
     viewedWorksheetNumber,
     setWorksheetInfo,
+    setAnonymousWorksheetMissingSectionIds,
   } = useStore(
     useShallow((state) => ({
       exoticWorksheet: state.exoticWorksheet,
+      anonymousWorksheet: state.anonymousWorksheet,
+      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
       curWorksheet: state.worksheetMemo.getCurWorksheet(state),
       viewedSeason: state.viewedSeason,
       viewedWorksheetNumber: state.viewedWorksheetNumber,
       setWorksheetInfo: state.setWorksheetInfo,
+      setAnonymousWorksheetMissingSectionIds:
+        state.setAnonymousWorksheetMissingSectionIds,
     })),
   );
+
+  const anonymousRequestedSeasons = useMemo(
+    () => (isAnonymousWorksheet ? [anonymousWorksheet.term] : []),
+    [anonymousWorksheet.term, isAnonymousWorksheet],
+  );
+  const { courses: catalogCourses } = useCourseData(anonymousRequestedSeasons);
+  const anonymousResolved = useMemo(
+    () =>
+      resolveAnonymousWorksheet(
+        anonymousWorksheet,
+        catalogCourses[anonymousWorksheet.term]?.data,
+      ),
+    [anonymousWorksheet, catalogCourses],
+  );
+  const anonymousMissingKey =
+    anonymousResolved.missingSectionIds.length > 0
+      ? anonymousResolved.missingSectionIds.join('\n')
+      : '';
+  const lastWarnedAnonymousMissingKey = useRef('');
+
+  useEffect(() => {
+    if (!isAnonymousWorksheet) {
+      setAnonymousWorksheetMissingSectionIds([]);
+      lastWarnedAnonymousMissingKey.current = '';
+      return;
+    }
+    setAnonymousWorksheetMissingSectionIds(anonymousResolved.missingSectionIds);
+    if (
+      anonymousMissingKey &&
+      anonymousMissingKey !== lastWarnedAnonymousMissingKey.current
+    ) {
+      lastWarnedAnonymousMissingKey.current = anonymousMissingKey;
+      toast.warning(
+        `Some shared worksheet sections are no longer in this snapshot: ${anonymousResolved.missingSectionIds.join(', ')}`,
+      );
+    }
+  }, [
+    anonymousMissingKey,
+    anonymousResolved.missingSectionIds,
+    isAnonymousWorksheet,
+    setAnonymousWorksheetMissingSectionIds,
+  ]);
 
   const {
     loading: worksheetLoading,
     error: worksheetError,
     data: courses,
   } = useWorksheetInfo(
-    exoticWorksheet?.worksheets ?? curWorksheet,
-    exoticWorksheet?.data.season ?? viewedSeason,
-    exoticWorksheet ? 0 : viewedWorksheetNumber,
+    exoticWorksheet?.worksheets ??
+      (isAnonymousWorksheet ? anonymousResolved.worksheets : curWorksheet),
+    exoticWorksheet?.data.season ??
+      (isAnonymousWorksheet ? anonymousWorksheet.term : viewedSeason),
+    exoticWorksheet || isAnonymousWorksheet ? 0 : viewedWorksheetNumber,
   );
   setWorksheetInfo(courses, worksheetLoading, worksheetError);
 };

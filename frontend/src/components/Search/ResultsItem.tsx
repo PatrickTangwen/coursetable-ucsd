@@ -16,6 +16,7 @@ import {
 import { useSearch } from '../../hooks/useSearch';
 import type { CatalogListing } from '../../queries/api';
 import { useStore } from '../../store';
+import { anonymousWorksheetHasListing } from '../../utilities/anonymousWorksheet';
 import { generateRandomColor } from '../../utilities/common';
 import {
   getEnrolled,
@@ -81,9 +82,16 @@ function ResultsItem({
   style,
 }: ListChildComponentProps<ResultItemData>) {
   const listing = listings[index]!;
-  const { user, worksheets } = useStore(
-    useShallow((state) => ({ worksheets: state.worksheets, user: state.user })),
-  );
+  const { user, worksheets, isAnonymousWorksheet, anonymousWorksheet } =
+    useStore(
+      useShallow((state) => ({
+        worksheets: state.worksheets,
+        user: state.user,
+        isAnonymousWorksheet:
+          state.worksheetMemo.getIsAnonymousWorksheet(state),
+        anonymousWorksheet: state.anonymousWorksheet,
+      })),
+    );
   const getRelevantWorksheetNumber = useStore(
     (state) => state.getRelevantWorksheetNumber,
   );
@@ -94,12 +102,20 @@ function ResultsItem({
 
   const inWorksheet = useMemo(
     () =>
-      isInWorksheet(
-        listing,
-        getRelevantWorksheetNumber(listing.course.season_code),
-        worksheets,
-      ),
-    [listing, getRelevantWorksheetNumber, worksheets],
+      isAnonymousWorksheet
+        ? anonymousWorksheetHasListing(anonymousWorksheet, listing)
+        : isInWorksheet(
+            listing,
+            getRelevantWorksheetNumber(listing.course.season_code),
+            worksheets,
+          ),
+    [
+      anonymousWorksheet,
+      isAnonymousWorksheet,
+      listing,
+      getRelevantWorksheetNumber,
+      worksheets,
+    ],
   );
 
   const timeAdded = listing.course.time_added

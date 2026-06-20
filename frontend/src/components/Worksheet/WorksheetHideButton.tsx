@@ -26,12 +26,19 @@ export default function WorksheetHideButton({
     viewedWorksheetNumber,
     viewedPerson,
     isReadonlyWorksheet,
+    isAnonymousWorksheet,
+    courses,
+    setAnonymousWorksheetListingHidden,
   } = useStore(
     useShallow((state) => ({
       viewedSeason: state.viewedSeason,
       viewedWorksheetNumber: state.viewedWorksheetNumber,
       viewedPerson: state.viewedPerson,
       isReadonlyWorksheet: state.worksheetMemo.getIsReadonlyWorksheet(state),
+      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+      courses: state.courses,
+      setAnonymousWorksheetListingHidden:
+        state.setAnonymousWorksheetListingHidden,
     })),
   );
   if (isReadonlyWorksheet || viewedPerson !== 'me') return null;
@@ -57,6 +64,12 @@ export default function WorksheetHideButton({
         onClick={async (e) => {
           // Prevent clicking hide button from opening course modal
           e.stopPropagation();
+          if (isAnonymousWorksheet) {
+            const course = courses.find((c) => c.listing.crn === crn);
+            if (course)
+              setAnonymousWorksheetListingHidden(course.listing, !hidden);
+            return;
+          }
           await setCourseHidden({
             season: viewedSeason,
             worksheetNumber: viewedWorksheetNumber,

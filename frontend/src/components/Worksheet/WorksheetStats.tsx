@@ -90,6 +90,8 @@ export default function WorksheetStats() {
     courses,
     isExoticWorksheet,
     exoticWorksheet,
+    isAnonymousWorksheet,
+    anonymousWorksheetMissingSectionIds,
     exitExoticWorksheet,
     isMobile,
   } = useStore(
@@ -97,6 +99,9 @@ export default function WorksheetStats() {
       courses: state.courses,
       isExoticWorksheet: state.worksheetMemo.getIsExoticWorksheet(state),
       exoticWorksheet: state.exoticWorksheet,
+      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+      anonymousWorksheetMissingSectionIds:
+        state.anonymousWorksheetMissingSectionIds,
       exitExoticWorksheet: state.exitExoticWorksheet,
       isMobile: state.isMobile,
     })),
@@ -169,6 +174,20 @@ export default function WorksheetStats() {
                 {exoticWorksheet.data.creatorName && (
                   <div className={styles.creatorName}>
                     by {exoticWorksheet.data.creatorName}
+                  </div>
+                )}
+              </div>
+            )}
+            {isAnonymousWorksheet && (
+              <div className={styles.worksheetInfo}>
+                <div className={styles.worksheetName}>Anonymous Worksheet</div>
+                {anonymousWorksheetMissingSectionIds.length > 0 && (
+                  <div className={styles.creatorName}>
+                    {anonymousWorksheetMissingSectionIds.length} shared section
+                    {anonymousWorksheetMissingSectionIds.length === 1
+                      ? ''
+                      : 's'}{' '}
+                    no longer available in this snapshot.
                   </div>
                 )}
               </div>

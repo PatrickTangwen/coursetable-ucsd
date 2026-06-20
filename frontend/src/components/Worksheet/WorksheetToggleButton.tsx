@@ -27,6 +27,10 @@ import {
   type WorksheetNumberOption,
 } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
+import {
+  anonymousWorksheetHasListing,
+  getListingSectionId,
+} from '../../utilities/anonymousWorksheet';
 import { worksheetColors } from '../../utilities/constants';
 import {
   isInWorksheet,
@@ -149,6 +153,19 @@ function WorksheetToggleButton({
         getRelevantWorksheetNumber: state.getRelevantWorksheetNumber,
       })),
     );
+  const {
+    anonymousWorksheet,
+    isAnonymousWorksheet,
+    addAnonymousWorksheetListing,
+    removeAnonymousWorksheetListing,
+  } = useStore(
+    useShallow((state) => ({
+      anonymousWorksheet: state.anonymousWorksheet,
+      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+      addAnonymousWorksheetListing: state.addAnonymousWorksheetListing,
+      removeAnonymousWorksheetListing: state.removeAnonymousWorksheetListing,
+    })),
+  );
   const client = useApolloClient();
   const pendingLatestChoiceRef = useRef<
     ((choice: 'latest' | 'historical' | 'cancel') => void) | null
@@ -219,8 +236,18 @@ function WorksheetToggleButton({
 
   const inWorksheet = useMemo(
     () =>
-      inWorksheetProp ?? isInWorksheet(listing, selectedWorksheet, worksheets),
-    [inWorksheetProp, listing, selectedWorksheet, worksheets],
+      isAnonymousWorksheet
+        ? anonymousWorksheetHasListing(anonymousWorksheet, listing)
+        : (inWorksheetProp ??
+          isInWorksheet(listing, selectedWorksheet, worksheets)),
+    [
+      anonymousWorksheet,
+      inWorksheetProp,
+      isAnonymousWorksheet,
+      listing,
+      selectedWorksheet,
+      worksheets,
+    ],
   );
 
   const isLgDesktop = useStore((state) => state.isLgDesktop);
@@ -234,6 +261,32 @@ function WorksheetToggleButton({
       let targetCrn = listing.crn;
       let targetWorksheetNumber = selectedWorksheet;
       let switchedToLatest = false;
+
+      if (isAnonymousWorksheet) {
+        const sectionId = getListingSectionId(listing);
+        if (!sectionId) {
+          toast.error(
+            'This section cannot be added to an anonymous worksheet.',
+          );
+          return;
+        }
+        const changed = inWorksheet
+          ? removeAnonymousWorksheetListing(listing)
+          : addAnonymousWorksheetListing(
+              listing,
+              worksheetColors[
+                Math.floor(Math.random() * worksheetColors.length)
+              ]!,
+            );
+        if (changed) {
+          toast.success(
+            inWorksheet
+              ? 'Removed from anonymous worksheet'
+              : 'Added to anonymous worksheet',
+          );
+        }
+        return;
+      }
 
       const sameCourseId = listing.course.same_course_id;
 
@@ -322,13 +375,14 @@ function WorksheetToggleButton({
     },
     [
       inWorksheet,
+      isAnonymousWorksheet,
+      addAnonymousWorksheetListing,
       client,
       confirmAddLatestOffering,
       getRelevantWorksheetNumber,
+      listing,
+      removeAnonymousWorksheetListing,
       resolveWorksheetNumberForSeason,
-      listing.crn,
-      listing.course.season_code,
-      listing.course.same_course_id,
       selectedWorksheet,
       worksheets,
       worksheetsRefresh,
@@ -337,15 +391,17 @@ function WorksheetToggleButton({
 
   const size = modal ? 20 : isLgDesktop ? 16 : 14;
   const Icon = inWorksheet ? FaMinus : FaPlus;
-  const buttonLabel = worksheets
-    ? // The worksheet name can only be unknown if we triggered the
-      // if (prevWorksheetCtx !== defaultWorksheetNumber) code path above
-      // We will update it once and then it will be correct
-      `${inWorksheet ? 'Remove from' : 'Add to'} worksheet "${worksheetOptions[selectedWorksheet]?.label ?? 'Unknown'}"`
-    : 'Log in to add to your worksheet';
+  const buttonLabel = isAnonymousWorksheet
+    ? `${inWorksheet ? 'Remove from' : 'Add to'} anonymous worksheet`
+    : worksheets
+      ? // The worksheet name can only be unknown if we triggered the
+        // if (prevWorksheetCtx !== defaultWorksheetNumber) code path above
+        // We will update it once and then it will be correct
+        `${inWorksheet ? 'Remove from' : 'Add to'} worksheet "${worksheetOptions[selectedWorksheet]?.label ?? 'Unknown'}"`
+      : 'Log in to add to your worksheet';
 
-  // Disabled worksheet add/remove button if not logged in
-  if (!worksheets) {
+  // Disabled worksheet add/remove button while auth is still resolving.
+  if (!worksheets && !isAnonymousWorksheet) {
     return (
       <div className={styles.container}>
         <OverlayTrigger
@@ -401,7 +457,7 @@ function WorksheetToggleButton({
           </Button>
         </OverlayTrigger>
       </div>
-      {modal && (
+      {modal && !isAnonymousWorksheet && (
         <Popout
           buttonText="Worksheet"
           selectedOptions={worksheetOptions[selectedWorksheet]}

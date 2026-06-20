@@ -40,6 +40,9 @@ function WorksheetItemActionsButton({
       setOpenWorksheetMoveEvent: state.setOpenWorksheetMoveEvent,
     })),
   );
+  const isAnonymousWorksheet = useStore((state) =>
+    state.worksheetMemo.getIsAnonymousWorksheet(state),
+  );
 
   const togglePopover = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -102,29 +105,31 @@ function WorksheetItemActionsButton({
                     <MdEdit color="var(--color-text-dark)" />
                   </button>
                 </OverlayTrigger>
-                <OverlayTrigger
-                  placement="bottom"
-                  overlay={
-                    <Tooltip
-                      id={`worksheet-item-move-${event.listing.crn}-${event.start.getTime()}-tooltip`}
-                    >
-                      <small>Move to another worksheet</small>
-                    </Tooltip>
-                  }
-                >
-                  <button
-                    type="button"
-                    className={className}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setOpenWorksheetMoveEvent(event);
-                      setPopoverOpen(false);
-                    }}
-                    aria-label="Move course"
+                {!isAnonymousWorksheet && (
+                  <OverlayTrigger
+                    placement="bottom"
+                    overlay={
+                      <Tooltip
+                        id={`worksheet-item-move-${event.listing.crn}-${event.start.getTime()}-tooltip`}
+                      >
+                        <small>Move to another worksheet</small>
+                      </Tooltip>
+                    }
                   >
-                    <MdMoveToInbox color="var(--color-text-dark)" />
-                  </button>
-                </OverlayTrigger>
+                    <button
+                      type="button"
+                      className={className}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenWorksheetMoveEvent(event);
+                        setPopoverOpen(false);
+                      }}
+                      aria-label="Move course"
+                    >
+                      <MdMoveToInbox color="var(--color-text-dark)" />
+                    </button>
+                  </OverlayTrigger>
+                )}
               </div>
             </Popover.Body>
           </Popover>
@@ -140,14 +145,22 @@ export function ColorPickerModal({
   readonly onClose: () => void;
 }) {
   const worksheetsRefresh = useStore((state) => state.worksheetsRefresh);
-  const { viewedSeason, viewedWorksheetNumber, openColorPickerEvent } =
-    useStore(
-      useShallow((state) => ({
-        viewedSeason: state.viewedSeason,
-        viewedWorksheetNumber: state.viewedWorksheetNumber,
-        openColorPickerEvent: state.openColorPickerEvent,
-      })),
-    );
+  const {
+    viewedSeason,
+    viewedWorksheetNumber,
+    openColorPickerEvent,
+    isAnonymousWorksheet,
+    setAnonymousWorksheetListingColor,
+  } = useStore(
+    useShallow((state) => ({
+      viewedSeason: state.viewedSeason,
+      viewedWorksheetNumber: state.viewedWorksheetNumber,
+      openColorPickerEvent: state.openColorPickerEvent,
+      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+      setAnonymousWorksheetListingColor:
+        state.setAnonymousWorksheetListingColor,
+    })),
+  );
   const [newColor, setNewColor] = useState<string | undefined>(undefined);
 
   if (!openColorPickerEvent) return null;
@@ -176,6 +189,14 @@ export function ColorPickerModal({
         <Button
           variant="primary"
           onClick={async () => {
+            if (isAnonymousWorksheet) {
+              setAnonymousWorksheetListingColor(
+                openColorPickerEvent.listing,
+                newColor ?? openColorPickerEvent.color,
+              );
+              onClose();
+              return;
+            }
             await updateWorksheetCourses({
               action: 'update',
               season: viewedSeason,

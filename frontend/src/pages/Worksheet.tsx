@@ -10,7 +10,6 @@ import {
 } from 'react-icons/fa';
 import { useShallow } from 'zustand/react/shallow';
 
-import NeedsLogin from './NeedsLogin';
 import ErrorPage from '../components/ErrorPage';
 import Spinner from '../components/Spinner';
 import { SurfaceComponent } from '../components/Typography';
@@ -24,8 +23,10 @@ import WorksheetMap from '../components/Worksheet/WorksheetMap';
 import WorksheetNumDropdown from '../components/Worksheet/WorksheetNumberDropdown';
 import WorksheetStats from '../components/Worksheet/WorksheetStats';
 
+import { CUR_SEASON } from '../config';
 import { parseCoursesFromURL } from '../slices/WorksheetSlice';
 import { useStore } from '../store';
+import { parseAnonymousWorksheetShare } from '../utilities/anonymousWorksheet';
 import styles from './Worksheet.module.css';
 
 const SHOW_WALKING_TIMES_STORAGE_KEY = 'worksheet-calendar-show-walking-times';
@@ -33,22 +34,22 @@ const SHOW_WALKING_TIMES_STORAGE_KEY = 'worksheet-calendar-show-walking-times';
 function Worksheet() {
   const {
     isMobile,
-    authStatus,
     worksheetLoading,
     worksheetError,
     worksheetView,
     isExoticWorksheet,
+    isAnonymousWorksheet,
     isCalendarViewLocked,
     setCalendarViewLocked,
     setCalendarLockSettingsOpen,
   } = useStore(
     useShallow((state) => ({
       isMobile: state.isMobile,
-      authStatus: state.authStatus,
       worksheetLoading: state.worksheetLoading,
       worksheetError: state.worksheetError,
       worksheetView: state.worksheetView,
       isExoticWorksheet: state.worksheetMemo.getIsExoticWorksheet(state),
+      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
       isCalendarViewLocked: state.isCalendarViewLocked,
       setCalendarViewLocked: state.setCalendarViewLocked,
       setCalendarLockSettingsOpen: state.setCalendarLockSettingsOpen,
@@ -67,6 +68,22 @@ function Worksheet() {
 
   useEffect(() => {
     const exoticWorksheet = parseCoursesFromURL();
+    const searchParams = new URLSearchParams(window.location.search);
+    const anonymousShare = parseAnonymousWorksheetShare(
+      searchParams,
+      CUR_SEASON,
+    );
+    if (anonymousShare) {
+      useStore.getState().restoreAnonymousWorksheetFromShare(anonymousShare);
+      searchParams.delete('t');
+      searchParams.delete('sections');
+      const nextSearch = searchParams.toString();
+      window.history.replaceState(
+        {},
+        '',
+        `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}`,
+      );
+    }
     useStore.setState({ exoticWorksheet });
   }, []);
 
@@ -84,9 +101,6 @@ function Worksheet() {
     return <ErrorPage message="There seems to be an issue with our server" />;
   }
   if (worksheetLoading) return <Spinner message="Loading worksheet data..." />;
-  // For unauthed users, they can only view exotic worksheets
-  if (authStatus === 'unauthenticated' && !isExoticWorksheet)
-    return <NeedsLogin redirect="/worksheet" message="your worksheet" />;
   if (worksheetView === 'map') return <WorksheetMap />;
   if (worksheetView === 'list' && !isMobile) return <WorksheetList />;
   const LockIcon = isCalendarViewLocked ? FaLock : FaUnlock;
@@ -99,7 +113,7 @@ function Worksheet() {
   if (worksheetView === 'list' && isMobile) {
     return (
       <>
-        {!isExoticWorksheet && (
+        {!isExoticWorksheet && !isAnonymousWorksheet && (
           <div className={styles.mobileListDropdowns}>
             <WorksheetNumDropdown mobile />
             <div className="d-flex">
@@ -116,7 +130,7 @@ function Worksheet() {
   // Calendar view (default)
   return (
     <div className={styles.container}>
-      {isMobile && !isExoticWorksheet && (
+      {isMobile && !isExoticWorksheet && !isAnonymousWorksheet && (
         <div className={styles.dropdowns}>
           <WorksheetNumDropdown mobile />
           <div className="d-flex">

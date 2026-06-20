@@ -10,6 +10,7 @@ import type { ResultItemData } from './Results';
 import { SeasonTag, CourseCode, ratingTypes } from './ResultsItemCommon';
 import type { CatalogListing } from '../../queries/api';
 import { useStore } from '../../store';
+import { anonymousWorksheetHasListing } from '../../utilities/anonymousWorksheet';
 import { generateRandomColor } from '../../utilities/common';
 import {
   isInWorksheet,
@@ -83,9 +84,16 @@ function ResultsGridItem({
 }: GridChildComponentProps<ResultItemData>) {
   const listing = listings[rowIndex * columnCount + columnIndex];
   const target = useCourseModalLink(listing);
-  const { user, worksheets } = useStore(
-    useShallow((state) => ({ worksheets: state.worksheets, user: state.user })),
-  );
+  const { user, worksheets, isAnonymousWorksheet, anonymousWorksheet } =
+    useStore(
+      useShallow((state) => ({
+        worksheets: state.worksheets,
+        user: state.user,
+        isAnonymousWorksheet:
+          state.worksheetMemo.getIsAnonymousWorksheet(state),
+        anonymousWorksheet: state.anonymousWorksheet,
+      })),
+    );
   const getRelevantWorksheetNumber = useStore(
     (state) => state.getRelevantWorksheetNumber,
   );
@@ -93,12 +101,20 @@ function ResultsGridItem({
   const inWorksheet = useMemo(
     () =>
       listing &&
-      isInWorksheet(
-        listing,
-        getRelevantWorksheetNumber(listing.course.season_code),
-        worksheets,
-      ),
-    [listing, getRelevantWorksheetNumber, worksheets],
+      (isAnonymousWorksheet
+        ? anonymousWorksheetHasListing(anonymousWorksheet, listing)
+        : isInWorksheet(
+            listing,
+            getRelevantWorksheetNumber(listing.course.season_code),
+            worksheets,
+          )),
+    [
+      anonymousWorksheet,
+      isAnonymousWorksheet,
+      listing,
+      getRelevantWorksheetNumber,
+      worksheets,
+    ],
   );
 
   if (!listing) return null;

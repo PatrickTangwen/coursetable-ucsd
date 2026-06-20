@@ -111,6 +111,9 @@ function WorksheetCalendarList({
     viewedPerson,
     worksheets,
     user,
+    isAnonymousWorksheet,
+    setAllAnonymousWorksheetHidden,
+    clearAnonymousWorksheet,
   } = useStore(
     useShallow((state) => ({
       courses: state.courses,
@@ -125,6 +128,9 @@ function WorksheetCalendarList({
       viewedPerson: state.viewedPerson,
       worksheets: state.worksheets,
       user: state.user,
+      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+      setAllAnonymousWorksheetHidden: state.setAllAnonymousWorksheetHidden,
+      clearAnonymousWorksheet: state.clearAnonymousWorksheet,
     })),
   );
 
@@ -194,6 +200,17 @@ function WorksheetCalendarList({
     if (courses.length === 0) return;
     const courseCount = courses.length;
 
+    if (isAnonymousWorksheet) {
+      clearAnonymousWorksheet();
+      setClearModalOpen(false);
+      toast.success(
+        courseCount === 1
+          ? 'Removed class from anonymous worksheet'
+          : `Removed all ${courseCount} classes from anonymous worksheet`,
+      );
+      return;
+    }
+
     const actions = courses.map((course) => ({
       action: 'remove' as const,
       season: viewedSeason,
@@ -237,6 +254,10 @@ function WorksheetCalendarList({
                 >
                   <Button
                     onClick={async () => {
+                      if (isAnonymousWorksheet) {
+                        setAllAnonymousWorksheetHidden(!areHidden);
+                        return;
+                      }
                       await setCourseHidden({
                         season: viewedSeason,
                         worksheetNumber: viewedWorksheetNumber,
@@ -306,9 +327,11 @@ function WorksheetCalendarList({
                     variant="none"
                     className={clsx(styles.button, 'w-100 btn')}
                   >
-                    <Dropdown.Item eventKey="1" as="div">
-                      <GoogleCalendarButton />
-                    </Dropdown.Item>
+                    {!isAnonymousWorksheet && (
+                      <Dropdown.Item eventKey="1" as="div">
+                        <GoogleCalendarButton />
+                      </Dropdown.Item>
+                    )}
                     <Dropdown.Item eventKey="2" as="div">
                       <ICSExportButton />
                     </Dropdown.Item>
