@@ -19,9 +19,7 @@ import { TbCalendarDown, TbCalendarUp } from 'react-icons/tb';
 import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
 
-import GoogleCalendarButton from './GoogleCalendarButton';
 import ICSExportButton from './ICSExportButton';
-import PNGExportButton from './PNGExportButton';
 import URLExportButton from './URLExportButton';
 import WorksheetCalendarListContext from './WorksheetCalendarListContext';
 import WorksheetCalendarListItem from './WorksheetCalendarListItem';
@@ -85,8 +83,6 @@ type WorksheetCalendarListProps = {
   readonly controlsMode: 'full' | 'hide-only' | 'none' | 'map';
   readonly missingBuildingCodes: Set<string>;
   readonly hideTooltipContext: 'calendar' | 'map';
-  readonly showWalkingTimes?: boolean;
-  readonly onShowWalkingTimesChange?: (showWalkingTimes: boolean) => void;
 };
 
 function WorksheetCalendarList({
@@ -96,8 +92,6 @@ function WorksheetCalendarList({
   controlsMode,
   missingBuildingCodes,
   hideTooltipContext,
-  showWalkingTimes = true,
-  onShowWalkingTimesChange,
 }: WorksheetCalendarListProps) {
   const {
     courses,
@@ -107,7 +101,6 @@ function WorksheetCalendarList({
     isExoticWorksheet,
     exoticWorksheet,
     isViewedWorksheetPrivate,
-    worksheetView,
     viewedPerson,
     worksheets,
     user,
@@ -124,7 +117,6 @@ function WorksheetCalendarList({
       exoticWorksheet: state.exoticWorksheet,
       isViewedWorksheetPrivate:
         state.worksheetMemo.getIsViewedWorksheetPrivate(state),
-      worksheetView: state.worksheetView,
       viewedPerson: state.viewedPerson,
       worksheets: state.worksheets,
       user: state.user,
@@ -148,9 +140,9 @@ function WorksheetCalendarList({
   const showSettings =
     (controlsMode === 'full' || controlsMode === 'map') &&
     !isExoticWorksheet &&
-    viewedPerson === 'me';
-  const showWalkTimesSetting =
-    worksheetView === 'calendar' && Boolean(onShowWalkingTimesChange);
+    viewedPerson === 'me' &&
+    (!isAnonymousWorksheet || courses.length > 0);
+  const showWorksheetPrivacySetting = !isAnonymousWorksheet;
   const showExport = controlsMode === 'full';
   const showImport = controlsMode === 'full' && isExoticWorksheet;
 
@@ -327,18 +319,10 @@ function WorksheetCalendarList({
                     variant="none"
                     className={clsx(styles.button, 'w-100 btn')}
                   >
-                    {!isAnonymousWorksheet && (
-                      <Dropdown.Item eventKey="1" as="div">
-                        <GoogleCalendarButton />
-                      </Dropdown.Item>
-                    )}
-                    <Dropdown.Item eventKey="2" as="div">
+                    <Dropdown.Item eventKey="1" as="div">
                       <ICSExportButton />
                     </Dropdown.Item>
-                    <Dropdown.Item eventKey="3" as="div">
-                      <PNGExportButton />
-                    </Dropdown.Item>
-                    <Dropdown.Item eventKey="4" as="div">
+                    <Dropdown.Item eventKey="2" as="div">
                       <URLExportButton />
                     </Dropdown.Item>
                   </DropdownButton>
@@ -512,54 +496,38 @@ function WorksheetCalendarList({
 
         <Modal.Body>
           <Form>
-            {viewedWorksheetNumber === 0 ? (
-              <OverlayTrigger
-                placement="right"
-                overlay={
-                  <Tooltip id="worksheet-settings-private-disabled-tooltip">
-                    Your main worksheet must always be public.
-                  </Tooltip>
-                }
-              >
-                <span style={{ display: 'inline-block' }}>
-                  <Form.Check
-                    type="switch"
-                    id="private-worksheet-switch"
-                    label="Private Worksheet"
-                    checked={false}
-                    disabled
-                  />
-                </span>
-              </OverlayTrigger>
-            ) : (
-              <Form.Check
-                type="switch"
-                id="private-worksheet-switch"
-                label="Private Worksheet"
-                checked={privateState}
-                onChange={() => setPrivateState(!privateState)}
-              />
-            )}
-            {showWalkTimesSetting && (
-              <Form.Check
-                type="switch"
-                id="show-walk-times-switch"
-                className="mt-3"
-                label={
-                  <span className={styles.walkTimesLabel}>
-                    Show walk times
-                    <span className={styles.betaPill}>Beta</span>
+            {showWorksheetPrivacySetting &&
+              (viewedWorksheetNumber === 0 ? (
+                <OverlayTrigger
+                  placement="right"
+                  overlay={
+                    <Tooltip id="worksheet-settings-private-disabled-tooltip">
+                      Your main worksheet must always be public.
+                    </Tooltip>
+                  }
+                >
+                  <span style={{ display: 'inline-block' }}>
+                    <Form.Check
+                      type="switch"
+                      id="private-worksheet-switch"
+                      label="Private Worksheet"
+                      checked={false}
+                      disabled
+                    />
                   </span>
-                }
-                checked={showWalkingTimes}
-                onChange={(event) =>
-                  onShowWalkingTimesChange?.(event.currentTarget.checked)
-                }
-              />
-            )}
+                </OverlayTrigger>
+              ) : (
+                <Form.Check
+                  type="switch"
+                  id="private-worksheet-switch"
+                  label="Private Worksheet"
+                  checked={privateState}
+                  onChange={() => setPrivateState(!privateState)}
+                />
+              ))}
 
             {courses.length > 0 && (
-              <div className="mt-4">
+              <div className={clsx(showWorksheetPrivacySetting && 'mt-4')}>
                 <button
                   type="button"
                   onClick={() => setClearModalOpen(true)}
@@ -578,44 +546,46 @@ function WorksheetCalendarList({
           </Form>
         </Modal.Body>
 
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              if (privateState !== isViewedWorksheetPrivate) {
-                setUpdatingWSState(true);
-                (async () => {
-                  await updateWorksheetMetadata({
-                    season: viewedSeason,
-                    action: 'setPrivate',
-                    worksheetNumber: viewedWorksheetNumber,
-                    private: privateState,
-                  });
-                  await worksheetsRefresh();
-                })()
-                  .then(() => {
-                    setUpdatingWSState(false);
-                    setSettingsModalOpen(false);
-                  })
-                  .catch(() => {
-                    setUpdatingWSState(false);
-                  });
+        {showWorksheetPrivacySetting && (
+          <Modal.Footer>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                if (privateState !== isViewedWorksheetPrivate) {
+                  setUpdatingWSState(true);
+                  (async () => {
+                    await updateWorksheetMetadata({
+                      season: viewedSeason,
+                      action: 'setPrivate',
+                      worksheetNumber: viewedWorksheetNumber,
+                      private: privateState,
+                    });
+                    await worksheetsRefresh();
+                  })()
+                    .then(() => {
+                      setUpdatingWSState(false);
+                      setSettingsModalOpen(false);
+                    })
+                    .catch(() => {
+                      setUpdatingWSState(false);
+                    });
+                }
+              }}
+              disabled={
+                privateState === isViewedWorksheetPrivate || updatingWSState
               }
-            }}
-            disabled={
-              privateState === isViewedWorksheetPrivate || updatingWSState
-            }
-            style={{ minWidth: '4rem' }}
-          >
-            {updatingWSState ? (
-              <div className="ms-auto">
-                <Spinner size="sm" />
-              </div>
-            ) : (
-              'Save'
-            )}
-          </Button>
-        </Modal.Footer>
+              style={{ minWidth: '4rem' }}
+            >
+              {updatingWSState ? (
+                <div className="ms-auto">
+                  <Spinner size="sm" />
+                </div>
+              ) : (
+                'Save'
+              )}
+            </Button>
+          </Modal.Footer>
+        )}
       </Modal>
 
       <Modal

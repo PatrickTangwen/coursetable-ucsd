@@ -1,40 +1,23 @@
 import { useMemo } from 'react';
-import { useShallow } from 'zustand/react/shallow';
-import { useSearch } from '../../hooks/useSearch';
-import { useStore } from '../../store';
-import { sortCourses } from '../../utilities/course';
-import Results from '../Search/Results';
+import WorksheetCalendarList from './WorksheetCalendarList';
+import WorksheetStats from './WorksheetStats';
+import styles from './WorksheetList.module.css';
 
 function WorksheetList() {
-  const { courses, worksheetLoading } = useStore(
-    useShallow((state) => ({
-      courses: state.courses,
-      worksheetLoading: state.worksheetLoading,
-    })),
-  );
-
-  const {
-    filters: { selectSortBy, sortOrder },
-    numFriends,
-  } = useSearch();
-
-  const worksheetData = useMemo(
-    () =>
-      sortCourses(
-        courses.map((course) => course.listing),
-        { key: selectSortBy.value.value, type: sortOrder.value },
-        numFriends,
-      ),
-    [selectSortBy, sortOrder, courses, numFriends],
-  );
+  const emptyMissingBuildingCodes = useMemo(() => new Set<string>(), []);
 
   return (
-    <Results
-      data={worksheetData}
-      loading={worksheetLoading}
-      multiSeasons={false}
-      page="worksheet"
-    />
+    <div className={styles.container}>
+      <WorksheetStats />
+      <WorksheetCalendarList
+        highlightBuilding={null}
+        showLocation
+        showMissingLocationIcon={false}
+        controlsMode="full"
+        missingBuildingCodes={emptyMissingBuildingCodes}
+        hideTooltipContext="calendar"
+      />
+    </div>
   );
 }
 

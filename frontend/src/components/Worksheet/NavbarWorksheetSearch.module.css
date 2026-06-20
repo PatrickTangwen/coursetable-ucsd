@@ -8,13 +8,12 @@
 }
 
 .toggleButtonGroup {
-  /* Temporary width bump to fit the Map BETA chip; revert once Map leaves beta. */
-  width: 320px;
+  width: 210px;
 }
 
 @media (max-width: calc(1200px - 0.5px)) {
   .toggleButtonGroup {
-    width: 250px;
+    width: 170px;
   }
 }
 
@@ -113,7 +112,7 @@
     background-color var(--trans-dur),
     color var(--trans-dur);
   padding: 0.25rem 0;
-  width: 33.3333%;
+  width: 50%;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import clsx from 'clsx';
 import {
   ToggleButton,
@@ -6,22 +5,20 @@ import {
   Button,
   Dropdown,
 } from 'react-bootstrap';
-import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
-import AddFriendDropdown from './AddFriendDropdown';
-import FriendsDropdown from './FriendsDropdown';
 import SeasonDropdown from './SeasonDropdown';
 import WorksheetNumDropdown from './WorksheetNumberDropdown';
 
-import type { NetId } from '../../queries/graphql-types';
 import type { WorksheetView } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
-import { LinkLikeText } from '../Typography';
 import styles from './NavbarWorksheetSearch.module.css';
 
-const viewLabels: { [key in WorksheetView]: string } = {
+type VisibleWorksheetView = Exclude<WorksheetView, 'map'>;
+
+const visibleWorksheetViews: VisibleWorksheetView[] = ['calendar', 'list'];
+
+const viewLabels: { [key in VisibleWorksheetView]: string } = {
   calendar: 'Calendar',
-  map: 'Map',
   list: 'List',
 };
 
@@ -33,69 +30,20 @@ export function NavbarWorksheetSearch({
   const {
     worksheetView,
     changeWorksheetView,
-    viewedPerson,
-    changeViewedPerson,
     isExoticWorksheet,
     exitExoticWorksheet,
   } = useStore(
     useShallow((state) => ({
       worksheetView: state.worksheetView,
       changeWorksheetView: state.changeWorksheetView,
-      viewedPerson: state.viewedPerson,
-      changeViewedPerson: state.changeViewedPerson,
       isExoticWorksheet: state.worksheetMemo.getIsExoticWorksheet(state),
       exitExoticWorksheet: state.exitExoticWorksheet,
     })),
   );
 
-  const { authStatus, removeFriend } = useStore(
-    useShallow((state) => ({
-      removeFriend: state.removeFriend,
-      authStatus: state.authStatus,
-    })),
-  );
-  const isMapSelected = worksheetView === 'map';
-
-  const removeFriendWithConfirmation = useCallback(
-    (friendNetId: NetId, isRequest: boolean) =>
-      new Promise<void>((resolve) => {
-        toast.warning(
-          <div>
-            You are about to {isRequest ? 'decline a request from' : 'remove'}{' '}
-            {friendNetId}.
-            <br />
-            <b>This is irreversible without another friend request.</b>
-            <br />
-            Do you want to continue?
-            <br />
-            <LinkLikeText
-              className="me-2"
-              onClick={async () => {
-                if (!isRequest && viewedPerson === friendNetId)
-                  changeViewedPerson('me');
-                await removeFriend(friendNetId, isRequest);
-                resolve();
-                toast.dismiss(`remove-${friendNetId}`);
-              }}
-            >
-              Yes
-            </LinkLikeText>
-            <LinkLikeText
-              onClick={() => {
-                toast.dismiss(`remove-${friendNetId}`);
-                resolve();
-              }}
-            >
-              No
-            </LinkLikeText>
-          </div>,
-          { duration: Infinity, id: `remove-${friendNetId}` },
-        );
-      }),
-    [changeViewedPerson, viewedPerson, removeFriend],
-  );
-
-  if (authStatus !== 'authenticated' && !isExoticWorksheet) return null;
+  const authStatus = useStore((state) => state.authStatus);
+  const visibleWorksheetView =
+    worksheetView === 'list' ? worksheetView : 'calendar';
 
   // Mobile: dropdown styled like toggle, flush right next to hamburger
   if (isMobile) {
@@ -104,36 +52,22 @@ export function NavbarWorksheetSearch({
         <Dropdown align="end">
           <Dropdown.Toggle className={styles.viewDropdownToggle}>
             <span className={styles.toggleButtonContent}>
-              <span>{viewLabels[worksheetView]}</span>
-              {worksheetView === 'map' && (
-                <span className={clsx(styles.betaChip, styles.betaChipActive)}>
-                  Beta
-                </span>
-              )}
+              <span>{viewLabels[visibleWorksheetView]}</span>
             </span>
           </Dropdown.Toggle>
           <Dropdown.Menu className={styles.viewDropdownMenu}>
-            {(['calendar', 'map', 'list'] as WorksheetView[]).map((view) => (
+            {visibleWorksheetViews.map((view) => (
               <Dropdown.Item
                 key={view}
                 className={clsx(
                   styles.viewDropdownItem,
-                  worksheetView === view && styles.viewDropdownItemActive,
+                  visibleWorksheetView === view &&
+                    styles.viewDropdownItemActive,
                 )}
                 onClick={() => changeWorksheetView(view)}
               >
                 <span className={styles.toggleButtonContent}>
                   <span>{viewLabels[view]}</span>
-                  {view === 'map' && (
-                    <span
-                      className={clsx(
-                        styles.betaChip,
-                        worksheetView === view && styles.betaChipActive,
-                      )}
-                    >
-                      Beta
-                    </span>
-                  )}
                 </span>
               </Dropdown.Item>
             ))}
@@ -149,8 +83,8 @@ export function NavbarWorksheetSearch({
       <ToggleButtonGroup
         name="worksheet-view-toggle"
         type="radio"
-        value={worksheetView}
-        onChange={(val: WorksheetView) => changeWorksheetView(val)}
+        value={visibleWorksheetView}
+        onChange={(val: VisibleWorksheetView) => changeWorksheetView(val)}
         className={clsx(styles.toggleButtonGroup, 'ms-2 me-3')}
         data-tutorial="worksheet-2"
       >
@@ -162,23 +96,6 @@ export function NavbarWorksheetSearch({
           Calendar
         </ToggleButton>
         <ToggleButton
-          id="view-toggle-map"
-          className={styles.toggleButton}
-          value="map"
-        >
-          <span className={styles.toggleButtonContent}>
-            <span>Map</span>
-            <span
-              className={clsx(
-                styles.betaChip,
-                isMapSelected && styles.betaChipActive,
-              )}
-            >
-              Beta
-            </span>
-          </span>
-        </ToggleButton>
-        <ToggleButton
           id="view-toggle-list"
           className={styles.toggleButton}
           value="list"
@@ -186,20 +103,7 @@ export function NavbarWorksheetSearch({
           List
         </ToggleButton>
       </ToggleButtonGroup>
-      {!isExoticWorksheet ? (
-        <>
-          <SeasonDropdown mobile={false} />
-          <WorksheetNumDropdown mobile={false} />
-          <FriendsDropdown
-            mobile={false}
-            removeFriend={removeFriendWithConfirmation}
-          />
-          <AddFriendDropdown
-            mobile={false}
-            removeFriend={removeFriendWithConfirmation}
-          />
-        </>
-      ) : (
+      {isExoticWorksheet ? (
         <div className={styles.exoticWorksheetContainer}>
           <span className={styles.exoticWorksheetText}>
             Viewing exported worksheet
@@ -212,6 +116,13 @@ export function NavbarWorksheetSearch({
             Exit
           </Button>
         </div>
+      ) : authStatus === 'authenticated' ? (
+        <>
+          <SeasonDropdown mobile={false} />
+          <WorksheetNumDropdown mobile={false} />
+        </>
+      ) : (
+        null
       )}
     </div>
   );
