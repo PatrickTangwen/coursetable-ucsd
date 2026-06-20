@@ -121,9 +121,7 @@ export function NavbarWorksheetSearch({
           <SeasonDropdown mobile={false} />
           <WorksheetNumDropdown mobile={false} />
         </>
-      ) : (
-        null
-      )}
+      ) : null}
     </div>
   );
 }

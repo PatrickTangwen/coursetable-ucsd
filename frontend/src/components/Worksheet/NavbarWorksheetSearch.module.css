@@ -144,7 +144,6 @@
   border-color: var(--color-primary) !important;
 }
 
-/* --- Map BETA chip styles (from yavin/map-in-worksheet) --- */
 .toggleButtonContent {
   display: flex;
   align-items: center;
@@ -154,32 +153,6 @@
 
 .viewDropdownItem .toggleButtonContent {
   justify-content: flex-start;
-}
-
-.betaChip {
-  padding: 0.02rem 0.42rem;
-  border-radius: 999px;
-  background: var(--color-primary);
-  color: #fff;
-  border: 1px solid var(--color-primary);
-  font-size: 9px;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  transition:
-    background-color var(--trans-dur),
-    color var(--trans-dur),
-    border-color var(--trans-dur);
-}
-
-/* Beta chip inverted colors (white bg, primary text) */
-.betaChipActive,
-.viewDropdownItemActive .betaChip,
-.viewDropdownItem:hover .betaChip,
-.toggleButton:hover .betaChip,
-.toggleButton:global(.active) .betaChip {
-  background: #fff;
-  border-color: var(--color-primary-light);
-  color: var(--color-primary);
 }
 
 /* --- Exotic worksheet pill styles (from master) --- */
