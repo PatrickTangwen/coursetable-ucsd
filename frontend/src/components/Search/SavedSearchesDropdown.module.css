@@ -61,7 +61,8 @@
 }
 
 .loading,
-.empty {
+.empty,
+.signInRequired {
   padding: 2rem;
   text-align: center;
   color: var(--color-text-secondary);
@@ -70,6 +71,23 @@
 .emptyHint {
   font-size: 0.875rem;
   margin-top: 0.5rem;
+}
+
+.signInButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  color: #fff;
+  background-color: var(--color-primary);
+  border-radius: 0.375rem;
+  text-decoration: none;
+}
+
+.signInButton:hover {
+  color: #fff;
+  background-color: var(--color-primary-hover);
 }
 
 .searchList {

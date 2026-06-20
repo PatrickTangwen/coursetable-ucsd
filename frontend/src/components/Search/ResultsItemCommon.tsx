@@ -10,6 +10,7 @@ import { IoMdSunny } from 'react-icons/io';
 import { IoPersonOutline } from 'react-icons/io5';
 import type { CatalogListing } from '../../queries/api';
 import type { Season } from '../../queries/graphql-types';
+import type { UcsdCourseArchive } from '../../queries/ucsdCatalogSnapshot';
 import {
   subjects,
   ratingColormap,
@@ -27,6 +28,22 @@ import {
 } from '../../utilities/course';
 import { InfoPopover, TextComponent } from '../Typography';
 import styles from './ResultsItemCommon.module.css';
+
+type CourseWithUcsdArchive = CatalogListing['course'] & {
+  ucsd_archive?: UcsdCourseArchive;
+};
+
+export function getUcsdArchive(listing: CatalogListing) {
+  return (listing.course as CourseWithUcsdArchive).ucsd_archive ?? null;
+}
+
+export function formatArchiveAvgGpa(value: number | null | undefined) {
+  return typeof value === 'number' ? value.toFixed(2) : 'N/A';
+}
+
+export function formatArchiveRecordCount(value: number | null | undefined) {
+  return typeof value === 'number' ? String(value) : '0';
+}
 
 export function SeasonTag({
   season,

@@ -6,6 +6,7 @@ import { MdDelete, MdSavedSearch } from 'react-icons/md';
 import { toast } from 'sonner';
 
 import { Popout } from './Popout';
+import { API_ENDPOINT } from '../../config';
 import { useSearch } from '../../hooks/useSearch';
 import {
   fetchSavedSearches,
@@ -15,6 +16,7 @@ import {
 } from '../../queries/api';
 import { defaultFilters } from '../../search/searchConstants';
 import { getFilterValues } from '../../search/searchTypes';
+import { useStore } from '../../store';
 import {
   buildSavedSearchQueryString,
   sanitizeSavedSearchQueryString,
@@ -28,11 +30,61 @@ interface SavedSearchesDropdownProps {
   readonly refreshKey?: number;
 }
 
+const savedCatalogFilterKeys = new Set([
+  'searchText',
+  'selectSubjects',
+  'selectSkillsAreas',
+  'selectDays',
+  'timeBounds',
+  'numBounds',
+  'selectSchools',
+  'selectCredits',
+  'selectCourseInfoAttributes',
+  'selectBuilding',
+  'searchDescription',
+  'hideCancelled',
+  'hideConflicting',
+  'includeAttributes',
+  'excludeAttributes',
+  'intersectingFilters',
+  'selectSortBy',
+  'sortOrder',
+]);
+
+const savedCatalogSorts = new Set([
+  'course_code',
+  'title',
+  'last_modified',
+  'added',
+  'time',
+  'location',
+]);
+
+function sanitizeCatalogSavedSearchQueryString(queryString: string) {
+  const sanitized = sanitizeSavedSearchQueryString(queryString, defaultFilters);
+  const params = new URLSearchParams(
+    sanitized.startsWith('?') ? sanitized.slice(1) : sanitized,
+  );
+
+  for (const key of [...params.keys()])
+    if (!savedCatalogFilterKeys.has(key)) params.delete(key);
+
+  const sortBy = params.get('selectSortBy');
+  if (sortBy && !savedCatalogSorts.has(sortBy)) {
+    params.delete('selectSortBy');
+    params.delete('sortOrder');
+  }
+
+  const next = params.toString();
+  return next ? `?${next}` : '';
+}
+
 export default function SavedSearchesDropdown({
   onSearchApplied,
   refreshKey = 0,
 }: SavedSearchesDropdownProps) {
   const navigate = useNavigate();
+  const authStatus = useStore((state) => state.authStatus);
   const [isOpen, setIsOpen] = useState(false);
   const [searches, setSearches] = useState<SavedSearch[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,12 +100,19 @@ export default function SavedSearchesDropdown({
   const saveInFlightRef = useRef(false);
   const { filters } = useSearch();
   const defaultSavedSearchName = filters.searchText.value.trim();
+  const isSignedIn = authStatus === 'authenticated';
 
   useEffect(() => {
     if (isAddingSearch && addInputRef.current) addInputRef.current.focus();
   }, [isAddingSearch]);
 
   const loadSearches = useCallback(async () => {
+    if (!isSignedIn) {
+      setSearches([]);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     try {
       const result = await fetchSavedSearches();
@@ -62,16 +121,21 @@ export default function SavedSearchesDropdown({
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [isSignedIn]);
 
   useEffect(() => {
-    if (isOpen) void loadSearches();
-  }, [isOpen, refreshKey, loadSearches]);
+    if (!isOpen) return;
+    if (!isSignedIn) {
+      setSearches([]);
+      setIsLoading(false);
+      return;
+    }
+    void loadSearches();
+  }, [isOpen, isSignedIn, refreshKey, loadSearches]);
 
   const handleApplySearch = (search: SavedSearch) => {
-    const queryString = sanitizeSavedSearchQueryString(
+    const queryString = sanitizeCatalogSavedSearchQueryString(
       search.queryString,
-      defaultFilters,
     );
     void navigate(`/catalog${queryString}`);
     toast.success(`Filters from ${search.name} applied`);
@@ -90,6 +154,8 @@ export default function SavedSearchesDropdown({
   };
 
   const saveCurrentSearch = async (rawName: string) => {
+    if (!isSignedIn) return;
+
     const name = rawName.trim();
     if (!name || saveInFlightRef.current) return;
 
@@ -102,9 +168,8 @@ export default function SavedSearchesDropdown({
     setIsSavingSearch(true);
     try {
       const filterValues = getFilterValues(filters);
-      const queryString = sanitizeSavedSearchQueryString(
+      const queryString = sanitizeCatalogSavedSearchQueryString(
         buildSavedSearchQueryString(filterValues, defaultFilters),
-        defaultFilters,
       );
       const result = await createSavedSearch(name, queryString);
       if (result) {
@@ -130,7 +195,7 @@ export default function SavedSearchesDropdown({
   };
 
   const handleDeleteConfirm = async () => {
-    if (!deleteConfirm) return;
+    if (!deleteConfirm || !isSignedIn) return;
 
     const { id } = deleteConfirm;
     setDeleteConfirm(null);
@@ -158,105 +223,126 @@ export default function SavedSearchesDropdown({
         <div className={styles.container}>
           <h3 className={styles.dropdownTitle}>Saved Filters / Searches</h3>
           <p className={styles.dropdownDescription}>
-            Save your current search text and filter combination, or click one
-            to apply it. Saved filters use the currently selected season.
+            Signed-in users can save current catalog search text and supported
+            filters for later.
           </p>
-          {isAddingSearch ? (
-            <div className={styles.addInputContainer}>
-              <div className={styles.addInputRow}>
-                <Input
-                  className={styles.addInput}
-                  type="text"
-                  value={addingName}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setAddingName(e.target.value)
-                  }
-                  placeholder="Name this search..."
-                  maxLength={64}
-                  ref={addInputRef}
-                  disabled={isSavingSearch}
-                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                    e.stopPropagation();
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      void saveCurrentSearch(addingName);
-                    } else if (e.key === 'Escape') {
-                      cancelAddingSearch();
-                    }
-                  }}
-                  onMouseDown={(e: React.MouseEvent<HTMLInputElement>) =>
-                    e.stopPropagation()
-                  }
-                  onBlur={cancelAddingSearch}
-                />
-                <Button
-                  type="button"
-                  size="sm"
-                  disabled={isSavingSearch || !addingName.trim()}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    void saveCurrentSearch(addingName);
-                  }}
-                >
-                  Save
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <Button
-              variant="primary"
-              size="sm"
-              className={styles.saveButton}
-              onClick={() => {
-                setAddingName(defaultSavedSearchName);
-                setIsAddingSearch(true);
-              }}
-              title="Save current search"
-            >
-              Save current filters / search
-            </Button>
-          )}
-          {isLoading ? (
-            <div className={styles.loading}>
-              <Spinner message="Loading saved searches..." />
-            </div>
-          ) : searches.length === 0 ? (
-            <div className={styles.empty}>
-              <p>No saved filters or searches yet.</p>
+          {!isSignedIn ? (
+            <div className={styles.signInRequired}>
+              <p>Sign in required.</p>
               <p className={styles.emptyHint}>
-                Save your current filters to quickly return to them later!
+                Search and filtering still work without an account; saving a
+                search is a signed-in feature.
               </p>
+              <a
+                className={styles.signInButton}
+                href={`${API_ENDPOINT}/api/auth/cas?redirect=${window.location.origin}/catalog`}
+              >
+                Sign in to save searches
+              </a>
             </div>
           ) : (
-            <div className={styles.searchList}>
-              {searches.map((search) => (
-                <div key={search.id} className={styles.searchItem}>
-                  <button
-                    type="button"
-                    className={styles.applyButton}
-                    onClick={() => handleApplySearch(search)}
-                  >
-                    <span className={styles.searchName}>{search.name}</span>
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.deleteButton}
-                    onClick={(e) =>
-                      handleDeleteClick(e, search.id, search.name)
-                    }
-                    disabled={deletingId === search.id}
-                    title="Delete saved search"
-                    aria-label={`Delete ${search.name}`}
-                  >
-                    {deletingId === search.id ? (
-                      <Spinner className={styles.spinner} message={undefined} />
-                    ) : (
-                      <MdDelete size={18} />
-                    )}
-                  </button>
+            <>
+              {isAddingSearch ? (
+                <div className={styles.addInputContainer}>
+                  <div className={styles.addInputRow}>
+                    <Input
+                      className={styles.addInput}
+                      type="text"
+                      value={addingName}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setAddingName(e.target.value)
+                      }
+                      placeholder="Name this search..."
+                      maxLength={64}
+                      ref={addInputRef}
+                      disabled={isSavingSearch}
+                      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                        e.stopPropagation();
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          void saveCurrentSearch(addingName);
+                        } else if (e.key === 'Escape') {
+                          cancelAddingSearch();
+                        }
+                      }}
+                      onMouseDown={(e: React.MouseEvent<HTMLInputElement>) =>
+                        e.stopPropagation()
+                      }
+                      onBlur={cancelAddingSearch}
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={isSavingSearch || !addingName.trim()}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        void saveCurrentSearch(addingName);
+                      }}
+                    >
+                      Save
+                    </Button>
+                  </div>
                 </div>
-              ))}
-            </div>
+              ) : (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className={styles.saveButton}
+                  onClick={() => {
+                    setAddingName(defaultSavedSearchName);
+                    setIsAddingSearch(true);
+                  }}
+                  title="Save current search"
+                >
+                  Save current filters / search
+                </Button>
+              )}
+              {isLoading ? (
+                <div className={styles.loading}>
+                  <Spinner message="Loading saved searches..." />
+                </div>
+              ) : searches.length === 0 ? (
+                <div className={styles.empty}>
+                  <p>No saved filters or searches yet.</p>
+                  <p className={styles.emptyHint}>
+                    Save your current filters to quickly return to them later.
+                  </p>
+                </div>
+              ) : (
+                <div className={styles.searchList}>
+                  {searches.map((search) => (
+                    <div key={search.id} className={styles.searchItem}>
+                      <button
+                        type="button"
+                        className={styles.applyButton}
+                        onClick={() => handleApplySearch(search)}
+                      >
+                        <span className={styles.searchName}>{search.name}</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.deleteButton}
+                        onClick={(e) =>
+                          handleDeleteClick(e, search.id, search.name)
+                        }
+                        disabled={deletingId === search.id}
+                        title="Delete saved search"
+                        aria-label={`Delete ${search.name}`}
+                      >
+                        {deletingId === search.id ? (
+                          <Spinner
+                            className={styles.spinner}
+                            message={undefined}
+                          />
+                        ) : (
+                          <MdDelete size={18} />
+                        )}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </Popout>

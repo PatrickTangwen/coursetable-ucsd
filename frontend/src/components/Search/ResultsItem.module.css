@@ -69,18 +69,6 @@
   background-color: rgb(255 98 98 / 30%) !important;
 }
 
-.ratingCell {
-  width: 100%;
-  height: 100%;
-  padding: 3px 10px;
-  line-height: 1.5;
-}
-
-.profRating {
-  white-space: nowrap;
-  min-width: var(--width-col-prof-rating);
-}
-
 .season {
   border-radius: 6px;
 }
@@ -93,7 +81,6 @@
 }
 
 @media (max-width: calc(1320px - 0.5px)) {
-  .ratingCell,
   .ellipsisText {
     font-size: 12px;
   }

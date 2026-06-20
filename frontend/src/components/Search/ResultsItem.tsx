@@ -1,8 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { BsEyeSlash } from 'react-icons/bs';
 import type { ListChildComponentProps } from 'react-window';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -11,70 +9,22 @@ import {
   SeasonTag,
   CourseInfoPopover,
   CourseCode,
-  ratingTypes,
+  formatArchiveAvgGpa,
+  formatArchiveRecordCount,
+  getUcsdArchive,
 } from './ResultsItemCommon';
-import { useSearch } from '../../hooks/useSearch';
-import type { CatalogListing } from '../../queries/api';
 import { useStore } from '../../store';
 import { anonymousWorksheetHasListing } from '../../utilities/anonymousWorksheet';
-import { generateRandomColor } from '../../utilities/common';
 import {
-  getEnrolled,
   isInWorksheet,
   toTimesSummary,
   toLocationsSummary,
 } from '../../utilities/course';
 import { useCourseModalLink } from '../../utilities/display';
 import SkillBadge from '../SkillBadge';
-import { RatingBubble } from '../Typography';
 import WorksheetToggleButton from '../Worksheet/WorksheetToggleButton';
 import colStyles from './ResultsCols.module.css';
 import styles from './ResultsItem.module.css';
-
-function Rating({
-  listing,
-  hasEvals,
-  name,
-}: {
-  readonly listing: CatalogListing;
-  readonly hasEvals: boolean | undefined;
-  readonly name: 'Class' | 'Professor' | 'Workload';
-}) {
-  const { getRating, colorMap } = ratingTypes[name];
-  if (hasEvals) {
-    return (
-      <RatingBubble
-        className={styles.ratingCell}
-        rating={getRating(listing.course, 'stat')}
-        colorMap={colorMap}
-      >
-        {getRating(listing.course, 'display')}
-      </RatingBubble>
-    );
-  }
-  return (
-    <OverlayTrigger
-      placement="top"
-      overlay={(props) => (
-        <Tooltip
-          id={`results-blur-rating-${listing.course.season_code}-${listing.crn}-${name}-tooltip`}
-          {...props}
-        >
-          These colors are randomly generated.{' '}
-          {hasEvals === false ? 'Complete the challenge' : 'Sign in'} to see
-          real ratings.
-        </Tooltip>
-      )}
-    >
-      <RatingBubble
-        color={generateRandomColor(
-          `${listing.crn}${listing.course.season_code}${name}`,
-        )}
-        className={styles.ratingCell}
-      />
-    </OverlayTrigger>
-  );
-}
 
 function ResultsItem({
   data: { listings, multiSeasons },
@@ -82,22 +32,18 @@ function ResultsItem({
   style,
 }: ListChildComponentProps<ResultItemData>) {
   const listing = listings[index]!;
-  const { user, worksheets, isAnonymousWorksheet, anonymousWorksheet } =
-    useStore(
-      useShallow((state) => ({
-        worksheets: state.worksheets,
-        user: state.user,
-        isAnonymousWorksheet:
-          state.worksheetMemo.getIsAnonymousWorksheet(state),
-        anonymousWorksheet: state.anonymousWorksheet,
-      })),
-    );
+  const { worksheets, isAnonymousWorksheet, anonymousWorksheet } = useStore(
+    useShallow((state) => ({
+      worksheets: state.worksheets,
+      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+      anonymousWorksheet: state.anonymousWorksheet,
+    })),
+  );
   const getRelevantWorksheetNumber = useStore(
     (state) => state.getRelevantWorksheetNumber,
   );
 
-  const { numFriends } = useSearch();
-  const friends = numFriends[`${listing.course.season_code}${listing.crn}`];
+  const archive = getUcsdArchive(listing);
   const target = useCourseModalLink(listing);
 
   const inWorksheet = useMemo(
@@ -158,37 +104,25 @@ function ResultsItem({
               </span>
             </span>
           </CourseInfoPopover>
-          <span className={colStyles.overallCol}>
-            <Rating listing={listing} hasEvals={user?.hasEvals} name="Class" />
+          <span className={colStyles.archiveGpaCol}>
+            <span className={styles.ellipsisText}>
+              {formatArchiveAvgGpa(archive?.archive_avg_gpa)}
+            </span>
           </span>
-          <span className={colStyles.workloadCol}>
-            <Rating
-              listing={listing}
-              hasEvals={user?.hasEvals}
-              name="Workload"
-            />
+          <span className={colStyles.archiveCountCol}>
+            <span className={styles.ellipsisText}>
+              {formatArchiveRecordCount(archive?.archive_record_count)}
+            </span>
           </span>
           <span
             className={clsx('d-flex align-items-center', colStyles.profCol)}
           >
-            <span className={clsx('me-2 h-100', styles.profRating)}>
-              <Rating
-                listing={listing}
-                hasEvals={user?.hasEvals}
-                name="Professor"
-              />
-            </span>
             <span className={styles.ellipsisText}>
               {listing.course.course_professors.length === 0
                 ? 'TBA'
                 : listing.course.course_professors
                     .map((p) => p.professor.name)
                     .join(' • ')}
-            </span>
-          </span>
-          <span className={clsx('d-flex', colStyles.enrollCol)}>
-            <span className="my-auto">
-              {getEnrolled(listing.course, 'display')}
             </span>
           </span>
           <span className={clsx('d-flex', colStyles.skillAreaCol)}>
@@ -207,44 +141,8 @@ function ResultsItem({
           </span>
           <span className={colStyles.locCol}>
             <span className={styles.ellipsisText}>
-              {toLocationsSummary(listing.course, user?.hasEvals) ===
-              'HIDDEN' ? (
-                <OverlayTrigger
-                  placement="top"
-                  overlay={(props) => (
-                    <Tooltip
-                      id={`results-location-hidden-${listing.course.season_code}-${listing.crn}-tooltip`}
-                      {...props}
-                    >
-                      Sign in to see location
-                    </Tooltip>
-                  )}
-                >
-                  <span>
-                    <BsEyeSlash />
-                  </span>
-                </OverlayTrigger>
-              ) : (
-                toLocationsSummary(listing.course, user?.hasEvals)
-              )}
+              {toLocationsSummary(listing.course, true)}
             </span>
-          </span>
-          <span className={colStyles.friendsCol}>
-            {friends && friends.size > 0 && (
-              <OverlayTrigger
-                placement="top"
-                overlay={(props) => (
-                  <Tooltip
-                    id={`results-friends-${listing.course.season_code}-${listing.crn}-tooltip`}
-                    {...props}
-                  >
-                    {[...friends].join(' • ')}
-                  </Tooltip>
-                )}
-              >
-                <span>{friends.size}</span>
-              </OverlayTrigger>
-            )}
           </span>
           <span className={colStyles.addedCol}>
             <span className={styles.ellipsisText}>{timeAdded}</span>

@@ -53,11 +53,13 @@ function ResultsHeaders({
   isListView,
   setIsListView,
   numResults,
+  allowViewToggle,
 }: {
   readonly multiSeasons: boolean;
   readonly isListView: boolean;
   readonly setIsListView: (isList: boolean) => void;
   readonly numResults: number;
+  readonly allowViewToggle: boolean;
 }) {
   return (
     <SurfaceComponent
@@ -66,16 +68,18 @@ function ResultsHeaders({
     >
       <div className={styles.resultsHeaderContent}>
         <span className={colStyles.controlCol}>
-          <button
-            type="button"
-            className={clsx(styles.toggle, 'd-flex m-auto')}
-            onClick={() => setIsListView(!isListView)}
-            aria-label={
-              isListView ? 'Switch to grid view' : 'Switch to list view'
-            }
-          >
-            {!isListView ? <FaBars size={15} /> : <FaTh size={15} />}
-          </button>
+          {allowViewToggle && (
+            <button
+              type="button"
+              className={clsx(styles.toggle, 'd-flex m-auto')}
+              onClick={() => setIsListView(!isListView)}
+              aria-label={
+                isListView ? 'Switch to grid view' : 'Switch to list view'
+              }
+            >
+              {!isListView ? <FaBars size={15} /> : <FaTh size={15} />}
+            </button>
+          )}
         </span>
         {isListView ? (
           <>
@@ -94,67 +98,25 @@ function ResultsHeaders({
               Title
             </HeaderCol>
             <HeaderCol
-              className={colStyles.overallCol}
-              tooltip={
-                <span>
-                  Average course rating
-                  <br />
-                  (same professor and all cross-listed courses. If this
-                  professor hasn't taught the course before, a ~ denotes an
-                  average across all professors)
-                </span>
-              }
-              tooltipId="results-header-overall-tooltip"
-              sortOption="overall"
+              className={colStyles.archiveGpaCol}
+              tooltip="Average GPA from matching UCSD Instructor Grade Archive records"
+              tooltipId="results-header-archive-gpa-tooltip"
             >
-              Overall
+              Archive Avg GPA
             </HeaderCol>
             <HeaderCol
-              className={colStyles.workloadCol}
-              tooltip={
-                <span>
-                  Average workload rating
-                  <br />
-                  (same professor and all cross-listed courses. If this
-                  professor hasn't taught the course before, a ~ denotes an
-                  average across all professors)
-                </span>
-              }
-              tooltipId="results-header-workload-tooltip"
-              sortOption="workload"
+              className={colStyles.archiveCountCol}
+              tooltip="Number of UCSD Instructor Grade Archive records used for the GPA summary"
+              tooltipId="results-header-archive-count-tooltip"
             >
-              Work
+              Record Count
             </HeaderCol>
             <HeaderCol
               className={colStyles.profCol}
-              tooltip={
-                <span>
-                  Average professor course rating and names
-                  <br />
-                  (if there are multiple professors, we take the average between
-                  them)
-                </span>
-              }
+              tooltip="Instructor names from the UCSD Schedule of Classes"
               tooltipId="results-header-professors-tooltip"
-              sortOption="average_professor_rating"
             >
-              Professors
-            </HeaderCol>
-            <HeaderCol
-              className={colStyles.enrollCol}
-              tooltip={
-                <span>
-                  Class enrollment
-                  <br />
-                  (If the course has not occurred/completed, based on the most
-                  recent past instance of this course. a ~ means a different
-                  professor was teaching)
-                </span>
-              }
-              tooltipId="results-header-enrollment-tooltip"
-              sortOption="enrollment"
-            >
-              #
+              Instructors
             </HeaderCol>
             <HeaderCol className={colStyles.skillAreaCol}>
               Skills/Areas
@@ -175,14 +137,6 @@ function ResultsHeaders({
             </HeaderCol>
             <HeaderCol className={colStyles.locCol} sortOption="location">
               Location
-            </HeaderCol>
-            <HeaderCol
-              className={colStyles.friendsCol}
-              tooltip="Number of friends shopping this course"
-              tooltipId="results-header-friends-tooltip"
-              sortOption="friend"
-            >
-              #F
             </HeaderCol>
             <HeaderCol
               className={colStyles.addedCol}
