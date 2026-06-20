@@ -73,16 +73,6 @@
   color: var(--color-primary);
 }
 
-.challengeIndicator {
-  position: absolute;
-  top: -7px;
-  left: -7px;
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
-  background-color: var(--color-primary);
-}
-
 .navLogoWrapper {
   display: flex;
   flex-direction: column;
