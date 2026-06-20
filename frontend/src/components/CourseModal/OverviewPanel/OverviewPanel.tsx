@@ -7,11 +7,11 @@ import UcsdSnapshotOverview from './UcsdSnapshotOverview';
 
 import type { CourseModalPrefetchListingDataFragment } from '../../../generated/graphql-types';
 import { useCourseModalOverviewDataQuery } from '../../../queries/graphql-queries';
-import { getUcsdArchiveDetails } from '../../../queries/ucsdCatalogSnapshot';
 import { useStore } from '../../../store';
 import { getListingId } from '../../../utilities/course';
 import Spinner from '../../Spinner';
 import type { ModalNavigationFunction } from '../CourseModal';
+import { getUcsdSnapshotCourseDetails } from '../ucsdSnapshotCourse';
 
 function OverviewPanel({
   onNavigation,
@@ -21,7 +21,8 @@ function OverviewPanel({
   readonly prefetched: CourseModalPrefetchListingDataFragment;
 }) {
   const user = useStore((state) => state.user);
-  const ucsdArchive = getUcsdArchiveDetails(prefetched.course);
+  const { archive, isUcsdSnapshotCourse } =
+    getUcsdSnapshotCourseDetails(prefetched);
 
   const { data, loading, error } = useCourseModalOverviewDataQuery({
     variables: {
@@ -29,11 +30,11 @@ function OverviewPanel({
       hasEvals: Boolean(user?.hasEvals),
       sameCourseId: prefetched.course.same_course_id,
     },
-    skip: Boolean(ucsdArchive),
+    skip: isUcsdSnapshotCourse,
   });
 
-  if (ucsdArchive)
-    return <UcsdSnapshotOverview listing={prefetched} archive={ucsdArchive} />;
+  if (isUcsdSnapshotCourse)
+    return <UcsdSnapshotOverview listing={prefetched} archive={archive} />;
 
   // Wait until data is fetched
   if (loading) return <Spinner message="Loading course details..." />;

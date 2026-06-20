@@ -13,9 +13,9 @@ import { toast } from 'sonner';
 import { CUR_YEAR } from '../../../config';
 import type { CourseModalPrefetchListingDataFragment } from '../../../generated/graphql-types';
 import { useModalHistory } from '../../../hooks/useModalHistory';
-import { getUcsdArchiveDetails } from '../../../queries/ucsdCatalogSnapshot';
 import WishlistToggleButton from '../../Wishlist/WishlistToggleButton';
 import WorksheetToggleButton from '../../Worksheet/WorksheetToggleButton';
+import { getUcsdSnapshotCourseDetails } from '../ucsdSnapshotCourse';
 import styles from './ControlsRow.module.css';
 
 function copyToClipboard(text: string, successMessage: string) {
@@ -73,7 +73,8 @@ function MoreButton({
   readonly listing: CourseModalPrefetchListingDataFragment;
 }) {
   const { closeModal } = useModalHistory();
-  const ucsdArchive = getUcsdArchiveDetails(listing.course);
+  const { archive, isUcsdSnapshotCourse } =
+    getUcsdSnapshotCourseDetails(listing);
   return (
     <DropdownButton
       as="div"
@@ -89,16 +90,16 @@ function MoreButton({
       >
         Report an error
       </Dropdown.Item>
-      {ucsdArchive?.catalog_url && (
+      {archive?.catalog_url && (
         <Dropdown.Item
-          href={ucsdArchive.catalog_url}
+          href={archive.catalog_url}
           target="_blank"
           rel="noreferrer"
         >
           Open UCSD Catalog
         </Dropdown.Item>
       )}
-      {!ucsdArchive && (
+      {!isUcsdSnapshotCourse && (
         <>
           <Dropdown.Item
             href={`https://courses.yale.edu/?details&srcdb=${listing.course.season_code}&crn=${listing.crn}`}
@@ -116,15 +117,16 @@ function MoreButton({
           </Dropdown.Item>
         </>
       )}
-      {!ucsdArchive && !CUR_YEAR.includes(listing.course.season_code) && (
-        <Dropdown.Item
-          href={`https://oce.app.yale.edu/ocedashboard/studentViewer/courseSummary?termCode=${listing.course.season_code}&crn=${listing.crn}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          Open in OCE
-        </Dropdown.Item>
-      )}
+      {!isUcsdSnapshotCourse &&
+        !CUR_YEAR.includes(listing.course.season_code) && (
+          <Dropdown.Item
+            href={`https://oce.app.yale.edu/ocedashboard/studentViewer/courseSummary?termCode=${listing.course.season_code}&crn=${listing.crn}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open in OCE
+          </Dropdown.Item>
+        )}
     </DropdownButton>
   );
 }
@@ -192,7 +194,7 @@ export default function ModalHeaderControls({
   readonly view: 'overview' | 'evals';
   readonly setView: (value: 'overview' | 'evals') => void;
 }) {
-  const isUcsdSnapshotCourse = Boolean(getUcsdArchiveDetails(listing.course));
+  const { isUcsdSnapshotCourse } = getUcsdSnapshotCourseDetails(listing);
   const tabs: Tab[] = isUcsdSnapshotCourse
     ? [{ label: 'Overview', value: 'overview' }]
     : [

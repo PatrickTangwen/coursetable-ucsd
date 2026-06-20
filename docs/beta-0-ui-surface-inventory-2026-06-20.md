@@ -160,8 +160,7 @@ ModalHistoryBridge modalHistoryUrl`; full frontend test command:
 - Typecheck/check command(s): `bun run typecheck`; `git diff --check`.
 - Remaining follow-up cleanup: no CourseModal follow-up for #16. Cross-surface
   acceptance remains with #19 after the parallel Beta-0 surface branches merge.
-
-## Agent 4 / Issue #18 Evidence - 2026-06-20
+### Agent 4 / #18 Shared Chrome And Global Metadata Cleanup
 
 - Browser smoke URL(s): `https://127.0.0.1:3019/catalog` and
   `https://127.0.0.1:3019/worksheet` from the main checkout on
