@@ -1,9 +1,8 @@
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import clsx from 'clsx';
 import { Form, Button } from 'react-bootstrap';
 import { IoClose } from 'react-icons/io5';
-import RCSlider from 'rc-slider';
 import { GlobalHotKeys } from 'react-hotkeys';
 
 import AdvancedPanel from './AdvancedPanel';
@@ -23,10 +22,9 @@ import type {
   FilterHandle,
   Filters,
   IntersectableFilters,
-  NumericFilters,
 } from '../../search/searchTypes';
 import { useStore } from '../../store';
-import { searchSpeed, skillsAreasColors } from '../../utilities/constants';
+import { skillsAreasColors } from '../../utilities/constants';
 import { TextComponent, Input } from '../Typography';
 import styles from './NavbarCatalogSearch.module.css';
 
@@ -117,57 +115,6 @@ function IntersectableSelect<K extends IntersectableFilters>(
   );
 }
 
-function Slider<K extends NumericFilters>({
-  handle: handleName,
-}: {
-  readonly handle: K;
-}) {
-  const { setStartTime, filters } = useSearch();
-  const handle = filters[handleName];
-  // This is exactly the same as the filter handle, except it updates
-  // responsively without triggering searching
-  const [rangeValue, setRangeValue] = useState(handle.value);
-  useEffect(() => {
-    setRangeValue(handle.value);
-  }, [handle.value]);
-
-  return (
-    <div className={styles.sliderContainer}>
-      <div className={styles.sliderLabels}>
-        <div className={styles.rangeValueLabel}>{rangeValue[0]}</div>
-        <div
-          className={clsx(
-            styles.rangeLabel,
-            handle.isNonEmpty && styles.rangeLabelActive,
-          )}
-        >
-          {filterLabels[handleName]}
-        </div>
-        <div className={styles.rangeValueLabel}>{rangeValue[1]}</div>
-      </div>
-      <RCSlider
-        range
-        ariaLabelForHandle={[
-          `${filterLabels[handleName]} rating lower bound`,
-          `${filterLabels[handleName]} rating upper bound`,
-        ]}
-        className={styles.range}
-        min={defaultFilters[handleName][0]}
-        max={defaultFilters[handleName][1]}
-        step={0.1}
-        value={rangeValue}
-        onChange={(value) => {
-          setRangeValue(value as [number, number]);
-        }}
-        onChangeComplete={(value) => {
-          handle.set(value as [number, number]);
-          setStartTime(Date.now());
-        }}
-      />
-    </div>
-  );
-}
-
 export function NavbarCatalogSearch() {
   const isTablet = useStore((state) => state.isTablet);
   const resetSearchFilters = useStore((state) => state.patchSearchFilters);
@@ -176,8 +123,7 @@ export function NavbarCatalogSearch() {
 
   const searchTextInput = useRef<HTMLInputElement>(null);
 
-  const { filters, duration, searchData, coursesLoading, setStartTime } =
-    useSearch();
+  const { filters, searchData, coursesLoading, setStartTime } = useSearch();
 
   const { searchText } = filters;
 
@@ -192,14 +138,6 @@ export function NavbarCatalogSearch() {
       }
     },
   };
-
-  const speed = useMemo(() => {
-    const pool =
-      searchSpeed[
-        duration > 1 ? 'fast' : duration > 0.5 ? 'faster' : 'fastest'
-      ];
-    return pool[Math.floor(Math.random() * pool.length)]!;
-  }, [duration]);
 
   return (
     <>
@@ -231,7 +169,7 @@ export function NavbarCatalogSearch() {
                 searchText.set(event.target.value);
                 setStartTime(Date.now());
               }}
-              placeholder="Search by course code, title, prof, or whatever we don't really care"
+              placeholder="Search by course code, title, instructor, or description"
               ref={searchTextInput}
             />
             {searchText.value && (
@@ -248,9 +186,7 @@ export function NavbarCatalogSearch() {
           <TextComponent type="tertiary" small className={styles.searchSpeed}>
             {coursesLoading
               ? 'Searching ...'
-              : `Showing ${searchData?.length ?? 0} results${
-                  !isTablet ? `${speed.length > 20 ? '\n' : ' '}(${speed})` : ''
-                }`}
+              : `Showing ${searchData?.length ?? 0} results`}
           </TextComponent>
         </div>
         <div className={styles.row}>
@@ -281,14 +217,6 @@ export function NavbarCatalogSearch() {
             </>
           )}
 
-          <div
-            className="w-auto flex-grow-0 d-flex align-items-center"
-            data-tutorial="catalog-3"
-          >
-            <Slider handle="overallBounds" />
-            <Slider handle="workloadBounds" />
-            {!isTablet && <Slider handle="professorBounds" />}
-          </div>
           {!isTablet && (
             <Select
               options={seasonsOptions}

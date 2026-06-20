@@ -34,12 +34,7 @@ import {
   credits,
   skillsAreasColors,
 } from '../../utilities/constants';
-import {
-  toRealTime,
-  to12HourTime,
-  toLinear,
-  toExponential,
-} from '../../utilities/course';
+import { toRealTime, to12HourTime } from '../../utilities/course';
 import styles from './AdvancedPanel.module.css';
 
 type SelectProps<K extends keyof CategoricalFilters> = {
@@ -198,8 +193,6 @@ function AdvancedPanel() {
   const formLabelId = useId();
   const { filters, setStartTime } = useSearch();
 
-  const { selectSortBy, sortOrder } = filters;
-
   const relevantFilters: (
     | BooleanOptions
     | keyof CategoricalFilters
@@ -209,7 +202,6 @@ function AdvancedPanel() {
   )[] = [
     'selectDays',
     'timeBounds',
-    'enrollBounds',
     'numBounds',
     'selectSchools',
     'selectCredits',
@@ -217,7 +209,6 @@ function AdvancedPanel() {
     'includeAttributes',
     'excludeAttributes',
     'searchDescription',
-    'enableQuist',
     'hideCancelled',
     'hideConflicting',
     'selectBuilding',
@@ -227,7 +218,6 @@ function AdvancedPanel() {
       'selectSubjects',
       'selectSkillsAreas',
       'selectSeasons',
-      'professorBounds',
     );
   }
 
@@ -237,15 +227,10 @@ function AdvancedPanel() {
       arrowIcon={false}
       onReset={() => {
         relevantFilters.forEach((k) => filters[k].resetToEmpty());
-        if (selectSortBy.value.value === 'average_gut_rating') {
-          selectSortBy.resetToEmpty();
-          sortOrder.resetToEmpty();
-        }
         setStartTime(Date.now());
       }}
       selectedOptions={
-        relevantFilters.filter((k) => filters[k].isNonEmpty).length +
-        Number(selectSortBy.value.value === 'average_gut_rating')
+        relevantFilters.filter((k) => filters[k].isNonEmpty).length
       }
       dataTutorial={4}
     >
@@ -298,14 +283,6 @@ function AdvancedPanel() {
           topLabel={(x) => to12HourTime(toRealTime(x))}
           bottomLabel={(x) => to12HourTime(toRealTime(x))}
         />
-        <Slider
-          handle="enrollBounds"
-          step={10}
-          marks={[1, 18, 160, 528]}
-          scaleToUniform={(x) => Math.round(toLinear(x))}
-          scaleToReal={(x) => Math.round(toExponential(x))}
-        />
-        {isTablet && <Slider handle="professorBounds" step={0.1} />}
         <Slider
           handle="numBounds"
           step={100}
@@ -363,13 +340,6 @@ function AdvancedPanel() {
           />
         </div>
         <div className={styles.row}>
-          {/* Sort by Guts */}
-          <div className={styles.label}>
-            {sortByOptions.average_gut_rating.label}:
-          </div>
-          <ResultsColumnSort selectOption={sortByOptions.average_gut_rating} />
-        </div>
-        <div className={styles.row}>
           {/* Sort by last mod */}
           <div className={styles.label}>
             {sortByOptions.last_modified.label}:
@@ -378,7 +348,6 @@ function AdvancedPanel() {
         </div>
         <div className={styles.booleanToggles}>
           <Toggle handle="searchDescription" />
-          <Toggle handle="enableQuist" />
           <Toggle handle="hideCancelled" />
           <Toggle handle="hideConflicting" />
         </div>

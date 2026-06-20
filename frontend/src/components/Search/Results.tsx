@@ -11,7 +11,6 @@ import {
 import { useShallow } from 'zustand/react/shallow';
 import FloatingWorksheet from './FloatingWorksheet';
 import LastUpdated from './LastUpdated';
-import RandomButton from './RandomButton';
 import ResultsGridItem from './ResultsGridItem';
 import ResultsHeaders from './ResultsHeaders';
 import ResultsItem from './ResultsItem';
@@ -94,7 +93,7 @@ function Results({
     // Not list or on mobile -> use grid view
     // Do not force entering grid mode on mobile, so that when resizing the
     // window, the view can still be restored to list view
-    const isGrid = !isListView || isMobile;
+    const isGrid = page === 'catalog' ? isMobile : !isListView || isMobile;
     const columnCount = isGrid ? (isMobile ? 1 : isTablet ? 2 : 3) : 1;
     const columnWidth = Math.floor(window.innerWidth / columnCount);
     const rowCount = Math.ceil(data.length / columnCount);
@@ -166,14 +165,14 @@ function Results({
       {!isMobile && (
         <ResultsHeaders
           multiSeasons={multiSeasons}
-          isListView={isListView}
+          isListView={page === 'catalog' ? true : isListView}
           setIsListView={setIsListView}
           numResults={data?.length ?? 0}
+          allowViewToggle={page !== 'catalog'}
         />
       )}
       {isMobile && page === 'catalog' && (
         <div className={styles.resultsMobileHeader}>
-          <RandomButton />
           <LastUpdated />
         </div>
       )}

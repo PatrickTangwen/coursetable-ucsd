@@ -1,17 +1,19 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { BsEyeSlash } from 'react-icons/bs';
 import type { GridChildComponentProps } from 'react-window';
 import { useShallow } from 'zustand/react/shallow';
 
 import type { ResultItemData } from './Results';
-import { SeasonTag, CourseCode, ratingTypes } from './ResultsItemCommon';
-import type { CatalogListing } from '../../queries/api';
+import {
+  SeasonTag,
+  CourseCode,
+  formatArchiveAvgGpa,
+  formatArchiveRecordCount,
+  getUcsdArchive,
+} from './ResultsItemCommon';
 import { useStore } from '../../store';
 import { anonymousWorksheetHasListing } from '../../utilities/anonymousWorksheet';
-import { generateRandomColor } from '../../utilities/common';
 import {
   isInWorksheet,
   toTimesSummary,
@@ -23,59 +25,6 @@ import { TextComponent } from '../Typography';
 import WorksheetToggleButton from '../Worksheet/WorksheetToggleButton';
 import styles from './ResultsGridItem.module.css';
 
-function Rating({
-  listing,
-  hasEvals,
-  name,
-}: {
-  readonly listing: CatalogListing;
-  readonly hasEvals: boolean | undefined;
-  readonly name: 'Class' | 'Professor' | 'Workload';
-}) {
-  const { Icon, getRating, colorMap } = ratingTypes[name];
-  const rating = getRating(listing.course, 'stat');
-  return (
-    <OverlayTrigger
-      placement="top"
-      overlay={(props) => (
-        <Tooltip
-          id={`results-grid-rating-${listing.course.season_code}-${listing.crn}-${name}-tooltip`}
-          {...props}
-        >
-          {hasEvals
-            ? name
-            : `${name} (These colors are randomly generated. ${hasEvals === false ? 'Complete the challenge' : 'Sign in'} to see real ratings)`}
-        </Tooltip>
-      )}
-    >
-      <div className="d-flex justify-content-end">
-        <div
-          className={styles.rating}
-          style={{
-            color:
-              (hasEvals
-                ? rating
-                  ? colorMap(rating)
-                  : undefined
-                : generateRandomColor(
-                    `${listing.crn}${listing.course.season_code}${name}`,
-                  )
-              )
-                ?.darken()
-                .saturate()
-                .css() ?? '#cccccc',
-          }}
-        >
-          {hasEvals ? getRating(listing.course, 'display') : '???'}
-        </div>
-        <div className={styles.iconContainer}>
-          <Icon className={styles.icon} />
-        </div>
-      </div>
-    </OverlayTrigger>
-  );
-}
-
 function ResultsGridItem({
   data: { listings, columnCount, multiSeasons },
   rowIndex,
@@ -84,16 +33,13 @@ function ResultsGridItem({
 }: GridChildComponentProps<ResultItemData>) {
   const listing = listings[rowIndex * columnCount + columnIndex];
   const target = useCourseModalLink(listing);
-  const { user, worksheets, isAnonymousWorksheet, anonymousWorksheet } =
-    useStore(
-      useShallow((state) => ({
-        worksheets: state.worksheets,
-        user: state.user,
-        isAnonymousWorksheet:
-          state.worksheetMemo.getIsAnonymousWorksheet(state),
-        anonymousWorksheet: state.anonymousWorksheet,
-      })),
-    );
+  const { worksheets, isAnonymousWorksheet, anonymousWorksheet } = useStore(
+    useShallow((state) => ({
+      worksheets: state.worksheets,
+      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+      anonymousWorksheet: state.anonymousWorksheet,
+    })),
+  );
   const getRelevantWorksheetNumber = useStore(
     (state) => state.getRelevantWorksheetNumber,
   );
@@ -119,8 +65,9 @@ function ResultsGridItem({
 
   if (!listing) return null;
 
+  const archive = getUcsdArchive(listing);
   const timesSummary = toTimesSummary(listing.course);
-  const locationsSummary = toLocationsSummary(listing.course, user?.hasEvals);
+  const locationsSummary = toLocationsSummary(listing.course, true);
 
   return (
     <li className={styles.container} style={style}>
@@ -168,27 +115,9 @@ function ResultsGridItem({
               type="secondary"
               className={clsx(styles.oneLine, styles.smallText)}
             >
-              {locationsSummary === 'HIDDEN' ? (
-                <OverlayTrigger
-                  placement="top"
-                  overlay={(props) => (
-                    <Tooltip
-                      id={`results-grid-location-hidden-${listing.course.season_code}-${listing.crn}-tooltip`}
-                      {...props}
-                    >
-                      Sign in to see location
-                    </Tooltip>
-                  )}
-                >
-                  <span>
-                    <BsEyeSlash />
-                  </span>
-                </OverlayTrigger>
-              ) : locationsSummary === 'TBA' ? (
-                'Location: TBA'
-              ) : (
-                `Location: ${locationsSummary}`
-              )}
+              {locationsSummary === 'TBA'
+                ? 'Location: TBA'
+                : `Location: ${locationsSummary}`}
             </TextComponent>
             <div className={styles.skillsAreas}>
               {[...listing.course.skills, ...listing.course.areas].map(
@@ -198,17 +127,14 @@ function ResultsGridItem({
               )}
             </div>
           </div>
-          <div className="d-flex align-items-end">
-            <div className="ms-auto">
-              {(['Class', 'Professor', 'Workload'] as const).map((name) => (
-                <Rating
-                  key={name}
-                  listing={listing}
-                  hasEvals={user?.hasEvals}
-                  name={name}
-                />
-              ))}
-            </div>
+          <div className={styles.archiveSummary}>
+            <TextComponent type="secondary" className={styles.smallText}>
+              Archive Avg GPA: {formatArchiveAvgGpa(archive?.archive_avg_gpa)}
+            </TextComponent>
+            <TextComponent type="secondary" className={styles.smallText}>
+              Record Count:{' '}
+              {formatArchiveRecordCount(archive?.archive_record_count)}
+            </TextComponent>
           </div>
         </div>
       </Link>

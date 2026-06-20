@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import clsx from 'clsx';
 import { Form, InputGroup, Button } from 'react-bootstrap';
-import RCSlider from 'rc-slider';
 import { scroller } from 'react-scroll';
 
 import CustomSelect from './CustomSelect';
@@ -23,7 +22,6 @@ import {
   type FilterHandle,
   type Filters,
   type IntersectableFilters,
-  type NumericFilters,
 } from '../../search/searchTypes';
 import { useStore } from '../../store';
 import { SurfaceComponent, Input, TextComponent } from '../Typography';
@@ -88,59 +86,14 @@ function IntersectableSelect<K extends IntersectableFilters>(
   );
 }
 
-function Slider<K extends NumericFilters>({
-  handle: handleName,
-}: {
-  readonly handle: K;
-}) {
-  const { filters } = useSearch();
-  const handle = filters[handleName];
-  // This is exactly the same as the filter handle, except it updates
-  // responsively without triggering searching
-  const [rangeValue, setRangeValue] = useState(handle.value);
-  useEffect(() => {
-    setRangeValue(handle.value);
-  }, [handle.value]);
-
-  return (
-    <div>
-      <RCSlider
-        range
-        ariaLabelForHandle={[
-          `${filterLabels[handleName]} rating lower bound`,
-          `${filterLabels[handleName]} rating upper bound`,
-        ]}
-        min={defaultFilters.overallBounds[0]}
-        max={defaultFilters.overallBounds[1]}
-        step={0.1}
-        defaultValue={defaultFilters.overallBounds}
-        value={rangeValue}
-        onChange={(value) => {
-          setRangeValue(value as [number, number]);
-        }}
-        onChangeComplete={(value) => {
-          handle.set(value as [number, number]);
-        }}
-        handleRender={(node, { value }) => (
-          <>
-            <div
-              // Map to 100% scale
-              style={{ left: `${(value - 1) * 25}%` }}
-              className={styles.sliderTooltip}
-            >
-              {value}
-            </div>
-            {node}
-          </>
-        )}
-        className={styles.slider}
-      />
-      <div className={clsx('text-center', styles.filterTitle)}>
-        {filterLabels[handleName]}
-      </div>
-    </div>
-  );
-}
+const catalogSortOptions = [
+  sortByOptions.course_code,
+  sortByOptions.title,
+  sortByOptions.last_modified,
+  sortByOptions.added,
+  sortByOptions.time,
+  sortByOptions.location,
+];
 
 export default function MobileSearchForm() {
   const { filters, coursesLoading, searchData } = useSearch();
@@ -197,7 +150,7 @@ export default function MobileSearchForm() {
             onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
               searchText.set(event.target.value)
             }
-            placeholder="Search by course code, title, or prof"
+            placeholder="Search by course code, title, instructor, or description"
           />
         </InputGroup>
         {/* Sort by option and order */}
@@ -205,7 +158,7 @@ export default function MobileSearchForm() {
           <CustomSelect
             className={styles.selectSortBy}
             value={selectSortBy.value}
-            options={Object.values(sortByOptions)}
+            options={catalogSortOptions}
             menuPortalTarget={document.body}
             onChange={(option) => {
               selectSortBy.set(option!);
@@ -247,14 +200,8 @@ export default function MobileSearchForm() {
           }
         />
         <hr />
-        <div className={styles.sliders}>
-          <Slider handle="overallBounds" />
-          <Slider handle="workloadBounds" />
-          <Slider handle="professorBounds" />
-        </div>
         <div className={styles.booleanToggles}>
           <Toggle handle="searchDescription" />
-          <Toggle handle="enableQuist" />
           <Toggle handle="hideCancelled" />
           <Toggle handle="hideConflicting" />
         </div>
