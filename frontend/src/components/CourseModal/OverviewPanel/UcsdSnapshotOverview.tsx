@@ -52,7 +52,7 @@ function SnapshotMetadata({
   archive,
   listing,
 }: {
-  readonly archive: UcsdCourseArchive;
+  readonly archive: UcsdCourseArchive | null;
   readonly listing: CourseModalPrefetchListingDataFragment;
 }) {
   const course = listing.course as RuntimeCourse;
@@ -60,12 +60,12 @@ function SnapshotMetadata({
     { label: 'Professor', value: professorText(course) },
     { label: 'Meetings', value: meetingText(course) },
     { label: 'Section', value: course.section },
-    { label: 'Units', value: archive.units ?? course.credits ?? 'N/A' },
-    { label: 'Prerequisites', value: archive.prerequisites_text },
-    { label: 'Restrictions', value: archive.restrictions_text },
+    { label: 'Units', value: archive?.units ?? course.credits ?? 'N/A' },
+    { label: 'Prerequisites', value: archive?.prerequisites_text },
+    { label: 'Restrictions', value: archive?.restrictions_text },
     {
       label: 'Catalog Source',
-      value: archive.catalog_url ? (
+      value: archive?.catalog_url ? (
         <a href={archive.catalog_url} rel="noopener noreferrer" target="_blank">
           {archive.catalog_url}
         </a>
@@ -88,57 +88,74 @@ function SnapshotMetadata({
 function GradeArchiveRecords({
   archive,
 }: {
-  readonly archive: UcsdCourseArchive;
+  readonly archive: UcsdCourseArchive | null;
 }) {
-  if (!archive.grade_archive_records.length) return null;
-
   return (
     <>
       <h3 className={styles.sectionTitle}>Grade Archive Records</h3>
-      <div className="table-responsive">
-        <table
-          className={['table', 'table-sm', 'table-striped', styles.recordTable]
-            .filter(Boolean)
-            .join(' ')}
-        >
-          <thead>
-            <tr>
-              <th>Year</th>
-              <th>Quarter</th>
-              <th>Instructor</th>
-              <th>GPA</th>
-              <th>A</th>
-              <th>B</th>
-              <th>C</th>
-              <th>D</th>
-              <th>F</th>
-              <th>W</th>
-              <th>P</th>
-              <th>NP</th>
-            </tr>
-          </thead>
-          <tbody>
-            {archive.grade_archive_records.map((record, index) => (
-              <tr
-                key={`${record.subject}-${record.course}-${record.year}-${record.quarter}-${record.instructor ?? 'TBA'}-${index}`}
-              >
-                <td>{record.year}</td>
-                <td>{record.quarter}</td>
-                <td>{record.instructor ?? 'TBA'}</td>
-                <td>{formatGpa(record.gpa)}</td>
-                <td>{formatPercent(record.a)}</td>
-                <td>{formatPercent(record.b)}</td>
-                <td>{formatPercent(record.c)}</td>
-                <td>{formatPercent(record.d)}</td>
-                <td>{formatPercent(record.f)}</td>
-                <td>{formatPercent(record.w)}</td>
-                <td>{formatPercent(record.p)}</td>
-                <td>{formatPercent(record.np)}</td>
+      {!archive && (
+        <p className={styles.missingData}>
+          UCSD archive metadata is unavailable for this snapshot course.
+          Historical GPA Data has not been published in the snapshot yet.
+        </p>
+      )}
+      {archive && archive.grade_archive_records.length === 0 && (
+        <p className={styles.missingData}>
+          No UCSD Instructor Grade Archive records matched this snapshot course.
+          Historical GPA Data may be unavailable for this course or term.
+        </p>
+      )}
+      {archive && archive.grade_archive_records.length > 0 && (
+        <div className="table-responsive">
+          <table
+            className={[
+              'table',
+              'table-sm',
+              'table-striped',
+              styles.recordTable,
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          >
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Quarter</th>
+                <th>Instructor</th>
+                <th>GPA</th>
+                <th>A</th>
+                <th>B</th>
+                <th>C</th>
+                <th>D</th>
+                <th>F</th>
+                <th>W</th>
+                <th>P</th>
+                <th>NP</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {archive.grade_archive_records.map((record, index) => (
+                <tr
+                  key={`${record.subject}-${record.course}-${record.year}-${record.quarter}-${record.instructor ?? 'TBA'}-${index}`}
+                >
+                  <td>{record.year}</td>
+                  <td>{record.quarter}</td>
+                  <td>{record.instructor ?? 'TBA'}</td>
+                  <td>{formatGpa(record.gpa)}</td>
+                  <td>{formatPercent(record.a)}</td>
+                  <td>{formatPercent(record.b)}</td>
+                  <td>{formatPercent(record.c)}</td>
+                  <td>{formatPercent(record.d)}</td>
+                  <td>{formatPercent(record.f)}</td>
+                  <td>{formatPercent(record.w)}</td>
+                  <td>{formatPercent(record.p)}</td>
+                  <td>{formatPercent(record.np)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </>
   );
 }
@@ -147,7 +164,7 @@ function UcsdSnapshotOverview({
   archive,
   listing,
 }: {
-  readonly archive: UcsdCourseArchive;
+  readonly archive: UcsdCourseArchive | null;
   readonly listing: CourseModalPrefetchListingDataFragment;
 }) {
   return (
@@ -159,13 +176,13 @@ function UcsdSnapshotOverview({
           <div className={styles.summaryItem}>
             <span className={styles.summaryLabel}>Archive Avg GPA</span>
             <span className={styles.summaryValue}>
-              {formatGpa(archive.archive_avg_gpa)}
+              {formatGpa(archive?.archive_avg_gpa ?? null)}
             </span>
           </div>
           <div className={styles.summaryItem}>
             <span className={styles.summaryLabel}>Record Count</span>
             <span className={styles.summaryValue}>
-              {archive.archive_record_count}
+              {archive?.archive_record_count ?? 'N/A'}
             </span>
           </div>
         </div>

@@ -8,7 +8,6 @@ import type {
   CourseModalPrefetchListingDataFragment,
 } from '../../../generated/graphql-types';
 import { useCourseSectionsQuery } from '../../../queries/graphql-queries';
-import { getUcsdArchiveDetails } from '../../../queries/ucsdCatalogSnapshot';
 import type { Option } from '../../../search/searchTypes';
 import { useStore } from '../../../store';
 import { extraInfo, subjects } from '../../../utilities/constants';
@@ -24,6 +23,7 @@ import { PopoutSelect } from '../../Search/PopoutSelect';
 import SkillBadge from '../../SkillBadge';
 import { TextComponent } from '../../Typography';
 import type { ModalNavigationFunction } from '../CourseModal';
+import { getUcsdSnapshotCourseDetails } from '../ucsdSnapshotCourse';
 import styles from './InfoRow.module.css';
 
 function SectionLink({
@@ -152,7 +152,7 @@ export default function ModalHeaderInfo({
   const user = useStore((state) => state.user);
   const [searchParams] = useSearchParams();
   const backTarget = useStore((state) => state.backTarget);
-  const isUcsdSnapshotCourse = Boolean(getUcsdArchiveDetails(listing.course));
+  const { isUcsdSnapshotCourse } = getUcsdSnapshotCourseDetails(listing);
   const { data, loading, error } = useCourseSectionsQuery({
     variables: {
       courseCode: listing.course_code,

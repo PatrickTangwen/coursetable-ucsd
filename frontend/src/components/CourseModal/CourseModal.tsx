@@ -6,9 +6,9 @@ import { Helmet } from 'react-helmet';
 import ModalHeaderControls from './Header/ControlsRow';
 import ModalHeaderInfo from './Header/InfoRow';
 import OverviewPanel from './OverviewPanel/OverviewPanel';
+import { getUcsdSnapshotCourseDetails } from './ucsdSnapshotCourse';
 import type { CourseModalPrefetchListingDataFragment } from '../../generated/graphql-types';
 import { useModalHistory } from '../../hooks/useModalHistory';
-import { getUcsdArchiveDetails } from '../../queries/ucsdCatalogSnapshot';
 import {
   toSeasonDate,
   toSeasonString,
@@ -39,7 +39,9 @@ function CourseModal({
   const [view, setView] = useState<'overview' | 'evals'>('overview');
   const [searchParams] = useSearchParams();
   const { closeModal, navigate } = useModalHistory();
-  const institution = getUcsdArchiveDetails(listing.course) ? 'UCSD' : 'Yale';
+  const { isUcsdSnapshotCourse } = getUcsdSnapshotCourseDetails(listing);
+  const visibleView = isUcsdSnapshotCourse ? 'overview' : view;
+  const institution = isUcsdSnapshotCourse ? 'UCSD' : 'Yale';
   const title = `${listing.course_code} ${listing.course.section.padStart(2, '0')}: ${listing.course.title} - ${institution} ${toSeasonString(listing.course.season_code)} | CourseTable`;
   const description = truncatedText(
     listing.course.description,
@@ -58,11 +60,14 @@ function CourseModal({
       setView('overview');
       navigate('pop', undefined, searchParams);
     } else if (mode === 'change-view') {
-      setView(target);
+      setView(isUcsdSnapshotCourse && target === 'evals' ? 'overview' : target);
     } else {
+      const nextCourse = getUcsdSnapshotCourseDetails(l!);
       const nextView =
         // Only actually navigate to evals if the course has evals
-        target === 'evals' && l!.course.evaluation_statistic
+        target === 'evals' &&
+        !nextCourse.isUcsdSnapshotCourse &&
+        l!.course.evaluation_statistic
           ? 'evals'
           : 'overview';
       setView(nextView);
@@ -96,12 +101,12 @@ function CourseModal({
           <ModalHeaderInfo listing={listing} onNavigation={onNavigation} />
           <ModalHeaderControls
             listing={listing}
-            view={view}
+            view={visibleView}
             setView={setView}
           />
         </Modal.Header>
         <Modal.Body>
-          {view === 'overview' ? (
+          {visibleView === 'overview' ? (
             <OverviewPanel onNavigation={onNavigation} prefetched={listing} />
           ) : (
             <EvaluationsPanel

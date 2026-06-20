@@ -58,6 +58,15 @@
   white-space: pre-wrap;
 }
 
+.missingData {
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text-secondary);
+  margin: 0;
+  padding: 0.75rem;
+}
+
 .recordTable {
   margin-bottom: 0;
   font-size: 0.9rem;
