@@ -166,7 +166,7 @@ function buildWalkBeforeMap(events: CourseRBCEvent[]): Map<string, WalkBefore> {
 }
 
 function WorksheetCalendar({
-  showWalkingTimes = true,
+  showWalkingTimes = false,
 }: WorksheetCalendarProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const {
@@ -242,6 +242,10 @@ function WorksheetCalendar({
     null,
   );
   useEffect(() => {
+    if (!showWalkingTimes) {
+      setWalkBeforeByKey(new Map());
+      return () => {};
+    }
     let cancelled = false;
     const timeout = window.setTimeout(() => {
       const computed = buildWalkBeforeMap(parsedCourses);
@@ -251,7 +255,7 @@ function WorksheetCalendar({
       cancelled = true;
       window.clearTimeout(timeout);
     };
-  }, [parsedCourses]);
+  }, [parsedCourses, showWalkingTimes]);
 
   const displayEvents = useMemo(() => {
     if (!showWalkingTimes || walkBeforeByKey.size === 0) return parsedCourses;

@@ -14,12 +14,10 @@ import ErrorPage from '../components/ErrorPage';
 import Spinner from '../components/Spinner';
 import { SurfaceComponent } from '../components/Typography';
 import CalendarLockSettingsModal from '../components/Worksheet/CalendarLockSettingsModal';
-import FriendsDropdown from '../components/Worksheet/FriendsDropdown';
 import SeasonDropdown from '../components/Worksheet/SeasonDropdown';
 import WorksheetCalendar from '../components/Worksheet/WorksheetCalendar';
 import WorksheetCalendarList from '../components/Worksheet/WorksheetCalendarList';
 import WorksheetList from '../components/Worksheet/WorksheetList';
-import WorksheetMap from '../components/Worksheet/WorksheetMap';
 import WorksheetNumDropdown from '../components/Worksheet/WorksheetNumberDropdown';
 import WorksheetStats from '../components/Worksheet/WorksheetStats';
 
@@ -28,8 +26,6 @@ import { parseCoursesFromURL } from '../slices/WorksheetSlice';
 import { useStore } from '../store';
 import { parseAnonymousWorksheetShare } from '../utilities/anonymousWorksheet';
 import styles from './Worksheet.module.css';
-
-const SHOW_WALKING_TIMES_STORAGE_KEY = 'worksheet-calendar-show-walking-times';
 
 function Worksheet() {
   const {
@@ -56,14 +52,6 @@ function Worksheet() {
     })),
   );
   const [expanded, setExpanded] = useState(false);
-  const [showWalkingTimes, setShowWalkingTimes] = useState(() => {
-    if (typeof window === 'undefined') return true;
-    const savedPreference = window.localStorage.getItem(
-      SHOW_WALKING_TIMES_STORAGE_KEY,
-    );
-    if (savedPreference === null) return true;
-    return savedPreference !== '0' && savedPreference !== 'false';
-  });
   const emptyMissingBuildingCodes = useMemo(() => new Set<string>(), []);
 
   useEffect(() => {
@@ -87,22 +75,14 @@ function Worksheet() {
     useStore.setState({ exoticWorksheet });
   }, []);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.setItem(
-      SHOW_WALKING_TIMES_STORAGE_KEY,
-      showWalkingTimes ? '1' : '0',
-    );
-  }, [showWalkingTimes]);
-
   // Wait for search query to finish
   if (worksheetError) {
     Sentry.captureException(worksheetError);
     return <ErrorPage message="There seems to be an issue with our server" />;
   }
   if (worksheetLoading) return <Spinner message="Loading worksheet data..." />;
-  if (worksheetView === 'map') return <WorksheetMap />;
-  if (worksheetView === 'list' && !isMobile) return <WorksheetList />;
+  const isListView = worksheetView === 'list';
+  if (isListView && !isMobile) return <WorksheetList />;
   const LockIcon = isCalendarViewLocked ? FaLock : FaUnlock;
   const lockLabel = isCalendarViewLocked ? 'Unlock view' : 'Lock view';
 
@@ -110,16 +90,13 @@ function Worksheet() {
   const fullScreenLabel = expanded ? 'Compress calendar' : 'Expand calendar';
 
   // Mobile list view - show dropdowns and list
-  if (worksheetView === 'list' && isMobile) {
+  if (isListView && isMobile) {
     return (
       <>
         {!isExoticWorksheet && !isAnonymousWorksheet && (
           <div className={styles.mobileListDropdowns}>
             <WorksheetNumDropdown mobile />
-            <div className="d-flex">
-              <SeasonDropdown mobile />
-              <FriendsDropdown mobile />
-            </div>
+            <SeasonDropdown mobile />
           </div>
         )}
         <WorksheetList />
@@ -133,14 +110,11 @@ function Worksheet() {
       {isMobile && !isExoticWorksheet && !isAnonymousWorksheet && (
         <div className={styles.dropdowns}>
           <WorksheetNumDropdown mobile />
-          <div className="d-flex">
-            <SeasonDropdown mobile />
-            <FriendsDropdown mobile />
-          </div>
+          <SeasonDropdown mobile />
         </div>
       )}
       <SurfaceComponent className={styles.calendar}>
-        <WorksheetCalendar showWalkingTimes={showWalkingTimes} />
+        <WorksheetCalendar showWalkingTimes={false} />
         {!isMobile && (
           <div className={styles.calendarControls}>
             <OverlayTrigger
@@ -196,8 +170,6 @@ function Worksheet() {
             controlsMode="full"
             missingBuildingCodes={emptyMissingBuildingCodes}
             hideTooltipContext="calendar"
-            showWalkingTimes={showWalkingTimes}
-            onShowWalkingTimesChange={setShowWalkingTimes}
           />
         </div>
       )}
