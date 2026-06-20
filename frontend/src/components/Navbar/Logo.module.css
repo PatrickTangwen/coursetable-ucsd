@@ -1,17 +1,25 @@
-.coursetableLogo {
+.ucsdLogo {
   font-family:
-    YaleDesign, Garamond, 'Palatino Linotype', Palatino, Bookman, serif;
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   display: block;
   line-height: 1rem;
 }
 
-.coursetableLogoImg {
+.ucsdLogoImg {
   height: 1em;
   width: auto;
 }
 
-.coursetableLogoWordmark {
-  height: 0.6em;
-  width: auto;
-  margin-top: -0.1em;
+.ucsdLogoWordmark {
+  color: var(--color-primary);
+  font-size: 0.72em;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.1;
+  white-space: nowrap;
 }

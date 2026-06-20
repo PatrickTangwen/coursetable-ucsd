@@ -1,12 +1,5 @@
 import { useEffect } from 'react';
-import {
-  Routes,
-  Route,
-  Navigate,
-  Outlet,
-  useLocation,
-  Link,
-} from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import * as Sentry from '@sentry/react';
 import PullToRefresh from 'pulltorefreshjs';
 import { Helmet } from 'react-helmet';
@@ -138,10 +131,10 @@ function App() {
       hydration, and things get restored to the default state when those
       components unmount */}
       <Helmet>
-        <title>CourseTable</title>
+        <title>UCSD Catalog &amp; Anonymous Worksheet</title>
         <meta
           name="description"
-          content="CourseTable offers a clean and effective way for Yale students to find the courses they want, bringing together course information, student evaluations, and course demand statistics in an intuitive interface. It's run by a small team of volunteers within the Yale Computer Society and is completely open source."
+          content="UCSD public catalog search and Anonymous Worksheet planning for browsing courses and building a local schedule from the published catalog snapshot."
         />
       </Helmet>
       <SeoMeta />
@@ -152,9 +145,7 @@ function App() {
         // When removing a notice, just remove/comment the text content below.
         // Don't remove this wrapper.
         id={26}
-      >
-        Read our <Link to="/releases/spring26">latest release notes</Link>.
-      </Notice>
+      />
       <Navbar />
       <SentryRoutes>
         <Route element={<AuthenticatedRoutes />}>

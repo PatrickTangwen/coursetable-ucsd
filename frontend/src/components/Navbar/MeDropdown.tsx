@@ -5,21 +5,12 @@ import { Collapse } from 'react-bootstrap';
 import type { IconType } from 'react-icons';
 import { BsFillPersonFill } from 'react-icons/bs';
 import { FaSignOutAlt, FaSignInAlt } from 'react-icons/fa';
-import {
-  FcInfo,
-  FcQuestions,
-  FcFeedback,
-  FcPuzzle,
-  FcNews,
-  FcBusinessman,
-} from 'react-icons/fc';
+import { FcBusinessman } from 'react-icons/fc';
 
-import { useShallow } from 'zustand/react/shallow';
 import { API_ENDPOINT } from '../../config';
 import { logout } from '../../queries/api';
 import { useStore } from '../../store';
 import { scrollToTop, useComponentVisible } from '../../utilities/display';
-import { createCatalogLink } from '../../utilities/navigation';
 import { SurfaceComponent, TextComponent } from '../Typography';
 import styles from './MeDropdown.module.css';
 
@@ -87,15 +78,8 @@ function DropdownContent({
   readonly isExpanded: boolean;
   readonly setIsExpanded: (visible: boolean) => void;
 }) {
-  const { isMobile, isTablet } = useStore(
-    useShallow((state) => ({
-      isMobile: state.isMobile,
-      isTablet: state.isTablet,
-    })),
-  );
   const authStatus = useStore((state) => state.authStatus);
   const refreshAuth = useStore((state) => state.refreshAuth);
-  const toggleTutorial = useStore((state) => state.toggleTutorial);
 
   return (
     <SurfaceComponent
@@ -109,36 +93,6 @@ function DropdownContent({
         {/* Do not add vertical spacing to this div because it will break
           collapsing animation */}
         <div className="px-3">
-          <DropdownItem icon={FcInfo} to="/about">
-            About
-          </DropdownItem>
-          <DropdownItem icon={FcQuestions} to="/faq">
-            FAQ
-          </DropdownItem>
-          <DropdownItem
-            icon={FcFeedback}
-            href="https://feedback.coursetable.com/"
-            externalLink
-          >
-            Feedback
-          </DropdownItem>
-          <DropdownItem icon={FcNews} to="/releases">
-            Release notes
-          </DropdownItem>
-          {/* Try tutorial only on desktop */}
-          {!isMobile && !isTablet && authStatus === 'authenticated' && (
-            <DropdownItem
-              icon={FcPuzzle}
-              to={createCatalogLink()}
-              onClick={(e) => {
-                e.stopPropagation();
-                scrollToTop(e);
-                toggleTutorial(true);
-              }}
-            >
-              Tutorial
-            </DropdownItem>
-          )}
           {authStatus === 'authenticated' && (
             <DropdownItem icon={FcBusinessman} to="/profile">
               Profile (beta)
@@ -162,7 +116,7 @@ function DropdownContent({
               iconColor="#30e36b"
               href={`${API_ENDPOINT}/api/auth/cas?redirect=${window.location.origin}/catalog`}
             >
-              Sign in
+              Sign in (beta)
             </DropdownItem>
           )}
         </div>

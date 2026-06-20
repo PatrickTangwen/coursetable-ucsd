@@ -13,7 +13,6 @@ import { scrollToTop } from '../../utilities/display';
 import { createCatalogLink } from '../../utilities/navigation';
 import LastUpdated from '../Search/LastUpdated';
 import { NavbarCatalogSearch } from '../Search/NavbarCatalogSearch';
-import RandomButton from '../Search/RandomButton';
 import { SurfaceComponent } from '../Typography';
 import { NavbarWorksheetSearch } from '../Worksheet/NavbarWorksheetSearch';
 
@@ -53,9 +52,8 @@ function NavbarRight({
   return children;
 }
 
-export default function CourseTableNavbar() {
+export default function AppNavbar() {
   const authStatus = useStore((state) => state.authStatus);
-  const user = useStore((state) => state.user);
   const location = useLocation();
   const [navExpanded, setNavExpanded] = useState(false);
   const isMobile = useStore((state) => state.isMobile);
@@ -91,14 +89,13 @@ export default function CourseTableNavbar() {
           appIconPath="/icon200x200.png"
           onClose={() => setShowPWAPrompt(false)}
         />
-        {/* Logo in top left and random underneath */}
+        {/* Logo in top left */}
         <div className={styles.navLogoWrapper}>
           <Nav className={clsx(styles.navLogo, 'navbar-brand')}>
             <NavLink to="/">
               <Logo icon={false} />
             </NavLink>
           </Nav>
-          {showCatalogSearch && <RandomButton />}
         </div>
         {showCatalogSearch && <NavbarCatalogSearch />}
         {isWorksheetPage && <NavbarWorksheetSearch isMobile={isMobile} />}
@@ -127,29 +124,10 @@ export default function CourseTableNavbar() {
               <NavbarLink to="/worksheet">
                 <span data-tutorial="worksheet-1">Worksheet</span>
               </NavbarLink>
-              {user?.hasEvals === false && (
-                <NavbarLink to="/challenge">
-                  <span style={{ position: 'relative' }}>
-                    <span className={styles.challengeIndicator} />
-                    Challenge
-                  </span>
-                </NavbarLink>
-              )}
               {/* Links are in the navbar on mobile and in the me dropdown
                   on desktop */}
               {isMobile ? (
                 <>
-                  <NavbarLink to="/about">About</NavbarLink>
-                  <NavbarLink to="/faq">FAQ</NavbarLink>
-                  <a
-                    href="https://feedback.coursetable.com/"
-                    className={styles.navLink}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Feedback
-                  </a>
-                  <NavbarLink to="/releases">Release notes</NavbarLink>
                   {isIOSNotInstalled && (
                     <button
                       type="button"
@@ -170,7 +148,9 @@ export default function CourseTableNavbar() {
                         : logout
                     }
                   >
-                    Sign {authStatus !== 'authenticated' ? 'In' : 'Out'}
+                    {authStatus !== 'authenticated'
+                      ? 'Sign in (beta)'
+                      : 'Sign out'}
                   </button>
                 </>
               ) : (
