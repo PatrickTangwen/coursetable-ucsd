@@ -198,6 +198,40 @@ function toRBCEvent({
 
 type GCalEvent = gapi.client.calendar.EventInput;
 type ICSEvent = string;
+type CalendarType = 'gcal' | 'ics' | 'rbc';
+
+type UcsdCalendarMeeting = {
+  days: string[];
+  start_time: string | null;
+  end_time: string | null;
+  building: string | null;
+  room: string | null;
+  is_tba: boolean;
+  raw_days: string | null;
+  raw_time: string | null;
+  raw_location: string | null;
+};
+
+type UcsdCalendarDetails = {
+  term_date_range?: {
+    start: string;
+    end: string;
+  };
+  section_id?: string;
+  section_code?: string | null;
+  meeting_type?: string | null;
+  meetings?: UcsdCalendarMeeting[];
+  source_note?: string | null;
+};
+
+type CourseWithCalendarDetails = CatalogListing['course'] & {
+  ucsd_calendar?: UcsdCalendarDetails;
+};
+
+type CourseMeeting = CatalogListing['course']['course_meetings'][number] & {
+  raw_location?: string | null;
+};
+
 export type CourseRBCEvent = {
   kind: 'course';
   title: string;
@@ -228,6 +262,176 @@ export type WalkBefore = {
   toClass: WalkClassSummary;
 };
 
+export type CalendarSkippedMeeting = {
+  courseCode: string;
+  section: string;
+  meetingType: string;
+  rawDays: string | null;
+  rawTime: string | null;
+  rawLocation: string | null;
+  reason: string;
+};
+
+type CalendarExportResult<T> = {
+  events: T[];
+  skippedMeetings: CalendarSkippedMeeting[];
+};
+
+function ucsdCalendarDetails(listing: CatalogListing) {
+  return (listing.course as CourseWithCalendarDetails).ucsd_calendar;
+}
+
+function simpleDateFromIso(value: string): SimpleDate | undefined {
+  const [year, month, day] = value.split('-').map(Number);
+  if (!year || !month || !day) return undefined;
+  return [year, month, day];
+}
+
+function calendarFromTermDateRange(
+  range: UcsdCalendarDetails['term_date_range'],
+): SeasonCalendar | undefined {
+  if (!range) return undefined;
+  const start = simpleDateFromIso(range.start);
+  const end = simpleDateFromIso(range.end);
+  if (!start || !end) return undefined;
+  return {
+    start,
+    end,
+    breaks: [],
+    transfers: [],
+  };
+}
+
+function getExportCalendar(
+  visibleCourses: WorksheetCourse[],
+  viewedSeason: Season,
+): SeasonCalendar | undefined {
+  for (const course of visibleCourses) {
+    const semester = calendarFromTermDateRange(
+      ucsdCalendarDetails(course.listing)?.term_date_range,
+    );
+    if (semester) return semester;
+  }
+  return academicCalendars[viewedSeason] as SeasonCalendar | undefined;
+}
+
+function sectionLabel(listing: CatalogListing) {
+  const details = ucsdCalendarDetails(listing);
+  return (
+    details?.section_code || listing.course.section || details?.section_id || ''
+  );
+}
+
+function meetingTypeLabel(listing: CatalogListing) {
+  return ucsdCalendarDetails(listing)?.meeting_type || 'Meeting';
+}
+
+function sourceNote(listing: CatalogListing) {
+  return ucsdCalendarDetails(listing)?.source_note || '';
+}
+
+function eventSummary(listing: CatalogListing) {
+  return [listing.course_code, sectionLabel(listing), meetingTypeLabel(listing)]
+    .filter(Boolean)
+    .join(' ');
+}
+
+function instructorNames(listing: CatalogListing) {
+  return listing.course.course_professors
+    .map((p) => p.professor.name)
+    .filter(Boolean)
+    .join(', ');
+}
+
+function meetingLocation(meeting: CourseMeeting) {
+  if (meeting.location) {
+    return `${meeting.location.building.code}${
+      meeting.location.room ? ` ${meeting.location.room}` : ''
+    }`;
+  }
+  return meeting.raw_location ?? '';
+}
+
+function eventDescription(listing: CatalogListing, location: string) {
+  const lines = [
+    `Course: ${listing.course_code}`,
+    sectionLabel(listing) ? `Section: ${sectionLabel(listing)}` : '',
+    `Meeting type: ${meetingTypeLabel(listing)}`,
+    `Title: ${listing.course.title}`,
+    instructorNames(listing) ? `Instructor: ${instructorNames(listing)}` : '',
+    location ? `Location: ${location}` : '',
+    sourceNote(listing) ? `Source: ${sourceNote(listing)}` : '',
+  ];
+  return lines.filter(Boolean).join('\n');
+}
+
+function skippedMeetingFromSource(
+  listing: CatalogListing,
+  meeting: UcsdCalendarMeeting,
+): CalendarSkippedMeeting {
+  const rawLocation =
+    meeting.raw_location ||
+    [meeting.building, meeting.room].filter(Boolean).join(' ');
+  return {
+    courseCode: listing.course_code,
+    section: sectionLabel(listing),
+    meetingType: meetingTypeLabel(listing),
+    rawDays: meeting.raw_days,
+    rawTime: meeting.raw_time,
+    rawLocation: rawLocation || null,
+    reason: 'TBA or arranged Meeting',
+  };
+}
+
+function skippedMeetingFromCourseMeeting(
+  listing: CatalogListing,
+  meeting: CourseMeeting,
+): CalendarSkippedMeeting {
+  return {
+    courseCode: listing.course_code,
+    section: sectionLabel(listing),
+    meetingType: meetingTypeLabel(listing),
+    rawDays: null,
+    rawTime:
+      meeting.start_time && meeting.end_time
+        ? `${meeting.start_time}-${meeting.end_time}`
+        : null,
+    rawLocation: meetingLocation(meeting) || null,
+    reason: 'TBA or arranged Meeting',
+  };
+}
+
+function sourceSkippedMeetings(listing: CatalogListing) {
+  const meetings = ucsdCalendarDetails(listing)?.meetings ?? [];
+  return meetings
+    .filter(
+      (meeting) =>
+        meeting.is_tba ||
+        meeting.days.length === 0 ||
+        !meeting.start_time ||
+        !meeting.end_time,
+    )
+    .map((meeting) => skippedMeetingFromSource(listing, meeting));
+}
+
+function skippedLabel(meeting: CalendarSkippedMeeting) {
+  const raw =
+    meeting.rawTime || meeting.rawDays || meeting.rawLocation || undefined;
+  const label = [meeting.courseCode, meeting.section, meeting.meetingType]
+    .filter(Boolean)
+    .join(' ');
+  return raw ? `${label} (${raw})` : label;
+}
+
+export function formatSkippedMeetingsSummary(
+  skippedMeetings: CalendarSkippedMeeting[],
+) {
+  if (skippedMeetings.length === 0) return '';
+  return `Skipped ${skippedMeetings.length} TBA or arranged Meeting${
+    skippedMeetings.length === 1 ? '' : 's'
+  }: ${skippedMeetings.map(skippedLabel).join('; ')}.`;
+}
+
 export function getCalendarEvents(
   type: 'gcal',
   courses: WorksheetCourse[],
@@ -244,24 +448,54 @@ export function getCalendarEvents(
   viewedSeason: Season,
 ): CourseRBCEvent[];
 export function getCalendarEvents(
-  type: 'gcal' | 'ics' | 'rbc',
+  type: CalendarType,
+  courses: WorksheetCourse[],
+  viewedSeason: Season,
+) {
+  return getCalendarExport(type, courses, viewedSeason).events;
+}
+
+export function getCalendarExport(
+  type: 'gcal',
+  courses: WorksheetCourse[],
+  viewedSeason: Season,
+): CalendarExportResult<GCalEvent>;
+export function getCalendarExport(
+  type: 'ics',
+  courses: WorksheetCourse[],
+  viewedSeason: Season,
+): CalendarExportResult<ICSEvent>;
+export function getCalendarExport(
+  type: 'rbc',
+  courses: WorksheetCourse[],
+  viewedSeason: Season,
+): CalendarExportResult<CourseRBCEvent>;
+export function getCalendarExport(
+  type: CalendarType,
+  courses: WorksheetCourse[],
+  viewedSeason: Season,
+): CalendarExportResult<GCalEvent | ICSEvent | CourseRBCEvent>;
+export function getCalendarExport(
+  type: CalendarType,
   courses: WorksheetCourse[],
   viewedSeason: Season,
 ) {
   const seasonString = toSeasonString(viewedSeason);
-  const semester = academicCalendars[viewedSeason] as
-    | SeasonCalendar
-    | undefined;
+  const visibleCourses = courses.filter((course) => !course.hidden);
+  const skippedMeetings = visibleCourses.flatMap(({ listing }) =>
+    sourceSkippedMeetings(listing),
+  );
+
+  if (visibleCourses.length === 0) {
+    if (type !== 'rbc') toast.error(`No courses in ${seasonString} to export!`);
+    return { events: [], skippedMeetings };
+  }
+  const semester = getExportCalendar(visibleCourses, viewedSeason);
   if (!semester && type !== 'rbc') {
     toast.error(
       `Can't construct calendar events for ${seasonString} because there is no academic calendar available.`,
     );
-    return [];
-  }
-  const visibleCourses = courses.filter((course) => !course.hidden);
-  if (visibleCourses.length === 0) {
-    if (type !== 'rbc') toast.error(`No courses in ${seasonString} to export!`);
-    return [];
+    return { events: [], skippedMeetings };
   }
   const toEvent =
     type === 'gcal' ? toGCalEvent : type === 'ics' ? toICSEvent : toRBCEvent;
@@ -272,55 +506,57 @@ export function getCalendarEvents(
         '';
     return l.course.course_meetings.flatMap<
       GCalEvent | ICSEvent | CourseRBCEvent
-    >(
-      ({
+    >((courseMeeting) => {
+      const {
         days_of_week: daysOfWeek,
         start_time: startTime,
         end_time: endTime,
-        location,
-      }) => {
-        const days = Object.values(weekdays).filter(
-          (day) => daysOfWeek & (1 << day),
-        );
-        const firstMeetingDay = semester
-          ? firstDaySince(semester.start, days)
-          : // Irrelevant for rbc, because it always uses the current date
-            new Date();
-        const byDay = days.map((day) => dayToCode[day]).join(',');
-        const exDate = semester
-          ? datesInBreak(semester.breaks, days, startTime)
-              .map((s) => s.replace(/[:-]/gu, ''))
-              .join(',')
-          : // Irrelevant for rbc
-            '';
-        const rDate = semester
-          ? transferDays(semester.transfers, days, startTime)
-              .map((s) => s.replace(/[:-]/gu, ''))
-              .join(',')
-          : // Irrelevant for rbc
-            '';
+      } = courseMeeting;
+      const meeting = courseMeeting as CourseMeeting;
+      const days = Object.values(weekdays).filter(
+        (day) => daysOfWeek & (1 << day),
+      );
+      if (days.length === 0 || !startTime || !endTime) {
+        skippedMeetings.push(skippedMeetingFromCourseMeeting(l, meeting));
+        return [];
+      }
+      const firstMeetingDay = semester
+        ? firstDaySince(semester.start, days)
+        : // Irrelevant for rbc, because it always uses the current date
+          new Date();
+      const byDay = days.map((day) => dayToCode[day]).join(',');
+      const exDate = semester
+        ? datesInBreak(semester.breaks, days, startTime)
+            .map((s) => s.replace(/[:-]/gu, ''))
+            .join(',')
+        : // Irrelevant for rbc
+          '';
+      const rDate = semester
+        ? transferDays(semester.transfers, days, startTime)
+            .map((s) => s.replace(/[:-]/gu, ''))
+            .join(',')
+        : // Irrelevant for rbc
+          '';
+      const location = meetingLocation(meeting);
 
-        return toEvent({
-          summary: l.course_code,
-          start: isoString(firstMeetingDay, startTime),
-          end: isoString(firstMeetingDay, endTime),
-          recurrence: [
-            `RRULE:FREQ=WEEKLY;BYDAY=${byDay};UNTIL=${endRepeat}Z`,
-            `EXDATE;TZID=America/New_York:${exDate}`,
-            ...(rDate ? [`RDATE;TZID=America/New_York:${rDate}`] : []),
-          ],
-          description: `${l.course.title}\nInstructor: ${l.course.course_professors.map((p) => p.professor.name).join(', ')}`,
-          location: location
-            ? `${location.building.code}${location.room ? ` ${location.room}` : ''}`
-            : '',
-          color,
-          listing: l,
-          days,
-        });
-      },
-    );
+      return toEvent({
+        summary: eventSummary(l),
+        start: isoString(firstMeetingDay, startTime),
+        end: isoString(firstMeetingDay, endTime),
+        recurrence: [
+          `RRULE:FREQ=WEEKLY;BYDAY=${byDay};UNTIL=${endRepeat}Z`,
+          `EXDATE;TZID=America/New_York:${exDate}`,
+          ...(rDate ? [`RDATE;TZID=America/New_York:${rDate}`] : []),
+        ],
+        description: eventDescription(l, location),
+        location,
+        color,
+        listing: l,
+        days,
+      });
+    });
   });
-  return events;
+  return { events, skippedMeetings };
 }
 
 function formatTime(a: Date) {

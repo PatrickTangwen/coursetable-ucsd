@@ -13,6 +13,16 @@ type CourseMeetingWithLocation = CoursePublic['course_meetings'][number] & {
       code: string;
     };
   } | null;
+  raw_location?: string | null;
+};
+
+export type UcsdCalendarDetails = {
+  term_date_range: UcsdCatalogSnapshot['term_date_range'];
+  section_id: string;
+  section_code: string | null;
+  meeting_type: string | null;
+  meetings: UcsdSection['meetings'];
+  source_note: string | null;
 };
 
 const sourceTimestampsSchema = z.object({
@@ -183,9 +193,17 @@ function toCourseMeetings(section: UcsdSection): CourseMeetingWithLocation[] {
         start_time: meeting.start_time,
         end_time: meeting.end_time,
         location,
+        raw_location: meeting.raw_location,
       },
     ];
   });
+}
+
+function sourceNote(raw: UcsdSection['raw']) {
+  const { source } = raw;
+  if (typeof source !== 'string' || !source) return null;
+  if (source === 'ucsd_schedule_of_classes') return 'UCSD Schedule of Classes';
+  return source;
 }
 
 function toCoursePublic(
@@ -223,7 +241,19 @@ function toCoursePublic(
     grade_archive_records: course.grade_archive_records,
   };
 
-  const coursePublic: CoursePublic & { ucsd_archive: UcsdCourseArchive } = {
+  const ucsdCalendar: UcsdCalendarDetails = {
+    term_date_range: snapshot.term_date_range,
+    section_id: section.section_id,
+    section_code: section.section_code,
+    meeting_type: section.meeting_type,
+    meetings: section.meetings,
+    source_note: sourceNote(section.raw),
+  };
+
+  const coursePublic: CoursePublic & {
+    ucsd_archive: UcsdCourseArchive;
+    ucsd_calendar: UcsdCalendarDetails;
+  } = {
     areas: [],
     colsem: false,
     course_id: stableCompatNumber(section.section_id),
@@ -252,6 +282,7 @@ function toCoursePublic(
     listings: [listing],
     course_meetings: courseMeetings,
     ucsd_archive: ucsdArchive,
+    ucsd_calendar: ucsdCalendar,
   };
   return coursePublic;
 }

@@ -1,8 +1,12 @@
 import saveFile from 'file-saver';
+import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
 import ICSIcon from '../../images/ics.svg';
 import { useStore } from '../../store';
-import { getCalendarEvents } from '../../utilities/calendar';
+import {
+  formatSkippedMeetingsSummary,
+  getCalendarExport,
+} from '../../utilities/calendar';
 
 export default function ICSExportButton() {
   const { viewedSeason, courses } = useStore(
@@ -13,9 +17,17 @@ export default function ICSExportButton() {
   );
 
   const exportICS = () => {
-    const events = getCalendarEvents('ics', courses, viewedSeason);
+    const { events, skippedMeetings } = getCalendarExport(
+      'ics',
+      courses,
+      viewedSeason,
+    );
+    const skippedSummary = formatSkippedMeetingsSummary(skippedMeetings);
     // Error already reported
-    if (events.length === 0) return;
+    if (events.length === 0) {
+      if (skippedSummary) toast.warning(skippedSummary);
+      return;
+    }
     const value = `BEGIN:VCALENDAR
 CALSCALE:GREGORIAN
 VERSION:2.0
@@ -41,6 +53,7 @@ END:VCALENDAR`;
     // Download to user's computer
     const blob = new Blob([value], { type: 'text/calendar;charset=utf-8' });
     saveFile(blob, `${viewedSeason}_worksheet.ics`);
+    if (skippedSummary) toast.warning(skippedSummary);
   };
 
   return (
