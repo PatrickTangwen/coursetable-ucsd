@@ -8,6 +8,10 @@ Domain language for the UCSD course discovery and schedule planning platform bui
 The first releasable version of the platform, focused on public course discovery and anonymous schedule planning.
 _Avoid_: Full MVP, beta, logged-in MVP
 
+**Beta-0 UI Surface Cleanup**:
+The first post-MVP implementation slice, focused on removing inherited CourseTable/Yale product surfaces from public UCSD catalog and worksheet paths before adding signed-in persistence.
+_Avoid_: Auth beta, persistence beta, full redesign
+
 **Catalog Snapshot**:
 A term-scoped, self-contained JSON data artifact that the frontend uses for catalog search, course detail, and anonymous worksheet planning in MVP-1.
 _Avoid_: Live catalog query, GraphQL catalog, database-backed catalog
@@ -80,6 +84,26 @@ _Avoid_: Cart, schedule cart, saved schedule
 A worksheet that belongs only to the current browser/session and is not attached to a user account.
 _Avoid_: Saved worksheet, server worksheet, account worksheet
 
+**App DB**:
+The backend persistence store for signed-in user product data such as saved worksheets, saved searches, wishlist, and privacy settings.
+_Avoid_: Course Data Store, Catalog Snapshot database, Hasura requirement
+
+**UCSD User Identity**:
+The signed-in account identity used to own App DB records for UCSD product features.
+_Avoid_: Personal UCSD scraping account, SET/CAPE login, anonymous browser identity
+
+**App User ID**:
+The internal stable identifier for a signed-in user in the App DB.
+_Avoid_: NetID, email local-part, browser identity
+
+**Verified UCSD Email**:
+An `@ucsd.edu` email address proven by an auth verification code or magic link and used to establish UCSD User Identity.
+_Avoid_: Google account, UCSD scraping account, anonymous identity
+
 **Saved Worksheet**:
 A worksheet attached to a signed-in user account and persisted by the backend.
 _Avoid_: Anonymous worksheet, local worksheet
+
+**Saved Search**:
+A signed-in user's persisted catalog search text and filter state that can be restored as catalog URL/filter state.
+_Avoid_: Anonymous search, availability alert, enrollment alert

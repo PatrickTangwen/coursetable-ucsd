@@ -493,3 +493,190 @@ Acceptance before implementation:
 - Link opens in a new tab and is labeled as third-party.
 - The Grade Archive Records table remains understandable without visiting the external site.
 - A short product note explains that MyClassGrades may expose more detailed plus/minus buckets than UCSD's Instructor Grade Archive table.
+
+## 17. 2026-06-20 Change Note: Beta-0 UI Surface Cleanup Before App DB/Auth
+
+The first post-MVP implementation slice should be `Beta-0 UI Surface Cleanup`.
+This slice exists to make the public UCSD catalog and Anonymous Worksheet surfaces
+truthful before adding signed-in persistence.
+
+Scope:
+
+- Remove or hide inherited CourseTable/Yale wording that appears in public MVP
+  paths, especially `Workload`, ratings, professor-quality, OCE/evaluation, and
+  social/friends language.
+- Remove or hide public-path affordances for features that are not currently
+  supported UCSD product capabilities, including friends, wishlist,
+  Google Calendar direct export, map/walking-time views, and
+  profile/login flows when they imply completed saved-user functionality.
+- Saved Search is the catalog exception: the existing saved searches dropdown
+  may remain visible because it is a planned Beta-1 App DB/Auth capability and
+  the inherited backend/schema/API path can plausibly be adapted.
+- Anonymous users opening Saved Search should see a non-error sign-in-required
+  state, not a failed API request toast.
+- Preserve `Archive Avg GPA`, `Record Count`, raw Grade Archive Records,
+  Catalog Snapshot loading, Anonymous Worksheet behavior, share URL restore,
+  conflict detection, and ICS export.
+- If a UCSD snapshot course lacks Historical GPA Data or archive metadata, show
+  a UCSD-specific missing-data state rather than falling back to inherited
+  CourseTable rating/workload/evaluation UI.
+- Do not add App DB, Auth, Course Data Store, Hasura, GE mapping, SET/CAPE,
+  Google Calendar API integration, or new persistence behavior in this slice.
+
+Primary page coverage:
+
+- `/catalog`
+- `/worksheet`
+- Course modal opened from catalog, such as `/catalog?course-modal=...`
+- Shared chrome that appears on those paths, including navbar, footer, global
+  notices, and route-level loading/error states
+
+Non-primary static or historical pages such as FAQ, About, Privacy, release
+notes, Challenge, GraphiQL, Profile, and Login are inventory-only in this slice
+unless they are linked from the primary paths in a way that misleads users about
+currently supported UCSD capabilities.
+
+Catalog cleanup boundary:
+
+- Keep keyword search, subject filter, course-level filter, days/time filtering,
+  meeting-type filter, hide-conflicts, course modal entry, snapshot freshness,
+  `Archive Avg GPA`, `Record Count`, and the Saved Search dropdown exception.
+- Hide inherited rating, workload, professor-quality, evaluation, social,
+  availability, enrollment, waitlist, demand, random-course, and unsupported
+  grid/map-style affordances from the UCSD catalog path.
+- Do not redesign the catalog UI in this slice; prefer scoped cleanup of
+  misleading inherited affordances.
+
+Worksheet cleanup boundary:
+
+- Keep calendar view, list view, add/remove Section, hide/show course, clear
+  worksheet, share URL export, ICS download, conflict visibility, and calendar
+  lock/time-range controls.
+- Hide map view, walking-time display/settings, friends dropdown, friend
+  worksheet viewing, Google Calendar direct export, PNG export, public/private
+  worksheet settings for the anonymous worksheet path, and rating/workload stats
+  in worksheet summary.
+- PNG export remains optional later scope; hiding it in Beta-0 does not reject
+  future implementation after visual export requirements are defined.
+
+Shared chrome cleanup boundary:
+
+- Update global title and metadata away from Yale/CourseTable evaluation/demand
+  wording and toward UCSD public catalog plus Anonymous Worksheet wording.
+- Hide `RandomButton`, OCE/evaluation `Challenge`, and public links to GraphQL
+  playground from primary UCSD paths.
+- Keep future sign-in/profile entry points only if their labels do not imply
+  completed saved worksheet or full account persistence behavior.
+- Hide or replace inherited CourseTable external brand links, including
+  original CourseTable GitHub, LinkedIn, and donation links, when they appear in
+  shared chrome on primary paths.
+- Keep FAQ, About, Privacy, release notes, Profile, Login, Challenge, and
+  GraphiQL as inventory-only pages unless primary-path links or labels mislead
+  users about currently supported UCSD capabilities.
+
+Issue slicing:
+
+- Implement Beta-0 as one GitHub issue with an internal checklist, rather than
+  splitting catalog, course modal, worksheet, and shared chrome into separate
+  issues at the start.
+- The issue checklist should cover catalog cleanup, course modal cleanup,
+  worksheet cleanup, shared chrome cleanup, the Saved Search auth-guard
+  exception, source inventory updates, focused tests, and browser smoke.
+- If implementation proves too large, split follow-up issues from this parent
+  issue after the first pass exposes the remaining work.
+
+Implementation boundary:
+
+- Prefer hard-disabling or hiding unsupported inherited UI surfaces over
+  physically deleting backend, schema, GraphQL, or generated-code surfaces.
+- Keep inherited backend/schema/GraphQL code only when it is not reachable from
+  public UCSD user paths and can plausibly be adapted for later App DB/Auth work.
+- Preserve the existing Saved Search backend/schema/API path for later
+  adaptation, but do not present Saved Search as anonymous persistence or as an
+  availability/enrollment alert.
+- Guard Saved Search API calls behind auth state. Anonymous users can see the
+  dropdown entry point but should not call `/api/savedSearches`.
+- Keep inherited rating/workload/evaluation components dormant; do not use them
+  as fallback UI for UCSD public catalog or course modal paths.
+- Physically delete or refactor inherited code only when it still leaks
+  misleading UI/copy, remains user-reachable, or blocks UCSD behavior.
+- Record any retained inherited surfaces in a source inventory so future work can
+  distinguish intentionally dormant code from forgotten cleanup.
+
+Acceptance:
+
+- Browser smoke over `/catalog`, `/worksheet`, and a course modal shows no
+  user-facing `Workload`, rating, professor-quality, OCE/evaluation,
+  friends/social, open seats, waitlist, enrollment, demand, or Google Calendar
+  direct-export wording.
+- Browser smoke confirms the primary paths still expose supported UCSD concepts:
+  `Archive Avg GPA`, `Record Count`, Grade Archive Records, ICS download, and
+  worksheet share/export behavior.
+- A dated source inventory document records inherited surfaces hidden from
+  primary paths, inherited surfaces intentionally retained for later adaptation,
+  and non-primary static/history pages left as inventory-only scope.
+- Source inventory identifies any remaining inherited code paths as intentionally
+  dormant, follow-up cleanup, or later beta scope.
+- Existing Catalog Snapshot, Anonymous Worksheet, and calendar/export behavior
+  still pass focused frontend tests.
+- `bun run typecheck`, focused frontend tests, `git diff --check`, and browser
+  smoke pass before the slice is considered complete.
+
+Rationale:
+
+Beta-1 App DB/Auth will be easier to design safely after public product surfaces
+use UCSD terms consistently. Adding persistence before cleanup risks attaching
+new saved-user behavior to inherited Yale/CourseTable concepts that the UCSD
+product does not intend to keep.
+
+## 18. 2026-06-20 Change Note: Beta-1 Starts With Auth Foundation
+
+After Beta-0, the first Beta-1 implementation slice should be `Auth Foundation
+And UCSD User Identity`, not Saved Worksheet persistence.
+
+First auth method:
+
+- Use email verification code or magic-link login for `@ucsd.edu` addresses.
+- Reject non-`@ucsd.edu` email addresses in the first auth version instead of
+  creating limited accounts.
+- Keep anonymous catalog and Anonymous Worksheet use available without login.
+- Use an internal `user_id` for App DB ownership and treat normalized verified
+  email as the login identifier.
+- Do not make the UCSD email local-part a Yale-style `netId` primary identity.
+- Existing `netId`-named inherited code may remain temporarily behind adapters,
+  but new UCSD App DB design should not expand that terminology.
+- Do not use Google OAuth as the first auth method.
+- Do not couple first auth to Google Calendar scopes, SET/CAPE access, or a
+  personal UCSD account.
+- Google OAuth can be reconsidered later for Google Calendar direct export.
+
+Recommended Beta-1 order:
+
+1. Auth foundation and UCSD User Identity
+2. App DB schema cleanup/adaptation
+3. Save Anonymous Worksheet into account
+4. Saved worksheets list/detail
+5. Saved Search persistence cleanup
+6. Wishlist
+
+Rationale:
+
+Saved worksheets, Saved Search, wishlist, and privacy settings all depend on a
+stable signed-in identity. Starting with saved worksheet persistence would force
+the implementation to settle session behavior, email/domain policy, user record
+shape, and ownership rules inside a larger worksheet feature. Auth foundation
+should establish the minimal identity contract first, while preserving the
+Catalog Snapshot as the course-data read contract.
+
+Beta-1 Auth Foundation acceptance:
+
+- `@ucsd.edu` email verification code or magic-link login works.
+- Non-`@ucsd.edu` email addresses are rejected with a clear message.
+- Session cookie is created, restored, and cleared on logout.
+- `/api/me` returns `user_id` and normalized verified email.
+- Anonymous catalog and Anonymous Worksheet continue to work without login.
+- Saved Search dropdown shows a non-error sign-in-required state when anonymous
+  and can use the real saved-search path after login.
+- This issue does not save Anonymous Worksheet to an account, implement saved
+  worksheet list/detail, implement wishlist, add privacy settings, add Google
+  OAuth, add Google Calendar export, add Course Data Store, or add Hasura.
