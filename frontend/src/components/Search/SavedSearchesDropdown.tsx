@@ -6,7 +6,6 @@ import { MdDelete, MdSavedSearch } from 'react-icons/md';
 import { toast } from 'sonner';
 
 import { Popout } from './Popout';
-import { API_ENDPOINT } from '../../config';
 import { useSearch } from '../../hooks/useSearch';
 import {
   fetchSavedSearches,
@@ -233,10 +232,7 @@ export default function SavedSearchesDropdown({
                 Search and filtering still work without an account; saving a
                 search is a signed-in feature.
               </p>
-              <a
-                className={styles.signInButton}
-                href={`${API_ENDPOINT}/api/auth/cas?redirect=${window.location.origin}/catalog`}
-              >
+              <a className={styles.signInButton} href="/login">
                 Sign in to save searches
               </a>
             </div>

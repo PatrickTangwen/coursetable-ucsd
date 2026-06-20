@@ -1,5 +1,5 @@
 import type { StateCreator } from 'zustand';
-import { checkAuth } from '../queries/api';
+import { fetchCurrentUser } from '../queries/api';
 import type { Store } from '../store';
 
 type AuthStatus =
@@ -20,29 +20,18 @@ export interface AuthSlice extends AuthSliceState, AuthSliceActions {}
 
 export const createAuthSlice: StateCreator<Store, [], [], AuthSlice> = (
   set,
-  get,
 ) => ({
   authStatus: 'loading',
   async refreshAuth() {
     set({ authStatus: 'loading' });
-    const isAuthenticated = await checkAuth();
-    set({
-      authStatus: isAuthenticated ? 'initializing' : 'unauthenticated',
-    });
-    if (isAuthenticated) {
-      try {
-        await Promise.all([
-          get().userRefresh(),
-          get().worksheetsRefresh(),
-          get().wishlistRefresh(),
-          get().friendRefresh(),
-          get().friendReqRefresh(),
-        ]);
-      } catch (error) {
-        console.error('refreshAuth: one or more refresh calls failed', error);
-      } finally {
-        set({ authStatus: 'authenticated' });
-      }
+    const user = await fetchCurrentUser();
+    if (user) {
+      set({ user, authStatus: 'authenticated' });
+      return;
     }
+    set({
+      user: undefined,
+      authStatus: 'unauthenticated',
+    });
   },
 });

@@ -12,6 +12,7 @@ import type {
 } from '../../../generated/graphql-types';
 import { useModalHistory } from '../../../hooks/useModalHistory';
 import { useWorksheetDemand } from '../../../hooks/useWorksheetDemand';
+import { isLegacyUserInfo } from '../../../queries/api';
 import { usePrereqLinkInfoQuery } from '../../../queries/graphql-queries';
 import { useStore } from '../../../store';
 import { schools } from '../../../utilities/constants';
@@ -453,7 +454,7 @@ function OverviewInfo({
   const { demand, loading: demandLoading } = useWorksheetDemand(
     listing.crn,
     listing.season_code,
-    Boolean(user),
+    isLegacyUserInfo(user),
   );
   const { course } = listing;
   const [enrollment, isRealData] = getEnrolled(course, 'modal');

@@ -6,7 +6,6 @@ import PWAPrompt from 'react-ios-pwa-prompt';
 import DarkModeButton from './DarkModeButton';
 import Logo from './Logo';
 import MeDropdown from './MeDropdown';
-import { API_ENDPOINT } from '../../config';
 import { logout } from '../../queries/api';
 import { useStore } from '../../store';
 import { scrollToTop } from '../../utilities/display';
@@ -54,6 +53,7 @@ function NavbarRight({
 
 export default function AppNavbar() {
   const authStatus = useStore((state) => state.authStatus);
+  const refreshAuth = useStore((state) => state.refreshAuth);
   const location = useLocation();
   const [navExpanded, setNavExpanded] = useState(false);
   const isMobile = useStore((state) => state.isMobile);
@@ -143,9 +143,13 @@ export default function AppNavbar() {
                     onClick={
                       authStatus !== 'authenticated'
                         ? () => {
-                            window.location.href = `${API_ENDPOINT}/api/auth/cas?redirect=${window.location.origin}/catalog`;
+                            window.location.href = '/login';
                           }
-                        : logout
+                        : async () => {
+                            await logout();
+                            await refreshAuth();
+                            window.location.href = '/';
+                          }
                     }
                   >
                     {authStatus !== 'authenticated'

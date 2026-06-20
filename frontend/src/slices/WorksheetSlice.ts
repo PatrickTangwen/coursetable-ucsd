@@ -8,7 +8,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { CUR_SEASON } from '../config';
 import { seasons as allSeasons } from '../data/catalogSeasons';
 import { useCourseData, useWorksheetInfo } from '../hooks/useFerry';
-import type { UserWorksheets } from '../queries/api';
+import { isLegacyUserInfo, type UserWorksheets } from '../queries/api';
 import {
   type Season,
   type Crn,
@@ -234,7 +234,7 @@ export const createWorksheetSlice: StateCreator<
         '',
         `${window.location.pathname}${searchParams}`,
       );
-      if (get().authStatus === 'authenticated') void get().worksheetsRefresh();
+      if (isLegacyUserInfo(get().user)) void get().worksheetsRefresh();
     },
     restoreAnonymousWorksheetFromShare(share) {
       setAnonymousWorksheet(
@@ -322,7 +322,9 @@ export const createWorksheetSlice: StateCreator<
       getIsAnonymousWorksheet: memoize(
         (state: Store) =>
           (state.authStatus === 'unauthenticated' ||
-            state.viewAnonymousWorksheet) &&
+            state.viewAnonymousWorksheet ||
+            (state.authStatus === 'authenticated' &&
+              Boolean(state.user && !isLegacyUserInfo(state.user)))) &&
           !state.exoticWorksheet,
       ),
       // A readonly worksheet is anything that doesn't belong to the user—either

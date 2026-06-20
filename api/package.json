@@ -3,9 +3,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "prestart": "npm run codegen",
-    "start": "npm run codegen:format && tsx watch src/server.ts",
+    "prestart": "bun run codegen",
+    "start": "bun run codegen:format && tsx watch src/server.ts",
     "start:prod": "tsx src/server.ts",
+    "test": "vitest run",
     "db:push": "drizzle-kit push:pg",
     "db:seed:friends": "tsx drizzle/seed-friends.ts",
     "codegen": "graphql-codegen --config graphql-codegen.ts && tsx ../tools/fix-gql-generated-code.mts",
@@ -49,6 +50,7 @@
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.10.5",
     "@types/passport": "^1.0.17",
-    "drizzle-kit": "^0.20.18"
+    "drizzle-kit": "^0.20.18",
+    "vitest": "4.1.4"
   }
 }

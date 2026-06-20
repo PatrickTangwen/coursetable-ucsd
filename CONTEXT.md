@@ -12,6 +12,14 @@ _Avoid_: Full MVP, beta, logged-in MVP
 The first post-MVP implementation slice, focused on removing inherited CourseTable/Yale product surfaces from public UCSD catalog and worksheet paths before adding signed-in persistence.
 _Avoid_: Auth beta, persistence beta, full redesign
 
+**Beta-1 Real Backend Auth Validation**:
+The post-Auth Foundation validation slice that proves UCSD User Identity and App DB ownership against the app's real local backend services before production-like email delivery.
+_Avoid_: Email delivery beta, hosted staging rollout, new product capability
+
+**Beta-1 Save Anonymous Worksheet To Account**:
+The post-auth product slice where a signed-in user explicitly turns an Anonymous Worksheet into a Saved Worksheet.
+_Avoid_: Automatic save on login, implicit worksheet sync, auth validation
+
 **Catalog Snapshot**:
 A term-scoped, self-contained JSON data artifact that the frontend uses for catalog search, course detail, and anonymous worksheet planning in MVP-1.
 _Avoid_: Live catalog query, GraphQL catalog, database-backed catalog

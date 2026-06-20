@@ -7,8 +7,7 @@ import { BsFillPersonFill } from 'react-icons/bs';
 import { FaSignOutAlt, FaSignInAlt } from 'react-icons/fa';
 import { FcBusinessman } from 'react-icons/fc';
 
-import { API_ENDPOINT } from '../../config';
-import { logout } from '../../queries/api';
+import { isLegacyUserInfo, logout } from '../../queries/api';
 import { useStore } from '../../store';
 import { scrollToTop, useComponentVisible } from '../../utilities/display';
 import { SurfaceComponent, TextComponent } from '../Typography';
@@ -79,7 +78,9 @@ function DropdownContent({
   readonly setIsExpanded: (visible: boolean) => void;
 }) {
   const authStatus = useStore((state) => state.authStatus);
+  const user = useStore((state) => state.user);
   const refreshAuth = useStore((state) => state.refreshAuth);
+  const hasLegacyProfile = isLegacyUserInfo(user);
 
   return (
     <SurfaceComponent
@@ -93,7 +94,7 @@ function DropdownContent({
         {/* Do not add vertical spacing to this div because it will break
           collapsing animation */}
         <div className="px-3">
-          {authStatus === 'authenticated' && (
+          {authStatus === 'authenticated' && hasLegacyProfile && (
             <DropdownItem icon={FcBusinessman} to="/profile">
               Profile (beta)
             </DropdownItem>
@@ -111,11 +112,7 @@ function DropdownContent({
               Sign out
             </DropdownItem>
           ) : (
-            <DropdownItem
-              icon={FaSignInAlt}
-              iconColor="#30e36b"
-              href={`${API_ENDPOINT}/api/auth/cas?redirect=${window.location.origin}/catalog`}
-            >
+            <DropdownItem icon={FaSignInAlt} iconColor="#30e36b" href="/login">
               Sign in (beta)
             </DropdownItem>
           )}
@@ -131,6 +128,9 @@ function MeDropdown() {
     useComponentVisible<HTMLButtonElement>(false);
   const user = useStore((state) => state.user);
   const hasName = Boolean(user?.firstName && user.lastName);
+  const verifiedEmail = isLegacyUserInfo(user)
+    ? undefined
+    : user?.verifiedEmail;
   return (
     <div className={clsx(styles.navbarMe, 'align-self-end')}>
       <button
@@ -147,6 +147,7 @@ function MeDropdown() {
           </span>
         ) : (
           <BsFillPersonFill
+            title={verifiedEmail}
             className="m-auto"
             size={20}
             color={isComponentVisible ? '#007bff' : undefined}

@@ -7,6 +7,7 @@ import { BsFillPersonFill } from 'react-icons/bs';
 import { TextComponent } from '../components/Typography';
 import {
   getSharedProfile,
+  isLegacyUserInfo,
   isLoadedSharedProfile,
   type SharedProfile,
 } from '../queries/api';
@@ -67,7 +68,8 @@ function UserProfile() {
   }, [netId]);
 
   if (!netId) return <Navigate to="/profile" replace />;
-  if (currentUser?.netId === netId) return <Navigate to="/profile" replace />;
+  if (isLegacyUserInfo(currentUser) && currentUser.netId === netId)
+    return <Navigate to="/profile" replace />;
   if (!loading && !loadError && notFound) return <NotFound />;
 
   return (

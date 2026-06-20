@@ -25,6 +25,7 @@ import WorksheetCalendarListContext from './WorksheetCalendarListContext';
 import WorksheetCalendarListItem from './WorksheetCalendarListItem';
 import WorksheetStatusIcon from './WorksheetStatusIcon';
 import {
+  isLegacyUserInfo,
   setCourseHidden,
   updateWorksheetCourses,
   updateWorksheetMetadata,
@@ -134,6 +135,7 @@ function WorksheetCalendarList({
   );
 
   const HideShowIcon = areHidden ? BsEyeSlash : BsEye;
+  const hasLegacyWorksheetAccount = isLegacyUserInfo(user);
 
   const showControls = controlsMode !== 'none';
   const showHideButton = controlsMode !== 'none';
@@ -144,18 +146,19 @@ function WorksheetCalendarList({
     (!isAnonymousWorksheet || courses.length > 0);
   const showWorksheetPrivacySetting = !isAnonymousWorksheet;
   const showExport = controlsMode === 'full';
-  const showImport = controlsMode === 'full' && isExoticWorksheet;
+  const showImport =
+    controlsMode === 'full' && isExoticWorksheet && hasLegacyWorksheetAccount;
 
   const [showImportRow, setShowImportRow] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [importTargetWorksheet, setImportTargetWorksheet] = useState(0);
 
   useEffect(() => {
-    if (!isExoticWorksheet || !user) {
+    if (!isExoticWorksheet || !hasLegacyWorksheetAccount) {
       setShowImportRow(false);
       setImportTargetWorksheet(0);
     }
-  }, [isExoticWorksheet, user]);
+  }, [hasLegacyWorksheetAccount, isExoticWorksheet]);
 
   const importSeason = exoticWorksheet?.data.season ?? viewedSeason;
   const importWorksheetOptions = useWorksheetNumberOptions('me', importSeason);
@@ -334,11 +337,7 @@ function WorksheetCalendarList({
                   placement="top"
                   overlay={(props) => (
                     <Tooltip id="worksheet-calendar-import-tooltip" {...props}>
-                      <span>
-                        {user
-                          ? 'Import courses into your worksheet'
-                          : 'Sign in to import courses into your worksheets'}
-                      </span>
+                      <span>Import courses into your worksheet</span>
                     </Tooltip>
                   )}
                 >
@@ -348,10 +347,6 @@ function WorksheetCalendarList({
                     aria-label="Import courses"
                     aria-expanded={showImportRow}
                     onClick={() => {
-                      if (!user) {
-                        toast.info('Sign in to import courses');
-                        return;
-                      }
                       setShowImportRow(!showImportRow);
                     }}
                   >

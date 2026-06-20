@@ -1,122 +1,155 @@
-import { Link } from 'react-router-dom';
-import clsx from 'clsx';
-import {
-  FcConferenceCall,
-  FcComboChart,
-  FcBookmark,
-  FcSearch,
-} from 'react-icons/fc';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
-import { API_ENDPOINT } from '../config';
-import LandingImage from '../images/landing_page.svg';
+import { requestUcsdVerification, verifyUcsdEmail } from '../queries/api';
+import { useStore } from '../store';
 import { createCatalogLink } from '../utilities/navigation';
 import styles from './Landing.module.css';
 
-const testimonials = [
-  {
-    text: "Thank you for making this website!! It's a life saver every semester.",
-  },
-  {
-    text: 'I started off the semester with 80 courses in my course table! Thank you so much for your incredible website :)',
-  },
-  {
-    text: 'Appreciate all that you do! Course table is a life saver',
-  },
-  {
-    text: 'Thank you for making my life so much easier! Appreciate it immensely <3',
-  },
-  {
-    text: 'This should not be free',
-  },
-  {
-    text: 'CourseTable has been SOOOO helpful in helping me choose good classes over the years. I would been overwhelmed every semester without it.',
-  },
-  {
-    text: 'Thank you for your service 🙏',
-  },
-  {
-    text: 'U guys rock',
-  },
-  {
-    text: 'I would pay 10 bucks a year for this service. Yale should pay you guys lol',
-  },
-];
-
 function Landing() {
+  const navigate = useNavigate();
+  const refreshAuth = useStore((state) => state.refreshAuth);
+  const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
+  const [verifiedEmail, setVerifiedEmail] = useState('');
+  const [devCode, setDevCode] = useState<string | undefined>();
+  const [statusText, setStatusText] = useState('');
+  const [errorText, setErrorText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isCodeStep = Boolean(verifiedEmail);
+
+  const requestCode = async (event: { preventDefault: () => void }) => {
+    event.preventDefault();
+    setErrorText('');
+    setStatusText('');
+    setIsSubmitting(true);
+    try {
+      const result = await requestUcsdVerification(email);
+      if (result.status === 'sent') {
+        setVerifiedEmail(result.email);
+        setEmail(result.email);
+        setDevCode(result.devCode);
+        setStatusText(`Verification code sent to ${result.email}.`);
+      } else if (result.status === 'rejected') {
+        setErrorText(result.message);
+      } else {
+        setErrorText('Could not request a verification code.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const verifyCode = async (event: { preventDefault: () => void }) => {
+    event.preventDefault();
+    setErrorText('');
+    setIsSubmitting(true);
+    try {
+      const result = await verifyUcsdEmail(verifiedEmail, code);
+      if (result.status === 'authenticated') {
+        toast.success('Signed in with verified UCSD email');
+        await refreshAuth();
+        void navigate(createCatalogLink(), { replace: true });
+      } else if (result.status === 'rejected') {
+        setErrorText(result.message);
+      } else {
+        setErrorText('Could not complete verification.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className={styles.splashpage}>
-      <div className={styles.topSection}>
-        <div className={styles.content}>
-          <h1 className="fw-bold text-md-left mb-4">
-            The best place to shop for classes at Yale.
-          </h1>
-          <ul className={styles.featureList}>
-            <li className={styles.featureText}>
-              <FcSearch className="me-2 my-auto" size={20} />
-              Browse our catalog of <span className={styles.stat}>
-                80,000+
-              </span>{' '}
-              classes
-            </li>
-            <li className={styles.featureText}>
-              <FcComboChart className="me-2 my-auto" size={20} />
-              Read from <span className={styles.stat}>600,000+</span> student
-              evaluation comments
-            </li>
-            <li className={styles.featureText}>
-              <FcBookmark className="me-2 my-auto" size={20} />
-              Save and view classes in your worksheet
-            </li>
-            <li className={styles.featureText}>
-              <FcConferenceCall className="me-2 my-auto" size={20} />
-              See what classes your friends are interested in
-            </li>
-          </ul>
-          <div className="d-flex mx-auto mt-3 justify-content-md-start justify-content-center">
-            <a
-              href={`${API_ENDPOINT}/api/auth/cas?redirect=${window.location.origin}/catalog`}
-              className={clsx(styles.btn, styles.login, 'me-2')}
-            >
-              Login with CAS
-            </a>
-            <Link to="/about" className={clsx(styles.btn, styles.about)}>
-              About us
-            </Link>
-            <Link
-              to={createCatalogLink()}
-              className={clsx(styles.btn, styles.guest)}
-            >
-              Guest
-            </Link>
-          </div>
+    <main className={styles.loginPage}>
+      <section className={styles.loginPanel}>
+        <div className={styles.loginHeader}>
+          <p className={styles.eyebrow}>UCSD account beta</p>
+          <h1>Sign in with UCSD email</h1>
+          <p>
+            Catalog search and Anonymous Worksheet still work without an
+            account. Saved Searches use a verified UCSD email.
+          </p>
         </div>
-        <img
-          alt="Landing page"
-          src={LandingImage}
-          width={450}
-          className={styles.thumbnail}
-        />
-      </div>
-      <div className={styles.testimonialGrid}>
-        {testimonials.map((testimonial, index) => (
-          <div key={index} className={styles.testimonialCard}>
-            <p className={styles.testimonialText}>"{testimonial.text}"</p>
+
+        <form
+          className={styles.loginForm}
+          onSubmit={isCodeStep ? verifyCode : requestCode}
+        >
+          <label>
+            UCSD email
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="student@ucsd.edu"
+              disabled={isSubmitting || isCodeStep}
+              autoComplete="email"
+              required
+            />
+          </label>
+
+          {isCodeStep && (
+            <label>
+              Verification code
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                value={code}
+                onChange={(event) => setCode(event.target.value)}
+                placeholder="123456"
+                disabled={isSubmitting}
+                autoComplete="one-time-code"
+                required
+              />
+            </label>
+          )}
+
+          {statusText && <p className={styles.statusText}>{statusText}</p>}
+          {devCode && (
+            <p className={styles.devCode}>Development code: {devCode}</p>
+          )}
+          {errorText && <p className={styles.errorText}>{errorText}</p>}
+
+          <div className={styles.actions}>
+            <button
+              type="submit"
+              className={styles.primaryButton}
+              disabled={isSubmitting}
+            >
+              {isSubmitting
+                ? 'Working...'
+                : isCodeStep
+                  ? 'Verify and sign in'
+                  : 'Send verification code'}
+            </button>
+            {isCodeStep && (
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                disabled={isSubmitting}
+                onClick={() => {
+                  setVerifiedEmail('');
+                  setCode('');
+                  setDevCode(undefined);
+                  setStatusText('');
+                  setErrorText('');
+                }}
+              >
+                Use another email
+              </button>
+            )}
           </div>
-        ))}
-      </div>
-      <div className={styles.buyMeACoffeeAttribution}>
-        <p>
-          Testimonials sourced from{' '}
-          <a
-            href="https://www.buymeacoffee.com/coursetable"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Buy Me A Coffee
-          </a>
-        </p>
-      </div>
-    </div>
+        </form>
+
+        <Link className={styles.guestLink} to={createCatalogLink()}>
+          Continue without signing in
+        </Link>
+      </section>
+    </main>
   );
 }
 

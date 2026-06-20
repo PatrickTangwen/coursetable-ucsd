@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { ApolloError } from '@apollo/client';
 import type { StateCreator } from 'zustand';
-import type { WishlistItem } from '../queries/api';
+import { isLegacyUserInfo, type WishlistItem } from '../queries/api';
 import {
   useCourseDataFromListingIdsQuery,
   useCourseDataFromSameCourseIdsQuery,
@@ -178,11 +178,13 @@ function useWishlistInfo(wishlist?: WishlistItemWithMetadata[]) {
 
 /** Writes Apollo-derived wishlist UI state to the store. */
 export function useWishlistEffects() {
+  const user = useStore((state) => state.user);
   const userWishlist = useStore((state) => state.wishlist);
   const setWishlistDisplay = useStore((state) => state.setWishlistDisplay);
+  const hasLegacyWishlistAccount = isLegacyUserInfo(user);
 
   const { wishlistWithMetadata, listingLoading, listingError } =
-    useWishlistWithMetadata(userWishlist);
+    useWishlistWithMetadata(hasLegacyWishlistAccount ? userWishlist : []);
 
   const {
     loading: sameCourseLoading,
@@ -191,8 +193,9 @@ export function useWishlistEffects() {
   } = useWishlistInfo(wishlistWithMetadata);
 
   setWishlistDisplay(
-    wishlistCourses,
-    listingLoading || sameCourseLoading || !userWishlist,
+    hasLegacyWishlistAccount ? wishlistCourses : [],
+    hasLegacyWishlistAccount &&
+      (listingLoading || sameCourseLoading || !userWishlist),
     listingError ?? sameCourseError,
   );
 }

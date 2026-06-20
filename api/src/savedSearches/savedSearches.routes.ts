@@ -1,24 +1,31 @@
 import type express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import {
-  getSavedSearches,
-  createSavedSearch,
-  deleteSavedSearch,
-} from './savedSearches.handlers.js';
-import { authBasic } from '../auth/auth.handlers.js';
+import { createSavedSearchHandlers } from './savedSearches.handlers.js';
+import type { SavedSearchStore } from './savedSearches.store.js';
+import { authAppUser } from '../auth/ucsdAuth.session.js';
 
-export default (app: express.Express): void => {
-  // Each route gets authBasic explicitly; app.use with path can mismatch GET
-  app.get('/api/savedSearches', authBasic, asyncHandler(getSavedSearches));
+export function registerSavedSearchRoutes(
+  app: express.Express,
+  store: SavedSearchStore,
+): void {
+  const { getSavedSearches, createSavedSearch, deleteSavedSearch } =
+    createSavedSearchHandlers(store);
+
+  // Each route gets auth explicitly; app.use with path can mismatch GET.
+  app.get('/api/savedSearches', authAppUser, asyncHandler(getSavedSearches));
   app.post(
     '/api/savedSearches/create',
-    authBasic,
+    authAppUser,
     asyncHandler(createSavedSearch),
   );
   app.post(
     '/api/savedSearches/delete',
-    authBasic,
+    authAppUser,
     asyncHandler(deleteSavedSearch),
   );
+}
+
+export default (app: express.Express, store: SavedSearchStore): void => {
+  registerSavedSearchRoutes(app, store);
 };

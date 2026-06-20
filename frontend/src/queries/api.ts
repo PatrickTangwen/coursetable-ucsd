@@ -576,7 +576,7 @@ export async function verifyChallenge(body: {
     : { status: 'rejected', data: res };
 }
 
-const userInfoSchema = z.object({
+const legacyUserInfoSchema = z.object({
   netId: netIdSchema,
   firstName: z.string().nullable(),
   lastName: z.string().nullable(),
@@ -587,11 +587,30 @@ const userInfoSchema = z.object({
   major: z.string().nullable(),
 });
 
-export type UserInfo = z.infer<typeof userInfoSchema>;
+export type AppUserInfo = {
+  user_id: number;
+  verifiedEmail: string;
+  firstName: null;
+  lastName: null;
+  email: string;
+  hasEvals: false;
+  year: null;
+  school: null;
+  major: null;
+};
+
+export type LegacyUserInfo = z.infer<typeof legacyUserInfoSchema>;
+export type UserInfo = LegacyUserInfo | AppUserInfo;
+
+export function isLegacyUserInfo(
+  user: UserInfo | null | undefined,
+): user is LegacyUserInfo {
+  return Boolean(user && Object.hasOwn(user, 'netId'));
+}
 
 export async function getUserInfo() {
   const res = await fetchAPI('/user/info', {
-    schema: userInfoSchema,
+    schema: legacyUserInfoSchema,
     breadcrumb: {
       category: 'user',
       message: 'Fetching user info',
@@ -1012,37 +1031,148 @@ export function removeFriend(friendNetId: string) {
   });
 }
 
-export async function checkAuth() {
-  const res = await fetchAPI('/auth/check', {
-    schema: z.union([
-      z.object({
-        auth: z.literal(true),
-        netId: netIdSchema,
-        user: z.object({
-          netId: netIdSchema,
-          evals: z.boolean(),
-          email: z.string().optional(),
-          firstName: z.string().optional(),
-          lastName: z.string().optional(),
-        }),
-      }),
-      z.object({
-        auth: z.literal(false),
-        netId: z.null(),
-        user: z.null(),
-      }),
-    ]),
+const authenticatedCurrentUserSchema = z.object({
+  authenticated: z.literal(true),
+  user: z.object({
+    user_id: z.number().int().positive(),
+    verified_email: z.string(),
+  }),
+});
+
+const currentUserResponseSchema = z.union([
+  authenticatedCurrentUserSchema,
+  z.object({
+    authenticated: z.literal(false),
+    user: z.null(),
+  }),
+]);
+
+function appUserResponseToUserInfo(
+  user: z.infer<typeof currentUserResponseSchema>['user'],
+): AppUserInfo {
+  if (!user) throw new Error('Cannot convert anonymous user');
+  return {
+    user_id: user.user_id,
+    verifiedEmail: user.verified_email,
+    firstName: null,
+    lastName: null,
+    email: user.verified_email,
+    hasEvals: false,
+    year: null,
+    school: null,
+    major: null,
+  };
+}
+
+export async function fetchCurrentUser(): Promise<UserInfo | null | undefined> {
+  const res = await fetchAPI('/auth/current-user', {
+    schema: currentUserResponseSchema,
     breadcrumb: {
       category: 'user',
-      message: 'Fetching user login status',
+      message: 'Fetching current user',
     },
   });
   if (!res) {
     Sentry.getCurrentScope().clear();
-    return false;
+    return undefined;
   }
-  if (res.auth) Sentry.setUser({ username: res.netId });
-  return res.auth;
+  if (!res.authenticated) {
+    Sentry.getCurrentScope().clear();
+    return null;
+  }
+  const user = appUserResponseToUserInfo(res.user);
+  Sentry.setUser({
+    id: String(user.user_id),
+    email: user.verifiedEmail,
+  });
+  return user;
+}
+
+export async function checkAuth() {
+  return Boolean(await fetchCurrentUser());
+}
+
+const requestVerificationSchema = z.object({
+  status: z.literal('verification_sent'),
+  email: z.string(),
+  devCode: z.string().optional(),
+});
+
+export async function requestUcsdVerification(
+  email: string,
+): Promise<
+  | { status: 'sent'; email: string; devCode?: string }
+  | { status: 'rejected'; message: string }
+  | { status: 'error' }
+> {
+  let rejectedMessage = '';
+  const res = await fetchAPI('/auth/ucsd/request-verification', {
+    body: { email },
+    schema: requestVerificationSchema,
+    breadcrumb: {
+      category: 'auth',
+      message: 'Requesting UCSD email verification',
+    },
+    handleErrorCode(err) {
+      if (err === 'NON_UCSD_EMAIL') {
+        rejectedMessage = 'Use a UCSD email address ending in @ucsd.edu.';
+        return true;
+      }
+      return false;
+    },
+  });
+  if (!res) {
+    if (rejectedMessage)
+      return { status: 'rejected', message: rejectedMessage };
+    return { status: 'error' };
+  }
+  return {
+    status: 'sent',
+    email: res.email,
+    devCode: res.devCode,
+  };
+}
+
+export async function verifyUcsdEmail(
+  email: string,
+  code: string,
+): Promise<
+  | { status: 'authenticated'; user: AppUserInfo }
+  | { status: 'rejected'; message: string }
+  | { status: 'error' }
+> {
+  let rejectedMessage = '';
+  const res = await fetchAPI('/auth/ucsd/verify', {
+    body: { email, code },
+    schema: authenticatedCurrentUserSchema,
+    breadcrumb: {
+      category: 'auth',
+      message: 'Completing UCSD email verification',
+    },
+    handleErrorCode(err) {
+      switch (err) {
+        case 'NON_UCSD_EMAIL':
+          rejectedMessage = 'Use a UCSD email address ending in @ucsd.edu.';
+          return true;
+        case 'INVALID_VERIFICATION_CODE':
+          rejectedMessage = 'Verification code is invalid or expired.';
+          return true;
+        default:
+          return false;
+      }
+    },
+  });
+  if (!res) {
+    if (rejectedMessage)
+      return { status: 'rejected', message: rejectedMessage };
+    return { status: 'error' };
+  }
+  const user = appUserResponseToUserInfo(res.user);
+  Sentry.setUser({
+    id: String(user.user_id),
+    email: user.verifiedEmail,
+  });
+  return { status: 'authenticated', user };
 }
 
 // Saved Searches API

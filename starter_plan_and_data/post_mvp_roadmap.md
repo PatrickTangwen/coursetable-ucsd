@@ -680,3 +680,40 @@ Beta-1 Auth Foundation acceptance:
 - This issue does not save Anonymous Worksheet to an account, implement saved
   worksheet list/detail, implement wishlist, add privacy settings, add Google
   OAuth, add Google Calendar export, add Course Data Store, or add Hasura.
+
+## 19. 2026-06-20 Change Note: Real Backend Validation Before Saved Worksheet Persistence
+
+`Beta-1: Real Backend Auth Validation` should be treated as the validation and
+runbook slice after `Auth Foundation And UCSD User Identity`, not as a new PRD
+or a Saved Worksheet product feature.
+
+Scope:
+
+- Validate the auth path against local Docker Compose backend services:
+  Postgres, Redis-backed sessions, API routes, and frontend login.
+- Use a dev/test verification-code seam; do not connect a real email provider.
+- Verify Saved Search ownership by internal `user_id`.
+- Require a repeatable auth/API verification script plus a human-readable
+  runbook.
+- Allow `db:push` only for the disposable local Docker Postgres database.
+- Require a versioned migration workflow before any shared, staging, or
+  production database rollout.
+
+Worksheet boundary:
+
+- A signed-in UCSD email session should continue using the existing Anonymous
+  Worksheet behavior during this validation slice.
+- The validation should catch accidental worksheet writes to the App DB.
+- Logging in should not automatically save or sync the Anonymous Worksheet.
+- Saving worksheet state to an account should be a later explicit product
+  action.
+
+Follow-up product slices:
+
+1. `Beta-1: Save Anonymous Worksheet To Account`
+2. `Beta-1: Saved Worksheets List/Detail`
+
+The first follow-up should let a signed-in user explicitly turn the current
+Anonymous Worksheet into a Saved Worksheet. It should decide naming, term
+conflict behavior, privacy defaults, and cross-browser restore behavior instead
+of inheriting those decisions from login.
