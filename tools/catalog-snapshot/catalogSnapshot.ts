@@ -162,27 +162,63 @@ export async function loadCatalogSnapshotConfig(
   return parsed.data;
 }
 
-const excludedPublicKeys = new Set([
+const excludedPublicFieldNames = new Set([
+  'also_taking',
+  'availability',
+  'available_seats',
   'capacity',
   'cape',
+  'course_evaluations',
   'demand',
+  'enrolled',
+  'enrollment_count',
   'enrollment',
   'eval',
   'evals',
   'evaluation',
+  'evaluation_narrative_summaries',
+  'evaluation_narratives',
+  'evaluation_ratings',
+  'evaluation_statistic',
+  'evaluation_statistics',
   'evaluations',
+  'friend',
   'friend_count',
+  'friend_counts',
   'friend_ids',
+  'friend_net_id',
+  'friend_netids',
   'friends',
+  'last_enrollment',
   'open_seats',
+  'professor_quality',
   'professor_rating',
   'rating',
+  'ratings',
+  'seat',
+  'seat_availability',
+  'seat_limit',
+  'seats',
   'seats_available',
   'seats_limit',
   'set',
+  'waitlist_count',
   'waitlist',
   'workload',
+  'worksheet_demand',
 ]);
+
+function normalizeFieldName(key: string): string {
+  const normalized = key
+    .replace(/(?<=[a-z\d])(?=[A-Z])/gu, '_')
+    .replace(/[^\dA-Za-z]+/gu, '_')
+    .toLowerCase();
+  let start = 0;
+  let end = normalized.length;
+  while (normalized[start] === '_') start += 1;
+  while (end > start && normalized[end - 1] === '_') end -= 1;
+  return normalized.slice(start, end);
+}
 
 function collectExcludedFieldPaths(value: unknown, fieldPath = '$'): string[] {
   if (Array.isArray(value)) {
@@ -194,8 +230,8 @@ function collectExcludedFieldPaths(value: unknown, fieldPath = '$'): string[] {
 
   return Object.entries(value).flatMap(([key, child]) => {
     const currentPath = `${fieldPath}.${key}`;
-    const normalizedKey = key.toLowerCase();
-    const ownErrors = excludedPublicKeys.has(normalizedKey)
+    const normalizedKey = normalizeFieldName(key);
+    const ownErrors = excludedPublicFieldNames.has(normalizedKey)
       ? [`excluded field ${currentPath}`]
       : [];
     return ownErrors.concat(collectExcludedFieldPaths(child, currentPath));

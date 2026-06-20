@@ -2,6 +2,7 @@ node_modules
 .DS_Store
 /deployment-url.txt
 /error.txt
+/data/
 
 api/logs/*
 api/static/**/*.json

@@ -211,6 +211,34 @@ describe('Catalog Snapshot validation', () => {
       ]),
     );
   });
+
+  it('rejects excluded Availability Data, friends, and evaluation field names across common key styles', () => {
+    const config = makeConfig();
+    const snapshot = buildTracerCatalogSnapshot(config, {
+      runId: 'run-test',
+      generatedAt: '2026-06-19T12:00:00.000Z',
+    });
+    snapshot.courses[0]!.sections[0]!.raw = {
+      availability: 'open',
+      seatAvailability: 'open',
+      friendCount: 3,
+      evaluation_statistic: {},
+      professorQuality: 4,
+    };
+
+    const result = validateCatalogSnapshot(snapshot, config);
+
+    expect(result.success).toBe(false);
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        'excluded field $.courses[0].sections[0].raw.availability',
+        'excluded field $.courses[0].sections[0].raw.seatAvailability',
+        'excluded field $.courses[0].sections[0].raw.friendCount',
+        'excluded field $.courses[0].sections[0].raw.evaluation_statistic',
+        'excluded field $.courses[0].sections[0].raw.professorQuality',
+      ]),
+    );
+  });
 });
 
 describe('Catalog Snapshot Grade Archive enrichment', () => {

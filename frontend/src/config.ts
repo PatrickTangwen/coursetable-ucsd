@@ -9,10 +9,10 @@ export const GRAPHQL_API_ENDPOINT = isDev
   : `${import.meta.env.VITE_API_ENDPOINT}/ferry`;
 
 // Active Planning Term shown by default in catalog and worksheet.
-export const CUR_SEASON = 'FA26' as Season;
+export const CUR_SEASON = 'S126' as Season;
 
 // Active UCSD terms in MVP-1 have no legacy CourseTable evaluation data.
-export const CUR_YEAR = ['FA26'] as Season[];
+export const CUR_YEAR = ['S126'] as Season[];
 
 // We use this format to avoid dealing with time zones.
 // TODO: this should be a Temporal.PlainDate

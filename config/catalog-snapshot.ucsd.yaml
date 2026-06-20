@@ -1,8 +1,8 @@
-active_planning_term: FA26
-term_label: Fall 2026
+active_planning_term: S126
+term_label: Summer Session I 2026
 term_date_range:
-  start: '2026-09-24'
-  end: '2026-12-12'
+  start: '2026-06-29'
+  end: '2026-08-01'
 configured_subjects:
   - CSE
   - MATH
