@@ -10,6 +10,13 @@ export type GeneralCatalogCourse = {
   catalog_url: string;
 };
 
+export type RawGeneralCatalogSource = {
+  subject: string;
+  source_url: string;
+  fetched_at: string;
+  html: string;
+};
+
 type FetchAdapter = typeof fetch;
 
 const catalogBaseUrl = 'https://catalog.ucsd.edu/courses';
@@ -226,12 +233,13 @@ function subjectCatalogUrl(subject: string): string {
   return `${catalogBaseUrl}/${encodeURIComponent(normalizeSubject(subject))}.html`;
 }
 
-export async function fetchGeneralCatalogForSubject(
+export async function fetchRawGeneralCatalogForSubject(
   subject: string,
   options: {
     fetch?: FetchAdapter;
+    fetchedAt?: string;
   } = {},
-): Promise<GeneralCatalogCourse[]> {
+): Promise<RawGeneralCatalogSource> {
   const fetchAdapter = options.fetch ?? fetch;
   const sourceUrl = subjectCatalogUrl(subject);
   const response = await fetchAdapter(sourceUrl);
@@ -242,9 +250,24 @@ export async function fetchGeneralCatalogForSubject(
     );
   }
 
-  return parseGeneralCatalogHtml(await response.text(), {
+  return {
+    subject: normalizeSubject(subject),
+    source_url: sourceUrl,
+    fetched_at: options.fetchedAt ?? new Date().toISOString(),
+    html: await response.text(),
+  };
+}
+
+export async function fetchGeneralCatalogForSubject(
+  subject: string,
+  options: {
+    fetch?: FetchAdapter;
+  } = {},
+): Promise<GeneralCatalogCourse[]> {
+  const rawSource = await fetchRawGeneralCatalogForSubject(subject, options);
+  return parseGeneralCatalogHtml(rawSource.html, {
     subject,
-    sourceUrl,
+    sourceUrl: rawSource.source_url,
   });
 }
 

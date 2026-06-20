@@ -1,0 +1,434 @@
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { afterEach, describe, expect, it } from 'vitest';
+import {
+  buildTracerCatalogSnapshot,
+  publishCatalogSnapshot,
+  type CatalogSnapshot,
+  type CatalogSnapshotConfig,
+} from './catalogSnapshot';
+import {
+  runPublishedSnapshotPipeline,
+  type PublishedSnapshotSourceLoaders,
+} from './publishedSnapshotPipeline';
+
+const generatedAt = '2026-06-19T12:00:00.000Z';
+
+function makeConfig(rootDir: string): CatalogSnapshotConfig {
+  return {
+    active_planning_term: 'FA26',
+    term_label: 'Fall 2026',
+    term_date_range: {
+      start: '2026-09-24',
+      end: '2026-12-12',
+    },
+    configured_subjects: ['CSE', 'MATH'],
+    paths: {
+      raw_dir: join(rootDir, 'raw'),
+      normalized_dir: join(rootDir, 'normalized'),
+      reports_dir: join(rootDir, 'reports'),
+      public_catalog_dir: join(rootDir, 'public'),
+      metadata_path: join(rootDir, 'metadata.json'),
+    },
+  };
+}
+
+function courseNumber(subject: string): string {
+  return subject === 'CSE' ? '101' : '20A';
+}
+
+function courseId(subject: string): string {
+  return `${subject}:${courseNumber(subject)}`;
+}
+
+function makeScheduleCourse(
+  subject: string,
+  options: {
+    unsafeRaw?: boolean;
+  } = {},
+): CatalogSnapshot['courses'][number] {
+  const number = courseNumber(subject);
+  const id = courseId(subject);
+  return {
+    course_id: id,
+    subject,
+    course_number: number,
+    title: `${subject} Schedule Title`,
+    units: '4',
+    description: null,
+    prerequisites_text: null,
+    restrictions_text: null,
+    catalog_url: null,
+    archive_avg_gpa: null,
+    archive_record_count: 0,
+    grade_archive_records: [],
+    ge_matches: [],
+    sections: [
+      {
+        section_id: `FA26:${subject}-section`,
+        course_id: id,
+        section_code: 'A00',
+        meeting_type: 'Lecture',
+        instructors: [`${subject} Instructor`],
+        meetings: [
+          {
+            days: ['Monday'],
+            start_time: '09:00',
+            end_time: '09:50',
+            building: 'CENTR',
+            room: '101',
+            is_tba: false,
+            raw_days: 'M',
+            raw_time: '9:00a-9:50a',
+            raw_location: 'CENTR 101',
+          },
+        ],
+        raw: options.unsafeRaw
+          ? {
+              source: 'fixture',
+              waitlist: 2,
+            }
+          : {
+              source: 'fixture',
+            },
+      },
+    ],
+  };
+}
+
+function makeSourceLoaders(
+  options: {
+    failScheduleSubject?: string;
+    unsafeScheduleRaw?: boolean;
+  } = {},
+): PublishedSnapshotSourceLoaders {
+  return {
+    scheduleOfClasses(subject, context) {
+      if (subject === options.failScheduleSubject)
+        throw new Error(`Schedule subject ${subject} is unavailable`);
+      return {
+        subject,
+        fetched_at: context.generatedAt,
+        raw_files: [
+          {
+            filename: `${subject}.html`,
+            contents: `<html>${subject} schedule</html>`,
+          },
+        ],
+        parse() {
+          return {
+            source_timestamp: `schedule timestamp ${subject}`,
+            data: {
+              subject,
+              term: context.config.active_planning_term,
+              source_url: `https://schedule.test/${subject}`,
+              fetched_at: context.generatedAt,
+              source_timestamp: `schedule timestamp ${subject}`,
+              courses: [
+                makeScheduleCourse(subject, {
+                  unsafeRaw: options.unsafeScheduleRaw && subject === 'CSE',
+                }),
+              ],
+            },
+          };
+        },
+      };
+    },
+    generalCatalog(subject, context) {
+      return {
+        subject,
+        fetched_at: context.generatedAt,
+        raw_files: [
+          {
+            filename: `${subject}.html`,
+            contents: `<html>${subject} catalog</html>`,
+          },
+        ],
+        parse() {
+          return {
+            source_timestamp: context.generatedAt,
+            data: [
+              {
+                course_id: courseId(subject),
+                subject,
+                course_number: courseNumber(subject),
+                title: `${subject} Catalog Title`,
+                units: '4',
+                description: `${subject} Catalog Description`,
+                prerequisites_text: `${subject} prerequisite text`,
+                restrictions_text: null,
+                catalog_url: `https://catalog.test/${subject}`,
+              },
+            ],
+          };
+        },
+      };
+    },
+    instructorGradeArchive(subject, context) {
+      return {
+        subject,
+        fetched_at: context.generatedAt,
+        raw_files: [
+          {
+            filename: `${subject}.html`,
+            contents: `<html>${subject} grades</html>`,
+          },
+        ],
+        parse() {
+          return {
+            source_timestamp: context.generatedAt,
+            data: [
+              {
+                subject,
+                course: courseNumber(subject),
+                year: '2025',
+                quarter: 'FA',
+                title: `${subject} Catalog Title`,
+                instructor: `${subject} Instructor`,
+                gpa: subject === 'CSE' ? 3.5 : 3.75,
+                a: 50,
+                b: 30,
+                c: 10,
+                d: 5,
+                f: 1,
+                w: 4,
+                p: 0,
+                np: 0,
+                raw: {
+                  Subject: subject,
+                  Course: courseNumber(subject),
+                  Year: '2025',
+                  Quarter: 'FA',
+                  Title: `${subject} Catalog Title`,
+                  Instructor: `${subject} Instructor`,
+                  GPA: subject === 'CSE' ? '3.50' : '3.75',
+                  A: '50',
+                  B: '30',
+                  C: '10',
+                  D: '5',
+                  F: '1',
+                  W: '4',
+                  P: '0',
+                  NP: '0',
+                },
+              },
+            ],
+          };
+        },
+      };
+    },
+  };
+}
+
+describe('Published Snapshot pipeline', () => {
+  const tempDirs: string[] = [];
+
+  afterEach(async () => {
+    await Promise.all(
+      tempDirs
+        .splice(0)
+        .map((dir) => rm(dir, { recursive: true, force: true })),
+    );
+  });
+
+  async function makeTempConfig() {
+    const dir = await mkdtemp(join(tmpdir(), 'published-snapshot-'));
+    tempDirs.push(dir);
+    return makeConfig(dir);
+  }
+
+  it('fetches raw sources, writes normalized artifacts, validates, publishes, and reports a CSE/MATH snapshot', async () => {
+    const config = await makeTempConfig();
+
+    const result = await runPublishedSnapshotPipeline(config, {
+      runId: 'run-success',
+      generatedAt,
+      sourceLoaders: makeSourceLoaders(),
+    });
+
+    const publishedSnapshot = JSON.parse(
+      await readFile(result.snapshotPath, 'utf-8'),
+    ) as CatalogSnapshot;
+    const report = JSON.parse(
+      await readFile(result.reportPath, 'utf-8'),
+    ) as typeof result.report;
+
+    expect(publishedSnapshot).toMatchObject({
+      run_id: 'run-success',
+      active_planning_term: 'FA26',
+      configured_subjects: ['CSE', 'MATH'],
+      source_timestamps: {
+        schedule_of_classes: 'schedule timestamp CSE',
+        general_catalog: generatedAt,
+        instructor_grade_archive: generatedAt,
+      },
+      courses: [
+        {
+          course_id: 'CSE:101',
+          title: 'CSE Catalog Title',
+          description: 'CSE Catalog Description',
+          archive_avg_gpa: 3.5,
+          archive_record_count: 1,
+          sections: [
+            {
+              section_id: 'FA26:CSE-section',
+            },
+          ],
+        },
+        {
+          course_id: 'MATH:20A',
+          title: 'MATH Catalog Title',
+          archive_avg_gpa: 3.75,
+          sections: [
+            {
+              section_id: 'FA26:MATH-section',
+            },
+          ],
+        },
+      ],
+    });
+    expect(report).toMatchObject({
+      run_id: 'run-success',
+      status: 'published',
+      configured_subjects: ['CSE', 'MATH'],
+      validation: {
+        success: true,
+        errors: [],
+      },
+      row_counts: {
+        schedule_of_classes: {
+          courses: 2,
+          sections: 2,
+          meetings: 2,
+        },
+        general_catalog: {
+          courses: 2,
+        },
+        instructor_grade_archive: {
+          records: 2,
+        },
+        catalog_snapshot: {
+          courses: 2,
+          sections: 2,
+        },
+      },
+      parser_errors: [],
+    });
+    await expect(
+      readFile(
+        join(config.paths.raw_dir, 'run-success/schedule_of_classes/CSE.html'),
+        'utf-8',
+      ),
+    ).resolves.toContain('CSE schedule');
+    await expect(
+      readFile(
+        join(config.paths.raw_dir, 'run-success/general_catalog/MATH.html'),
+        'utf-8',
+      ),
+    ).resolves.toContain('MATH catalog');
+    await expect(
+      readFile(
+        join(
+          config.paths.raw_dir,
+          'run-success/instructor_grade_archive/CSE.html',
+        ),
+        'utf-8',
+      ),
+    ).resolves.toContain('CSE grades');
+    await expect(
+      readFile(
+        join(
+          config.paths.normalized_dir,
+          'run-success/catalog_snapshot.staging.json',
+        ),
+        'utf-8',
+      ),
+    ).resolves.toContain('"run_id": "run-success"');
+  });
+
+  it('exits hard on a configured subject source failure and preserves the existing Published Snapshot', async () => {
+    const config = await makeTempConfig();
+    const existingSnapshot = buildTracerCatalogSnapshot(config, {
+      runId: 'run-existing',
+      generatedAt,
+    });
+    const published = await publishCatalogSnapshot(existingSnapshot, config);
+
+    await expect(
+      runPublishedSnapshotPipeline(config, {
+        runId: 'run-source-failure',
+        generatedAt,
+        sourceLoaders: makeSourceLoaders({
+          failScheduleSubject: 'MATH',
+        }),
+      }),
+    ).rejects.toThrow(/Schedule subject MATH is unavailable/u);
+
+    const stillPublished = JSON.parse(
+      await readFile(published.snapshotPath, 'utf-8'),
+    ) as CatalogSnapshot;
+    const failureReport = JSON.parse(
+      await readFile(
+        join(config.paths.reports_dir, 'run-source-failure.import-report.json'),
+        'utf-8',
+      ),
+    ) as {
+      status?: string;
+      parser_errors?: { subject?: string; message?: string }[];
+    };
+
+    expect(stillPublished.run_id).toBe('run-existing');
+    expect(failureReport.status).toBe('failed');
+    expect(failureReport.parser_errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          subject: 'MATH',
+          message: 'Schedule subject MATH is unavailable',
+        }),
+      ]),
+    );
+  });
+
+  it('rejects invalid staging snapshots and preserves the existing Published Snapshot', async () => {
+    const config = await makeTempConfig();
+    const existingSnapshot = buildTracerCatalogSnapshot(config, {
+      runId: 'run-existing',
+      generatedAt,
+    });
+    const published = await publishCatalogSnapshot(existingSnapshot, config);
+
+    await expect(
+      runPublishedSnapshotPipeline(config, {
+        runId: 'run-validation-failure',
+        generatedAt,
+        sourceLoaders: makeSourceLoaders({
+          unsafeScheduleRaw: true,
+        }),
+      }),
+    ).rejects.toThrow(/Catalog Snapshot validation failed/u);
+
+    const stillPublished = JSON.parse(
+      await readFile(published.snapshotPath, 'utf-8'),
+    ) as CatalogSnapshot;
+    const failureReport = JSON.parse(
+      await readFile(
+        join(
+          config.paths.reports_dir,
+          'run-validation-failure.import-report.json',
+        ),
+        'utf-8',
+      ),
+    ) as {
+      status?: string;
+      validation?: { success?: boolean; errors?: string[] };
+    };
+
+    expect(stillPublished.run_id).toBe('run-existing');
+    expect(failureReport.status).toBe('failed');
+    expect(failureReport.validation).toMatchObject({
+      success: false,
+      errors: ['excluded field $.courses[0].sections[0].raw.waitlist'],
+    });
+  });
+});

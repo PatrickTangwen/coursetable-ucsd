@@ -14,6 +14,16 @@ export type ParsedScheduleOfClasses = {
   courses: SnapshotCourse[];
 };
 
+export type RawScheduleOfClassesSource = {
+  subject: string;
+  term: string;
+  fetched_at: string;
+  subject_list_url: string;
+  subject_list_raw: string;
+  source_url: string;
+  html: string;
+};
+
 type ParseOptions = {
   subject: string;
   term: string;
@@ -526,16 +536,19 @@ function scheduleSearchBody(
   return body;
 }
 
-async function fetchSubjectList(term: string, fetchAdapter: FetchAdapter) {
-  const response = await fetchAdapter(
-    `${scheduleBaseUrl}/subject-list.json?selectedTerm=${encodeURIComponent(term)}`,
-  );
-  if (!response.ok) {
-    throw new Error(
-      `UCSD Schedule subject list failed for ${term}: ${response.status} ${response.statusText}`,
-    );
+function subjectListUrl(term: string): string {
+  return `${scheduleBaseUrl}/subject-list.json?selectedTerm=${encodeURIComponent(term)}`;
+}
+
+function parseSubjectListRaw(raw: string, term: string) {
+  try {
+    return parseSubjectListData(JSON.parse(raw) as unknown, term);
+  } catch {
+    throw new Error(`UCSD Schedule subject list is invalid for ${term}`);
   }
-  const data = (await response.json()) as unknown;
+}
+
+function parseSubjectListData(data: unknown, term: string) {
   if (!Array.isArray(data))
     throw new Error(`UCSD Schedule subject list is invalid for ${term}`);
 
@@ -554,13 +567,21 @@ async function fetchSubjectList(term: string, fetchAdapter: FetchAdapter) {
   });
 }
 
-export async function fetchScheduleOfClassesForSubject(
+export async function fetchRawScheduleOfClassesForSubject(
   subject: string,
   options: FetchOptions,
-): Promise<ParsedScheduleOfClasses> {
+): Promise<RawScheduleOfClassesSource> {
   const fetchAdapter = options.fetch ?? fetch;
   const fetchedAt = options.fetchedAt ?? new Date().toISOString();
-  const subjectList = await fetchSubjectList(options.term, fetchAdapter);
+  const listUrl = subjectListUrl(options.term);
+  const subjectListResponse = await fetchAdapter(listUrl);
+  if (!subjectListResponse.ok) {
+    throw new Error(
+      `UCSD Schedule subject list failed for ${options.term}: ${subjectListResponse.status} ${subjectListResponse.statusText}`,
+    );
+  }
+  const subjectListRaw = await subjectListResponse.text();
+  const subjectList = parseSubjectListRaw(subjectListRaw, options.term);
   const subjectEntry = subjectList.find(
     (item) => normalizeSubject(item.code) === normalizeSubject(subject),
   );
@@ -583,11 +604,27 @@ export async function fetchScheduleOfClassesForSubject(
     );
   }
 
-  const parsed = parseScheduleOfClassesHtml(await response.text(), {
+  return {
+    subject: normalizeSubject(subject),
+    term: options.term,
+    fetched_at: fetchedAt,
+    subject_list_url: listUrl,
+    subject_list_raw: subjectListRaw,
+    source_url: scheduleResultUrl,
+    html: await response.text(),
+  };
+}
+
+export async function fetchScheduleOfClassesForSubject(
+  subject: string,
+  options: FetchOptions,
+): Promise<ParsedScheduleOfClasses> {
+  const rawSource = await fetchRawScheduleOfClassesForSubject(subject, options);
+  const parsed = parseScheduleOfClassesHtml(rawSource.html, {
     subject,
     term: options.term,
-    sourceUrl: scheduleResultUrl,
-    fetchedAt,
+    sourceUrl: rawSource.source_url,
+    fetchedAt: rawSource.fetched_at,
   });
   if (!parsed.courses.length) {
     throw new Error(

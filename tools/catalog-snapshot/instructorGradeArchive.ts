@@ -17,6 +17,13 @@ export type GradeArchiveRecord = {
   raw: { [key: string]: string };
 };
 
+export type RawInstructorGradeArchiveSource = {
+  subject: string;
+  source_url: string;
+  fetched_at: string;
+  html: string;
+};
+
 const instructorGradeArchiveUrl =
   'https://qa-as.ucsd.edu/Home/InstructorGradeArchive';
 
@@ -186,12 +193,13 @@ export function parseInstructorGradeArchiveHtml(
   });
 }
 
-export async function fetchInstructorGradeArchiveForSubject(
+export async function fetchRawInstructorGradeArchiveForSubject(
   subject: string,
   options: {
     fetch?: FetchAdapter;
+    fetchedAt?: string;
   } = {},
-): Promise<GradeArchiveRecord[]> {
+): Promise<RawInstructorGradeArchiveSource> {
   const fetchAdapter = options.fetch ?? fetch;
   const body = new URLSearchParams({
     quarter: '',
@@ -214,7 +222,25 @@ export async function fetchInstructorGradeArchiveForSubject(
     );
   }
 
-  return parseInstructorGradeArchiveHtml(await response.text());
+  return {
+    subject: subject.trim().toUpperCase(),
+    source_url: instructorGradeArchiveUrl,
+    fetched_at: options.fetchedAt ?? new Date().toISOString(),
+    html: await response.text(),
+  };
+}
+
+export async function fetchInstructorGradeArchiveForSubject(
+  subject: string,
+  options: {
+    fetch?: FetchAdapter;
+  } = {},
+): Promise<GradeArchiveRecord[]> {
+  const rawSource = await fetchRawInstructorGradeArchiveForSubject(
+    subject,
+    options,
+  );
+  return parseInstructorGradeArchiveHtml(rawSource.html);
 }
 
 export async function fetchInstructorGradeArchiveForSubjects(
