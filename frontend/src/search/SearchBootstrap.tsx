@@ -28,11 +28,11 @@ import { useCourseData, useWorksheetInfo } from '../hooks/useFerry';
 import type { CatalogListing } from '../queries/api';
 import type { Season } from '../queries/graphql-types';
 import { useStore } from '../store';
+import { anonymousWorksheetHasListing } from '../utilities/anonymousWorksheet';
 import { isEqual } from '../utilities/common';
 import { weekdays } from '../utilities/constants';
 import {
   isInWorksheet,
-  checkConflict,
   getEnrolled,
   getNumFriends,
   getOverallRatings,
@@ -40,6 +40,7 @@ import {
   getProfessorRatings,
   isGraduate,
   isDiscussionSection,
+  shouldHideConflictingListing,
   sortCourses,
   toLocationsSummary,
   toRangeTime,
@@ -300,12 +301,18 @@ export function SearchBootstrap({
     friends,
     sameCourseIdToCrns,
     getRelevantWorksheetNumber,
+    isAnonymousWorksheet,
+    anonymousWorksheet,
+    anonymousWorksheetCourses,
   } = useStore(
     useShallow((state) => ({
       worksheets: state.worksheets,
       friends: state.friends,
       sameCourseIdToCrns: state.sameCourseIdToCrns,
       getRelevantWorksheetNumber: state.getRelevantWorksheetNumber,
+      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+      anonymousWorksheet: state.anonymousWorksheet,
+      anonymousWorksheetCourses: state.courses,
     })),
   );
 
@@ -347,10 +354,30 @@ export function SearchBootstrap({
   // If multiple seasons are queried, the season is indicated
   const multiSeasons = processedSeasons.length !== 1;
 
-  const { data: worksheetInfo } = useWorksheetInfo(
+  const { data: savedWorksheetInfo } = useWorksheetInfo(
     worksheets,
     processedSeasons,
     getRelevantWorksheetNumber,
+  );
+  const worksheetInfo = isAnonymousWorksheet
+    ? anonymousWorksheetCourses
+    : savedWorksheetInfo;
+
+  const isListingInActiveWorksheet = useCallback(
+    (listing: CatalogListing) =>
+      isAnonymousWorksheet
+        ? anonymousWorksheetHasListing(anonymousWorksheet, listing)
+        : isInWorksheet(
+            listing,
+            getRelevantWorksheetNumber(listing.course.season_code),
+            worksheets,
+          ),
+    [
+      anonymousWorksheet,
+      getRelevantWorksheetNumber,
+      isAnonymousWorksheet,
+      worksheets,
+    ],
   );
 
   const queryEvaluator = useMemo(
@@ -390,14 +417,10 @@ export function SearchBootstrap({
           case 'cancelled':
             return listing.course.extra_info !== 'ACTIVE';
           case 'conflicting':
-            return (
-              listing.course.course_meetings.length > 0 &&
-              !isInWorksheet(
-                listing,
-                getRelevantWorksheetNumber(listing.course.season_code),
-                worksheets,
-              ) &&
-              checkConflict(worksheetInfo, listing).length > 0
+            return shouldHideConflictingListing(
+              worksheetInfo,
+              listing,
+              isListingInActiveWorksheet(listing),
             );
           case 'grad':
             return isGraduate(listing);
@@ -459,12 +482,7 @@ export function SearchBootstrap({
             return listing.course[key];
         }
       }),
-    [
-      searchDescription.value,
-      worksheetInfo,
-      getRelevantWorksheetNumber,
-      worksheets,
-    ],
+    [searchDescription.value, worksheetInfo, isListingInActiveWorksheet],
   );
 
   const quistPredicate = useMemo(() => {
@@ -564,13 +582,11 @@ export function SearchBootstrap({
 
         if (
           hideConflicting.value &&
-          listing.course.course_meetings.length > 0 &&
-          !isInWorksheet(
+          shouldHideConflictingListing(
+            worksheetInfo,
             listing,
-            getRelevantWorksheetNumber(listing.course.season_code),
-            worksheets,
-          ) &&
-          checkConflict(worksheetInfo, listing).length > 0
+            isListingInActiveWorksheet(listing),
+          )
         )
           return false;
 
@@ -714,9 +730,8 @@ export function SearchBootstrap({
       numBounds,
       hideCancelled.value,
       hideConflicting.value,
-      getRelevantWorksheetNumber,
-      worksheets,
       worksheetInfo,
+      isListingInActiveWorksheet,
       includeAttributes.value,
       excludeAttributes.value,
       selectSubjects.value,

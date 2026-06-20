@@ -12,8 +12,15 @@ import {
   writeAnonymousWorksheetStorage,
   type AnonymousWorksheetState,
 } from './anonymousWorksheet';
+import { checkConflict } from './course';
 import type { CatalogListing } from '../queries/api';
 import type { Crn, Season } from '../queries/graphql-types';
+
+type Meeting = {
+  days_of_week: number;
+  start_time: string;
+  end_time: string;
+};
 
 function createStorage() {
   const items = new Map<string, string>();
@@ -28,10 +35,12 @@ function createListing({
   crn,
   sectionId,
   season = 'FA26' as Season,
+  meetings = [],
 }: {
   crn: number;
   sectionId: string;
   season?: Season;
+  meetings?: Meeting[];
 }) {
   return {
     crn: crn as Crn,
@@ -43,6 +52,7 @@ function createListing({
     course: {
       season_code: season,
       same_course_id: crn,
+      course_meetings: meetings,
       listings: [
         {
           crn: crn as Crn,
@@ -82,6 +92,53 @@ describe('anonymous worksheet behavior', () => {
     ]);
     expect(duplicate.courses).toHaveLength(1);
     expect(removed.courses).toEqual([]);
+  });
+
+  it('allows adding overlapping Sections to an anonymous worksheet', () => {
+    const first = createListing({
+      crn: 101,
+      sectionId: 'FA26:CSE-TRACER-3',
+      meetings: [
+        {
+          days_of_week: 1 << 1,
+          start_time: '09:00',
+          end_time: '09:50',
+        },
+      ],
+    });
+    const second = createListing({
+      crn: 202,
+      sectionId: 'FA26:MATH-TRACER-2',
+      meetings: [
+        {
+          days_of_week: 1 << 1,
+          start_time: '09:30',
+          end_time: '10:20',
+        },
+      ],
+    });
+    const empty: AnonymousWorksheetState = {
+      term: 'FA26' as Season,
+      courses: [],
+    };
+
+    const withFirst = addListingToAnonymousWorksheet(empty, first, '#123456');
+    const withSecond = addListingToAnonymousWorksheet(
+      withFirst,
+      second,
+      '#abcdef',
+    );
+
+    expect(
+      checkConflict(
+        [{ crn: first.crn, color: '#123456', listing: first, hidden: false }],
+        second,
+      ),
+    ).toEqual([first]);
+    expect(withSecond.courses.map((course) => course.sectionId)).toEqual([
+      'FA26:CSE-TRACER-3',
+      'FA26:MATH-TRACER-2',
+    ]);
   });
 
   it('persists the anonymous worksheet in browser localStorage', () => {

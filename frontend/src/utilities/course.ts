@@ -153,45 +153,98 @@ export function toLocationsSummary(
 
 export type ListingWithTimes = {
   crn: Crn;
+  course_code?: string;
   course: {
     season_code: Season;
     course_meetings: {
       days_of_week: number;
-      start_time: string;
-      end_time: string;
+      start_time?: string | null;
+      end_time?: string | null;
     }[];
   };
 };
+
+type TimedMeeting = {
+  daysOfWeek: number;
+  start: number;
+  end: number;
+};
+
+function toTimedMeeting(
+  meeting: ListingWithTimes['course']['course_meetings'][number],
+): TimedMeeting | null {
+  if (!meeting.days_of_week || !meeting.start_time || !meeting.end_time)
+    return null;
+  const start = toRangeTime(meeting.start_time);
+  const end = toRangeTime(meeting.end_time);
+  if (!Number.isFinite(start) || !Number.isFinite(end) || start >= end)
+    return null;
+  return { daysOfWeek: meeting.days_of_week, start, end };
+}
+
+function timedMeetingsConflict(meeting1: TimedMeeting, meeting2: TimedMeeting) {
+  if (!(meeting1.daysOfWeek & meeting2.daysOfWeek)) return false;
+  return meeting1.start < meeting2.end && meeting2.start < meeting1.end;
+}
+
+export function listingsConflict(
+  listing1: ListingWithTimes,
+  listing2: ListingWithTimes,
+): boolean {
+  if (listing1.course.season_code !== listing2.course.season_code) return false;
+  if (listing1.crn === listing2.crn) return false;
+
+  const meetings1 = listing1.course.course_meetings.flatMap((meeting) => {
+    const timed = toTimedMeeting(meeting);
+    return timed ? [timed] : [];
+  });
+  const meetings2 = listing2.course.course_meetings.flatMap((meeting) => {
+    const timed = toTimedMeeting(meeting);
+    return timed ? [timed] : [];
+  });
+
+  return meetings1.some((meeting1) =>
+    meetings2.some((meeting2) => timedMeetingsConflict(meeting1, meeting2)),
+  );
+}
 
 export function checkConflict(
   worksheetData: WorksheetCourse[],
   listing: ListingWithTimes,
 ): CatalogListing[] {
   const conflicts: CatalogListing[] = [];
-  if (!listing.course.course_meetings.length) return conflicts;
-  loopWorksheet: for (const { listing: worksheetCourse } of worksheetData) {
-    if (worksheetCourse.course.season_code !== listing.course.season_code)
-      continue;
-    for (const meeting1 of worksheetCourse.course.course_meetings) {
-      for (const meeting2 of listing.course.course_meetings) {
-        // Two meetings have no days in common
-        if (!(meeting1.days_of_week & meeting2.days_of_week)) continue;
-        const start1 = toRangeTime(meeting1.start_time);
-        const start2 = toRangeTime(meeting2.start_time);
-        const end1 = toRangeTime(meeting1.end_time);
-        const end2 = toRangeTime(meeting2.end_time);
-        // Conflict exists
-        if (
-          !(start1 > end2 || start2 > end1) &&
-          !conflicts.includes(worksheetCourse)
-        ) {
-          conflicts.push(worksheetCourse);
-          continue loopWorksheet;
-        }
-      }
+  for (const { listing: worksheetCourse } of worksheetData) {
+    if (listingsConflict(worksheetCourse, listing))
+      conflicts.push(worksheetCourse);
+  }
+  return conflicts;
+}
+
+export type WorksheetConflict = {
+  courses: [CatalogListing, CatalogListing];
+};
+
+export function getWorksheetConflicts(
+  worksheetData: WorksheetCourse[],
+): WorksheetConflict[] {
+  const conflicts: WorksheetConflict[] = [];
+  for (let i = 0; i < worksheetData.length; i += 1) {
+    const first = worksheetData[i]!.listing;
+    for (let j = i + 1; j < worksheetData.length; j += 1) {
+      const second = worksheetData[j]!.listing;
+      if (listingsConflict(first, second))
+        conflicts.push({ courses: [first, second] });
     }
   }
   return conflicts;
+}
+
+export function shouldHideConflictingListing(
+  worksheetData: WorksheetCourse[],
+  listing: ListingWithTimes,
+  inWorksheet: boolean,
+): boolean {
+  return !inWorksheet && checkConflict(worksheetData, listing).length > 0;
 }
 
 export type NumFriendsReturn = {

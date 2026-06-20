@@ -59,13 +59,22 @@ function CourseConflictIcon({
   readonly modal: boolean;
   readonly worksheetNumber: number;
 }) {
-  const worksheets = useStore((state) => state.worksheets);
+  const { worksheets, isAnonymousWorksheet, anonymousWorksheetCourses } =
+    useStore(
+      useShallow((state) => ({
+        worksheets: state.worksheets,
+        isAnonymousWorksheet:
+          state.worksheetMemo.getIsAnonymousWorksheet(state),
+        anonymousWorksheetCourses: state.courses,
+      })),
+    );
 
   const { data } = useWorksheetInfo(
     worksheets,
     listing.course.season_code,
     worksheetNumber,
   );
+  const worksheetData = isAnonymousWorksheet ? anonymousWorksheetCourses : data;
 
   const warning = useMemo(() => {
     // If the course is in the worksheet, we never report a conflict
@@ -75,11 +84,11 @@ function CourseConflictIcon({
         return 'This will add to a worksheet of a semester that has already ended.';
       return undefined;
     }
-    const conflicts = checkConflict(data, listing);
+    const conflicts = checkConflict(worksheetData, listing);
     if (conflicts.length > 0)
       return `Conflicts with: ${conflicts.map((x) => x.course_code).join(', ')}`;
     return undefined;
-  }, [inWorksheet, modal, listing, data]);
+  }, [inWorksheet, modal, listing, worksheetData]);
 
   return (
     <Fade in={Boolean(warning)}>

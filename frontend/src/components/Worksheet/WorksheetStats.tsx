@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Button, Collapse, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { MdInfoOutline } from 'react-icons/md';
@@ -7,6 +7,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useStore } from '../../store';
 import { ratingColormap } from '../../utilities/constants';
 import {
+  getWorksheetConflicts,
   getOverallRatings,
   getWorkloadRatings,
   isDiscussionSection,
@@ -115,6 +116,13 @@ export default function WorksheetStats() {
   const skillsAreas: { courseCode: string; label: string }[] = [];
   const coursesWithoutRating: string[] = [];
   const coursesWithoutWorkload: string[] = [];
+  const anonymousConflictSummaries = useMemo(() => {
+    if (!isAnonymousWorksheet) return [];
+    return getWorksheetConflicts(courses).map(
+      ({ courses: [first, second] }) =>
+        `${first.course_code} / ${second.course_code}`,
+    );
+  }, [courses, isAnonymousWorksheet]);
 
   for (const { listing, hidden } of courses) {
     const alreadyCounted = listing.course.listings.some((l) =>
@@ -188,6 +196,16 @@ export default function WorksheetStats() {
                       ? ''
                       : 's'}{' '}
                     no longer available in this snapshot.
+                  </div>
+                )}
+                {anonymousConflictSummaries.length > 0 && (
+                  <div className={styles.creatorName}>
+                    {anonymousConflictSummaries.length} schedule conflict
+                    {anonymousConflictSummaries.length === 1 ? '' : 's'}:{' '}
+                    {anonymousConflictSummaries.slice(0, 3).join('; ')}
+                    {anonymousConflictSummaries.length > 3
+                      ? `; +${anonymousConflictSummaries.length - 3} more`
+                      : ''}
                   </div>
                 )}
               </div>
