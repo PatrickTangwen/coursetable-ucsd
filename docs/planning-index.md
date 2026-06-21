@@ -31,6 +31,8 @@ For new agent or human planning work, read in this order:
 - `docs/beta-1-save-anonymous-worksheet-to-account-2026-06-21.md`: focused plan
   for the next post-auth product slice and the recommended follow-up beta
   sequence.
+- `docs/beta-1-saved-worksheet-acceptance-2026-06-21.md`: acceptance record for
+  issue #26 and parent PRD #24.
 - `docs/beta-0-ui-surface-inventory-2026-06-20.md`: current Beta-0 UI surface
   inventory.
 - `docs/mvp-1-non-ui-acceptance-2026-06-20.md`: MVP-1 non-UI acceptance record.

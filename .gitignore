@@ -14,6 +14,8 @@ api/postgres/init/*ferry-dump.sql
 
 artifacts/real-backend-auth-validation/*
 !artifacts/real-backend-auth-validation/.gitkeep
+artifacts/saved-worksheet-acceptance/*
+!artifacts/saved-worksheet-acceptance/.gitkeep
 
 frontend/build
 frontend/dev-dist
