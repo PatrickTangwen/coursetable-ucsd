@@ -29,12 +29,62 @@ function formatPercent(value: number | null): string {
   return value === null ? 'N/A' : `${value.toFixed(1)}%`;
 }
 
-function sortArchiveRecordsByYearDescending(
+const archiveQuarterRank: { [quarter: string]: number } = {
+  WI: 1,
+  WN: 1,
+  SP: 2,
+  S1: 3,
+  SS1: 3,
+  SU1: 3,
+  S2: 4,
+  SS2: 4,
+  SU2: 4,
+  S3: 5,
+  SS: 5,
+  SS3: 5,
+  SU: 5,
+  SU3: 5,
+  FA: 6,
+};
+
+function archiveYearValue(year: string): number | null {
+  const parsed = Number.parseInt(year.trim(), 10);
+  if (!Number.isFinite(parsed)) return null;
+  return parsed < 100 ? 2000 + parsed : parsed;
+}
+
+function compareArchiveTerm(
+  a: UcsdCourseArchive['grade_archive_records'][number],
+  b: UcsdCourseArchive['grade_archive_records'][number],
+) {
+  const yearA = archiveYearValue(a.year);
+  const yearB = archiveYearValue(b.year);
+  if (yearA !== null && yearB !== null && yearA !== yearB) return yearA - yearB;
+  if (yearA !== null && yearB === null) return 1;
+  if (yearA === null && yearB !== null) return -1;
+  if (yearA === null && yearB === null) {
+    const yearComparison = a.year.localeCompare(b.year, 'en-US', {
+      numeric: true,
+      sensitivity: 'base',
+    });
+    if (yearComparison !== 0) return yearComparison;
+  }
+
+  const quarterA = a.quarter.trim().toUpperCase();
+  const quarterB = b.quarter.trim().toUpperCase();
+  const rankA = archiveQuarterRank[quarterA] ?? 0;
+  const rankB = archiveQuarterRank[quarterB] ?? 0;
+  if (rankA !== rankB) return rankA - rankB;
+  return quarterA.localeCompare(quarterB, 'en-US', {
+    numeric: true,
+    sensitivity: 'base',
+  });
+}
+
+function sortArchiveRecordsByTermDescending(
   records: UcsdCourseArchive['grade_archive_records'],
 ) {
-  return [...records].sort((a, b) =>
-    b.year.localeCompare(a.year, 'en-US', { numeric: true }),
-  );
+  return [...records].sort((a, b) => compareArchiveTerm(b, a));
 }
 
 function professorText(course: RuntimeCourse): string {
@@ -99,12 +149,11 @@ function GradeArchiveRecords({
   readonly archive: UcsdCourseArchive | null;
 }) {
   const gradeArchiveRecords = archive
-    ? sortArchiveRecordsByYearDescending(archive.grade_archive_records)
+    ? sortArchiveRecordsByTermDescending(archive.grade_archive_records)
     : [];
 
   return (
     <>
-      <h3 className={styles.sectionTitle}>Grade Archive Records</h3>
       {!archive && (
         <p className={styles.missingData}>
           UCSD archive metadata is unavailable for this snapshot course.
@@ -172,6 +221,20 @@ function GradeArchiveRecords({
   );
 }
 
+export function UcsdSnapshotPastGrades({
+  archive,
+}: {
+  readonly archive: UcsdCourseArchive | null;
+}) {
+  return (
+    <Row className="m-auto">
+      <Col className="px-0">
+        <GradeArchiveRecords archive={archive} />
+      </Col>
+    </Row>
+  );
+}
+
 function UcsdSnapshotOverview({
   archive,
   listing,
@@ -186,19 +249,12 @@ function UcsdSnapshotOverview({
         <SnapshotMetadata listing={listing} archive={archive} />
         <div className={styles.summaryGrid}>
           <div className={styles.summaryItem}>
-            <span className={styles.summaryLabel}>Archive Avg GPA</span>
+            <span className={styles.summaryLabel}>Average GPA</span>
             <span className={styles.summaryValue}>
               {formatGpa(archive?.archive_avg_gpa ?? null)}
             </span>
           </div>
-          <div className={styles.summaryItem}>
-            <span className={styles.summaryLabel}>Record Count</span>
-            <span className={styles.summaryValue}>
-              {archive?.archive_record_count ?? 'N/A'}
-            </span>
-          </div>
         </div>
-        <GradeArchiveRecords archive={archive} />
       </Col>
     </Row>
   );

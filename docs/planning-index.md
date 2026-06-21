@@ -33,6 +33,8 @@ For new agent or human planning work, read in this order:
   sequence.
 - `docs/beta-1-saved-worksheet-acceptance-2026-06-21.md`: acceptance record for
   issue #26 and parent PRD #24.
+- `docs/grade-archive-ui-update-2026-06-21.md`: current UI/data contract for
+  Average GPA, Record Count, and Past Grades.
 - `docs/beta-0-ui-surface-inventory-2026-06-20.md`: current Beta-0 UI surface
   inventory.
 - `docs/mvp-1-non-ui-acceptance-2026-06-20.md`: MVP-1 non-UI acceptance record.

@@ -4,6 +4,13 @@ This document is the dated inventory artifact for `Beta-0 UI Surface Cleanup`.
 It records exact file paths, retained dormant source surfaces, and observed
 browser-smoke evidence from the per-surface slices and final acceptance pass.
 
+2026-06-21 update: subsequent Grade Archive UI work renamed the user-facing GPA
+summary to `Average GPA`, moved raw Grade Archive Records into the course modal
+`Past Grades` tab, removed the modal `Record Count` summary card, and changed
+the GPA summary calculation to use the most recent archive term with data. The
+6/20 smoke evidence below is preserved as historical acceptance evidence; use
+`docs/grade-archive-ui-update-2026-06-21.md` for the current UI contract.
+
 ## Scope
 
 Primary paths:

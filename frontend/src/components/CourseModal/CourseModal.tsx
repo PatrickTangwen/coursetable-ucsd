@@ -3,9 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 import { Modal } from 'react-bootstrap';
 import { Helmet } from 'react-helmet';
 
-import ModalHeaderControls from './Header/ControlsRow';
+import ModalHeaderControls, {
+  type CourseModalView,
+} from './Header/ControlsRow';
 import ModalHeaderInfo from './Header/InfoRow';
 import OverviewPanel from './OverviewPanel/OverviewPanel';
+import { UcsdSnapshotPastGrades } from './OverviewPanel/UcsdSnapshotOverview';
 import { getUcsdSnapshotCourseDetails } from './ucsdSnapshotCourse';
 import type { CourseModalPrefetchListingDataFragment } from '../../generated/graphql-types';
 import { useModalHistory } from '../../hooks/useModalHistory';
@@ -36,11 +39,18 @@ function CourseModal({
 }: {
   readonly listing: CourseModalPrefetchListingDataFragment;
 }) {
-  const [view, setView] = useState<'overview' | 'evals'>('overview');
+  const [view, setView] = useState<CourseModalView>('overview');
   const [searchParams] = useSearchParams();
   const { closeModal, navigate } = useModalHistory();
-  const { isUcsdSnapshotCourse } = getUcsdSnapshotCourseDetails(listing);
-  const visibleView = isUcsdSnapshotCourse ? 'overview' : view;
+  const { archive, isUcsdSnapshotCourse } =
+    getUcsdSnapshotCourseDetails(listing);
+  const visibleView = isUcsdSnapshotCourse
+    ? view === 'evals'
+      ? 'overview'
+      : view
+    : view === 'past-grades'
+      ? 'overview'
+      : view;
   const institution = isUcsdSnapshotCourse ? 'UCSD' : 'Yale';
   const productName = isUcsdSnapshotCourse
     ? 'UCSD Course Planner'
@@ -109,7 +119,9 @@ function CourseModal({
           />
         </Modal.Header>
         <Modal.Body>
-          {visibleView === 'overview' ? (
+          {visibleView === 'past-grades' ? (
+            <UcsdSnapshotPastGrades archive={archive} />
+          ) : visibleView === 'overview' ? (
             <OverviewPanel onNavigation={onNavigation} prefetched={listing} />
           ) : (
             <EvaluationsPanel

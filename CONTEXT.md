@@ -52,13 +52,27 @@ _Avoid_: GPA CSV, SET, CAPE, course evaluation archive
 A subject-course-year-quarter-instructor row from the Instructor Grade Archive, containing GPA and grade-bucket percentages.
 _Avoid_: Evaluation, review, rating, grade count record
 
-**Archive Avg GPA**:
-The unweighted mean GPA across matching Grade Archive Records.
+**Average GPA**:
+The user-facing Historical GPA summary for a Course. For UCSD snapshot courses,
+this is the unweighted mean GPA across matching Grade Archive Records in the
+most recent archive term that has data.
 _Avoid_: Weighted GPA, course rating, sample-size-adjusted GPA
 
 **Record Count**:
-The number of Grade Archive Records used in an archive-derived GPA summary.
+The total number of matching Grade Archive Records across all terms. It can be
+shown in catalog/search results as archive-depth context, but is not a Course
+modal Overview summary card.
 _Avoid_: Student count, sample size, enrollment
+
+**Past Grades**:
+The Course modal tab next to Overview that shows raw Grade Archive Records,
+ordered by term descending.
+_Avoid_: Evaluations tab, ratings tab, professor reviews
+
+**Archive Avg GPA**:
+Legacy/internal snapshot field language for `archive_avg_gpa`. Use Average GPA
+for current user-facing copy.
+_Avoid_: Visible current UI label
 
 **Availability Data**:
 Dynamic seat, capacity, waitlist, enrollment, or demand data that the platform intentionally excludes from product features.

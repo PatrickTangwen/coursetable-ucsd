@@ -51,8 +51,12 @@
 
 .courseConflictIcon {
   position: absolute;
-  top: -10px;
+  top: 0;
   left: -6px;
+}
+
+.modalCourseConflictIcon {
+  top: -10px;
 }
 
 .disabledButton {

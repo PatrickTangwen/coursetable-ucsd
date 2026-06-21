@@ -99,14 +99,14 @@ function ResultsHeaders({
             </HeaderCol>
             <HeaderCol
               className={colStyles.archiveGpaCol}
-              tooltip="Average GPA from matching UCSD Instructor Grade Archive records"
+              tooltip="Average GPA across matching UCSD Instructor Grade Archive records in the most recent term"
               tooltipId="results-header-archive-gpa-tooltip"
             >
-              Archive Avg GPA
+              Average GPA
             </HeaderCol>
             <HeaderCol
               className={colStyles.archiveCountCol}
-              tooltip="Number of UCSD Instructor Grade Archive records used for the GPA summary"
+              tooltip="Total number of matching UCSD Instructor Grade Archive records across all terms"
               tooltipId="results-header-archive-count-tooltip"
             >
               Record Count

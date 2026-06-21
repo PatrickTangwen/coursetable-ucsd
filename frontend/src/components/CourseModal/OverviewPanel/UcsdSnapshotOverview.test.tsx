@@ -1,7 +1,9 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 
-import UcsdSnapshotOverview from './UcsdSnapshotOverview';
+import UcsdSnapshotOverview, {
+  UcsdSnapshotPastGrades,
+} from './UcsdSnapshotOverview';
 import type { CourseModalPrefetchListingDataFragment } from '../../../generated/graphql-types';
 import type { Crn, Season } from '../../../queries/graphql-types';
 import type { UcsdCourseArchive } from '../../../queries/ucsdCatalogSnapshot';
@@ -97,54 +99,83 @@ function gradeArchiveRecord(
 }
 
 describe('UcsdSnapshotOverview', () => {
-  it('shows UCSD archive records and supported snapshot metadata', () => {
+  it('shows supported snapshot metadata and GPA summary', () => {
     const html = renderToStaticMarkup(
       <UcsdSnapshotOverview archive={archiveWithRecord} listing={listing()} />,
     );
 
-    expect(html).toContain('Archive Avg GPA');
+    expect(html).toContain('Average GPA');
     expect(html).toContain('3.42');
-    expect(html).toContain('Record Count');
-    expect(html).toContain('Grade Archive Records');
+    expect(html).not.toContain('Record Count');
+    expect(html).not.toContain('Grade Archive Records');
     expect(html).toContain('Ada Lovelace');
   });
 
-  it('orders Grade Archive Records by descending year', () => {
+  it('shows a compact UCSD-specific missing archive state', () => {
     const html = renderToStaticMarkup(
-      <UcsdSnapshotOverview
+      <UcsdSnapshotOverview archive={null} listing={listing()} />,
+    );
+
+    expect(html).toContain('Average GPA');
+    expect(html).toContain('N/A');
+    expect(html).not.toContain('Record Count');
+    expect(html).not.toContain('Grade Archive Records');
+    expect(html.toLowerCase()).not.toMatch(
+      /\b(?:rating|workload|evaluations?|friends|oce|cape)\b/u,
+    );
+  });
+});
+
+describe('UcsdSnapshotPastGrades', () => {
+  it('shows UCSD archive records', () => {
+    const html = renderToStaticMarkup(
+      <UcsdSnapshotPastGrades archive={archiveWithRecord} />,
+    );
+
+    expect(html).not.toContain('Grade Archive Records');
+    expect(html).toContain('Ada Lovelace');
+    expect(html).toContain('3.42');
+  });
+
+  it('orders past grade records by descending term', () => {
+    const html = renderToStaticMarkup(
+      <UcsdSnapshotPastGrades
         archive={{
           ...archiveWithRecord,
           archive_record_count: 3,
           grade_archive_records: [
+            {
+              ...gradeArchiveRecord('2025', 'Winter Instructor'),
+              quarter: 'WI',
+            },
             gradeArchiveRecord('2024', 'Earlier Instructor'),
-            gradeArchiveRecord('2026', 'Latest Instructor'),
-            gradeArchiveRecord('2025', 'Middle Instructor'),
+            {
+              ...gradeArchiveRecord('2025', 'Fall Instructor'),
+              quarter: 'FA',
+            },
           ],
         }}
-        listing={listing()}
       />,
     );
 
-    expect(html.indexOf('Latest Instructor')).toBeLessThan(
-      html.indexOf('Middle Instructor'),
+    expect(html.indexOf('Fall Instructor')).toBeLessThan(
+      html.indexOf('Winter Instructor'),
     );
-    expect(html.indexOf('Middle Instructor')).toBeLessThan(
+    expect(html.indexOf('Winter Instructor')).toBeLessThan(
       html.indexOf('Earlier Instructor'),
     );
   });
 
   it('shows a UCSD-specific missing archive state without inherited wording', () => {
     const html = renderToStaticMarkup(
-      <UcsdSnapshotOverview archive={null} listing={listing()} />,
+      <UcsdSnapshotPastGrades archive={null} />,
     );
 
-    expect(html).toContain('Archive Avg GPA');
-    expect(html).toContain('Record Count');
-    expect(html).toContain('Grade Archive Records');
+    expect(html).not.toContain('Grade Archive Records');
     expect(html).toContain('UCSD archive metadata is unavailable');
     expect(html).toContain('Historical GPA Data');
     expect(html.toLowerCase()).not.toMatch(
-      /\b(rating|workload|evaluations?|friends|oce|cape)\b/u,
+      /\b(?:rating|workload|evaluations?|friends|oce|cape)\b/u,
     );
   });
 });

@@ -407,6 +407,69 @@ function meanGpa(records: GradeArchiveRecord[]): number | null {
   return gpas.reduce((sum, gpa) => sum + gpa, 0) / gpas.length;
 }
 
+const archiveQuarterRank: { [quarter: string]: number } = {
+  WI: 1,
+  WN: 1,
+  SP: 2,
+  S1: 3,
+  SS1: 3,
+  SU1: 3,
+  S2: 4,
+  SS2: 4,
+  SU2: 4,
+  S3: 5,
+  SS: 5,
+  SS3: 5,
+  SU: 5,
+  SU3: 5,
+  FA: 6,
+};
+
+function archiveYearValue(year: string): number | null {
+  const parsed = Number.parseInt(year.trim(), 10);
+  if (!Number.isFinite(parsed)) return null;
+  return parsed < 100 ? 2000 + parsed : parsed;
+}
+
+function compareArchiveTerm(a: GradeArchiveRecord, b: GradeArchiveRecord) {
+  const yearA = archiveYearValue(a.year);
+  const yearB = archiveYearValue(b.year);
+  if (yearA !== null && yearB !== null && yearA !== yearB) return yearA - yearB;
+  if (yearA !== null && yearB === null) return 1;
+  if (yearA === null && yearB !== null) return -1;
+  if (yearA === null && yearB === null) {
+    const yearComparison = a.year.localeCompare(b.year, 'en-US', {
+      numeric: true,
+      sensitivity: 'base',
+    });
+    if (yearComparison !== 0) return yearComparison;
+  }
+
+  const quarterA = a.quarter.trim().toUpperCase();
+  const quarterB = b.quarter.trim().toUpperCase();
+  const rankA = archiveQuarterRank[quarterA] ?? 0;
+  const rankB = archiveQuarterRank[quarterB] ?? 0;
+  if (rankA !== rankB) return rankA - rankB;
+  return quarterA.localeCompare(quarterB, 'en-US', {
+    numeric: true,
+    sensitivity: 'base',
+  });
+}
+
+function mostRecentTermRecords(records: GradeArchiveRecord[]) {
+  let [mostRecent] = records;
+  if (!mostRecent) return [];
+  for (const record of records)
+    if (compareArchiveTerm(record, mostRecent) > 0) mostRecent = record;
+  return records.filter(
+    (record) => compareArchiveTerm(record, mostRecent) === 0,
+  );
+}
+
+function meanMostRecentTermGpa(records: GradeArchiveRecord[]): number | null {
+  return meanGpa(mostRecentTermRecords(records));
+}
+
 export function attachGradeArchiveRecords(
   snapshot: CatalogSnapshot,
   records: GradeArchiveRecord[],
@@ -424,7 +487,7 @@ export function attachGradeArchiveRecords(
       const gradeArchiveRecords = recordsByCourseId.get(course.course_id) ?? [];
       return {
         ...course,
-        archive_avg_gpa: meanGpa(gradeArchiveRecords),
+        archive_avg_gpa: meanMostRecentTermGpa(gradeArchiveRecords),
         archive_record_count: gradeArchiveRecords.length,
         grade_archive_records: gradeArchiveRecords,
       };

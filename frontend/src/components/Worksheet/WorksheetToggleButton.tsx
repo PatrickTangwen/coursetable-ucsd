@@ -92,7 +92,12 @@ function CourseConflictIcon({
 
   return (
     <Fade in={Boolean(warning)}>
-      <div className={styles.courseConflictIcon}>
+      <div
+        className={clsx(
+          styles.courseConflictIcon,
+          modal && styles.modalCourseConflictIcon,
+        )}
+      >
         {warning && (
           <OverlayTrigger
             placement="top"

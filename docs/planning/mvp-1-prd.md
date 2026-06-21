@@ -10,7 +10,12 @@ MVP-1 must validate that public UCSD data sources can produce a reliable term-sc
 
 Build MVP-1 as a public catalog and anonymous worksheet experience backed by a file-first Catalog Snapshot. The snapshot is generated from UCSD Schedule of Classes, UCSD General Catalog, and UCSD Instructor Grade Archive data for the configured subjects `CSE` and `MATH`. The frontend reads the Published Snapshot from static catalog assets and provides catalog search, course detail, local worksheet persistence, share URL restore, conflict detection, and ICS download without login, App DB, Course Data Store, Hasura, or live GraphQL dependency in the user path.
 
-The product should present Historical GPA Data accurately as Archive Avg GPA and Record Count, not as ratings, workload, professor quality, or recommendation scores. It should intentionally exclude Availability Data such as open seats, capacity, waitlist, enrollment, demand, and friends-taking-course signals.
+The product should present Historical GPA Data accurately as Average GPA,
+Record Count, and Past Grades, not as ratings, workload, professor quality, or
+recommendation scores. Average GPA summarizes the most recent matching archive
+term with data. Record Count remains archive-depth context across all matching
+terms. It should intentionally exclude Availability Data such as open seats,
+capacity, waitlist, enrollment, demand, and friends-taking-course signals.
 
 ## User Stories
 
@@ -27,12 +32,12 @@ The product should present Historical GPA Data accurately as Archive Avg GPA and
 11. As a UCSD student, I want to filter by meeting day, so that I can avoid days when I cannot take classes.
 12. As a UCSD student, I want to filter by time range, so that I can avoid early, late, or otherwise unavailable times.
 13. As a UCSD student, I want to filter by meeting type, so that I can distinguish lectures, discussions, labs, and similar section types.
-14. As a UCSD student, I want to filter by Archive Avg GPA, so that I can compare historical grading outcomes.
+14. As a UCSD student, I want to filter by Average GPA, so that I can compare historical grading outcomes.
 15. As a UCSD student, I want to hide courses that conflict with my current Anonymous Worksheet, so that I can build a schedule efficiently.
 16. As a UCSD student, I want to sort by course code, so that I can browse courses in a familiar catalog order.
 17. As a UCSD student, I want to sort by title, so that I can scan courses alphabetically.
 18. As a UCSD student, I want to sort by meeting time, so that I can compare schedule fit.
-19. As a UCSD student, I want to sort by Archive Avg GPA, so that I can compare historical GPA outcomes.
+19. As a UCSD student, I want to sort by Average GPA, so that I can compare historical GPA outcomes.
 20. As a UCSD student, I want to sort by Record Count, so that I can see which GPA summaries have more archive records.
 21. As a UCSD student, I want the catalog to avoid open-seat wording, so that I do not mistake the tool for WebReg availability.
 22. As a UCSD student, I want the catalog to avoid enrollment and waitlist claims, so that I understand it is a planning tool.
@@ -48,9 +53,9 @@ The product should present Historical GPA Data accurately as Archive Avg GPA and
 32. As a UCSD student, I want each Meeting to show building and room text, so that I can plan where classes happen.
 33. As a UCSD student, I want TBA or arranged Meetings to be visible, so that missing times are not hidden.
 34. As a UCSD student, I want TBA or arranged Meetings to be excluded from conflict checks, so that the app does not invent a conflict.
-35. As a UCSD student, I want Course detail to show Archive Avg GPA, so that I can see historical grading outcomes.
-36. As a UCSD student, I want Course detail to show Record Count, so that I can judge how much archive history supports the GPA summary.
-37. As a UCSD student, I want Course detail to show raw Grade Archive Records, so that I can inspect year, quarter, instructor, GPA, and grade-bucket percentages myself.
+35. As a UCSD student, I want Course detail Overview to show Average GPA, so that I can see the most recent available historical grading outcome.
+36. As a UCSD student, I want Course detail to provide a Past Grades tab, so that raw archive rows are separated from overview metadata.
+37. As a UCSD student, I want Past Grades to show raw Grade Archive Records, so that I can inspect year, quarter, instructor, GPA, and grade-bucket percentages myself.
 38. As a UCSD student, I want the app to avoid calling GPA a rating, so that I do not confuse grading outcomes with quality or workload.
 39. As a UCSD student, I want to add a Section to an Anonymous Worksheet, so that I can build a schedule.
 40. As a UCSD student, I want to remove a Section from an Anonymous Worksheet, so that I can revise my plan.
@@ -99,8 +104,8 @@ The product should present Historical GPA Data accurately as Archive Avg GPA and
 - UCSD Instructor Grade Archive is the primary Historical GPA Data source.
 - Starter CSV files are not the MVP-1 primary GPA source.
 - Instructor Grade Archive rows are modeled as Grade Archive Records.
-- Archive Avg GPA is the unweighted mean of matching Grade Archive Records.
-- Record Count is the number of Grade Archive Records used in a summary.
+- Average GPA is the unweighted mean of matching Grade Archive Records from the most recent archive term that has data.
+- Record Count is the total number of matching Grade Archive Records across all terms.
 - Grade-bucket values from the Instructor Grade Archive are treated as percentages, not counts.
 - No weighted GPA, sample size, student count, rating, workload, professor quality, or recommendation score is derived from Historical GPA Data.
 - Course ID is based on normalized subject plus course number.
@@ -112,10 +117,10 @@ The product should present Historical GPA Data accurately as Archive Avg GPA and
 - Timed Meetings participate in conflict detection and ICS export.
 - TBA or arranged Meetings are displayed but excluded from conflict detection and ICS export.
 - Catalog search covers subject, course number, title, instructor, and description.
-- Catalog filters include subject, course level, days, time range, meeting type, Archive Avg GPA range, and hide-conflicts.
-- Catalog sorting includes course code, title, meeting time, Archive Avg GPA, and Record Count.
+- Catalog filters include subject, course level, days, time range, meeting type, Average GPA range, and hide-conflicts.
+- Catalog sorting includes course code, title, meeting time, Average GPA, and Record Count.
 - MVP-1 has one primary catalog list/table view.
-- Course detail shows schedule data, catalog metadata, raw prerequisite/restriction text, Archive Avg GPA, Record Count, raw Grade Archive Records, and source timestamps where available.
+- Course detail Overview shows schedule data, catalog metadata, raw prerequisite/restriction text, Average GPA, and source timestamps where available; raw Grade Archive Records live in the Past Grades tab.
 - Anonymous Worksheet supports add, remove, browser local persistence, share URL restore, conflict detection, and ICS download.
 - Share URL restore is snapshot-backed and creates no server-side share record.
 - Missing Section IDs in share URLs produce non-blocking warnings and must not crash the page.
@@ -136,9 +141,9 @@ The product should present Historical GPA Data accurately as Archive Avg GPA and
 - Snapshot validation tests should reject missing Section IDs, missing configured subjects, partial generation, schema violations, and excluded Availability Data fields.
 - Snapshot publication tests should prove that a failed validation preserves the existing Published Snapshot.
 - Frontend behavior tests should prove that the catalog loads from the Catalog Snapshot without login, App DB, Course Data Store, Hasura, or live GraphQL dependency.
-- Frontend behavior tests should cover keyword search, subject filter, course level filter, days/time filtering, meeting type filtering, Archive Avg GPA filtering, and sorting.
+- Frontend behavior tests should cover keyword search, subject filter, course level filter, days/time filtering, meeting type filtering, Average GPA filtering, and sorting.
 - Frontend behavior tests should cover hide-conflicts behavior using an Anonymous Worksheet.
-- Frontend behavior tests should cover Course detail display for catalog metadata, schedule data, Archive Avg GPA, Record Count, raw Grade Archive Records, TBA/arranged Meetings, and source timestamps.
+- Frontend behavior tests should cover Course detail display for catalog metadata, schedule data, Average GPA, Past Grades raw Grade Archive Records, TBA/arranged Meetings, and source timestamps.
 - Worksheet behavior tests should cover add/remove Section, local browser persistence, share URL restore, stale/missing Section ID warning, and conflict visibility.
 - ICS tests should cover timed Meeting export, TBA/arranged skipped summary, Term Date Range usage, and exporting a worksheet that contains conflicts.
 - Smoke testing should verify that MVP user paths contain no Yale, friends, evals, availability, enrollment, waitlist, demand, Google Calendar direct export, login, or saved-user-data wording.

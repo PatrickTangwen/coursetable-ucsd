@@ -242,7 +242,7 @@ describe('Catalog Snapshot validation', () => {
 });
 
 describe('Catalog Snapshot Grade Archive enrichment', () => {
-  it('attaches matching Grade Archive Records and computes unweighted Archive Avg GPA', () => {
+  it('attaches matching Grade Archive Records and computes unweighted average GPA for the most recent term', () => {
     const config = makeConfig();
     const snapshot = buildTracerCatalogSnapshot(config, {
       runId: 'run-test',
@@ -287,12 +287,46 @@ describe('Catalog Snapshot Grade Archive enrichment', () => {
       {
         subject: 'CSE',
         course: '1',
-        year: '2024',
-        quarter: 'WI',
+        year: '2025',
+        quarter: 'FA',
         title: 'CSE Tracer Course',
         instructor: 'Lovelace, Ada',
-        gpa: null,
-        a: null,
+        gpa: 4,
+        a: 80,
+        b: 10,
+        c: 5,
+        d: 2,
+        f: 1,
+        w: 2,
+        p: 0,
+        np: 0,
+        raw: {
+          Subject: 'CSE',
+          Course: '1',
+          Year: '2025',
+          Quarter: 'FA',
+          Title: 'CSE Tracer Course',
+          Instructor: 'Lovelace, Ada',
+          GPA: '4.00',
+          A: '80',
+          B: '10',
+          C: '5',
+          D: '2',
+          F: '1',
+          W: '2',
+          P: '0',
+          NP: '0',
+        },
+      },
+      {
+        subject: 'CSE',
+        course: '1',
+        year: '2025',
+        quarter: 'WI',
+        title: 'CSE Tracer Course',
+        instructor: 'Dijkstra, Edsger',
+        gpa: 1,
+        a: 10,
         b: 30,
         c: 20,
         d: 5,
@@ -303,12 +337,12 @@ describe('Catalog Snapshot Grade Archive enrichment', () => {
         raw: {
           Subject: 'CSE',
           Course: '1',
-          Year: '2024',
+          Year: '2025',
           Quarter: 'WI',
           Title: 'CSE Tracer Course',
-          Instructor: 'Lovelace, Ada',
-          GPA: '',
-          A: '',
+          Instructor: 'Dijkstra, Edsger',
+          GPA: '1.00',
+          A: '10',
           B: '30',
           C: '20',
           D: '5',
@@ -355,8 +389,8 @@ describe('Catalog Snapshot Grade Archive enrichment', () => {
     ]);
 
     expect(enriched.courses[0]).toMatchObject({
-      archive_avg_gpa: 3,
-      archive_record_count: 2,
+      archive_avg_gpa: 3.5,
+      archive_record_count: 3,
       grade_archive_records: [
         {
           instructor: 'Hopper, Grace',
@@ -367,9 +401,16 @@ describe('Catalog Snapshot Grade Archive enrichment', () => {
         },
         {
           instructor: 'Lovelace, Ada',
-          gpa: null,
+          gpa: 4,
           raw: {
-            GPA: '',
+            GPA: '4.00',
+          },
+        },
+        {
+          instructor: 'Dijkstra, Edsger',
+          gpa: 1,
+          raw: {
+            GPA: '1.00',
           },
         },
       ],

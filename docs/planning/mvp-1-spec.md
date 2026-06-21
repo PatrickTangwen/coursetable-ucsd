@@ -60,8 +60,9 @@ Use this product language in PRDs/issues:
 - `Catalog Snapshot`: term-scoped JSON artifact consumed by the frontend.
 - `Published Snapshot`: validated static snapshot currently served by the app.
 - `Anonymous Worksheet`: browser-local worksheet not attached to an account.
-- `Archive Avg GPA`: unweighted mean GPA across matching Grade Archive Records.
-- `Record Count`: number of Grade Archive Records used in an archive GPA summary.
+- `Average GPA`: user-facing GPA summary; unweighted mean GPA across matching Grade Archive Records in the most recent archive term with data.
+- `Record Count`: total number of matching Grade Archive Records across all terms.
+- `Past Grades`: Course detail tab containing raw Grade Archive Records.
 
 Avoid these terms in product specs:
 
@@ -321,12 +322,12 @@ Validation gate must check:
 
 ## 9. GPA Rules
 
-Raw Grade Archive Records must be visible in course detail.
+Raw Grade Archive Records must be visible in the Course detail Past Grades tab.
 
-Course-level `Archive Avg GPA`:
+Course-level `Average GPA`:
 
 ```text
-mean(GPA for matching Grade Archive Records)
+mean(GPA for matching Grade Archive Records in the most recent archive term)
 ```
 
 Instructor-course stats:
@@ -337,9 +338,9 @@ mean(GPA for records matching Course ID + normalized instructor)
 
 Display:
 
-- `Archive Avg GPA`
-- `Record Count`
-- raw rows: Year, Quarter, Instructor, GPA, A/B/C/D/F/W/P/NP percentages
+- `Average GPA` in catalog results and Course detail Overview
+- `Record Count` in catalog results
+- raw rows in the Past Grades tab: Year, Quarter, Instructor, GPA, A/B/C/D/F/W/P/NP percentages
 
 Do not display:
 
@@ -362,7 +363,7 @@ Search/filter:
 - days filter
 - time range filter
 - meeting type filter
-- Archive Avg GPA min/max
+- Average GPA min/max
 - hide conflicts with current Anonymous Worksheet
 
 Sort:
@@ -370,7 +371,7 @@ Sort:
 - course code
 - title
 - meeting time
-- Archive Avg GPA
+- Average GPA
 - Record Count
 
 Remove from MVP paths:
@@ -400,9 +401,8 @@ Course detail must show:
 - instructors
 - building/room text
 - TBA/arranged display
-- Archive Avg GPA
-- Record Count
-- raw Grade Archive Records
+- Average GPA
+- raw Grade Archive Records in the Past Grades tab
 - source timestamp where available
 
 Course detail must not show:
@@ -536,7 +536,7 @@ MVP-1 is complete when:
 - Published Snapshot excludes Availability Data, demand, friends, eval fields.
 - Catalog loads without login, App DB, Course Data Store, Hasura, or live GraphQL user-path dependency.
 - MVP search/filter/sort works.
-- Course detail shows schedule, catalog raw prereq, Archive Avg GPA, Record Count, raw Grade Archive Records.
+- Course detail shows schedule, catalog raw prereq, Average GPA, and Past Grades raw Grade Archive Records.
 - Anonymous Worksheet supports add/remove Sections.
 - Anonymous Worksheet persists in `localStorage`.
 - Share URL restores selected Section IDs in a new browser/private window.

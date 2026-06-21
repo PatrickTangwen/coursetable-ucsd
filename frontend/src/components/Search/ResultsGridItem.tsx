@@ -129,7 +129,7 @@ function ResultsGridItem({
           </div>
           <div className={styles.archiveSummary}>
             <TextComponent type="secondary" className={styles.smallText}>
-              Archive Avg GPA: {formatArchiveAvgGpa(archive?.archive_avg_gpa)}
+              Average GPA: {formatArchiveAvgGpa(archive?.archive_avg_gpa)}
             </TextComponent>
             <TextComponent type="secondary" className={styles.smallText}>
               Record Count:{' '}

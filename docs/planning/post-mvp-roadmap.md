@@ -472,10 +472,11 @@ Keep these constraints unless explicitly revisited with a new ADR:
 
 ## 16. 2026-06-20 Change Note: External Plus/Minus Grade Distribution Reference
 
-Post-MVP course detail can add a small external reference near the Grade Archive Records section:
+Post-MVP course detail can add a small external reference near the Past Grades
+raw Grade Archive Records table:
 
 - Reference URL: [MyClassGrades UCSD](https://myclassgrades.com/school/ucsd)
-- Placement: near the raw Grade Archive Records table or Historical GPA Data explanation in the course detail modal.
+- Placement: near the raw Grade Archive Records table in the Past Grades tab or near the Historical GPA Data explanation in the course detail modal.
 - Suggested UI wording: "UCSD's Instructor Grade Archive reports A/B/C/D/F/W/P/NP buckets. For a third-party view of more detailed plus/minus grade distribution, see MyClassGrades UCSD."
 
 This should remain an outbound reference, not a new MVP-1 source of truth.
@@ -483,7 +484,7 @@ This should remain an outbound reference, not a new MVP-1 source of truth.
 Rules:
 
 - Do not import, scrape, or normalize MyClassGrades data without a separate source/legal/policy review.
-- Do not merge MyClassGrades values into Archive Avg GPA, Record Count, or Grade Archive Records.
+- Do not merge MyClassGrades values into Average GPA, Record Count, or Grade Archive Records.
 - Do not present the link as official UCSD data unless the source relationship is verified.
 - Keep the UI wording clear that Instructor Grade Archive remains the platform's primary Historical GPA Data source.
 
@@ -514,7 +515,7 @@ Scope:
   the inherited backend/schema/API path can plausibly be adapted.
 - Anonymous users opening Saved Search should see a non-error sign-in-required
   state, not a failed API request toast.
-- Preserve `Archive Avg GPA`, `Record Count`, raw Grade Archive Records,
+- Preserve Average GPA, catalog `Record Count`, raw Grade Archive Records,
   Catalog Snapshot loading, Anonymous Worksheet behavior, share URL restore,
   conflict detection, and ICS export.
 - If a UCSD snapshot course lacks Historical GPA Data or archive metadata, show
@@ -540,7 +541,7 @@ Catalog cleanup boundary:
 
 - Keep keyword search, subject filter, course-level filter, days/time filtering,
   meeting-type filter, hide-conflicts, course modal entry, snapshot freshness,
-  `Archive Avg GPA`, `Record Count`, and the Saved Search dropdown exception.
+  Average GPA, catalog `Record Count`, and the Saved Search dropdown exception.
 - Hide inherited rating, workload, professor-quality, evaluation, social,
   availability, enrollment, waitlist, demand, random-course, and unsupported
   grid/map-style affordances from the UCSD catalog path.
@@ -610,8 +611,8 @@ Acceptance:
   friends/social, open seats, waitlist, enrollment, demand, or Google Calendar
   direct-export wording.
 - Browser smoke confirms the primary paths still expose supported UCSD concepts:
-  `Archive Avg GPA`, `Record Count`, Grade Archive Records, ICS download, and
-  worksheet share/export behavior.
+  Average GPA, catalog `Record Count`, Past Grades raw Grade Archive Records,
+  ICS download, and worksheet share/export behavior.
 - A dated source inventory document records inherited surfaces hidden from
   primary paths, inherited surfaces intentionally retained for later adaptation,
   and non-primary static/history pages left as inventory-only scope.

@@ -133,9 +133,11 @@ function MoreButton({
 
 type Tab = {
   readonly label: string;
-  readonly value: 'overview' | 'evals';
+  readonly value: CourseModalView;
   readonly disabled?: boolean;
 };
+
+export type CourseModalView = 'overview' | 'evals' | 'past-grades';
 
 function ViewTabs({
   currentTab,
@@ -191,12 +193,15 @@ export default function ModalHeaderControls({
   setView,
 }: {
   readonly listing: CourseModalPrefetchListingDataFragment;
-  readonly view: 'overview' | 'evals';
-  readonly setView: (value: 'overview' | 'evals') => void;
+  readonly view: CourseModalView;
+  readonly setView: (value: CourseModalView) => void;
 }) {
   const { isUcsdSnapshotCourse } = getUcsdSnapshotCourseDetails(listing);
   const tabs: Tab[] = isUcsdSnapshotCourse
-    ? [{ label: 'Overview', value: 'overview' }]
+    ? [
+        { label: 'Overview', value: 'overview' },
+        { label: 'Past Grades', value: 'past-grades' },
+      ]
     : [
         { label: 'Overview', value: 'overview' },
         {
