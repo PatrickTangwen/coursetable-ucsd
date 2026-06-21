@@ -11,11 +11,13 @@ right source before editing or starting implementation.
 For new agent or human planning work, read in this order:
 
 1. `CONTEXT.md` for domain vocabulary and stable product terms.
-2. `docs/adr/` for durable decisions and their trade-offs.
-3. `starter_plan_and_data/post_mvp_roadmap.md` for current roadmap order and
+2. `docs/adr/README.md` for the decision-record boundary, then the ADRs that
+   touch the area being changed.
+3. `starter_plan_and_data/README.md` for current-vs-historical planning inputs.
+4. `starter_plan_and_data/post_mvp_roadmap.md` for current roadmap order and
    scope sequencing.
-4. GitHub issues for executable implementation slices.
-5. Focused validation or acceptance docs under `docs/` when an issue points to
+5. GitHub issues for executable implementation slices.
+6. Focused validation or acceptance docs under `docs/` when an issue points to
    them.
 
 ## Active Planning Docs
@@ -23,6 +25,8 @@ For new agent or human planning work, read in this order:
 - `starter_plan_and_data/post_mvp_roadmap.md`: current post-MVP roadmap and
   issue sequencing. Keep this as a compact map, not a place for detailed
   issue-level notes.
+- `starter_plan_and_data/README.md`: current-vs-historical seam for starter
+  planning inputs.
 - `docs/beta-1-real-backend-auth-validation-2026-06-20.md`: focused plan for
   issue #20, `Beta-1: Real Backend Auth Validation`.
 - `docs/beta-0-ui-surface-inventory-2026-06-20.md`: current Beta-0 UI surface
@@ -32,6 +36,7 @@ For new agent or human planning work, read in this order:
 
 ## Decision Records
 
+- `docs/adr/README.md`: ADR module boundary and index.
 - `docs/adr/0001-catalog-snapshot-for-mvp-1.md`: catalog snapshot approach for
   MVP-1.
 - `docs/adr/0002-file-first-mvp-with-deferred-persistence.md`: file-first MVP
