@@ -6,6 +6,7 @@ WORKDIR /usr/src/app
 
 FROM node:24-slim AS runtime
 WORKDIR /usr/src/app
+COPY --from=base /usr/local/bin/bun /usr/local/bin/bun
 
 FROM base AS install
 RUN mkdir -p /temp/dev/api /temp/dev/frontend

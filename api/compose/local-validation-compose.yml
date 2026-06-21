@@ -1,0 +1,17 @@
+services:
+  db:
+    volumes:
+      - local-validation-postgres-data:/var/lib/postgresql/data
+      - ../postgres/init:/docker-entrypoint-initdb.d:ro
+
+  redis:
+    volumes:
+      - ../redis:/usr/local/etc/redis:ro
+      - local-validation-redis-data:/data
+
+  pgadmin:
+    container_name: ${PGADMIN_HOST?PGADMIN_HOST}
+
+volumes:
+  local-validation-postgres-data:
+  local-validation-redis-data:

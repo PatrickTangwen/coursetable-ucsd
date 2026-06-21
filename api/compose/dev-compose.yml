@@ -1,7 +1,7 @@
 services:
   api:
     ports:
-      - 6499:6499 # For bun web debugger
+      - ${BUN_DEBUG_HOST_PORT:-6499}:6499 # For bun web debugger
     volumes:
       - ../static:/usr/src/app/api/static
       - ../src:/usr/src/app/api/src
@@ -22,7 +22,7 @@ services:
     container_name: ${GRAPHQL_ENGINE_HOST?GRAPHQL_ENGINE_HOST}
     image: hasura/graphql-engine:latest
     ports:
-      - 8085:8080
+      - ${HASURA_HOST_PORT:-8085}:8080
     depends_on:
       db:
         condition: service_healthy
@@ -61,7 +61,7 @@ services:
     container_name: ${DB_HOST?DB_HOST}
     image: postgres:13
     ports:
-      - 5432:5432
+      - ${POSTGRES_HOST_PORT:-5432}:5432
     environment:
       DB_USER: ${DB_USER?DB_USER}
       FERRY_DB_NAME: ${FERRY_DB_NAME?FERRY_DB_NAME}
@@ -87,9 +87,9 @@ services:
   # This container is only for dev! The prod container is at coursetable/infra/db
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin
+    container_name: ${PGADMIN_HOST:-pgadmin}
     ports:
-      - 8081:80
+      - ${PGADMIN_HOST_PORT:-8081}:80
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL?PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD?PGADMIN_PASSWORD}

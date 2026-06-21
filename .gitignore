@@ -12,6 +12,9 @@ api/postgres/data/*
 api/redis/data/*
 api/postgres/init/*ferry-dump.sql
 
+artifacts/real-backend-auth-validation/*
+!artifacts/real-backend-auth-validation/.gitkeep
+
 frontend/build
 frontend/dev-dist
 

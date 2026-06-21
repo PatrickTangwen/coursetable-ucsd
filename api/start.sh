@@ -80,11 +80,11 @@ then
 
     if [[ $FERRY_SEED == true ]]
     then
-        docker exec -it express /bin/bash -c "cd api && npm run db:push"
+        docker exec -it express /bin/bash -c "cd api && bun run db:push"
     fi
     if [[ $SEED_FRIENDS == true ]]
     then
-        docker exec -it express /bin/bash -c "cd api && npm run db:seed:friends"
+        docker exec -it express /bin/bash -c "cd api && bun run db:seed:friends"
     fi
 
     doppler run --command "docker compose -f compose/docker-compose.yml -f compose/dev-compose.yml -p api logs -f"
