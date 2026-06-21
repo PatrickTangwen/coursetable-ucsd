@@ -1,0 +1,242 @@
+import http from 'node:http';
+import express from 'express';
+import session from 'express-session';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
+import { createMemorySavedWorksheetStore } from './savedWorksheets.memory.js';
+import { registerSavedWorksheetRoutes } from './savedWorksheets.routes.js';
+import { createMemoryUcsdAuthStore } from '../auth/ucsdAuth.memory.js';
+import { registerUcsdAuthRoutes } from '../auth/ucsdAuth.routes.js';
+
+class TestClient {
+  #origin = '';
+  #cookie = '';
+
+  async start(app: express.Express) {
+    const server = http.createServer(app);
+    await new Promise<void>((resolve) => {
+      server.listen(0, resolve);
+    });
+    const address = server.address();
+    if (!address || typeof address === 'string')
+      throw new Error('No test server address');
+    this.#origin = `http://127.0.0.1:${address.port}`;
+    return server;
+  }
+
+  async request(path: string, init: RequestInit = {}) {
+    const headers = new Headers(init.headers);
+    if (this.#cookie) headers.set('cookie', this.#cookie);
+    if (init.body && !headers.has('content-type'))
+      headers.set('content-type', 'application/json');
+
+    const response = await fetch(`${this.#origin}${path}`, {
+      ...init,
+      headers,
+    });
+    const setCookie = response.headers.get('set-cookie');
+    if (setCookie) this.#cookie = setCookie.split(';')[0]!;
+    return response;
+  }
+}
+
+function createTestApp(now = () => 1_000_000) {
+  const app = express();
+  const authStore = createMemoryUcsdAuthStore();
+  const savedWorksheetStore = createMemorySavedWorksheetStore();
+
+  app.use(express.json());
+  app.use(
+    session({
+      secret: 'test-secret',
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: false,
+        sameSite: 'lax',
+      },
+    }),
+  );
+  registerUcsdAuthRoutes(app, {
+    store: authStore,
+    exposeVerificationCode: true,
+    codeGenerator: () => '123456',
+    now,
+  });
+  registerSavedWorksheetRoutes(app, savedWorksheetStore, now);
+
+  return { app, savedWorksheetStore };
+}
+
+async function signIn(client: TestClient, email: string) {
+  await client.request('/api/auth/ucsd/request-verification', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+  await client.request('/api/auth/ucsd/verify', {
+    method: 'POST',
+    body: JSON.stringify({ email, code: '123456' }),
+  });
+}
+
+describe('Saved Worksheet save API', () => {
+  let app = express();
+  let server = http.createServer();
+  let client = new TestClient();
+  let savedWorksheetStore = createMemorySavedWorksheetStore();
+
+  beforeEach(async () => {
+    const { app: nextApp, savedWorksheetStore: nextSavedWorksheetStore } =
+      createTestApp();
+    app = nextApp;
+    savedWorksheetStore = nextSavedWorksheetStore;
+    client = new TestClient();
+    server = await client.start(app);
+  });
+
+  afterEach(async () => {
+    await new Promise<void>((resolve, reject) => {
+      server.close((err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+  });
+
+  it('blocks saved worksheet APIs while anonymous', async () => {
+    const response = await client.request(
+      '/api/savedWorksheets/from-anonymous',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'FA26 Worksheet',
+          term: 'FA26',
+          courses: [],
+        }),
+      },
+    );
+
+    expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({ error: 'USER_NOT_FOUND' });
+    expect(savedWorksheetStore.recordsByUserId.size).toBe(0);
+  });
+
+  it('rejects invalid anonymous worksheet save bodies', async () => {
+    await signIn(client, 'student@ucsd.edu');
+
+    const response = await client.request(
+      '/api/savedWorksheets/from-anonymous',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          name: '',
+          term: 'FA26',
+          courses: [{ sectionId: 'FA26-123', color: '#55aaff' }],
+        }),
+      },
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: 'INVALID_REQUEST' });
+    expect(savedWorksheetStore.recordsByUserId.size).toBe(0);
+  });
+
+  it('does not save the anonymous worksheet automatically on sign-in', async () => {
+    await signIn(client, 'student@ucsd.edu');
+
+    const listResponse = await client.request('/api/savedWorksheets');
+
+    expect(listResponse.status).toBe(200);
+    expect(await listResponse.json()).toEqual({ data: [] });
+    expect(savedWorksheetStore.recordsByUserId.get(1) ?? []).toHaveLength(0);
+  });
+
+  it('saves the signed-in user anonymous worksheet with deduped section ids', async () => {
+    await signIn(client, 'student@ucsd.edu');
+
+    const response = await client.request(
+      '/api/savedWorksheets/from-anonymous',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'FA26 Worksheet',
+          term: 'FA26',
+          courses: [
+            { sectionId: 'FA26-123', color: '#55aaff', hidden: false },
+            { sectionId: 'FA26-123', color: '#000000', hidden: true },
+            { sectionId: 'FA26-456', color: '#ee6677', hidden: true },
+          ],
+        }),
+      },
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      id: 1,
+      name: 'FA26 Worksheet',
+      term: 'FA26',
+      createdAt: 1_000_000,
+      updatedAt: 1_000_000,
+      private: true,
+      sourceSectionCount: 3,
+      savedSectionCount: 2,
+      sections: [
+        { sectionId: 'FA26-123', color: '#55aaff', hidden: false },
+        { sectionId: 'FA26-456', color: '#ee6677', hidden: true },
+      ],
+    });
+    expect(savedWorksheetStore.recordsByUserId.get(1)).toHaveLength(1);
+  });
+
+  it('isolates saved worksheet list and detail reads by app user id', async () => {
+    await signIn(client, 'first@ucsd.edu');
+    const createResponse = await client.request(
+      '/api/savedWorksheets/from-anonymous',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'Private worksheet',
+          term: 'FA26',
+          courses: [{ sectionId: 'FA26-123', color: '#55aaff', hidden: false }],
+        }),
+      },
+    );
+    const created = (await createResponse.json()) as { id: number };
+
+    const secondClient = new TestClient();
+    const secondServer = await secondClient.start(app);
+    try {
+      await signIn(secondClient, 'second@ucsd.edu');
+
+      const secondList = await secondClient.request('/api/savedWorksheets');
+      expect(secondList.status).toBe(200);
+      expect(await secondList.json()).toEqual({ data: [] });
+
+      const secondDetail = await secondClient.request(
+        `/api/savedWorksheets/${created.id}`,
+      );
+      expect(secondDetail.status).toBe(404);
+      expect(await secondDetail.json()).toEqual({
+        error: 'SAVED_WORKSHEET_NOT_FOUND',
+      });
+    } finally {
+      await new Promise<void>((resolve, reject) => {
+        secondServer.close((err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+    }
+
+    const firstDetail = await client.request(
+      `/api/savedWorksheets/${created.id}`,
+    );
+    expect(firstDetail.status).toBe(200);
+    expect(await firstDetail.json()).toMatchObject({
+      id: created.id,
+      name: 'Private worksheet',
+      term: 'FA26',
+      sections: [{ sectionId: 'FA26-123', color: '#55aaff', hidden: false }],
+    });
+  });
+});

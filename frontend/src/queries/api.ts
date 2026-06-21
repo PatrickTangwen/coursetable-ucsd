@@ -1236,3 +1236,90 @@ export async function deleteSavedSearch(id: number) {
     },
   });
 }
+
+// Saved Worksheets API
+
+const savedWorksheetSectionSchema = z.object({
+  sectionId: z.string(),
+  color: z.string(),
+  hidden: z.boolean(),
+});
+
+const savedWorksheetSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  term: z.string(),
+  createdAt: z.number(),
+  updatedAt: z.number(),
+  private: z.boolean(),
+  sourceSectionCount: z.number(),
+  savedSectionCount: z.number(),
+  sections: z.array(savedWorksheetSectionSchema),
+});
+
+const savedWorksheetSummarySchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  term: z.string(),
+  createdAt: z.number(),
+  updatedAt: z.number(),
+  private: z.boolean(),
+  sectionCount: z.number(),
+});
+
+export type SavedWorksheet = z.infer<typeof savedWorksheetSchema>;
+export type SavedWorksheetSummary = z.infer<typeof savedWorksheetSummarySchema>;
+
+export type SaveAnonymousWorksheetInput = {
+  name: string;
+  term: Season;
+  courses: {
+    sectionId: string;
+    color: string;
+    hidden: boolean;
+  }[];
+};
+
+export async function createSavedWorksheetFromAnonymous(
+  body: SaveAnonymousWorksheetInput,
+) {
+  return await fetchAPI('/savedWorksheets/from-anonymous', {
+    body,
+    schema: savedWorksheetSchema,
+    breadcrumb: {
+      category: 'savedWorksheets',
+      message: 'Saving anonymous worksheet',
+    },
+  });
+}
+
+export async function fetchSavedWorksheets() {
+  return await fetchAPI(`/savedWorksheets?_=${Date.now()}`, {
+    schema: z.object({
+      data: z.array(savedWorksheetSummarySchema),
+    }),
+    breadcrumb: {
+      category: 'savedWorksheets',
+      message: 'Fetching saved worksheets',
+    },
+  });
+}
+
+export async function fetchSavedWorksheet(id: number) {
+  return await fetchAPI(`/savedWorksheets/${id}?_=${Date.now()}`, {
+    schema: savedWorksheetSchema,
+    breadcrumb: {
+      category: 'savedWorksheets',
+      message: 'Fetching saved worksheet',
+    },
+    handleErrorCode(err) {
+      switch (err) {
+        case 'SAVED_WORKSHEET_NOT_FOUND':
+          toast.error('Saved worksheet not found');
+          return true;
+        default:
+          return false;
+      }
+    },
+  });
+}

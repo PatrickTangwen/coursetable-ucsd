@@ -36,6 +36,8 @@ import winston from './logging/winston.js';
 import profile from './profile/profile.routes.js';
 import { createDatabaseSavedSearchStore } from './savedSearches/savedSearches.database.js';
 import savedSearches from './savedSearches/savedSearches.routes.js';
+import { createDatabaseSavedWorksheetStore } from './savedWorksheets/savedWorksheets.database.js';
+import savedWorksheets from './savedWorksheets/savedWorksheets.routes.js';
 import user from './user/user.routes.js';
 
 const app = express();
@@ -150,6 +152,7 @@ user(app);
 profile(app);
 linkPreview(app);
 savedSearches(app, createDatabaseSavedSearchStore());
+savedWorksheets(app, createDatabaseSavedWorksheetStore());
 
 app.get('/api/ping', (req, res) => {
   res.json('pong');

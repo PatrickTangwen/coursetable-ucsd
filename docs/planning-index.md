@@ -28,6 +28,9 @@ For new agent or human planning work, read in this order:
 - `docs/planning/README.md`: current-vs-historical seam for planning inputs.
 - `docs/beta-1-real-backend-auth-validation-2026-06-20.md`: focused plan for
   issue #20, `Beta-1: Real Backend Auth Validation`.
+- `docs/beta-1-save-anonymous-worksheet-to-account-2026-06-21.md`: focused plan
+  for the next post-auth product slice and the recommended follow-up beta
+  sequence.
 - `docs/beta-0-ui-surface-inventory-2026-06-20.md`: current Beta-0 UI surface
   inventory.
 - `docs/mvp-1-non-ui-acceptance-2026-06-20.md`: MVP-1 non-UI acceptance record.

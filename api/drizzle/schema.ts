@@ -235,3 +235,47 @@ export const savedSearches = pgTable(
     ).on(table.userId, table.name),
   }),
 );
+
+export const savedWorksheets = pgTable(
+  'savedWorksheets',
+  {
+    id: serial('id').primaryKey().notNull(),
+    userId: integer('userId')
+      .notNull()
+      .references(() => appUsers.id),
+    name: varchar('name', { length: 64 }).notNull(),
+    term: varchar('term', { length: 32 }).notNull(),
+    private: boolean('private').notNull().default(true),
+    createdAt: bigint('createdAt', { mode: 'number' }).notNull(),
+    updatedAt: bigint('updatedAt', { mode: 'number' }).notNull(),
+  },
+  (table) => ({
+    savedWorksheetsUserIdIdx: index('saved_worksheets_user_id_idx').on(
+      table.userId,
+    ),
+    savedWorksheetsUserCreatedIdx: index(
+      'saved_worksheets_user_created_idx',
+    ).on(table.userId, table.createdAt),
+  }),
+);
+
+export const savedWorksheetSections = pgTable(
+  'savedWorksheetSections',
+  {
+    id: serial('id').primaryKey().notNull(),
+    worksheetId: integer('worksheetId')
+      .notNull()
+      .references(() => savedWorksheets.id),
+    sectionId: varchar('sectionId', { length: 128 }).notNull(),
+    color: varchar('color', { length: 32 }).notNull(),
+    hidden: boolean('hidden').notNull(),
+  },
+  (table) => ({
+    savedWorksheetSectionsWorksheetIdIdx: index(
+      'saved_worksheet_sections_worksheet_id_idx',
+    ).on(table.worksheetId),
+    savedWorksheetSectionsUniqueIdx: uniqueIndex(
+      'saved_worksheet_sections_unique_idx',
+    ).on(table.worksheetId, table.sectionId),
+  }),
+);

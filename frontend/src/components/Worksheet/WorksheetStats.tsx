@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { Button, Collapse, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import chroma from 'chroma-js';
 import { useShallow } from 'zustand/react/shallow';
+import SavedWorksheetSavePanel from './SavedWorksheetSavePanel';
 import { useStore } from '../../store';
 import {
   getWorksheetConflicts,
@@ -152,6 +153,7 @@ export default function WorksheetStats() {
                       : ''}
                   </div>
                 )}
+                <SavedWorksheetSavePanel />
               </div>
             )}
             <dl>
