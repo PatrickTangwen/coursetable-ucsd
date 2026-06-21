@@ -1,6 +1,6 @@
 # Post-MVP Roadmap
 
-最后更新：2026-06-19
+最后更新：2026-06-20
 
 本文定义 MVP-1 完成后的详细后续工作。它不是 MVP-1 的验收范围。MVP-1 的当前执行规格见 `starter_plan_and_data/mvp1_spec.md`。
 
@@ -685,28 +685,18 @@ Beta-1 Auth Foundation acceptance:
 
 `Beta-1: Real Backend Auth Validation` should be treated as the validation and
 runbook slice after `Auth Foundation And UCSD User Identity`, not as a new PRD
-or a Saved Worksheet product feature.
+or a Saved Worksheet product feature. Detailed scope, pass/fail criteria,
+artifact strategy, and non-goals live in
+`docs/beta-1-real-backend-auth-validation-2026-06-20.md`.
 
-Scope:
+This roadmap intentionally keeps only the ordering and product-scope summary:
 
-- Validate the auth path against local Docker Compose backend services:
-  Postgres, Redis-backed sessions, API routes, and frontend login.
-- Use a dev/test verification-code seam; do not connect a real email provider.
-- Verify Saved Search ownership by internal `user_id`.
-- Require a repeatable auth/API verification script plus a human-readable
-  runbook.
-- Allow `db:push` only for the disposable local Docker Postgres database.
-- Require a versioned migration workflow before any shared, staging, or
-  production database rollout.
-
-Worksheet boundary:
-
-- A signed-in UCSD email session should continue using the existing Anonymous
-  Worksheet behavior during this validation slice.
-- The validation should catch accidental worksheet writes to the App DB.
-- Logging in should not automatically save or sync the Anonymous Worksheet.
-- Saving worksheet state to an account should be a later explicit product
-  action.
+- Run #20 after #14.
+- Validate the full local CourseTable Compose backend path before hosted
+  staging/production and before real email delivery.
+- Keep Saved Worksheet persistence out of #20.
+- Continue to require an explicit later action to save an Anonymous Worksheet
+  into an account.
 
 Follow-up product slices:
 

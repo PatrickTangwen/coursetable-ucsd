@@ -13,7 +13,7 @@ The first post-MVP implementation slice, focused on removing inherited CourseTab
 _Avoid_: Auth beta, persistence beta, full redesign
 
 **Beta-1 Real Backend Auth Validation**:
-The post-Auth Foundation validation slice that proves UCSD User Identity and App DB ownership against the app's real local backend services before production-like email delivery.
+The post-Auth Foundation validation slice that proves UCSD User Identity and App DB ownership against the full local CourseTable Compose backend stack before production-like email delivery.
 _Avoid_: Email delivery beta, hosted staging rollout, new product capability
 
 **Beta-1 Save Anonymous Worksheet To Account**:
