@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { Button, Collapse, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import chroma from 'chroma-js';
 import { useShallow } from 'zustand/react/shallow';
+import SavedWorksheetRestorePanel from './SavedWorksheetRestorePanel';
 import SavedWorksheetSavePanel from './SavedWorksheetSavePanel';
 import { useStore } from '../../store';
 import {
@@ -46,6 +47,7 @@ const creditColormap = chroma
 
 export default function WorksheetStats() {
   const [shown, setShown] = useState(true);
+  const [savedWorksheetRefreshKey, setSavedWorksheetRefreshKey] = useState(0);
   const {
     courses,
     isExoticWorksheet,
@@ -153,7 +155,12 @@ export default function WorksheetStats() {
                       : ''}
                   </div>
                 )}
-                <SavedWorksheetSavePanel />
+                <SavedWorksheetSavePanel
+                  onSaved={() => setSavedWorksheetRefreshKey((key) => key + 1)}
+                />
+                <SavedWorksheetRestorePanel
+                  refreshKey={savedWorksheetRefreshKey}
+                />
               </div>
             )}
             <dl>

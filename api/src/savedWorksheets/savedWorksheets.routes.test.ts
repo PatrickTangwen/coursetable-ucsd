@@ -103,7 +103,7 @@ describe('Saved Worksheet save API', () => {
     });
   });
 
-  it('blocks saved worksheet APIs while anonymous', async () => {
+  it('blocks saved worksheet write APIs while anonymous', async () => {
     const response = await client.request(
       '/api/savedWorksheets/from-anonymous',
       {
@@ -119,6 +119,16 @@ describe('Saved Worksheet save API', () => {
     expect(response.status).toBe(401);
     expect(await response.json()).toEqual({ error: 'USER_NOT_FOUND' });
     expect(savedWorksheetStore.recordsByUserId.size).toBe(0);
+  });
+
+  it('blocks saved worksheet restore APIs while anonymous', async () => {
+    const listResponse = await client.request('/api/savedWorksheets');
+    const detailResponse = await client.request('/api/savedWorksheets/1');
+
+    expect(listResponse.status).toBe(401);
+    expect(await listResponse.json()).toEqual({ error: 'USER_NOT_FOUND' });
+    expect(detailResponse.status).toBe(401);
+    expect(await detailResponse.json()).toEqual({ error: 'USER_NOT_FOUND' });
   });
 
   it('rejects invalid anonymous worksheet save bodies', async () => {

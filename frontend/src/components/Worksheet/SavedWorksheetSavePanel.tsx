@@ -23,7 +23,11 @@ import {
 import { Input } from '../Typography';
 import styles from './SavedWorksheetSavePanel.module.css';
 
-export default function SavedWorksheetSavePanel() {
+export default function SavedWorksheetSavePanel({
+  onSaved,
+}: {
+  readonly onSaved?: () => void;
+}) {
   const { authStatus, anonymousWorksheet } = useStore(
     useShallow((state) => ({
       authStatus: state.authStatus,
@@ -65,6 +69,7 @@ export default function SavedWorksheetSavePanel() {
       );
       if (result) {
         setSavedWorksheet(result);
+        onSaved?.();
         toast.success('Worksheet saved');
       }
     } catch (err: unknown) {
@@ -81,7 +86,7 @@ export default function SavedWorksheetSavePanel() {
     return (
       <div className={styles.signInRequired}>
         <span>Sign in required.</span>
-        <a href="/login">Sign in to save worksheet</a>
+        <a href="/login">Sign in to save or restore worksheets</a>
       </div>
     );
   }

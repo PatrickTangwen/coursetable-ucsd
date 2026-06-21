@@ -35,6 +35,10 @@ import {
   type AnonymousWorksheetState,
 } from '../utilities/anonymousWorksheet';
 import { worksheetColors } from '../utilities/constants';
+import {
+  buildRestoredAnonymousWorksheet,
+  type SavedWorksheetRestoreSource,
+} from '../utilities/savedWorksheet';
 
 // Utility Types
 export type WorksheetView = 'calendar' | 'list' | 'map';
@@ -105,6 +109,7 @@ interface WorksheetActions {
 
   exitExoticWorksheet: () => void;
   restoreAnonymousWorksheetFromShare: (share: AnonymousWorksheetShare) => void;
+  restoreSavedWorksheet: (worksheet: SavedWorksheetRestoreSource) => void;
   addAnonymousWorksheetListing: (
     listing: AnonymousWorksheetListing,
     color: string,
@@ -244,6 +249,22 @@ export const createWorksheetSlice: StateCreator<
         ),
       );
       set({ viewAnonymousWorksheet: true });
+    },
+    restoreSavedWorksheet(worksheet) {
+      setAnonymousWorksheet(buildRestoredAnonymousWorksheet(worksheet));
+      set({ viewAnonymousWorksheet: true, exoticWorksheet: undefined });
+      if (typeof window !== 'undefined') {
+        const searchParams = new URLSearchParams(window.location.search);
+        searchParams.delete('ws');
+        searchParams.delete('t');
+        searchParams.delete('sections');
+        const nextSearch = searchParams.toString();
+        window.history.replaceState(
+          {},
+          '',
+          `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}`,
+        );
+      }
     },
     addAnonymousWorksheetListing(listing, color) {
       const current = get().anonymousWorksheet;
@@ -417,7 +438,7 @@ export const useWorksheetEffects = () => {
     ) {
       lastWarnedAnonymousMissingKey.current = anonymousMissingKey;
       toast.warning(
-        `Some shared worksheet sections are no longer in this snapshot: ${anonymousResolved.missingSectionIds.join(', ')}`,
+        `Some worksheet sections are no longer in this snapshot: ${anonymousResolved.missingSectionIds.join(', ')}`,
       );
     }
   }, [

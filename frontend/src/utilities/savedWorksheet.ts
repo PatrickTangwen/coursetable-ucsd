@@ -1,4 +1,7 @@
-import type { AnonymousWorksheetState } from './anonymousWorksheet';
+import {
+  normalizeAnonymousWorksheet,
+  type AnonymousWorksheetState,
+} from './anonymousWorksheet';
 import type { Season } from '../queries/graphql-types';
 
 export type SavedWorksheetAuthStatus =
@@ -17,6 +20,10 @@ export function canSaveAnonymousWorksheet(
   return authStatus === 'authenticated';
 }
 
+export function canRestoreSavedWorksheet(authStatus: SavedWorksheetAuthStatus) {
+  return authStatus === 'authenticated';
+}
+
 export function buildSaveAnonymousWorksheetPayload(
   name: string,
   worksheet: AnonymousWorksheetState,
@@ -30,4 +37,37 @@ export function buildSaveAnonymousWorksheetPayload(
       hidden: course.hidden,
     })),
   };
+}
+
+export type SavedWorksheetRestoreSource = {
+  id?: number;
+  name?: string;
+  term: string;
+  createdAt?: number;
+  updatedAt?: number;
+  private?: boolean;
+  sourceSectionCount?: number;
+  savedSectionCount?: number;
+  sections: {
+    sectionId: string;
+    color: string;
+    hidden: boolean;
+  }[];
+};
+
+export function buildRestoredAnonymousWorksheet(
+  worksheet: SavedWorksheetRestoreSource,
+): AnonymousWorksheetState {
+  const term = worksheet.term as Season;
+  return normalizeAnonymousWorksheet(
+    {
+      term,
+      courses: worksheet.sections.map((section) => ({
+        sectionId: section.sectionId,
+        color: section.color,
+        hidden: section.hidden,
+      })),
+    },
+    term,
+  );
 }
