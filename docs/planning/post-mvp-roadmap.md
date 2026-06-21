@@ -2,7 +2,7 @@
 
 最后更新：2026-06-20
 
-本文定义 MVP-1 完成后的详细后续工作。它不是 MVP-1 的验收范围。MVP-1 的当前执行规格见 `starter_plan_and_data/mvp1_spec.md`。
+本文定义 MVP-1 完成后的详细后续工作。它不是 MVP-1 的验收范围。MVP-1 的当前执行规格见 `docs/planning/mvp-1-spec.md`。
 
 ## 1. Guiding Principles
 

@@ -13,20 +13,19 @@ For new agent or human planning work, read in this order:
 1. `CONTEXT.md` for domain vocabulary and stable product terms.
 2. `docs/adr/README.md` for the decision-record boundary, then the ADRs that
    touch the area being changed.
-3. `starter_plan_and_data/README.md` for current-vs-historical planning inputs.
-4. `starter_plan_and_data/post_mvp_roadmap.md` for current roadmap order and
-   scope sequencing.
+3. `docs/planning/README.md` for current-vs-historical planning inputs.
+4. `docs/planning/post-mvp-roadmap.md` for current roadmap order and scope
+   sequencing.
 5. GitHub issues for executable implementation slices.
 6. Focused validation or acceptance docs under `docs/` when an issue points to
    them.
 
 ## Active Planning Docs
 
-- `starter_plan_and_data/post_mvp_roadmap.md`: current post-MVP roadmap and
-  issue sequencing. Keep this as a compact map, not a place for detailed
-  issue-level notes.
-- `starter_plan_and_data/README.md`: current-vs-historical seam for starter
-  planning inputs.
+- `docs/planning/post-mvp-roadmap.md`: current post-MVP roadmap and issue
+  sequencing. Keep this as a compact map, not a place for detailed issue-level
+  notes.
+- `docs/planning/README.md`: current-vs-historical seam for planning inputs.
 - `docs/beta-1-real-backend-auth-validation-2026-06-20.md`: focused plan for
   issue #20, `Beta-1: Real Backend Auth Validation`.
 - `docs/beta-0-ui-surface-inventory-2026-06-20.md`: current Beta-0 UI surface
@@ -58,8 +57,8 @@ For new agent or human planning work, read in this order:
 
 ## Stable Reference Docs
 
-- `starter_plan_and_data/mvp1_prd.md`: MVP-1 product requirements.
-- `starter_plan_and_data/mvp1_spec.md`: MVP-1 implementation specification.
+- `docs/planning/mvp-1-prd.md`: MVP-1 product requirements.
+- `docs/planning/mvp-1-spec.md`: MVP-1 implementation specification.
 - `docs/api.md`: API reference.
 - `docs/graphql.md`: GraphQL reference.
 - `docs/containers.md`: container setup and usage.
@@ -71,17 +70,18 @@ For new agent or human planning work, read in this order:
 
 ## Historical Planning Inputs
 
-- `starter_plan_and_data/ucsd_coursetable_plan.md`: earlier UCSD CourseTable
+- `docs/planning/archive/ucsd-coursetable-plan.md`: earlier UCSD CourseTable
   adaptation plan.
-- `starter_plan_and_data/interview_notes_static_catalog_vs_graphql.md`: earlier
+- `docs/planning/archive/interview-notes-static-catalog-vs-graphql.md`: earlier
   planning notes on static catalog versus GraphQL direction.
-- `starter_plan_and_data/sheet.csv` and `starter_plan_and_data/sheet_gid0.csv`:
+- `docs/planning/source-data/sheet.csv` and
+  `docs/planning/source-data/sheet_gid0.csv`:
   source planning/data sheets.
 
 ## How To Add Planning Notes
 
-- Keep `starter_plan_and_data/post_mvp_roadmap.md` focused on roadmap order,
-  scope boundaries, and links.
+- Keep `docs/planning/post-mvp-roadmap.md` focused on roadmap order, scope
+  boundaries, and links.
 - Put issue-sized validation plans, acceptance records, and runbooks in focused
   dated docs under `docs/`.
 - Keep ADRs short: decision, context, trade-off, and pointers to detailed docs.

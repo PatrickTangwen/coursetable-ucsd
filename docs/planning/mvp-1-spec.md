@@ -2,7 +2,7 @@
 
 最后更新：2026-06-19
 
-本文是 UCSD Course Planning Platform 的 MVP-1 当前执行规格。若本文与 `ucsd_coursetable_plan.md` 早期章节冲突，以本文和 `ucsd_coursetable_plan.md` Section 13 为准。
+本文是 UCSD Course Planning Platform 的 MVP-1 当前执行规格。若本文与 `docs/planning/archive/ucsd-coursetable-plan.md` 早期章节冲突，以本文和 `docs/planning/archive/ucsd-coursetable-plan.md` Section 13 为准。
 
 ## 1. MVP-1 Goal
 
