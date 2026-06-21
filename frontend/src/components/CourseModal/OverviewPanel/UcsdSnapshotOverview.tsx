@@ -29,6 +29,14 @@ function formatPercent(value: number | null): string {
   return value === null ? 'N/A' : `${value.toFixed(1)}%`;
 }
 
+function sortArchiveRecordsByYearDescending(
+  records: UcsdCourseArchive['grade_archive_records'],
+) {
+  return [...records].sort((a, b) =>
+    b.year.localeCompare(a.year, 'en-US', { numeric: true }),
+  );
+}
+
 function professorText(course: RuntimeCourse): string {
   const names = course.course_professors
     .map(({ professor }) => professor.name)
@@ -90,6 +98,10 @@ function GradeArchiveRecords({
 }: {
   readonly archive: UcsdCourseArchive | null;
 }) {
+  const gradeArchiveRecords = archive
+    ? sortArchiveRecordsByYearDescending(archive.grade_archive_records)
+    : [];
+
   return (
     <>
       <h3 className={styles.sectionTitle}>Grade Archive Records</h3>
@@ -134,7 +146,7 @@ function GradeArchiveRecords({
               </tr>
             </thead>
             <tbody>
-              {archive.grade_archive_records.map((record, index) => (
+              {gradeArchiveRecords.map((record, index) => (
                 <tr
                   key={`${record.subject}-${record.course}-${record.year}-${record.quarter}-${record.instructor ?? 'TBA'}-${index}`}
                 >

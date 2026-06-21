@@ -72,6 +72,30 @@ const archiveWithRecord: UcsdCourseArchive = {
   ],
 };
 
+function gradeArchiveRecord(
+  year: string,
+  instructor: string,
+): UcsdCourseArchive['grade_archive_records'][number] {
+  return {
+    subject: 'CSE',
+    course: '1',
+    year,
+    quarter: 'FA',
+    title: 'Tracer Course',
+    instructor,
+    gpa: 3.42,
+    a: 48.1,
+    b: 32.2,
+    c: 12.3,
+    d: 2.4,
+    f: 1,
+    w: 3,
+    p: 0.8,
+    np: 0.2,
+    raw: {},
+  };
+}
+
 describe('UcsdSnapshotOverview', () => {
   it('shows UCSD archive records and supported snapshot metadata', () => {
     const html = renderToStaticMarkup(
@@ -83,6 +107,30 @@ describe('UcsdSnapshotOverview', () => {
     expect(html).toContain('Record Count');
     expect(html).toContain('Grade Archive Records');
     expect(html).toContain('Ada Lovelace');
+  });
+
+  it('orders Grade Archive Records by descending year', () => {
+    const html = renderToStaticMarkup(
+      <UcsdSnapshotOverview
+        archive={{
+          ...archiveWithRecord,
+          archive_record_count: 3,
+          grade_archive_records: [
+            gradeArchiveRecord('2024', 'Earlier Instructor'),
+            gradeArchiveRecord('2026', 'Latest Instructor'),
+            gradeArchiveRecord('2025', 'Middle Instructor'),
+          ],
+        }}
+        listing={listing()}
+      />,
+    );
+
+    expect(html.indexOf('Latest Instructor')).toBeLessThan(
+      html.indexOf('Middle Instructor'),
+    );
+    expect(html.indexOf('Middle Instructor')).toBeLessThan(
+      html.indexOf('Earlier Instructor'),
+    );
   });
 
   it('shows a UCSD-specific missing archive state without inherited wording', () => {
