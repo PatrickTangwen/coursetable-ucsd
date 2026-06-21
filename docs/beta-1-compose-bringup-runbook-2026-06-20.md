@@ -79,6 +79,81 @@ Expected results:
 - Hasura health returns `OK`.
 - pgAdmin serves an HTTP login response.
 
+## Host-Side Auth/API Validation
+
+Issue #22 adds the repeatable host-side validation script. Run it only after the
+stack is up and the App DB schema has been applied:
+
+```bash
+api/compose/local-validation-up.sh
+api/compose/local-validation-schema.sh
+bun run validate:real-backend-auth
+```
+
+If the API host port was overridden during startup, pass the matching exposed
+host origin:
+
+```bash
+API_PORT=3010 api/compose/local-validation-up.sh
+API_PORT=3010 api/compose/local-validation-schema.sh
+bun run validate:real-backend-auth --api-origin https://localhost:3010
+```
+
+The script drives the API from the host through the exposed API port. It uses
+the development-only `devCode` response field from
+`/api/auth/ucsd/request-verification`; it does not recover verification codes
+from database hashes, logs, or inboxes.
+
+The script validates:
+
+- UCSD verification request and completion.
+- `current-user` session restore.
+- Saved Search create, read, delete, and ownership by internal `user_id`.
+- Logout and anonymous `current-user` behavior.
+- Postgres auth/Saved Search tables, indexes, user row, consumed verification
+  row, Saved Search ownership, and worksheet row boundary.
+- Redis session key presence after verification and removal after logout.
+- Production-like verification-code exposure safety.
+
+## Evidence Artifacts
+
+By default, each run writes non-sensitive evidence under:
+
+```bash
+artifacts/real-backend-auth-validation/<run-id>/
+```
+
+Expected files include:
+
+- `summary.md`: human-readable pass/fail evidence.
+- `summary.json`: structured non-sensitive evidence.
+- `http-evidence.json`: HTTP status evidence without cookies or verification
+  code values.
+- `postgres-evidence.json`: schema and row evidence without code hashes.
+- `redis-evidence.json`: session existence evidence with only a short
+  fingerprint, not the full Redis key.
+- `compose-ps.txt`: Compose service status at script start.
+
+These artifacts remain gitignored. Issue or PR updates should summarize only
+the non-sensitive evidence needed for review.
+
+## Auth Validation Cleanup
+
+Successful runs delete cleanup-eligible mutable test data, including the
+verification-code row for the generated test email and any residual Saved
+Search row for the generated test name. The generated App User row may remain
+in a disposable fresh database as evidence of the user-creation path.
+
+Use `--keep-data` to retain successful-run cleanup-eligible rows for manual
+inspection:
+
+```bash
+bun run validate:real-backend-auth --keep-data
+```
+
+Failed runs do not run cleanup. They preserve database and Redis state for
+inspection and write `failure.json` to the run artifact directory.
+
 ## Cleanup
 
 Stop services without deleting volumes:

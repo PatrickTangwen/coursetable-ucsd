@@ -3,6 +3,7 @@ import express from 'express';
 import session from 'express-session';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { shouldExposeVerificationCode } from './ucsdAuth.exposure.js';
 import { createMemoryUcsdAuthStore } from './ucsdAuth.memory.js';
 import { registerUcsdAuthRoutes } from './ucsdAuth.routes.js';
 import {
@@ -84,6 +85,11 @@ describe('UCSD auth identity', () => {
   it('keeps legacy netId adapters derived from user_id, not email local-part', () => {
     expect(appUserIdToLegacyNetId(1)).toBe('u0000001');
     expect(appUserIdToLegacyNetId(35)).toBe('u000000z');
+  });
+
+  it('does not expose development verification codes for production env', () => {
+    expect(shouldExposeVerificationCode('development')).toBe(true);
+    expect(shouldExposeVerificationCode('production')).toBe(false);
   });
 });
 

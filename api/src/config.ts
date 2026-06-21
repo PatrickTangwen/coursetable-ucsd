@@ -2,6 +2,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import { GraphQLClient } from 'graphql-request';
 import postgres from 'postgres';
 import { createClient } from 'redis';
+import { shouldExposeVerificationCode } from './auth/ucsdAuth.exposure.js';
 import * as schema from '../drizzle/schema.js';
 
 function getEnv(name: string, type?: 'string'): string;
@@ -60,7 +61,7 @@ export const graphqlClient = new GraphQLClient(GRAPHQL_ENDPOINT, {
 });
 
 const NODE_ENV = getEnv('NODE_ENV', ['development', 'production']);
-export const isDev = NODE_ENV !== 'production';
+export const isDev = shouldExposeVerificationCode(NODE_ENV);
 
 export const OVERWRITE_CATALOG = getEnv('OVERWRITE_CATALOG', 'boolean');
 export const redisClient = createClient({
