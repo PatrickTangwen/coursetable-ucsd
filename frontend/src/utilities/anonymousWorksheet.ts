@@ -2,7 +2,7 @@ import type { CatalogListing, UserWorksheets } from '../queries/api';
 import type { Crn, Season } from '../queries/graphql-types';
 
 export const ANONYMOUS_WORKSHEET_STORAGE_KEY = 'anonymousWorksheet';
-export const ANONYMOUS_WORKSHEET_NAME = 'Anonymous Worksheet';
+export const ANONYMOUS_WORKSHEET_NAME = 'Main Worksheet';
 
 export type AnonymousWorksheetCourse = {
   sectionId: string;

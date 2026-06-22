@@ -214,8 +214,8 @@ function WorksheetCalendarList({
       setClearModalOpen(false);
       toast.success(
         courseCount === 1
-          ? 'Removed class from anonymous worksheet'
-          : `Removed all ${courseCount} classes from anonymous worksheet`,
+          ? 'Removed class from worksheet'
+          : `Removed all ${courseCount} classes from worksheet`,
       );
       return;
     }

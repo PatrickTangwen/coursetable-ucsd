@@ -59,7 +59,7 @@ export default function URLExportButton() {
           window.location.origin,
           toAnonymousWorksheetShare(viewedSeason, sectionIds),
         ),
-        'Anonymous worksheet URL copied to clipboard!',
+        'Worksheet URL copied to clipboard!',
       );
       return;
     }

@@ -68,8 +68,8 @@ function Landing() {
           <p className={styles.eyebrow}>UCSD account beta</p>
           <h1>Sign in with UCSD email</h1>
           <p>
-            Catalog search and Anonymous Worksheet still work without an
-            account. Saved Searches use a verified UCSD email.
+            Catalog search and Worksheet still work without an account. Saved
+            Searches use a verified UCSD email.
           </p>
         </div>
 

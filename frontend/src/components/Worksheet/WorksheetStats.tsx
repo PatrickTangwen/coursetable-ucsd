@@ -3,8 +3,6 @@ import clsx from 'clsx';
 import { Button, Collapse, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import chroma from 'chroma-js';
 import { useShallow } from 'zustand/react/shallow';
-import SavedWorksheetRestorePanel from './SavedWorksheetRestorePanel';
-import SavedWorksheetSavePanel from './SavedWorksheetSavePanel';
 import type {
   ExoticWorksheet,
   WorksheetCourse,
@@ -111,7 +109,6 @@ export function WorksheetStatsView({
   readonly isMobile: boolean;
 }) {
   const [shown, setShown] = useState(true);
-  const [savedWorksheetRefreshKey, setSavedWorksheetRefreshKey] = useState(0);
   const countedCourseCodes = new Set();
   let courseCnt = 0;
   let credits = 0;
@@ -170,34 +167,29 @@ export function WorksheetStatsView({
                 )}
               </div>
             )}
-            {isAnonymousWorksheet && (
-              <div className={styles.worksheetInfo}>
-                <div className={styles.worksheetName}>Anonymous Worksheet</div>
-                {worksheetMissingSectionIds.length > 0 && (
-                  <div className={styles.creatorName}>
-                    {worksheetMissingSectionIds.length} shared section
-                    {worksheetMissingSectionIds.length === 1 ? '' : 's'} no
-                    longer available in this snapshot.
-                  </div>
-                )}
-                {anonymousConflictSummaries.length > 0 && (
-                  <div className={styles.creatorName}>
-                    {anonymousConflictSummaries.length} schedule conflict
-                    {anonymousConflictSummaries.length === 1 ? '' : 's'}:{' '}
-                    {anonymousConflictSummaries.slice(0, 3).join('; ')}
-                    {anonymousConflictSummaries.length > 3
-                      ? `; +${anonymousConflictSummaries.length - 3} more`
-                      : ''}
-                  </div>
-                )}
-                <SavedWorksheetSavePanel
-                  onSaved={() => setSavedWorksheetRefreshKey((key) => key + 1)}
-                />
-                <SavedWorksheetRestorePanel
-                  refreshKey={savedWorksheetRefreshKey}
-                />
-              </div>
-            )}
+            {isAnonymousWorksheet &&
+              (worksheetMissingSectionIds.length > 0 ||
+                anonymousConflictSummaries.length > 0) && (
+                <div className={styles.worksheetInfo}>
+                  {worksheetMissingSectionIds.length > 0 && (
+                    <div className={styles.creatorName}>
+                      {worksheetMissingSectionIds.length} shared section
+                      {worksheetMissingSectionIds.length === 1 ? '' : 's'} no
+                      longer available in this snapshot.
+                    </div>
+                  )}
+                  {anonymousConflictSummaries.length > 0 && (
+                    <div className={styles.creatorName}>
+                      {anonymousConflictSummaries.length} schedule conflict
+                      {anonymousConflictSummaries.length === 1 ? '' : 's'}:{' '}
+                      {anonymousConflictSummaries.slice(0, 3).join('; ')}
+                      {anonymousConflictSummaries.length > 3
+                        ? `; +${anonymousConflictSummaries.length - 3} more`
+                        : ''}
+                    </div>
+                  )}
+                </div>
+              )}
             {!isAnonymousWorksheet && worksheetMissingSectionIds.length > 0 && (
               <div className={styles.worksheetInfo}>
                 <div className={styles.creatorName}>

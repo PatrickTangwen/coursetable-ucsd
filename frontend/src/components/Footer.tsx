@@ -13,7 +13,7 @@ const links = [
     section: 'Explore',
     items: [
       { name: 'Catalog', to: createCatalogLink() },
-      { name: 'Anonymous Worksheet', to: '/worksheet' },
+      { name: 'Worksheet', to: '/worksheet' },
     ],
   },
 ];

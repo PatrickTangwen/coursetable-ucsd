@@ -8,7 +8,6 @@ import type { Season } from '../queries/graphql-types';
 
 const apiMocks = vi.hoisted(() => ({
   createBlankSavedWorksheet: vi.fn(),
-  createSavedWorksheetFromAnonymous: vi.fn(),
   deleteSavedWorksheet: vi.fn(),
   ensureMainSavedWorksheet: vi.fn(),
   fetchSavedWorksheet: vi.fn(),
@@ -22,8 +21,6 @@ vi.mock('../queries/api', async (importOriginal) => {
   return {
     ...actual,
     createBlankSavedWorksheet: apiMocks.createBlankSavedWorksheet,
-    createSavedWorksheetFromAnonymous:
-      apiMocks.createSavedWorksheetFromAnonymous,
     deleteSavedWorksheet: apiMocks.deleteSavedWorksheet,
     ensureMainSavedWorksheet: apiMocks.ensureMainSavedWorksheet,
     fetchSavedWorksheet: apiMocks.fetchSavedWorksheet,
@@ -71,19 +68,6 @@ const summerPlan: SavedWorksheet = {
   sourceSectionCount: 0,
   savedSectionCount: 0,
   sections: [],
-};
-
-const importedLocalPlan: SavedWorksheet = {
-  id: 12,
-  name: 'Imported Local Worksheet',
-  term: s126,
-  createdAt: 3,
-  updatedAt: 3,
-  private: true,
-  isMain: false,
-  sourceSectionCount: 1,
-  savedSectionCount: 1,
-  sections: [{ sectionId: 'S126-123', color: '#123456', hidden: false }],
 };
 
 function createStorage() {
@@ -232,7 +216,7 @@ describe('Saved Worksheet slice behavior', () => {
     expect(useStore.getState().activeSavedWorksheetIdsByTerm[s126]).toBe(10);
   });
 
-  it('opens Main Worksheet after sign-in even when the browser has Local Worksheet content', async () => {
+  it('opens the account Main Worksheet after sign-in without prompting to save browser-local content', async () => {
     const useStore = await loadStore();
     useStore.setState({
       anonymousWorksheet: {
@@ -247,7 +231,6 @@ describe('Saved Worksheet slice behavior', () => {
 
     await useStore.getState().ensureMainSavedWorksheetForTerm(s126);
 
-    expect(apiMocks.createSavedWorksheetFromAnonymous).not.toHaveBeenCalled();
     expect(useStore.getState().activeSavedWorksheet?.id).toBe(10);
     expect(useStore.getState().viewAnonymousWorksheet).toBe(false);
     expect(useStore.getState().anonymousWorksheet.courses).toEqual([
@@ -386,43 +369,6 @@ describe('Saved Worksheet slice behavior', () => {
         term: 'S126',
         courses: [{ sectionId: 'S126-123', color: '#123456', hidden: false }],
       }),
-    );
-  });
-
-  it('saves the Local Worksheet to a new active Saved Worksheet without clearing local storage', async () => {
-    const useStore = await loadStore();
-    const localWorksheet = {
-      term: s126,
-      courses: [{ sectionId: 'S126-123', color: '#123456', hidden: false }],
-    };
-    localStorage.setItem('anonymousWorksheet', JSON.stringify(localWorksheet));
-    useStore.setState({
-      activeSavedWorksheet: mainWorksheet,
-      activeSavedWorksheetOwnerId: testUser.user_id,
-      activeSavedWorksheetIdsByTerm: { [s126]: mainWorksheet.id },
-      savedWorksheetSummaries: [toSummary(mainWorksheet)],
-      anonymousWorksheet: localWorksheet,
-    });
-    apiMocks.createSavedWorksheetFromAnonymous.mockResolvedValue(
-      importedLocalPlan,
-    );
-
-    const saved = await useStore
-      .getState()
-      .saveAnonymousWorksheetToAccount('Imported Local Worksheet');
-
-    expect(saved?.id).toBe(12);
-    expect(apiMocks.createBlankSavedWorksheet).not.toHaveBeenCalled();
-    expect(apiMocks.createSavedWorksheetFromAnonymous).toHaveBeenCalledWith({
-      name: 'Imported Local Worksheet',
-      term: 'S126',
-      courses: [{ sectionId: 'S126-123', color: '#123456', hidden: false }],
-    });
-    expect(useStore.getState().activeSavedWorksheet?.id).toBe(12);
-    expect(useStore.getState().activeSavedWorksheetIdsByTerm[s126]).toBe(12);
-    expect(useStore.getState().anonymousWorksheet).toEqual(localWorksheet);
-    expect(localStorage.getItem('anonymousWorksheet')).toBe(
-      JSON.stringify(localWorksheet),
     );
   });
 });

@@ -299,9 +299,7 @@ function WorksheetToggleButton({
       if (isAnonymousWorksheet) {
         const sectionId = getListingSectionId(listing);
         if (!sectionId) {
-          toast.error(
-            'This section cannot be added to an anonymous worksheet.',
-          );
+          toast.error('This section cannot be added to this worksheet.');
           return;
         }
         const changed = inWorksheet
@@ -314,9 +312,7 @@ function WorksheetToggleButton({
             );
         if (changed) {
           toast.success(
-            inWorksheet
-              ? 'Removed from anonymous worksheet'
-              : 'Added to anonymous worksheet',
+            inWorksheet ? 'Removed from worksheet' : 'Added to worksheet',
           );
         }
         return;
@@ -450,7 +446,7 @@ function WorksheetToggleButton({
   const size = modal ? 20 : isLgDesktop ? 16 : 14;
   const Icon = inWorksheet ? FaMinus : FaPlus;
   const buttonLabel = isAnonymousWorksheet
-    ? `${inWorksheet ? 'Remove from' : 'Add to'} anonymous worksheet`
+    ? `${inWorksheet ? 'Remove from' : 'Add to'} worksheet`
     : hasSavedWorksheetAccount
       ? `${inWorksheet ? 'Remove from' : 'Add to'} active Saved Worksheet`
       : worksheets

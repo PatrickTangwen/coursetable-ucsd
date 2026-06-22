@@ -14,7 +14,6 @@ import ErrorPage from '../components/ErrorPage';
 import Spinner from '../components/Spinner';
 import { SurfaceComponent } from '../components/Typography';
 import CalendarLockSettingsModal from '../components/Worksheet/CalendarLockSettingsModal';
-import LocalWorksheetImportPrompt from '../components/Worksheet/LocalWorksheetImportPrompt';
 import SeasonDropdown from '../components/Worksheet/SeasonDropdown';
 import WorksheetCalendar from '../components/Worksheet/WorksheetCalendar';
 import WorksheetCalendarList from '../components/Worksheet/WorksheetCalendarList';
@@ -216,7 +215,6 @@ function Worksheet() {
       </SurfaceComponent>
       {(isMobile || !expanded) && (
         <div className={styles.calendarSidebar}>
-          <LocalWorksheetImportPrompt />
           <WorksheetStats />
           <WorksheetCalendarList
             highlightBuilding={null}
