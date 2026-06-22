@@ -5,6 +5,10 @@ import chroma from 'chroma-js';
 import { useShallow } from 'zustand/react/shallow';
 import SavedWorksheetRestorePanel from './SavedWorksheetRestorePanel';
 import SavedWorksheetSavePanel from './SavedWorksheetSavePanel';
+import type {
+  ExoticWorksheet,
+  WorksheetCourse,
+} from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
 import {
   getWorksheetConflicts,
@@ -46,8 +50,6 @@ const creditColormap = chroma
   .domain([4, 5.5]);
 
 export default function WorksheetStats() {
-  const [shown, setShown] = useState(true);
-  const [savedWorksheetRefreshKey, setSavedWorksheetRefreshKey] = useState(0);
   const {
     courses,
     isExoticWorksheet,
@@ -67,10 +69,6 @@ export default function WorksheetStats() {
       isMobile: state.isMobile,
     })),
   );
-  const countedCourseCodes = new Set();
-  let courseCnt = 0;
-  let credits = 0;
-  const skillsAreas: { courseCode: string; label: string }[] = [];
   const anonymousConflictSummaries = useMemo(() => {
     if (!isAnonymousWorksheet) return [];
     return getWorksheetConflicts(courses).map(
@@ -78,6 +76,46 @@ export default function WorksheetStats() {
         `${first.course_code} / ${second.course_code}`,
     );
   }, [courses, isAnonymousWorksheet]);
+
+  return (
+    <WorksheetStatsView
+      courses={courses}
+      isExoticWorksheet={isExoticWorksheet}
+      exoticWorksheet={exoticWorksheet?.data}
+      isAnonymousWorksheet={isAnonymousWorksheet}
+      worksheetMissingSectionIds={worksheetMissingSectionIds}
+      anonymousConflictSummaries={anonymousConflictSummaries}
+      exitExoticWorksheet={exitExoticWorksheet}
+      isMobile={isMobile}
+    />
+  );
+}
+
+export function WorksheetStatsView({
+  courses,
+  isExoticWorksheet,
+  exoticWorksheet,
+  isAnonymousWorksheet,
+  worksheetMissingSectionIds,
+  anonymousConflictSummaries,
+  exitExoticWorksheet,
+  isMobile,
+}: {
+  readonly courses: WorksheetCourse[];
+  readonly isExoticWorksheet: boolean;
+  readonly exoticWorksheet: ExoticWorksheet | undefined;
+  readonly isAnonymousWorksheet: boolean;
+  readonly worksheetMissingSectionIds: string[];
+  readonly anonymousConflictSummaries: string[];
+  readonly exitExoticWorksheet: () => void;
+  readonly isMobile: boolean;
+}) {
+  const [shown, setShown] = useState(true);
+  const [savedWorksheetRefreshKey, setSavedWorksheetRefreshKey] = useState(0);
+  const countedCourseCodes = new Set();
+  let courseCnt = 0;
+  let credits = 0;
+  const skillsAreas: { courseCode: string; label: string }[] = [];
 
   for (const { listing, hidden } of courses) {
     const alreadyCounted = listing.course.listings.some((l) =>
@@ -120,14 +158,14 @@ export default function WorksheetStats() {
       <Collapse in={shown}>
         <div>
           <div className={styles.stats}>
-            {isExoticWorksheet && exoticWorksheet?.data && (
+            {isExoticWorksheet && exoticWorksheet && (
               <div className={styles.worksheetInfo}>
                 <div className={styles.worksheetName}>
-                  {exoticWorksheet.data.name}
+                  {exoticWorksheet.name}
                 </div>
-                {exoticWorksheet.data.creatorName && (
+                {exoticWorksheet.creatorName && (
                   <div className={styles.creatorName}>
-                    by {exoticWorksheet.data.creatorName}
+                    by {exoticWorksheet.creatorName}
                   </div>
                 )}
               </div>
