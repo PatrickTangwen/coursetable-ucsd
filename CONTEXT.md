@@ -106,6 +106,15 @@ _Avoid_: Cart, schedule cart, saved schedule
 A worksheet that belongs only to the current browser/session and is not attached to a user account.
 _Avoid_: Saved worksheet, server worksheet, account worksheet
 
+**Local Worksheet**:
+The user-facing name for an Anonymous Worksheet. It is automatically saved in
+the current browser's local storage when the user adds, removes, hides, or
+recolors Sections, but it is not attached to a UCSD User Identity until the user
+explicitly saves or imports it into their account. After sign-in, the planner
+should default to the account's Main Worksheet and offer Local Worksheet import
+as an explicit action rather than automatically switching, merging, or syncing.
+_Avoid_: Saved worksheet, account worksheet, synced worksheet
+
 **App DB**:
 The backend persistence store for signed-in user product data such as saved worksheets, saved searches, wishlist, and privacy settings.
 _Avoid_: Course Data Store, Catalog Snapshot database, Hasura requirement
@@ -125,6 +134,35 @@ _Avoid_: Google account, UCSD scraping account, anonymous identity
 **Saved Worksheet**:
 A worksheet attached to a signed-in user account and persisted by the backend.
 _Avoid_: Anonymous worksheet, local worksheet
+
+**Main Worksheet**:
+The default user-facing name for a signed-in user's first or primary Saved
+Worksheet within a supported term. In the UCSD planner, Main Worksheet is a
+term-scoped Saved Worksheet owned by App User ID and made of Section IDs;
+signed-in users should land on the term's Main Worksheet instead of being asked
+to manage an Anonymous Worksheet by default. For each supported term a signed-in
+user should always have at least one Saved Worksheet; the only Saved Worksheet
+in that term is not user-deletable. It is not the legacy CourseTable
+worksheet-number model.
+_Avoid_: Legacy main worksheet, worksheet number zero, netId-owned worksheet
+
+**Blank Saved Worksheet**:
+A newly created Saved Worksheet with no selected Sections. Creating one does not
+copy the current Anonymous Worksheet or another Saved Worksheet unless a future
+feature explicitly adds copy behavior.
+_Avoid_: Save current worksheet, duplicate worksheet, import worksheet
+
+**Active Saved Worksheet**:
+The Saved Worksheet currently selected for a signed-in user within a supported
+term. The planner may remember the last Active Saved Worksheet per term, falling
+back to the term's Main Worksheet if the remembered worksheet no longer exists.
+_Avoid_: Global active worksheet, cross-term worksheet, browser-only ownership
+
+**Saved Worksheet Management**:
+The signed-in user experience for finding, selecting, renaming, deleting, and
+distinguishing persisted Saved Worksheets after the initial save and restore
+path exists.
+_Avoid_: Initial save slice, automatic sync, worksheet sharing, wishlist
 
 **Saved Search**:
 A signed-in user's persisted catalog search text and filter state that can be restored as catalog URL/filter state.

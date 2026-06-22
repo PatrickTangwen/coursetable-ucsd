@@ -33,6 +33,8 @@ For new agent or human planning work, read in this order:
   sequence.
 - `docs/beta-1-saved-worksheet-acceptance-2026-06-21.md`: acceptance record for
   issue #26 and parent PRD #24.
+- `docs/beta-1-saved-worksheet-management-2026-06-22.md`: PRD for the next
+  post-auth Saved Worksheet Management beta.
 - `docs/grade-archive-ui-update-2026-06-21.md`: current UI/data contract for
   Average GPA, Record Count, and Past Grades.
 - `docs/beta-0-ui-surface-inventory-2026-06-20.md`: current Beta-0 UI surface
@@ -61,6 +63,9 @@ For new agent or human planning work, read in this order:
   IDs for database ownership.
 - `docs/adr/0009-stage-real-backend-auth-validation-before-email-delivery.md`:
   stage real backend auth validation before email delivery.
+- `docs/adr/0010-reuse-worksheet-management-interface-with-saved-worksheet-model.md`:
+  reuse the original worksheet management interface pattern while keeping UCSD
+  Saved Worksheet data ownership separate from legacy worksheet-number APIs.
 
 ## Stable Reference Docs
 

@@ -37,6 +37,9 @@ logs, or transient setup notes directly in ADRs.
   DB ownership.
 - `0009-stage-real-backend-auth-validation-before-email-delivery.md`: validate
   the real backend auth path before production-like email delivery.
+- `0010-reuse-worksheet-management-interface-with-saved-worksheet-model.md`:
+  reuse the original worksheet management interface pattern while keeping UCSD
+  Saved Worksheet data ownership separate from legacy worksheet-number APIs.
 
 ## Editing Rule
 
