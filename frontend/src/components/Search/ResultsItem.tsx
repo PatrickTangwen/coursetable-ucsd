@@ -5,14 +5,7 @@ import type { ListChildComponentProps } from 'react-window';
 import { useShallow } from 'zustand/react/shallow';
 
 import type { ResultItemData } from './Results';
-import {
-  SeasonTag,
-  CourseInfoPopover,
-  CourseCode,
-  formatArchiveAvgGpa,
-  formatArchiveRecordCount,
-  getUcsdArchive,
-} from './ResultsItemCommon';
+import { SeasonTag, CourseInfoPopover, CourseCode } from './ResultsItemCommon';
 import { useStore } from '../../store';
 import { anonymousWorksheetHasListing } from '../../utilities/anonymousWorksheet';
 import {
@@ -43,7 +36,6 @@ function ResultsItem({
     (state) => state.getRelevantWorksheetNumber,
   );
 
-  const archive = getUcsdArchive(listing);
   const target = useCourseModalLink(listing);
 
   const inWorksheet = useMemo(
@@ -104,16 +96,6 @@ function ResultsItem({
               </span>
             </span>
           </CourseInfoPopover>
-          <span className={colStyles.archiveGpaCol}>
-            <span className={styles.ellipsisText}>
-              {formatArchiveAvgGpa(archive?.archive_avg_gpa)}
-            </span>
-          </span>
-          <span className={colStyles.archiveCountCol}>
-            <span className={styles.ellipsisText}>
-              {formatArchiveRecordCount(archive?.archive_record_count)}
-            </span>
-          </span>
           <span
             className={clsx('d-flex align-items-center', colStyles.profCol)}
           >

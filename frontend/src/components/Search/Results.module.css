@@ -7,13 +7,10 @@
   --width-total: min(1600px, 100vw);
   --width-col-season: 0px;
   --width-col-code: 90px;
-  --width-col-archive-gpa: 112px;
-  --width-col-archive-count: 102px;
   --width-col-added: 80px;
   --width-padding: 43px;
   --width-extra: calc(
     var(--width-total) - var(--width-col-season) - var(--width-col-code) -
-      var(--width-col-archive-gpa) - var(--width-col-archive-count) -
       var(--width-padding)
   );
   --width-col-prof: clamp(120px, calc(var(--width-extra) / 5), 260px);
@@ -40,7 +37,5 @@
 @media (min-width: 1320px) {
   .resultsContainer {
     --width-col-code: 110px;
-    --width-col-archive-gpa: 124px;
-    --width-col-archive-count: 112px;
   }
 }

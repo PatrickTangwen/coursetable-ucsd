@@ -5,13 +5,7 @@ import type { GridChildComponentProps } from 'react-window';
 import { useShallow } from 'zustand/react/shallow';
 
 import type { ResultItemData } from './Results';
-import {
-  SeasonTag,
-  CourseCode,
-  formatArchiveAvgGpa,
-  formatArchiveRecordCount,
-  getUcsdArchive,
-} from './ResultsItemCommon';
+import { SeasonTag, CourseCode } from './ResultsItemCommon';
 import { useStore } from '../../store';
 import { anonymousWorksheetHasListing } from '../../utilities/anonymousWorksheet';
 import {
@@ -65,7 +59,6 @@ function ResultsGridItem({
 
   if (!listing) return null;
 
-  const archive = getUcsdArchive(listing);
   const timesSummary = toTimesSummary(listing.course);
   const locationsSummary = toLocationsSummary(listing.course, true);
 
@@ -126,15 +119,6 @@ function ResultsGridItem({
                 ),
               )}
             </div>
-          </div>
-          <div className={styles.archiveSummary}>
-            <TextComponent type="secondary" className={styles.smallText}>
-              Average GPA: {formatArchiveAvgGpa(archive?.archive_avg_gpa)}
-            </TextComponent>
-            <TextComponent type="secondary" className={styles.smallText}>
-              Record Count:{' '}
-              {formatArchiveRecordCount(archive?.archive_record_count)}
-            </TextComponent>
           </div>
         </div>
       </Link>

@@ -20,16 +20,6 @@
   width: var(--width-col-title);
 }
 
-.archiveGpaCol {
-  white-space: nowrap;
-  width: var(--width-col-archive-gpa);
-}
-
-.archiveCountCol {
-  white-space: nowrap;
-  width: var(--width-col-archive-count);
-}
-
 .profCol {
   width: var(--width-col-prof);
 }
