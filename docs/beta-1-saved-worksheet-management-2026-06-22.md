@@ -204,6 +204,18 @@ worksheetNumber + crn`. The UCSD planner should borrow the interaction shape,
   the UCSD Saved Worksheet model. Build new UCSD-specific UI only when reuse
   would force legacy worksheet-number APIs, Yale-specific semantics, or
   unsupported product surfaces back into the planner.
+- When local UCSD code has drifted from original CourseTable behavior, compare
+  against upstream `coursetable/coursetable` at commit
+  `efe545aae4767ad460690a45cf323f82dcb0e457`. Relevant UI references are:
+  `frontend/src/components/Worksheet/NavbarWorksheetSearch.tsx`,
+  `frontend/src/components/Worksheet/WorksheetNumberDropdown.tsx`,
+  `frontend/src/components/Worksheet/WorksheetNumberDropdown.module.css`,
+  `frontend/src/components/Worksheet/WorksheetStatusIcon.tsx`,
+  `frontend/src/components/Worksheet/WorksheetStats.tsx`, and
+  `frontend/src/components/Worksheet/WorksheetStats.module.css`. Reuse those
+  interaction details where they fit the UCSD Saved Worksheet model; treat
+  upstream API/state files as cautionary context only because they are coupled
+  to legacy worksheet-number behavior.
 - Suggested execution split:
   1. Backend Saved Worksheet Management API.
   2. Worksheet Top Bar Management UI.

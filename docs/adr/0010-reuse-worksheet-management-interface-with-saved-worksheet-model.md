@@ -24,3 +24,23 @@ styling, and behavior wherever they fit the UCSD Saved Worksheet model. New UI
 components should be introduced only when the existing interaction is coupled to
 legacy worksheet-number APIs, Yale-specific semantics, or unsupported product
 surfaces.
+
+**Upstream UI Reference**
+
+When local UCSD code has drifted from original CourseTable behavior, compare
+against upstream `coursetable/coursetable` at commit
+`efe545aae4767ad460690a45cf323f82dcb0e457`. The most relevant UI references
+are:
+
+- `frontend/src/components/Worksheet/NavbarWorksheetSearch.tsx`
+- `frontend/src/components/Worksheet/WorksheetNumberDropdown.tsx`
+- `frontend/src/components/Worksheet/WorksheetNumberDropdown.module.css`
+- `frontend/src/components/Worksheet/WorksheetStatusIcon.tsx`
+- `frontend/src/components/Worksheet/WorksheetStats.tsx`
+- `frontend/src/components/Worksheet/WorksheetStats.module.css`
+
+Use those files to recover interaction details such as the segmented
+Calendar/List/Map header, active term placement, worksheet selector layout,
+star/lock icons, inline rename/delete controls, add button placement, and
+compact Summary card styling. Treat upstream API and state files as cautionary
+context only, because they are coupled to the legacy worksheet-number model.
