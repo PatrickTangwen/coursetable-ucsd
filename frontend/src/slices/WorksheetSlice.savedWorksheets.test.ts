@@ -8,6 +8,7 @@ import type { Season } from '../queries/graphql-types';
 
 const apiMocks = vi.hoisted(() => ({
   createBlankSavedWorksheet: vi.fn(),
+  createSavedWorksheetFromAnonymous: vi.fn(),
   deleteSavedWorksheet: vi.fn(),
   ensureMainSavedWorksheet: vi.fn(),
   fetchSavedWorksheet: vi.fn(),
@@ -21,6 +22,8 @@ vi.mock('../queries/api', async (importOriginal) => {
   return {
     ...actual,
     createBlankSavedWorksheet: apiMocks.createBlankSavedWorksheet,
+    createSavedWorksheetFromAnonymous:
+      apiMocks.createSavedWorksheetFromAnonymous,
     deleteSavedWorksheet: apiMocks.deleteSavedWorksheet,
     ensureMainSavedWorksheet: apiMocks.ensureMainSavedWorksheet,
     fetchSavedWorksheet: apiMocks.fetchSavedWorksheet,
@@ -70,12 +73,31 @@ const summerPlan: SavedWorksheet = {
   sections: [],
 };
 
+const importedLocalPlan: SavedWorksheet = {
+  id: 12,
+  name: 'Imported Local Worksheet',
+  term: s126,
+  createdAt: 3,
+  updatedAt: 3,
+  private: true,
+  isMain: false,
+  sourceSectionCount: 1,
+  savedSectionCount: 1,
+  sections: [{ sectionId: 'S126-123', color: '#123456', hidden: false }],
+};
+
 function createStorage() {
   const items = new Map<string, string>();
   return {
-    getItem: (key: string) => items.get(key) ?? null,
-    setItem: (key: string, value: string) => items.set(key, value),
-    removeItem: (key: string) => items.delete(key),
+    getItem(key: string) {
+      return items.get(key) ?? null;
+    },
+    setItem(key: string, value: string) {
+      items.set(key, value);
+    },
+    removeItem(key: string) {
+      return items.delete(key);
+    },
   };
 }
 
@@ -98,8 +120,24 @@ async function loadStore({
   signedIn?: boolean;
 } = {}) {
   vi.resetModules();
-  vi.stubGlobal('localStorage', createStorage());
-  vi.stubGlobal('sessionStorage', createStorage());
+  const localStorage = createStorage();
+  const sessionStorage = createStorage();
+  vi.stubGlobal('localStorage', localStorage);
+  vi.stubGlobal('sessionStorage', sessionStorage);
+  vi.stubGlobal('window', {
+    localStorage,
+    sessionStorage,
+    location: {
+      pathname: '/worksheet',
+      search: '',
+    },
+    history: {
+      replaceState: vi.fn(),
+    },
+    scrollTo: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  });
   const { useStore } = await import('../store');
   useStore.setState({
     authStatus: signedIn ? 'authenticated' : 'unauthenticated',
@@ -192,6 +230,29 @@ describe('Saved Worksheet slice behavior', () => {
     expect(apiMocks.fetchSavedWorksheet).not.toHaveBeenCalled();
     expect(useStore.getState().activeSavedWorksheet?.id).toBe(10);
     expect(useStore.getState().activeSavedWorksheetIdsByTerm[s126]).toBe(10);
+  });
+
+  it('opens Main Worksheet after sign-in even when the browser has Local Worksheet content', async () => {
+    const useStore = await loadStore();
+    useStore.setState({
+      anonymousWorksheet: {
+        term: s126,
+        courses: [{ sectionId: 'S126-123', color: '#123456', hidden: false }],
+      },
+    });
+    apiMocks.ensureMainSavedWorksheet.mockResolvedValue(mainWorksheet);
+    apiMocks.fetchSavedWorksheets.mockResolvedValue({
+      data: [toSummary(mainWorksheet)],
+    });
+
+    await useStore.getState().ensureMainSavedWorksheetForTerm(s126);
+
+    expect(apiMocks.createSavedWorksheetFromAnonymous).not.toHaveBeenCalled();
+    expect(useStore.getState().activeSavedWorksheet?.id).toBe(10);
+    expect(useStore.getState().viewAnonymousWorksheet).toBe(false);
+    expect(useStore.getState().anonymousWorksheet.courses).toEqual([
+      { sectionId: 'S126-123', color: '#123456', hidden: false },
+    ]);
   });
 
   it('renames the active Saved Worksheet in state after a successful API update', async () => {
@@ -320,5 +381,48 @@ describe('Saved Worksheet slice behavior', () => {
     expect(useStore.getState().anonymousWorksheet.courses).toEqual([
       { sectionId: 'S126-123', color: '#123456', hidden: false },
     ]);
+    expect(localStorage.getItem('anonymousWorksheet')).toBe(
+      JSON.stringify({
+        term: 'S126',
+        courses: [{ sectionId: 'S126-123', color: '#123456', hidden: false }],
+      }),
+    );
+  });
+
+  it('saves the Local Worksheet to a new active Saved Worksheet without clearing local storage', async () => {
+    const useStore = await loadStore();
+    const localWorksheet = {
+      term: s126,
+      courses: [{ sectionId: 'S126-123', color: '#123456', hidden: false }],
+    };
+    localStorage.setItem('anonymousWorksheet', JSON.stringify(localWorksheet));
+    useStore.setState({
+      activeSavedWorksheet: mainWorksheet,
+      activeSavedWorksheetOwnerId: testUser.user_id,
+      activeSavedWorksheetIdsByTerm: { [s126]: mainWorksheet.id },
+      savedWorksheetSummaries: [toSummary(mainWorksheet)],
+      anonymousWorksheet: localWorksheet,
+    });
+    apiMocks.createSavedWorksheetFromAnonymous.mockResolvedValue(
+      importedLocalPlan,
+    );
+
+    const saved = await useStore
+      .getState()
+      .saveAnonymousWorksheetToAccount('Imported Local Worksheet');
+
+    expect(saved?.id).toBe(12);
+    expect(apiMocks.createBlankSavedWorksheet).not.toHaveBeenCalled();
+    expect(apiMocks.createSavedWorksheetFromAnonymous).toHaveBeenCalledWith({
+      name: 'Imported Local Worksheet',
+      term: 'S126',
+      courses: [{ sectionId: 'S126-123', color: '#123456', hidden: false }],
+    });
+    expect(useStore.getState().activeSavedWorksheet?.id).toBe(12);
+    expect(useStore.getState().activeSavedWorksheetIdsByTerm[s126]).toBe(12);
+    expect(useStore.getState().anonymousWorksheet).toEqual(localWorksheet);
+    expect(localStorage.getItem('anonymousWorksheet')).toBe(
+      JSON.stringify(localWorksheet),
+    );
   });
 });

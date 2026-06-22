@@ -10,6 +10,7 @@ import { seasons as allSeasons } from '../data/catalogSeasons';
 import { useCourseData, useWorksheetInfo } from '../hooks/useFerry';
 import {
   createBlankSavedWorksheet,
+  createSavedWorksheetFromAnonymous,
   deleteSavedWorksheet as deleteSavedWorksheetApi,
   ensureMainSavedWorksheet,
   fetchSavedWorksheet,
@@ -50,6 +51,7 @@ import {
 } from '../utilities/anonymousWorksheet';
 import { worksheetColors } from '../utilities/constants';
 import {
+  buildSaveAnonymousWorksheetPayload,
   buildRestoredAnonymousWorksheet,
   type SavedWorksheetRestoreSource,
 } from '../utilities/savedWorksheet';
@@ -141,6 +143,9 @@ interface WorksheetActions {
   ) => Promise<SavedWorksheetSummary[]>;
   selectSavedWorksheet: (id: number) => Promise<boolean>;
   createBlankSavedWorksheetForTerm: (term: Season) => Promise<boolean>;
+  saveAnonymousWorksheetToAccount: (
+    name: string,
+  ) => Promise<SavedWorksheet | null>;
   renameSavedWorksheet: (id: number, name: string) => Promise<boolean>;
   deleteSavedWorksheet: (id: number) => Promise<boolean>;
   addActiveSavedWorksheetListing: (
@@ -535,6 +540,22 @@ export const createWorksheetSlice: StateCreator<
 
       activateSavedWorksheet(worksheet, user.user_id);
       return true;
+    },
+    async saveAnonymousWorksheetToAccount(name) {
+      const { user, anonymousWorksheet } = get();
+      if (!hasSavedWorksheetAccount() || !user || isLegacyUserInfo(user))
+        return null;
+
+      const trimmedName = name.trim();
+      if (!trimmedName || anonymousWorksheet.courses.length === 0) return null;
+
+      const worksheet = await createSavedWorksheetFromAnonymous(
+        buildSaveAnonymousWorksheetPayload(trimmedName, anonymousWorksheet),
+      );
+      if (!worksheet) return null;
+
+      activateSavedWorksheet(worksheet, user.user_id);
+      return worksheet;
     },
     async renameSavedWorksheet(id, name) {
       const { user } = get();
