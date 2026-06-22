@@ -16,7 +16,7 @@ import { Calendar } from 'react-big-calendar';
 import { HexColorPicker } from 'react-colorful';
 import { useShallow } from 'zustand/react/shallow';
 import { CalendarEventBody, useEventStyle } from './CalendarEvent';
-import { updateWorksheetCourses } from '../../queries/api';
+import { isLegacyUserInfo, updateWorksheetCourses } from '../../queries/api';
 import { useWorksheetNumberOptions } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
 import { type CourseRBCEvent, localizer } from '../../utilities/calendar';
@@ -40,9 +40,13 @@ function WorksheetItemActionsButton({
       setOpenWorksheetMoveEvent: state.setOpenWorksheetMoveEvent,
     })),
   );
-  const isAnonymousWorksheet = useStore((state) =>
-    state.worksheetMemo.getIsAnonymousWorksheet(state),
+  const { isAnonymousWorksheet, user } = useStore(
+    useShallow((state) => ({
+      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+      user: state.user,
+    })),
   );
+  const hasLegacyWorksheetAccount = isLegacyUserInfo(user);
 
   const togglePopover = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -105,7 +109,7 @@ function WorksheetItemActionsButton({
                     <MdEdit color="var(--color-text-dark)" />
                   </button>
                 </OverlayTrigger>
-                {!isAnonymousWorksheet && (
+                {!isAnonymousWorksheet && hasLegacyWorksheetAccount && (
                   <OverlayTrigger
                     placement="bottom"
                     overlay={
@@ -150,15 +154,20 @@ export function ColorPickerModal({
     viewedWorksheetNumber,
     openColorPickerEvent,
     isAnonymousWorksheet,
+    user,
     setAnonymousWorksheetListingColor,
+    setActiveSavedWorksheetListingColor,
   } = useStore(
     useShallow((state) => ({
       viewedSeason: state.viewedSeason,
       viewedWorksheetNumber: state.viewedWorksheetNumber,
       openColorPickerEvent: state.openColorPickerEvent,
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+      user: state.user,
       setAnonymousWorksheetListingColor:
         state.setAnonymousWorksheetListingColor,
+      setActiveSavedWorksheetListingColor:
+        state.setActiveSavedWorksheetListingColor,
     })),
   );
   const [newColor, setNewColor] = useState<string | undefined>(undefined);
@@ -191,6 +200,14 @@ export function ColorPickerModal({
           onClick={async () => {
             if (isAnonymousWorksheet) {
               setAnonymousWorksheetListingColor(
+                openColorPickerEvent.listing,
+                newColor ?? openColorPickerEvent.color,
+              );
+              onClose();
+              return;
+            }
+            if (user && !isLegacyUserInfo(user)) {
+              await setActiveSavedWorksheetListingColor(
                 openColorPickerEvent.listing,
                 newColor ?? openColorPickerEvent.color,
               );

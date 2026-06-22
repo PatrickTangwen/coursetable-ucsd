@@ -107,7 +107,9 @@ function WorksheetCalendarList({
     user,
     isAnonymousWorksheet,
     setAllAnonymousWorksheetHidden,
+    setAllActiveSavedWorksheetHidden,
     clearAnonymousWorksheet,
+    clearActiveSavedWorksheet,
   } = useStore(
     useShallow((state) => ({
       courses: state.courses,
@@ -123,7 +125,9 @@ function WorksheetCalendarList({
       user: state.user,
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
       setAllAnonymousWorksheetHidden: state.setAllAnonymousWorksheetHidden,
+      setAllActiveSavedWorksheetHidden: state.setAllActiveSavedWorksheetHidden,
       clearAnonymousWorksheet: state.clearAnonymousWorksheet,
+      clearActiveSavedWorksheet: state.clearActiveSavedWorksheet,
     })),
   );
 
@@ -138,7 +142,9 @@ function WorksheetCalendarList({
   const hasLegacyWorksheetAccount = isLegacyUserInfo(user);
   const hasSavedWorksheetAccount = Boolean(user && !hasLegacyWorksheetAccount);
   const canMutateCurrentWorksheet =
-    isAnonymousWorksheet || hasLegacyWorksheetAccount;
+    isAnonymousWorksheet ||
+    hasLegacyWorksheetAccount ||
+    hasSavedWorksheetAccount;
 
   const showControls = controlsMode !== 'none';
   const showHideButton = controlsMode !== 'none' && canMutateCurrentWorksheet;
@@ -214,6 +220,24 @@ function WorksheetCalendarList({
       return;
     }
 
+    if (hasSavedWorksheetAccount) {
+      setClearing(true);
+      try {
+        const cleared = await clearActiveSavedWorksheet();
+        if (cleared) {
+          setClearModalOpen(false);
+          toast.success(
+            courseCount === 1
+              ? 'Removed class from Saved Worksheet'
+              : `Removed all ${courseCount} classes from Saved Worksheet`,
+          );
+        }
+      } finally {
+        setClearing(false);
+      }
+      return;
+    }
+
     const actions = courses.map((course) => ({
       action: 'remove' as const,
       season: viewedSeason,
@@ -259,6 +283,10 @@ function WorksheetCalendarList({
                     onClick={async () => {
                       if (isAnonymousWorksheet) {
                         setAllAnonymousWorksheetHidden(!areHidden);
+                        return;
+                      }
+                      if (hasSavedWorksheetAccount) {
+                        await setAllActiveSavedWorksheetHidden(!areHidden);
                         return;
                       }
                       await setCourseHidden({

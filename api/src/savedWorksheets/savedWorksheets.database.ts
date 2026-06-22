@@ -268,5 +268,53 @@ export function createDatabaseSavedWorksheetStore(): SavedWorksheetStore {
         };
       });
     },
+    async replaceSectionsForUserId(userId, id, sections, updatedAt) {
+      const nextSections = dedupeSavedWorksheetSections(sections);
+
+      return await db.transaction(async (tx) => {
+        const [existing] = await tx
+          .select(savedWorksheetColumns)
+          .from(savedWorksheets)
+          .where(
+            and(eq(savedWorksheets.userId, userId), eq(savedWorksheets.id, id)),
+          )
+          .limit(1);
+
+        if (!existing) return { status: 'not-found' };
+
+        await tx
+          .delete(savedWorksheetSections)
+          .where(eq(savedWorksheetSections.worksheetId, existing.id));
+
+        if (nextSections.length > 0) {
+          await tx.insert(savedWorksheetSections).values(
+            nextSections.map((section) => ({
+              worksheetId: existing.id,
+              sectionId: section.sectionId,
+              color: section.color,
+              hidden: section.hidden,
+            })),
+          );
+        }
+
+        const [updated] = await tx
+          .update(savedWorksheets)
+          .set({ updatedAt })
+          .where(
+            and(eq(savedWorksheets.userId, userId), eq(savedWorksheets.id, id)),
+          )
+          .returning(savedWorksheetColumns);
+
+        if (!updated) return { status: 'not-found' };
+
+        return {
+          status: 'updated',
+          worksheet: {
+            ...updated,
+            sections: nextSections,
+          },
+        };
+      });
+    },
   };
 }

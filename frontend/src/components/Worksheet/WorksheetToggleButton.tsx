@@ -59,13 +59,14 @@ function CourseConflictIcon({
   readonly modal: boolean;
   readonly worksheetNumber: number;
 }) {
-  const { worksheets, isAnonymousWorksheet, anonymousWorksheetCourses } =
+  const { worksheets, isAnonymousWorksheet, activeSavedWorksheet, courses } =
     useStore(
       useShallow((state) => ({
         worksheets: state.worksheets,
         isAnonymousWorksheet:
           state.worksheetMemo.getIsAnonymousWorksheet(state),
-        anonymousWorksheetCourses: state.courses,
+        activeSavedWorksheet: state.activeSavedWorksheet,
+        courses: state.courses,
       })),
     );
 
@@ -74,7 +75,8 @@ function CourseConflictIcon({
     listing.course.season_code,
     worksheetNumber,
   );
-  const worksheetData = isAnonymousWorksheet ? anonymousWorksheetCourses : data;
+  const worksheetData =
+    isAnonymousWorksheet || activeSavedWorksheet ? courses : data;
 
   const warning = useMemo(() => {
     // If the course is in the worksheet, we never report a conflict
@@ -171,16 +173,24 @@ function WorksheetToggleButton({
   const {
     anonymousWorksheet,
     isAnonymousWorksheet,
+    activeSavedWorksheet,
     addAnonymousWorksheetListing,
     removeAnonymousWorksheetListing,
+    addActiveSavedWorksheetListing,
+    removeActiveSavedWorksheetListing,
   } = useStore(
     useShallow((state) => ({
       anonymousWorksheet: state.anonymousWorksheet,
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+      activeSavedWorksheet: state.activeSavedWorksheet,
       addAnonymousWorksheetListing: state.addAnonymousWorksheetListing,
       removeAnonymousWorksheetListing: state.removeAnonymousWorksheetListing,
+      addActiveSavedWorksheetListing: state.addActiveSavedWorksheetListing,
+      removeActiveSavedWorksheetListing:
+        state.removeActiveSavedWorksheetListing,
     })),
   );
+  const hasSavedWorksheetAccount = Boolean(user && !isLegacyUserInfo(user));
   const client = useApolloClient();
   const pendingLatestChoiceRef = useRef<
     ((choice: 'latest' | 'historical' | 'cancel') => void) | null
@@ -253,10 +263,19 @@ function WorksheetToggleButton({
     () =>
       isAnonymousWorksheet
         ? anonymousWorksheetHasListing(anonymousWorksheet, listing)
-        : (inWorksheetProp ??
-          isInWorksheet(listing, selectedWorksheet, worksheets)),
+        : hasSavedWorksheetAccount
+          ? Boolean(
+              getListingSectionId(listing) &&
+              activeSavedWorksheet?.sections.some(
+                (section) => section.sectionId === getListingSectionId(listing),
+              ),
+            )
+          : (inWorksheetProp ??
+            isInWorksheet(listing, selectedWorksheet, worksheets)),
     [
+      activeSavedWorksheet,
       anonymousWorksheet,
+      hasSavedWorksheetAccount,
       inWorksheetProp,
       isAnonymousWorksheet,
       listing,
@@ -298,6 +317,26 @@ function WorksheetToggleButton({
             inWorksheet
               ? 'Removed from anonymous worksheet'
               : 'Added to anonymous worksheet',
+          );
+        }
+        return;
+      }
+
+      if (hasSavedWorksheetAccount) {
+        if (!activeSavedWorksheet) {
+          toast.info('Saved Worksheet is still opening.');
+          return;
+        }
+        const color =
+          worksheetColors[Math.floor(Math.random() * worksheetColors.length)]!;
+        const changed = inWorksheet
+          ? await removeActiveSavedWorksheetListing(listing)
+          : await addActiveSavedWorksheetListing(listing, color);
+        if (changed) {
+          toast.success(
+            inWorksheet
+              ? 'Removed from Saved Worksheet'
+              : 'Added to Saved Worksheet',
           );
         }
         return;
@@ -392,11 +431,15 @@ function WorksheetToggleButton({
       inWorksheet,
       isAnonymousWorksheet,
       addAnonymousWorksheetListing,
+      addActiveSavedWorksheetListing,
+      activeSavedWorksheet,
       client,
       confirmAddLatestOffering,
       getRelevantWorksheetNumber,
+      hasSavedWorksheetAccount,
       listing,
       removeAnonymousWorksheetListing,
+      removeActiveSavedWorksheetListing,
       resolveWorksheetNumberForSeason,
       selectedWorksheet,
       worksheets,
@@ -406,11 +449,10 @@ function WorksheetToggleButton({
 
   const size = modal ? 20 : isLgDesktop ? 16 : 14;
   const Icon = inWorksheet ? FaMinus : FaPlus;
-  const hasSavedWorksheetAccount = Boolean(user && !isLegacyUserInfo(user));
   const buttonLabel = isAnonymousWorksheet
     ? `${inWorksheet ? 'Remove from' : 'Add to'} anonymous worksheet`
     : hasSavedWorksheetAccount
-      ? 'Saved Worksheet course editing will be enabled in a later beta'
+      ? `${inWorksheet ? 'Remove from' : 'Add to'} active Saved Worksheet`
       : worksheets
         ? // The worksheet name can only be unknown if we triggered the
           // if (prevWorksheetCtx !== defaultWorksheetNumber) code path above
@@ -419,7 +461,10 @@ function WorksheetToggleButton({
         : 'Log in to add to your worksheet';
 
   // Disabled worksheet add/remove button while auth is still resolving.
-  if (!worksheets && !isAnonymousWorksheet) {
+  if (
+    (!worksheets && !isAnonymousWorksheet && !hasSavedWorksheetAccount) ||
+    (hasSavedWorksheetAccount && !activeSavedWorksheet)
+  ) {
     return (
       <div className={styles.container}>
         <OverlayTrigger
@@ -475,7 +520,7 @@ function WorksheetToggleButton({
           </Button>
         </OverlayTrigger>
       </div>
-      {modal && !isAnonymousWorksheet && (
+      {modal && !isAnonymousWorksheet && !hasSavedWorksheetAccount && (
         <Popout
           buttonText="Worksheet"
           selectedOptions={worksheetOptions[selectedWorksheet]}

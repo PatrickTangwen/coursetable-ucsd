@@ -122,5 +122,18 @@ export function createMemorySavedWorksheetStore(): SavedWorksheetStore & {
           : null,
       });
     },
+    replaceSectionsForUserId(userId, id, sections, updatedAt) {
+      const record = recordsByUserId
+        .get(userId)
+        ?.find((worksheet) => worksheet.id === id);
+      if (!record) return Promise.resolve({ status: 'not-found' });
+
+      record.sections = dedupeSavedWorksheetSections(sections);
+      record.updatedAt = updatedAt;
+      return Promise.resolve({
+        status: 'updated',
+        worksheet: cloneSavedWorksheet(record),
+      });
+    },
   };
 }

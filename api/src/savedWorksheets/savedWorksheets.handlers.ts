@@ -33,6 +33,10 @@ const RenameSavedWorksheetSchema = z.object({
   name: z.string().trim().min(1).max(64),
 });
 
+const UpdateSavedWorksheetSectionsSchema = z.object({
+  sections: z.array(SavedWorksheetCourseSchema).max(200),
+});
+
 const ListSavedWorksheetsQuerySchema = z.object({
   term: z.string().trim().min(1).max(32).optional(),
 });
@@ -250,6 +254,42 @@ export function createSavedWorksheetHandlers(
     });
   };
 
+  const updateSavedWorksheetSections = async (
+    req: express.Request,
+    res: express.Response,
+  ): Promise<void> => {
+    const user = getAppSessionUser(req)!;
+    const id = parsePositiveInteger(req.params.id);
+    if (!id) {
+      res.status(400).json({ error: 'INVALID_REQUEST' });
+      return;
+    }
+
+    const bodyParseRes = UpdateSavedWorksheetSectionsSchema.safeParse(req.body);
+    if (!bodyParseRes.success) {
+      res.status(400).json({ error: 'INVALID_REQUEST' });
+      return;
+    }
+
+    const result = await store.replaceSectionsForUserId(
+      user.user_id,
+      id,
+      bodyParseRes.data.sections,
+      now(),
+    );
+    if (result.status === 'not-found') {
+      res.status(404).json({ error: 'SAVED_WORKSHEET_NOT_FOUND' });
+      return;
+    }
+
+    res.json(
+      savedWorksheetResponse(
+        result.worksheet,
+        bodyParseRes.data.sections.length,
+      ),
+    );
+  };
+
   return {
     listSavedWorksheets,
     getSavedWorksheet,
@@ -258,5 +298,6 @@ export function createSavedWorksheetHandlers(
     createBlankWorksheet,
     renameSavedWorksheet,
     deleteSavedWorksheet,
+    updateSavedWorksheetSections,
   };
 }

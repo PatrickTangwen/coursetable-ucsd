@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { BsEyeSlash, BsEye } from 'react-icons/bs';
 import { useShallow } from 'zustand/react/shallow';
-import { setCourseHidden } from '../../queries/api';
+import { isLegacyUserInfo, setCourseHidden } from '../../queries/api';
 import type { Crn } from '../../queries/graphql-types';
 import { useStore } from '../../store';
 import styles from './WorksheetHideButton.module.css';
@@ -28,7 +28,9 @@ export default function WorksheetHideButton({
     isReadonlyWorksheet,
     isAnonymousWorksheet,
     courses,
+    user,
     setAnonymousWorksheetListingHidden,
+    setActiveSavedWorksheetListingHidden,
   } = useStore(
     useShallow((state) => ({
       viewedSeason: state.viewedSeason,
@@ -37,10 +39,14 @@ export default function WorksheetHideButton({
       isReadonlyWorksheet: state.worksheetMemo.getIsReadonlyWorksheet(state),
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
       courses: state.courses,
+      user: state.user,
       setAnonymousWorksheetListingHidden:
         state.setAnonymousWorksheetListingHidden,
+      setActiveSavedWorksheetListingHidden:
+        state.setActiveSavedWorksheetListingHidden,
     })),
   );
+  const hasSavedWorksheetAccount = Boolean(user && !isLegacyUserInfo(user));
   if (isReadonlyWorksheet || viewedPerson !== 'me') return null;
   const buttonLabel =
     context === 'map'
@@ -68,6 +74,16 @@ export default function WorksheetHideButton({
             const course = courses.find((c) => c.listing.crn === crn);
             if (course)
               setAnonymousWorksheetListingHidden(course.listing, !hidden);
+            return;
+          }
+          if (hasSavedWorksheetAccount) {
+            const course = courses.find((c) => c.listing.crn === crn);
+            if (course) {
+              await setActiveSavedWorksheetListingHidden(
+                course.listing,
+                !hidden,
+              );
+            }
             return;
           }
           await setCourseHidden({

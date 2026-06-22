@@ -49,6 +49,10 @@ export type SavedWorksheetDeleteResult =
   | { status: 'cannot-delete-only' }
   | { status: 'cannot-delete-main' };
 
+export type SavedWorksheetSectionsUpdateResult =
+  | { status: 'updated'; worksheet: SavedWorksheetRecord }
+  | { status: 'not-found' };
+
 export interface SavedWorksheetStore {
   listByUserId: (userId: number) => Promise<SavedWorksheetSummary[]>;
   getForUserId: (
@@ -75,6 +79,12 @@ export interface SavedWorksheetStore {
     userId: number,
     id: number,
   ) => Promise<SavedWorksheetDeleteResult>;
+  replaceSectionsForUserId: (
+    userId: number,
+    id: number,
+    sections: SavedWorksheetSection[],
+    updatedAt: number,
+  ) => Promise<SavedWorksheetSectionsUpdateResult>;
 }
 
 export const MAIN_SAVED_WORKSHEET_NAME = 'Main Worksheet';

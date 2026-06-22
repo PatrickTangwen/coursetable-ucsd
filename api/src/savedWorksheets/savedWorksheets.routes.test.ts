@@ -157,11 +157,20 @@ describe('Saved Worksheet save API', () => {
         method: 'POST',
       },
     );
+    const sectionsResponse = await client.request(
+      '/api/savedWorksheets/1/sections',
+      {
+        method: 'POST',
+        body: JSON.stringify({ sections: [] }),
+      },
+    );
 
     expect(renameResponse.status).toBe(401);
     expect(await renameResponse.json()).toEqual({ error: 'USER_NOT_FOUND' });
     expect(deleteResponse.status).toBe(401);
     expect(await deleteResponse.json()).toEqual({ error: 'USER_NOT_FOUND' });
+    expect(sectionsResponse.status).toBe(401);
+    expect(await sectionsResponse.json()).toEqual({ error: 'USER_NOT_FOUND' });
     expect(savedWorksheetStore.recordsByUserId.size).toBe(0);
   });
 
@@ -241,6 +250,64 @@ describe('Saved Worksheet save API', () => {
       ],
     });
     expect(savedWorksheetStore.recordsByUserId.get(1)).toHaveLength(1);
+  });
+
+  it('replaces Saved Worksheet sections for the current app user', async () => {
+    await signIn(client, 'student@ucsd.edu');
+    const createResponse = await client.request(
+      '/api/savedWorksheets/from-anonymous',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'Initial Plan',
+          term: 'S126',
+          courses: [{ sectionId: 'S126-111', color: '#55aaff', hidden: false }],
+        }),
+      },
+    );
+    const created = (await createResponse.json()) as { id: number };
+
+    const response = await client.request(
+      `/api/savedWorksheets/${created.id}/sections`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          sections: [
+            { sectionId: 'S126-222', color: '#ee6677', hidden: true },
+            { sectionId: 'S126-222', color: '#000000', hidden: false },
+            { sectionId: 'S126-333', color: '#55aaff', hidden: false },
+          ],
+        }),
+      },
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      id: created.id,
+      name: 'Initial Plan',
+      term: 'S126',
+      createdAt: 1_000_000,
+      updatedAt: 1_000_000,
+      private: true,
+      isMain: false,
+      sourceSectionCount: 3,
+      savedSectionCount: 2,
+      sections: [
+        { sectionId: 'S126-222', color: '#ee6677', hidden: true },
+        { sectionId: 'S126-333', color: '#55aaff', hidden: false },
+      ],
+    });
+
+    const detailResponse = await client.request(
+      `/api/savedWorksheets/${created.id}`,
+    );
+    expect(await detailResponse.json()).toMatchObject({
+      id: created.id,
+      sections: [
+        { sectionId: 'S126-222', color: '#ee6677', hidden: true },
+        { sectionId: 'S126-333', color: '#55aaff', hidden: false },
+      ],
+    });
   });
 
   it('creates a blank Saved Worksheet without copying existing worksheet sections', async () => {
@@ -622,6 +689,13 @@ describe('Saved Worksheet save API', () => {
           method: 'POST',
         },
       );
+      const sectionsResponse = await secondClient.request(
+        `/api/savedWorksheets/${created.id}/sections`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ sections: [] }),
+        },
+      );
 
       expect(renameResponse.status).toBe(404);
       expect(await renameResponse.json()).toEqual({
@@ -629,6 +703,10 @@ describe('Saved Worksheet save API', () => {
       });
       expect(deleteResponse.status).toBe(404);
       expect(await deleteResponse.json()).toEqual({
+        error: 'SAVED_WORKSHEET_NOT_FOUND',
+      });
+      expect(sectionsResponse.status).toBe(404);
+      expect(await sectionsResponse.json()).toEqual({
         error: 'SAVED_WORKSHEET_NOT_FOUND',
       });
     } finally {

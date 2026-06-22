@@ -53,7 +53,7 @@ export default function WorksheetStats() {
     isExoticWorksheet,
     exoticWorksheet,
     isAnonymousWorksheet,
-    anonymousWorksheetMissingSectionIds,
+    worksheetMissingSectionIds,
     exitExoticWorksheet,
     isMobile,
   } = useStore(
@@ -62,8 +62,7 @@ export default function WorksheetStats() {
       isExoticWorksheet: state.worksheetMemo.getIsExoticWorksheet(state),
       exoticWorksheet: state.exoticWorksheet,
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
-      anonymousWorksheetMissingSectionIds:
-        state.anonymousWorksheetMissingSectionIds,
+      worksheetMissingSectionIds: state.worksheetMissingSectionIds,
       exitExoticWorksheet: state.exitExoticWorksheet,
       isMobile: state.isMobile,
     })),
@@ -136,13 +135,11 @@ export default function WorksheetStats() {
             {isAnonymousWorksheet && (
               <div className={styles.worksheetInfo}>
                 <div className={styles.worksheetName}>Anonymous Worksheet</div>
-                {anonymousWorksheetMissingSectionIds.length > 0 && (
+                {worksheetMissingSectionIds.length > 0 && (
                   <div className={styles.creatorName}>
-                    {anonymousWorksheetMissingSectionIds.length} shared section
-                    {anonymousWorksheetMissingSectionIds.length === 1
-                      ? ''
-                      : 's'}{' '}
-                    no longer available in this snapshot.
+                    {worksheetMissingSectionIds.length} shared section
+                    {worksheetMissingSectionIds.length === 1 ? '' : 's'} no
+                    longer available in this snapshot.
                   </div>
                 )}
                 {anonymousConflictSummaries.length > 0 && (
@@ -161,6 +158,15 @@ export default function WorksheetStats() {
                 <SavedWorksheetRestorePanel
                   refreshKey={savedWorksheetRefreshKey}
                 />
+              </div>
+            )}
+            {!isAnonymousWorksheet && worksheetMissingSectionIds.length > 0 && (
+              <div className={styles.worksheetInfo}>
+                <div className={styles.creatorName}>
+                  {worksheetMissingSectionIds.length} saved section
+                  {worksheetMissingSectionIds.length === 1 ? '' : 's'} no longer
+                  available in this snapshot.
+                </div>
               </div>
             )}
             <dl>

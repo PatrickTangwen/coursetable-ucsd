@@ -16,7 +16,9 @@ import {
   fetchSavedWorksheets,
   isLegacyUserInfo,
   renameSavedWorksheet as renameSavedWorksheetApi,
+  updateSavedWorksheetSections,
   type SavedWorksheet,
+  type SavedWorksheetSection,
   type SavedWorksheetSummary,
   type UserWorksheets,
 } from '../queries/api';
@@ -34,6 +36,7 @@ import {
   ANONYMOUS_WORKSHEET_NAME,
   addListingToAnonymousWorksheet,
   anonymousWorksheetFromShare,
+  getListingSectionId,
   readAnonymousWorksheetStorage,
   removeListingFromAnonymousWorksheet,
   resolveAnonymousWorksheet,
@@ -91,6 +94,7 @@ interface WorksheetState {
   viewAnonymousWorksheet: boolean;
   anonymousWorksheet: AnonymousWorksheetState;
   anonymousWorksheetMissingSectionIds: string[];
+  worksheetMissingSectionIds: string[];
   activeSavedWorksheet: SavedWorksheet | undefined;
   activeSavedWorksheetOwnerId: number | undefined;
   activeSavedWorksheetIdsByTerm: { [term: string]: number | undefined };
@@ -139,6 +143,23 @@ interface WorksheetActions {
   createBlankSavedWorksheetForTerm: (term: Season) => Promise<boolean>;
   renameSavedWorksheet: (id: number, name: string) => Promise<boolean>;
   deleteSavedWorksheet: (id: number) => Promise<boolean>;
+  addActiveSavedWorksheetListing: (
+    listing: AnonymousWorksheetListing,
+    color: string,
+  ) => Promise<boolean>;
+  removeActiveSavedWorksheetListing: (
+    listing: AnonymousWorksheetListing,
+  ) => Promise<boolean>;
+  setActiveSavedWorksheetListingHidden: (
+    listing: AnonymousWorksheetListing,
+    hidden: boolean,
+  ) => Promise<boolean>;
+  setActiveSavedWorksheetListingColor: (
+    listing: AnonymousWorksheetListing,
+    color: string,
+  ) => Promise<boolean>;
+  setAllActiveSavedWorksheetHidden: (hidden: boolean) => Promise<boolean>;
+  clearActiveSavedWorksheet: () => Promise<boolean>;
   addAnonymousWorksheetListing: (
     listing: AnonymousWorksheetListing,
     color: string,
@@ -157,6 +178,7 @@ interface WorksheetActions {
   setAllAnonymousWorksheetHidden: (hidden: boolean) => void;
   clearAnonymousWorksheet: () => void;
   setAnonymousWorksheetMissingSectionIds: (sectionIds: string[]) => void;
+  setWorksheetMissingSectionIds: (sectionIds: string[]) => void;
 
   changeWorksheetView: (view: WorksheetState['worksheetView']) => void;
   setHoverCourse: (course: WorksheetState['hoverCourse']) => void;
@@ -286,6 +308,51 @@ export const createWorksheetSlice: StateCreator<
       savedWorksheetListError: null,
     });
   };
+  const replaceActiveSavedWorksheetSections = async (
+    sections: SavedWorksheetSection[],
+  ) => {
+    const { activeSavedWorksheet, user } = get();
+    if (
+      !hasSavedWorksheetAccount() ||
+      !user ||
+      isLegacyUserInfo(user) ||
+      !activeSavedWorksheet
+    )
+      return false;
+
+    const updatedWorksheet = await updateSavedWorksheetSections(
+      activeSavedWorksheet.id,
+      sections,
+    );
+    if (!updatedWorksheet) return false;
+
+    activateSavedWorksheet(updatedWorksheet, user.user_id);
+    return true;
+  };
+  const getActiveSavedWorksheetSectionId = (
+    listing: AnonymousWorksheetListing,
+  ) => {
+    const sectionId = getListingSectionId(listing);
+    if (!sectionId) {
+      toast.error('This section cannot be saved to a Saved Worksheet.');
+      return null;
+    }
+
+    const { activeSavedWorksheet } = get();
+    const listingTerm = listing.course?.season_code;
+    if (
+      activeSavedWorksheet &&
+      listingTerm &&
+      listingTerm !== activeSavedWorksheet.term
+    ) {
+      toast.error(
+        'This section belongs to a different term than the active Saved Worksheet.',
+      );
+      return null;
+    }
+
+    return sectionId;
+  };
 
   return {
     viewedPerson: 'me',
@@ -309,6 +376,7 @@ export const createWorksheetSlice: StateCreator<
     viewAnonymousWorksheet: false,
     anonymousWorksheet: readAnonymousWorksheetStorage(CUR_SEASON),
     anonymousWorksheetMissingSectionIds: [],
+    worksheetMissingSectionIds: [],
     activeSavedWorksheet: undefined,
     activeSavedWorksheetOwnerId: undefined,
     activeSavedWorksheetIdsByTerm: {},
@@ -527,6 +595,92 @@ export const createWorksheetSlice: StateCreator<
         activateSavedWorksheet(result.fallbackWorksheet, user.user_id);
       return true;
     },
+    async addActiveSavedWorksheetListing(listing, color) {
+      const sectionId = getActiveSavedWorksheetSectionId(listing);
+      const { activeSavedWorksheet } = get();
+      if (!sectionId || !activeSavedWorksheet) return false;
+      if (
+        activeSavedWorksheet.sections.some(
+          (section) => section.sectionId === sectionId,
+        )
+      )
+        return false;
+
+      return await replaceActiveSavedWorksheetSections([
+        ...activeSavedWorksheet.sections,
+        { sectionId, color, hidden: false },
+      ]);
+    },
+    async removeActiveSavedWorksheetListing(listing) {
+      const sectionId = getActiveSavedWorksheetSectionId(listing);
+      const { activeSavedWorksheet } = get();
+      if (!sectionId || !activeSavedWorksheet) return false;
+      const nextSections = activeSavedWorksheet.sections.filter(
+        (section) => section.sectionId !== sectionId,
+      );
+      if (nextSections.length === activeSavedWorksheet.sections.length)
+        return false;
+
+      return await replaceActiveSavedWorksheetSections(nextSections);
+    },
+    async setActiveSavedWorksheetListingHidden(listing, hidden) {
+      const sectionId = getActiveSavedWorksheetSectionId(listing);
+      const { activeSavedWorksheet } = get();
+      if (!sectionId || !activeSavedWorksheet) return false;
+
+      const currentSection = activeSavedWorksheet.sections.find(
+        (section) => section.sectionId === sectionId,
+      );
+      if (!currentSection || currentSection.hidden === hidden) return false;
+
+      const nextSections = activeSavedWorksheet.sections.map((section) => {
+        if (section.sectionId !== sectionId) return section;
+        return { ...section, hidden };
+      });
+
+      return await replaceActiveSavedWorksheetSections(nextSections);
+    },
+    async setActiveSavedWorksheetListingColor(listing, color) {
+      const sectionId = getActiveSavedWorksheetSectionId(listing);
+      const { activeSavedWorksheet } = get();
+      if (!sectionId || !activeSavedWorksheet) return false;
+
+      const currentSection = activeSavedWorksheet.sections.find(
+        (section) => section.sectionId === sectionId,
+      );
+      if (!currentSection || currentSection.color === color) return false;
+
+      const nextSections = activeSavedWorksheet.sections.map((section) => {
+        if (section.sectionId !== sectionId) return section;
+        return { ...section, color };
+      });
+
+      return await replaceActiveSavedWorksheetSections(nextSections);
+    },
+    async setAllActiveSavedWorksheetHidden(hidden) {
+      const { activeSavedWorksheet } = get();
+      if (!activeSavedWorksheet) return false;
+      if (
+        activeSavedWorksheet.sections.every(
+          (section) => section.hidden === hidden,
+        )
+      )
+        return false;
+
+      return await replaceActiveSavedWorksheetSections(
+        activeSavedWorksheet.sections.map((section) => ({
+          ...section,
+          hidden,
+        })),
+      );
+    },
+    async clearActiveSavedWorksheet() {
+      const { activeSavedWorksheet } = get();
+      if (!activeSavedWorksheet || activeSavedWorksheet.sections.length === 0)
+        return false;
+
+      return await replaceActiveSavedWorksheetSections([]);
+    },
     addAnonymousWorksheetListing(listing, color) {
       const current = get().anonymousWorksheet;
       const next = addListingToAnonymousWorksheet(current, listing, color);
@@ -572,6 +726,9 @@ export const createWorksheetSlice: StateCreator<
     },
     setAnonymousWorksheetMissingSectionIds(sectionIds) {
       set({ anonymousWorksheetMissingSectionIds: sectionIds });
+    },
+    setWorksheetMissingSectionIds(sectionIds) {
+      set({ worksheetMissingSectionIds: sectionIds });
     },
     worksheetView: 'calendar',
     hoverCourse: null,
@@ -655,6 +812,7 @@ export const useWorksheetEffects = () => {
     viewedWorksheetNumber,
     setWorksheetInfo,
     setAnonymousWorksheetMissingSectionIds,
+    setWorksheetMissingSectionIds,
   } = useStore(
     useShallow((state) => ({
       exoticWorksheet: state.exoticWorksheet,
@@ -667,6 +825,7 @@ export const useWorksheetEffects = () => {
       setWorksheetInfo: state.setWorksheetInfo,
       setAnonymousWorksheetMissingSectionIds:
         state.setAnonymousWorksheetMissingSectionIds,
+      setWorksheetMissingSectionIds: state.setWorksheetMissingSectionIds,
     })),
   );
 
@@ -716,33 +875,46 @@ export const useWorksheetEffects = () => {
         : null,
     [activeSavedWorksheetState, catalogCourses],
   );
-  const anonymousMissingKey =
-    anonymousResolved.missingSectionIds.length > 0
-      ? anonymousResolved.missingSectionIds.join('\n')
+  const displayedMissingSectionIds = useMemo(
+    () =>
+      isAnonymousWorksheet
+        ? anonymousResolved.missingSectionIds
+        : (activeSavedWorksheetResolved?.missingSectionIds ?? []),
+    [
+      activeSavedWorksheetResolved?.missingSectionIds,
+      anonymousResolved.missingSectionIds,
+      isAnonymousWorksheet,
+    ],
+  );
+  const displayedMissingKey =
+    displayedMissingSectionIds.length > 0
+      ? displayedMissingSectionIds.join('\n')
       : '';
-  const lastWarnedAnonymousMissingKey = useRef('');
+  const lastWarnedMissingKey = useRef('');
 
   useEffect(() => {
-    if (!isAnonymousWorksheet) {
-      setAnonymousWorksheetMissingSectionIds([]);
-      lastWarnedAnonymousMissingKey.current = '';
+    setWorksheetMissingSectionIds(displayedMissingSectionIds);
+    setAnonymousWorksheetMissingSectionIds(
+      isAnonymousWorksheet ? displayedMissingSectionIds : [],
+    );
+
+    if (!displayedMissingKey) {
+      lastWarnedMissingKey.current = '';
       return;
     }
-    setAnonymousWorksheetMissingSectionIds(anonymousResolved.missingSectionIds);
-    if (
-      anonymousMissingKey &&
-      anonymousMissingKey !== lastWarnedAnonymousMissingKey.current
-    ) {
-      lastWarnedAnonymousMissingKey.current = anonymousMissingKey;
+
+    if (displayedMissingKey !== lastWarnedMissingKey.current) {
+      lastWarnedMissingKey.current = displayedMissingKey;
       toast.warning(
-        `Some worksheet sections are no longer in this snapshot: ${anonymousResolved.missingSectionIds.join(', ')}`,
+        `Some worksheet sections are no longer in this snapshot: ${displayedMissingSectionIds.join(', ')}`,
       );
     }
   }, [
-    anonymousMissingKey,
-    anonymousResolved.missingSectionIds,
+    displayedMissingKey,
+    displayedMissingSectionIds,
     isAnonymousWorksheet,
     setAnonymousWorksheetMissingSectionIds,
+    setWorksheetMissingSectionIds,
   ]);
 
   const {
@@ -763,6 +935,60 @@ export const useWorksheetEffects = () => {
       : viewedWorksheetNumber,
   );
   setWorksheetInfo(courses, worksheetLoading, worksheetError);
+};
+
+export const useSavedWorksheetBootstrap = () => {
+  const {
+    activeSavedWorksheet,
+    activeSavedWorksheetOwnerId,
+    authStatus,
+    ensureMainSavedWorksheetForTerm,
+    savedWorksheetBootstrapStatus,
+    user,
+    viewAnonymousWorksheet,
+  } = useStore(
+    useShallow((state) => ({
+      activeSavedWorksheet: state.activeSavedWorksheet,
+      activeSavedWorksheetOwnerId: state.activeSavedWorksheetOwnerId,
+      authStatus: state.authStatus,
+      ensureMainSavedWorksheetForTerm: state.ensureMainSavedWorksheetForTerm,
+      savedWorksheetBootstrapStatus: state.savedWorksheetBootstrapStatus,
+      user: state.user,
+      viewAnonymousWorksheet: state.viewAnonymousWorksheet,
+    })),
+  );
+
+  useEffect(() => {
+    if (
+      authStatus !== 'authenticated' ||
+      !user ||
+      isLegacyUserInfo(user) ||
+      viewAnonymousWorksheet ||
+      savedWorksheetBootstrapStatus === 'loading' ||
+      savedWorksheetBootstrapStatus === 'error'
+    )
+      return;
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const isWorksheetShareOrImport =
+      window.location.pathname === '/worksheet' &&
+      (searchParams.has('ws') ||
+        (searchParams.has('t') && searchParams.has('sections')));
+    if (isWorksheetShareOrImport) return;
+
+    if (activeSavedWorksheet && activeSavedWorksheetOwnerId === user.user_id)
+      return;
+
+    void ensureMainSavedWorksheetForTerm(CUR_SEASON);
+  }, [
+    activeSavedWorksheet,
+    activeSavedWorksheetOwnerId,
+    authStatus,
+    ensureMainSavedWorksheetForTerm,
+    savedWorksheetBootstrapStatus,
+    user,
+    viewAnonymousWorksheet,
+  ]);
 };
 
 export type WorksheetNumberOption = Option<number> & {

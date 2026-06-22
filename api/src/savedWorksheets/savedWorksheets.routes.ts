@@ -18,6 +18,7 @@ export function registerSavedWorksheetRoutes(
     createBlankWorksheet,
     renameSavedWorksheet,
     deleteSavedWorksheet,
+    updateSavedWorksheetSections,
   } = createSavedWorksheetHandlers(store, now);
 
   app.get(
@@ -44,6 +45,11 @@ export function registerSavedWorksheetRoutes(
     '/api/savedWorksheets/:id/delete',
     authAppUser,
     asyncHandler(deleteSavedWorksheet),
+  );
+  app.post(
+    '/api/savedWorksheets/:id/sections',
+    authAppUser,
+    asyncHandler(updateSavedWorksheetSections),
   );
   app.get(
     '/api/savedWorksheets/:id',

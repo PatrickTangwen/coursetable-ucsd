@@ -36,6 +36,7 @@ import {
 } from './slices/WishlistSlice';
 import {
   createWorksheetSlice,
+  useSavedWorksheetBootstrap,
   useWorksheetEffects,
   type WorksheetSlice,
 } from './slices/WorksheetSlice';
@@ -164,5 +165,6 @@ export const useInitStore = () => {
   useDimensions();
   useTheme();
   useWishlistEffects();
+  useSavedWorksheetBootstrap();
   useWorksheetEffects();
 };

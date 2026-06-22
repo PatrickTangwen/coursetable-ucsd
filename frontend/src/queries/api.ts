@@ -1270,6 +1270,7 @@ const savedWorksheetSummarySchema = z.object({
 });
 
 export type SavedWorksheet = z.infer<typeof savedWorksheetSchema>;
+export type SavedWorksheetSection = z.infer<typeof savedWorksheetSectionSchema>;
 export type SavedWorksheetSummary = z.infer<typeof savedWorksheetSummarySchema>;
 export type CreateBlankSavedWorksheetInput = {
   name?: string;
@@ -1373,6 +1374,29 @@ export async function deleteSavedWorksheet(id: number) {
           return true;
         case 'MAIN_SAVED_WORKSHEET_CANNOT_BE_DELETED':
           toast.error('Main Worksheet cannot be deleted.');
+          return true;
+        default:
+          return false;
+      }
+    },
+  });
+}
+
+export async function updateSavedWorksheetSections(
+  id: number,
+  sections: SavedWorksheetSection[],
+) {
+  return await fetchAPI(`/savedWorksheets/${id}/sections`, {
+    body: { sections },
+    schema: savedWorksheetSchema,
+    breadcrumb: {
+      category: 'savedWorksheets',
+      message: 'Updating saved worksheet sections',
+    },
+    handleErrorCode(err) {
+      switch (err) {
+        case 'SAVED_WORKSHEET_NOT_FOUND':
+          toast.error('Saved worksheet not found');
           return true;
         default:
           return false;

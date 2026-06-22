@@ -13,6 +13,7 @@ const apiMocks = vi.hoisted(() => ({
   fetchSavedWorksheet: vi.fn(),
   fetchSavedWorksheets: vi.fn(),
   renameSavedWorksheet: vi.fn(),
+  updateSavedWorksheetSections: vi.fn(),
 }));
 
 vi.mock('../queries/api', async (importOriginal) => {
@@ -25,6 +26,7 @@ vi.mock('../queries/api', async (importOriginal) => {
     fetchSavedWorksheet: apiMocks.fetchSavedWorksheet,
     fetchSavedWorksheets: apiMocks.fetchSavedWorksheets,
     renameSavedWorksheet: apiMocks.renameSavedWorksheet,
+    updateSavedWorksheetSections: apiMocks.updateSavedWorksheetSections,
   };
 });
 
@@ -90,17 +92,30 @@ function toSummary(worksheet: SavedWorksheet): SavedWorksheetSummary {
   };
 }
 
-async function loadStore() {
+async function loadStore({
+  signedIn = true,
+}: {
+  signedIn?: boolean;
+} = {}) {
   vi.resetModules();
   vi.stubGlobal('localStorage', createStorage());
   vi.stubGlobal('sessionStorage', createStorage());
   const { useStore } = await import('../store');
   useStore.setState({
-    authStatus: 'authenticated',
-    user: testUser,
+    authStatus: signedIn ? 'authenticated' : 'unauthenticated',
+    user: signedIn ? testUser : undefined,
   });
   return useStore;
 }
+
+const firstListing = {
+  crn: '123' as never,
+  section_id: 'S126-123',
+  course: {
+    season_code: s126,
+    listings: [{ crn: '123' as never, section_id: 'S126-123' }],
+  },
+};
 
 describe('Saved Worksheet slice behavior', () => {
   beforeEach(() => {
@@ -229,6 +244,81 @@ describe('Saved Worksheet slice behavior', () => {
     expect(useStore.getState().activeSavedWorksheetIdsByTerm[s126]).toBe(10);
     expect(useStore.getState().savedWorksheetSummaries).toEqual([
       toSummary(mainWorksheet),
+    ]);
+  });
+
+  it('persists active Saved Worksheet add, hide, color, and remove edits', async () => {
+    const useStore = await loadStore();
+    useStore.setState({
+      activeSavedWorksheet: mainWorksheet,
+      activeSavedWorksheetOwnerId: testUser.user_id,
+      activeSavedWorksheetIdsByTerm: { [s126]: mainWorksheet.id },
+      savedWorksheetSummaries: [toSummary(mainWorksheet)],
+    });
+    apiMocks.updateSavedWorksheetSections.mockImplementation(
+      (id: number, sections: SavedWorksheet['sections']) =>
+        Promise.resolve({
+          ...mainWorksheet,
+          id,
+          updatedAt: 3,
+          sourceSectionCount: sections.length,
+          savedSectionCount: sections.length,
+          sections,
+        }),
+    );
+
+    const added = await useStore
+      .getState()
+      .addActiveSavedWorksheetListing(firstListing, '#123456');
+    expect(added).toBe(true);
+    expect(apiMocks.updateSavedWorksheetSections).toHaveBeenLastCalledWith(10, [
+      { sectionId: 'S126-123', color: '#123456', hidden: false },
+    ]);
+    expect(useStore.getState().activeSavedWorksheet?.sections).toEqual([
+      { sectionId: 'S126-123', color: '#123456', hidden: false },
+    ]);
+    expect(useStore.getState().savedWorksheetSummaries[0]?.sectionCount).toBe(
+      1,
+    );
+
+    const hidden = await useStore
+      .getState()
+      .setActiveSavedWorksheetListingHidden(firstListing, true);
+    expect(hidden).toBe(true);
+    expect(apiMocks.updateSavedWorksheetSections).toHaveBeenLastCalledWith(10, [
+      { sectionId: 'S126-123', color: '#123456', hidden: true },
+    ]);
+
+    const recolored = await useStore
+      .getState()
+      .setActiveSavedWorksheetListingColor(firstListing, '#654321');
+    expect(recolored).toBe(true);
+    expect(apiMocks.updateSavedWorksheetSections).toHaveBeenLastCalledWith(10, [
+      { sectionId: 'S126-123', color: '#654321', hidden: true },
+    ]);
+
+    const removed = await useStore
+      .getState()
+      .removeActiveSavedWorksheetListing(firstListing);
+    expect(removed).toBe(true);
+    expect(apiMocks.updateSavedWorksheetSections).toHaveBeenLastCalledWith(
+      10,
+      [],
+    );
+    expect(useStore.getState().activeSavedWorksheet?.sections).toEqual([]);
+  });
+
+  it('keeps signed-out worksheet edits in the browser-local worksheet path', async () => {
+    const useStore = await loadStore({ signedIn: false });
+
+    const changed = useStore
+      .getState()
+      .addAnonymousWorksheetListing(firstListing, '#123456');
+
+    expect(changed).toBe(true);
+    expect(apiMocks.updateSavedWorksheetSections).not.toHaveBeenCalled();
+    expect(useStore.getState().anonymousWorksheet.courses).toEqual([
+      { sectionId: 'S126-123', color: '#123456', hidden: false },
     ]);
   });
 });
