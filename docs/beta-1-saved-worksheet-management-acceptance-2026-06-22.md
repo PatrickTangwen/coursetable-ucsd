@@ -12,11 +12,18 @@ Date: 2026-06-22
 - Planning doc:
   `docs/beta-1-saved-worksheet-management-2026-06-22.md`
 - Baseline commit before this acceptance note: `e2ad522`
+- Final interaction-alignment commit: `ddf597a`
 
 This record validates the integrated Beta-1 Saved Worksheet Management flow
 after #29 through #33. It does not expand scope into multi-term support,
 automatic Local Worksheet merge, sharing controls, friends, demand,
 availability data, or worksheet-level GPA aggregation.
+
+Post-acceptance correction: initial #34 acceptance included a separate Local
+Worksheet import prompt. Follow-up review aligned the UX with the original
+CourseTable interaction model: signed-out and signed-in users share the same
+visible worksheet flow, and sign-in changes the persistence backend rather than
+showing a parallel Local Worksheet save/import prompt.
 
 ## Commands
 
@@ -24,7 +31,7 @@ Passed:
 
 ```bash
 bun run --cwd frontend test src/components/Worksheet/WorksheetStats.test.tsx
-bun run --cwd frontend test src/components/Worksheet/WorksheetStats.test.tsx src/components/Worksheet/NavbarWorksheetSearch.test.tsx src/components/Worksheet/LocalWorksheetImportPrompt.test.tsx src/slices/WorksheetSlice.savedWorksheets.test.ts src/utilities/anonymousWorksheet.test.ts src/utilities/course.test.ts src/utilities/calendar.test.ts
+bun run --cwd frontend test src/components/Worksheet/WorksheetStats.test.tsx src/components/Worksheet/NavbarWorksheetSearch.test.tsx src/slices/WorksheetSlice.savedWorksheets.test.ts src/utilities/anonymousWorksheet.test.ts src/utilities/course.test.ts src/utilities/calendar.test.ts
 bun run typecheck
 bun run --cwd frontend test
 bun run checks
@@ -80,11 +87,13 @@ Validated:
 - Renaming the extra Saved Worksheet updated the active header and selector.
 - Deleting the active extra Saved Worksheet returned the page to Main Worksheet
   and preserved a valid account worksheet.
-- Signed-out Catalog add still wrote to the browser-local Local Worksheet path.
-- After signing back in with the development verification path, `/worksheet`
-  stayed on account Main Worksheet and displayed a separate `Local Worksheet`
-  prompt with `Save Local Worksheet`; the local course was not automatically
-  merged into the account path.
+- Signed-out Catalog add still wrote to the browser-local worksheet path.
+- After the interaction-alignment follow-up, signed-in `/worksheet` opens the
+  active account worksheet, normally Main Worksheet, without displaying a
+  separate `Local Worksheet`, `Save Local Worksheet`, or
+  `sections in this browser` prompt.
+- Browser-local worksheet state is not automatically merged, synced, or cleared
+  when the signed-in account worksheet opens.
 - At a 390px-wide viewport, worksheet header controls remained usable and
   button text did not overflow. The page still had a small horizontal scroll
   width from the calendar grid, which is outside the header-control scope.
@@ -93,5 +102,5 @@ Validated:
 
 ## Outcome
 
-#34 passes this acceptance run. Parent #28 can be reviewed after #34 is closed
-with this evidence linked.
+#34 passes with the follow-up interaction alignment in `ddf597a`. Parent #28
+should be read with the updated PRD and ADR 0010 interaction-alignment note.

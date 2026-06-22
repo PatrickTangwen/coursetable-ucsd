@@ -17,8 +17,11 @@ The post-Auth Foundation validation slice that proves UCSD User Identity and App
 _Avoid_: Email delivery beta, hosted staging rollout, new product capability
 
 **Beta-1 Save Anonymous Worksheet To Account**:
-The post-auth product slice where a signed-in user explicitly turns an Anonymous Worksheet into a Saved Worksheet.
-_Avoid_: Automatic save on login, implicit worksheet sync, auth validation
+The completed transitional post-auth slice that proved App User ID ownership
+for saving and restoring browser-local worksheet state as Saved Worksheets. The
+current Saved Worksheet Management UX no longer exposes this as the default
+worksheet-page interaction.
+_Avoid_: Current default worksheet UX, automatic save on login, implicit sync
 
 **Catalog Snapshot**:
 A term-scoped, self-contained JSON data artifact that the frontend uses for catalog search, course detail, and anonymous worksheet planning in MVP-1.
@@ -103,17 +106,21 @@ A student-selected set of course sections for planning a schedule within a term.
 _Avoid_: Cart, schedule cart, saved schedule
 
 **Anonymous Worksheet**:
-A worksheet that belongs only to the current browser/session and is not attached to a user account.
-_Avoid_: Saved worksheet, server worksheet, account worksheet
+A browser-local worksheet that is not attached to a user account. This term is
+primarily implementation and historical planning language; current user-facing
+copy should usually say Worksheet or Main Worksheet.
+_Avoid_: Saved worksheet, server worksheet, account worksheet, visible product label
 
 **Local Worksheet**:
-The user-facing name for an Anonymous Worksheet. It is automatically saved in
-the current browser's local storage when the user adds, removes, hides, or
-recolors Sections, but it is not attached to a UCSD User Identity until the user
-explicitly saves or imports it into their account. After sign-in, the planner
-should default to the account's Main Worksheet and offer Local Worksheet import
-as an explicit action rather than automatically switching, merging, or syncing.
-_Avoid_: Saved worksheet, account worksheet, synced worksheet
+Historical/user-support shorthand for the browser-local Worksheet used while
+signed out. Current UI should not present Local Worksheet as a separate object
+beside Saved Worksheets. Signed-out users use the same add/remove/hide/color
+workflow and the same visible Worksheet language; those edits persist in
+`localStorage`. After sign-in, the visible worksheet switches to the account's
+Active Saved Worksheet, normally Main Worksheet. Browser-local contents are not
+automatically merged, synced, cleared, or surfaced through a default import
+prompt.
+_Avoid_: Saved worksheet, account worksheet, synced worksheet, import prompt
 
 **App DB**:
 The backend persistence store for signed-in user product data such as saved worksheets, saved searches, wishlist, and privacy settings.
@@ -136,14 +143,14 @@ A worksheet attached to a signed-in user account and persisted by the backend.
 _Avoid_: Anonymous worksheet, local worksheet
 
 **Main Worksheet**:
-The default user-facing name for a signed-in user's first or primary Saved
-Worksheet within a supported term. In the UCSD planner, Main Worksheet is a
-term-scoped Saved Worksheet owned by App User ID and made of Section IDs;
-signed-in users should land on the term's Main Worksheet instead of being asked
-to manage an Anonymous Worksheet by default. For each supported term a signed-in
-user should always have at least one Saved Worksheet; the only Saved Worksheet
-in that term is not user-deletable. It is not the legacy CourseTable
-worksheet-number model.
+The default user-facing worksheet name. While signed out, Main Worksheet is the
+browser-local worksheet persisted in `localStorage`. While signed in, Main
+Worksheet is the user's first or primary term-scoped Saved Worksheet, owned by
+App User ID and made of Section IDs. Signed-in users should land on the term's
+Main Worksheet instead of being asked to manage a separate browser-local
+worksheet by default. For each supported term a signed-in user should always
+have at least one Saved Worksheet; the only Saved Worksheet in that term is not
+user-deletable. It is not the legacy CourseTable worksheet-number model.
 _Avoid_: Legacy main worksheet, worksheet number zero, netId-owned worksheet
 
 **Blank Saved Worksheet**:
@@ -162,7 +169,8 @@ _Avoid_: Global active worksheet, cross-term worksheet, browser-only ownership
 The signed-in user experience for finding, selecting, renaming, deleting, and
 distinguishing persisted Saved Worksheets after the initial save and restore
 path exists.
-_Avoid_: Initial save slice, automatic sync, worksheet sharing, wishlist
+_Avoid_: Initial save slice, automatic sync, Local Worksheet import prompt,
+worksheet sharing, wishlist
 
 **Saved Search**:
 A signed-in user's persisted catalog search text and filter state that can be restored as catalog URL/filter state.

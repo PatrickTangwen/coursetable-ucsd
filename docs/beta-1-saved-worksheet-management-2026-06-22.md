@@ -17,9 +17,9 @@ Signed-in users need the planner to behave like a stable account-owned
 workspace. They should land in a real Main Worksheet for the active term, create
 blank additional Saved Worksheets, rename and delete those worksheets, and have
 course add/remove/hide/color changes persist to their account. Signed-out users
-should still be able to plan locally, and their Local Worksheet should continue
-to auto-save in the current browser without being confused with an account
-Saved Worksheet.
+should get the same worksheet interaction model, with the same visible
+Worksheet/Main Worksheet language, while persistence stays in the current
+browser's local storage instead of the account backend.
 
 ## Solution
 
@@ -39,11 +39,14 @@ the worksheet page should create a blank Main Worksheet and make it active.
 Creating a new worksheet from the dropdown should create a blank Saved Worksheet
 and make it active. Saved Worksheet edits should persist directly to the backend.
 
-For signed-out users, the Local Worksheet remains available and continues to
-auto-save in browser local storage. After sign-in, the planner defaults to the
-account Main Worksheet and offers Local Worksheet import as an explicit action.
-It must not automatically switch, merge, or sync Local Worksheet state into the
-account.
+For signed-out users, the worksheet remains available and continues to
+auto-save in browser local storage. It should not look like a separate product
+mode that competes with account Saved Worksheets. After sign-in, the planner
+defaults to the account Main Worksheet and does not show a parallel Local
+Worksheet import/save prompt. Browser-local state must not automatically switch,
+merge, sync, or clear account worksheet state. Importing or copying
+browser-local state into an account worksheet is future explicit-copy scope, not
+part of this management beta.
 
 ## User Stories
 
@@ -73,13 +76,13 @@ account.
 24. As a signed-in UCSD planner user, I want the planner to fall back to Main Worksheet if my remembered active worksheet was deleted, so that the page always has a valid target.
 25. As a signed-in UCSD planner user, I want switching terms in the future to load that term's active worksheet, so that term-specific planning feels natural.
 26. As a signed-in UCSD planner user, I want this beta to preserve the future term-scoped model, so that Beta-2 multi-term support does not require redesigning Saved Worksheet ownership.
-27. As a signed-out planner user, I want to keep using a Local Worksheet, so that I can plan before deciding whether to sign in.
-28. As a signed-out planner user, I want my Local Worksheet to auto-save in this browser, so that I can return later without an account and continue planning.
+27. As a signed-out planner user, I want to keep using the Worksheet with the same add/remove/hide/color controls, so that I can plan before deciding whether to sign in.
+28. As a signed-out planner user, I want my worksheet to auto-save in this browser, so that I can return later without an account and continue planning.
 29. As a signed-out planner user, I want local add/remove/hide/color actions to stay local, so that I understand they are not account-synced.
-30. As a returning signed-in user with a Local Worksheet in this browser, I want the planner to open my Main Worksheet by default, so that account state remains the primary signed-in experience.
-31. As a returning signed-in user with a Local Worksheet in this browser, I want an explicit option to save the Local Worksheet into my account, so that I can choose whether to keep it.
-32. As a returning signed-in user with a Local Worksheet in this browser, I do not want automatic merging, so that account worksheets are not changed unexpectedly.
-33. As a returning signed-in user with a Local Worksheet in this browser, I do not want the Local Worksheet cleared after saving it to my account, so that I can still inspect or reuse the local plan.
+30. As a returning signed-in user who previously planned in this browser while signed out, I want the planner to open my account Main Worksheet by default, so that account state remains the primary signed-in experience.
+31. As a returning signed-in user who previously planned in this browser while signed out, I do not want a parallel Local Worksheet import prompt to distract from the active account worksheet, so that the page has one clear editing target.
+32. As a returning signed-in user who previously planned in this browser while signed out, I do not want automatic merging, syncing, or clearing, so that account worksheets and browser-local storage are not changed unexpectedly.
+33. As a returning signed-in user, I want any future copy/import behavior to be introduced as a clearly labeled separate feature, so that Saved Worksheet Management does not imply unsupported migration behavior.
 34. As a mobile or narrow-screen planner user, I want the worksheet controls to remain usable without text overflow, so that the core actions work on smaller screens.
 35. As a planner user, I want Summary to keep the current compact card visual, so that the worksheet page remains scannable.
 36. As a planner user, I want Summary to show only UCSD-supported metrics, so that I am not misled by unavailable workload or rating data.
@@ -91,8 +94,8 @@ account.
 ## Implementation Decisions
 
 - Use the domain language in `CONTEXT.md`: Main Worksheet, Saved Worksheet,
-  Active Saved Worksheet, Blank Saved Worksheet, Local Worksheet, App User ID,
-  Section ID, and Active Planning Term.
+  Active Saved Worksheet, Blank Saved Worksheet, browser-local worksheet, App
+  User ID, Section ID, and Active Planning Term.
 - Respect ADR 0008: account-owned App DB records use internal App User ID, not
   a UCSD email local-part or legacy `netId`.
 - Respect ADR 0010: reuse the original CourseTable worksheet-management
@@ -129,12 +132,16 @@ account.
   replacement or section mutation for add/remove/hide/color persistence.
 - The existing `from-anonymous` route can remain, but it should not be the
   primary Saved Worksheet Management contract.
-- Local Worksheet remains the signed-out browser-local planning mode. It
+- Browser-local worksheet state remains the signed-out persistence mode. It
   continues to auto-save to local storage on add/remove/hide/color.
-- After sign-in, the page defaults to the account's Main Worksheet and treats
-  Local Worksheet import as explicit. No automatic merge or sync occurs.
-- Saving a Local Worksheet into the account should not clear the Local
-  Worksheet from local storage.
+- Signed-out and signed-in users should see the same core worksheet
+  interaction shape. The storage backend changes from browser local storage to
+  account Saved Worksheet after sign-in.
+- After sign-in, the page defaults to the account's Main Worksheet. It should
+  not show a default Local Worksheet import/save prompt. No automatic merge,
+  sync, or clearing occurs.
+- Copying or importing browser-local worksheet state into the account is future
+  explicit-copy scope, not part of this Saved Worksheet Management contract.
 - Lock icons in this beta are private indicators only. Public/private sharing
   controls are out of scope.
 - Summary should keep the current compact card visual. It should show only
@@ -153,7 +160,8 @@ account.
 - The highest-value seam is the worksheet page behavior under signed-in and
   signed-out states: term-scoped Main Worksheet creation, selector behavior,
   blank create, rename, delete, active worksheet switching, persistent edits,
-  Local Worksheet auto-save, and explicit Local Worksheet import.
+  browser-local auto-save, and absence of an automatic or default Local
+  Worksheet import prompt.
 - API/store tests should cover auth requirement, term-scoped list, ensure Main
   Worksheet behavior, blank create, rename, delete, cannot-delete-only-worksheet,
   ownership isolation, and section add/remove/hide/color persistence.
@@ -167,8 +175,9 @@ account.
   worksheet page load ensuring Main Worksheet, creating a blank worksheet,
   adding a course to the active Saved Worksheet, reloading or using a fresh
   context to confirm persistence, renaming, deleting an extra worksheet,
-  preserving the only Main Worksheet, and confirming Local Worksheet remains
-  explicit rather than automatically merged.
+  preserving the only Main Worksheet, confirming signed-out browser-local
+  worksheet edits still work, and confirming signed-in `/worksheet` shows one
+  active account worksheet target without a Local Worksheet import prompt.
 - If Playwright is available in the Codex runtime, prefer it for the final
   smoke. If browser automation is blocked by local TLS or session constraints,
   record an equivalent manual smoke using the same path.
@@ -180,7 +189,9 @@ account.
   design.
 - Copy or duplicate worksheet behavior.
 - Automatic import, merge, or sync from Local Worksheet to Saved Worksheet.
-- Clearing Local Worksheet after account save.
+- Default Local Worksheet import/save prompts in the signed-in worksheet page.
+- Copying browser-local worksheet state into an account Saved Worksheet.
+- Clearing browser-local worksheet state after sign-in.
 - Public/private sharing controls.
 - Friends, friend worksheets, Add Friend, social visibility, and demand counts.
 - Wishlist.

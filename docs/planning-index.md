@@ -28,13 +28,16 @@ For new agent or human planning work, read in this order:
 - `docs/planning/README.md`: current-vs-historical seam for planning inputs.
 - `docs/beta-1-real-backend-auth-validation-2026-06-20.md`: focused plan for
   issue #20, `Beta-1: Real Backend Auth Validation`.
-- `docs/beta-1-save-anonymous-worksheet-to-account-2026-06-21.md`: focused plan
-  for the next post-auth product slice and the recommended follow-up beta
-  sequence.
+- `docs/beta-1-save-anonymous-worksheet-to-account-2026-06-21.md`: completed
+  transitional save/restore slice; read its 2026-06-22 supersession note before
+  using its UX language.
 - `docs/beta-1-saved-worksheet-acceptance-2026-06-21.md`: acceptance record for
   issue #26 and parent PRD #24.
 - `docs/beta-1-saved-worksheet-management-2026-06-22.md`: PRD for the next
-  post-auth Saved Worksheet Management beta.
+  post-auth Saved Worksheet Management beta and current worksheet interaction
+  logic.
+- `docs/beta-1-saved-worksheet-management-acceptance-2026-06-22.md`:
+  acceptance record for issue #34 and the final interaction-alignment follow-up.
 - `docs/grade-archive-ui-update-2026-06-21.md`: current UI/data contract for
   Average GPA, Record Count, and Past Grades.
 - `docs/beta-0-ui-surface-inventory-2026-06-20.md`: current Beta-0 UI surface

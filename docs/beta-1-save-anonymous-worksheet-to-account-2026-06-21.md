@@ -28,6 +28,19 @@ signed-in user explicitly saves the current Anonymous Worksheet into their
 account as a Saved Worksheet. Login itself must not automatically save, merge,
 or sync anonymous worksheet state.
 
+## 2026-06-22 Supersession Note
+
+This document records the completed transitional save/restore slice (#24, #27,
+#25, and #26). The current Saved Worksheet Management UX is governed by
+`docs/beta-1-saved-worksheet-management-2026-06-22.md` and ADR 0010's
+2026-06-22 interaction alignment note. In the current worksheet page, signed-out
+users and signed-in users share the same visible worksheet interaction model;
+the persistence backend changes from browser local storage to account Saved
+Worksheet after sign-in. The page no longer exposes a default
+save/restore/import panel for browser-local worksheet state. Future copy/import
+from browser-local state into an account worksheet should be planned as a
+separate explicit feature.
+
 ## Current Baseline
 
 Completed foundations:

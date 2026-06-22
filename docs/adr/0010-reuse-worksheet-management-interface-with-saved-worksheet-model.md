@@ -17,6 +17,17 @@ because that would conflict with the Beta-1 UCSD identity and App DB decisions.
 The second option keeps the user experience familiar without reintroducing Yale
 data semantics into the UCSD planner.
 
+**2026-06-22 Interaction Alignment**
+
+After implementation review, the worksheet page should follow the original
+CourseTable interaction model more closely: there is one visible worksheet flow,
+and authentication changes the persistence backend rather than introducing a
+parallel Local Worksheet import panel. Signed-out users edit a browser-local
+Main Worksheet persisted in `localStorage`. Signed-in users edit the active
+account Saved Worksheet, normally Main Worksheet. The page should not show a
+default Local Worksheet save/import prompt after sign-in; copy/import from
+browser-local state to account state is future explicit-copy scope.
+
 **UI Reuse Guidance**
 
 Implementation should reuse existing CourseTable UI interaction components,
