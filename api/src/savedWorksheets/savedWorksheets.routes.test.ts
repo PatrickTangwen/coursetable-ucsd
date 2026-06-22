@@ -132,6 +132,17 @@ describe('Saved Worksheet save API', () => {
     expect(savedWorksheetStore.recordsByUserId.size).toBe(0);
   });
 
+  it('blocks blank Saved Worksheet creation while anonymous', async () => {
+    const response = await client.request('/api/savedWorksheets/create-blank', {
+      method: 'POST',
+      body: JSON.stringify({ term: 'S126' }),
+    });
+
+    expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({ error: 'USER_NOT_FOUND' });
+    expect(savedWorksheetStore.recordsByUserId.size).toBe(0);
+  });
+
   it('blocks saved worksheet restore APIs while anonymous', async () => {
     const listResponse = await client.request('/api/savedWorksheets');
     const detailResponse = await client.request('/api/savedWorksheets/1');
@@ -208,6 +219,96 @@ describe('Saved Worksheet save API', () => {
       ],
     });
     expect(savedWorksheetStore.recordsByUserId.get(1)).toHaveLength(1);
+  });
+
+  it('creates a blank Saved Worksheet without copying existing worksheet sections', async () => {
+    await signIn(client, 'student@ucsd.edu');
+
+    await client.request('/api/savedWorksheets/from-anonymous', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: 'Loaded Local Worksheet',
+        term: 'S126',
+        courses: [
+          { sectionId: 'S126-123', color: '#55aaff', hidden: false },
+          { sectionId: 'S126-456', color: '#ee6677', hidden: true },
+        ],
+      }),
+    });
+
+    const response = await client.request('/api/savedWorksheets/create-blank', {
+      method: 'POST',
+      body: JSON.stringify({ term: 'S126' }),
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      id: 2,
+      name: 'New Worksheet',
+      term: 'S126',
+      createdAt: 1_000_000,
+      updatedAt: 1_000_000,
+      private: true,
+      isMain: false,
+      sourceSectionCount: 0,
+      savedSectionCount: 0,
+      sections: [],
+    });
+    expect(savedWorksheetStore.recordsByUserId.get(1)).toHaveLength(2);
+  });
+
+  it('filters Saved Worksheet list reads by term and app user id', async () => {
+    await signIn(client, 'first@ucsd.edu');
+    await client.request('/api/savedWorksheets/ensure-main', {
+      method: 'POST',
+      body: JSON.stringify({ term: 'S126' }),
+    });
+    await client.request('/api/savedWorksheets/create-blank', {
+      method: 'POST',
+      body: JSON.stringify({ name: 'Summer Plan', term: 'S126' }),
+    });
+    await client.request('/api/savedWorksheets/create-blank', {
+      method: 'POST',
+      body: JSON.stringify({ name: 'Fall Plan', term: 'FA26' }),
+    });
+
+    const firstList = await client.request('/api/savedWorksheets?term=S126');
+
+    expect(firstList.status).toBe(200);
+    expect(await firstList.json()).toEqual({
+      data: [
+        expect.objectContaining({
+          name: 'Summer Plan',
+          term: 'S126',
+          sectionCount: 0,
+        }),
+        expect.objectContaining({
+          name: 'Main Worksheet',
+          term: 'S126',
+          sectionCount: 0,
+        }),
+      ],
+    });
+
+    const secondClient = new TestClient();
+    const secondServer = await secondClient.start(app);
+    try {
+      await signIn(secondClient, 'second@ucsd.edu');
+
+      const secondList = await secondClient.request(
+        '/api/savedWorksheets?term=S126',
+      );
+
+      expect(secondList.status).toBe(200);
+      expect(await secondList.json()).toEqual({ data: [] });
+    } finally {
+      await new Promise<void>((resolve, reject) => {
+        secondServer.close((err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+    }
   });
 
   it('ensures a signed-in user has a term-scoped Main Worksheet', async () => {

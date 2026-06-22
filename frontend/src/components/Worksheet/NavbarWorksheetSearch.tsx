@@ -5,13 +5,19 @@ import {
   Button,
   Dropdown,
 } from 'react-bootstrap';
+import { MdAdd } from 'react-icons/md';
 import { useShallow } from 'zustand/react/shallow';
 import SeasonDropdown from './SeasonDropdown';
 import WorksheetNumDropdown from './WorksheetNumberDropdown';
 import WorksheetStatusIcon from './WorksheetStatusIcon';
 
 import { CUR_SEASON } from '../../config';
-import { isLegacyUserInfo, type SavedWorksheet } from '../../queries/api';
+import {
+  isLegacyUserInfo,
+  type SavedWorksheet,
+  type SavedWorksheetSummary,
+} from '../../queries/api';
+import type { Season } from '../../queries/graphql-types';
 import type { WorksheetView } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
 import { Popout } from '../Search/Popout';
@@ -26,20 +32,100 @@ const viewLabels: { [key in VisibleWorksheetView]: string } = {
   list: 'List',
 };
 
+function getTermSavedWorksheets(
+  term: Season,
+  worksheets: readonly SavedWorksheetSummary[],
+) {
+  return worksheets
+    .filter((worksheet) => worksheet.term === term)
+    .sort((a, b) => {
+      if (a.isMain !== b.isMain) return a.isMain ? -1 : 1;
+      return b.createdAt - a.createdAt;
+    });
+}
+
+export function SavedWorksheetMenuView({
+  term,
+  activeWorksheetId,
+  savedWorksheetSummaries,
+  onSelectSavedWorksheet,
+  onCreateBlankSavedWorksheet,
+  isCreating,
+}: {
+  readonly term: Season;
+  readonly activeWorksheetId: number | undefined;
+  readonly savedWorksheetSummaries: readonly SavedWorksheetSummary[];
+  readonly onSelectSavedWorksheet: (id: number) => Promise<unknown>;
+  readonly onCreateBlankSavedWorksheet: () => Promise<unknown>;
+  readonly isCreating: boolean;
+}) {
+  const termWorksheets = getTermSavedWorksheets(term, savedWorksheetSummaries);
+
+  return (
+    <div className={styles.savedWorksheetMenu}>
+      {termWorksheets.map((worksheet) => (
+        <button
+          key={worksheet.id}
+          type="button"
+          className={clsx(
+            styles.savedWorksheetOption,
+            activeWorksheetId === worksheet.id &&
+              styles.savedWorksheetOptionActive,
+          )}
+          aria-current={activeWorksheetId === worksheet.id ? 'true' : undefined}
+          onClick={() => {
+            onSelectSavedWorksheet(worksheet.id).catch(() => {});
+          }}
+        >
+          {WorksheetStatusIcon(worksheet.isMain ? 0 : 1, worksheet.private)}
+          <span className={styles.savedWorksheetOptionText}>
+            <span className={styles.savedWorksheetOptionName}>
+              {worksheet.name}
+            </span>
+            <span className={styles.savedWorksheetStatusText}>
+              {worksheet.isMain ? 'Main Worksheet' : 'Saved Worksheet'}
+            </span>
+          </span>
+        </button>
+      ))}
+      <button
+        type="button"
+        className={styles.createSavedWorksheetButton}
+        disabled={isCreating}
+        onClick={() => {
+          onCreateBlankSavedWorksheet().catch(() => {});
+        }}
+        aria-label="Create blank saved worksheet"
+      >
+        <MdAdd aria-hidden="true" />
+        <span>{isCreating ? 'Creating' : 'New Worksheet'}</span>
+      </button>
+    </div>
+  );
+}
+
 function SavedWorksheetHeaderControlsView({
   isMobile,
   activeSavedWorksheet,
+  savedWorksheetSummaries,
+  savedWorksheetListStatus,
   savedWorksheetBootstrapStatus,
+  selectSavedWorksheet,
+  createBlankSavedWorksheetForTerm,
 }: {
   readonly isMobile: boolean;
   readonly activeSavedWorksheet: SavedWorksheet | undefined;
+  readonly savedWorksheetSummaries: SavedWorksheetSummary[];
+  readonly savedWorksheetListStatus: 'idle' | 'loading' | 'ready' | 'error';
   readonly savedWorksheetBootstrapStatus:
     | 'idle'
     | 'loading'
     | 'ready'
     | 'error';
+  readonly selectSavedWorksheet: (id: number) => Promise<boolean>;
+  readonly createBlankSavedWorksheetForTerm: (term: Season) => Promise<boolean>;
 }) {
-  const term = activeSavedWorksheet?.term ?? CUR_SEASON;
+  const activeTerm = activeSavedWorksheet?.term ?? CUR_SEASON;
   const worksheetName =
     savedWorksheetBootstrapStatus === 'loading'
       ? 'Loading worksheet'
@@ -61,8 +147,11 @@ function SavedWorksheetHeaderControlsView({
       )}
       aria-label="Saved worksheet header"
     >
-      <span className={styles.termBadge} aria-label={`Active term ${term}`}>
-        {term}
+      <span
+        className={styles.termBadge}
+        aria-label={`Active term ${activeTerm}`}
+      >
+        {activeTerm}
       </span>
       <Popout
         buttonText="Worksheet"
@@ -74,20 +163,16 @@ function SavedWorksheetHeaderControlsView({
         className={styles.savedWorksheetButton}
         dropdownClassName={styles.savedWorksheetDropdown}
       >
-        <div className={styles.savedWorksheetMenu}>
-          <div className={styles.savedWorksheetOption}>
-            {WorksheetStatusIcon(
-              activeSavedWorksheet?.isMain === false ? 1 : 0,
-              activeSavedWorksheet?.private,
-            )}
-            <span>{worksheetName}</span>
-          </div>
-          <div className={styles.savedWorksheetStatusText}>
-            {activeSavedWorksheet?.isMain === false
-              ? 'Saved Worksheet'
-              : 'Main Worksheet'}
-          </div>
-        </div>
+        <SavedWorksheetMenuView
+          term={activeTerm}
+          activeWorksheetId={activeSavedWorksheet?.id}
+          savedWorksheetSummaries={savedWorksheetSummaries}
+          onSelectSavedWorksheet={selectSavedWorksheet}
+          onCreateBlankSavedWorksheet={() =>
+            createBlankSavedWorksheetForTerm(activeTerm)
+          }
+          isCreating={savedWorksheetListStatus === 'loading'}
+        />
       </Popout>
     </div>
   );
@@ -102,7 +187,11 @@ export function NavbarWorksheetSearchView({
   hasLegacyWorksheetAccount,
   hasSavedWorksheetAccount,
   activeSavedWorksheet,
+  savedWorksheetSummaries,
+  savedWorksheetListStatus,
   savedWorksheetBootstrapStatus,
+  selectSavedWorksheet,
+  createBlankSavedWorksheetForTerm,
 }: {
   readonly isMobile: boolean;
   readonly worksheetView: WorksheetView;
@@ -112,11 +201,15 @@ export function NavbarWorksheetSearchView({
   readonly hasLegacyWorksheetAccount: boolean;
   readonly hasSavedWorksheetAccount: boolean;
   readonly activeSavedWorksheet: SavedWorksheet | undefined;
+  readonly savedWorksheetSummaries: SavedWorksheetSummary[];
+  readonly savedWorksheetListStatus: 'idle' | 'loading' | 'ready' | 'error';
   readonly savedWorksheetBootstrapStatus:
     | 'idle'
     | 'loading'
     | 'ready'
     | 'error';
+  readonly selectSavedWorksheet: (id: number) => Promise<boolean>;
+  readonly createBlankSavedWorksheetForTerm: (term: Season) => Promise<boolean>;
 }) {
   const visibleWorksheetView =
     worksheetView === 'list' ? worksheetView : 'calendar';
@@ -153,7 +246,11 @@ export function NavbarWorksheetSearchView({
           <SavedWorksheetHeaderControlsView
             isMobile={isMobile}
             activeSavedWorksheet={activeSavedWorksheet}
+            savedWorksheetSummaries={savedWorksheetSummaries}
+            savedWorksheetListStatus={savedWorksheetListStatus}
             savedWorksheetBootstrapStatus={savedWorksheetBootstrapStatus}
+            selectSavedWorksheet={selectSavedWorksheet}
+            createBlankSavedWorksheetForTerm={createBlankSavedWorksheetForTerm}
           />
         )}
       </div>
@@ -208,7 +305,11 @@ export function NavbarWorksheetSearchView({
         <SavedWorksheetHeaderControlsView
           isMobile={isMobile}
           activeSavedWorksheet={activeSavedWorksheet}
+          savedWorksheetSummaries={savedWorksheetSummaries}
+          savedWorksheetListStatus={savedWorksheetListStatus}
           savedWorksheetBootstrapStatus={savedWorksheetBootstrapStatus}
+          selectSavedWorksheet={selectSavedWorksheet}
+          createBlankSavedWorksheetForTerm={createBlankSavedWorksheetForTerm}
         />
       ) : null}
     </div>
@@ -227,7 +328,11 @@ export function NavbarWorksheetSearch({
     exitExoticWorksheet,
     user,
     activeSavedWorksheet,
+    savedWorksheetSummaries,
+    savedWorksheetListStatus,
     savedWorksheetBootstrapStatus,
+    selectSavedWorksheet,
+    createBlankSavedWorksheetForTerm,
   } = useStore(
     useShallow((state) => ({
       worksheetView: state.worksheetView,
@@ -236,7 +341,11 @@ export function NavbarWorksheetSearch({
       exitExoticWorksheet: state.exitExoticWorksheet,
       user: state.user,
       activeSavedWorksheet: state.activeSavedWorksheet,
+      savedWorksheetSummaries: state.savedWorksheetSummaries,
+      savedWorksheetListStatus: state.savedWorksheetListStatus,
       savedWorksheetBootstrapStatus: state.savedWorksheetBootstrapStatus,
+      selectSavedWorksheet: state.selectSavedWorksheet,
+      createBlankSavedWorksheetForTerm: state.createBlankSavedWorksheetForTerm,
     })),
   );
 
@@ -253,7 +362,11 @@ export function NavbarWorksheetSearch({
       hasLegacyWorksheetAccount={hasLegacyWorksheetAccount}
       hasSavedWorksheetAccount={hasSavedWorksheetAccount}
       activeSavedWorksheet={activeSavedWorksheet}
+      savedWorksheetSummaries={savedWorksheetSummaries}
+      savedWorksheetListStatus={savedWorksheetListStatus}
       savedWorksheetBootstrapStatus={savedWorksheetBootstrapStatus}
+      selectSavedWorksheet={selectSavedWorksheet}
+      createBlankSavedWorksheetForTerm={createBlankSavedWorksheetForTerm}
     />
   );
 }

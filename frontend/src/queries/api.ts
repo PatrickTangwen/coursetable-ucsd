@@ -1271,6 +1271,10 @@ const savedWorksheetSummarySchema = z.object({
 
 export type SavedWorksheet = z.infer<typeof savedWorksheetSchema>;
 export type SavedWorksheetSummary = z.infer<typeof savedWorksheetSummarySchema>;
+export type CreateBlankSavedWorksheetInput = {
+  name?: string;
+  term: Season;
+};
 
 export type SaveAnonymousWorksheetInput = {
   name: string;
@@ -1306,8 +1310,23 @@ export async function ensureMainSavedWorksheet(term: Season) {
   });
 }
 
-export async function fetchSavedWorksheets() {
-  return await fetchAPI(`/savedWorksheets?_=${Date.now()}`, {
+export async function createBlankSavedWorksheet(
+  body: CreateBlankSavedWorksheetInput,
+) {
+  return await fetchAPI('/savedWorksheets/create-blank', {
+    body,
+    schema: savedWorksheetSchema,
+    breadcrumb: {
+      category: 'savedWorksheets',
+      message: 'Creating blank saved worksheet',
+    },
+  });
+}
+
+export async function fetchSavedWorksheets(term?: Season) {
+  const params = new URLSearchParams({ _: String(Date.now()) });
+  if (term) params.set('term', term);
+  return await fetchAPI(`/savedWorksheets?${params.toString()}`, {
     schema: z.object({
       data: z.array(savedWorksheetSummarySchema),
     }),

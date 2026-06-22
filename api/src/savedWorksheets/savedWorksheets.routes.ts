@@ -15,6 +15,7 @@ export function registerSavedWorksheetRoutes(
     getSavedWorksheet,
     saveAnonymousWorksheet,
     ensureMainWorksheet,
+    createBlankWorksheet,
   } = createSavedWorksheetHandlers(store, now);
 
   app.get(
@@ -26,6 +27,11 @@ export function registerSavedWorksheetRoutes(
     '/api/savedWorksheets/ensure-main',
     authAppUser,
     asyncHandler(ensureMainWorksheet),
+  );
+  app.post(
+    '/api/savedWorksheets/create-blank',
+    authAppUser,
+    asyncHandler(createBlankWorksheet),
   );
   app.get(
     '/api/savedWorksheets/:id',

@@ -52,6 +52,7 @@ export interface SavedWorksheetStore {
 }
 
 export const MAIN_SAVED_WORKSHEET_NAME = 'Main Worksheet';
+export const BLANK_SAVED_WORKSHEET_NAME = 'New Worksheet';
 
 export function dedupeSavedWorksheetSections(
   sections: SavedWorksheetSection[],

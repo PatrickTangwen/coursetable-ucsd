@@ -1,9 +1,10 @@
 import type express from 'express';
 import z from 'zod';
 
-import type {
-  SavedWorksheetRecord,
-  SavedWorksheetStore,
+import {
+  BLANK_SAVED_WORKSHEET_NAME,
+  type SavedWorksheetRecord,
+  type SavedWorksheetStore,
 } from './savedWorksheets.store.js';
 import { getAppSessionUser } from '../auth/ucsdAuth.session.js';
 
@@ -21,6 +22,15 @@ const SaveAnonymousWorksheetSchema = z.object({
 
 const EnsureMainWorksheetSchema = z.object({
   term: z.string().trim().min(1).max(32),
+});
+
+const CreateBlankWorksheetSchema = z.object({
+  name: z.string().trim().min(1).max(64).optional(),
+  term: z.string().trim().min(1).max(32),
+});
+
+const ListSavedWorksheetsQuerySchema = z.object({
+  term: z.string().trim().min(1).max(32).optional(),
 });
 
 function savedWorksheetResponse(
@@ -58,9 +68,20 @@ export function createSavedWorksheetHandlers(
   ): Promise<void> => {
     const user = getAppSessionUser(req)!;
 
-    const worksheets = await store.listByUserId(user.user_id);
+    const queryParseRes = ListSavedWorksheetsQuerySchema.safeParse(req.query);
+    if (!queryParseRes.success) {
+      res.status(400).json({ error: 'INVALID_REQUEST' });
+      return;
+    }
 
-    res.json({ data: worksheets });
+    const worksheets = await store.listByUserId(user.user_id);
+    const data = queryParseRes.data.term
+      ? worksheets.filter(
+          (worksheet) => worksheet.term === queryParseRes.data.term,
+        )
+      : worksheets;
+
+    res.json({ data });
   };
 
   const getSavedWorksheet = async (
@@ -130,10 +151,37 @@ export function createSavedWorksheetHandlers(
     res.json(savedWorksheetResponse(worksheet));
   };
 
+  const createBlankWorksheet = async (
+    req: express.Request,
+    res: express.Response,
+  ): Promise<void> => {
+    const user = getAppSessionUser(req)!;
+
+    const bodyParseRes = CreateBlankWorksheetSchema.safeParse(req.body);
+    if (!bodyParseRes.success) {
+      res.status(400).json({ error: 'INVALID_REQUEST' });
+      return;
+    }
+
+    const body = bodyParseRes.data;
+    const worksheet = await store.createForUserId(
+      user.user_id,
+      {
+        name: body.name ?? BLANK_SAVED_WORKSHEET_NAME,
+        term: body.term,
+        sections: [],
+      },
+      now(),
+    );
+
+    res.json(savedWorksheetResponse(worksheet, 0));
+  };
+
   return {
     listSavedWorksheets,
     getSavedWorksheet,
     saveAnonymousWorksheet,
     ensureMainWorksheet,
+    createBlankWorksheet,
   };
 }

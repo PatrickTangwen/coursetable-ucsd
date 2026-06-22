@@ -64,6 +64,7 @@ const basePersistKeys: (keyof Store)[] = [
   'professorPref',
   'viewedSeason',
   'viewedWorksheetNumber',
+  'activeSavedWorksheetIdsByTerm',
   'worksheetView',
   'hasShownTutorial',
   'isCalendarViewLocked',

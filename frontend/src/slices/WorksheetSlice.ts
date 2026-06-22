@@ -9,9 +9,13 @@ import { CUR_SEASON } from '../config';
 import { seasons as allSeasons } from '../data/catalogSeasons';
 import { useCourseData, useWorksheetInfo } from '../hooks/useFerry';
 import {
+  createBlankSavedWorksheet,
   ensureMainSavedWorksheet,
+  fetchSavedWorksheet,
+  fetchSavedWorksheets,
   isLegacyUserInfo,
   type SavedWorksheet,
+  type SavedWorksheetSummary,
   type UserWorksheets,
 } from '../queries/api';
 import {
@@ -50,6 +54,8 @@ export type WorksheetView = 'calendar' | 'list' | 'map';
 
 export type { WorksheetCourse };
 
+const DEFAULT_BLANK_SAVED_WORKSHEET_NAME = 'New Worksheet';
+
 const exoticWorksheetSchema = z.object({
   season: seasonSchema,
   name: z.string(),
@@ -85,6 +91,10 @@ interface WorksheetState {
   anonymousWorksheetMissingSectionIds: string[];
   activeSavedWorksheet: SavedWorksheet | undefined;
   activeSavedWorksheetOwnerId: number | undefined;
+  activeSavedWorksheetIdsByTerm: { [term: string]: number | undefined };
+  savedWorksheetSummaries: SavedWorksheetSummary[];
+  savedWorksheetListStatus: 'idle' | 'loading' | 'ready' | 'error';
+  savedWorksheetListError: Error | null;
   savedWorksheetBootstrapStatus: 'idle' | 'loading' | 'ready' | 'error';
   savedWorksheetBootstrapError: Error | null;
 
@@ -120,6 +130,11 @@ interface WorksheetActions {
   restoreAnonymousWorksheetFromShare: (share: AnonymousWorksheetShare) => void;
   restoreSavedWorksheet: (worksheet: SavedWorksheetRestoreSource) => void;
   ensureMainSavedWorksheetForTerm: (term: Season) => Promise<void>;
+  refreshSavedWorksheetsForTerm: (
+    term: Season,
+  ) => Promise<SavedWorksheetSummary[]>;
+  selectSavedWorksheet: (id: number) => Promise<boolean>;
+  createBlankSavedWorksheetForTerm: (term: Season) => Promise<boolean>;
   addAnonymousWorksheetListing: (
     listing: AnonymousWorksheetListing,
     color: string,
@@ -200,6 +215,21 @@ export function parseCoursesFromURL(): WorksheetState['exoticWorksheet'] {
   };
 }
 
+function summarizeSavedWorksheet(
+  worksheet: SavedWorksheet,
+): SavedWorksheetSummary {
+  return {
+    id: worksheet.id,
+    name: worksheet.name,
+    term: worksheet.term,
+    createdAt: worksheet.createdAt,
+    updatedAt: worksheet.updatedAt,
+    private: worksheet.private,
+    isMain: worksheet.isMain,
+    sectionCount: worksheet.sections.length,
+  };
+}
+
 export const createWorksheetSlice: StateCreator<
   Store,
   [],
@@ -217,6 +247,41 @@ export const createWorksheetSlice: StateCreator<
   };
   const toError = (error: unknown) =>
     error instanceof Error ? error : new Error(String(error));
+  const hasSavedWorksheetAccount = () => {
+    const { authStatus, user } = get();
+    return authStatus === 'authenticated' && user && !isLegacyUserInfo(user);
+  };
+  const activateSavedWorksheet = (
+    worksheet: SavedWorksheet,
+    userId: number,
+  ) => {
+    const summary = summarizeSavedWorksheet(worksheet);
+    const summaries = [
+      summary,
+      ...get().savedWorksheetSummaries.filter(
+        (savedWorksheet) => savedWorksheet.id !== summary.id,
+      ),
+    ].sort((a, b) => b.createdAt - a.createdAt);
+
+    set({
+      activeSavedWorksheet: worksheet,
+      activeSavedWorksheetOwnerId: userId,
+      activeSavedWorksheetIdsByTerm: {
+        ...get().activeSavedWorksheetIdsByTerm,
+        [worksheet.term]: worksheet.id,
+      },
+      savedWorksheetBootstrapStatus: 'ready',
+      savedWorksheetBootstrapError: null,
+      viewedPerson: 'me',
+      viewedSeason: worksheet.term,
+      viewedWorksheetNumber: 0,
+      viewAnonymousWorksheet: false,
+      exoticWorksheet: undefined,
+      savedWorksheetSummaries: summaries,
+      savedWorksheetListStatus: 'ready',
+      savedWorksheetListError: null,
+    });
+  };
 
   return {
     viewedPerson: 'me',
@@ -242,6 +307,10 @@ export const createWorksheetSlice: StateCreator<
     anonymousWorksheetMissingSectionIds: [],
     activeSavedWorksheet: undefined,
     activeSavedWorksheetOwnerId: undefined,
+    activeSavedWorksheetIdsByTerm: {},
+    savedWorksheetSummaries: [],
+    savedWorksheetListStatus: 'idle',
+    savedWorksheetListError: null,
     savedWorksheetBootstrapStatus: 'idle',
     savedWorksheetBootstrapError: null,
     exitExoticWorksheet() {
@@ -283,11 +352,9 @@ export const createWorksheetSlice: StateCreator<
       }
     },
     async ensureMainSavedWorksheetForTerm(term) {
-      const { authStatus, user, savedWorksheetBootstrapStatus } = get();
+      const { user, savedWorksheetBootstrapStatus } = get();
       if (
-        authStatus !== 'authenticated' ||
-        !user ||
-        isLegacyUserInfo(user) ||
+        !hasSavedWorksheetAccount() ||
         savedWorksheetBootstrapStatus === 'loading'
       )
         return;
@@ -298,8 +365,8 @@ export const createWorksheetSlice: StateCreator<
       });
 
       try {
-        const worksheet = await ensureMainSavedWorksheet(term);
-        if (!worksheet) {
+        const mainWorksheet = await ensureMainSavedWorksheet(term);
+        if (!mainWorksheet || !user || isLegacyUserInfo(user)) {
           set({
             savedWorksheetBootstrapStatus: 'error',
             savedWorksheetBootstrapError: new Error(
@@ -309,22 +376,93 @@ export const createWorksheetSlice: StateCreator<
           return;
         }
 
-        set({
-          activeSavedWorksheet: worksheet,
-          activeSavedWorksheetOwnerId: user.user_id,
-          savedWorksheetBootstrapStatus: 'ready',
-          savedWorksheetBootstrapError: null,
-          viewedPerson: 'me',
-          viewedSeason: worksheet.term,
-          viewedWorksheetNumber: 0,
-          viewAnonymousWorksheet: false,
-        });
+        const summaries = await get().refreshSavedWorksheetsForTerm(term);
+        const rememberedId = get().activeSavedWorksheetIdsByTerm[term];
+        const rememberedExists = summaries.some(
+          (worksheet) => worksheet.id === rememberedId,
+        );
+
+        if (
+          rememberedId &&
+          rememberedId !== mainWorksheet.id &&
+          rememberedExists
+        ) {
+          const rememberedWorksheet = await fetchSavedWorksheet(rememberedId);
+          if (rememberedWorksheet?.term === term) {
+            activateSavedWorksheet(rememberedWorksheet, user.user_id);
+            return;
+          }
+        }
+
+        activateSavedWorksheet(mainWorksheet, user.user_id);
       } catch (error: unknown) {
         set({
           savedWorksheetBootstrapStatus: 'error',
           savedWorksheetBootstrapError: toError(error),
         });
       }
+    },
+    async refreshSavedWorksheetsForTerm(term) {
+      if (!hasSavedWorksheetAccount()) return [];
+
+      set({
+        savedWorksheetListStatus: 'loading',
+        savedWorksheetListError: null,
+      });
+
+      try {
+        const response = await fetchSavedWorksheets(term);
+        const summaries = response?.data ?? [];
+        set({
+          savedWorksheetSummaries: summaries,
+          savedWorksheetListStatus: 'ready',
+          savedWorksheetListError: null,
+        });
+        return summaries;
+      } catch (error: unknown) {
+        set({
+          savedWorksheetListStatus: 'error',
+          savedWorksheetListError: toError(error),
+        });
+        return [];
+      }
+    },
+    async selectSavedWorksheet(id) {
+      const { user } = get();
+      if (!hasSavedWorksheetAccount() || !user || isLegacyUserInfo(user))
+        return false;
+
+      const worksheet = await fetchSavedWorksheet(id);
+      if (!worksheet) return false;
+      activateSavedWorksheet(worksheet, user.user_id);
+      return true;
+    },
+    async createBlankSavedWorksheetForTerm(term) {
+      const { user } = get();
+      if (!hasSavedWorksheetAccount() || !user || isLegacyUserInfo(user))
+        return false;
+
+      set({
+        savedWorksheetListStatus: 'loading',
+        savedWorksheetListError: null,
+      });
+
+      const worksheet = await createBlankSavedWorksheet({
+        name: DEFAULT_BLANK_SAVED_WORKSHEET_NAME,
+        term,
+      });
+      if (!worksheet) {
+        set({
+          savedWorksheetListStatus: 'error',
+          savedWorksheetListError: new Error(
+            'Failed to create blank Saved Worksheet',
+          ),
+        });
+        return false;
+      }
+
+      activateSavedWorksheet(worksheet, user.user_id);
+      return true;
     },
     addAnonymousWorksheetListing(listing, color) {
       const current = get().anonymousWorksheet;
