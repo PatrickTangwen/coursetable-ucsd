@@ -91,6 +91,7 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
                   building: 'CENTR',
                   room: '101',
                   is_tba: false,
+                  meeting_type: 'Lecture',
                   raw_days: 'MW',
                   raw_time: '9:00-9:50',
                   raw_location: 'CENTR 101',
@@ -126,6 +127,7 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
           days_of_week: 10,
           start_time: '09:00',
           end_time: '09:50',
+          meeting_type: 'Lecture',
           raw_location: 'CENTR 101',
           location: {
             room: '101',
@@ -159,6 +161,7 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
           building: 'CENTR',
           room: '101',
           is_tba: false,
+          meeting_type: 'Lecture',
           raw_days: 'MW',
           raw_time: '9:00-9:50',
           raw_location: 'CENTR 101',
@@ -262,6 +265,7 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
                   building: null,
                   room: null,
                   is_tba: true,
+                  meeting_type: 'Discussion',
                   raw_days: 'ARRANGED',
                   raw_time: 'ARRANGED',
                   raw_location: 'ARRANGED',
@@ -286,6 +290,7 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
       meetings: [
         {
           is_tba: true,
+          meeting_type: 'Discussion',
           raw_days: 'ARRANGED',
           raw_time: 'ARRANGED',
           raw_location: 'ARRANGED',

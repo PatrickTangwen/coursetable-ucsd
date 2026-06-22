@@ -16,6 +16,7 @@ type RuntimeMeeting = PrefetchCourse['course_meetings'][number] & {
       readonly code?: string | null;
     } | null;
   } | null;
+  readonly meeting_type?: string | null;
   readonly raw_location?: string | null;
 };
 type RuntimeCourse = Omit<
@@ -105,31 +106,62 @@ function professorText(course: RuntimeCourse): string {
   return names.length ? names.join(', ') : 'TBA';
 }
 
+function meetingTypeLabel(meetingType: string | null | undefined): string {
+  const normalized = meetingType?.trim().toLowerCase();
+  if (!normalized) return '';
+  switch (normalized) {
+    case 'lecture':
+      return 'LE';
+    case 'discussion':
+      return 'DI';
+    case 'laboratory':
+    case 'lab':
+      return 'LA';
+    default:
+      return meetingType?.trim() ?? '';
+  }
+}
+
+function typedLine(meeting: RuntimeMeeting, value: string): string {
+  const label = meetingTypeLabel(meeting.meeting_type);
+  return label ? `${label}: ${value}` : value;
+}
+
+function uniqueLines(lines: string[]): string {
+  return [...new Set(lines)].join('\n');
+}
+
+function isPresent(value: string | null | undefined): value is string {
+  return Boolean(value);
+}
+
 function meetingText(course: RuntimeCourse): string {
   if (!course.course_meetings.length) return 'TBA';
-  return course.course_meetings
-    .map(
-      (meeting) =>
-        `${toWeekdaysDisplayString(meeting.days_of_week)} ${to12HourTime(
-          meeting.start_time,
-        )}-${to12HourTime(meeting.end_time)}`,
-    )
-    .join(', ');
+  const lines = course.course_meetings
+    .map((meeting) => {
+      const value = `${toWeekdaysDisplayString(
+        meeting.days_of_week,
+      )} ${to12HourTime(meeting.start_time)}-${to12HourTime(meeting.end_time)}`;
+      return typedLine(meeting, value);
+    })
+    .filter(isPresent);
+  return uniqueLines(lines);
 }
 
 function locationText(course: RuntimeCourse): string {
   const locations = course.course_meetings
     .map((meeting) => {
+      let value: string | null | undefined = meeting.raw_location;
       if (meeting.location?.building?.code) {
         const { code } = meeting.location.building;
-        return meeting.location.room
+        value = meeting.location.room
           ? `${code} ${meeting.location.room}`
           : code;
       }
-      return meeting.raw_location;
+      return value ? typedLine(meeting, value) : null;
     })
-    .filter(Boolean);
-  return locations.length ? [...new Set(locations)].join(', ') : 'TBA';
+    .filter(isPresent);
+  return locations.length ? uniqueLines(locations) : 'TBA';
 }
 
 function SnapshotMetadata({

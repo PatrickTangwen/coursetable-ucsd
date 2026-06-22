@@ -36,6 +36,7 @@ function listing() {
           days_of_week: 10,
           start_time: '09:00',
           end_time: '09:50',
+          meeting_type: 'Lecture',
           location: {
             room: '101',
             building: {
@@ -43,6 +44,19 @@ function listing() {
             },
           },
           raw_location: 'CENTR 101',
+        },
+        {
+          days_of_week: 4,
+          start_time: '10:00',
+          end_time: '10:50',
+          meeting_type: 'Discussion',
+          location: {
+            room: '212',
+            building: {
+              code: 'CENTR',
+            },
+          },
+          raw_location: 'CENTR 212',
         },
       ],
       credits: 4,
@@ -117,7 +131,10 @@ describe('UcsdSnapshotOverview', () => {
     expect(html).not.toContain('Grade Archive Records');
     expect(html).toContain('Ada Lovelace');
     expect(html).toContain('Location');
-    expect(html).toContain('CENTR 101');
+    expect(html).toContain('LE: MW 9:00am-9:50am');
+    expect(html).toContain('DI: T 10:00am-10:50am');
+    expect(html).toContain('LE: CENTR 101');
+    expect(html).toContain('DI: CENTR 212');
     expect(html.indexOf('Meetings')).toBeLessThan(html.indexOf('Location'));
     expect(html.indexOf('Location')).toBeLessThan(html.indexOf('Section'));
   });

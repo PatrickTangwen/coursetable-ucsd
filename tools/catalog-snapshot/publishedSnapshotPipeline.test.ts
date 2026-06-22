@@ -79,6 +79,7 @@ function makeScheduleCourse(
             building: 'CENTR',
             room: '101',
             is_tba: false,
+            meeting_type: 'Lecture',
             raw_days: 'M',
             raw_time: '9:00a-9:50a',
             raw_location: 'CENTR 101',

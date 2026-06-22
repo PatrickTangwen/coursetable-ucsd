@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   checkConflict,
+  formatWorksheetSectionSuffix,
   getWorksheetConflicts,
   shouldHideConflictingListing,
 } from './course';
@@ -62,6 +63,27 @@ function worksheetCourse(listing: CatalogListing): WorksheetCourse {
 }
 
 describe('course conflict detection', () => {
+  it('shows UCSD worksheet section codes without changing legacy section suffixes', () => {
+    expect(
+      formatWorksheetSectionSuffix({
+        school: 'UCSD',
+        course: { section: 'A01' },
+      }),
+    ).toBe(' A01');
+    expect(
+      formatWorksheetSectionSuffix({
+        school: 'YC',
+        course: { section: 'A' },
+      }),
+    ).toBe(' 0A');
+    expect(
+      formatWorksheetSectionSuffix({
+        school: 'YC',
+        course: { section: 'A01' },
+      }),
+    ).toBe('');
+  });
+
   it('detects overlapping timed Meetings in selected Sections', () => {
     const selected = makeListing({
       courseCode: 'CSE 3',

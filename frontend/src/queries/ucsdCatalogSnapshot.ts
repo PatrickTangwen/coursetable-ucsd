@@ -13,6 +13,7 @@ type CourseMeetingWithLocation = CoursePublic['course_meetings'][number] & {
       code: string;
     };
   } | null;
+  meeting_type?: string | null;
   raw_location?: string | null;
 };
 
@@ -69,6 +70,7 @@ const ucsdMeetingSchema = z.object({
   building: z.string().nullable(),
   room: z.string().nullable(),
   is_tba: z.boolean(),
+  meeting_type: z.string().nullable().optional(),
   raw_days: z.string().nullable(),
   raw_time: z.string().nullable(),
   raw_location: z.string().nullable(),
@@ -193,6 +195,9 @@ function toCourseMeetings(section: UcsdSection): CourseMeetingWithLocation[] {
         start_time: meeting.start_time,
         end_time: meeting.end_time,
         location,
+        meeting_type:
+          meeting.meeting_type ??
+          (section.meetings.length === 1 ? section.meeting_type : null),
         raw_location: meeting.raw_location,
       },
     ];

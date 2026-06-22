@@ -597,6 +597,16 @@ export function formatSectionSuffix(course: Pick<Courses, 'section'>): string {
     : '';
 }
 
+export function formatWorksheetSectionSuffix(
+  listing: Pick<Listings, 'school'> & {
+    course: Pick<Courses, 'section'>;
+  },
+): string {
+  if (listing.school === 'UCSD' && listing.course.section.length > 0)
+    return ` ${listing.course.section}`;
+  return formatSectionSuffix(listing.course);
+}
+
 /**
  * @param time A time in the format `hh:mm` (24 hour)
  * @returns Number of 5 minutes past midnight

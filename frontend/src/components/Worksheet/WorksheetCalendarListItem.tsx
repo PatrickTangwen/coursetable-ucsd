@@ -9,7 +9,7 @@ import WorksheetToggleButton from './WorksheetToggleButton';
 import type { CatalogListing } from '../../queries/api';
 import { useStore } from '../../store';
 import {
-  formatSectionSuffix,
+  formatWorksheetSectionSuffix,
   toLocationsSummary,
 } from '../../utilities/course';
 import { useCourseModalLink } from '../../utilities/display';
@@ -78,7 +78,7 @@ export default function WorksheetCalendarListItem({
         )}
       >
         <strong>{listing.course_code}</strong>
-        {formatSectionSuffix(listing.course)}
+        {formatWorksheetSectionSuffix(listing)}
         <br />
         <span className={styles.courseTitle}>{listing.course.title}</span>
         {showLocation && (

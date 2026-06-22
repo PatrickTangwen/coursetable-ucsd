@@ -359,6 +359,7 @@ function rawLocation(
 }
 
 function parseMeeting(cells: Cell[]): SnapshotMeeting {
+  const type = meetingType(cells[3]!);
   const rawDays = nullIfBlank(cells[5]?.text ?? '');
   const rawTime = nullIfBlank(cells[6]?.text ?? '');
   const rawBuilding = nullIfBlank(cells[7]?.text ?? '');
@@ -377,6 +378,7 @@ function parseMeeting(cells: Cell[]): SnapshotMeeting {
     building: locationPart(rawBuilding),
     room: locationPart(rawRoom),
     is_tba: explicitlyUntimed,
+    meeting_type: type,
     raw_days: rawDays,
     raw_time: rawTime,
     raw_location: rawLocation(rawBuilding, rawRoom),
