@@ -1,33 +1,104 @@
-# Coursetable
+# UCSD Course Planner
 
-[![Maintainability](https://api.codeclimate.com/v1/badges/95184f4df3900fd39f04/maintainability)](https://codeclimate.com/github/coursetable/coursetable/maintainability)
-[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/coursetable/coursetable?style=flat-square)](https://github.com/coursetable/coursetable/pulls)
-[![GitHub contributors](https://img.shields.io/github/contributors/coursetable/coursetable?style=flat-square)](https://github.com/coursetable/coursetable/graphs/contributors)
-[![HitCount](http://hits.dwyl.com/coursetable/coursetable.svg)](http://hits.dwyl.com/coursetable/coursetable)
+UCSD Course Planner is a student-facing course search and worksheet planning
+tool for UCSD. It is built from the CourseTable codebase, but the current
+product experience is focused on UCSD catalog browsing, historical grade
+context, and schedule planning.
 
-[![Production CD](https://github.com/coursetable/coursetable/actions/workflows/cd.yml/badge.svg?branch=master)](https://github.com/coursetable/coursetable/actions/workflows/cd.yml)
-[![Staging CD](https://github.com/coursetable/coursetable/actions/workflows/staging_cd.yml/badge.svg?branch=master)](https://github.com/coursetable/coursetable/actions/workflows/staging_cd.yml)
-[![Ferry Run](https://github.com/coursetable/ferry/actions/workflows/ferry.yml/badge.svg)](https://github.com/coursetable/ferry/actions/workflows/ferry.yml)
+The app can be used without an account. In configured beta/backend
+environments, a verified `@ucsd.edu` sign-in enables account-owned saved
+worksheets.
 
-[![Ferry DB Snapshot](https://github.com/coursetable/infra/actions/workflows/ferry_db_snapshot.yml/badge.svg)](https://github.com/coursetable/infra/actions/workflows/ferry_db_snapshot.yml)
-[![User DB Backup](https://github.com/coursetable/infra/actions/workflows/user_db_backup.yml/badge.svg)](https://github.com/coursetable/infra/actions/workflows/user_db_backup.yml)
+## What You Can Do
 
-Coursetable is made of two big parts:
+- Browse the published UCSD catalog snapshot for the active planning term.
+- Search and sort supported UCSD courses.
+- Open a course detail modal with description, section, meeting time,
+  instructor, units, prerequisite text, restrictions, and source catalog link
+  when available.
+- Review historical grade context from UCSD Instructor Grade Archive data:
+  catalog results show Average GPA and Record Count, and course details include
+  a Past Grades tab with raw archive rows.
+- Add sections to a worksheet and view them on a calendar or list.
+- Use the worksheet without signing in; unsigned worksheet changes are stored in
+  the current browser.
+- Share or restore worksheet state through supported worksheet URLs.
+- Export worksheet courses to an ICS calendar file.
+- Sign in with a verified UCSD email when the account beta backend is
+  configured.
+- Use account-owned Saved Worksheets after sign-in: Main Worksheet, blank
+  worksheet creation, worksheet selection, rename, delete, and persisted
+  add/remove/hide/color edits.
 
-1.  **Website**: The site you see when you go to [coursetable.com](https://coursetable.com). The code for this – the front-end site as well as the back-end server that handle user actions – is contained within this repository.
-2.  **Crawler**: The scripts behind the scenes that actually get all the data from Yale’s websites. The code for this is in our [ferry](https://github.com/coursetable/ferry) repository.
+## Current Data Scope
 
-## Repository Layout
+The current published snapshot is intentionally narrow:
 
-The various functions of the website are compartmentalized as follows:
+- Active planning term: `S126` / Summer Session I 2026.
+- Supported subjects: `CSE` and `MATH`.
+- Catalog and meeting data come from UCSD Schedule of Classes and UCSD General
+  Catalog sources.
+- Historical grade data comes from UCSD Instructor Grade Archive records.
 
-- [`/api`](https://github.com/coursetable/coursetable/blob/master/docs/api.md): Source code for API server with Docker Compose configuration for backend logic.
-- `/frontend`: The current face of the site, built with React.
+The app is not a live enrollment tracker. It does not currently show open
+seats, waitlist counts, enrollment demand, or real-time availability.
 
-## How to develop
+## Accounts And Worksheets
 
-Check out [our contributing guide](CONTRIBUTING.md).
+You can plan before signing in. In that mode, the worksheet auto-saves in this
+browser only.
 
-## How to deploy
+After signing in with a direct `@ucsd.edu` email address, the worksheet page
+opens the account's Main Worksheet for the active term. Extra Saved Worksheets
+can be created from the worksheet selector. Course changes on an active Saved
+Worksheet are persisted to the backend.
 
-Deployments are automatically handled via GitHub Actions workflows. If necessary, you can also manually deploy. For all instructions relevant to deploying our code, see [`docs/deployment.md`](docs/deployment.md).
+Signing in does not automatically merge, sync, clear, or import the browser's
+local worksheet. Copying browser-local worksheet state into an account worksheet
+is future product scope.
+
+## Not Currently Supported
+
+- All UCSD subjects.
+- Multi-term planning beyond the active published snapshot.
+- Real-time seats, waitlists, enrollment, or demand signals.
+- SET/CAPE or personal UCSD account scraping.
+- Friends, social planning, public worksheet sharing controls, or wishlist.
+- Google OAuth or direct Google Calendar export.
+- Production-like email delivery for verification codes.
+
+Some inherited CourseTable code remains in the repository for future reuse, but
+unsupported surfaces are hidden from the current UCSD user flow.
+
+## Running Locally
+
+This repository uses Bun workspaces.
+
+```bash
+bun install
+bun run --cwd frontend start
+```
+
+For the full local backend validation stack, Docker is required:
+
+```bash
+api/compose/local-validation-up.sh
+api/compose/local-validation-schema.sh
+bun run validate:real-backend-auth
+```
+
+Useful project scripts:
+
+```bash
+bun run checks
+bun run snapshot:publish
+bun run snapshot:tracer
+bun run test:snapshot
+```
+
+## Project Notes
+
+Current planning and decision documents start at
+[`docs/planning-index.md`](docs/planning-index.md). Domain language is recorded
+in [`CONTEXT.md`](CONTEXT.md), and architectural decisions live under
+[`docs/adr/`](docs/adr/).
