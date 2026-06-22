@@ -120,13 +120,12 @@ function gradeArchiveRecord(
 }
 
 describe('UcsdSnapshotOverview', () => {
-  it('shows supported snapshot metadata and GPA summary', () => {
+  it('shows supported snapshot metadata without the GPA summary card', () => {
     const html = renderToStaticMarkup(
       <UcsdSnapshotOverview archive={archiveWithRecord} listing={listing()} />,
     );
 
-    expect(html).toContain('Average GPA');
-    expect(html).toContain('3.42');
+    expect(html).not.toContain('Average GPA');
     expect(html).not.toContain('Record Count');
     expect(html).not.toContain('Grade Archive Records');
     expect(html).toContain('Ada Lovelace');
@@ -144,8 +143,7 @@ describe('UcsdSnapshotOverview', () => {
       <UcsdSnapshotOverview archive={null} listing={listing()} />,
     );
 
-    expect(html).toContain('Average GPA');
-    expect(html).toContain('N/A');
+    expect(html).not.toContain('Average GPA');
     expect(html).not.toContain('Record Count');
     expect(html).not.toContain('Grade Archive Records');
     expect(html.toLowerCase()).not.toMatch(

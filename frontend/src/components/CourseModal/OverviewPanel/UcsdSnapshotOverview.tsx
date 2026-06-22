@@ -306,14 +306,6 @@ function UcsdSnapshotOverview({
       <Col className="px-0">
         <p>{listing.course.description || 'No description available.'}</p>
         <SnapshotMetadata listing={listing} archive={archive} />
-        <div className={styles.summaryGrid}>
-          <div className={styles.summaryItem}>
-            <span className={styles.summaryLabel}>Average GPA</span>
-            <span className={styles.summaryValue}>
-              {formatGpa(archive?.archive_avg_gpa ?? null)}
-            </span>
-          </div>
-        </div>
       </Col>
     </Row>
   );
