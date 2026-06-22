@@ -1275,6 +1275,11 @@ export type CreateBlankSavedWorksheetInput = {
   name?: string;
   term: Season;
 };
+export type DeleteSavedWorksheetResponse = {
+  deletedId: number;
+  term: Season;
+  fallbackWorksheet: SavedWorksheet | null;
+};
 
 export type SaveAnonymousWorksheetInput = {
   name: string;
@@ -1319,6 +1324,59 @@ export async function createBlankSavedWorksheet(
     breadcrumb: {
       category: 'savedWorksheets',
       message: 'Creating blank saved worksheet',
+    },
+  });
+}
+
+export async function renameSavedWorksheet(id: number, name: string) {
+  return await fetchAPI(`/savedWorksheets/${id}/rename`, {
+    body: { name },
+    schema: savedWorksheetSchema,
+    breadcrumb: {
+      category: 'savedWorksheets',
+      message: 'Renaming saved worksheet',
+    },
+    handleErrorCode(err) {
+      switch (err) {
+        case 'SAVED_WORKSHEET_NOT_FOUND':
+          toast.error('Saved worksheet not found');
+          return true;
+        case 'MAIN_SAVED_WORKSHEET_CANNOT_BE_RENAMED':
+          toast.error('Main Worksheet cannot be renamed.');
+          return true;
+        default:
+          return false;
+      }
+    },
+  });
+}
+
+export async function deleteSavedWorksheet(id: number) {
+  return await fetchAPI(`/savedWorksheets/${id}/delete`, {
+    body: {},
+    schema: z.object({
+      deletedId: z.number(),
+      term: seasonSchema,
+      fallbackWorksheet: savedWorksheetSchema.nullable(),
+    }),
+    breadcrumb: {
+      category: 'savedWorksheets',
+      message: 'Deleting saved worksheet',
+    },
+    handleErrorCode(err) {
+      switch (err) {
+        case 'SAVED_WORKSHEET_NOT_FOUND':
+          toast.error('Saved worksheet not found');
+          return true;
+        case 'ONLY_SAVED_WORKSHEET_CANNOT_BE_DELETED':
+          toast.error('The only Saved Worksheet in a term cannot be deleted.');
+          return true;
+        case 'MAIN_SAVED_WORKSHEET_CANNOT_BE_DELETED':
+          toast.error('Main Worksheet cannot be deleted.');
+          return true;
+        default:
+          return false;
+      }
     },
   });
 }

@@ -33,6 +33,22 @@ export interface SavedWorksheetCreateInput {
   sections: SavedWorksheetSection[];
 }
 
+export type SavedWorksheetRenameResult =
+  | { status: 'renamed'; worksheet: SavedWorksheetRecord }
+  | { status: 'not-found' }
+  | { status: 'cannot-rename-main' };
+
+export type SavedWorksheetDeleteResult =
+  | {
+      status: 'deleted';
+      deletedId: number;
+      term: string;
+      fallbackWorksheet: SavedWorksheetRecord | null;
+    }
+  | { status: 'not-found' }
+  | { status: 'cannot-delete-only' }
+  | { status: 'cannot-delete-main' };
+
 export interface SavedWorksheetStore {
   listByUserId: (userId: number) => Promise<SavedWorksheetSummary[]>;
   getForUserId: (
@@ -49,6 +65,16 @@ export interface SavedWorksheetStore {
     term: string,
     createdAt: number,
   ) => Promise<SavedWorksheetRecord>;
+  renameForUserId: (
+    userId: number,
+    id: number,
+    name: string,
+    updatedAt: number,
+  ) => Promise<SavedWorksheetRenameResult>;
+  deleteForUserId: (
+    userId: number,
+    id: number,
+  ) => Promise<SavedWorksheetDeleteResult>;
 }
 
 export const MAIN_SAVED_WORKSHEET_NAME = 'Main Worksheet';

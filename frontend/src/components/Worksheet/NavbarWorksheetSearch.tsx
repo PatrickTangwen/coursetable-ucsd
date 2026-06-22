@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import clsx from 'clsx';
 import {
   ToggleButton,
@@ -5,7 +6,7 @@ import {
   Button,
   Dropdown,
 } from 'react-bootstrap';
-import { MdAdd } from 'react-icons/md';
+import { MdAdd, MdCheck, MdClose, MdDelete, MdEdit } from 'react-icons/md';
 import { useShallow } from 'zustand/react/shallow';
 import SeasonDropdown from './SeasonDropdown';
 import WorksheetNumDropdown from './WorksheetNumberDropdown';
@@ -50,6 +51,8 @@ export function SavedWorksheetMenuView({
   savedWorksheetSummaries,
   onSelectSavedWorksheet,
   onCreateBlankSavedWorksheet,
+  onRenameSavedWorksheet,
+  onDeleteSavedWorksheet,
   isCreating,
 }: {
   readonly term: Season;
@@ -57,37 +60,164 @@ export function SavedWorksheetMenuView({
   readonly savedWorksheetSummaries: readonly SavedWorksheetSummary[];
   readonly onSelectSavedWorksheet: (id: number) => Promise<unknown>;
   readonly onCreateBlankSavedWorksheet: () => Promise<unknown>;
+  readonly onRenameSavedWorksheet: (
+    id: number,
+    name: string,
+  ) => Promise<unknown>;
+  readonly onDeleteSavedWorksheet: (id: number) => Promise<unknown>;
   readonly isCreating: boolean;
 }) {
   const termWorksheets = getTermSavedWorksheets(term, savedWorksheetSummaries);
+  const [renamingWorksheetId, setRenamingWorksheetId] = useState<number | null>(
+    null,
+  );
+  const [renamingWorksheetName, setRenamingWorksheetName] = useState('');
+  const [confirmingDeleteWorksheetId, setConfirmingDeleteWorksheetId] =
+    useState<number | null>(null);
 
   return (
     <div className={styles.savedWorksheetMenu}>
-      {termWorksheets.map((worksheet) => (
-        <button
-          key={worksheet.id}
-          type="button"
-          className={clsx(
-            styles.savedWorksheetOption,
-            activeWorksheetId === worksheet.id &&
-              styles.savedWorksheetOptionActive,
-          )}
-          aria-current={activeWorksheetId === worksheet.id ? 'true' : undefined}
-          onClick={() => {
-            onSelectSavedWorksheet(worksheet.id).catch(() => {});
-          }}
-        >
-          {WorksheetStatusIcon(worksheet.isMain ? 0 : 1, worksheet.private)}
-          <span className={styles.savedWorksheetOptionText}>
-            <span className={styles.savedWorksheetOptionName}>
-              {worksheet.name}
-            </span>
-            <span className={styles.savedWorksheetStatusText}>
-              {worksheet.isMain ? 'Main Worksheet' : 'Saved Worksheet'}
-            </span>
-          </span>
-        </button>
-      ))}
+      {termWorksheets.map((worksheet) => {
+        const isActive = activeWorksheetId === worksheet.id;
+        const canManage = !worksheet.isMain;
+        const isRenaming = renamingWorksheetId === worksheet.id;
+        const isConfirmingDelete = confirmingDeleteWorksheetId === worksheet.id;
+
+        if (isRenaming) {
+          return (
+            <form
+              key={worksheet.id}
+              className={styles.savedWorksheetEditRow}
+              onSubmit={(event) => {
+                event.preventDefault();
+                const name = renamingWorksheetName.trim() || 'New Worksheet';
+                onRenameSavedWorksheet(worksheet.id, name)
+                  .then(() => {
+                    setRenamingWorksheetId(null);
+                    setRenamingWorksheetName('');
+                  })
+                  .catch(() => {});
+              }}
+            >
+              <input
+                className={styles.savedWorksheetNameInput}
+                value={renamingWorksheetName}
+                onChange={(event) =>
+                  setRenamingWorksheetName(event.currentTarget.value)
+                }
+                maxLength={64}
+                aria-label={`Rename ${worksheet.name}`}
+              />
+              <button
+                type="submit"
+                className={styles.savedWorksheetIconButton}
+                aria-label={`Save ${worksheet.name}`}
+                title="Save worksheet name"
+              >
+                <MdCheck aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={styles.savedWorksheetIconButton}
+                aria-label={`Cancel renaming ${worksheet.name}`}
+                title="Cancel"
+                onClick={() => {
+                  setRenamingWorksheetId(null);
+                  setRenamingWorksheetName('');
+                }}
+              >
+                <MdClose aria-hidden="true" />
+              </button>
+            </form>
+          );
+        }
+
+        if (isConfirmingDelete) {
+          return (
+            <div key={worksheet.id} className={styles.savedWorksheetDeleteRow}>
+              <button
+                type="button"
+                className={styles.keepSavedWorksheetButton}
+                onClick={() => setConfirmingDeleteWorksheetId(null)}
+              >
+                Keep
+              </button>
+              <button
+                type="button"
+                className={styles.confirmDeleteSavedWorksheetButton}
+                onClick={() => {
+                  onDeleteSavedWorksheet(worksheet.id)
+                    .then(() => setConfirmingDeleteWorksheetId(null))
+                    .catch(() => {});
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          );
+        }
+
+        return (
+          <div
+            key={worksheet.id}
+            className={clsx(
+              styles.savedWorksheetOptionRow,
+              isActive && styles.savedWorksheetOptionActive,
+            )}
+            aria-current={isActive ? 'true' : undefined}
+          >
+            <button
+              type="button"
+              className={styles.savedWorksheetOption}
+              onClick={() => {
+                onSelectSavedWorksheet(worksheet.id).catch(() => {});
+              }}
+            >
+              {WorksheetStatusIcon(worksheet.isMain ? 0 : 1, worksheet.private)}
+              <span className={styles.savedWorksheetOptionText}>
+                <span className={styles.savedWorksheetOptionName}>
+                  {worksheet.name}
+                </span>
+                <span className={styles.savedWorksheetStatusText}>
+                  {worksheet.isMain
+                    ? 'Main Worksheet'
+                    : 'Private Saved Worksheet'}
+                </span>
+              </span>
+            </button>
+            {canManage ? (
+              <span className={styles.savedWorksheetActions}>
+                <button
+                  type="button"
+                  className={styles.savedWorksheetIconButton}
+                  aria-label={`Rename ${worksheet.name}`}
+                  title="Rename worksheet"
+                  onClick={() => {
+                    setConfirmingDeleteWorksheetId(null);
+                    setRenamingWorksheetId(worksheet.id);
+                    setRenamingWorksheetName(worksheet.name);
+                  }}
+                >
+                  <MdEdit aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  className={styles.savedWorksheetIconButton}
+                  aria-label={`Delete ${worksheet.name}`}
+                  title="Delete worksheet"
+                  onClick={() => {
+                    setRenamingWorksheetId(null);
+                    setRenamingWorksheetName('');
+                    setConfirmingDeleteWorksheetId(worksheet.id);
+                  }}
+                >
+                  <MdDelete aria-hidden="true" />
+                </button>
+              </span>
+            ) : null}
+          </div>
+        );
+      })}
       <button
         type="button"
         className={styles.createSavedWorksheetButton}
@@ -112,6 +242,8 @@ function SavedWorksheetHeaderControlsView({
   savedWorksheetBootstrapStatus,
   selectSavedWorksheet,
   createBlankSavedWorksheetForTerm,
+  renameSavedWorksheet,
+  deleteSavedWorksheet,
 }: {
   readonly isMobile: boolean;
   readonly activeSavedWorksheet: SavedWorksheet | undefined;
@@ -124,6 +256,8 @@ function SavedWorksheetHeaderControlsView({
     | 'error';
   readonly selectSavedWorksheet: (id: number) => Promise<boolean>;
   readonly createBlankSavedWorksheetForTerm: (term: Season) => Promise<boolean>;
+  readonly renameSavedWorksheet: (id: number, name: string) => Promise<boolean>;
+  readonly deleteSavedWorksheet: (id: number) => Promise<boolean>;
 }) {
   const activeTerm = activeSavedWorksheet?.term ?? CUR_SEASON;
   const worksheetName =
@@ -171,6 +305,8 @@ function SavedWorksheetHeaderControlsView({
           onCreateBlankSavedWorksheet={() =>
             createBlankSavedWorksheetForTerm(activeTerm)
           }
+          onRenameSavedWorksheet={renameSavedWorksheet}
+          onDeleteSavedWorksheet={deleteSavedWorksheet}
           isCreating={savedWorksheetListStatus === 'loading'}
         />
       </Popout>
@@ -192,6 +328,8 @@ export function NavbarWorksheetSearchView({
   savedWorksheetBootstrapStatus,
   selectSavedWorksheet,
   createBlankSavedWorksheetForTerm,
+  renameSavedWorksheet,
+  deleteSavedWorksheet,
 }: {
   readonly isMobile: boolean;
   readonly worksheetView: WorksheetView;
@@ -210,6 +348,8 @@ export function NavbarWorksheetSearchView({
     | 'error';
   readonly selectSavedWorksheet: (id: number) => Promise<boolean>;
   readonly createBlankSavedWorksheetForTerm: (term: Season) => Promise<boolean>;
+  readonly renameSavedWorksheet: (id: number, name: string) => Promise<boolean>;
+  readonly deleteSavedWorksheet: (id: number) => Promise<boolean>;
 }) {
   const visibleWorksheetView =
     worksheetView === 'list' ? worksheetView : 'calendar';
@@ -251,6 +391,8 @@ export function NavbarWorksheetSearchView({
             savedWorksheetBootstrapStatus={savedWorksheetBootstrapStatus}
             selectSavedWorksheet={selectSavedWorksheet}
             createBlankSavedWorksheetForTerm={createBlankSavedWorksheetForTerm}
+            renameSavedWorksheet={renameSavedWorksheet}
+            deleteSavedWorksheet={deleteSavedWorksheet}
           />
         )}
       </div>
@@ -310,6 +452,8 @@ export function NavbarWorksheetSearchView({
           savedWorksheetBootstrapStatus={savedWorksheetBootstrapStatus}
           selectSavedWorksheet={selectSavedWorksheet}
           createBlankSavedWorksheetForTerm={createBlankSavedWorksheetForTerm}
+          renameSavedWorksheet={renameSavedWorksheet}
+          deleteSavedWorksheet={deleteSavedWorksheet}
         />
       ) : null}
     </div>
@@ -333,6 +477,8 @@ export function NavbarWorksheetSearch({
     savedWorksheetBootstrapStatus,
     selectSavedWorksheet,
     createBlankSavedWorksheetForTerm,
+    renameSavedWorksheet,
+    deleteSavedWorksheet,
   } = useStore(
     useShallow((state) => ({
       worksheetView: state.worksheetView,
@@ -346,6 +492,8 @@ export function NavbarWorksheetSearch({
       savedWorksheetBootstrapStatus: state.savedWorksheetBootstrapStatus,
       selectSavedWorksheet: state.selectSavedWorksheet,
       createBlankSavedWorksheetForTerm: state.createBlankSavedWorksheetForTerm,
+      renameSavedWorksheet: state.renameSavedWorksheet,
+      deleteSavedWorksheet: state.deleteSavedWorksheet,
     })),
   );
 
@@ -367,6 +515,8 @@ export function NavbarWorksheetSearch({
       savedWorksheetBootstrapStatus={savedWorksheetBootstrapStatus}
       selectSavedWorksheet={selectSavedWorksheet}
       createBlankSavedWorksheetForTerm={createBlankSavedWorksheetForTerm}
+      renameSavedWorksheet={renameSavedWorksheet}
+      deleteSavedWorksheet={deleteSavedWorksheet}
     />
   );
 }

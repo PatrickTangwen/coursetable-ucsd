@@ -81,5 +81,46 @@ export function createMemorySavedWorksheetStore(): SavedWorksheetStore & {
         ),
       );
     },
+    renameForUserId(userId, id, name, updatedAt) {
+      const record = recordsByUserId
+        .get(userId)
+        ?.find((worksheet) => worksheet.id === id);
+      if (!record) return Promise.resolve({ status: 'not-found' });
+      if (record.isMain)
+        return Promise.resolve({ status: 'cannot-rename-main' });
+
+      record.name = name;
+      record.updatedAt = updatedAt;
+      return Promise.resolve({
+        status: 'renamed',
+        worksheet: cloneSavedWorksheet(record),
+      });
+    },
+    deleteForUserId(userId, id) {
+      const records = recordsByUserId.get(userId) ?? [];
+      const targetIndex = records.findIndex((worksheet) => worksheet.id === id);
+      if (targetIndex === -1) return Promise.resolve({ status: 'not-found' });
+
+      const target = records[targetIndex]!;
+      const termRecords = records.filter(
+        (worksheet) => worksheet.term === target.term,
+      );
+      if (termRecords.length <= 1)
+        return Promise.resolve({ status: 'cannot-delete-only' });
+      if (target.isMain)
+        return Promise.resolve({ status: 'cannot-delete-main' });
+
+      const fallbackWorksheet =
+        termRecords.find((worksheet) => worksheet.isMain) ?? null;
+      records.splice(targetIndex, 1);
+      return Promise.resolve({
+        status: 'deleted',
+        deletedId: target.id,
+        term: target.term,
+        fallbackWorksheet: fallbackWorksheet
+          ? cloneSavedWorksheet(fallbackWorksheet)
+          : null,
+      });
+    },
   };
 }

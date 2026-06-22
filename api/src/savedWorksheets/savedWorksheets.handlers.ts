@@ -29,6 +29,10 @@ const CreateBlankWorksheetSchema = z.object({
   term: z.string().trim().min(1).max(32),
 });
 
+const RenameSavedWorksheetSchema = z.object({
+  name: z.string().trim().min(1).max(64),
+});
+
 const ListSavedWorksheetsQuerySchema = z.object({
   term: z.string().trim().min(1).max(32).optional(),
 });
@@ -177,11 +181,82 @@ export function createSavedWorksheetHandlers(
     res.json(savedWorksheetResponse(worksheet, 0));
   };
 
+  const renameSavedWorksheet = async (
+    req: express.Request,
+    res: express.Response,
+  ): Promise<void> => {
+    const user = getAppSessionUser(req)!;
+    const id = parsePositiveInteger(req.params.id);
+    if (!id) {
+      res.status(400).json({ error: 'INVALID_REQUEST' });
+      return;
+    }
+
+    const bodyParseRes = RenameSavedWorksheetSchema.safeParse(req.body);
+    if (!bodyParseRes.success) {
+      res.status(400).json({ error: 'INVALID_REQUEST' });
+      return;
+    }
+
+    const result = await store.renameForUserId(
+      user.user_id,
+      id,
+      bodyParseRes.data.name,
+      now(),
+    );
+    if (result.status === 'not-found') {
+      res.status(404).json({ error: 'SAVED_WORKSHEET_NOT_FOUND' });
+      return;
+    }
+    if (result.status === 'cannot-rename-main') {
+      res.status(409).json({ error: 'MAIN_SAVED_WORKSHEET_CANNOT_BE_RENAMED' });
+      return;
+    }
+
+    res.json(savedWorksheetResponse(result.worksheet));
+  };
+
+  const deleteSavedWorksheet = async (
+    req: express.Request,
+    res: express.Response,
+  ): Promise<void> => {
+    const user = getAppSessionUser(req)!;
+    const id = parsePositiveInteger(req.params.id);
+    if (!id) {
+      res.status(400).json({ error: 'INVALID_REQUEST' });
+      return;
+    }
+
+    const result = await store.deleteForUserId(user.user_id, id);
+    if (result.status === 'not-found') {
+      res.status(404).json({ error: 'SAVED_WORKSHEET_NOT_FOUND' });
+      return;
+    }
+    if (result.status === 'cannot-delete-only') {
+      res.status(409).json({ error: 'ONLY_SAVED_WORKSHEET_CANNOT_BE_DELETED' });
+      return;
+    }
+    if (result.status === 'cannot-delete-main') {
+      res.status(409).json({ error: 'MAIN_SAVED_WORKSHEET_CANNOT_BE_DELETED' });
+      return;
+    }
+
+    res.json({
+      deletedId: result.deletedId,
+      term: result.term,
+      fallbackWorksheet: result.fallbackWorksheet
+        ? savedWorksheetResponse(result.fallbackWorksheet)
+        : null,
+    });
+  };
+
   return {
     listSavedWorksheets,
     getSavedWorksheet,
     saveAnonymousWorksheet,
     ensureMainWorksheet,
     createBlankWorksheet,
+    renameSavedWorksheet,
+    deleteSavedWorksheet,
   };
 }

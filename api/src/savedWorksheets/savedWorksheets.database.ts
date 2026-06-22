@@ -1,4 +1,4 @@
-import { and, asc, desc, eq } from 'drizzle-orm';
+import { and, asc, count, desc, eq } from 'drizzle-orm';
 
 import {
   dedupeSavedWorksheetSections,
@@ -162,6 +162,111 @@ export function createDatabaseSavedWorksheetStore(): SavedWorksheetStore {
         if (createdByConcurrentRequest) return createdByConcurrentRequest;
         throw error;
       }
+    },
+    async renameForUserId(userId, id, name, updatedAt) {
+      const [existing] = await db
+        .select(savedWorksheetColumns)
+        .from(savedWorksheets)
+        .where(
+          and(eq(savedWorksheets.userId, userId), eq(savedWorksheets.id, id)),
+        )
+        .limit(1);
+
+      if (!existing) return { status: 'not-found' };
+      if (existing.isMain) return { status: 'cannot-rename-main' };
+
+      const [updated] = await db
+        .update(savedWorksheets)
+        .set({ name, updatedAt })
+        .where(
+          and(eq(savedWorksheets.userId, userId), eq(savedWorksheets.id, id)),
+        )
+        .returning(savedWorksheetColumns);
+
+      if (!updated) return { status: 'not-found' };
+
+      return {
+        status: 'renamed',
+        worksheet: {
+          ...updated,
+          sections: await getSections(updated.id),
+        },
+      };
+    },
+    async deleteForUserId(userId, id) {
+      return await db.transaction(async (tx) => {
+        const [target] = await tx
+          .select(savedWorksheetColumns)
+          .from(savedWorksheets)
+          .where(
+            and(eq(savedWorksheets.userId, userId), eq(savedWorksheets.id, id)),
+          )
+          .limit(1);
+
+        if (!target) return { status: 'not-found' };
+
+        const [termCount] = await tx
+          .select({ recordCount: count() })
+          .from(savedWorksheets)
+          .where(
+            and(
+              eq(savedWorksheets.userId, userId),
+              eq(savedWorksheets.term, target.term),
+            ),
+          );
+        if ((termCount?.recordCount ?? 0) <= 1)
+          return { status: 'cannot-delete-only' };
+        if (target.isMain) return { status: 'cannot-delete-main' };
+
+        const [fallbackRecord] = await tx
+          .select(savedWorksheetColumns)
+          .from(savedWorksheets)
+          .where(
+            and(
+              eq(savedWorksheets.userId, userId),
+              eq(savedWorksheets.term, target.term),
+              eq(savedWorksheets.isMain, true),
+            ),
+          )
+          .limit(1);
+        const fallbackSections = fallbackRecord
+          ? await tx
+              .select(savedWorksheetSectionColumns)
+              .from(savedWorksheetSections)
+              .where(eq(savedWorksheetSections.worksheetId, fallbackRecord.id))
+              .orderBy(asc(savedWorksheetSections.id))
+          : [];
+
+        await tx
+          .delete(savedWorksheetSections)
+          .where(eq(savedWorksheetSections.worksheetId, target.id));
+        const [deleted] = await tx
+          .delete(savedWorksheets)
+          .where(
+            and(
+              eq(savedWorksheets.userId, userId),
+              eq(savedWorksheets.id, target.id),
+            ),
+          )
+          .returning({
+            id: savedWorksheets.id,
+            term: savedWorksheets.term,
+          });
+
+        if (!deleted) return { status: 'not-found' };
+
+        return {
+          status: 'deleted',
+          deletedId: deleted.id,
+          term: deleted.term,
+          fallbackWorksheet: fallbackRecord
+            ? {
+                ...fallbackRecord,
+                sections: fallbackSections,
+              }
+            : null,
+        };
+      });
     },
   };
 }

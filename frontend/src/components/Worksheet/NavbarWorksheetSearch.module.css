@@ -59,13 +59,11 @@
   padding: 0.35rem;
 }
 
-.savedWorksheetOption {
+.savedWorksheetOptionRow {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
   width: 100%;
   min-height: 36px;
-  padding: 0.4rem 0.5rem;
   border: 0;
   border-radius: 0.25rem;
   background: transparent;
@@ -73,9 +71,23 @@
   text-align: left;
 }
 
-.savedWorksheetOption:hover,
+.savedWorksheetOptionRow:hover,
 .savedWorksheetOptionActive {
   background-color: var(--color-surface-hover);
+}
+
+.savedWorksheetOption {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  min-height: 36px;
+  padding: 0.4rem 0.5rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  text-align: left;
 }
 
 .savedWorksheetOptionText {
@@ -94,6 +106,75 @@
   color: var(--color-text-secondary);
   font-size: 12px;
   line-height: 1.2;
+}
+
+.savedWorksheetActions {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding-right: 0.35rem;
+}
+
+.savedWorksheetIconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.savedWorksheetIconButton:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-primary);
+}
+
+.savedWorksheetEditRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px 28px;
+  gap: 0.25rem;
+  align-items: center;
+  min-height: 36px;
+  padding: 0.25rem;
+}
+
+.savedWorksheetNameInput {
+  min-width: 0;
+  height: 30px;
+  padding: 0.25rem 0.4rem;
+  border: 2px solid var(--color-icon);
+  border-radius: 0.25rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+.savedWorksheetDeleteRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 36px;
+  overflow: hidden;
+  border-radius: 0.25rem;
+}
+
+.keepSavedWorksheetButton,
+.confirmDeleteSavedWorksheetButton {
+  min-height: 36px;
+  border: 0;
+  color: #fff;
+  font-size: 14px;
+}
+
+.keepSavedWorksheetButton {
+  background-color: #5aae61;
+}
+
+.confirmDeleteSavedWorksheetButton {
+  background-color: #c31;
 }
 
 .createSavedWorksheetButton {

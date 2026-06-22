@@ -49,6 +49,8 @@ describe('NavbarWorksheetSearch', () => {
         savedWorksheetBootstrapStatus="ready"
         selectSavedWorksheet={() => Promise.resolve(true)}
         createBlankSavedWorksheetForTerm={() => Promise.resolve(true)}
+        renameSavedWorksheet={() => Promise.resolve(true)}
+        deleteSavedWorksheet={() => Promise.resolve(true)}
       />,
     );
 
@@ -93,13 +95,21 @@ describe('NavbarWorksheetSearch', () => {
         ]}
         onSelectSavedWorksheet={() => Promise.resolve()}
         onCreateBlankSavedWorksheet={() => Promise.resolve()}
+        onRenameSavedWorksheet={() => Promise.resolve()}
+        onDeleteSavedWorksheet={() => Promise.resolve()}
         isCreating={false}
       />,
     );
 
     expect(html).toContain('Main Worksheet');
     expect(html).toContain('Summer Plan');
+    expect(html).toContain('Private Saved Worksheet');
+    expect(html).toContain('aria-label="Rename Summer Plan"');
+    expect(html).toContain('aria-label="Delete Summer Plan"');
     expect(html).toContain('New Worksheet');
     expect(html).not.toContain('Fall Plan');
+    expect(html).not.toContain('Public Worksheet');
+    expect(html).not.toContain('aria-label="Rename Main Worksheet"');
+    expect(html).not.toContain('aria-label="Delete Main Worksheet"');
   });
 });

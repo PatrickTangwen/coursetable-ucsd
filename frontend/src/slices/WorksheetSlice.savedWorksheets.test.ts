@@ -8,9 +8,11 @@ import type { Season } from '../queries/graphql-types';
 
 const apiMocks = vi.hoisted(() => ({
   createBlankSavedWorksheet: vi.fn(),
+  deleteSavedWorksheet: vi.fn(),
   ensureMainSavedWorksheet: vi.fn(),
   fetchSavedWorksheet: vi.fn(),
   fetchSavedWorksheets: vi.fn(),
+  renameSavedWorksheet: vi.fn(),
 }));
 
 vi.mock('../queries/api', async (importOriginal) => {
@@ -18,9 +20,11 @@ vi.mock('../queries/api', async (importOriginal) => {
   return {
     ...actual,
     createBlankSavedWorksheet: apiMocks.createBlankSavedWorksheet,
+    deleteSavedWorksheet: apiMocks.deleteSavedWorksheet,
     ensureMainSavedWorksheet: apiMocks.ensureMainSavedWorksheet,
     fetchSavedWorksheet: apiMocks.fetchSavedWorksheet,
     fetchSavedWorksheets: apiMocks.fetchSavedWorksheets,
+    renameSavedWorksheet: apiMocks.renameSavedWorksheet,
   };
 });
 
@@ -173,5 +177,58 @@ describe('Saved Worksheet slice behavior', () => {
     expect(apiMocks.fetchSavedWorksheet).not.toHaveBeenCalled();
     expect(useStore.getState().activeSavedWorksheet?.id).toBe(10);
     expect(useStore.getState().activeSavedWorksheetIdsByTerm[s126]).toBe(10);
+  });
+
+  it('renames the active Saved Worksheet in state after a successful API update', async () => {
+    const useStore = await loadStore();
+    const renamedPlan = { ...summerPlan, name: 'Lab Plan', updatedAt: 3 };
+    useStore.setState({
+      activeSavedWorksheet: summerPlan,
+      activeSavedWorksheetIdsByTerm: { [s126]: 11 },
+      savedWorksheetSummaries: [
+        toSummary(summerPlan),
+        toSummary(mainWorksheet),
+      ],
+    });
+    apiMocks.renameSavedWorksheet.mockResolvedValue(renamedPlan);
+
+    const renamed = await useStore
+      .getState()
+      .renameSavedWorksheet(11, 'Lab Plan');
+
+    expect(renamed).toBe(true);
+    expect(apiMocks.renameSavedWorksheet).toHaveBeenCalledWith(11, 'Lab Plan');
+    expect(useStore.getState().activeSavedWorksheet?.name).toBe('Lab Plan');
+    expect(useStore.getState().savedWorksheetSummaries).toEqual([
+      toSummary(renamedPlan),
+      toSummary(mainWorksheet),
+    ]);
+  });
+
+  it('returns to Main Worksheet when deleting the active extra Saved Worksheet', async () => {
+    const useStore = await loadStore();
+    useStore.setState({
+      activeSavedWorksheet: summerPlan,
+      activeSavedWorksheetIdsByTerm: { [s126]: 11 },
+      savedWorksheetSummaries: [
+        toSummary(summerPlan),
+        toSummary(mainWorksheet),
+      ],
+    });
+    apiMocks.deleteSavedWorksheet.mockResolvedValue({
+      deletedId: 11,
+      term: s126,
+      fallbackWorksheet: mainWorksheet,
+    });
+
+    const deleted = await useStore.getState().deleteSavedWorksheet(11);
+
+    expect(deleted).toBe(true);
+    expect(apiMocks.deleteSavedWorksheet).toHaveBeenCalledWith(11);
+    expect(useStore.getState().activeSavedWorksheet?.id).toBe(10);
+    expect(useStore.getState().activeSavedWorksheetIdsByTerm[s126]).toBe(10);
+    expect(useStore.getState().savedWorksheetSummaries).toEqual([
+      toSummary(mainWorksheet),
+    ]);
   });
 });

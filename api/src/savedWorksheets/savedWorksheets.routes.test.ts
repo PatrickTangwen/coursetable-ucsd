@@ -143,6 +143,28 @@ describe('Saved Worksheet save API', () => {
     expect(savedWorksheetStore.recordsByUserId.size).toBe(0);
   });
 
+  it('blocks Saved Worksheet management while anonymous', async () => {
+    const renameResponse = await client.request(
+      '/api/savedWorksheets/1/rename',
+      {
+        method: 'POST',
+        body: JSON.stringify({ name: 'Renamed Plan' }),
+      },
+    );
+    const deleteResponse = await client.request(
+      '/api/savedWorksheets/1/delete',
+      {
+        method: 'POST',
+      },
+    );
+
+    expect(renameResponse.status).toBe(401);
+    expect(await renameResponse.json()).toEqual({ error: 'USER_NOT_FOUND' });
+    expect(deleteResponse.status).toBe(401);
+    expect(await deleteResponse.json()).toEqual({ error: 'USER_NOT_FOUND' });
+    expect(savedWorksheetStore.recordsByUserId.size).toBe(0);
+  });
+
   it('blocks saved worksheet restore APIs while anonymous', async () => {
     const listResponse = await client.request('/api/savedWorksheets');
     const detailResponse = await client.request('/api/savedWorksheets/1');
@@ -447,6 +469,184 @@ describe('Saved Worksheet save API', () => {
       name: 'Private worksheet',
       term: 'FA26',
       sections: [{ sectionId: 'FA26-123', color: '#55aaff', hidden: false }],
+    });
+  });
+
+  it('renames an extra Saved Worksheet for the current app user', async () => {
+    await signIn(client, 'student@ucsd.edu');
+    await client.request('/api/savedWorksheets/ensure-main', {
+      method: 'POST',
+      body: JSON.stringify({ term: 'S126' }),
+    });
+    const createResponse = await client.request(
+      '/api/savedWorksheets/create-blank',
+      {
+        method: 'POST',
+        body: JSON.stringify({ name: 'First Draft', term: 'S126' }),
+      },
+    );
+    const created = (await createResponse.json()) as { id: number };
+
+    const renameResponse = await client.request(
+      `/api/savedWorksheets/${created.id}/rename`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ name: 'Lab Plan' }),
+      },
+    );
+
+    expect(renameResponse.status).toBe(200);
+    expect(await renameResponse.json()).toMatchObject({
+      id: created.id,
+      name: 'Lab Plan',
+      term: 'S126',
+      isMain: false,
+      sections: [],
+    });
+
+    const detailResponse = await client.request(
+      `/api/savedWorksheets/${created.id}`,
+    );
+    expect(await detailResponse.json()).toMatchObject({
+      id: created.id,
+      name: 'Lab Plan',
+    });
+  });
+
+  it('deletes an extra Saved Worksheet and returns Main Worksheet as fallback', async () => {
+    await signIn(client, 'student@ucsd.edu');
+    const mainResponse = await client.request(
+      '/api/savedWorksheets/ensure-main',
+      {
+        method: 'POST',
+        body: JSON.stringify({ term: 'S126' }),
+      },
+    );
+    const main = (await mainResponse.json()) as { id: number };
+    const createResponse = await client.request(
+      '/api/savedWorksheets/create-blank',
+      {
+        method: 'POST',
+        body: JSON.stringify({ name: 'Extra Plan', term: 'S126' }),
+      },
+    );
+    const created = (await createResponse.json()) as { id: number };
+
+    const deleteResponse = await client.request(
+      `/api/savedWorksheets/${created.id}/delete`,
+      {
+        method: 'POST',
+      },
+    );
+
+    expect(deleteResponse.status).toBe(200);
+    expect(await deleteResponse.json()).toMatchObject({
+      deletedId: created.id,
+      term: 'S126',
+      fallbackWorksheet: {
+        id: main.id,
+        name: 'Main Worksheet',
+        term: 'S126',
+        isMain: true,
+      },
+    });
+
+    const listResponse = await client.request('/api/savedWorksheets?term=S126');
+    expect(await listResponse.json()).toEqual({
+      data: [
+        expect.objectContaining({
+          id: main.id,
+          name: 'Main Worksheet',
+          isMain: true,
+        }),
+      ],
+    });
+
+    const deletedDetail = await client.request(
+      `/api/savedWorksheets/${created.id}`,
+    );
+    expect(deletedDetail.status).toBe(404);
+  });
+
+  it('prevents deleting the only Saved Worksheet in a term', async () => {
+    await signIn(client, 'student@ucsd.edu');
+    const mainResponse = await client.request(
+      '/api/savedWorksheets/ensure-main',
+      {
+        method: 'POST',
+        body: JSON.stringify({ term: 'S126' }),
+      },
+    );
+    const main = (await mainResponse.json()) as { id: number };
+
+    const deleteResponse = await client.request(
+      `/api/savedWorksheets/${main.id}/delete`,
+      {
+        method: 'POST',
+      },
+    );
+
+    expect(deleteResponse.status).toBe(409);
+    expect(await deleteResponse.json()).toEqual({
+      error: 'ONLY_SAVED_WORKSHEET_CANNOT_BE_DELETED',
+    });
+    expect(savedWorksheetStore.recordsByUserId.get(1)).toHaveLength(1);
+  });
+
+  it('does not expose cross-user rename or delete attempts', async () => {
+    await signIn(client, 'first@ucsd.edu');
+    const createResponse = await client.request(
+      '/api/savedWorksheets/create-blank',
+      {
+        method: 'POST',
+        body: JSON.stringify({ name: 'Private Plan', term: 'S126' }),
+      },
+    );
+    const created = (await createResponse.json()) as { id: number };
+
+    const secondClient = new TestClient();
+    const secondServer = await secondClient.start(app);
+    try {
+      await signIn(secondClient, 'second@ucsd.edu');
+
+      const renameResponse = await secondClient.request(
+        `/api/savedWorksheets/${created.id}/rename`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ name: 'Stolen Plan' }),
+        },
+      );
+      const deleteResponse = await secondClient.request(
+        `/api/savedWorksheets/${created.id}/delete`,
+        {
+          method: 'POST',
+        },
+      );
+
+      expect(renameResponse.status).toBe(404);
+      expect(await renameResponse.json()).toEqual({
+        error: 'SAVED_WORKSHEET_NOT_FOUND',
+      });
+      expect(deleteResponse.status).toBe(404);
+      expect(await deleteResponse.json()).toEqual({
+        error: 'SAVED_WORKSHEET_NOT_FOUND',
+      });
+    } finally {
+      await new Promise<void>((resolve, reject) => {
+        secondServer.close((err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+    }
+
+    const firstDetail = await client.request(
+      `/api/savedWorksheets/${created.id}`,
+    );
+    expect(firstDetail.status).toBe(200);
+    expect(await firstDetail.json()).toMatchObject({
+      id: created.id,
+      name: 'Private Plan',
     });
   });
 });

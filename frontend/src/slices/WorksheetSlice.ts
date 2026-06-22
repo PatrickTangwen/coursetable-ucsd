@@ -10,10 +10,12 @@ import { seasons as allSeasons } from '../data/catalogSeasons';
 import { useCourseData, useWorksheetInfo } from '../hooks/useFerry';
 import {
   createBlankSavedWorksheet,
+  deleteSavedWorksheet as deleteSavedWorksheetApi,
   ensureMainSavedWorksheet,
   fetchSavedWorksheet,
   fetchSavedWorksheets,
   isLegacyUserInfo,
+  renameSavedWorksheet as renameSavedWorksheetApi,
   type SavedWorksheet,
   type SavedWorksheetSummary,
   type UserWorksheets,
@@ -135,6 +137,8 @@ interface WorksheetActions {
   ) => Promise<SavedWorksheetSummary[]>;
   selectSavedWorksheet: (id: number) => Promise<boolean>;
   createBlankSavedWorksheetForTerm: (term: Season) => Promise<boolean>;
+  renameSavedWorksheet: (id: number, name: string) => Promise<boolean>;
+  deleteSavedWorksheet: (id: number) => Promise<boolean>;
   addAnonymousWorksheetListing: (
     listing: AnonymousWorksheetListing,
     color: string,
@@ -462,6 +466,65 @@ export const createWorksheetSlice: StateCreator<
       }
 
       activateSavedWorksheet(worksheet, user.user_id);
+      return true;
+    },
+    async renameSavedWorksheet(id, name) {
+      const { user } = get();
+      if (!hasSavedWorksheetAccount() || !user || isLegacyUserInfo(user))
+        return false;
+
+      const worksheet = await renameSavedWorksheetApi(id, name);
+      if (!worksheet) return false;
+
+      const summary = summarizeSavedWorksheet(worksheet);
+      set({
+        savedWorksheetSummaries: get().savedWorksheetSummaries.map(
+          (existing) => (existing.id === summary.id ? summary : existing),
+        ),
+        activeSavedWorksheet:
+          get().activeSavedWorksheet?.id === worksheet.id
+            ? worksheet
+            : get().activeSavedWorksheet,
+      });
+      return true;
+    },
+    async deleteSavedWorksheet(id) {
+      const { user, activeSavedWorksheet } = get();
+      if (!hasSavedWorksheetAccount() || !user || isLegacyUserInfo(user))
+        return false;
+
+      const result = await deleteSavedWorksheetApi(id);
+      if (!result) return false;
+
+      const summaries = get().savedWorksheetSummaries.filter(
+        (worksheet) => worksheet.id !== result.deletedId,
+      );
+      set({
+        savedWorksheetSummaries: summaries,
+        activeSavedWorksheet:
+          activeSavedWorksheet?.id === result.deletedId &&
+          !result.fallbackWorksheet
+            ? undefined
+            : get().activeSavedWorksheet,
+        activeSavedWorksheetOwnerId:
+          activeSavedWorksheet?.id === result.deletedId &&
+          !result.fallbackWorksheet
+            ? undefined
+            : get().activeSavedWorksheetOwnerId,
+        activeSavedWorksheetIdsByTerm: {
+          ...get().activeSavedWorksheetIdsByTerm,
+          [result.term]:
+            activeSavedWorksheet?.id === result.deletedId
+              ? result.fallbackWorksheet?.id
+              : get().activeSavedWorksheetIdsByTerm[result.term],
+        },
+      });
+
+      if (
+        activeSavedWorksheet?.id === result.deletedId &&
+        result.fallbackWorksheet
+      )
+        activateSavedWorksheet(result.fallbackWorksheet, user.user_id);
       return true;
     },
     addAnonymousWorksheetListing(listing, color) {
