@@ -8,9 +8,19 @@ import {
 } from '../../../utilities/course';
 import styles from './UcsdSnapshotOverview.module.css';
 
+type PrefetchCourse = CourseModalPrefetchListingDataFragment['course'];
+type RuntimeMeeting = PrefetchCourse['course_meetings'][number] & {
+  readonly location?: {
+    readonly room?: string | null;
+    readonly building?: {
+      readonly code?: string | null;
+    } | null;
+  } | null;
+  readonly raw_location?: string | null;
+};
 type RuntimeCourse = Omit<
-  CourseModalPrefetchListingDataFragment['course'],
-  'course_professors'
+  PrefetchCourse,
+  'course_professors' | 'course_meetings'
 > & {
   readonly credits?: number | null;
   readonly course_professors: readonly {
@@ -19,6 +29,7 @@ type RuntimeCourse = Omit<
       readonly name?: string;
     };
   }[];
+  readonly course_meetings: readonly RuntimeMeeting[];
 };
 
 function formatGpa(value: number | null): string {
@@ -106,6 +117,21 @@ function meetingText(course: RuntimeCourse): string {
     .join(', ');
 }
 
+function locationText(course: RuntimeCourse): string {
+  const locations = course.course_meetings
+    .map((meeting) => {
+      if (meeting.location?.building?.code) {
+        const { code } = meeting.location.building;
+        return meeting.location.room
+          ? `${code} ${meeting.location.room}`
+          : code;
+      }
+      return meeting.raw_location;
+    })
+    .filter(Boolean);
+  return locations.length ? [...new Set(locations)].join(', ') : 'TBA';
+}
+
 function SnapshotMetadata({
   archive,
   listing,
@@ -117,6 +143,7 @@ function SnapshotMetadata({
   const rows = [
     { label: 'Professor', value: professorText(course) },
     { label: 'Meetings', value: meetingText(course) },
+    { label: 'Location', value: locationText(course) },
     { label: 'Section', value: course.section },
     { label: 'Units', value: archive?.units ?? course.credits ?? 'N/A' },
     { label: 'Prerequisites', value: archive?.prerequisites_text },

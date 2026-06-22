@@ -36,6 +36,13 @@ function listing() {
           days_of_week: 10,
           start_time: '09:00',
           end_time: '09:50',
+          location: {
+            room: '101',
+            building: {
+              code: 'CENTR',
+            },
+          },
+          raw_location: 'CENTR 101',
         },
       ],
       credits: 4,
@@ -109,6 +116,10 @@ describe('UcsdSnapshotOverview', () => {
     expect(html).not.toContain('Record Count');
     expect(html).not.toContain('Grade Archive Records');
     expect(html).toContain('Ada Lovelace');
+    expect(html).toContain('Location');
+    expect(html).toContain('CENTR 101');
+    expect(html.indexOf('Meetings')).toBeLessThan(html.indexOf('Location'));
+    expect(html.indexOf('Location')).toBeLessThan(html.indexOf('Section'));
   });
 
   it('shows a compact UCSD-specific missing archive state', () => {
