@@ -11,6 +11,7 @@ export interface SavedWorksheetRecord {
   createdAt: number;
   updatedAt: number;
   private: boolean;
+  isMain: boolean;
   sections: SavedWorksheetSection[];
 }
 
@@ -21,12 +22,14 @@ export interface SavedWorksheetSummary {
   createdAt: number;
   updatedAt: number;
   private: boolean;
+  isMain: boolean;
   sectionCount: number;
 }
 
 export interface SavedWorksheetCreateInput {
   name: string;
   term: string;
+  isMain?: boolean;
   sections: SavedWorksheetSection[];
 }
 
@@ -41,7 +44,14 @@ export interface SavedWorksheetStore {
     input: SavedWorksheetCreateInput,
     createdAt: number,
   ) => Promise<SavedWorksheetRecord>;
+  ensureMainForUserId: (
+    userId: number,
+    term: string,
+    createdAt: number,
+  ) => Promise<SavedWorksheetRecord>;
 }
+
+export const MAIN_SAVED_WORKSHEET_NAME = 'Main Worksheet';
 
 export function dedupeSavedWorksheetSections(
   sections: SavedWorksheetSection[],
@@ -66,6 +76,7 @@ export function summarizeSavedWorksheet(
     createdAt: worksheet.createdAt,
     updatedAt: worksheet.updatedAt,
     private: worksheet.private,
+    isMain: worksheet.isMain,
     sectionCount: worksheet.sections.length,
   };
 }

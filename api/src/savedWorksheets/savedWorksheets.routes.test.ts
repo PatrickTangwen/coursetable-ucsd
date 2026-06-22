@@ -121,6 +121,17 @@ describe('Saved Worksheet save API', () => {
     expect(savedWorksheetStore.recordsByUserId.size).toBe(0);
   });
 
+  it('blocks Main Worksheet bootstrap while anonymous', async () => {
+    const response = await client.request('/api/savedWorksheets/ensure-main', {
+      method: 'POST',
+      body: JSON.stringify({ term: 'S126' }),
+    });
+
+    expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({ error: 'USER_NOT_FOUND' });
+    expect(savedWorksheetStore.recordsByUserId.size).toBe(0);
+  });
+
   it('blocks saved worksheet restore APIs while anonymous', async () => {
     const listResponse = await client.request('/api/savedWorksheets');
     const detailResponse = await client.request('/api/savedWorksheets/1');
@@ -188,6 +199,7 @@ describe('Saved Worksheet save API', () => {
       createdAt: 1_000_000,
       updatedAt: 1_000_000,
       private: true,
+      isMain: false,
       sourceSectionCount: 3,
       savedSectionCount: 2,
       sections: [
@@ -196,6 +208,93 @@ describe('Saved Worksheet save API', () => {
       ],
     });
     expect(savedWorksheetStore.recordsByUserId.get(1)).toHaveLength(1);
+  });
+
+  it('ensures a signed-in user has a term-scoped Main Worksheet', async () => {
+    await signIn(client, 'student@ucsd.edu');
+
+    const response = await client.request('/api/savedWorksheets/ensure-main', {
+      method: 'POST',
+      body: JSON.stringify({ term: 'S126' }),
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      id: 1,
+      name: 'Main Worksheet',
+      term: 'S126',
+      createdAt: 1_000_000,
+      updatedAt: 1_000_000,
+      private: true,
+      isMain: true,
+      sourceSectionCount: 0,
+      savedSectionCount: 0,
+      sections: [],
+    });
+    expect(savedWorksheetStore.recordsByUserId.get(1)).toHaveLength(1);
+  });
+
+  it('reuses the existing term Main Worksheet on repeated signed-in loads', async () => {
+    await signIn(client, 'student@ucsd.edu');
+
+    const firstResponse = await client.request(
+      '/api/savedWorksheets/ensure-main',
+      {
+        method: 'POST',
+        body: JSON.stringify({ term: 'S126' }),
+      },
+    );
+    const secondResponse = await client.request(
+      '/api/savedWorksheets/ensure-main',
+      {
+        method: 'POST',
+        body: JSON.stringify({ term: 'S126' }),
+      },
+    );
+
+    expect(firstResponse.status).toBe(200);
+    expect(secondResponse.status).toBe(200);
+    expect(await secondResponse.json()).toEqual(await firstResponse.json());
+    expect(savedWorksheetStore.recordsByUserId.get(1)).toHaveLength(1);
+  });
+
+  it('does not leak Main Worksheets across app users', async () => {
+    await signIn(client, 'first@ucsd.edu');
+    const firstResponse = await client.request(
+      '/api/savedWorksheets/ensure-main',
+      {
+        method: 'POST',
+        body: JSON.stringify({ term: 'S126' }),
+      },
+    );
+    const firstWorksheet = (await firstResponse.json()) as { id: number };
+
+    const secondClient = new TestClient();
+    const secondServer = await secondClient.start(app);
+    try {
+      await signIn(secondClient, 'second@ucsd.edu');
+
+      const secondResponse = await secondClient.request(
+        '/api/savedWorksheets/ensure-main',
+        {
+          method: 'POST',
+          body: JSON.stringify({ term: 'S126' }),
+        },
+      );
+      const secondWorksheet = (await secondResponse.json()) as { id: number };
+
+      expect(secondResponse.status).toBe(200);
+      expect(secondWorksheet.id).not.toBe(firstWorksheet.id);
+      expect(savedWorksheetStore.recordsByUserId.get(1)).toHaveLength(1);
+      expect(savedWorksheetStore.recordsByUserId.get(2)).toHaveLength(1);
+    } finally {
+      await new Promise<void>((resolve, reject) => {
+        secondServer.close((err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+    }
   });
 
   it('isolates saved worksheet list and detail reads by app user id', async () => {

@@ -3,8 +3,73 @@
 }
 
 .containerMobile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
   margin-left: auto;
   margin-right: 0.75rem;
+}
+
+.savedWorksheetControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.savedWorksheetControlsMobile {
+  gap: 0.35rem;
+}
+
+.termBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 31px;
+  padding: 0.25rem 0.6rem;
+  border: 2px solid var(--color-icon);
+  border-radius: 0.375rem;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.savedWorksheetButton {
+  min-width: 190px;
+  max-width: 240px;
+}
+
+.savedWorksheetButton > div {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.savedWorksheetDropdown {
+  min-width: 220px;
+}
+
+.savedWorksheetMenu {
+  padding: 0.35rem;
+}
+
+.savedWorksheetOption {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 36px;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.25rem;
+  color: var(--color-text);
+}
+
+.savedWorksheetStatusText {
+  padding: 0 0.5rem 0.35rem;
+  color: var(--color-text-secondary);
+  font-size: 12px;
 }
 
 .toggleButtonGroup {
@@ -14,6 +79,24 @@
 @media (max-width: calc(1200px - 0.5px)) {
   .toggleButtonGroup {
     width: 170px;
+  }
+}
+
+@media (max-width: calc(1320px - 0.5px)) {
+  .savedWorksheetButton {
+    min-width: 160px;
+    max-width: 190px;
+  }
+
+  .termBadge {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: calc(768px - 0.5px)) {
+  .savedWorksheetButton {
+    min-width: 140px;
+    max-width: 160px;
   }
 }
 

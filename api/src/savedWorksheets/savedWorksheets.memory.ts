@@ -1,7 +1,9 @@
 import {
   dedupeSavedWorksheetSections,
+  MAIN_SAVED_WORKSHEET_NAME,
   summarizeSavedWorksheet,
   type SavedWorksheetRecord,
+  type SavedWorksheetCreateInput,
   type SavedWorksheetStore,
 } from './savedWorksheets.store.js';
 
@@ -20,6 +22,26 @@ export function createMemorySavedWorksheetStore(): SavedWorksheetStore & {
   const recordsByUserId = new Map<number, SavedWorksheetRecord[]>();
   let nextId = 1;
 
+  const createRecord = (
+    userId: number,
+    input: SavedWorksheetCreateInput,
+    createdAt: number,
+  ) => {
+    const records = recordsByUserId.get(userId) ?? [];
+    const created = {
+      id: nextId++,
+      name: input.name,
+      term: input.term,
+      createdAt,
+      updatedAt: createdAt,
+      private: true,
+      isMain: input.isMain ?? false,
+      sections: dedupeSavedWorksheetSections(input.sections),
+    };
+    recordsByUserId.set(userId, [created, ...records]);
+    return cloneSavedWorksheet(created);
+  };
+
   return {
     recordsByUserId,
     listByUserId(userId) {
@@ -36,18 +58,28 @@ export function createMemorySavedWorksheetStore(): SavedWorksheetStore & {
       return Promise.resolve(record ? cloneSavedWorksheet(record) : null);
     },
     createForUserId(userId, input, createdAt) {
-      const records = recordsByUserId.get(userId) ?? [];
-      const created = {
-        id: nextId++,
-        name: input.name,
-        term: input.term,
-        createdAt,
-        updatedAt: createdAt,
-        private: true,
-        sections: dedupeSavedWorksheetSections(input.sections),
-      };
-      recordsByUserId.set(userId, [created, ...records]);
-      return Promise.resolve(cloneSavedWorksheet(created));
+      return Promise.resolve(createRecord(userId, input, createdAt));
+    },
+    ensureMainForUserId(userId, term, createdAt) {
+      const existing =
+        recordsByUserId
+          .get(userId)
+          ?.find((worksheet) => worksheet.term === term && worksheet.isMain) ??
+        null;
+      if (existing) return Promise.resolve(cloneSavedWorksheet(existing));
+
+      return Promise.resolve(
+        createRecord(
+          userId,
+          {
+            name: MAIN_SAVED_WORKSHEET_NAME,
+            term,
+            isMain: true,
+            sections: [],
+          },
+          createdAt,
+        ),
+      );
     },
   };
 }

@@ -136,18 +136,26 @@ function WorksheetCalendarList({
 
   const HideShowIcon = areHidden ? BsEyeSlash : BsEye;
   const hasLegacyWorksheetAccount = isLegacyUserInfo(user);
+  const hasSavedWorksheetAccount = Boolean(user && !hasLegacyWorksheetAccount);
+  const canMutateCurrentWorksheet =
+    isAnonymousWorksheet || hasLegacyWorksheetAccount;
 
   const showControls = controlsMode !== 'none';
-  const showHideButton = controlsMode !== 'none';
+  const showHideButton = controlsMode !== 'none' && canMutateCurrentWorksheet;
   const showSettings =
     (controlsMode === 'full' || controlsMode === 'map') &&
+    canMutateCurrentWorksheet &&
     !isExoticWorksheet &&
     viewedPerson === 'me' &&
     (!isAnonymousWorksheet || courses.length > 0);
-  const showWorksheetPrivacySetting = !isAnonymousWorksheet;
+  const showWorksheetPrivacySetting =
+    !isAnonymousWorksheet && hasLegacyWorksheetAccount;
   const showExport = controlsMode === 'full';
   const showImport =
-    controlsMode === 'full' && isExoticWorksheet && hasLegacyWorksheetAccount;
+    controlsMode === 'full' &&
+    isExoticWorksheet &&
+    hasLegacyWorksheetAccount &&
+    !hasSavedWorksheetAccount;
 
   const [showImportRow, setShowImportRow] = useState(false);
   const [isImporting, setIsImporting] = useState(false);

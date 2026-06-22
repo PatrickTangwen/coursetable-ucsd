@@ -19,6 +19,10 @@ const SaveAnonymousWorksheetSchema = z.object({
   courses: z.array(SavedWorksheetCourseSchema).max(200),
 });
 
+const EnsureMainWorksheetSchema = z.object({
+  term: z.string().trim().min(1).max(32),
+});
+
 function savedWorksheetResponse(
   worksheet: SavedWorksheetRecord,
   sourceSectionCount = worksheet.sections.length,
@@ -30,6 +34,7 @@ function savedWorksheetResponse(
     createdAt: worksheet.createdAt,
     updatedAt: worksheet.updatedAt,
     private: worksheet.private,
+    isMain: worksheet.isMain,
     sourceSectionCount,
     savedSectionCount: worksheet.sections.length,
     sections: worksheet.sections,
@@ -104,9 +109,31 @@ export function createSavedWorksheetHandlers(
     res.json(savedWorksheetResponse(created, body.courses.length));
   };
 
+  const ensureMainWorksheet = async (
+    req: express.Request,
+    res: express.Response,
+  ): Promise<void> => {
+    const user = getAppSessionUser(req)!;
+
+    const bodyParseRes = EnsureMainWorksheetSchema.safeParse(req.body);
+    if (!bodyParseRes.success) {
+      res.status(400).json({ error: 'INVALID_REQUEST' });
+      return;
+    }
+
+    const worksheet = await store.ensureMainForUserId(
+      user.user_id,
+      bodyParseRes.data.term,
+      now(),
+    );
+
+    res.json(savedWorksheetResponse(worksheet));
+  };
+
   return {
     listSavedWorksheets,
     getSavedWorksheet,
     saveAnonymousWorksheet,
+    ensureMainWorksheet,
   };
 }

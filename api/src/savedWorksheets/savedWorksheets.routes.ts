@@ -10,13 +10,22 @@ export function registerSavedWorksheetRoutes(
   store: SavedWorksheetStore,
   now = () => Date.now(),
 ): void {
-  const { listSavedWorksheets, getSavedWorksheet, saveAnonymousWorksheet } =
-    createSavedWorksheetHandlers(store, now);
+  const {
+    listSavedWorksheets,
+    getSavedWorksheet,
+    saveAnonymousWorksheet,
+    ensureMainWorksheet,
+  } = createSavedWorksheetHandlers(store, now);
 
   app.get(
     '/api/savedWorksheets',
     authAppUser,
     asyncHandler(listSavedWorksheets),
+  );
+  app.post(
+    '/api/savedWorksheets/ensure-main',
+    authAppUser,
+    asyncHandler(ensureMainWorksheet),
   );
   app.get(
     '/api/savedWorksheets/:id',

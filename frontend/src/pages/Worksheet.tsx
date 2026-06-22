@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as Sentry from '@sentry/react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import {
@@ -22,6 +22,7 @@ import WorksheetNumDropdown from '../components/Worksheet/WorksheetNumberDropdow
 import WorksheetStats from '../components/Worksheet/WorksheetStats';
 
 import { CUR_SEASON } from '../config';
+import { isLegacyUserInfo } from '../queries/api';
 import { parseCoursesFromURL } from '../slices/WorksheetSlice';
 import { useStore } from '../store';
 import { parseAnonymousWorksheetShare } from '../utilities/anonymousWorksheet';
@@ -36,6 +37,13 @@ function Worksheet() {
     isExoticWorksheet,
     isAnonymousWorksheet,
     isCalendarViewLocked,
+    authStatus,
+    user,
+    viewAnonymousWorksheet,
+    activeSavedWorksheet,
+    activeSavedWorksheetOwnerId,
+    savedWorksheetBootstrapStatus,
+    ensureMainSavedWorksheetForTerm,
     setCalendarViewLocked,
     setCalendarLockSettingsOpen,
   } = useStore(
@@ -47,12 +55,29 @@ function Worksheet() {
       isExoticWorksheet: state.worksheetMemo.getIsExoticWorksheet(state),
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
       isCalendarViewLocked: state.isCalendarViewLocked,
+      authStatus: state.authStatus,
+      user: state.user,
+      viewAnonymousWorksheet: state.viewAnonymousWorksheet,
+      activeSavedWorksheet: state.activeSavedWorksheet,
+      activeSavedWorksheetOwnerId: state.activeSavedWorksheetOwnerId,
+      savedWorksheetBootstrapStatus: state.savedWorksheetBootstrapStatus,
+      ensureMainSavedWorksheetForTerm: state.ensureMainSavedWorksheetForTerm,
       setCalendarViewLocked: state.setCalendarViewLocked,
       setCalendarLockSettingsOpen: state.setCalendarLockSettingsOpen,
     })),
   );
   const [expanded, setExpanded] = useState(false);
   const emptyMissingBuildingCodes = useMemo(() => new Set<string>(), []);
+  const skipAccountBootstrapRef = useRef(
+    typeof window !== 'undefined' &&
+      (() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        return (
+          searchParams.has('ws') ||
+          (searchParams.has('t') && searchParams.has('sections'))
+        );
+      })(),
+  );
 
   useEffect(() => {
     const exoticWorksheet = parseCoursesFromURL();
@@ -74,6 +99,34 @@ function Worksheet() {
     }
     useStore.setState({ exoticWorksheet });
   }, []);
+
+  useEffect(() => {
+    if (
+      skipAccountBootstrapRef.current ||
+      authStatus !== 'authenticated' ||
+      !user ||
+      isLegacyUserInfo(user) ||
+      viewAnonymousWorksheet ||
+      savedWorksheetBootstrapStatus === 'loading' ||
+      savedWorksheetBootstrapStatus === 'error'
+    )
+      return;
+
+    const hasCurrentUserMainWorksheet =
+      activeSavedWorksheet?.term === CUR_SEASON &&
+      activeSavedWorksheetOwnerId === user.user_id;
+    if (hasCurrentUserMainWorksheet) return;
+
+    void ensureMainSavedWorksheetForTerm(CUR_SEASON);
+  }, [
+    activeSavedWorksheet,
+    activeSavedWorksheetOwnerId,
+    authStatus,
+    ensureMainSavedWorksheetForTerm,
+    savedWorksheetBootstrapStatus,
+    user,
+    viewAnonymousWorksheet,
+  ]);
 
   // Wait for search query to finish
   if (worksheetError) {

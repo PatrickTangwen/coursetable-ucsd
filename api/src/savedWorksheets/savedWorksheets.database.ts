@@ -2,7 +2,9 @@ import { and, asc, desc, eq } from 'drizzle-orm';
 
 import {
   dedupeSavedWorksheetSections,
+  MAIN_SAVED_WORKSHEET_NAME,
   type SavedWorksheetRecord,
+  type SavedWorksheetCreateInput,
   type SavedWorksheetStore,
   type SavedWorksheetSummary,
 } from './savedWorksheets.store.js';
@@ -19,6 +21,7 @@ const savedWorksheetColumns = {
   createdAt: savedWorksheets.createdAt,
   updatedAt: savedWorksheets.updatedAt,
   private: savedWorksheets.private,
+  isMain: savedWorksheets.isMain,
 };
 
 const savedWorksheetSectionColumns = {
@@ -33,6 +36,69 @@ async function getSections(worksheetId: number) {
     .from(savedWorksheetSections)
     .where(eq(savedWorksheetSections.worksheetId, worksheetId))
     .orderBy(asc(savedWorksheetSections.id));
+}
+
+async function getMainSavedWorksheet(userId: number, term: string) {
+  const [record] = await db
+    .select(savedWorksheetColumns)
+    .from(savedWorksheets)
+    .where(
+      and(
+        eq(savedWorksheets.userId, userId),
+        eq(savedWorksheets.term, term),
+        eq(savedWorksheets.isMain, true),
+      ),
+    )
+    .limit(1);
+
+  if (!record) return null;
+
+  return {
+    ...record,
+    sections: await getSections(record.id),
+  };
+}
+
+async function createSavedWorksheetRecord(
+  userId: number,
+  input: SavedWorksheetCreateInput,
+  createdAt: number,
+) {
+  const sections = dedupeSavedWorksheetSections(input.sections);
+
+  return await db.transaction(async (tx): Promise<SavedWorksheetRecord> => {
+    const [created] = await tx
+      .insert(savedWorksheets)
+      .values({
+        userId,
+        name: input.name,
+        term: input.term,
+        createdAt,
+        updatedAt: createdAt,
+        private: true,
+        isMain: input.isMain ?? false,
+        mainWorksheetKey: input.isMain ? 'main' : null,
+      })
+      .returning(savedWorksheetColumns);
+
+    if (!created) throw new Error('Failed to create saved worksheet');
+
+    if (sections.length > 0) {
+      await tx.insert(savedWorksheetSections).values(
+        sections.map((section) => ({
+          worksheetId: created.id,
+          sectionId: section.sectionId,
+          color: section.color,
+          hidden: section.hidden,
+        })),
+      );
+    }
+
+    return {
+      ...created,
+      sections,
+    };
+  });
 }
 
 export function createDatabaseSavedWorksheetStore(): SavedWorksheetStore {
@@ -71,39 +137,31 @@ export function createDatabaseSavedWorksheetStore(): SavedWorksheetStore {
       };
     },
     async createForUserId(userId, input, createdAt) {
-      const sections = dedupeSavedWorksheetSections(input.sections);
+      return await createSavedWorksheetRecord(userId, input, createdAt);
+    },
+    async ensureMainForUserId(userId, term, createdAt) {
+      const existing = await getMainSavedWorksheet(userId, term);
+      if (existing) return existing;
 
-      return await db.transaction(async (tx): Promise<SavedWorksheetRecord> => {
-        const [created] = await tx
-          .insert(savedWorksheets)
-          .values({
-            userId,
-            name: input.name,
-            term: input.term,
-            createdAt,
-            updatedAt: createdAt,
-            private: true,
-          })
-          .returning(savedWorksheetColumns);
-
-        if (!created) throw new Error('Failed to create saved worksheet');
-
-        if (sections.length > 0) {
-          await tx.insert(savedWorksheetSections).values(
-            sections.map((section) => ({
-              worksheetId: created.id,
-              sectionId: section.sectionId,
-              color: section.color,
-              hidden: section.hidden,
-            })),
-          );
-        }
-
-        return {
-          ...created,
-          sections,
-        };
-      });
+      try {
+        return await createSavedWorksheetRecord(
+          userId,
+          {
+            name: MAIN_SAVED_WORKSHEET_NAME,
+            term,
+            isMain: true,
+            sections: [],
+          },
+          createdAt,
+        );
+      } catch (error: unknown) {
+        const createdByConcurrentRequest = await getMainSavedWorksheet(
+          userId,
+          term,
+        );
+        if (createdByConcurrentRequest) return createdByConcurrentRequest;
+        throw error;
+      }
     },
   };
 }

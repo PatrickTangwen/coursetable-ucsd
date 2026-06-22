@@ -8,7 +8,12 @@ import { useShallow } from 'zustand/react/shallow';
 import { CUR_SEASON } from '../config';
 import { seasons as allSeasons } from '../data/catalogSeasons';
 import { useCourseData, useWorksheetInfo } from '../hooks/useFerry';
-import { isLegacyUserInfo, type UserWorksheets } from '../queries/api';
+import {
+  ensureMainSavedWorksheet,
+  isLegacyUserInfo,
+  type SavedWorksheet,
+  type UserWorksheets,
+} from '../queries/api';
 import {
   type Season,
   type Crn,
@@ -78,6 +83,10 @@ interface WorksheetState {
   viewAnonymousWorksheet: boolean;
   anonymousWorksheet: AnonymousWorksheetState;
   anonymousWorksheetMissingSectionIds: string[];
+  activeSavedWorksheet: SavedWorksheet | undefined;
+  activeSavedWorksheetOwnerId: number | undefined;
+  savedWorksheetBootstrapStatus: 'idle' | 'loading' | 'ready' | 'error';
+  savedWorksheetBootstrapError: Error | null;
 
   // Affect visual display
   worksheetView: WorksheetView;
@@ -110,6 +119,7 @@ interface WorksheetActions {
   exitExoticWorksheet: () => void;
   restoreAnonymousWorksheetFromShare: (share: AnonymousWorksheetShare) => void;
   restoreSavedWorksheet: (worksheet: SavedWorksheetRestoreSource) => void;
+  ensureMainSavedWorksheetForTerm: (term: Season) => Promise<void>;
   addAnonymousWorksheetListing: (
     listing: AnonymousWorksheetListing,
     color: string,
@@ -205,6 +215,8 @@ export const createWorksheetSlice: StateCreator<
       viewedWorksheetNumber: 0,
     });
   };
+  const toError = (error: unknown) =>
+    error instanceof Error ? error : new Error(String(error));
 
   return {
     viewedPerson: 'me',
@@ -228,6 +240,10 @@ export const createWorksheetSlice: StateCreator<
     viewAnonymousWorksheet: false,
     anonymousWorksheet: readAnonymousWorksheetStorage(CUR_SEASON),
     anonymousWorksheetMissingSectionIds: [],
+    activeSavedWorksheet: undefined,
+    activeSavedWorksheetOwnerId: undefined,
+    savedWorksheetBootstrapStatus: 'idle',
+    savedWorksheetBootstrapError: null,
     exitExoticWorksheet() {
       set({
         exoticWorksheet: undefined,
@@ -264,6 +280,50 @@ export const createWorksheetSlice: StateCreator<
           '',
           `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}`,
         );
+      }
+    },
+    async ensureMainSavedWorksheetForTerm(term) {
+      const { authStatus, user, savedWorksheetBootstrapStatus } = get();
+      if (
+        authStatus !== 'authenticated' ||
+        !user ||
+        isLegacyUserInfo(user) ||
+        savedWorksheetBootstrapStatus === 'loading'
+      )
+        return;
+
+      set({
+        savedWorksheetBootstrapStatus: 'loading',
+        savedWorksheetBootstrapError: null,
+      });
+
+      try {
+        const worksheet = await ensureMainSavedWorksheet(term);
+        if (!worksheet) {
+          set({
+            savedWorksheetBootstrapStatus: 'error',
+            savedWorksheetBootstrapError: new Error(
+              'Failed to open Main Worksheet',
+            ),
+          });
+          return;
+        }
+
+        set({
+          activeSavedWorksheet: worksheet,
+          activeSavedWorksheetOwnerId: user.user_id,
+          savedWorksheetBootstrapStatus: 'ready',
+          savedWorksheetBootstrapError: null,
+          viewedPerson: 'me',
+          viewedSeason: worksheet.term,
+          viewedWorksheetNumber: 0,
+          viewAnonymousWorksheet: false,
+        });
+      } catch (error: unknown) {
+        set({
+          savedWorksheetBootstrapStatus: 'error',
+          savedWorksheetBootstrapError: toError(error),
+        });
       }
     },
     addAnonymousWorksheetListing(listing, color) {
@@ -343,9 +403,7 @@ export const createWorksheetSlice: StateCreator<
       getIsAnonymousWorksheet: memoize(
         (state: Store) =>
           (state.authStatus === 'unauthenticated' ||
-            state.viewAnonymousWorksheet ||
-            (state.authStatus === 'authenticated' &&
-              Boolean(state.user && !isLegacyUserInfo(state.user)))) &&
+            state.viewAnonymousWorksheet) &&
           !state.exoticWorksheet,
       ),
       // A readonly worksheet is anything that doesn't belong to the user—either
@@ -361,6 +419,7 @@ export const createWorksheetSlice: StateCreator<
           (state.worksheetMemo.getIsAnonymousWorksheet(state)
             ? ANONYMOUS_WORKSHEET_NAME
             : undefined) ??
+          state.activeSavedWorksheet?.name ??
           state.worksheetMemo
             .getCurWorksheet(state)
             .get(state.viewedSeason)
@@ -372,10 +431,12 @@ export const createWorksheetSlice: StateCreator<
       getIsViewedWorksheetPrivate: memoize((state: Store) =>
         state.worksheetMemo.getIsAnonymousWorksheet(state)
           ? false
-          : (state.worksheetMemo
+          : (state.activeSavedWorksheet?.private ??
+            state.worksheetMemo
               .getCurWorksheet(state)
               .get(state.viewedSeason)
-              ?.get(state.viewedWorksheetNumber)?.private ?? false),
+              ?.get(state.viewedWorksheetNumber)?.private ??
+            false),
       ),
     },
   };
@@ -386,6 +447,7 @@ export const useWorksheetEffects = () => {
   const {
     exoticWorksheet,
     anonymousWorksheet,
+    activeSavedWorksheet,
     isAnonymousWorksheet,
     curWorksheet,
     viewedSeason,
@@ -396,6 +458,7 @@ export const useWorksheetEffects = () => {
     useShallow((state) => ({
       exoticWorksheet: state.exoticWorksheet,
       anonymousWorksheet: state.anonymousWorksheet,
+      activeSavedWorksheet: state.activeSavedWorksheet,
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
       curWorksheet: state.worksheetMemo.getCurWorksheet(state),
       viewedSeason: state.viewedSeason,
@@ -410,7 +473,23 @@ export const useWorksheetEffects = () => {
     () => (isAnonymousWorksheet ? [anonymousWorksheet.term] : []),
     [anonymousWorksheet.term, isAnonymousWorksheet],
   );
-  const { courses: catalogCourses } = useCourseData(anonymousRequestedSeasons);
+  const savedWorksheetRequestedSeasons = useMemo(
+    () =>
+      !isAnonymousWorksheet && activeSavedWorksheet
+        ? [activeSavedWorksheet.term]
+        : [],
+    [activeSavedWorksheet, isAnonymousWorksheet],
+  );
+  const requestedSeasons = useMemo(
+    () => [
+      ...new Set([
+        ...anonymousRequestedSeasons,
+        ...savedWorksheetRequestedSeasons,
+      ]),
+    ],
+    [anonymousRequestedSeasons, savedWorksheetRequestedSeasons],
+  );
+  const { courses: catalogCourses } = useCourseData(requestedSeasons);
   const anonymousResolved = useMemo(
     () =>
       resolveAnonymousWorksheet(
@@ -418,6 +497,23 @@ export const useWorksheetEffects = () => {
         catalogCourses[anonymousWorksheet.term]?.data,
       ),
     [anonymousWorksheet, catalogCourses],
+  );
+  const activeSavedWorksheetState = useMemo(
+    () =>
+      activeSavedWorksheet
+        ? buildRestoredAnonymousWorksheet(activeSavedWorksheet)
+        : null,
+    [activeSavedWorksheet],
+  );
+  const activeSavedWorksheetResolved = useMemo(
+    () =>
+      activeSavedWorksheetState
+        ? resolveAnonymousWorksheet(
+            activeSavedWorksheetState,
+            catalogCourses[activeSavedWorksheetState.term]?.data,
+          )
+        : null,
+    [activeSavedWorksheetState, catalogCourses],
   );
   const anonymousMissingKey =
     anonymousResolved.missingSectionIds.length > 0
@@ -454,10 +550,16 @@ export const useWorksheetEffects = () => {
     data: courses,
   } = useWorksheetInfo(
     exoticWorksheet?.worksheets ??
-      (isAnonymousWorksheet ? anonymousResolved.worksheets : curWorksheet),
+      (isAnonymousWorksheet
+        ? anonymousResolved.worksheets
+        : (activeSavedWorksheetResolved?.worksheets ?? curWorksheet)),
     exoticWorksheet?.data.season ??
-      (isAnonymousWorksheet ? anonymousWorksheet.term : viewedSeason),
-    exoticWorksheet || isAnonymousWorksheet ? 0 : viewedWorksheetNumber,
+      (isAnonymousWorksheet
+        ? anonymousWorksheet.term
+        : (activeSavedWorksheet?.term ?? viewedSeason)),
+    exoticWorksheet || isAnonymousWorksheet || activeSavedWorksheet
+      ? 0
+      : viewedWorksheetNumber,
   );
   setWorksheetInfo(courses, worksheetLoading, worksheetError);
 };

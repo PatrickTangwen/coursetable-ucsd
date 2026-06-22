@@ -246,6 +246,10 @@ export const savedWorksheets = pgTable(
     name: varchar('name', { length: 64 }).notNull(),
     term: varchar('term', { length: 32 }).notNull(),
     private: boolean('private').notNull().default(true),
+    isMain: boolean('isMain').notNull().default(false),
+    mainWorksheetKey: varchar('mainWorksheetKey', { length: 16 }).default(
+      sql`NULL`,
+    ),
     createdAt: bigint('createdAt', { mode: 'number' }).notNull(),
     updatedAt: bigint('updatedAt', { mode: 'number' }).notNull(),
   },
@@ -256,6 +260,9 @@ export const savedWorksheets = pgTable(
     savedWorksheetsUserCreatedIdx: index(
       'saved_worksheets_user_created_idx',
     ).on(table.userId, table.createdAt),
+    savedWorksheetsMainUniqueIdx: uniqueIndex(
+      'saved_worksheets_main_unique_idx',
+    ).on(table.userId, table.term, table.mainWorksheetKey),
   }),
 );
 

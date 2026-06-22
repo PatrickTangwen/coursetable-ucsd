@@ -1248,10 +1248,11 @@ const savedWorksheetSectionSchema = z.object({
 const savedWorksheetSchema = z.object({
   id: z.number(),
   name: z.string(),
-  term: z.string(),
+  term: seasonSchema,
   createdAt: z.number(),
   updatedAt: z.number(),
   private: z.boolean(),
+  isMain: z.boolean(),
   sourceSectionCount: z.number(),
   savedSectionCount: z.number(),
   sections: z.array(savedWorksheetSectionSchema),
@@ -1260,10 +1261,11 @@ const savedWorksheetSchema = z.object({
 const savedWorksheetSummarySchema = z.object({
   id: z.number(),
   name: z.string(),
-  term: z.string(),
+  term: seasonSchema,
   createdAt: z.number(),
   updatedAt: z.number(),
   private: z.boolean(),
+  isMain: z.boolean(),
   sectionCount: z.number(),
 });
 
@@ -1289,6 +1291,17 @@ export async function createSavedWorksheetFromAnonymous(
     breadcrumb: {
       category: 'savedWorksheets',
       message: 'Saving anonymous worksheet',
+    },
+  });
+}
+
+export async function ensureMainSavedWorksheet(term: Season) {
+  return await fetchAPI('/savedWorksheets/ensure-main', {
+    body: { term },
+    schema: savedWorksheetSchema,
+    breadcrumb: {
+      category: 'savedWorksheets',
+      message: 'Opening Main Worksheet',
     },
   });
 }

@@ -19,7 +19,7 @@ import { CUR_YEAR } from '../../config';
 import { seasons } from '../../data/catalogSeasons';
 import type { LatestCurrentOfferingQuery } from '../../generated/graphql-types';
 import { useWorksheetInfo } from '../../hooks/useFerry';
-import { updateWorksheetCourses } from '../../queries/api';
+import { isLegacyUserInfo, updateWorksheetCourses } from '../../queries/api';
 import { LatestCurrentOfferingDocument } from '../../queries/graphql-queries';
 import type { Season } from '../../queries/graphql-types';
 import {
@@ -159,12 +159,13 @@ function WorksheetToggleButton({
   readonly modal: boolean;
   readonly inWorksheet?: boolean;
 }) {
-  const { worksheets, worksheetsRefresh, getRelevantWorksheetNumber } =
+  const { worksheets, worksheetsRefresh, getRelevantWorksheetNumber, user } =
     useStore(
       useShallow((state) => ({
         worksheets: state.worksheets,
         worksheetsRefresh: state.worksheetsRefresh,
         getRelevantWorksheetNumber: state.getRelevantWorksheetNumber,
+        user: state.user,
       })),
     );
   const {
@@ -405,14 +406,17 @@ function WorksheetToggleButton({
 
   const size = modal ? 20 : isLgDesktop ? 16 : 14;
   const Icon = inWorksheet ? FaMinus : FaPlus;
+  const hasSavedWorksheetAccount = Boolean(user && !isLegacyUserInfo(user));
   const buttonLabel = isAnonymousWorksheet
     ? `${inWorksheet ? 'Remove from' : 'Add to'} anonymous worksheet`
-    : worksheets
-      ? // The worksheet name can only be unknown if we triggered the
-        // if (prevWorksheetCtx !== defaultWorksheetNumber) code path above
-        // We will update it once and then it will be correct
-        `${inWorksheet ? 'Remove from' : 'Add to'} worksheet "${worksheetOptions[selectedWorksheet]?.label ?? 'Unknown'}"`
-      : 'Log in to add to your worksheet';
+    : hasSavedWorksheetAccount
+      ? 'Saved Worksheet course editing will be enabled in a later beta'
+      : worksheets
+        ? // The worksheet name can only be unknown if we triggered the
+          // if (prevWorksheetCtx !== defaultWorksheetNumber) code path above
+          // We will update it once and then it will be correct
+          `${inWorksheet ? 'Remove from' : 'Add to'} worksheet "${worksheetOptions[selectedWorksheet]?.label ?? 'Unknown'}"`
+        : 'Log in to add to your worksheet';
 
   // Disabled worksheet add/remove button while auth is still resolving.
   if (!worksheets && !isAnonymousWorksheet) {
