@@ -385,6 +385,40 @@ function parseMeeting(cells: Cell[]): SnapshotMeeting {
   };
 }
 
+function parseAvailability(
+  availableCell: Cell | undefined,
+  limitCell: Cell | undefined,
+): {
+  enrolled: number | null;
+  capacity: number | null;
+  waitlist_count: number;
+} {
+  const limitText = limitCell?.text.trim() ?? '';
+  const availableText = availableCell?.text.trim() ?? '';
+  const capacity = /^\d+$/u.test(limitText) ? Number(limitText) : null;
+
+  if (/full/iu.test(availableText)) {
+    const waitlistMatch = /waitlist\s*\(\s*(?<count>\d+)\s*\)/iu.exec(
+      availableText,
+    );
+    return {
+      enrolled: capacity,
+      capacity,
+      waitlist_count: waitlistMatch ? Number(waitlistMatch.groups!.count) : 0,
+    };
+  }
+
+  if (/^\d+$/u.test(availableText) && capacity !== null) {
+    return {
+      enrolled: Math.max(0, capacity - Number(availableText)),
+      capacity,
+      waitlist_count: 0,
+    };
+  }
+
+  return { enrolled: null, capacity: null, waitlist_count: 0 };
+}
+
 function parseInstructors(cell: Cell): string[] {
   const linkedNames = tagContents(cell.html, 'a')
     .map(normalizeText)
@@ -490,6 +524,7 @@ export function parseScheduleOfClassesHtml(
     }
 
     const pending = pendingSharedMeetings.get(family);
+    const availability = parseAvailability(logicalCells[10], logicalCells[11]);
     const section: SnapshotSection = {
       section_id: `${options.term}:${sourceSectionId}`,
       course_id: currentCourse.course_id,
@@ -500,6 +535,9 @@ export function parseScheduleOfClassesHtml(
         ...(pending?.meetings ?? []).map((item) => ({ ...item })),
         meeting,
       ],
+      enrolled: availability.enrolled,
+      capacity: availability.capacity,
+      waitlist_count: availability.waitlist_count,
       raw: sectionRaw(options, currentCourse, logicalCells),
     };
     currentCourse.sections.push(section);

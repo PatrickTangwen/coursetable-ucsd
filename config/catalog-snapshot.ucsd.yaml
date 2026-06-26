@@ -1,11 +1,13 @@
-active_planning_term: S126
-term_label: Summer Session I 2026
+active_planning_term: SP26
+term_label: Spring 2026
 term_date_range:
-  start: '2026-06-29'
-  end: '2026-08-01'
+  start: '2026-03-30'
+  end: '2026-06-12'
 configured_subjects:
   - CSE
   - MATH
+  - PHYS
+  - ECE
 paths:
   raw_dir: data/raw
   normalized_dir: data/normalized

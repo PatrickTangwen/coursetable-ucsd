@@ -1,6 +1,7 @@
-# UCSD Course Planning Platform
+# SunGrid — UCSD Course Planning Platform
 
-Domain language for the UCSD course discovery and schedule planning platform built from a CourseTable fork.
+Domain language for SunGrid, a UCSD course discovery and schedule planning
+platform built from a CourseTable fork.
 
 ## Language
 
@@ -77,9 +78,20 @@ Legacy/internal snapshot field language for `archive_avg_gpa`. Use Average GPA
 for current user-facing copy.
 _Avoid_: Visible current UI label
 
-**Availability Data**:
-Dynamic seat, capacity, waitlist, enrollment, or demand data that the platform intentionally excludes from product features.
-_Avoid_: Open seats, seat availability, enrollment tracker, demand signal
+**Snapshot Availability Data**:
+Enrolled count, seat capacity, and waitlist count scraped from the UCSD Schedule
+of Classes at snapshot-generation time and included in the Catalog Snapshot as
+static fields. Not refreshed in real time. Every UI surface displaying this data
+must show the snapshot timestamp. Supersedes the original exclusion in ADR 0004;
+see ADR 0011.
+_Avoid_: Real-time availability, live seat count, enrollment tracker, demand signal
+
+**Excluded Availability Directions**:
+Product directions that remain intentionally excluded even after ADR 0011: seat
+availability history, real-time WebReg polling, enrollment trends, worksheet
+demand ("in N worksheets"), friends taking course, and availability-based
+sorting or filtering.
+_Avoid_: Treating these as deferred features
 
 **Course**:
 A catalog-level UCSD class identified by subject and course number, independent of a specific scheduled offering.
@@ -100,6 +112,25 @@ _Avoid_: Meeting-derived ID, title-derived ID, CRN
 **Meeting**:
 A scheduled time-and-location block belonging to a section; a section may have zero, one, or many meetings.
 _Avoid_: Event, time slot, appointment
+
+**Section Family**:
+The letter prefix of a section code (e.g., "A" from "A01", "B" from "B50")
+used to group related sections that share a common lecture. Sections with
+numeric-only codes (e.g., "001") have an empty family.
+_Avoid_: Offering group (which is the UI-layer concept built from families)
+
+**Offering Group**:
+A UI-layer grouping of sections within a course that share a Section Family
+prefix, representing one possible schedule combination. Built at render time by
+comparing meetings across sections in the same family: shared meetings (same
+type, days, time, location) become anchor rows; varying meetings become
+selectable rows. Not stored in the Catalog Snapshot.
+_Avoid_: Section family (which is the raw data grouping), schedule option
+
+**SunGrid**:
+The product name for the UCSD course planning platform. Replaces the inherited
+CourseTable brand in all user-facing surfaces.
+_Avoid_: CourseTable, UCSD Course Planner
 
 **Worksheet**:
 A student-selected set of course sections for planning a schedule within a term.

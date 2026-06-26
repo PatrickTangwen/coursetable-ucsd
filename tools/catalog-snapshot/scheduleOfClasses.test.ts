@@ -151,7 +151,7 @@ const mathFixture = `
 `;
 
 describe('UCSD Schedule of Classes parser', () => {
-  it('parses CSE sections with stable IDs, shared lecture meetings, instructors, and safe raw fields', () => {
+  it('parses CSE sections with stable IDs, shared lecture meetings, instructors, availability, and safe raw fields', () => {
     const parsed = parseScheduleOfClassesHtml(cseFixture, {
       subject: 'CSE',
       term: 'SP26',
@@ -177,6 +177,9 @@ describe('UCSD Schedule of Classes parser', () => {
       section_code: 'A01',
       meeting_type: 'Discussion',
       instructors: ['Bonjour, Trevor'],
+      enrolled: 146,
+      capacity: 146,
+      waitlist_count: 1,
       meetings: [
         {
           days: ['Tuesday', 'Thursday'],
@@ -215,9 +218,6 @@ describe('UCSD Schedule of Classes parser', () => {
         raw_meeting_type: 'DI',
       },
     });
-    expect(JSON.stringify(parsed)).not.toMatch(
-      /Waitlist|Available|Limit|FULL/u,
-    );
   });
 
   it('parses MATH TBA and arranged sections without inventing instructor or time data', () => {
@@ -234,6 +234,9 @@ describe('UCSD Schedule of Classes parser', () => {
         section_id: 'SP26:84897',
         section_code: 'A01',
         instructors: [],
+        enrolled: null,
+        capacity: null,
+        waitlist_count: 0,
         meetings: [
           {
             days: [],
@@ -253,6 +256,9 @@ describe('UCSD Schedule of Classes parser', () => {
         section_id: 'SP26:84898',
         section_code: 'A02',
         instructors: ['Noether, Emmy'],
+        enrolled: null,
+        capacity: null,
+        waitlist_count: 0,
         meetings: [
           {
             days: [],
@@ -271,7 +277,7 @@ describe('UCSD Schedule of Classes parser', () => {
     ]);
   });
 
-  it('builds a valid Catalog Snapshot without availability data from parsed CSE and MATH schedule courses', () => {
+  it('builds a valid Catalog Snapshot with availability data from parsed CSE and MATH schedule courses', () => {
     const config = makeConfig();
     const cse = parseScheduleOfClassesHtml(cseFixture, {
       subject: 'CSE',
@@ -298,9 +304,140 @@ describe('UCSD Schedule of Classes parser', () => {
     expect(snapshot.source_timestamps.schedule_of_classes).toBe(
       '04/01/2026, 05:27:00',
     );
-    expect(JSON.stringify(snapshot)).not.toMatch(
-      /seats_available|waitlist|capacity|enrollment|Waitlist|Available|Limit|FULL/u,
+
+    const cseSection = snapshot.courses.find((c) => c.course_id === 'CSE:5')
+      ?.sections[0];
+    expect(cseSection).toMatchObject({
+      enrolled: 146,
+      capacity: 146,
+      waitlist_count: 1,
+    });
+
+    const mathSections = snapshot.courses.find(
+      (c) => c.course_id === 'MATH:2',
+    )?.sections;
+    for (const section of mathSections ?? []) {
+      expect(section.enrolled).toBeNull();
+      expect(section.capacity).toBeNull();
+      expect(section.waitlist_count).toBe(0);
+    }
+  });
+});
+
+const availabilityFixture = `
+<table id="socDeptTab">
+  <tr>
+    <td colspan="13">
+      <h2><span class="centeralign">Physics (PHYS )</span></h2>
+    </td>
+  </tr>
+  <tr>
+    <td class="crsheader"></td>
+    <td class="crsheader">1A</td>
+    <td class="crsheader" colspan="5">
+      <span class="boldtxt">Mechanics</span>
+      ( 4 Units)
+    </td>
+    <td class="crsheader" colspan="6"></td>
+  </tr>
+  <tr class="sectxt">
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr">300001</td>
+    <td class="brdr"><span id="insTyp" title="Lecture">LE</span></td>
+    <td class="brdr">A01</td>
+    <td class="brdr">MWF</td>
+    <td class="brdr">10:00a-10:50a</td>
+    <td class="brdr">YORK</td>
+    <td class="brdr">2722</td>
+    <td class="brdr"><a href="#!">Feynman, Richard</a></td>
+    <td class="brdr">50</td>
+    <td class="brdr">200</td>
+    <td class="brdr"></td>
+  </tr>
+  <tr class="sectxt">
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr">300002</td>
+    <td class="brdr"><span id="insTyp" title="Lecture">LE</span></td>
+    <td class="brdr">B01</td>
+    <td class="brdr">TuTh</td>
+    <td class="brdr">2:00p-3:20p</td>
+    <td class="brdr">WLH</td>
+    <td class="brdr">2001</td>
+    <td class="brdr"><a href="#!">Dirac, Paul</a></td>
+    <td class="brdr">FULL</td>
+    <td class="brdr">150</td>
+    <td class="brdr"></td>
+  </tr>
+</table>
+`;
+
+describe('UCSD Schedule of Classes availability parsing', () => {
+  it('parses numeric available seats as enrolled = capacity - available', () => {
+    const parsed = parseScheduleOfClassesHtml(availabilityFixture, {
+      subject: 'PHYS',
+      term: 'SP26',
+      sourceUrl,
+      fetchedAt,
+    });
+
+    const sectionA = parsed.courses[0]!.sections.find(
+      (s) => s.section_code === 'A01',
     );
+    expect(sectionA).toMatchObject({
+      enrolled: 150,
+      capacity: 200,
+      waitlist_count: 0,
+    });
+  });
+
+  it('parses FULL without waitlist as enrolled = capacity', () => {
+    const parsed = parseScheduleOfClassesHtml(availabilityFixture, {
+      subject: 'PHYS',
+      term: 'SP26',
+      sourceUrl,
+      fetchedAt,
+    });
+
+    const sectionB = parsed.courses[0]!.sections.find(
+      (s) => s.section_code === 'B01',
+    );
+    expect(sectionB).toMatchObject({
+      enrolled: 150,
+      capacity: 150,
+      waitlist_count: 0,
+    });
+  });
+
+  it('parses FULL with Waitlist(N) from the CSE fixture', () => {
+    const parsed = parseScheduleOfClassesHtml(cseFixture, {
+      subject: 'CSE',
+      term: 'SP26',
+      sourceUrl,
+      fetchedAt,
+    });
+
+    expect(parsed.courses[0]!.sections[0]).toMatchObject({
+      enrolled: 146,
+      capacity: 146,
+      waitlist_count: 1,
+    });
+  });
+
+  it('returns null enrolled/capacity for sections with non-numeric availability text', () => {
+    const parsed = parseScheduleOfClassesHtml(mathFixture, {
+      subject: 'MATH',
+      term: 'SP26',
+      sourceUrl,
+      fetchedAt,
+    });
+
+    for (const section of parsed.courses[0]!.sections) {
+      expect(section.enrolled).toBeNull();
+      expect(section.capacity).toBeNull();
+      expect(section.waitlist_count).toBe(0);
+    }
   });
 });
 

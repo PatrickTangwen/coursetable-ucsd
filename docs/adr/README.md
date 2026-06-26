@@ -40,6 +40,8 @@ logs, or transient setup notes directly in ADRs.
 - `0010-reuse-worksheet-management-interface-with-saved-worksheet-model.md`:
   reuse the original worksheet management interface pattern while keeping UCSD
   Saved Worksheet data ownership separate from legacy worksheet-number APIs.
+- `0011-introduce-snapshot-static-availability-data.md`: introduce enrolled,
+  capacity, and waitlist as snapshot-static section fields, superseding ADR 0004.
 
 ## Editing Rule
 

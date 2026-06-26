@@ -85,6 +85,9 @@ function makeScheduleCourse(
             raw_location: 'CENTR 101',
           },
         ],
+        enrolled: 80,
+        capacity: 100,
+        waitlist_count: 0,
         raw: options.unsafeRaw
           ? {
               source: 'fixture',

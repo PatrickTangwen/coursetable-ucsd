@@ -97,6 +97,9 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
                   raw_location: 'CENTR 101',
                 },
               ],
+              enrolled: 80,
+              capacity: 100,
+              waitlist_count: 0,
               raw: {
                 source: 'fixture',
               },
@@ -271,6 +274,9 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
                   raw_location: 'ARRANGED',
                 },
               ],
+              enrolled: null,
+              capacity: null,
+              waitlist_count: 0,
               raw: {
                 source: 'ucsd_schedule_of_classes',
               },

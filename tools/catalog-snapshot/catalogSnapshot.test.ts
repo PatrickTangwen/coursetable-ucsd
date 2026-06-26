@@ -190,7 +190,7 @@ describe('Catalog Snapshot validation', () => {
     );
   });
 
-  it('rejects excluded Availability Data and demand fields', () => {
+  it('rejects excluded availability-tracking and demand fields in raw data', () => {
     const config = makeConfig();
     const snapshot = buildTracerCatalogSnapshot(config, {
       runId: 'run-test',
@@ -210,6 +210,21 @@ describe('Catalog Snapshot validation', () => {
         'excluded field $.courses[0].sections[0].raw.demand',
       ]),
     );
+  });
+
+  it('accepts snapshot-static availability fields (enrolled, capacity, waitlist_count) on sections', () => {
+    const config = makeConfig();
+    const snapshot = buildTracerCatalogSnapshot(config, {
+      runId: 'run-test',
+      generatedAt: '2026-06-19T12:00:00.000Z',
+    });
+    snapshot.courses[0]!.sections[0]!.enrolled = 100;
+    snapshot.courses[0]!.sections[0]!.capacity = 150;
+    snapshot.courses[0]!.sections[0]!.waitlist_count = 3;
+
+    const result = validateCatalogSnapshot(snapshot, config);
+
+    expect(result).toEqual({ success: true, errors: [] });
   });
 
   it('rejects excluded Availability Data, friends, and evaluation field names across common key styles', () => {
