@@ -8,7 +8,7 @@ import { useShallow } from 'zustand/react/shallow';
 import CourseModal from './components/CourseModal/CourseModal';
 import Footer from './components/Footer';
 import ModalHistoryBridge from './components/ModalHistoryBridge';
-import Navbar from './components/Navbar/Navbar';
+import TopNav from './components/Navbar/TopNav';
 import Notice from './components/Notice';
 import ProfModal from './components/ProfModal/ProfModal';
 import SeoMeta from './components/SeoMeta';
@@ -146,7 +146,7 @@ function App() {
         // Don't remove this wrapper.
         id={26}
       />
-      <Navbar />
+      <TopNav />
       <SentryRoutes>
         <Route element={<AuthenticatedRoutes />}>
           <Route

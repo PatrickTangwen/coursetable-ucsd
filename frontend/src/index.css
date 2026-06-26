@@ -1,43 +1,116 @@
 :root {
-  --color-text-dark: #141414;
+  /* ── Legacy token names (updated to SunGrid values) ── */
+  --color-text-dark: #1a1a2e;
   --color-text-light: #fafafa;
   --color-text: var(--color-text-dark);
-  --color-text-secondary: #454545;
-  --color-text-tertiary: #7a7a7a;
+  --color-text-secondary: #33354d;
+  --color-text-tertiary: #4a4d68;
   --color-bg: #fff;
-  --color-surface: #fff; /* All surfaces are white */
+  --color-surface: #fff;
   --color-surface-elevated: #fff;
-  --color-surface-contrast: #f5f5f5; /* Establish visual contrast with plain surfaces */
-  --color-surface-hover: #fafafa; /* For controls that have surface color by default */
-  --color-surface-active: #f0f0f0;
-  --color-border: #ededed;
-  --color-border-control: rgb(0 0 0 / 10%);
+  --color-surface-contrast: #f5f7fa;
+  --color-surface-hover: #f4f6fa;
+  --color-surface-active: #e8f0fe;
+  --color-border: #e8e9ef;
+  --color-border-control: #dcdee6;
   --color-select: #fff;
-  --color-hidden: #b9b8b8;
+  --color-hidden: #b0b3be;
   --color-disabled: #f2f2f2;
-  --color-bg-button: #e6e6e6;
-  --color-icon: #ccc;
-  --color-icon-hover: #9b9b9b;
-  --color-icon-focus: #666;
-  --color-icon-focus-hover: #3c3c3c;
+  --color-bg-button: #e4e5eb;
+  --color-icon: #9a9db4;
+  --color-icon-hover: #8b8fa3;
+  --color-icon-focus: #5a5d7a;
+  --color-icon-focus-hover: #4a4d68;
   --color-shadow: rgb(0 0 0 / 20%);
-  --color-primary: #468ff2;
-  --color-primary-light: #5ca8fa;
-  --color-primary-hover: #007bff;
-  --color-primary-subdued: #468ff24d;
-  --color-primary-subdued-2: #468ff226;
-  --trans-dur: 0.35s;
+  --color-primary: #1a56db;
+  --color-primary-light: #e8f0fe;
+  --color-primary-hover: #1548b8;
+  --color-primary-subdued: rgb(26 86 219 / 30%);
+  --color-primary-subdued-2: rgb(26 86 219 / 15%);
+  --trans-dur: 0.2s;
 
-  /* Bootstrap variables */
-  --font-family-sans-serif:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
-    Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  /* ── SunGrid design tokens — Brand / Primary ── */
+  --sg-primary: #1a56db;
+  --sg-primary-hover: #1548b8;
+  --sg-primary-light: #e8f0fe;
+  --sg-primary-chip-bg: #eef3ff;
+  --sg-blue-tint: #fafbff;
+  --sg-blue-border: #bfdbfe;
+  --sg-blue-badge-bg: #dbeafe;
+  --sg-blue-badge-text: #1e40af;
+  --sg-blue-info-bg: #eef2ff;
+  --sg-blue-info-text: #3b52a8;
+  --sg-selected-row-bg: #edf4ff;
+
+  /* ── SunGrid design tokens — Text ── */
+  --sg-text-primary: #1a1a2e;
+  --sg-text-secondary: #33354d;
+  --sg-text-tertiary: #4a4d68;
+  --sg-text-muted: #5a5d7a;
+  --sg-text-placeholder: #8b8fa3;
+  --sg-text-light: #9a9db4;
+  --sg-text-disabled: #b0b3be;
+  --sg-text-very-light: #c5c8d6;
+
+  /* ── SunGrid design tokens — Backgrounds ── */
+  --sg-bg-white: #fff;
+  --sg-bg-alt-row: #fafbfc;
+  --sg-bg-input: #f8f9fb;
+  --sg-bg-group-header: #f5f7fa;
+  --sg-bg-anchor-row: #f8fafd;
+
+  /* ── SunGrid design tokens — Borders ── */
+  --sg-border: #e8e9ef;
+  --sg-border-light: #dcdee6;
+  --sg-border-subtle: #e2e4ea;
+  --sg-row-separator: #f0f1f5;
+  --sg-row-separator-light: #eeeff3;
+  --sg-row-separator-lightest: #f3f4f7;
+
+  /* ── SunGrid design tokens — Status / Semantic ── */
+  --sg-danger-red: #e8446a;
+  --sg-danger-red-hover: #d63a5e;
+  --sg-danger-text: #be123c;
+  --sg-red-chip-bg: #fff1f2;
+  --sg-full-red: #dc2626;
+  --sg-green-text: #166534;
+  --sg-green-bar: #22c55e;
+  --sg-green-badge-bg: #dcfce7;
+  --sg-purple: #6d28d9;
+  --sg-purple-dark: #5b21b6;
+  --sg-purple-light-bg: #f5f3ff;
+  --sg-purple-active-bg: #ede9fe;
+  --sg-purple-border: #e9e5f5;
+  --sg-purple-panel-bg: #faf8ff;
+  --sg-yellow-badge-bg: #fef9c3;
+  --sg-yellow-badge-text: #854d0e;
+  --sg-day-dot-active: #334155;
+  --sg-day-dot-inactive-bg: #f0f1f5;
+
+  /* ── SunGrid design tokens — Logo ── */
+  --sg-logo-sun: #0e9ae9;
+  --sg-logo-grid: #182b50;
+
+  /* ── SunGrid design tokens — Shadows ── */
+  --sg-shadow-expanded: 0 0 0 1px #e0e2e8, 0 2px 8px rgb(0 0 0 / 4%);
+  --sg-shadow-modal:
+    0 24px 80px rgb(0 0 0 / 18%), 0 4px 16px rgb(0 0 0 / 8%);
+  --sg-shadow-fab: 0 4px 16px rgb(26 86 219 / 35%);
+  --sg-backdrop: rgb(0 0 0 / 42%);
+
+  /* ── Typography ── */
+  --font-family-sans-serif: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family-logo: 'Cormorant Garamond', serif;
   --font-family-monospace:
     source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+
+  /* ── Bootstrap overrides ── */
   --bs-link-color: var(--color-primary) !important;
   --bs-link-hover-color: var(--color-primary-hover) !important;
+  --bs-body-font-family: var(--font-family-sans-serif);
 }
 
+/* ── Dark mode — placeholder values for future implementation ── */
 :root[data-theme='dark'] {
   --color-text: var(--color-text-light);
   --color-text-secondary: #dbdbdb;
@@ -61,6 +134,20 @@
   --color-primary-hover: #007bff;
   --color-primary-subdued: #446491bf;
   --color-primary-subdued-2: #44649140;
+
+  /* TODO: dark-mode SunGrid tokens — update --sg-* values when dark mode is designed */
+
+  /* --sg-primary: TBD */
+
+  /* --sg-text-primary: TBD */
+
+  /* --sg-bg-white: TBD */
+
+  /* --sg-border: TBD */
+
+  /* --sg-logo-sun: TBD */
+
+  /* --sg-logo-grid: TBD */
 }
 
 body {
@@ -115,16 +202,34 @@ hr {
   height: auto;
 }
 
+/* ── Bootstrap global overrides ── */
 .form-control::placeholder {
-  color: var(--color-text-secondary);
+  color: var(--sg-text-placeholder);
+}
+
+.form-control:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.2rem var(--color-primary-subdued);
 }
 
 .btn {
   border: none;
+  font-family: var(--font-family-sans-serif);
 }
 
 .btn:not(.btn-none, .btn-dark, .btn-danger) {
   --bs-btn-bg: var(--color-primary);
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--sg-primary);
+  --bs-btn-hover-bg: var(--sg-primary-hover);
+  --bs-btn-active-bg: var(--sg-primary-hover);
+}
+
+.btn-danger {
+  --bs-btn-bg: var(--sg-danger-red);
+  --bs-btn-hover-bg: var(--sg-danger-red-hover);
 }
 
 /* TODO: can we modularized the below? */

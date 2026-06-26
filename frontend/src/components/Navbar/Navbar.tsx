@@ -93,7 +93,7 @@ export default function AppNavbar() {
         <div className={styles.navLogoWrapper}>
           <Nav className={clsx(styles.navLogo, 'navbar-brand')}>
             <NavLink to="/">
-              <Logo icon={false} />
+              <Logo />
             </NavLink>
           </Nav>
         </div>

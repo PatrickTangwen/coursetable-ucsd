@@ -1,9 +1,9 @@
 .layout {
-  --height-navbar: 61px;
+  --height-navbar: 63px;
 }
 
 .catalogLayout {
-  --height-navbar: 100px;
+  --height-navbar: 107px;
 }
 
 @media (max-width: calc(1320px - 0.5px)) {
@@ -12,6 +12,6 @@
   }
 
   .catalogLayout {
-    --height-navbar: 88px;
+    --height-navbar: 95px;
   }
 }

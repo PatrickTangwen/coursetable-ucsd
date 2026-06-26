@@ -25,7 +25,7 @@ function Footer() {
         <div className="row">
           <div className="col-12 col-md">
             <span className={styles.footerLogo}>
-              <Logo icon={false} />
+              <Logo />
             </span>
             <small className="d-block mb-3">
               &copy; {new Date().getFullYear()}
