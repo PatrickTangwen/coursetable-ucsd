@@ -8,6 +8,9 @@ place unless a later cleanup intentionally updates all references.
 
 ## Current Working Inputs
 
+- `sungrid-catalog-redesign-prd.md`: SunGrid Catalog List View & Course Detail
+  Modal redesign PRD. Covers data pipeline, design system migration, component
+  architecture, and 5-phase implementation sequence.
 - `post-mvp-roadmap.md`: current roadmap order, scope boundaries, and links for
   post-MVP work.
 - `mvp-1-spec.md`: completed MVP-1 execution specification. Use it as the
