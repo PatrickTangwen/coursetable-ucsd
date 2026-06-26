@@ -16,11 +16,11 @@
 }
 
 .active {
-  background: #334155;
-  color: #fff;
+  background: var(--sg-day-dot-active);
+  color: var(--sg-bg-white);
 }
 
 .inactive {
-  background: #f0f1f5;
-  color: #c5c8d6;
+  background: var(--sg-day-dot-inactive-bg);
+  color: var(--sg-text-very-light);
 }

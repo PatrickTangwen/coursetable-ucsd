@@ -12,6 +12,10 @@ import {
   type CatalogViewSlice,
 } from './slices/CatalogViewSlice';
 import {
+  createCourseModalUISlice,
+  type CourseModalUISlice,
+} from './slices/CourseModalUISlice';
+import {
   createDimensionsSlice,
   type DimensionsSlice,
 } from './slices/DimensionsSlice';
@@ -51,6 +55,7 @@ export interface Store
     AuthSlice,
     CalendarSlice,
     CatalogViewSlice,
+    CourseModalUISlice,
     UserSlice,
     ThemeSlice,
     DimensionsSlice,
@@ -88,6 +93,7 @@ export const useStore = create<Store>()(
         ...createAuthSlice(...a),
         ...createCalendarSlice(...a),
         ...createCatalogViewSlice(...a),
+        ...createCourseModalUISlice(...a),
         ...createUserSlice(...a),
         ...createThemeSlice(...a),
         ...createDimensionsSlice(...a),

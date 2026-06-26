@@ -187,7 +187,7 @@ function App() {
         {/* Catch-all route to NotFound page */}
         <Route path="/*" element={<NotFound />} />
       </SentryRoutes>
-      <Footer />
+      {location.pathname !== '/catalog' && <Footer />}
       {/* Globally overlaid components */}
       <Tutorial />
       <ModalHistoryBridge />

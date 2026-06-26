@@ -9,8 +9,7 @@ import { logout } from '../../queries/api';
 import { useStore } from '../../store';
 import { scrollToTop } from '../../utilities/display';
 import { createCatalogLink } from '../../utilities/navigation';
-import LastUpdated from '../Search/LastUpdated';
-import { NavbarCatalogSearch } from '../Search/NavbarCatalogSearch';
+import CatalogNavSearch from '../Catalog/CatalogNavSearch';
 import { NavbarWorksheetSearch } from '../Worksheet/NavbarWorksheetSearch';
 import styles from './TopNav.module.css';
 
@@ -26,7 +25,12 @@ export default function TopNav() {
 
   return (
     <header className={styles.container}>
-      <nav className={styles.topRow}>
+      <nav
+        className={clsx(
+          styles.topRow,
+          showCatalogSearch && styles.topRowCatalog,
+        )}
+      >
         <NavLink
           to="/"
           className={styles.logoLink}
@@ -36,11 +40,7 @@ export default function TopNav() {
           <Logo />
         </NavLink>
 
-        {showCatalogSearch && (
-          <div className={styles.searchArea}>
-            <NavbarCatalogSearch />
-          </div>
-        )}
+        {showCatalogSearch && <CatalogNavSearch />}
         {isWorksheetPage && (
           <div className={styles.searchArea}>
             <NavbarWorksheetSearch isMobile={isMobile} />
@@ -119,12 +119,6 @@ export default function TopNav() {
             <MeDropdown />
           )}
         </div>
-
-        {showCatalogSearch && (
-          <div className={styles.lastUpdated}>
-            <LastUpdated />
-          </div>
-        )}
       </nav>
     </header>
   );

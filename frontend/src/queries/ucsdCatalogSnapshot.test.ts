@@ -156,6 +156,9 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
       section_id: 'FA26:CSE-TRACER-001',
       section_code: 'A00',
       meeting_type: 'Lecture',
+      enrolled: 80,
+      capacity: 100,
+      waitlist_count: 0,
       meetings: [
         {
           days: ['Monday', 'Wednesday'],

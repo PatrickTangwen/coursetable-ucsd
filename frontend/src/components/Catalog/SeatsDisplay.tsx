@@ -18,9 +18,11 @@ const barClass = {
 export default function SeatsDisplay({
   enrolled,
   capacity,
+  variant = 'default',
 }: {
   readonly enrolled: number | null;
   readonly capacity: number | null;
+  readonly variant?: 'default' | 'subrow';
 }) {
   if (enrolled === null && capacity === null) return null;
   const status = seatsColor(enrolled, capacity);
@@ -30,7 +32,9 @@ export default function SeatsDisplay({
       : 0;
 
   return (
-    <div className={styles.container}>
+    <div
+      className={clsx(styles.container, variant === 'subrow' && styles.subrow)}
+    >
       <span className={clsx(styles.text, textClass[status])}>
         {enrolled ?? '–'}/{capacity ?? '–'}
       </span>

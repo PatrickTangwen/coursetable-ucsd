@@ -153,6 +153,7 @@ function SortHeader({
     })),
   );
   const active = currentKey === sortKey;
+  const sortDirection = active && !asc ? '▲' : '▼';
   return (
     <button
       type="button"
@@ -160,9 +161,7 @@ function SortHeader({
       onClick={() => setSort(sortKey)}
     >
       {label}
-      {active && (
-        <span className={styles.sortIndicator}>{asc ? '▲' : '▼'}</span>
-      )}
+      <span className={styles.sortIndicator}>{sortDirection}</span>
     </button>
   );
 }
@@ -179,7 +178,7 @@ function PlusIcon({ size = 18 }: { readonly size?: number }) {
       <path
         d="M9 3v12M3 9h12"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="1.8"
         strokeLinecap="round"
       />
     </svg>
@@ -250,8 +249,8 @@ function FlatRow({
   onOpenModal,
 }: {
   readonly row: CourseRow;
-  readonly onAdd: (listing: CatalogListing) => void;
-  readonly onOpenModal: (listing: CatalogListing) => void;
+  readonly onAdd: (courseListing: CatalogListing) => void;
+  readonly onOpenModal: (courseListing: CatalogListing) => void;
 }) {
   const group = row.groups[0]!;
   const firstSection = group.sections[0]!;
@@ -292,11 +291,15 @@ function FlatRow({
       <div className={clsx(styles.cell, styles.codeCell)}>
         <span className={styles.courseCode}>{row.courseCode}</span>
         {isSingle && firstSection.section_code && (
-          <span className={styles.sectionId}>{firstSection.section_code}</span>
+          <span className={clsx(styles.sectionSlot, styles.sectionId)}>
+            {firstSection.section_code}
+          </span>
         )}
         {!isSingle && (
-          <span className={styles.sectionBadge}>
-            {row.totalSections} sections
+          <span className={styles.sectionSlot}>
+            <span className={styles.sectionBadge}>
+              {row.totalSections} sections
+            </span>
           </span>
         )}
       </div>
@@ -326,8 +329,8 @@ function ExpandableRow({
   onOpenModal,
 }: {
   readonly row: CourseRow;
-  readonly onAdd: (listing: CatalogListing) => void;
-  readonly onOpenModal: (listing: CatalogListing) => void;
+  readonly onAdd: (courseListing: CatalogListing) => void;
+  readonly onOpenModal: (courseListing: CatalogListing) => void;
 }) {
   const { expanded, toggle } = useStore(
     useShallow((s) => ({
@@ -337,6 +340,8 @@ function ExpandableRow({
   );
 
   const listing = row.listings[0]!;
+  const toggleExpanded = () => toggle(row.courseId);
+  const openModal = () => onOpenModal(listing);
 
   const parentRow = (
     // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- CSS flex grid row, not a real table
@@ -346,35 +351,41 @@ function ExpandableRow({
         styles.parentRow,
         expanded && styles.expandedParent,
       )}
-      onClick={() => onOpenModal(listing)}
       role="row"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') onOpenModal(listing);
-      }}
     >
       <div className={styles.addCell} />
-      <div className={clsx(styles.cell, styles.codeCell)}>
+      <button
+        type="button"
+        className={clsx(
+          styles.cellButton,
+          styles.cell,
+          styles.codeCell,
+          styles.toggleCell,
+        )}
+        aria-expanded={expanded}
+        aria-label={`${row.courseCode} ${row.totalSections} sections`}
+        onClick={toggleExpanded}
+      >
         <span className={styles.courseCode}>{row.courseCode}</span>
-        <button
-          type="button"
-          className={styles.sectionBadge}
-          onClick={(e) => {
-            e.stopPropagation();
-            toggle(row.courseId);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.stopPropagation();
-              toggle(row.courseId);
-            }
-          }}
-        >
-          {row.totalSections} sections
-          <ChevronIcon open={expanded} />
-        </button>
-      </div>
-      <div className={clsx(styles.cell, styles.titleCell)}>{row.title}</div>
+        <span className={styles.sectionSlot}>
+          <span className={styles.sectionBadge}>
+            {row.totalSections} sections
+            <ChevronIcon open={expanded} />
+          </span>
+        </span>
+      </button>
+      <button
+        type="button"
+        className={clsx(
+          styles.cellButton,
+          styles.cell,
+          styles.titleCell,
+          styles.modalTitleCell,
+        )}
+        onClick={openModal}
+      >
+        {row.title}
+      </button>
       <div
         className={clsx(styles.cell, styles.instructorCell, styles.summaryText)}
       >
@@ -403,38 +414,34 @@ function ExpandableRow({
     <div className={styles.expandableGroup}>
       {parentRow}
       <div className={styles.subRowContainer}>
-        {row.groups.map((group) => {
-          const sec = group.sections[0]!;
-          const meetings =
-            group.sharedMeetings.length > 0
-              ? group.sharedMeetings
-              : sec.meetings;
-          const groupListing =
-            row.listings.find(
-              (l) =>
-                (l.course as { [key: string]: unknown }).ucsd_calendar &&
-                (
-                  (l.course as { [key: string]: unknown }).ucsd_calendar as {
-                    [key: string]: unknown;
-                  }
-                ).section_id === sec.section_id,
-            ) ?? listing;
+        {row.groups.flatMap((group) =>
+          group.sections.map((sec) => {
+            const { meetings } = sec;
+            const groupListing =
+              row.listings.find(
+                (l) =>
+                  (l.course as { [key: string]: unknown }).ucsd_calendar &&
+                  (
+                    (l.course as { [key: string]: unknown }).ucsd_calendar as {
+                      [key: string]: unknown;
+                    }
+                  ).section_id === sec.section_id,
+              ) ?? listing;
 
-          return (
-            // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- CSS flex grid row, not a real table
-            <div
-              key={group.familyPrefix}
-              className={styles.subRow}
-              onClick={() => onOpenModal(groupListing)}
-              role="row"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ')
-                  onOpenModal(groupListing);
-              }}
-            >
-              <div className={styles.addCell}>
-                {group.sections.length === 1 && (
+            return (
+              // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- CSS flex grid row, not a real table
+              <div
+                key={sec.section_id}
+                className={styles.subRow}
+                onClick={() => onOpenModal(groupListing)}
+                role="row"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ')
+                    onOpenModal(groupListing);
+                }}
+              >
+                <div className={styles.addCell}>
                   <button
                     type="button"
                     className={styles.subAddBtn}
@@ -446,38 +453,45 @@ function ExpandableRow({
                   >
                     <PlusIcon size={16} />
                   </button>
-                )}
-              </div>
-              <div className={clsx(styles.cell, styles.codeCell)}>
-                <span className={styles.subSectionBadge}>
-                  {group.familyPrefix}
-                </span>
-                {sec.meeting_type && (
-                  <span className={styles.typeBadge}>
-                    {sec.meeting_type.slice(0, 2).toUpperCase()}
+                </div>
+                <div className={clsx(styles.cell, styles.codeCell)}>
+                  <span className={styles.subSectionBadge}>
+                    {sec.section_code ?? group.familyPrefix}
                   </span>
-                )}
+                </div>
+                <div
+                  className={clsx(
+                    styles.cell,
+                    styles.titleCell,
+                    styles.subTitleCell,
+                  )}
+                >
+                  {sec.meeting_type && (
+                    <span className={styles.typeBadge}>
+                      {sec.meeting_type.slice(0, 2).toUpperCase()}
+                    </span>
+                  )}
+                  <SeatsDisplay
+                    enrolled={sec.enrolled}
+                    capacity={sec.capacity}
+                    variant="subrow"
+                  />
+                </div>
+                <div className={clsx(styles.cell, styles.instructorCell)}>
+                  {sec.instructors[0] ?? 'Staff'}
+                </div>
+                <div className={clsx(styles.cell, styles.meetsCell)}>
+                  <MeetingDisplay meetings={meetings} />
+                </div>
+                <div className={clsx(styles.cell, styles.locationCell)}>
+                  <LocationDisplay meetings={meetings} />
+                </div>
+                <div className={clsx(styles.cell, styles.seatsCell)} />
               </div>
-              <div className={clsx(styles.cell, styles.titleCell)} />
-              <div className={clsx(styles.cell, styles.instructorCell)}>
-                {sec.instructors[0] ?? 'Staff'}
-              </div>
-              <div className={clsx(styles.cell, styles.meetsCell)}>
-                <MeetingDisplay meetings={meetings} />
-              </div>
-              <div className={clsx(styles.cell, styles.locationCell)}>
-                <LocationDisplay meetings={meetings} />
-              </div>
-              <div className={clsx(styles.cell, styles.seatsCell)}>
-                <SeatsDisplay
-                  enrolled={group.totalEnrolled}
-                  capacity={group.totalCapacity}
-                />
-              </div>
-            </div>
-          );
-        })}
-        {row.groups.length > 3 && (
+            );
+          }),
+        )}
+        {row.totalSections > 3 && (
           <div className={styles.scrollHint}>↓ scroll for more sections</div>
         )}
       </div>
@@ -508,8 +522,7 @@ export default function CatalogTable({
 
   const renderRow = useCallback(
     (row: CourseRow) => {
-      const isMultiFamily = row.groups.length > 1;
-      if (isMultiFamily) {
+      if (row.totalSections > 1) {
         return (
           <ExpandableRow
             key={row.courseId}
@@ -533,25 +546,35 @@ export default function CatalogTable({
 
   return (
     <div className={styles.tableWrapper}>
-      <div className={styles.header}>
-        <div className={clsx(styles.headerCell, styles.colAdd)} />
-        <SortHeader label="Code" sortKey="code" className={styles.colCode} />
-        <SortHeader label="Title" sortKey="title" className={styles.colTitle} />
-        <div className={clsx(styles.headerCell, styles.colInstructor)}>
-          Instructors
+      <div className={styles.tableInner}>
+        <div className={styles.header}>
+          <div className={clsx(styles.headerCell, styles.colAdd)} />
+          <SortHeader label="Code" sortKey="code" className={styles.colCode} />
+          <SortHeader
+            label="Title"
+            sortKey="title"
+            className={styles.colTitle}
+          />
+          <div className={clsx(styles.headerCell, styles.colInstructor)}>
+            Instructors
+          </div>
+          <SortHeader
+            label="Meets"
+            sortKey="meets"
+            className={styles.colMeets}
+          />
+          <div className={clsx(styles.headerCell, styles.colLocation)}>
+            Location
+          </div>
+          <div className={clsx(styles.headerCell, styles.colSeats)}>Seats</div>
         </div>
-        <SortHeader label="Meets" sortKey="meets" className={styles.colMeets} />
-        <div className={clsx(styles.headerCell, styles.colLocation)}>
-          Location
-        </div>
-        <div className={clsx(styles.headerCell, styles.colSeats)}>Seats</div>
-      </div>
 
-      {courseRows.length === 0 ? (
-        <div className={styles.empty}>No courses match your filters.</div>
-      ) : (
-        courseRows.map(renderRow)
-      )}
+        {courseRows.length === 0 ? (
+          <div className={styles.empty}>No courses match your filters.</div>
+        ) : (
+          courseRows.map(renderRow)
+        )}
+      </div>
     </div>
   );
 }

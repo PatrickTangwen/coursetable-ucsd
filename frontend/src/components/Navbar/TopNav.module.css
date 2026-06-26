@@ -16,6 +16,11 @@
   flex-wrap: wrap;
 }
 
+.topRowCatalog {
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
 .logoLink {
   flex-shrink: 0;
   display: flex;
@@ -104,12 +109,6 @@
   color: var(--sg-primary);
 }
 
-.lastUpdated {
-  margin-left: auto;
-  flex-shrink: 0;
-  align-self: flex-end;
-}
-
 /* ── Mobile responsive ── */
 @media (max-width: calc(768px - 0.5px)) {
   .topRow {
@@ -144,9 +143,5 @@
 
   .settingsBtn {
     margin-bottom: 4px;
-  }
-
-  .lastUpdated {
-    display: none;
   }
 }

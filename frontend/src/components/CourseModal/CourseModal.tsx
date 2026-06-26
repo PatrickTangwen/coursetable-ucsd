@@ -8,8 +8,8 @@ import ModalHeaderControls, {
 } from './Header/ControlsRow';
 import ModalHeaderInfo from './Header/InfoRow';
 import OverviewPanel from './OverviewPanel/OverviewPanel';
-import { UcsdSnapshotPastGrades } from './OverviewPanel/UcsdSnapshotOverview';
 import { getUcsdSnapshotCourseDetails } from './ucsdSnapshotCourse';
+import UcsdSnapshotCourseModal from './UcsdSnapshotCourseModal';
 import type { CourseModalPrefetchListingDataFragment } from '../../generated/graphql-types';
 import { useModalHistory } from '../../hooks/useModalHistory';
 import {
@@ -68,12 +68,26 @@ function CourseModal({
     datePublished: toSeasonDate(listing.course.season_code),
   });
 
+  if (isUcsdSnapshotCourse) {
+    return (
+      <UcsdSnapshotCourseModal
+        listing={listing}
+        archive={archive}
+        view={visibleView}
+        setView={setView}
+        title={title}
+        description={description}
+        structuredJSON={structuredJSON}
+      />
+    );
+  }
+
   const onNavigation: ModalNavigationFunction = (mode, l, target) => {
     if (mode === 'pop') {
       setView('overview');
       navigate('pop', undefined, searchParams);
     } else if (mode === 'change-view') {
-      setView(isUcsdSnapshotCourse && target === 'evals' ? 'overview' : target);
+      setView(target);
     } else {
       const nextCourse = getUcsdSnapshotCourseDetails(l!);
       const nextView =
@@ -119,9 +133,7 @@ function CourseModal({
           />
         </Modal.Header>
         <Modal.Body>
-          {visibleView === 'past-grades' ? (
-            <UcsdSnapshotPastGrades archive={archive} />
-          ) : visibleView === 'overview' ? (
+          {visibleView === 'overview' ? (
             <OverviewPanel onNavigation={onNavigation} prefetched={listing} />
           ) : (
             <EvaluationsPanel

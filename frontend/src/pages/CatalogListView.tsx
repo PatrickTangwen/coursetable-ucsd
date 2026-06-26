@@ -1,5 +1,6 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
 
 import CatalogTable from '../components/Catalog/CatalogTable';
@@ -7,6 +8,7 @@ import FAB from '../components/Catalog/FAB';
 import FilterBar, { COURSE_LEVELS } from '../components/Catalog/FilterBar';
 import { useSearch } from '../hooks/useSearch';
 import type { CatalogListing } from '../queries/api';
+import { buildCatalogListFilterCleanup } from '../search/catalogListFilters';
 import { useStore } from '../store';
 import styles from './CatalogListView.module.css';
 
@@ -27,7 +29,9 @@ function parseCourseNumber(code: string): number {
 export default function CatalogListView() {
   const { searchData, coursesLoading } = useSearch();
   const levelFilter = useStore((s) => s.catalogLevelFilter);
-  const [searchParams] = useSearchParams();
+  const searchFilters = useStore((s) => s.searchFilters);
+  const patchSearchFilters = useStore((s) => s.patchSearchFilters);
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useStore((s) => s.navigate);
   const {
     addAnonymousWorksheetListing,
@@ -45,6 +49,11 @@ export default function CatalogListView() {
     () => extractConfiguredSubjects(searchData),
     [searchData],
   );
+
+  useEffect(() => {
+    const cleanup = buildCatalogListFilterCleanup(searchFilters);
+    if (Object.keys(cleanup).length > 0) patchSearchFilters(cleanup);
+  }, [patchSearchFilters, searchFilters]);
 
   const filteredData = useMemo(() => {
     if (!searchData) return null;
@@ -70,11 +79,15 @@ export default function CatalogListView() {
         '#E91E63',
       ];
       const color = colors[Math.floor(Math.random() * colors.length)]!;
-      if (authStatus === 'authenticated') 
-        void addActiveSavedWorksheetListing(listing, color);
-       else 
-        addAnonymousWorksheetListing(listing, color);
-      
+      const label = `${listing.course_code} ${listing.course.section}`.trim();
+      if (authStatus === 'authenticated') {
+        void addActiveSavedWorksheetListing(listing, color).then((added) => {
+          if (added) toast.success(`Added ${label} to worksheet`);
+        });
+      } else {
+        const added = addAnonymousWorksheetListing(listing, color);
+        if (added) toast.success(`Added ${label} to worksheet`);
+      }
     },
     [authStatus, addActiveSavedWorksheetListing, addAnonymousWorksheetListing],
   );
@@ -82,8 +95,17 @@ export default function CatalogListView() {
   const handleOpenModal = useCallback(
     (listing: CatalogListing) => {
       navigate('push', { type: 'course', data: listing }, searchParams);
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.set(
+          'course-modal',
+          `${listing.course.season_code}-${listing.crn}`,
+        );
+        next.delete('prof-modal');
+        return next;
+      });
     },
-    [navigate, searchParams],
+    [navigate, searchParams, setSearchParams],
   );
 
   if (coursesLoading) {

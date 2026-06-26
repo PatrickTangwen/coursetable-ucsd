@@ -1,29 +1,55 @@
 .tableWrapper {
+  --catalog-action-col: 44px;
+  --catalog-code-col: 190px;
+  --catalog-course-code-slot: 72px;
+  --catalog-title-min-col: 220px;
+  --catalog-instructor-col: 165px;
+  --catalog-meets-col: 220px;
+  --catalog-location-col: 100px;
+  --catalog-seats-col: 136px;
+
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  overflow: auto;
+  padding: 0 24px 24px;
+  scrollbar-gutter: stable;
+}
+
+/* Holds the header + rows so the columns keep their natural width and the
+   whole table scrolls horizontally (instead of squashing the Seats column)
+   when the viewport is narrower than the sum of the fixed columns. */
+.tableInner {
+  min-width: calc(
+    var(--catalog-action-col) + var(--catalog-code-col) +
+      var(--catalog-title-min-col) + var(--catalog-instructor-col) +
+      var(--catalog-meets-col) + var(--catalog-location-col) +
+      var(--catalog-seats-col)
+  );
 }
 
 /* ── Header ── */
 .header {
   position: sticky;
   top: 0;
-  background: #fff;
+  background: var(--sg-bg-white);
   z-index: 10;
-  border-bottom: 2px solid #e8e9ef;
+  border-bottom: 2px solid var(--sg-border);
   display: flex;
   align-items: center;
-  padding: 8px 0;
 }
 
 .headerCell {
+  box-sizing: border-box;
   font-size: 11px;
   font-weight: 600;
-  color: #8b8fa3;
+  color: var(--sg-text-placeholder);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 0 12px;
+  padding: 10px 12px;
   user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .sortable {
@@ -31,7 +57,7 @@
 }
 
 .sortable:hover {
-  color: #5a5d7a;
+  color: var(--sg-text-muted);
 }
 
 .sortIndicator {
@@ -40,37 +66,41 @@
 }
 
 .colAdd {
-  width: 44px;
+  width: var(--catalog-action-col);
   flex-shrink: 0;
+
+  /* Match the body add cell (padding-left 0, padding-right 8) so the header
+     labels stay aligned with the data columns. */
+  padding: 10px 8px 10px 0;
 }
 
 .colCode {
-  width: 140px;
+  width: var(--catalog-code-col);
   flex-shrink: 0;
 }
 
 .colTitle {
   flex: 1;
-  min-width: 120px;
+  min-width: 0;
 }
 
 .colInstructor {
-  width: 165px;
+  width: var(--catalog-instructor-col);
   flex-shrink: 0;
 }
 
 .colMeets {
-  width: 220px;
+  width: var(--catalog-meets-col);
   flex-shrink: 0;
 }
 
 .colLocation {
-  width: 90px;
+  width: var(--catalog-location-col);
   flex-shrink: 0;
 }
 
 .colSeats {
-  width: 90px;
+  width: var(--catalog-seats-col);
   flex-shrink: 0;
 }
 
@@ -78,20 +108,21 @@
 .row {
   display: flex;
   align-items: center;
-  border-bottom: 1px solid #f0f1f5;
+  border-bottom: 1px solid var(--sg-row-separator);
   transition: background 0.1s;
   cursor: pointer;
 }
 
 .row:nth-child(even) {
-  background: #fafbfc;
+  background: var(--sg-bg-alt-row);
 }
 
 .row:hover {
-  background: #f4f6fa;
+  background: var(--color-surface-hover);
 }
 
 .cell {
+  box-sizing: border-box;
   padding: 11px 12px;
   font-size: 13.5px;
   overflow: hidden;
@@ -99,8 +130,18 @@
   white-space: nowrap;
 }
 
+.cellButton {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  box-sizing: border-box;
+}
+
 .addCell {
-  width: 44px;
+  box-sizing: border-box;
+  width: var(--catalog-action-col);
   flex-shrink: 0;
   padding: 11px 8px 11px 0;
   display: flex;
@@ -123,36 +164,69 @@
 }
 
 .codeCell {
-  width: 140px;
+  width: var(--catalog-code-col);
   flex-shrink: 0;
+  display: grid;
+  grid-template-columns: var(--catalog-course-code-slot) minmax(0, 1fr);
+  align-items: center;
+  column-gap: 8px;
+}
+
+.toggleCell {
+  cursor: pointer;
 }
 
 .courseCode {
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--sg-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sectionSlot {
+  min-width: 0;
+  display: flex;
+  align-items: center;
 }
 
 .sectionId {
-  color: #8b8fa3;
-  margin-left: 4px;
+  color: var(--sg-text-placeholder);
+  font-weight: 500;
 }
 
 .titleCell {
   flex: 1;
-  min-width: 120px;
+  min-width: 0;
   font-weight: 500;
-  color: #33354d;
+  color: var(--sg-text-secondary);
+}
+
+.modalTitleCell {
+  cursor: pointer;
+}
+
+.toggleCell:focus-visible,
+.modalTitleCell:focus-visible {
+  outline: 2px solid var(--sg-primary);
+  outline-offset: -2px;
+}
+
+.subTitleCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .instructorCell {
-  width: 165px;
+  width: var(--catalog-instructor-col);
   flex-shrink: 0;
   font-size: 12.5px;
-  color: #5a5d7a;
+  color: var(--sg-text-muted);
 }
 
 .meetsCell {
-  width: 220px;
+  width: var(--catalog-meets-col);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -162,52 +236,53 @@
 .meetTime {
   font-size: 12.5px;
   font-weight: 500;
-  color: #33354d;
+  color: var(--sg-text-secondary);
   white-space: nowrap;
 }
 
 .locationCell {
-  width: 90px;
+  width: var(--catalog-location-col);
   flex-shrink: 0;
   font-size: 12.5px;
-  color: #5a5d7a;
+  color: var(--sg-text-muted);
 }
 
 .seatsCell {
-  width: 90px;
+  width: var(--catalog-seats-col);
   flex-shrink: 0;
+  overflow: visible;
 }
 
 /* ── Expandable parent row ── */
 .parentRow {
   display: flex;
   align-items: center;
-  border-bottom: 1px solid #f0f1f5;
+  border-bottom: 1px solid var(--sg-row-separator);
   transition: background 0.1s;
   cursor: pointer;
 }
 
 .parentRow:hover {
-  background: #f4f6fa;
+  background: var(--color-surface-hover);
 }
 
 .expandedParent {
-  background: #fafbfc;
+  background: var(--sg-bg-alt-row);
 }
 
 .sectionBadge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   padding: 2px 8px;
   border-radius: 10px;
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--sg-blue-badge-bg);
+  color: var(--sg-blue-badge-text);
   font-size: 10px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  margin-left: 6px;
+  flex-shrink: 0;
 }
 
 .chevron {
@@ -222,16 +297,14 @@
 
 .summaryText {
   font-size: 12px;
-  color: #9a9db4;
+  color: var(--sg-text-light);
 }
 
 /* ── Expandable wrapper ── */
 .expandableGroup {
   border-radius: 10px;
   overflow: hidden;
-  box-shadow:
-    0 0 0 1px #e0e2e8,
-    0 2px 8px rgb(0 0 0 / 4%);
+  box-shadow: var(--sg-shadow-expanded);
   margin: 0 0 1px;
 }
 
@@ -245,7 +318,7 @@
 .subRow {
   display: flex;
   align-items: center;
-  background: #fafbfc;
+  background: var(--sg-bg-alt-row);
   border-bottom: 1px solid #eef0f4;
   font-size: 13px;
   transition: background 0.1s;
@@ -277,8 +350,8 @@
 .subSectionBadge {
   padding: 2px 8px;
   border-radius: 4px;
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--sg-blue-badge-bg);
+  color: var(--sg-blue-badge-text);
   font-size: 10.5px;
   font-weight: 700;
 }
@@ -286,20 +359,24 @@
 .typeBadge {
   padding: 2px 7px;
   border-radius: 4px;
-  background: #f0f1f5;
-  color: #5a5d7a;
+  background: var(--sg-row-separator);
+  color: var(--sg-text-muted);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.03em;
   margin-left: 4px;
 }
 
+.subTitleCell .typeBadge {
+  margin-left: 0;
+}
+
 .scrollHint {
   padding: 5px 16px;
-  background: #fafbfc;
+  background: var(--sg-bg-alt-row);
   text-align: center;
   font-size: 10px;
-  color: #b0b3be;
+  color: var(--sg-text-disabled);
   border-top: 1px solid #eef0f4;
 }
 
@@ -307,6 +384,6 @@
 .empty {
   text-align: center;
   padding: 64px 24px;
-  color: #8b8fa3;
+  color: var(--sg-text-placeholder);
   font-size: 15px;
 }

@@ -23,6 +23,9 @@ export type UcsdCalendarDetails = {
   section_code: string | null;
   meeting_type: string | null;
   meetings: UcsdSection['meetings'];
+  enrolled: number | null;
+  capacity: number | null;
+  waitlist_count: number;
   source_note: string | null;
 };
 
@@ -255,6 +258,9 @@ function toCoursePublic(
     section_code: section.section_code,
     meeting_type: section.meeting_type,
     meetings: section.meetings,
+    enrolled: section.enrolled,
+    capacity: section.capacity,
+    waitlist_count: section.waitlist_count,
     source_note: sourceNote(section.raw),
   };
 

@@ -26,19 +26,14 @@ export default function FAB() {
           rx="2"
           stroke="currentColor"
           strokeWidth="2"
+          strokeLinejoin="round"
         />
-        <path d="M3 10h18" stroke="currentColor" strokeWidth="2" />
         <path
-          d="M8 4V2M16 4V2"
+          d="M16 2v4M8 2v4M3 10h18"
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
-        />
-        <path
-          d="M8 14h2M14 14h2M8 18h2"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
     </button>

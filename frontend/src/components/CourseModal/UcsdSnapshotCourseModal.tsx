@@ -1,0 +1,940 @@
+import { useCallback, useEffect, useId, useMemo, useRef } from 'react';
+import clsx from 'clsx';
+import { Helmet } from 'react-helmet';
+import { toast } from 'sonner';
+import { useShallow } from 'zustand/react/shallow';
+
+import { UcsdSnapshotPastGrades } from './OverviewPanel/UcsdSnapshotOverview';
+import {
+  buildUcsdSnapshotModalCourse,
+  formatSnapshotUpdatedLabel,
+  formatUcsdAvailability,
+  getSectionVaryingMeetings,
+  type UcsdModalListing,
+  type UcsdModalOfferingGroup,
+  type UcsdModalSection,
+} from './ucsdSnapshotModalData';
+import { useFerry } from '../../hooks/useFerry';
+import { useModalHistory } from '../../hooks/useModalHistory';
+import type { UcsdCourseArchive } from '../../queries/ucsdCatalogSnapshot';
+import { useStore } from '../../store';
+import type { AnonymousWorksheetListing } from '../../utilities/anonymousWorksheet';
+import {
+  formatTime,
+  parseDays,
+  type DayFlags,
+} from '../../utilities/catalogView';
+import { toSeasonString } from '../../utilities/course';
+import styles from './UcsdSnapshotCourseModal.module.css';
+
+type UcsdModalView = 'overview' | 'evals' | 'past-grades';
+
+const dayLabels: (keyof DayFlags)[] = ['M', 'Tu', 'W', 'Th', 'F'];
+
+const typeClass = {
+  LE: styles.typeLE,
+  DI: styles.typeDI,
+  LA: styles.typeLA,
+  FI: styles.typeFI,
+  MI: styles.typeMI,
+  RE: styles.typeRE,
+};
+
+function CloseIcon({ size = 20 }: { readonly size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <line x1="4" y1="4" x2="16" y2="16" />
+      <line x1="16" y1="4" x2="4" y2="16" />
+    </svg>
+  );
+}
+
+function PlusIcon({ size = 18 }: { readonly size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 18 18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <line x1="9" y1="3" x2="9" y2="15" />
+      <line x1="3" y1="9" x2="15" y2="9" />
+    </svg>
+  );
+}
+
+function ShareIcon() {
+  return (
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 17 17"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3.5 10.5v3a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-3" />
+      <polyline points="5.5 6 8.5 3 11.5 6" />
+      <line x1="8.5" y1="3" x2="8.5" y2="11" />
+    </svg>
+  );
+}
+
+function MoreIcon() {
+  return (
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 17 17"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <circle cx="3.5" cy="8.5" r="1.5" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <circle cx="13.5" cy="8.5" r="1.5" />
+    </svg>
+  );
+}
+
+function ExternalIcon() {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <path d="M3 7L7 3M7 3H4.5M7 3V5.5" />
+    </svg>
+  );
+}
+
+function ChevronIcon({ open }: { readonly open: boolean }) {
+  return (
+    <svg
+      className={clsx(styles.chipChevron, open && styles.chipChevronExpanded)}
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <polyline points="2.5,3.5 5,6.5 7.5,3.5" />
+    </svg>
+  );
+}
+
+function CopyUrlButton() {
+  const copyUrl = () => {
+    navigator.clipboard.writeText(window.location.href).then(
+      () => toast.success('Course URL copied'),
+      () => toast.error('Failed to copy course URL'),
+    );
+  };
+
+  return (
+    <button
+      type="button"
+      className={styles.iconButton}
+      onClick={copyUrl}
+      aria-label="Copy course URL"
+    >
+      <ShareIcon />
+    </button>
+  );
+}
+
+function ModalDayDots({ rawDays }: { readonly rawDays: string | null }) {
+  const days = parseDays(rawDays ?? '');
+  return (
+    <div className={styles.dayDots} aria-hidden="true">
+      {dayLabels.map((day) => (
+        <span
+          key={day}
+          className={clsx(
+            styles.dayDot,
+            days[day] ? styles.dayDotActive : styles.dayDotInactive,
+          )}
+        >
+          {day}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function meetingTypeCode(meetingType: string | null | undefined): string {
+  const normalized = meetingType?.trim().toLowerCase() ?? '';
+  if (normalized.includes('lecture')) return 'LE';
+  if (normalized.includes('discussion')) return 'DI';
+  if (normalized.includes('laboratory') || normalized === 'lab') return 'LA';
+  if (normalized.includes('final')) return 'FI';
+  if (normalized.includes('midterm')) return 'MI';
+  if (normalized.includes('review')) return 'RE';
+  return meetingType?.trim().slice(0, 2).toUpperCase() || 'RE';
+}
+
+function meetingTypeLabel(meetingType: string | null | undefined): string {
+  const normalized = meetingType?.trim().toLowerCase() ?? '';
+  if (normalized.includes('lecture')) return 'Lecture';
+  if (normalized.includes('discussion')) return 'Discussion';
+  if (normalized.includes('laboratory') || normalized === 'lab') return 'Lab';
+  if (normalized.includes('final')) return 'Final';
+  if (normalized.includes('midterm')) return 'Midterm';
+  if (normalized.includes('review')) return 'Review';
+  return meetingType?.trim() || 'Meeting';
+}
+
+function isInfoMeeting(meetingType: string | null | undefined): boolean {
+  const code = meetingTypeCode(meetingType);
+  return code === 'FI' || code === 'MI' || code === 'RE';
+}
+
+function locationText(meeting: UcsdModalSection['meetings'][number]): string {
+  if (meeting.raw_location) return meeting.raw_location;
+  if (meeting.is_tba) return 'TBA';
+  const parts = [meeting.building, meeting.room].filter(Boolean);
+  return parts.join(' ') || 'TBA';
+}
+
+function sectionLabel(group: UcsdModalOfferingGroup): string {
+  return group.familyPrefix ? `Section ${group.familyPrefix}` : 'Section';
+}
+
+function anchorSectionCode(group: UcsdModalOfferingGroup): string {
+  if (group.familyPrefix && /^[A-Z]$/u.test(group.familyPrefix))
+    return `${group.familyPrefix}00`;
+  return group.sections[0]?.section_code ?? group.familyPrefix;
+}
+
+function groupInstructor(group: UcsdModalOfferingGroup): string {
+  const names = [
+    ...new Set(group.sections.flatMap((section) => section.instructors)),
+  ].filter(Boolean);
+  if (names.length === 0) return 'Staff';
+  if (names.length === 1) return names[0]!;
+  return `${names.length} instructors`;
+}
+
+function groupSubtitle(group: UcsdModalOfferingGroup): string {
+  const meeting = group.sharedMeetings[0] ?? group.sections[0]?.meetings[0];
+  if (!meeting || meeting.is_tba) return 'Schedule TBA';
+  return formatTime(meeting.start_time, meeting.end_time);
+}
+
+function courseLevelLabel(number: string): string | null {
+  const match = /\d+/u.exec(number);
+  if (!match) return null;
+  const value = Number(match[0]);
+  if (value >= 200) return 'Graduate';
+  if (value >= 100) return 'Upper Division';
+  return 'Lower Division';
+}
+
+function unitsLabel(
+  archive: UcsdCourseArchive | null,
+  listing: UcsdModalListing,
+) {
+  const units =
+    archive?.units ?? (listing.course as { credits?: number | null }).credits;
+  if (units === null || units === undefined || units === '') return null;
+  const text = String(units);
+  return /unit/iu.test(text) ? text : `${text} Units`;
+}
+
+function listingCourseNumber(listing: UcsdModalListing): string {
+  const direct = (listing as { number?: string }).number;
+  if (direct) return direct;
+  return listing.course_code.split(/\s+/u)[1] ?? listing.course.section;
+}
+
+function snapshotGeneratedAt(listing: UcsdModalListing): string | null {
+  const course = listing.course as {
+    time_added?: string | null;
+    last_updated?: string | null;
+  };
+  return course.time_added ?? course.last_updated ?? null;
+}
+
+function selectedSectionForGroup(
+  group: UcsdModalOfferingGroup,
+  selectedCode: string | null | undefined,
+) {
+  if (!selectedCode) return null;
+  return (
+    group.sections.find((section) => section.section_code === selectedCode) ??
+    null
+  );
+}
+
+type MeetingRowData = {
+  key: string;
+  role: 'anchor' | 'selectable' | 'info';
+  meeting: UcsdModalSection['meetings'][number];
+  section: UcsdModalSection | null;
+  sectionCode: string;
+};
+
+function buildMeetingRows(group: UcsdModalOfferingGroup): MeetingRowData[] {
+  const rows: MeetingRowData[] = group.sharedMeetings.map((meeting, index) => ({
+    key: `${group.familyPrefix}-shared-${index}`,
+    role: isInfoMeeting(meeting.meeting_type) ? 'info' : 'anchor',
+    meeting,
+    section: null,
+    sectionCode: anchorSectionCode(group),
+  }));
+
+  for (const section of group.sections) {
+    const meetings =
+      group.sections.length === 1
+        ? section.meetings
+        : getSectionVaryingMeetings(section, group);
+    for (const [index, meeting] of meetings.entries()) {
+      const role = isInfoMeeting(meeting.meeting_type)
+        ? 'info'
+        : group.sections.length > 1
+          ? 'selectable'
+          : 'anchor';
+      rows.push({
+        key: `${section.section_id}-${index}`,
+        role,
+        meeting,
+        section,
+        sectionCode: section.section_code ?? group.familyPrefix,
+      });
+    }
+  }
+
+  return rows;
+}
+
+function separatorLabel(row: MeetingRowData): string {
+  if (row.role === 'info') return 'Exam information';
+  return `Choose ${meetingTypeLabel(row.meeting.meeting_type).toLowerCase()}`;
+}
+
+function shouldShowSeparator(rows: MeetingRowData[], index: number): boolean {
+  const row = rows[index]!;
+  const previous = rows[index - 1];
+  if (row.role === 'selectable')
+    return !previous || previous.role !== 'selectable';
+  if (row.role === 'info') return previous?.role !== 'info';
+  return false;
+}
+
+function MeetingRow({
+  row,
+  group,
+  selected,
+  updatedLabel,
+  onSelect,
+}: {
+  readonly row: MeetingRowData;
+  readonly group: UcsdModalOfferingGroup;
+  readonly selected: boolean;
+  readonly updatedLabel: string | null;
+  readonly onSelect: (section: UcsdModalSection) => void;
+}) {
+  const code = meetingTypeCode(row.meeting.meeting_type);
+  const availability = row.section
+    ? formatUcsdAvailability(
+        row.section.enrolled,
+        row.section.capacity,
+        row.section.waitlist_count,
+      )
+    : null;
+  const rowClassName = clsx(
+    styles.meetingRow,
+    row.role === 'anchor' && styles.anchorRow,
+    row.role === 'selectable' && styles.selectableRow,
+    row.role === 'info' && styles.infoRow,
+    selected && styles.selectedRow,
+  );
+  const content = (
+    <>
+      <div className={styles.radioSlot}>
+        {row.role === 'selectable' && row.section && (
+          <input
+            type="radio"
+            className={styles.radio}
+            name={`course-modal-${group.familyPrefix}`}
+            checked={selected}
+            onChange={() => onSelect(row.section!)}
+            aria-label={`Select ${row.sectionCode}`}
+          />
+        )}
+      </div>
+      <div className={styles.typeCell}>
+        <span
+          className={clsx(
+            styles.typeBadge,
+            typeClass[code as keyof typeof typeClass] ?? styles.typeRE,
+            row.role === 'info' && styles.typeInfo,
+          )}
+        >
+          {code}
+        </span>
+        <span className={styles.typeLabel}>
+          {meetingTypeLabel(row.meeting.meeting_type)}
+        </span>
+      </div>
+      <div className={styles.sectionCode}>{row.sectionCode}</div>
+      <div className={styles.meetingTime}>
+        {!row.meeting.is_tba && <ModalDayDots rawDays={row.meeting.raw_days} />}
+        <span className={styles.timeText}>
+          {formatTime(row.meeting.start_time, row.meeting.end_time)}
+        </span>
+      </div>
+      <div className={styles.location}>{locationText(row.meeting)}</div>
+      <div
+        className={clsx(
+          styles.availability,
+          availability?.status === 'filling' && styles.availabilityFilling,
+          availability?.status === 'nearly-full' &&
+            styles.availabilityNearlyFull,
+          availability?.status === 'full' && styles.availabilityFull,
+        )}
+      >
+        {availability?.main}
+        {availability?.detail && (
+          <span className={styles.availabilityDetail}>
+            {availability.detail}
+          </span>
+        )}
+        {availability && updatedLabel && (
+          <span className={styles.updatedLabel}>{updatedLabel}</span>
+        )}
+      </div>
+    </>
+  );
+
+  if (row.role === 'selectable')
+    return <label className={rowClassName}>{content}</label>;
+
+  return <div className={rowClassName}>{content}</div>;
+}
+
+function OfferingGroupCard({
+  group,
+  active,
+  selectedCode,
+  updatedLabel,
+  onSelect,
+  onAdd,
+  setRef,
+}: {
+  readonly group: UcsdModalOfferingGroup;
+  readonly active: boolean;
+  readonly selectedCode: string | null | undefined;
+  readonly updatedLabel: string | null;
+  readonly onSelect: (
+    targetGroup: UcsdModalOfferingGroup,
+    section: UcsdModalSection,
+  ) => void;
+  readonly onAdd: (listing: UcsdModalListing) => void;
+  readonly setRef: (node: HTMLDivElement | null) => void;
+}) {
+  const rows = buildMeetingRows(group);
+  const selectedSection =
+    group.sections.length === 1
+      ? group.sections[0]
+      : selectedSectionForGroup(group, selectedCode);
+  const selectedForAdd = selectedSection ?? null;
+
+  return (
+    <div
+      ref={setRef}
+      className={clsx(styles.card, active && styles.cardActive)}
+      data-course-modal-family={group.familyPrefix}
+    >
+      <div className={styles.cardHeader}>
+        <div>
+          <div className={styles.cardTitle}>{sectionLabel(group)}</div>
+          <div className={styles.cardSubTitle}>{groupSubtitle(group)}</div>
+        </div>
+        <div className={styles.cardInstructor}>{groupInstructor(group)}</div>
+      </div>
+
+      {rows.map((row, index) => (
+        <div key={row.key}>
+          {shouldShowSeparator(rows, index) && (
+            <div className={styles.rowSeparator}>{separatorLabel(row)}</div>
+          )}
+          <MeetingRow
+            row={row}
+            group={group}
+            selected={
+              row.role === 'selectable' &&
+              Boolean(row.section?.section_code) &&
+              row.section?.section_code === selectedCode
+            }
+            updatedLabel={updatedLabel}
+            onSelect={(section) => onSelect(group, section)}
+          />
+        </div>
+      ))}
+
+      {selectedForAdd ? (
+        <div className={styles.cardAction}>
+          <button
+            type="button"
+            className={styles.addButton}
+            onClick={() => onAdd(selectedForAdd.listing)}
+          >
+            <PlusIcon size={14} />
+            Add {selectedForAdd.section_code ?? group.familyPrefix} to Worksheet
+          </button>
+        </div>
+      ) : (
+        <div className={styles.noSelection}>
+          Select a{' '}
+          {meetingTypeLabel(
+            rows.find((row) => row.role === 'selectable')?.meeting.meeting_type,
+          ).toLowerCase()}{' '}
+          section to add this group
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function UcsdSnapshotCourseModal({
+  listing,
+  archive,
+  view,
+  setView,
+  title,
+  description,
+  structuredJSON,
+}: {
+  readonly listing: UcsdModalListing;
+  readonly archive: UcsdCourseArchive | null;
+  readonly view: UcsdModalView;
+  readonly setView: (value: UcsdModalView) => void;
+  readonly title: string;
+  readonly description: string;
+  readonly structuredJSON: string;
+}) {
+  const titleId = useId();
+  const modalRef = useRef<HTMLDialogElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const cardRefs = useRef<{ [family: string]: HTMLDivElement | null }>({});
+  const { closeModal } = useModalHistory();
+  const { courses } = useFerry();
+  const season = listing.course.season_code;
+  const allListings = useMemo(
+    () => [...(courses[season]?.data.values() ?? [])],
+    [courses, season],
+  );
+  const modalCourse = useMemo(
+    () => buildUcsdSnapshotModalCourse(listing, allListings),
+    [allListings, listing],
+  );
+  const {
+    activeFamilyState,
+    selectedSections,
+    prereqExpanded,
+    resetCourseModalUI,
+    setCourseModalActiveFamily,
+    selectCourseModalSection,
+    toggleCourseModalPrerequisites,
+    setCourseModalPrerequisitesExpanded,
+    addAnonymousWorksheetListing,
+    addActiveSavedWorksheetListing,
+    authStatus,
+  } = useStore(
+    useShallow((state) => ({
+      activeFamilyState: state.courseModalActiveFamily,
+      selectedSections: state.courseModalSelectedSections,
+      prereqExpanded: state.courseModalPrerequisitesExpanded,
+      resetCourseModalUI: state.resetCourseModalUI,
+      setCourseModalActiveFamily: state.setCourseModalActiveFamily,
+      selectCourseModalSection: state.selectCourseModalSection,
+      toggleCourseModalPrerequisites: state.toggleCourseModalPrerequisites,
+      setCourseModalPrerequisitesExpanded:
+        state.setCourseModalPrerequisitesExpanded,
+      addAnonymousWorksheetListing: state.addAnonymousWorksheetListing,
+      addActiveSavedWorksheetListing: state.addActiveSavedWorksheetListing,
+      authStatus: state.authStatus,
+    })),
+  );
+
+  useEffect(() => {
+    resetCourseModalUI(
+      modalCourse.activeFamily || null,
+      modalCourse.selectedSectionCode
+        ? { [modalCourse.activeFamily]: modalCourse.selectedSectionCode }
+        : {},
+    );
+  }, [
+    listing.crn,
+    listing.course.season_code,
+    modalCourse.activeFamily,
+    modalCourse.selectedSectionCode,
+    resetCourseModalUI,
+  ]);
+
+  useEffect(() => {
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeButtonRef.current?.focus();
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus instanceof HTMLElement) previousFocus.focus();
+    };
+  }, []);
+
+  useEffect(() => {
+    const dialog = modalRef.current;
+    if (!dialog) return undefined;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.stopPropagation();
+        closeModal();
+        return;
+      }
+      if (event.key !== 'Tab' || !modalRef.current) return;
+
+      const focusable = [
+        ...modalRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ].filter((el) => !el.hasAttribute('disabled'));
+      if (focusable.length === 0) return;
+      const first = focusable[0]!;
+      const last = focusable[focusable.length - 1]!;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    dialog.addEventListener('keydown', handleKeyDown);
+    return () => dialog.removeEventListener('keydown', handleKeyDown);
+  }, [closeModal]);
+
+  const activeFamily = activeFamilyState ?? modalCourse.activeFamily;
+  const currentView = view === 'past-grades' ? 'past-grades' : 'overview';
+  const updatedLabel = formatSnapshotUpdatedLabel(snapshotGeneratedAt(listing));
+  const units = unitsLabel(archive, listing);
+  const level = courseLevelLabel(listingCourseNumber(listing));
+  const hasRestrictions = Boolean(archive?.restrictions_text);
+
+  const handleSelectPill = (family: string) => {
+    setCourseModalActiveFamily(family);
+    window.requestAnimationFrame(() => {
+      cardRefs.current[family]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
+    });
+  };
+
+  const handleSelectSection = (
+    group: UcsdModalOfferingGroup,
+    section: UcsdModalSection,
+  ) => {
+    if (!section.section_code) return;
+    selectCourseModalSection(group.familyPrefix, section.section_code);
+  };
+
+  const handleAdd = useCallback(
+    (target: UcsdModalListing) => {
+      const colors = [
+        '#7B68EE',
+        '#FF6B6B',
+        '#4CAF50',
+        '#FF9800',
+        '#2196F3',
+        '#E91E63',
+      ];
+      const color = colors[Math.floor(Math.random() * colors.length)]!;
+      const label = `${target.course_code} ${target.course.section}`.trim();
+      const worksheetListing = target as AnonymousWorksheetListing;
+      if (authStatus === 'authenticated') {
+        void addActiveSavedWorksheetListing(worksheetListing, color).then(
+          (savedAdded) => {
+            if (savedAdded) toast.success(`Added ${label} to worksheet`);
+          },
+        );
+        return;
+      }
+      const anonymousAdded = addAnonymousWorksheetListing(
+        worksheetListing,
+        color,
+      );
+      if (anonymousAdded) toast.success(`Added ${label} to worksheet`);
+    },
+    [addActiveSavedWorksheetListing, addAnonymousWorksheetListing, authStatus],
+  );
+
+  const activeGroup = modalCourse.groups.find(
+    (group) => group.familyPrefix === activeFamily,
+  );
+  const activeSelected =
+    activeGroup &&
+    (selectedSectionForGroup(
+      activeGroup,
+      selectedSections[activeGroup.familyPrefix],
+    ) ??
+      activeGroup.sections[0]);
+
+  return (
+    <div className={styles.backdrop}>
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <script className="structured-data-list" type="application/ld+json">
+          {structuredJSON}
+        </script>
+      </Helmet>
+      <button
+        type="button"
+        className={styles.backdropButton}
+        onClick={closeModal}
+        aria-label="Close course details"
+      />
+      <dialog
+        ref={modalRef}
+        className={styles.modal}
+        aria-labelledby={titleId}
+        open
+      >
+        <div className={styles.header}>
+          <div className={styles.titleRow}>
+            <div className={styles.titleBlock}>
+              <div id={titleId} className={styles.title}>
+                {listing.course.title}{' '}
+                <span className={styles.term}>
+                  ({toSeasonString(listing.course.season_code)})
+                </span>
+              </div>
+              <div className={styles.courseCode}>{listing.course_code}</div>
+            </div>
+            <button
+              ref={closeButtonRef}
+              type="button"
+              className={styles.closeButton}
+              onClick={closeModal}
+              aria-label="Close course details"
+            >
+              <CloseIcon />
+            </button>
+          </div>
+
+          {modalCourse.groups.length > 1 && (
+            <div className={styles.sectionPills}>
+              {modalCourse.groups.map((group) => (
+                <button
+                  key={group.familyPrefix}
+                  type="button"
+                  className={clsx(
+                    styles.sectionPill,
+                    activeFamily === group.familyPrefix &&
+                      styles.sectionPillActive,
+                  )}
+                  onClick={() => handleSelectPill(group.familyPrefix)}
+                  aria-pressed={activeFamily === group.familyPrefix}
+                >
+                  <span>{sectionLabel(group)}</span>
+                  <span className={styles.pillInstructor}>
+                    {groupInstructor(group)}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div
+            className={clsx(
+              styles.controls,
+              modalCourse.groups.length > 1 && styles.controlsWithPills,
+            )}
+          >
+            <div className={styles.tabs}>
+              <button
+                type="button"
+                className={clsx(
+                  styles.tab,
+                  currentView === 'overview' && styles.tabActive,
+                )}
+                aria-current={currentView === 'overview'}
+                onClick={() => setView('overview')}
+              >
+                Overview
+              </button>
+              <button
+                type="button"
+                className={clsx(
+                  styles.tab,
+                  currentView === 'past-grades' && styles.tabActive,
+                )}
+                aria-current={currentView === 'past-grades'}
+                onClick={() => setView('past-grades')}
+              >
+                Past Grades
+              </button>
+            </div>
+            <div className={styles.toolbar}>
+              <button
+                type="button"
+                className={styles.iconButton}
+                onClick={() =>
+                  activeSelected && handleAdd(activeSelected.listing)
+                }
+                aria-label="Add selected section to worksheet"
+              >
+                <PlusIcon />
+              </button>
+              <CopyUrlButton />
+              <button
+                type="button"
+                className={styles.iconButton}
+                disabled={!archive?.catalog_url}
+                onClick={() => {
+                  if (archive?.catalog_url)
+                    window.open(archive.catalog_url, '_blank', 'noreferrer');
+                }}
+                aria-label="Open UCSD catalog"
+              >
+                <MoreIcon />
+              </button>
+            </div>
+          </div>
+          <div className={styles.separator} />
+        </div>
+
+        <div className={styles.body}>
+          {currentView === 'past-grades' ? (
+            <UcsdSnapshotPastGrades archive={archive} />
+          ) : (
+            <>
+              <p className={styles.description}>
+                {listing.course.description || 'No description available.'}
+              </p>
+
+              <div className={styles.chips}>
+                {units && (
+                  <span className={clsx(styles.chip, styles.unitsChip)}>
+                    {units}
+                  </span>
+                )}
+                {level && (
+                  <span className={clsx(styles.chip, styles.levelChip)}>
+                    {level}
+                  </span>
+                )}
+                {hasRestrictions && (
+                  <span className={clsx(styles.chip, styles.restrictionChip)}>
+                    Restrictions
+                  </span>
+                )}
+                {archive?.prerequisites_text && (
+                  <button
+                    type="button"
+                    className={clsx(
+                      styles.chipButton,
+                      prereqExpanded && styles.chipButtonExpanded,
+                    )}
+                    onClick={toggleCourseModalPrerequisites}
+                    aria-expanded={prereqExpanded}
+                  >
+                    Prerequisites
+                    <ChevronIcon open={prereqExpanded} />
+                  </button>
+                )}
+                {archive?.catalog_url && (
+                  <a
+                    className={styles.chipLink}
+                    href={archive.catalog_url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Catalog
+                    <ExternalIcon />
+                  </a>
+                )}
+              </div>
+
+              {archive?.prerequisites_text && prereqExpanded && (
+                <div className={styles.prereqPanel}>
+                  <div className={styles.prereqPanelInner}>
+                    <div className={styles.prereqText}>
+                      <span className={styles.prereqLabel}>Prereqs:</span>
+                      {archive.prerequisites_text}
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.prereqClose}
+                      onClick={() => setCourseModalPrerequisitesExpanded(false)}
+                      aria-label="Collapse prerequisites"
+                    >
+                      <CloseIcon size={14} />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className={styles.scheduleHeader}>
+                <div className={styles.scheduleTitle}>Schedule Options</div>
+                <div className={styles.scheduleCount}>
+                  {modalCourse.groups.length} offering{' '}
+                  {modalCourse.groups.length === 1 ? 'group' : 'groups'}
+                </div>
+              </div>
+
+              {modalCourse.groups.length === 0 ? (
+                <div className={styles.emptyState}>
+                  Schedule details are unavailable for this course.
+                </div>
+              ) : (
+                modalCourse.groups.map((group) => (
+                  <OfferingGroupCard
+                    key={group.familyPrefix}
+                    group={group}
+                    active={activeFamily === group.familyPrefix}
+                    selectedCode={selectedSections[group.familyPrefix]}
+                    updatedLabel={updatedLabel}
+                    onSelect={handleSelectSection}
+                    onAdd={handleAdd}
+                    setRef={(node) => {
+                      cardRefs.current[group.familyPrefix] = node;
+                    }}
+                  />
+                ))
+              )}
+            </>
+          )}
+        </div>
+      </dialog>
+    </div>
+  );
+}

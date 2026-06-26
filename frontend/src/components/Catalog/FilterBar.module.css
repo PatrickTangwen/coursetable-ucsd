@@ -4,17 +4,16 @@
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  border-bottom: 1px solid #e8e9ef;
 }
 
 .dropdown {
   padding: 7px 12px;
-  border: 1px solid #dcdee6;
+  border: 1px solid var(--sg-border-light);
   border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
-  color: #4a4d68;
-  background: #fff;
+  color: var(--sg-text-tertiary);
+  background: var(--sg-bg-white);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -23,48 +22,81 @@
 }
 
 .dropdown:hover {
-  background: #f8f9fb;
+  background: var(--sg-bg-input);
 }
 
 .dropdownOpen {
   border-color: var(--sg-primary);
-  background: #f8f9fb;
+  background: var(--sg-bg-input);
 }
 
 .dropdownMenu {
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% + 6px);
   left: 0;
   z-index: 20;
-  background: #fff;
-  border: 1px solid #dcdee6;
+  background: var(--sg-bg-white);
+  border: 1px solid var(--sg-border-light);
   border-radius: 8px;
-  box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
-  padding: 4px;
-  min-width: 160px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 10%);
+  padding: 6px;
+  min-width: 190px;
   max-height: 280px;
   overflow-y: auto;
+  animation: popover-fade-in 0.14s ease-out;
 }
 
 .dropdownItem {
   width: 100%;
   text-align: left;
-  padding: 7px 12px;
+  padding: 8px 10px;
   font-size: 13px;
-  color: #33354d;
+  color: var(--sg-text-secondary);
   border-radius: 6px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   transition: background 0.1s;
 }
 
 .dropdownItem:hover {
-  background: #f4f6fa;
+  background: var(--color-surface-hover);
 }
 
 .dropdownItemActive {
   font-weight: 600;
   color: var(--sg-primary);
-  background: #eef3ff;
+  background: var(--sg-primary-chip-bg);
+}
+
+.dropdownItemLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.checkbox {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--sg-border-light);
+  border-radius: 3px;
+  color: #fff;
+  background: var(--sg-bg-white);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkbox svg {
+  width: 10px;
+  height: 10px;
+}
+
+.checkboxActive {
+  border-color: var(--sg-primary);
+  background: var(--sg-primary);
 }
 
 .dropdownWrapper {
@@ -76,7 +108,7 @@
   align-items: center;
   gap: 4px;
   padding: 6px 10px 6px 12px;
-  background: #eef3ff;
+  background: var(--sg-primary-chip-bg);
   border-radius: 20px;
   font-size: 12.5px;
   font-weight: 500;
@@ -100,7 +132,7 @@
 
 .resetBtn {
   padding: 7px 16px;
-  background: #e8446a;
+  background: var(--sg-danger-red);
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
@@ -109,11 +141,47 @@
 }
 
 .resetBtn:hover {
-  background: #d63a5e;
+  background: var(--sg-danger-red-hover);
 }
 
 .chevronSvg {
   width: 10px;
   height: 10px;
   flex-shrink: 0;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.updated {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  color: var(--sg-text-placeholder);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.updated svg {
+  flex-shrink: 0;
+}
+
+@media (max-width: calc(768px - 0.5px)) {
+  .spacer {
+    display: none;
+  }
+}
+
+@keyframes popover-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

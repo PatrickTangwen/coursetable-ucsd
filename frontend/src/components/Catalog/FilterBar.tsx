@@ -2,7 +2,12 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import clsx from 'clsx';
 import { useShallow } from 'zustand/react/shallow';
 
+import { useFerry } from '../../hooks/useFerry';
 import { useStore } from '../../store';
+import {
+  getCatalogLastUpdated,
+  toRelativeUpdateTime,
+} from '../../utilities/catalogFreshness';
 import styles from './FilterBar.module.css';
 
 const COURSE_LEVELS = [
@@ -28,14 +33,16 @@ function DropdownChevron() {
 
 function Dropdown({
   label,
+  displayLabel,
   options,
-  value,
-  onChange,
+  selectedValues,
+  onToggle,
 }: {
   readonly label: string;
+  readonly displayLabel?: string;
   readonly options: { value: string; label: string }[];
-  readonly value: string | null;
-  readonly onChange: (v: string | null) => void;
+  readonly selectedValues: string[];
+  readonly onToggle: (v: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -50,47 +57,53 @@ function Dropdown({
     return () => document.removeEventListener('mousedown', close);
   }, [open]);
 
-  const selected = options.find((o) => o.value === value);
-
   return (
     <div className={styles.dropdownWrapper} ref={ref}>
       <button
         type="button"
         className={clsx(styles.dropdown, open && styles.dropdownOpen)}
         onClick={() => setOpen(!open)}
+        aria-haspopup="menu"
+        aria-expanded={open}
       >
-        {selected ? selected.label : label}
+        {displayLabel ?? label}
         <DropdownChevron />
       </button>
       {open && (
-        <div className={styles.dropdownMenu}>
-          <button
-            type="button"
-            className={clsx(
-              styles.dropdownItem,
-              value === null && styles.dropdownItemActive,
-            )}
-            onClick={() => {
-              onChange(null);
-              setOpen(false);
-            }}
-          >
-            All
-          </button>
+        <div className={styles.dropdownMenu} role="menu">
           {options.map((opt) => (
             <button
               key={opt.value}
               type="button"
               className={clsx(
                 styles.dropdownItem,
-                value === opt.value && styles.dropdownItemActive,
+                selectedValues.includes(opt.value) && styles.dropdownItemActive,
               )}
-              onClick={() => {
-                onChange(opt.value);
-                setOpen(false);
-              }}
+              role="menuitemcheckbox"
+              aria-checked={selectedValues.includes(opt.value)}
+              onClick={() => onToggle(opt.value)}
             >
-              {opt.label}
+              <span
+                className={clsx(
+                  styles.checkbox,
+                  selectedValues.includes(opt.value) && styles.checkboxActive,
+                )}
+                aria-hidden="true"
+              >
+                {selectedValues.includes(opt.value) && (
+                  <svg viewBox="0 0 10 10">
+                    <path
+                      d="M2 5.2l1.9 1.9L8 3"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.7"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
+              </span>
+              <span className={styles.dropdownItemLabel}>{opt.label}</span>
             </button>
           ))}
         </div>
@@ -128,6 +141,33 @@ function FilterChip({
   );
 }
 
+function UpdatedLabel() {
+  const { courses } = useFerry();
+  const lastUpdated = getCatalogLastUpdated(courses);
+  const relative = toRelativeUpdateTime(lastUpdated);
+  return (
+    <div className={styles.updated}>
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 13 13"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        aria-hidden="true"
+      >
+        <circle cx="6.5" cy="6.5" r="5" />
+        <polyline points="6.5,3.5 6.5,6.5 8.5,8" />
+      </svg>
+      Updated{' '}
+      <time title={lastUpdated.toString()} dateTime={lastUpdated.toISOString()}>
+        {relative} ago
+      </time>
+    </div>
+  );
+}
+
 export default function FilterBar({
   subjects,
 }: {
@@ -148,26 +188,29 @@ export default function FilterBar({
 
   const subjectOptions = subjects.map((s) => ({ value: s, label: s }));
 
-  const handleSubjectChange = useCallback(
-    (v: string | null) => {
-      if (v === null) {
-        setSearchFilter('selectSubjects', []);
+  const handleSubjectToggle = useCallback(
+    (v: string) => {
+      const current = selectedSubjects.map((s) => s.value);
+      if (current.includes(v)) {
+        setSearchFilter(
+          'selectSubjects',
+          selectedSubjects.filter((s) => s.value !== v),
+        );
       } else {
-        const current = selectedSubjects.map((s) => s.value);
-        if (current.includes(v)) {
-          setSearchFilter(
-            'selectSubjects',
-            selectedSubjects.filter((s) => s.value !== v),
-          );
-        } else {
-          setSearchFilter('selectSubjects', [
-            ...selectedSubjects,
-            { value: v, label: v },
-          ]);
-        }
+        setSearchFilter('selectSubjects', [
+          ...selectedSubjects,
+          { value: v, label: v },
+        ]);
       }
     },
     [selectedSubjects, setSearchFilter],
+  );
+
+  const handleLevelToggle = useCallback(
+    (v: string) => {
+      setLevelFilter(levelFilter === v ? null : v);
+    },
+    [levelFilter, setLevelFilter],
   );
 
   const hasActiveFilters = selectedSubjects.length > 0 || levelFilter !== null;
@@ -177,22 +220,25 @@ export default function FilterBar({
     setLevelFilter(null);
   }, [setSearchFilter, setLevelFilter]);
 
-  const currentSubject =
-    selectedSubjects.length === 1 ? selectedSubjects[0]!.value : null;
+  const subjectDisplayLabel =
+    selectedSubjects.length > 0
+      ? `Subject (${selectedSubjects.length})`
+      : undefined;
 
   return (
     <div className={styles.container}>
       <Dropdown
         label="Subject"
+        displayLabel={subjectDisplayLabel}
         options={subjectOptions}
-        value={currentSubject}
-        onChange={handleSubjectChange}
+        selectedValues={selectedSubjects.map((s) => s.value)}
+        onToggle={handleSubjectToggle}
       />
       <Dropdown
         label="Course Level"
         options={COURSE_LEVELS.map((l) => ({ value: l.value, label: l.label }))}
-        value={levelFilter}
-        onChange={setLevelFilter}
+        selectedValues={levelFilter === null ? [] : [levelFilter]}
+        onToggle={handleLevelToggle}
       />
 
       {selectedSubjects.map((s) => (
@@ -222,6 +268,9 @@ export default function FilterBar({
           Reset
         </button>
       )}
+
+      <div className={styles.spacer} />
+      <UpdatedLabel />
     </div>
   );
 }
