@@ -16,7 +16,7 @@
   flex-wrap: wrap;
 }
 
-.topRowCatalog {
+.topRowPrimary {
   align-items: center;
   flex-wrap: nowrap;
 }
@@ -36,6 +36,8 @@
 
 .searchArea {
   flex: 1;
+  display: flex;
+  align-items: center;
   min-width: 0;
 }
 

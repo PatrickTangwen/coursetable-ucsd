@@ -401,13 +401,13 @@ export function NavbarWorksheetSearchView({
 
   // Desktop: show full toggle with controls
   return (
-    <div className={clsx(styles.container, 'd-flex align-items-center')}>
+    <div className={styles.container}>
       <ToggleButtonGroup
         name="worksheet-view-toggle"
         type="radio"
         value={visibleWorksheetView}
         onChange={(val: VisibleWorksheetView) => changeWorksheetView(val)}
-        className={clsx(styles.toggleButtonGroup, 'ms-2 me-3')}
+        className={styles.toggleButtonGroup}
         data-tutorial="worksheet-2"
       >
         <ToggleButton

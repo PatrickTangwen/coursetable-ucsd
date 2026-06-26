@@ -28,7 +28,7 @@ export default function TopNav() {
       <nav
         className={clsx(
           styles.topRow,
-          showCatalogSearch && styles.topRowCatalog,
+          (showCatalogSearch || isWorksheetPage) && styles.topRowPrimary,
         )}
       >
         <NavLink

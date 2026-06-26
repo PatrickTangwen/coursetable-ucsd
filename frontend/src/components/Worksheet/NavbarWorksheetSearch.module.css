@@ -1,5 +1,10 @@
 .container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   min-height: 0;
+  min-width: 0;
+  width: 100%;
 }
 
 .containerMobile {
