@@ -21,7 +21,8 @@ export const catalogSnapshotConfigSchema = z
         start: dateSchema,
         end: dateSchema,
       })
-      .strict(),
+      .strict()
+      .nullable(),
     configured_subjects: z.array(z.string().min(1)).min(1),
     paths: z
       .object({
@@ -124,7 +125,8 @@ export const catalogSnapshotSchema = z
         start: dateSchema,
         end: dateSchema,
       })
-      .strict(),
+      .strict()
+      .nullable(),
     configured_subjects: z.array(z.string().min(1)).min(1),
     source_timestamps: sourceTimestampsSchema,
     courses: z.array(courseSchema),
@@ -548,7 +550,8 @@ function writeJson(pathname: string, value: unknown) {
 export async function publishCatalogSnapshot(
   snapshot: CatalogSnapshot,
   config: CatalogSnapshotConfig,
-): Promise<{ snapshotPath: string; metadataPath: string }> {
+  options: { writeMetadata?: boolean } = {},
+): Promise<{ snapshotPath: string; metadataPath: string | null }> {
   const validation = validateCatalogSnapshot(snapshot, config);
   if (!validation.success) {
     throw new Error(
@@ -556,24 +559,28 @@ export async function publishCatalogSnapshot(
     );
   }
 
+  // The multi-term runner publishes one snapshot per term but writes the
+  // Supported Term registry once, so it opts out of the single-term metadata.
+  const writeMetadata = options.writeMetadata ?? true;
   const snapshotPath = pathModule.join(
     config.paths.public_catalog_dir,
     `${snapshot.active_planning_term}.json`,
   );
   const metadataPath = config.paths.metadata_path;
-  const metadata = buildCatalogSnapshotMetadata(snapshot);
   const tempSuffix = `.tmp-${process.pid}-${Date.now()}-${randomUUID()}`;
   const tempSnapshotPath = `${snapshotPath}${tempSuffix}`;
   const tempMetadataPath = `${metadataPath}${tempSuffix}`;
 
   await mkdir(config.paths.public_catalog_dir, { recursive: true });
-  await mkdir(pathModule.dirname(metadataPath), { recursive: true });
 
   try {
     await writeJson(tempSnapshotPath, snapshot);
-    await writeJson(tempMetadataPath, metadata);
+    if (writeMetadata) {
+      await mkdir(pathModule.dirname(metadataPath), { recursive: true });
+      await writeJson(tempMetadataPath, buildCatalogSnapshotMetadata(snapshot));
+    }
     await rename(tempSnapshotPath, snapshotPath);
-    await rename(tempMetadataPath, metadataPath);
+    if (writeMetadata) await rename(tempMetadataPath, metadataPath);
   } catch (err) {
     await Promise.all([
       rm(tempSnapshotPath, { force: true }),
@@ -582,5 +589,5 @@ export async function publishCatalogSnapshot(
     throw err;
   }
 
-  return { snapshotPath, metadataPath };
+  return { snapshotPath, metadataPath: writeMetadata ? metadataPath : null };
 }

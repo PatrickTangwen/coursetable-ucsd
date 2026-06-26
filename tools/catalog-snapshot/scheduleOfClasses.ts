@@ -607,6 +607,23 @@ function parseSubjectListData(data: unknown, term: string) {
   });
 }
 
+export async function fetchSubjectListCodes(
+  term: string,
+  options: { fetch?: FetchAdapter } = {},
+): Promise<string[]> {
+  const fetchAdapter = options.fetch ?? fetch;
+  const response = await fetchAdapter(subjectListUrl(term));
+  if (!response.ok) {
+    throw new Error(
+      `UCSD Schedule subject list failed for ${term}: ${response.status} ${response.statusText}`,
+    );
+  }
+  const raw = await response.text();
+  return parseSubjectListRaw(raw, term)
+    .map((entry) => entry.code.trim())
+    .filter((code) => code.length > 0);
+}
+
 export async function fetchRawScheduleOfClassesForSubject(
   subject: string,
   options: FetchOptions,
