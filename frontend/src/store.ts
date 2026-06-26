@@ -8,6 +8,10 @@ import {
   createCalendarSlice,
 } from './slices/CalendarSlice';
 import {
+  createCatalogViewSlice,
+  type CatalogViewSlice,
+} from './slices/CatalogViewSlice';
+import {
   createDimensionsSlice,
   type DimensionsSlice,
 } from './slices/DimensionsSlice';
@@ -46,6 +50,7 @@ export interface Store
   extends
     AuthSlice,
     CalendarSlice,
+    CatalogViewSlice,
     UserSlice,
     ThemeSlice,
     DimensionsSlice,
@@ -82,6 +87,7 @@ export const useStore = create<Store>()(
       immer((...a) => ({
         ...createAuthSlice(...a),
         ...createCalendarSlice(...a),
+        ...createCatalogViewSlice(...a),
         ...createUserSlice(...a),
         ...createThemeSlice(...a),
         ...createDimensionsSlice(...a),

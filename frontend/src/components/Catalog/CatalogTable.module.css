@@ -1,0 +1,312 @@
+.tableWrapper {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* ── Header ── */
+.header {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+  border-bottom: 2px solid #e8e9ef;
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.headerCell {
+  font-size: 11px;
+  font-weight: 600;
+  color: #8b8fa3;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0 12px;
+  user-select: none;
+}
+
+.sortable {
+  cursor: pointer;
+}
+
+.sortable:hover {
+  color: #5a5d7a;
+}
+
+.sortIndicator {
+  color: var(--sg-primary);
+  margin-left: 3px;
+}
+
+.colAdd {
+  width: 44px;
+  flex-shrink: 0;
+}
+
+.colCode {
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.colTitle {
+  flex: 1;
+  min-width: 120px;
+}
+
+.colInstructor {
+  width: 165px;
+  flex-shrink: 0;
+}
+
+.colMeets {
+  width: 220px;
+  flex-shrink: 0;
+}
+
+.colLocation {
+  width: 90px;
+  flex-shrink: 0;
+}
+
+.colSeats {
+  width: 90px;
+  flex-shrink: 0;
+}
+
+/* ── Rows ── */
+.row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #f0f1f5;
+  transition: background 0.1s;
+  cursor: pointer;
+}
+
+.row:nth-child(even) {
+  background: #fafbfc;
+}
+
+.row:hover {
+  background: #f4f6fa;
+}
+
+.cell {
+  padding: 11px 12px;
+  font-size: 13.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.addCell {
+  width: 44px;
+  flex-shrink: 0;
+  padding: 11px 8px 11px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sg-primary);
+  border-radius: 4px;
+  padding: 2px;
+  transition: background 0.15s;
+}
+
+.addBtn:hover {
+  background: var(--sg-primary-light);
+}
+
+.codeCell {
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.courseCode {
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.sectionId {
+  color: #8b8fa3;
+  margin-left: 4px;
+}
+
+.titleCell {
+  flex: 1;
+  min-width: 120px;
+  font-weight: 500;
+  color: #33354d;
+}
+
+.instructorCell {
+  width: 165px;
+  flex-shrink: 0;
+  font-size: 12.5px;
+  color: #5a5d7a;
+}
+
+.meetsCell {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meetTime {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #33354d;
+  white-space: nowrap;
+}
+
+.locationCell {
+  width: 90px;
+  flex-shrink: 0;
+  font-size: 12.5px;
+  color: #5a5d7a;
+}
+
+.seatsCell {
+  width: 90px;
+  flex-shrink: 0;
+}
+
+/* ── Expandable parent row ── */
+.parentRow {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #f0f1f5;
+  transition: background 0.1s;
+  cursor: pointer;
+}
+
+.parentRow:hover {
+  background: #f4f6fa;
+}
+
+.expandedParent {
+  background: #fafbfc;
+}
+
+.sectionBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #dbeafe;
+  color: #1e40af;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  margin-left: 6px;
+}
+
+.chevron {
+  transition: transform 0.2s;
+  width: 8px;
+  height: 8px;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.summaryText {
+  font-size: 12px;
+  color: #9a9db4;
+}
+
+/* ── Expandable wrapper ── */
+.expandableGroup {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px #e0e2e8,
+    0 2px 8px rgb(0 0 0 / 4%);
+  margin: 0 0 1px;
+}
+
+/* ── Sub-rows ── */
+.subRowContainer {
+  max-height: 132px;
+  overflow-y: auto;
+  border-top: 1px solid #eef0f4;
+}
+
+.subRow {
+  display: flex;
+  align-items: center;
+  background: #fafbfc;
+  border-bottom: 1px solid #eef0f4;
+  font-size: 13px;
+  transition: background 0.1s;
+  cursor: pointer;
+}
+
+.subRow:hover {
+  background: #f3f4f6;
+}
+
+.subRow:last-child {
+  border-bottom: none;
+}
+
+.subAddBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sg-primary);
+  border-radius: 4px;
+  padding: 2px;
+  transition: background 0.15s;
+}
+
+.subAddBtn:hover {
+  background: var(--sg-primary-light);
+}
+
+.subSectionBadge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #dbeafe;
+  color: #1e40af;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.typeBadge {
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #f0f1f5;
+  color: #5a5d7a;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  margin-left: 4px;
+}
+
+.scrollHint {
+  padding: 5px 16px;
+  background: #fafbfc;
+  text-align: center;
+  font-size: 10px;
+  color: #b0b3be;
+  border-top: 1px solid #eef0f4;
+}
+
+/* ── Empty state ── */
+.empty {
+  text-align: center;
+  padding: 64px 24px;
+  color: #8b8fa3;
+  font-size: 15px;
+}

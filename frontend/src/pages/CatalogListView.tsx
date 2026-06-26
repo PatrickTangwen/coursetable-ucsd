@@ -1,0 +1,117 @@
+import { useMemo, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useShallow } from 'zustand/react/shallow';
+
+import CatalogTable from '../components/Catalog/CatalogTable';
+import FAB from '../components/Catalog/FAB';
+import FilterBar, { COURSE_LEVELS } from '../components/Catalog/FilterBar';
+import { useSearch } from '../hooks/useSearch';
+import type { CatalogListing } from '../queries/api';
+import { useStore } from '../store';
+import styles from './CatalogListView.module.css';
+
+function extractConfiguredSubjects(data: CatalogListing[] | null): string[] {
+  if (!data) return [];
+  const set = new Set<string>();
+  for (const l of data) set.add(l.subject);
+  const arr = [...set];
+  arr.sort();
+  return arr;
+}
+
+function parseCourseNumber(code: string): number {
+  const match = /\d+/u.exec(code);
+  return match ? Number(match[0]) : 0;
+}
+
+export default function CatalogListView() {
+  const { searchData, coursesLoading } = useSearch();
+  const levelFilter = useStore((s) => s.catalogLevelFilter);
+  const [searchParams] = useSearchParams();
+  const navigate = useStore((s) => s.navigate);
+  const {
+    addAnonymousWorksheetListing,
+    addActiveSavedWorksheetListing,
+    authStatus,
+  } = useStore(
+    useShallow((s) => ({
+      addAnonymousWorksheetListing: s.addAnonymousWorksheetListing,
+      addActiveSavedWorksheetListing: s.addActiveSavedWorksheetListing,
+      authStatus: s.authStatus,
+    })),
+  );
+
+  const subjects = useMemo(
+    () => extractConfiguredSubjects(searchData),
+    [searchData],
+  );
+
+  const filteredData = useMemo(() => {
+    if (!searchData) return null;
+    if (!levelFilter) return searchData;
+
+    const level = COURSE_LEVELS.find((l) => l.value === levelFilter);
+    if (!level) return searchData;
+
+    return searchData.filter((l) => {
+      const num = parseCourseNumber(l.number);
+      return num >= level.range[0] && num <= level.range[1];
+    });
+  }, [searchData, levelFilter]);
+
+  const handleAdd = useCallback(
+    (listing: CatalogListing) => {
+      const colors = [
+        '#7B68EE',
+        '#FF6B6B',
+        '#4CAF50',
+        '#FF9800',
+        '#2196F3',
+        '#E91E63',
+      ];
+      const color = colors[Math.floor(Math.random() * colors.length)]!;
+      if (authStatus === 'authenticated') 
+        void addActiveSavedWorksheetListing(listing, color);
+       else 
+        addAnonymousWorksheetListing(listing, color);
+      
+    },
+    [authStatus, addActiveSavedWorksheetListing, addAnonymousWorksheetListing],
+  );
+
+  const handleOpenModal = useCallback(
+    (listing: CatalogListing) => {
+      navigate('push', { type: 'course', data: listing }, searchParams);
+    },
+    [navigate, searchParams],
+  );
+
+  if (coursesLoading) {
+    return (
+      <div className={styles.page}>
+        <FilterBar subjects={subjects} />
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '64px 24px',
+            color: '#8b8fa3',
+          }}
+        >
+          Loading courses...
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.page}>
+      <FilterBar subjects={subjects} />
+      <CatalogTable
+        data={filteredData}
+        onAdd={handleAdd}
+        onOpenModal={handleOpenModal}
+      />
+      <FAB />
+    </div>
+  );
+}

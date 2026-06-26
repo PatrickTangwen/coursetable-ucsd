@@ -56,7 +56,8 @@ const isJsonParseError = (err: unknown) =>
     (err as { name?: string }).name === 'SyntaxError');
 
 const buildApiUrl = (endpointSuffix: string, cacheBust: boolean) => {
-  const url = new URL(`${API_ENDPOINT}/api${endpointSuffix}`);
+  const base = API_ENDPOINT || window.location.origin;
+  const url = new URL(`${base}/api${endpointSuffix}`);
   if (isCatalogEndpoint(endpointSuffix)) {
     const token = cacheBust
       ? bumpCatalogCacheBustToken()

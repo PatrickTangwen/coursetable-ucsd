@@ -16,7 +16,7 @@ import Spinner from './components/Spinner';
 import Tutorial from './components/Tutorial';
 
 // Popular pages are eagerly fetched
-import Search from './pages/Search';
+import CatalogListView from './pages/CatalogListView';
 import Worksheet from './pages/Worksheet';
 import { useStore, useInitStore } from './store';
 
@@ -158,7 +158,7 @@ function App() {
           {/* Catalog and worksheet can be viewed by anyone; we put them under
           authenticated routes because we want loading auth to show a loading
           screen */}
-          <Route path="/catalog" element={<Search />} />
+          <Route path="/catalog" element={<CatalogListView />} />
           <Route path="/worksheet" element={<Worksheet />} />
           <Route path="/graphiql" element={<Graphiql />} />
           <Route path="/login" element={<Landing />} />

@@ -1,4 +1,6 @@
 import dns from 'node:dns';
+import fs from 'node:fs';
+import path from 'node:path';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import mdx from '@mdx-js/rollup';
 import basicSsl from '@vitejs/plugin-basic-ssl';
@@ -86,9 +88,53 @@ function remarkPluginAddHeadingId(): Transformer {
   };
 }
 
+function staticCatalogPlugin(): import('vite').Plugin {
+  const staticDir = path.resolve(__dirname, '../api/static');
+  return {
+    name: 'static-catalog',
+    configureServer(server) {
+      server.middlewares.use(
+        (
+          req: import('node:http').IncomingMessage,
+          res: import('node:http').ServerResponse,
+          next: () => void,
+        ) => {
+          const url = req.url ?? '';
+          if (url.startsWith('/api/catalog/metadata')) {
+            const file = path.join(staticDir, 'metadata.json');
+            if (fs.existsSync(file)) {
+              res.setHeader('Content-Type', 'application/json');
+              res.end(fs.readFileSync(file));
+              return;
+            }
+          }
+          const publicMatch = /^\/api\/catalog\/public\/(?<season>\w+)/u.exec(
+            url,
+          );
+          if (publicMatch?.groups?.season) {
+            const file = path.join(
+              staticDir,
+              'catalogs',
+              'public',
+              `${publicMatch.groups.season}.json`,
+            );
+            if (fs.existsSync(file)) {
+              res.setHeader('Content-Type', 'application/json');
+              res.end(fs.readFileSync(file));
+              return;
+            }
+          }
+          next();
+        },
+      );
+    },
+  };
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    staticCatalogPlugin(),
     {
       enforce: 'pre',
       ...mdx({

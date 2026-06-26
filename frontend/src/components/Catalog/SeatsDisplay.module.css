@@ -1,0 +1,49 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.text {
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.available {
+  color: #166534;
+}
+
+.filling {
+  color: #33354d;
+}
+
+.nearlyFull {
+  color: #be123c;
+}
+
+.bar {
+  width: 28px;
+  height: 4px;
+  border-radius: 2px;
+  background: #eef0f4;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.barAvailable {
+  background: #22c55e;
+}
+
+.barFilling {
+  background: #1a56db;
+}
+
+.barNearlyFull {
+  background: #e8446a;
+}

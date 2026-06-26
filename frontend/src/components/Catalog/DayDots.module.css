@@ -1,0 +1,26 @@
+.container {
+  display: flex;
+  gap: 1px;
+}
+
+.dot {
+  width: 17px;
+  height: 15px;
+  border-radius: 3px;
+  font-size: 8.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.active {
+  background: #334155;
+  color: #fff;
+}
+
+.inactive {
+  background: #f0f1f5;
+  color: #c5c8d6;
+}
