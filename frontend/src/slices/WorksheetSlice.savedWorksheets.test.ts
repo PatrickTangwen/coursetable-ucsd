@@ -352,6 +352,49 @@ describe('Saved Worksheet slice behavior', () => {
     expect(useStore.getState().activeSavedWorksheet?.sections).toEqual([]);
   });
 
+  it('waits for Saved Worksheet bootstrap before adding from a signed-in cold start', async () => {
+    const useStore = await loadStore();
+    let resolveMainWorksheet: (worksheet: SavedWorksheet) => void = () => {};
+    const mainWorksheetPromise = new Promise<SavedWorksheet>((resolve) => {
+      resolveMainWorksheet = resolve;
+    });
+    apiMocks.ensureMainSavedWorksheet.mockReturnValue(mainWorksheetPromise);
+    apiMocks.fetchSavedWorksheets.mockResolvedValue({
+      data: [toSummary(mainWorksheet)],
+    });
+    apiMocks.updateSavedWorksheetSections.mockImplementation(
+      (id: number, sections: SavedWorksheet['sections']) =>
+        Promise.resolve({
+          ...mainWorksheet,
+          id,
+          updatedAt: 3,
+          sourceSectionCount: sections.length,
+          savedSectionCount: sections.length,
+          sections,
+        }),
+    );
+
+    const bootstrap = useStore.getState().ensureMainSavedWorksheetForTerm(s126);
+    const added = useStore
+      .getState()
+      .addActiveSavedWorksheetListing(firstListing, '#123456');
+
+    await Promise.resolve();
+    expect(apiMocks.updateSavedWorksheetSections).not.toHaveBeenCalled();
+
+    resolveMainWorksheet(mainWorksheet);
+
+    await bootstrap;
+    await expect(added).resolves.toBe(true);
+    expect(apiMocks.ensureMainSavedWorksheet).toHaveBeenCalledTimes(1);
+    expect(apiMocks.updateSavedWorksheetSections).toHaveBeenCalledWith(10, [
+      { sectionId: 'S126-123', color: '#123456', hidden: false },
+    ]);
+    expect(useStore.getState().activeSavedWorksheet?.sections).toEqual([
+      { sectionId: 'S126-123', color: '#123456', hidden: false },
+    ]);
+  });
+
   it('keeps signed-out worksheet edits in the browser-local worksheet path', async () => {
     const useStore = await loadStore({ signedIn: false });
 

@@ -262,6 +262,7 @@ export const createWorksheetSlice: StateCreator<
   [],
   WorksheetSlice
 > = (set, get) => {
+  const pendingMainSavedWorksheetByTerm = new Map<Season, Promise<void>>();
   const setAnonymousWorksheet = (worksheet: AnonymousWorksheetState) => {
     writeAnonymousWorksheetStorage(worksheet);
     set({
@@ -424,54 +425,65 @@ export const createWorksheetSlice: StateCreator<
       }
     },
     async ensureMainSavedWorksheetForTerm(term) {
-      const { user, savedWorksheetBootstrapStatus } = get();
-      if (
-        !hasSavedWorksheetAccount() ||
-        savedWorksheetBootstrapStatus === 'loading'
-      )
+      const pendingBootstrap = pendingMainSavedWorksheetByTerm.get(term);
+      if (pendingBootstrap) {
+        await pendingBootstrap;
         return;
+      }
 
-      set({
-        savedWorksheetBootstrapStatus: 'loading',
-        savedWorksheetBootstrapError: null,
-      });
+      const { user } = get();
+      if (!hasSavedWorksheetAccount()) return;
 
-      try {
-        const mainWorksheet = await ensureMainSavedWorksheet(term);
-        if (!mainWorksheet || !user || isLegacyUserInfo(user)) {
-          set({
-            savedWorksheetBootstrapStatus: 'error',
-            savedWorksheetBootstrapError: new Error(
-              'Failed to open Main Worksheet',
-            ),
-          });
-          return;
-        }
+      const bootstrap = (async () => {
+        set({
+          savedWorksheetBootstrapStatus: 'loading',
+          savedWorksheetBootstrapError: null,
+        });
 
-        const summaries = await get().refreshSavedWorksheetsForTerm(term);
-        const rememberedId = get().activeSavedWorksheetIdsByTerm[term];
-        const rememberedExists = summaries.some(
-          (worksheet) => worksheet.id === rememberedId,
-        );
-
-        if (
-          rememberedId &&
-          rememberedId !== mainWorksheet.id &&
-          rememberedExists
-        ) {
-          const rememberedWorksheet = await fetchSavedWorksheet(rememberedId);
-          if (rememberedWorksheet?.term === term) {
-            activateSavedWorksheet(rememberedWorksheet, user.user_id);
+        try {
+          const mainWorksheet = await ensureMainSavedWorksheet(term);
+          if (!mainWorksheet || !user || isLegacyUserInfo(user)) {
+            set({
+              savedWorksheetBootstrapStatus: 'error',
+              savedWorksheetBootstrapError: new Error(
+                'Failed to open Main Worksheet',
+              ),
+            });
             return;
           }
-        }
 
-        activateSavedWorksheet(mainWorksheet, user.user_id);
-      } catch (error: unknown) {
-        set({
-          savedWorksheetBootstrapStatus: 'error',
-          savedWorksheetBootstrapError: toError(error),
-        });
+          const summaries = await get().refreshSavedWorksheetsForTerm(term);
+          const rememberedId = get().activeSavedWorksheetIdsByTerm[term];
+          const rememberedExists = summaries.some(
+            (worksheet) => worksheet.id === rememberedId,
+          );
+
+          if (
+            rememberedId &&
+            rememberedId !== mainWorksheet.id &&
+            rememberedExists
+          ) {
+            const rememberedWorksheet = await fetchSavedWorksheet(rememberedId);
+            if (rememberedWorksheet?.term === term) {
+              activateSavedWorksheet(rememberedWorksheet, user.user_id);
+              return;
+            }
+          }
+
+          activateSavedWorksheet(mainWorksheet, user.user_id);
+        } catch (error: unknown) {
+          set({
+            savedWorksheetBootstrapStatus: 'error',
+            savedWorksheetBootstrapError: toError(error),
+          });
+        }
+      })();
+
+      pendingMainSavedWorksheetByTerm.set(term, bootstrap);
+      try {
+        await bootstrap;
+      } finally {
+        pendingMainSavedWorksheetByTerm.delete(term);
       }
     },
     async refreshSavedWorksheetsForTerm(term) {
@@ -597,7 +609,11 @@ export const createWorksheetSlice: StateCreator<
     },
     async addActiveSavedWorksheetListing(listing, color) {
       const sectionId = getActiveSavedWorksheetSectionId(listing);
-      const { activeSavedWorksheet } = get();
+      let { activeSavedWorksheet } = get();
+      if (sectionId && !activeSavedWorksheet && listing.course?.season_code) {
+        await get().ensureMainSavedWorksheetForTerm(listing.course.season_code);
+        ({ activeSavedWorksheet } = get());
+      }
       if (!sectionId || !activeSavedWorksheet) return false;
       if (
         activeSavedWorksheet.sections.some(
