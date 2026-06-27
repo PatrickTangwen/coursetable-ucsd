@@ -93,8 +93,7 @@
 
   /* ── SunGrid design tokens — Shadows ── */
   --sg-shadow-expanded: 0 0 0 1px #e0e2e8, 0 2px 8px rgb(0 0 0 / 4%);
-  --sg-shadow-modal:
-    0 24px 80px rgb(0 0 0 / 18%), 0 4px 16px rgb(0 0 0 / 8%);
+  --sg-shadow-modal: 0 24px 80px rgb(0 0 0 / 18%), 0 4px 16px rgb(0 0 0 / 8%);
   --sg-shadow-fab: 0 4px 16px rgb(26 86 219 / 35%);
   --sg-backdrop: rgb(0 0 0 / 42%);
 

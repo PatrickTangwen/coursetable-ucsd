@@ -149,7 +149,7 @@ export type PublishedSnapshotPipelineResult = {
   report: PublishedSnapshotImportReport;
   reportPath: string;
   snapshotPath: string;
-  metadataPath: string;
+  metadataPath: string | null;
 };
 
 type RunPaths = {
@@ -480,7 +480,7 @@ function buildReport(options: {
   };
 }
 
-function defaultSourceLoaders(): PublishedSnapshotSourceLoaders {
+export function defaultSourceLoaders(): PublishedSnapshotSourceLoaders {
   return {
     async scheduleOfClasses(subject, context) {
       const rawSource = await fetchRawScheduleOfClassesForSubject(subject, {
@@ -617,6 +617,7 @@ export async function runPublishedSnapshotPipeline(
     generatedAt?: string;
     fetch?: FetchAdapter;
     sourceLoaders?: PublishedSnapshotSourceLoaders;
+    writeMetadata?: boolean;
   } = {},
 ): Promise<PublishedSnapshotPipelineResult> {
   const generatedAt = options.generatedAt ?? new Date().toISOString();
@@ -734,7 +735,9 @@ export async function runPublishedSnapshotPipeline(
   }
 
   try {
-    const publishResult = await publishCatalogSnapshot(snapshot, config);
+    const publishResult = await publishCatalogSnapshot(snapshot, config, {
+      writeMetadata: options.writeMetadata,
+    });
     const report = buildReport({
       config,
       runId,

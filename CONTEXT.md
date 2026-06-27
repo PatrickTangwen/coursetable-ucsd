@@ -42,7 +42,47 @@ _Avoid_: Academic calendar, scraped date range, inferred quarter dates
 
 **Configured Subject**:
 A UCSD subject code included in the MVP-1 data pipeline and Catalog Snapshot.
-_Avoid_: All subjects, department, school
+MVP-1 language for a small fixed subject set; post-MVP the pipeline uses
+Discovered Subjects instead. See ADR 0012.
+_Avoid_: Department, school
+
+**Discovered Subject**:
+A UCSD subject code obtained per term from the Schedule of Classes
+`subject-list.json` for that term, rather than from a static list. The full-scope
+pipeline iterates Discovered Subjects so each term uses exactly the subjects it
+offered. See ADR 0012 and ADR 0013.
+_Avoid_: Configured subject, hard-coded subject list
+
+**Term Window**:
+The rolling set of UCSD terms the live Schedule of Classes currently serves
+(`subject-list.json` returns a non-empty list). Bounded by the source —
+empirically the most recent ~6-7 terms — and excludes terms such as 2021. See
+ADR 0012.
+_Avoid_: All terms, historical terms, 2021-present range
+
+**Supported Term**:
+A term that has a Published or Frozen Snapshot and therefore appears in the term
+selector. The selector is driven by the metadata term registry, not the inherited
+numeric `seasons.json`.
+_Avoid_: Active planning term, configured term, Yale season code
+
+**Frozen Snapshot**:
+The last Published Snapshot of a term after that term has left the Term Window.
+Retained unchanged with its `generated_at` timestamp, never regenerated or
+deleted. See ADR 0012.
+_Avoid_: Stale snapshot, archived draft, expired snapshot
+
+**Term Archive**:
+The append-only, forward-accumulating collection of all term snapshots (current
+Published plus Frozen). It is the achievable path to multi-term depth given
+pre-window history cannot be fetched. See ADR 0012.
+_Avoid_: Historical backfill, 2021 backfill, multi-term database
+
+**Import Manifest**:
+The per-term record of which `(subject, source)` cells succeeded, failed, or were
+partial during snapshot generation, published with the snapshot and indexed in
+metadata so gaps are auditable rather than silent. See ADR 0013.
+_Avoid_: Error log, partial snapshot, skipped-subject list
 
 **Historical GPA Data**:
 Past grade archive records imported from UCSD's Instructor Grade Archive and used as historical course outcome signals.
@@ -57,10 +97,12 @@ A subject-course-year-quarter-instructor row from the Instructor Grade Archive, 
 _Avoid_: Evaluation, review, rating, grade count record
 
 **Average GPA**:
-The user-facing Historical GPA summary for a Course. For UCSD snapshot courses,
-this is the unweighted mean GPA across matching Grade Archive Records in the
-most recent archive term that has data.
-_Avoid_: Weighted GPA, course rating, sample-size-adjusted GPA
+Superseded by ADR 0014. MVP-1 showed a single course-level summary (the unweighted
+mean GPA of the most recent archive term with data). With multi-year history this
+collapsed number is misleading, so there is no single course-level GPA summary;
+Historical GPA is presented only through Past Grades. Retained here as historical
+language.
+_Avoid_: Current user-facing summary card, weighted GPA, sample-size-adjusted GPA
 
 **Record Count**:
 The total number of matching Grade Archive Records across all terms. It can be
@@ -82,8 +124,10 @@ _Avoid_: Visible current UI label
 Enrolled count, seat capacity, and waitlist count scraped from the UCSD Schedule
 of Classes at snapshot-generation time and included in the Catalog Snapshot as
 static fields. Not refreshed in real time. Every UI surface displaying this data
-must show the snapshot timestamp. Supersedes the original exclusion in ADR 0004;
-see ADR 0011.
+must show the snapshot timestamp, with copy that depends on term state: current /
+upcoming terms show "Updated N days ago"; Frozen / past terms show an explicit
+historical label and are never presented as actionable availability. Supersedes
+the original exclusion in ADR 0004; see ADR 0011 and ADR 0014.
 _Avoid_: Real-time availability, live seat count, enrollment tracker, demand signal
 
 **Excluded Availability Directions**:
@@ -134,7 +178,13 @@ _Avoid_: CourseTable, UCSD Course Planner
 
 **Worksheet**:
 A student-selected set of course sections for planning a schedule within a term.
-_Avoid_: Cart, schedule cart, saved schedule
+Worksheets are per-term-keyed: each Supported Term has its own course set,
+selected via the worksheet season dropdown (`viewedSeason`). Adding a section
+from another term affects only that term's set and never silently reassigns the
+current worksheet's term. Past / Frozen terms remain add-able but show a
+"semester has ended" warning; the plannable-vs-ended distinction is based on the
+term's date range, not a hard-coded current-term literal.
+_Avoid_: Cart, schedule cart, saved schedule, single flat cross-term list
 
 **Anonymous Worksheet**:
 A browser-local worksheet that is not attached to a user account. This term is

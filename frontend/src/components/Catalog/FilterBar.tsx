@@ -3,6 +3,12 @@ import clsx from 'clsx';
 import { useShallow } from 'zustand/react/shallow';
 
 import { useFerry } from '../../hooks/useFerry';
+import {
+  buildCatalogListAdvancedFilterReset,
+  countCatalogListAdvancedFilters,
+} from '../../search/catalogListFilters';
+import { defaultFilters, seasonsOptions } from '../../search/searchConstants';
+import type { Option } from '../../search/searchTypes';
 import { useStore } from '../../store';
 import {
   getCatalogLastUpdated,
@@ -173,18 +179,25 @@ export default function FilterBar({
 }: {
   readonly subjects: string[];
 }) {
-  const { selectedSubjects, setSearchFilter, levelFilter, setLevelFilter } =
-    useStore(
-      useShallow((s) => ({
-        selectedSubjects: s.searchFilters.selectSubjects as {
-          value: string;
-          label: string;
-        }[],
-        setSearchFilter: s.setSearchFilter,
-        levelFilter: s.catalogLevelFilter,
-        setLevelFilter: s.setCatalogLevelFilter,
-      })),
-    );
+  const {
+    selectedSubjects,
+    selectedSeasons,
+    searchFilters,
+    setSearchFilter,
+    patchSearchFilters,
+    levelFilter,
+    setLevelFilter,
+  } = useStore(
+    useShallow((s) => ({
+      selectedSubjects: s.searchFilters.selectSubjects as Option[],
+      selectedSeasons: s.searchFilters.selectSeasons as Option[],
+      searchFilters: s.searchFilters,
+      setSearchFilter: s.setSearchFilter,
+      patchSearchFilters: s.patchSearchFilters,
+      levelFilter: s.catalogLevelFilter,
+      setLevelFilter: s.setCatalogLevelFilter,
+    })),
+  );
 
   const subjectOptions = subjects.map((s) => ({ value: s, label: s }));
 
@@ -213,17 +226,46 @@ export default function FilterBar({
     [levelFilter, setLevelFilter],
   );
 
-  const hasActiveFilters = selectedSubjects.length > 0 || levelFilter !== null;
+  const handleTermToggle = useCallback(
+    (v: string) => {
+      const isSelected = selectedSeasons.some((s) => s.value === v);
+      const next = seasonsOptions.filter((o) =>
+        o.value === v
+          ? !isSelected
+          : selectedSeasons.some((s) => s.value === o.value),
+      );
+      setSearchFilter('selectSeasons', next);
+    },
+    [selectedSeasons, setSearchFilter],
+  );
+
+  const advancedFilterCount =
+    countCatalogListAdvancedFilters(searchFilters) + (levelFilter ? 1 : 0);
+  const hasActiveFilters =
+    selectedSubjects.length > 0 ||
+    selectedSeasons.length > 0 ||
+    advancedFilterCount > 0;
 
   const resetAll = useCallback(() => {
     setSearchFilter('selectSubjects', []);
+    setSearchFilter('selectSeasons', defaultFilters.selectSeasons);
+    patchSearchFilters(buildCatalogListAdvancedFilterReset());
     setLevelFilter(null);
-  }, [setSearchFilter, setLevelFilter]);
+  }, [patchSearchFilters, setSearchFilter, setLevelFilter]);
+
+  const resetAdvancedFilters = useCallback(() => {
+    patchSearchFilters(buildCatalogListAdvancedFilterReset());
+    setLevelFilter(null);
+  }, [patchSearchFilters, setLevelFilter]);
 
   const subjectDisplayLabel =
     selectedSubjects.length > 0
       ? `Subject (${selectedSubjects.length})`
       : undefined;
+  const termChipLabel =
+    selectedSeasons.length === 1
+      ? selectedSeasons[0]!.label
+      : `Terms: ${selectedSeasons.map((season) => season.value).join(', ')}`;
 
   return (
     <div className={styles.container}>
@@ -240,7 +282,19 @@ export default function FilterBar({
         selectedValues={levelFilter === null ? [] : [levelFilter]}
         onToggle={handleLevelToggle}
       />
+      <Dropdown
+        label="Term"
+        options={seasonsOptions}
+        selectedValues={selectedSeasons.map((s) => s.value)}
+        onToggle={handleTermToggle}
+      />
 
+      {selectedSeasons.length > 0 && (
+        <FilterChip
+          label={termChipLabel}
+          onRemove={() => setSearchFilter('selectSeasons', [])}
+        />
+      )}
       {selectedSubjects.map((s) => (
         <FilterChip
           key={s.value}
@@ -253,13 +307,10 @@ export default function FilterBar({
           }
         />
       ))}
-      {levelFilter !== null && (
+      {advancedFilterCount > 0 && (
         <FilterChip
-          label={
-            COURSE_LEVELS.find((l) => l.value === levelFilter)?.label ??
-            levelFilter
-          }
-          onRemove={() => setLevelFilter(null)}
+          label={`Advanced: ${advancedFilterCount}`}
+          onRemove={resetAdvancedFilters}
         />
       )}
 

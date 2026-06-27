@@ -37,8 +37,27 @@ function formatGpa(value: number | null): string {
   return value === null ? 'N/A' : value.toFixed(2);
 }
 
+function formatCompactGpa(value: number | null): string {
+  return value === null ? 'N/A' : value.toFixed(1);
+}
+
 function formatPercent(value: number | null): string {
   return value === null ? 'N/A' : `${value.toFixed(1)}%`;
+}
+
+function formatCompactPercent(value: number | null): string {
+  return value === null ? 'N/A' : `${Math.round(value)}%`;
+}
+
+function renderNumericCell(fullValue: string, compactValue = fullValue) {
+  return (
+    <td className={styles.numericCell} aria-label={fullValue} title={fullValue}>
+      <span className={styles.fullCellValue}>{fullValue}</span>
+      <span className={styles.compactCellValue} aria-hidden="true">
+        {compactValue}
+      </span>
+    </td>
+  );
 }
 
 const archiveQuarterRank: { [quarter: string]: number } = {
@@ -226,31 +245,60 @@ function GradeArchiveRecords({
         </p>
       )}
       {archive && archive.grade_archive_records.length > 0 && (
-        <div className="table-responsive">
-          <table
-            className={[
-              'table',
-              'table-sm',
-              'table-striped',
-              styles.recordTable,
-            ]
-              .filter(Boolean)
-              .join(' ')}
-          >
+        <div className={styles.recordTableFrame}>
+          <table className={styles.recordTable}>
+            <colgroup>
+              <col className={styles.yearColumn} />
+              <col className={styles.quarterColumn} />
+              <col className={styles.instructorColumn} />
+              <col className={styles.gpaColumn} />
+              <col className={styles.percentColumn} />
+              <col className={styles.percentColumn} />
+              <col className={styles.percentColumn} />
+              <col className={styles.percentColumn} />
+              <col className={styles.percentColumn} />
+              <col className={styles.percentColumn} />
+              <col className={styles.percentColumn} />
+              <col className={styles.percentColumn} />
+            </colgroup>
             <thead>
               <tr>
-                <th>Year</th>
-                <th>Quarter</th>
-                <th>Instructor</th>
-                <th>GPA</th>
-                <th>A</th>
-                <th>B</th>
-                <th>C</th>
-                <th>D</th>
-                <th>F</th>
-                <th>W</th>
-                <th>P</th>
-                <th>NP</th>
+                <th aria-label="Year">
+                  <span className={styles.fullHeaderLabel}>Year</span>
+                  <span
+                    className={styles.compactHeaderLabel}
+                    aria-hidden="true"
+                  >
+                    Yr
+                  </span>
+                </th>
+                <th aria-label="Quarter">
+                  <span className={styles.fullHeaderLabel}>Quarter</span>
+                  <span
+                    className={styles.compactHeaderLabel}
+                    aria-hidden="true"
+                  >
+                    Qtr
+                  </span>
+                </th>
+                <th aria-label="Instructor">
+                  <span className={styles.fullHeaderLabel}>Instructor</span>
+                  <span
+                    className={styles.compactHeaderLabel}
+                    aria-hidden="true"
+                  >
+                    Instr
+                  </span>
+                </th>
+                <th className={styles.numericCell}>GPA</th>
+                <th className={styles.numericCell}>A</th>
+                <th className={styles.numericCell}>B</th>
+                <th className={styles.numericCell}>C</th>
+                <th className={styles.numericCell}>D</th>
+                <th className={styles.numericCell}>F</th>
+                <th className={styles.numericCell}>W</th>
+                <th className={styles.numericCell}>P</th>
+                <th className={styles.numericCell}>NP</th>
               </tr>
             </thead>
             <tbody>
@@ -260,16 +308,50 @@ function GradeArchiveRecords({
                 >
                   <td>{record.year}</td>
                   <td>{record.quarter}</td>
-                  <td>{record.instructor ?? 'TBA'}</td>
-                  <td>{formatGpa(record.gpa)}</td>
-                  <td>{formatPercent(record.a)}</td>
-                  <td>{formatPercent(record.b)}</td>
-                  <td>{formatPercent(record.c)}</td>
-                  <td>{formatPercent(record.d)}</td>
-                  <td>{formatPercent(record.f)}</td>
-                  <td>{formatPercent(record.w)}</td>
-                  <td>{formatPercent(record.p)}</td>
-                  <td>{formatPercent(record.np)}</td>
+                  <td>
+                    <span
+                      className={styles.instructorName}
+                      title={record.instructor ?? 'TBA'}
+                    >
+                      {record.instructor ?? 'TBA'}
+                    </span>
+                  </td>
+                  {renderNumericCell(
+                    formatGpa(record.gpa),
+                    formatCompactGpa(record.gpa),
+                  )}
+                  {renderNumericCell(
+                    formatPercent(record.a),
+                    formatCompactPercent(record.a),
+                  )}
+                  {renderNumericCell(
+                    formatPercent(record.b),
+                    formatCompactPercent(record.b),
+                  )}
+                  {renderNumericCell(
+                    formatPercent(record.c),
+                    formatCompactPercent(record.c),
+                  )}
+                  {renderNumericCell(
+                    formatPercent(record.d),
+                    formatCompactPercent(record.d),
+                  )}
+                  {renderNumericCell(
+                    formatPercent(record.f),
+                    formatCompactPercent(record.f),
+                  )}
+                  {renderNumericCell(
+                    formatPercent(record.w),
+                    formatCompactPercent(record.w),
+                  )}
+                  {renderNumericCell(
+                    formatPercent(record.p),
+                    formatCompactPercent(record.p),
+                  )}
+                  {renderNumericCell(
+                    formatPercent(record.np),
+                    formatCompactPercent(record.np),
+                  )}
                 </tr>
               ))}
             </tbody>

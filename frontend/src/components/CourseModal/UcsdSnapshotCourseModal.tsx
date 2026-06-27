@@ -412,9 +412,11 @@ function MeetingRow({
       <div
         className={clsx(
           styles.availability,
-          availability?.status === 'filling' && styles.availabilityFilling,
-          availability?.status === 'nearly-full' &&
-            styles.availabilityNearlyFull,
+          availability?.status === 'critical' && styles.availabilityCritical,
+          availability?.status === 'low' && styles.availabilityLow,
+          availability?.status === 'medium' && styles.availabilityMedium,
+          availability?.status === 'high' && styles.availabilityHigh,
+          availability?.status === 'available' && styles.availabilityAvailable,
           availability?.status === 'full' && styles.availabilityFull,
         )}
       >

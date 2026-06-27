@@ -36,19 +36,123 @@
   padding: 0.75rem;
 }
 
+.recordTableFrame {
+  width: 100%;
+  overflow: hidden;
+}
+
 .recordTable {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
   margin-bottom: 0;
-  font-size: 0.9rem;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
 }
 
 .recordTable th,
 .recordTable td {
+  min-width: 0;
+  padding: 0.42rem 0.3rem;
+  border-bottom: 1px solid var(--color-border);
   white-space: nowrap;
+}
+
+.recordTable thead th {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.recordTable tbody tr:nth-child(odd) {
+  background: rgb(0 0 0 / 4%);
+}
+
+.yearColumn {
+  width: 5%;
+}
+
+.quarterColumn {
+  width: 7%;
+}
+
+.instructorColumn {
+  width: 25%;
+}
+
+.gpaColumn {
+  width: 6%;
+}
+
+.percentColumn {
+  width: 7.125%;
+}
+
+.instructorName {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.numericCell {
+  overflow: hidden;
+  text-align: right;
+  text-overflow: clip;
+}
+
+.compactHeaderLabel {
+  display: none;
+}
+
+.compactCellValue {
+  display: none;
 }
 
 @media (max-width: 575px) {
   .metadataRow {
     grid-template-columns: 1fr;
     gap: 0.25rem;
+  }
+
+  .recordTable {
+    font-size: 0.66rem;
+    line-height: 1.2;
+  }
+
+  .recordTable th,
+  .recordTable td {
+    padding: 0.38rem 0.16rem;
+  }
+
+  .fullHeaderLabel,
+  .fullCellValue {
+    display: none;
+  }
+
+  .compactHeaderLabel,
+  .compactCellValue {
+    display: inline;
+  }
+
+  .yearColumn {
+    width: 4.8%;
+  }
+
+  .instructorColumn {
+    width: 15.2%;
+  }
+
+  .quarterColumn {
+    width: 6%;
+  }
+
+  .gpaColumn {
+    width: 8%;
+  }
+
+  .percentColumn {
+    width: 8.25%;
   }
 }

@@ -4,15 +4,19 @@ import { seatsColor } from '../../utilities/catalogView';
 import styles from './SeatsDisplay.module.css';
 
 const textClass = {
+  critical: styles.critical,
+  low: styles.low,
+  medium: styles.medium,
+  high: styles.high,
   available: styles.available,
-  filling: styles.filling,
-  'nearly-full': styles.nearlyFull,
 };
 
 const barClass = {
+  critical: styles.barCritical,
+  low: styles.barLow,
+  medium: styles.barMedium,
+  high: styles.barHigh,
   available: styles.barAvailable,
-  filling: styles.barFilling,
-  'nearly-full': styles.barNearlyFull,
 };
 
 export default function SeatsDisplay({
@@ -24,26 +28,30 @@ export default function SeatsDisplay({
   readonly capacity: number | null;
   readonly variant?: 'default' | 'subrow';
 }) {
-  if (enrolled === null && capacity === null) return null;
+  if (enrolled === null || capacity === null || capacity <= 0) return null;
+  const availableSeats = Math.max(capacity - enrolled, 0);
   const status = seatsColor(enrolled, capacity);
-  const pct =
-    enrolled !== null && capacity !== null && capacity > 0
-      ? Math.min((enrolled / capacity) * 100, 100)
-      : 0;
+  const availablePct = Math.min((availableSeats / capacity) * 100, 100);
+
+  if (variant === 'subrow') {
+    return (
+      <div className={clsx(styles.container, styles.subrow)}>
+        <span className={clsx(styles.text, textClass[status])}>
+          {availableSeats}/{capacity}
+        </span>
+        <div className={styles.bar}>
+          <div
+            className={clsx(styles.barFill, barClass[status])}
+            style={{ width: `${availablePct}%` }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div
-      className={clsx(styles.container, variant === 'subrow' && styles.subrow)}
-    >
-      <span className={clsx(styles.text, textClass[status])}>
-        {enrolled ?? '–'}/{capacity ?? '–'}
-      </span>
-      <div className={styles.bar}>
-        <div
-          className={clsx(styles.barFill, barClass[status])}
-          style={{ width: `${pct}%` }}
-        />
-      </div>
+    <div className={styles.container}>
+      <span className={styles.text}>{availableSeats} left</span>
     </div>
   );
 }
