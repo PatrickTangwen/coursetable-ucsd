@@ -42,25 +42,18 @@ function DropdownChevron() {
 function Dropdown({
   label,
   displayLabel,
-  hoverTitle,
   options,
   selectedValues,
   onToggle,
-  onApply,
 }: {
   readonly label: string;
   readonly displayLabel?: string;
-  readonly hoverTitle?: string;
   readonly options: { value: string; label: string }[];
   readonly selectedValues: string[];
   readonly onToggle: (v: string) => void;
-  readonly onApply?: (values: string[]) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [draftValues, setDraftValues] = useState(selectedValues);
   const ref = useRef<HTMLDivElement>(null);
-  const usesApply = onApply !== undefined;
-  const activeValues = usesApply ? draftValues : selectedValues;
 
   useEffect(() => {
     if (!open) return undefined;
@@ -72,29 +65,6 @@ function Dropdown({
     return () => document.removeEventListener('mousedown', close);
   }, [open]);
 
-  useEffect(() => {
-    if (open) setDraftValues(selectedValues);
-  }, [open, selectedValues]);
-
-  const toggleValue = useCallback(
-    (value: string) => {
-      if (!usesApply) {
-        onToggle(value);
-        return;
-      }
-      setDraftValues((current) =>
-        current.includes(value)
-          ? current.filter((selected) => selected !== value)
-          : [...current, value],
-      );
-    },
-    [onToggle, usesApply],
-  );
-
-  const draftChanged =
-    draftValues.length !== selectedValues.length ||
-    draftValues.some((value) => !selectedValues.includes(value));
-
   return (
     <div className={styles.dropdownWrapper} ref={ref}>
       <button
@@ -103,40 +73,32 @@ function Dropdown({
         onClick={() => setOpen(!open)}
         aria-haspopup="menu"
         aria-expanded={open}
-        title={hoverTitle}
       >
         {displayLabel ?? label}
         <DropdownChevron />
       </button>
       {open && (
         <div className={styles.dropdownMenu} role="menu">
-          {usesApply && (
-            <div className={styles.dropdownSummary}>
-              {draftValues.length > 0
-                ? `Selected: ${draftValues.join(', ')}`
-                : 'No subjects selected'}
-            </div>
-          )}
           {options.map((opt) => (
             <button
               key={opt.value}
               type="button"
               className={clsx(
                 styles.dropdownItem,
-                activeValues.includes(opt.value) && styles.dropdownItemActive,
+                selectedValues.includes(opt.value) && styles.dropdownItemActive,
               )}
               role="menuitemcheckbox"
-              aria-checked={activeValues.includes(opt.value)}
-              onClick={() => toggleValue(opt.value)}
+              aria-checked={selectedValues.includes(opt.value)}
+              onClick={() => onToggle(opt.value)}
             >
               <span
                 className={clsx(
                   styles.checkbox,
-                  activeValues.includes(opt.value) && styles.checkboxActive,
+                  selectedValues.includes(opt.value) && styles.checkboxActive,
                 )}
                 aria-hidden="true"
               >
-                {activeValues.includes(opt.value) && (
+                {selectedValues.includes(opt.value) && (
                   <svg viewBox="0 0 10 10">
                     <path
                       d="M2 5.2l1.9 1.9L8 3"
@@ -152,21 +114,6 @@ function Dropdown({
               <span className={styles.dropdownItemLabel}>{opt.label}</span>
             </button>
           ))}
-          {usesApply && (
-            <div className={styles.dropdownActions}>
-              <button
-                type="button"
-                className={styles.dropdownApply}
-                disabled={!draftChanged}
-                onClick={() => {
-                  onApply(draftValues);
-                  setOpen(false);
-                }}
-              >
-                Apply
-              </button>
-            </div>
-          )}
         </div>
       )}
     </div>
@@ -275,14 +222,6 @@ export default function FilterBar({
     [selectedSubjects, setSearchFilter],
   );
 
-  const handleSubjectApply = useCallback(
-    (values: string[]) => {
-      const selected = values.map((value) => ({ value, label: value }));
-      setSearchFilter('selectSubjects', selected);
-    },
-    [setSearchFilter],
-  );
-
   const handleLevelToggle = useCallback(
     (v: string) => {
       setLevelFilter(levelFilter === v ? null : v);
@@ -326,10 +265,6 @@ export default function FilterBar({
     selectedSubjects.length > 0
       ? `Subject (${selectedSubjects.length})`
       : undefined;
-  const subjectHoverTitle =
-    selectedSubjects.length > 0
-      ? `Selected subjects: ${selectedSubjects.map((s) => s.label).join(', ')}`
-      : 'No subjects selected';
   const termChipLabel =
     selectedSeasons.length === 1
       ? selectedSeasons[0]!.label
@@ -340,11 +275,9 @@ export default function FilterBar({
       <Dropdown
         label="Subject"
         displayLabel={subjectDisplayLabel}
-        hoverTitle={subjectHoverTitle}
         options={subjectOptions}
         selectedValues={selectedSubjects.map((s) => s.value)}
         onToggle={handleSubjectToggle}
-        onApply={handleSubjectApply}
       />
       <Dropdown
         label="Course Level"

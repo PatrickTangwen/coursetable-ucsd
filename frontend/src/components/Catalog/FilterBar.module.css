@@ -46,16 +46,6 @@
   animation: popover-fade-in 0.14s ease-out;
 }
 
-.dropdownSummary {
-  padding: 7px 10px 9px;
-  border-bottom: 1px solid var(--sg-border-light);
-  margin-bottom: 6px;
-  color: var(--sg-text-tertiary);
-  font-size: 12px;
-  line-height: 1.35;
-  max-width: 260px;
-}
-
 .dropdownItem {
   width: 100%;
   text-align: left;
@@ -84,37 +74,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.dropdownActions {
-  position: sticky;
-  bottom: -6px;
-  padding: 8px 0 0;
-  margin-top: 6px;
-  border-top: 1px solid var(--sg-border-light);
-  background: var(--sg-bg-white);
-}
-
-.dropdownApply {
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: 7px;
-  background: var(--sg-primary);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  transition:
-    background 0.15s,
-    opacity 0.15s;
-}
-
-.dropdownApply:hover {
-  background: var(--sg-primary-hover);
-}
-
-.dropdownApply:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
 }
 
 .checkbox {
