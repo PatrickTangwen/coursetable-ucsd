@@ -23,7 +23,10 @@ import WorksheetStats from '../components/Worksheet/WorksheetStats';
 
 import { CUR_SEASON } from '../config';
 import { isLegacyUserInfo } from '../queries/api';
-import { parseCoursesFromURL } from '../slices/WorksheetSlice';
+import {
+  getInitialSavedWorksheetTerm,
+  parseCoursesFromURL,
+} from '../slices/WorksheetSlice';
 import { useStore } from '../store';
 import { parseAnonymousWorksheetShare } from '../utilities/anonymousWorksheet';
 import styles from './Worksheet.module.css';
@@ -112,12 +115,10 @@ function Worksheet() {
     )
       return;
 
-    const hasCurrentUserMainWorksheet =
-      activeSavedWorksheet?.term === CUR_SEASON &&
-      activeSavedWorksheetOwnerId === user.user_id;
-    if (hasCurrentUserMainWorksheet) return;
+    if (activeSavedWorksheet && activeSavedWorksheetOwnerId === user.user_id)
+      return;
 
-    void ensureMainSavedWorksheetForTerm(CUR_SEASON);
+    void ensureMainSavedWorksheetForTerm(getInitialSavedWorksheetTerm());
   }, [
     activeSavedWorksheet,
     activeSavedWorksheetOwnerId,
@@ -134,6 +135,7 @@ function Worksheet() {
     return <ErrorPage message="There seems to be an issue with our server" />;
   }
   if (worksheetLoading) return <Spinner message="Loading worksheet data..." />;
+  const hasSavedWorksheetAccount = Boolean(user && !isLegacyUserInfo(user));
   const isListView = worksheetView === 'list';
   if (isListView && !isMobile) return <WorksheetList />;
   const LockIcon = isCalendarViewLocked ? FaLock : FaUnlock;
@@ -146,7 +148,7 @@ function Worksheet() {
   if (isListView && isMobile) {
     return (
       <>
-        {!isExoticWorksheet && (
+        {!isExoticWorksheet && !hasSavedWorksheetAccount && (
           <div className={styles.mobileListDropdowns}>
             {!isAnonymousWorksheet && <WorksheetNumDropdown mobile />}
             <SeasonDropdown mobile />
@@ -160,7 +162,7 @@ function Worksheet() {
   // Calendar view (default)
   return (
     <div className={styles.container}>
-      {isMobile && !isExoticWorksheet && (
+      {isMobile && !isExoticWorksheet && !hasSavedWorksheetAccount && (
         <div className={styles.dropdowns}>
           {!isAnonymousWorksheet && <WorksheetNumDropdown mobile />}
           <SeasonDropdown mobile />

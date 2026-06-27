@@ -61,12 +61,15 @@ describe('NavbarWorksheetSearch', () => {
         createBlankSavedWorksheetForTerm={() => Promise.resolve(true)}
         renameSavedWorksheet={() => Promise.resolve(true)}
         deleteSavedWorksheet={() => Promise.resolve(true)}
+        onSwitchTerm={() => {}}
+        seasonOptions={[{ value: 'S126', label: 'Summer Session 1 2026' }]}
+        viewedSeason={'S126' as Season}
       />,
     );
 
     expect(html).toContain('Calendar');
     expect(html).toContain('List');
-    expect(html).toContain('S126');
+    expect(html).toContain('Summer Session 1 2026');
     expect(html).toContain('Main Worksheet');
     expect(html).not.toContain('Map');
     expect(html).not.toContain('Friends');
@@ -94,6 +97,9 @@ describe('NavbarWorksheetSearch', () => {
         createBlankSavedWorksheetForTerm={() => Promise.resolve(true)}
         renameSavedWorksheet={() => Promise.resolve(true)}
         deleteSavedWorksheet={() => Promise.resolve(true)}
+        onSwitchTerm={() => {}}
+        seasonOptions={[{ value: 'SP26', label: 'Spring 2026' }]}
+        viewedSeason={'SP26' as Season}
       />,
     );
 

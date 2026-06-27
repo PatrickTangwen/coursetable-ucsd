@@ -27,20 +27,6 @@
   gap: 0.35rem;
 }
 
-.termBadge {
-  display: inline-flex;
-  align-items: center;
-  min-height: 31px;
-  padding: 0.25rem 0.6rem;
-  border: 2px solid var(--color-icon);
-  border-radius: 0.375rem;
-  background-color: var(--color-surface);
-  color: var(--color-text);
-  font-size: 14px;
-  line-height: 1;
-  white-space: nowrap;
-}
-
 .savedWorksheetButton {
   min-width: 190px;
   max-width: 240px;
@@ -224,10 +210,6 @@
   .savedWorksheetButton {
     min-width: 160px;
     max-width: 190px;
-  }
-
-  .termBadge {
-    font-size: 12px;
   }
 }
 

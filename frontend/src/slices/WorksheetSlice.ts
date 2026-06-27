@@ -48,11 +48,23 @@ import {
   type AnonymousWorksheetShare,
   type AnonymousWorksheetState,
 } from '../utilities/anonymousWorksheet';
+import { createLocalStorageSlot } from '../utilities/browserStorage';
 import { worksheetColors } from '../utilities/constants';
 import {
   buildRestoredAnonymousWorksheet,
   type SavedWorksheetRestoreSource,
 } from '../utilities/savedWorksheet';
+
+const lastViewedSavedWorksheetTermSlot = createLocalStorageSlot<string>(
+  'sungrid_saved_worksheet_last_viewed_term',
+);
+
+export function getInitialSavedWorksheetTerm(): Season {
+  const stored = lastViewedSavedWorksheetTermSlot.get();
+  if (stored && (allSeasons as readonly string[]).includes(stored))
+    return stored as Season;
+  return CUR_SEASON;
+}
 
 // Utility Types
 export type WorksheetView = 'calendar' | 'list' | 'map';
@@ -289,6 +301,8 @@ export const createWorksheetSlice: StateCreator<
         (savedWorksheet) => savedWorksheet.id !== summary.id,
       ),
     ].sort((a, b) => b.createdAt - a.createdAt);
+
+    lastViewedSavedWorksheetTermSlot.set(worksheet.term);
 
     set({
       activeSavedWorksheet: worksheet,
@@ -1018,7 +1032,7 @@ export const useSavedWorksheetBootstrap = () => {
     if (activeSavedWorksheet && activeSavedWorksheetOwnerId === user.user_id)
       return;
 
-    void ensureMainSavedWorksheetForTerm(CUR_SEASON);
+    void ensureMainSavedWorksheetForTerm(getInitialSavedWorksheetTerm());
   }, [
     activeSavedWorksheet,
     activeSavedWorksheetOwnerId,
