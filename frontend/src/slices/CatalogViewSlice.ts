@@ -2,17 +2,17 @@ import type { StateCreator } from 'zustand';
 
 import type { Store } from '../store';
 
-export type CatalogSortKey = 'code' | 'title' | 'meets';
+export type CatalogSortKey = 'code' | 'title' | 'term' | 'meets';
 
 export interface CatalogViewSliceState {
-  catalogExpandedCourses: Set<number>;
+  catalogExpandedCourses: Set<string>;
   catalogSortKey: CatalogSortKey;
   catalogSortAsc: boolean;
   catalogLevelFilter: string | null;
 }
 
 export interface CatalogViewSliceActions {
-  toggleCatalogExpanded: (courseId: number) => void;
+  toggleCatalogExpanded: (courseId: string) => void;
   setCatalogSort: (key: CatalogSortKey) => void;
   setCatalogLevelFilter: (level: string | null) => void;
 }
@@ -41,9 +41,9 @@ export const createCatalogViewSlice: StateCreator<
 
   setCatalogSort: (key) =>
     set((state) => {
-      if (state.catalogSortKey === key) 
+      if (state.catalogSortKey === key)
         return { catalogSortAsc: !state.catalogSortAsc };
-      
+
       return { catalogSortKey: key, catalogSortAsc: true };
     }),
 

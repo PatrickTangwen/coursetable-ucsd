@@ -3,6 +3,7 @@
   --catalog-code-col: 190px;
   --catalog-course-code-slot: 72px;
   --catalog-title-min-col: 220px;
+  --catalog-term-col: 86px;
   --catalog-instructor-col: 165px;
   --catalog-meets-col: 220px;
   --catalog-location-col: 100px;
@@ -25,6 +26,15 @@
       var(--catalog-title-min-col) + var(--catalog-instructor-col) +
       var(--catalog-meets-col) + var(--catalog-location-col) +
       var(--catalog-seats-col)
+  );
+}
+
+.tableInnerWithTerm {
+  min-width: calc(
+    var(--catalog-action-col) + var(--catalog-code-col) +
+      var(--catalog-title-min-col) + var(--catalog-term-col) +
+      var(--catalog-instructor-col) + var(--catalog-meets-col) +
+      var(--catalog-location-col) + var(--catalog-seats-col)
   );
 }
 
@@ -83,6 +93,11 @@
 .colTitle {
   flex: 1;
   min-width: 0;
+}
+
+.colTerm {
+  width: var(--catalog-term-col);
+  flex-shrink: 0;
 }
 
 .colInstructor {
@@ -201,6 +216,64 @@
   min-width: 0;
   font-weight: 500;
   color: var(--sg-text-secondary);
+}
+
+.titleContent {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.titleText {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.termBadge {
+  --term-badge-bg: var(--sg-blue-badge-bg);
+  --term-badge-text: var(--sg-blue-badge-text);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--term-badge-bg);
+  color: var(--term-badge-text);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.termCell {
+  width: var(--catalog-term-col);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.termBadgeFall {
+  --term-badge-bg: #f1e5da;
+  --term-badge-text: #8b5e3c;
+}
+
+.termBadgeWinter {
+  --term-badge-bg: #dbeafe;
+  --term-badge-text: #1d4ed8;
+}
+
+.termBadgeSpring {
+  --term-badge-bg: #dff7e6;
+  --term-badge-text: #15803d;
+}
+
+.termBadgeSummer {
+  --term-badge-bg: #ffe5db;
+  --term-badge-text: #e8613c;
 }
 
 .modalTitleCell {

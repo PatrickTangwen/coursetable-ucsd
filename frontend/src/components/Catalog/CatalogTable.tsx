@@ -5,6 +5,7 @@ import { useShallow } from 'zustand/react/shallow';
 import DayDots from './DayDots';
 import SeatsDisplay from './SeatsDisplay';
 import type { CatalogListing } from '../../queries/api';
+import type { Season } from '../../queries/graphql-types';
 import type { CatalogSortKey } from '../../slices/CatalogViewSlice';
 import { useStore } from '../../store';
 import {
@@ -13,29 +14,38 @@ import {
   buildOfferingGroups,
   type OfferingGroup,
 } from '../../utilities/catalogView';
+import { toSeasonString } from '../../utilities/course';
 import styles from './CatalogTable.module.css';
 
 type CourseRow = {
-  courseId: number;
+  rowId: string;
+  sameCourseId: number;
   courseCode: string;
+  seasonCode: Season;
   title: string;
   groups: OfferingGroup[];
   totalSections: number;
   listings: CatalogListing[];
 };
 
+const courseCodeCollator = new Intl.Collator(undefined, {
+  numeric: true,
+  sensitivity: 'base',
+});
+
 function groupListingsByCourse(listings: CatalogListing[]): CourseRow[] {
-  const map = new Map<number, CatalogListing[]>();
+  const map = new Map<string, CatalogListing[]>();
   for (const l of listings) {
-    const id = l.course.same_course_id;
-    const list = map.get(id);
+    const key = `${l.course.season_code}:${l.course.same_course_id}`;
+    const list = map.get(key);
     if (list) list.push(l);
-    else map.set(id, [l]);
+    else map.set(key, [l]);
   }
 
   const rows: CourseRow[] = [];
-  for (const [courseId, group] of map) {
+  for (const [rowId, group] of map) {
     const first = group[0]!;
+    const sameCourseId = first.course.same_course_id;
     const sections = group.map((l) => {
       const cal = (l.course as { [key: string]: unknown }).ucsd_calendar as
         | { [key: string]: unknown }
@@ -44,7 +54,7 @@ function groupListingsByCourse(listings: CatalogListing[]): CourseRow[] {
         section_id: String(
           (cal?.section_id as string | number | undefined) ?? l.crn,
         ),
-        course_id: String(courseId),
+        course_id: String(sameCourseId),
         section_code: (cal?.section_code ?? l.course.section) as string | null,
         meeting_type: (cal?.meeting_type ?? null) as string | null,
         instructors: l.course.course_professors.map((p) => p.professor.name),
@@ -85,8 +95,10 @@ function groupListingsByCourse(listings: CatalogListing[]): CourseRow[] {
 
     const groups = buildOfferingGroups(sections);
     rows.push({
-      courseId,
+      rowId,
+      sameCourseId,
       courseCode: first.course_code,
+      seasonCode: first.course.season_code,
       title: first.course.title,
       groups,
       totalSections: group.length,
@@ -118,15 +130,42 @@ function getFirstMeetingTime(row: CourseRow): number {
   return Infinity;
 }
 
+function getTermSortValue(seasonCode: Season): number {
+  const match = /^(?<term>WI|SP|S1|S2|S3|SU|FA)(?<year>\d{2})$/u.exec(
+    seasonCode,
+  );
+  const term = match?.groups?.term;
+  const year = match?.groups?.year;
+  if (!term || !year) return Number.MAX_SAFE_INTEGER;
+
+  const termOrder: { [term: string]: number } = {
+    WI: 0,
+    SP: 1,
+    S1: 2,
+    SU: 2,
+    S2: 3,
+    S3: 4,
+    FA: 5,
+  };
+  return Number(`20${year}`) * 10 + (termOrder[term] ?? 9);
+}
+
 function sortRows(rows: CourseRow[], key: CatalogSortKey, asc: boolean) {
   const sorted = [...rows];
   const dir = asc ? 1 : -1;
   sorted.sort((a, b) => {
     switch (key) {
       case 'code':
-        return dir * a.courseCode.localeCompare(b.courseCode);
+        return dir * courseCodeCollator.compare(a.courseCode, b.courseCode);
       case 'title':
         return dir * a.title.localeCompare(b.title);
+      case 'term':
+        return (
+          dir *
+          (getTermSortValue(a.seasonCode) - getTermSortValue(b.seasonCode) ||
+            a.courseCode.localeCompare(b.courseCode) ||
+            a.title.localeCompare(b.title))
+        );
       case 'meets':
         return dir * (getFirstMeetingTime(a) - getFirstMeetingTime(b));
       default:
@@ -243,12 +282,45 @@ function LocationDisplay({
   return <span>{parts.join(' ') || 'TBA'}</span>;
 }
 
+function TermBadge({ seasonCode }: { readonly seasonCode: Season }) {
+  const family = seasonCode.slice(0, 2).toUpperCase();
+  const familyClass =
+    family === 'FA'
+      ? styles.termBadgeFall
+      : family === 'WI'
+        ? styles.termBadgeWinter
+        : family === 'SP'
+          ? styles.termBadgeSpring
+          : family.startsWith('S')
+            ? styles.termBadgeSummer
+            : undefined;
+
+  return (
+    <span
+      className={clsx(styles.termBadge, familyClass)}
+      title={toSeasonString(seasonCode)}
+    >
+      {seasonCode}
+    </span>
+  );
+}
+
+function CourseTitle({ title }: { readonly title: string }) {
+  return (
+    <span className={styles.titleContent}>
+      <span className={styles.titleText}>{title}</span>
+    </span>
+  );
+}
+
 function FlatRow({
   row,
+  showTermColumn,
   onAdd,
   onOpenModal,
 }: {
   readonly row: CourseRow;
+  readonly showTermColumn: boolean;
   readonly onAdd: (courseListing: CatalogListing) => void;
   readonly onOpenModal: (courseListing: CatalogListing) => void;
 }) {
@@ -303,7 +375,14 @@ function FlatRow({
           </span>
         )}
       </div>
-      <div className={clsx(styles.cell, styles.titleCell)}>{row.title}</div>
+      <div className={clsx(styles.cell, styles.titleCell)}>
+        <CourseTitle title={row.title} />
+      </div>
+      {showTermColumn && (
+        <div className={clsx(styles.cell, styles.termCell)}>
+          <TermBadge seasonCode={row.seasonCode} />
+        </div>
+      )}
       <div className={clsx(styles.cell, styles.instructorCell)}>
         {instructor}
       </div>
@@ -325,22 +404,24 @@ function FlatRow({
 
 function ExpandableRow({
   row,
+  showTermColumn,
   onAdd,
   onOpenModal,
 }: {
   readonly row: CourseRow;
+  readonly showTermColumn: boolean;
   readonly onAdd: (courseListing: CatalogListing) => void;
   readonly onOpenModal: (courseListing: CatalogListing) => void;
 }) {
   const { expanded, toggle } = useStore(
     useShallow((s) => ({
-      expanded: s.catalogExpandedCourses.has(row.courseId),
+      expanded: s.catalogExpandedCourses.has(row.rowId),
       toggle: s.toggleCatalogExpanded,
     })),
   );
 
   const listing = row.listings[0]!;
-  const toggleExpanded = () => toggle(row.courseId);
+  const toggleExpanded = () => toggle(row.rowId);
   const openModal = () => onOpenModal(listing);
 
   const parentRow = (
@@ -384,8 +465,13 @@ function ExpandableRow({
         )}
         onClick={openModal}
       >
-        {row.title}
+        <CourseTitle title={row.title} />
       </button>
+      {showTermColumn && (
+        <div className={clsx(styles.cell, styles.termCell)}>
+          <TermBadge seasonCode={row.seasonCode} />
+        </div>
+      )}
       <div
         className={clsx(styles.cell, styles.instructorCell, styles.summaryText)}
       >
@@ -482,6 +568,9 @@ function ExpandableRow({
                     variant="subrow"
                   />
                 </div>
+                {showTermColumn && (
+                  <div className={clsx(styles.cell, styles.termCell)} />
+                )}
                 <div className={clsx(styles.cell, styles.instructorCell)}>
                   {sec.instructors[0] ?? 'Staff'}
                 </div>
@@ -524,14 +613,19 @@ export default function CatalogTable({
     if (!data) return [];
     return sortRows(groupListingsByCourse(data), sortKey, sortAsc);
   }, [data, sortKey, sortAsc]);
+  const showTermColumn = useMemo(
+    () => new Set(courseRows.map((row) => row.seasonCode)).size > 1,
+    [courseRows],
+  );
 
   const renderRow = useCallback(
     (row: CourseRow) => {
       if (row.totalSections > 1) {
         return (
           <ExpandableRow
-            key={row.courseId}
+            key={row.rowId}
             row={row}
+            showTermColumn={showTermColumn}
             onAdd={onAdd}
             onOpenModal={onOpenModal}
           />
@@ -539,19 +633,25 @@ export default function CatalogTable({
       }
       return (
         <FlatRow
-          key={row.courseId}
+          key={row.rowId}
           row={row}
+          showTermColumn={showTermColumn}
           onAdd={onAdd}
           onOpenModal={onOpenModal}
         />
       );
     },
-    [onAdd, onOpenModal],
+    [onAdd, onOpenModal, showTermColumn],
   );
 
   return (
     <div className={styles.tableWrapper}>
-      <div className={styles.tableInner}>
+      <div
+        className={clsx(
+          styles.tableInner,
+          showTermColumn && styles.tableInnerWithTerm,
+        )}
+      >
         <div className={styles.header}>
           <div className={clsx(styles.headerCell, styles.colAdd)} />
           <SortHeader label="Code" sortKey="code" className={styles.colCode} />
@@ -560,6 +660,13 @@ export default function CatalogTable({
             sortKey="title"
             className={styles.colTitle}
           />
+          {showTermColumn && (
+            <SortHeader
+              label="Term"
+              sortKey="term"
+              className={styles.colTerm}
+            />
+          )}
           <div className={clsx(styles.headerCell, styles.colInstructor)}>
             Instructors
           </div>
