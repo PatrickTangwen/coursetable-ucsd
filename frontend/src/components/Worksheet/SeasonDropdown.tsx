@@ -2,17 +2,34 @@ import { useMemo } from 'react';
 import { Dropdown, DropdownButton } from 'react-bootstrap';
 
 import { useShallow } from 'zustand/react/shallow';
+import { useFerry } from '../../hooks/useFerry';
 import type { Season } from '../../queries/graphql-types';
 import type { Option } from '../../search/searchTypes';
 import { useStore } from '../../store';
 import { toSeasonString } from '../../utilities/course';
+import { supportedTermCodes } from '../../utilities/termPlanning';
 import { Popout } from '../Search/Popout';
 import { PopoutSelect } from '../Search/PopoutSelect';
 
+function useWorksheetSeasonCodes() {
+  const fallbackSeasonCodes = useStore((state) =>
+    state.worksheetMemo.getSeasonCodes(state),
+  );
+  const { courses } = useFerry();
+  const registryTerms = useMemo(
+    () =>
+      Object.values(courses).flatMap((catalog) => catalog.metadata.terms ?? []),
+    [courses],
+  );
+  return registryTerms.length > 0
+    ? supportedTermCodes(registryTerms)
+    : fallbackSeasonCodes;
+}
+
 function SeasonDropdownDesktop() {
-  const { seasonCodes, viewedSeason, changeViewedSeason } = useStore(
+  const seasonCodes = useWorksheetSeasonCodes();
+  const { viewedSeason, changeViewedSeason } = useStore(
     useShallow((state) => ({
-      seasonCodes: state.worksheetMemo.getSeasonCodes(state),
       viewedSeason: state.viewedSeason,
       changeViewedSeason: state.changeViewedSeason,
     })),
@@ -53,9 +70,9 @@ function SeasonDropdownDesktop() {
 }
 
 function SeasonDropdownMobile() {
-  const { seasonCodes, viewedSeason, changeViewedSeason } = useStore(
+  const seasonCodes = useWorksheetSeasonCodes();
+  const { viewedSeason, changeViewedSeason } = useStore(
     useShallow((state) => ({
-      seasonCodes: state.worksheetMemo.getSeasonCodes(state),
       viewedSeason: state.viewedSeason,
       changeViewedSeason: state.changeViewedSeason,
     })),

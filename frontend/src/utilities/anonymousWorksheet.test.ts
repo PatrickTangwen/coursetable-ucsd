@@ -4,6 +4,7 @@ import {
   anonymousWorksheetFromShare,
   anonymousWorksheetHasListing,
   createAnonymousWorksheetShareUrl,
+  getAnonymousWorksheetCourses,
   parseAnonymousWorksheetShare,
   readAnonymousWorksheetStorage,
   removeListingFromAnonymousWorksheet,
@@ -75,7 +76,7 @@ describe('anonymous worksheet behavior', () => {
     });
     const empty: AnonymousWorksheetState = {
       term: 'FA26' as Season,
-      courses: [],
+      coursesByTerm: {},
     };
 
     const added = addListingToAnonymousWorksheet(empty, listing, '#123456');
@@ -83,15 +84,17 @@ describe('anonymous worksheet behavior', () => {
     const removed = removeListingFromAnonymousWorksheet(added, listing);
 
     expect(anonymousWorksheetHasListing(added, listing)).toBe(true);
-    expect(added.courses).toEqual([
+    expect(getAnonymousWorksheetCourses(added, 'FA26' as Season)).toEqual([
       {
         sectionId: 'FA26:CSE-TRACER-3',
         color: '#123456',
         hidden: false,
       },
     ]);
-    expect(duplicate.courses).toHaveLength(1);
-    expect(removed.courses).toEqual([]);
+    expect(
+      getAnonymousWorksheetCourses(duplicate, 'FA26' as Season),
+    ).toHaveLength(1);
+    expect(getAnonymousWorksheetCourses(removed, 'FA26' as Season)).toEqual([]);
   });
 
   it('allows adding overlapping Sections to an anonymous worksheet', () => {
@@ -119,7 +122,7 @@ describe('anonymous worksheet behavior', () => {
     });
     const empty: AnonymousWorksheetState = {
       term: 'FA26' as Season,
-      courses: [],
+      coursesByTerm: {},
     };
 
     const withFirst = addListingToAnonymousWorksheet(empty, first, '#123456');
@@ -135,9 +138,38 @@ describe('anonymous worksheet behavior', () => {
         second,
       ),
     ).toEqual([first]);
-    expect(withSecond.courses.map((course) => course.sectionId)).toEqual([
-      'FA26:CSE-TRACER-3',
-      'FA26:MATH-TRACER-2',
+    expect(
+      getAnonymousWorksheetCourses(withSecond, 'FA26' as Season).map(
+        (course) => course.sectionId,
+      ),
+    ).toEqual(['FA26:CSE-TRACER-3', 'FA26:MATH-TRACER-2']);
+  });
+
+  it('keeps anonymous worksheet sections keyed by their own terms', () => {
+    const fa26 = createListing({
+      crn: 101,
+      sectionId: 'FA26:CSE-TRACER-3',
+      season: 'FA26' as Season,
+    });
+    const wi27 = createListing({
+      crn: 202,
+      sectionId: 'WI27:MATH-TRACER-2',
+      season: 'WI27' as Season,
+    });
+    const empty: AnonymousWorksheetState = {
+      term: 'FA26' as Season,
+      coursesByTerm: {},
+    };
+
+    const withFa26 = addListingToAnonymousWorksheet(empty, fa26, '#123456');
+    const withBoth = addListingToAnonymousWorksheet(withFa26, wi27, '#abcdef');
+
+    expect(withBoth.term).toBe('FA26');
+    expect(getAnonymousWorksheetCourses(withBoth, 'FA26' as Season)).toEqual([
+      { sectionId: 'FA26:CSE-TRACER-3', color: '#123456', hidden: false },
+    ]);
+    expect(getAnonymousWorksheetCourses(withBoth, 'WI27' as Season)).toEqual([
+      { sectionId: 'WI27:MATH-TRACER-2', color: '#abcdef', hidden: false },
     ]);
   });
 
@@ -146,18 +178,43 @@ describe('anonymous worksheet behavior', () => {
     vi.stubGlobal('window', { localStorage });
     const worksheet: AnonymousWorksheetState = {
       term: 'FA26' as Season,
-      courses: [
-        {
-          sectionId: 'FA26:CSE-TRACER-3',
-          color: '#123456',
-          hidden: true,
-        },
-      ],
+      coursesByTerm: {
+        FA26: [
+          {
+            sectionId: 'FA26:CSE-TRACER-3',
+            color: '#123456',
+            hidden: true,
+          },
+        ],
+      },
     };
 
     writeAnonymousWorksheetStorage(worksheet);
 
     expect(readAnonymousWorksheetStorage('FA26' as Season)).toEqual(worksheet);
+  });
+
+  it('migrates legacy single-term anonymous worksheet storage', () => {
+    const localStorage = createStorage();
+    vi.stubGlobal('window', { localStorage });
+    localStorage.setItem(
+      'anonymousWorksheet',
+      JSON.stringify({
+        term: 'FA26',
+        courses: [
+          { sectionId: 'FA26:CSE-TRACER-3', color: '#123456', hidden: true },
+        ],
+      }),
+    );
+
+    expect(readAnonymousWorksheetStorage('FA26' as Season)).toEqual({
+      term: 'FA26',
+      coursesByTerm: {
+        FA26: [
+          { sectionId: 'FA26:CSE-TRACER-3', color: '#123456', hidden: true },
+        ],
+      },
+    });
   });
 
   it('encodes share URLs with only the Active Planning Term and Section IDs', () => {

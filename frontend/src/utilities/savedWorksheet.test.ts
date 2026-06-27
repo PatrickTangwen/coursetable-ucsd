@@ -58,10 +58,12 @@ describe('saved worksheet helpers', () => {
     expect(
       buildSaveAnonymousWorksheetPayload('  My worksheet  ', {
         term: testTerm,
-        courses: [
-          { sectionId: 'FA26-123', color: '#55aaff', hidden: false },
-          { sectionId: 'FA26-456', color: '#ee6677', hidden: true },
-        ],
+        coursesByTerm: {
+          FA26: [
+            { sectionId: 'FA26-123', color: '#55aaff', hidden: false },
+            { sectionId: 'FA26-456', color: '#ee6677', hidden: true },
+          ],
+        },
       }),
     ).toEqual({
       name: 'My worksheet',
@@ -91,10 +93,12 @@ describe('saved worksheet helpers', () => {
       }),
     ).toEqual({
       term: testTerm,
-      courses: [
-        { sectionId: 'FA26:CSE-TRACER-3', color: '#55aaff', hidden: false },
-        { sectionId: 'FA26:MATH-TRACER-2', color: '#ee6677', hidden: true },
-      ],
+      coursesByTerm: {
+        FA26: [
+          { sectionId: 'FA26:CSE-TRACER-3', color: '#55aaff', hidden: false },
+          { sectionId: 'FA26:MATH-TRACER-2', color: '#ee6677', hidden: true },
+        ],
+      },
     });
   });
 

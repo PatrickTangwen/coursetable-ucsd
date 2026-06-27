@@ -1,4 +1,5 @@
 import {
+  getAnonymousWorksheetCourses,
   normalizeAnonymousWorksheet,
   type AnonymousWorksheetState,
 } from './anonymousWorksheet';
@@ -31,7 +32,7 @@ export function buildSaveAnonymousWorksheetPayload(
   return {
     name: name.trim(),
     term: worksheet.term,
-    courses: worksheet.courses.map((course) => ({
+    courses: getAnonymousWorksheetCourses(worksheet).map((course) => ({
       sectionId: course.sectionId,
       color: course.color,
       hidden: course.hidden,

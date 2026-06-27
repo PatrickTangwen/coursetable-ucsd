@@ -5,6 +5,7 @@ import type {
   SavedWorksheetSummary,
 } from '../queries/api';
 import type { Season } from '../queries/graphql-types';
+import { getAnonymousWorksheetCourses } from '../utilities/anonymousWorksheet';
 
 const apiMocks = vi.hoisted(() => ({
   createBlankSavedWorksheet: vi.fn(),
@@ -221,7 +222,9 @@ describe('Saved Worksheet slice behavior', () => {
     useStore.setState({
       anonymousWorksheet: {
         term: s126,
-        courses: [{ sectionId: 'S126-123', color: '#123456', hidden: false }],
+        coursesByTerm: {
+          S126: [{ sectionId: 'S126-123', color: '#123456', hidden: false }],
+        },
       },
     });
     apiMocks.ensureMainSavedWorksheet.mockResolvedValue(mainWorksheet);
@@ -233,9 +236,12 @@ describe('Saved Worksheet slice behavior', () => {
 
     expect(useStore.getState().activeSavedWorksheet?.id).toBe(10);
     expect(useStore.getState().viewAnonymousWorksheet).toBe(false);
-    expect(useStore.getState().anonymousWorksheet.courses).toEqual([
-      { sectionId: 'S126-123', color: '#123456', hidden: false },
-    ]);
+    expect(
+      getAnonymousWorksheetCourses(
+        useStore.getState().anonymousWorksheet,
+        s126,
+      ),
+    ).toEqual([{ sectionId: 'S126-123', color: '#123456', hidden: false }]);
   });
 
   it('renames the active Saved Worksheet in state after a successful API update', async () => {
@@ -404,14 +410,52 @@ describe('Saved Worksheet slice behavior', () => {
 
     expect(changed).toBe(true);
     expect(apiMocks.updateSavedWorksheetSections).not.toHaveBeenCalled();
-    expect(useStore.getState().anonymousWorksheet.courses).toEqual([
-      { sectionId: 'S126-123', color: '#123456', hidden: false },
-    ]);
+    expect(
+      getAnonymousWorksheetCourses(
+        useStore.getState().anonymousWorksheet,
+        s126,
+      ),
+    ).toEqual([{ sectionId: 'S126-123', color: '#123456', hidden: false }]);
     expect(localStorage.getItem('anonymousWorksheet')).toBe(
       JSON.stringify({
-        term: 'S126',
-        courses: [{ sectionId: 'S126-123', color: '#123456', hidden: false }],
+        term: 'SP26',
+        coursesByTerm: {
+          S126: [{ sectionId: 'S126-123', color: '#123456', hidden: false }],
+        },
       }),
     );
+  });
+
+  it('keeps signed-out cross-term worksheet edits isolated by term', async () => {
+    const useStore = await loadStore({ signedIn: false });
+    const fallListing = {
+      crn: '456' as never,
+      section_id: 'FA26-456',
+      course: {
+        season_code: 'FA26' as Season,
+        listings: [{ crn: '456' as never, section_id: 'FA26-456' }],
+      },
+    };
+
+    expect(
+      useStore.getState().addAnonymousWorksheetListing(firstListing, '#123456'),
+    ).toBe(true);
+    expect(
+      useStore.getState().addAnonymousWorksheetListing(fallListing, '#abcdef'),
+    ).toBe(true);
+
+    expect(useStore.getState().viewedSeason).toBe('SP26');
+    expect(
+      getAnonymousWorksheetCourses(
+        useStore.getState().anonymousWorksheet,
+        s126,
+      ),
+    ).toEqual([{ sectionId: 'S126-123', color: '#123456', hidden: false }]);
+    expect(
+      getAnonymousWorksheetCourses(
+        useStore.getState().anonymousWorksheet,
+        'FA26' as Season,
+      ),
+    ).toEqual([{ sectionId: 'FA26-456', color: '#abcdef', hidden: false }]);
   });
 });

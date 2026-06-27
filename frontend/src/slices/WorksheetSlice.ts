@@ -6,7 +6,7 @@ import { z } from 'zod';
 import type { StateCreator } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 import { CUR_SEASON } from '../config';
-import { seasons as allSeasons } from '../data/catalogSeasons';
+import { supportedTerms as allSeasons } from '../data/catalogSeasons';
 import { useCourseData, useWorksheetInfo } from '../hooks/useFerry';
 import {
   createBlankSavedWorksheet,
@@ -268,7 +268,6 @@ export const createWorksheetSlice: StateCreator<
     set({
       anonymousWorksheet: worksheet,
       viewedPerson: 'me',
-      viewedSeason: worksheet.term,
       viewedWorksheetNumber: 0,
     });
   };
@@ -363,7 +362,16 @@ export const createWorksheetSlice: StateCreator<
       set({ viewedWorksheetNumber: 0, viewedPerson: newPerson });
     },
     changeViewedSeason(seasonCode) {
-      set({ viewedWorksheetNumber: 0, viewedSeason: seasonCode });
+      const nextAnonymousWorksheet = {
+        ...get().anonymousWorksheet,
+        term: seasonCode,
+      };
+      writeAnonymousWorksheetStorage(nextAnonymousWorksheet);
+      set({
+        anonymousWorksheet: nextAnonymousWorksheet,
+        viewedWorksheetNumber: 0,
+        viewedSeason: seasonCode,
+      });
     },
     changeViewedWorksheetNumber(worksheetNumber) {
       set({ viewedWorksheetNumber: worksheetNumber });
@@ -406,11 +414,15 @@ export const createWorksheetSlice: StateCreator<
           (index) => worksheetColors[index % worksheetColors.length]!,
         ),
       );
-      set({ viewAnonymousWorksheet: true });
+      set({ viewAnonymousWorksheet: true, viewedSeason: share.term });
     },
     restoreSavedWorksheet(worksheet) {
       setAnonymousWorksheet(buildRestoredAnonymousWorksheet(worksheet));
-      set({ viewAnonymousWorksheet: true, exoticWorksheet: undefined });
+      set({
+        viewAnonymousWorksheet: true,
+        exoticWorksheet: undefined,
+        viewedSeason: worksheet.term as Season,
+      });
       if (typeof window !== 'undefined') {
         const searchParams = new URLSearchParams(window.location.search);
         searchParams.delete('ws');
@@ -731,13 +743,22 @@ export const createWorksheetSlice: StateCreator<
     },
     setAllAnonymousWorksheetHidden(hidden) {
       setAnonymousWorksheet(
-        setAllAnonymousWorksheetCoursesHidden(get().anonymousWorksheet, hidden),
+        setAllAnonymousWorksheetCoursesHidden(
+          get().anonymousWorksheet,
+          hidden,
+          get().viewedSeason,
+        ),
       );
     },
     clearAnonymousWorksheet() {
+      const term = get().viewedSeason;
       setAnonymousWorksheet({
-        term: get().anonymousWorksheet.term,
-        courses: [],
+        ...get().anonymousWorksheet,
+        term,
+        coursesByTerm: {
+          ...get().anonymousWorksheet.coursesByTerm,
+          [term]: [],
+        },
       });
     },
     setAnonymousWorksheetMissingSectionIds(sectionIds) {
@@ -846,8 +867,8 @@ export const useWorksheetEffects = () => {
   );
 
   const anonymousRequestedSeasons = useMemo(
-    () => (isAnonymousWorksheet ? [anonymousWorksheet.term] : []),
-    [anonymousWorksheet.term, isAnonymousWorksheet],
+    () => (isAnonymousWorksheet ? [viewedSeason] : []),
+    [isAnonymousWorksheet, viewedSeason],
   );
   const savedWorksheetRequestedSeasons = useMemo(
     () =>
@@ -870,9 +891,10 @@ export const useWorksheetEffects = () => {
     () =>
       resolveAnonymousWorksheet(
         anonymousWorksheet,
-        catalogCourses[anonymousWorksheet.term]?.data,
+        catalogCourses[viewedSeason]?.data,
+        viewedSeason,
       ),
-    [anonymousWorksheet, catalogCourses],
+    [anonymousWorksheet, catalogCourses, viewedSeason],
   );
   const activeSavedWorksheetState = useMemo(
     () =>
@@ -944,7 +966,7 @@ export const useWorksheetEffects = () => {
         : (activeSavedWorksheetResolved?.worksheets ?? curWorksheet)),
     exoticWorksheet?.data.season ??
       (isAnonymousWorksheet
-        ? anonymousWorksheet.term
+        ? viewedSeason
         : (activeSavedWorksheet?.term ?? viewedSeason)),
     exoticWorksheet || isAnonymousWorksheet || activeSavedWorksheet
       ? 0

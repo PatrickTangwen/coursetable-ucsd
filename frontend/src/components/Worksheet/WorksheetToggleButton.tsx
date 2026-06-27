@@ -18,7 +18,7 @@ import WorksheetStatusIcon from './WorksheetStatusIcon';
 import { CUR_YEAR } from '../../config';
 import { seasons } from '../../data/catalogSeasons';
 import type { LatestCurrentOfferingQuery } from '../../generated/graphql-types';
-import { useWorksheetInfo } from '../../hooks/useFerry';
+import { useFerry, useWorksheetInfo } from '../../hooks/useFerry';
 import { isLegacyUserInfo, updateWorksheetCourses } from '../../queries/api';
 import { LatestCurrentOfferingDocument } from '../../queries/graphql-queries';
 import type { Season } from '../../queries/graphql-types';
@@ -38,6 +38,7 @@ import {
   toSeasonString,
   type ListingWithTimes,
 } from '../../utilities/course';
+import { isPlannableTerm } from '../../utilities/termPlanning';
 import { Popout } from '../Search/Popout';
 import { PopoutSelect } from '../Search/PopoutSelect';
 import styles from './WorksheetToggleButton.module.css';
@@ -77,12 +78,25 @@ function CourseConflictIcon({
   );
   const worksheetData =
     isAnonymousWorksheet || activeSavedWorksheet ? courses : data;
+  const { courses: catalogData } = useFerry();
+  const supportedTerms = useMemo(
+    () =>
+      Object.values(catalogData).flatMap(
+        (catalog) => catalog.metadata.terms ?? [],
+      ),
+    [catalogData],
+  );
+  const termMetadata = useMemo(
+    () =>
+      supportedTerms.find((term) => term.term === listing.course.season_code),
+    [listing.course.season_code, supportedTerms],
+  );
 
   const warning = useMemo(() => {
     // If the course is in the worksheet, we never report a conflict
     if (inWorksheet) return undefined;
     if (modal) {
-      if (!CUR_YEAR.includes(listing.course.season_code))
+      if (!isPlannableTerm(termMetadata))
         return 'This will add to a worksheet of a semester that has already ended.';
       return undefined;
     }
@@ -90,7 +104,7 @@ function CourseConflictIcon({
     if (conflicts.length > 0)
       return `Conflicts with: ${conflicts.map((x) => x.course_code).join(', ')}`;
     return undefined;
-  }, [inWorksheet, modal, listing, worksheetData]);
+  }, [inWorksheet, modal, listing, termMetadata, worksheetData]);
 
   return (
     <Fade in={Boolean(warning)}>
