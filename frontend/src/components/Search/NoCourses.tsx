@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
 import NoCoursesFound from '../../images/no_courses_found.svg';
@@ -5,7 +6,13 @@ import { useStore } from '../../store';
 import { toSeasonString } from '../../utilities/course';
 import { createCatalogLink } from '../../utilities/navigation';
 
-function NoCourses() {
+function NoCourses({
+  heading,
+  children,
+}: {
+  readonly heading?: ReactNode;
+  readonly children?: ReactNode;
+}) {
   const viewedSeason = useStore((state) => state.viewedSeason);
 
   return (
@@ -17,10 +24,15 @@ function NoCourses() {
           src={NoCoursesFound}
           style={{ width: '50%' }}
         />
-        <h3>No courses found for {toSeasonString(viewedSeason)}</h3>
-        <div>
-          Add some courses on the <Link to={createCatalogLink()}>Catalog</Link>.
-        </div>
+        <h3>
+          {heading ?? `No courses found for ${toSeasonString(viewedSeason)}`}
+        </h3>
+        {children ?? (
+          <div>
+            Add some courses on the{' '}
+            <Link to={createCatalogLink()}>Catalog</Link>.
+          </div>
+        )}
       </div>
     </div>
   );

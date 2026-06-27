@@ -15,7 +15,7 @@ import { supportedTermCodes } from '../../utilities/termPlanning';
 import { Popout } from '../Search/Popout';
 import { PopoutSelect } from '../Search/PopoutSelect';
 
-function useWorksheetSeasonCodes() {
+export function useWorksheetSeasonCodes() {
   const fallbackSeasonCodes = useStore((state) =>
     state.worksheetMemo.getSeasonCodes(state),
   );

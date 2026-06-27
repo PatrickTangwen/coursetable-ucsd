@@ -20,6 +20,10 @@ import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
 
 import ICSExportButton from './ICSExportButton';
+import {
+  getAnonymousWorksheetCourseCountsByTerm,
+  useWorksheetSeasonCodes,
+} from './SeasonDropdown';
 import URLExportButton from './URLExportButton';
 import WorksheetCalendarListContext from './WorksheetCalendarListContext';
 import WorksheetCalendarListItem from './WorksheetCalendarListItem';
@@ -36,6 +40,8 @@ import {
   type WorksheetCourse,
 } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
+import type { AnonymousWorksheetState } from '../../utilities/anonymousWorksheet';
+import { toSeasonString } from '../../utilities/course';
 import NoCourses from '../Search/NoCourses';
 import { SurfaceComponent } from '../Typography';
 import styles from './WorksheetCalendarList.module.css';
@@ -48,6 +54,31 @@ type CourseImportAction = {
   color: string;
   hidden: boolean;
 };
+
+type AnonymousWorksheetTermChip = {
+  term: Season;
+  count: number;
+  label: string;
+};
+
+export function getAnonymousWorksheetTermChips(
+  anonymousWorksheet: AnonymousWorksheetState,
+  seasonCodes: readonly Season[],
+  viewedSeason: Season,
+): AnonymousWorksheetTermChip[] {
+  const counts = getAnonymousWorksheetCourseCountsByTerm(anonymousWorksheet);
+  return seasonCodes.flatMap((term) => {
+    const count = counts[term];
+    if (!count || term === viewedSeason) return [];
+    return [
+      {
+        term,
+        count,
+        label: `${toSeasonString(term)} (${count})`,
+      },
+    ];
+  });
+}
 
 function buildCourseImports(
   currentCourses: readonly WorksheetCourse[],
@@ -106,6 +137,8 @@ function WorksheetCalendarList({
     worksheets,
     user,
     isAnonymousWorksheet,
+    anonymousWorksheet,
+    changeViewedSeason,
     setAllAnonymousWorksheetHidden,
     setAllActiveSavedWorksheetHidden,
     clearAnonymousWorksheet,
@@ -124,6 +157,8 @@ function WorksheetCalendarList({
       worksheets: state.worksheets,
       user: state.user,
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+      anonymousWorksheet: state.anonymousWorksheet,
+      changeViewedSeason: state.changeViewedSeason,
       setAllAnonymousWorksheetHidden: state.setAllAnonymousWorksheetHidden,
       setAllActiveSavedWorksheetHidden: state.setAllActiveSavedWorksheetHidden,
       clearAnonymousWorksheet: state.clearAnonymousWorksheet,
@@ -132,6 +167,24 @@ function WorksheetCalendarList({
   );
 
   const worksheetsRefresh = useStore((state) => state.worksheetsRefresh);
+  const seasonCodes = useWorksheetSeasonCodes();
+  const anonymousEmptyTermChips = useMemo(
+    () =>
+      isAnonymousWorksheet && courses.length === 0
+        ? getAnonymousWorksheetTermChips(
+            anonymousWorksheet,
+            seasonCodes,
+            viewedSeason,
+          )
+        : [],
+    [
+      anonymousWorksheet,
+      courses.length,
+      isAnonymousWorksheet,
+      seasonCodes,
+      viewedSeason,
+    ],
+  );
 
   const areHidden = useMemo(
     () => courses.length > 0 && courses.every((course) => course.hidden),
@@ -511,7 +564,33 @@ function WorksheetCalendarList({
               ))}
             </ListGroup>
           ) : (
-            <NoCourses />
+            <NoCourses
+              heading={
+                anonymousEmptyTermChips.length > 0
+                  ? `${toSeasonString(viewedSeason)} worksheet is empty`
+                  : undefined
+              }
+            >
+              {anonymousEmptyTermChips.length > 0 ? (
+                <div className={styles.emptyTermContent}>
+                  <p className={styles.emptyTermText}>
+                    This term&apos;s worksheet is empty. Your courses are in:
+                  </p>
+                  <div className={styles.emptyTermChips}>
+                    {anonymousEmptyTermChips.map((chip) => (
+                      <button
+                        key={chip.term}
+                        type="button"
+                        className={styles.emptyTermChip}
+                        onClick={() => changeViewedSeason(chip.term)}
+                      >
+                        {chip.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : undefined}
+            </NoCourses>
           )}
         </WorksheetCalendarListContext.Provider>
       </SurfaceComponent>

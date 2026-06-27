@@ -150,3 +150,41 @@
   gap: 0.35rem;
   padding-left: 0.5rem !important;
 }
+
+.emptyTermContent {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+}
+
+.emptyTermText {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.emptyTermChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.emptyTermChip {
+  border: 1px solid var(--color-border-control);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  background: var(--color-select);
+  color: var(--color-text);
+  font-weight: 600;
+  transition:
+    background-color var(--trans-dur),
+    border-color var(--trans-dur),
+    color var(--trans-dur);
+}
+
+.emptyTermChip:hover,
+.emptyTermChip:focus {
+  border-color: var(--color-primary);
+  background: var(--color-surface-active);
+  color: var(--color-primary);
+}
