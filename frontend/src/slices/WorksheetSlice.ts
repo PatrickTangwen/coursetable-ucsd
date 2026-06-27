@@ -112,6 +112,7 @@ interface WorksheetState {
   activeSavedWorksheetOwnerId: number | undefined;
   activeSavedWorksheetIdsByTerm: { [term: string]: number | undefined };
   crossTermSavedSections: { [term: string]: SavedWorksheetSection[] };
+  allTermSavedWorksheetSummaries: SavedWorksheetSummary[];
   savedWorksheetSummaries: SavedWorksheetSummary[];
   savedWorksheetListStatus: 'idle' | 'loading' | 'ready' | 'error';
   savedWorksheetListError: Error | null;
@@ -153,6 +154,7 @@ interface WorksheetActions {
   refreshSavedWorksheetsForTerm: (
     term: Season,
   ) => Promise<SavedWorksheetSummary[]>;
+  refreshAllTermSavedWorksheetSummaries: () => Promise<void>;
   selectSavedWorksheet: (id: number) => Promise<boolean>;
   createBlankSavedWorksheetForTerm: (term: Season) => Promise<boolean>;
   renameSavedWorksheet: (id: number, name: string) => Promise<boolean>;
@@ -363,8 +365,8 @@ export const createWorksheetSlice: StateCreator<
   ): Promise<SavedWorksheet | null> => {
     const rememberedId = get().activeSavedWorksheetIdsByTerm[term];
     if (rememberedId) {
-      const worksheet = await fetchSavedWorksheet(rememberedId);
-      if (worksheet?.term === term) return worksheet;
+      const remembered = await fetchSavedWorksheet(rememberedId);
+      if (remembered?.term === term) return remembered;
     }
     const worksheet = await ensureMainSavedWorksheet(term);
     if (!worksheet) return null;
@@ -413,6 +415,7 @@ export const createWorksheetSlice: StateCreator<
     activeSavedWorksheetOwnerId: undefined,
     activeSavedWorksheetIdsByTerm: {},
     crossTermSavedSections: {},
+    allTermSavedWorksheetSummaries: [],
     savedWorksheetSummaries: [],
     savedWorksheetListStatus: 'idle',
     savedWorksheetListError: null,
@@ -502,11 +505,13 @@ export const createWorksheetSlice: StateCreator<
             const rememberedWorksheet = await fetchSavedWorksheet(rememberedId);
             if (rememberedWorksheet?.term === term) {
               activateSavedWorksheet(rememberedWorksheet, user.user_id);
+              void get().refreshAllTermSavedWorksheetSummaries();
               return;
             }
           }
 
           activateSavedWorksheet(mainWorksheet, user.user_id);
+          void get().refreshAllTermSavedWorksheetSummaries();
         } catch (error: unknown) {
           set({
             savedWorksheetBootstrapStatus: 'error',
@@ -545,6 +550,15 @@ export const createWorksheetSlice: StateCreator<
           savedWorksheetListError: toError(error),
         });
         return [];
+      }
+    },
+    async refreshAllTermSavedWorksheetSummaries() {
+      if (!hasSavedWorksheetAccount()) return;
+      try {
+        const response = await fetchSavedWorksheets();
+        set({ allTermSavedWorksheetSummaries: response?.data ?? [] });
+      } catch {
+        // Non-critical; don't block the user
       }
     },
     async selectSavedWorksheet(id) {
@@ -692,6 +706,7 @@ export const createWorksheetSlice: StateCreator<
               [listingTerm]: updatedWorksheet.sections,
             },
           });
+          void get().refreshAllTermSavedWorksheetSummaries();
           return true;
         } catch {
           toast.error(
@@ -733,15 +748,15 @@ export const createWorksheetSlice: StateCreator<
             );
             return false;
           }
-          const nextSections = targetWorksheet.sections.filter(
+          const crossTermNextSections = targetWorksheet.sections.filter(
             (section) => section.sectionId !== sectionId,
           );
-          if (nextSections.length === targetWorksheet.sections.length)
+          if (crossTermNextSections.length === targetWorksheet.sections.length)
             return false;
 
           const updatedWorksheet = await updateSavedWorksheetSections(
             targetWorksheet.id,
-            nextSections,
+            crossTermNextSections,
           );
           if (!updatedWorksheet) {
             toast.error(
@@ -756,6 +771,7 @@ export const createWorksheetSlice: StateCreator<
               [listingTerm]: updatedWorksheet.sections,
             },
           });
+          void get().refreshAllTermSavedWorksheetSummaries();
           return true;
         } catch {
           toast.error(
