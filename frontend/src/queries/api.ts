@@ -427,8 +427,25 @@ export function setCourseHidden({
   });
 }
 
+// One Supported Term advertised by the Catalog Snapshot pipeline's term
+// registry. The catalog term selector is driven by this list (UCSD alpha term
+// codes), not the inherited numeric Yale season codes. See ADR 0012.
+const supportedTermSchema = z.object({
+  term: z.string(),
+  label: z.string(),
+  date_range: z.object({ start: z.string(), end: z.string() }).nullable(),
+  frozen: z.boolean(),
+  generated_at: z.string(),
+  snapshot_path: z.string(),
+  manifest_path: z.string().nullable(),
+});
+
+export type SupportedTerm = z.infer<typeof supportedTermSchema>;
+
 const catalogMetadataSchema = z.object({
   last_update: z.string().transform((x) => new Date(x)),
+  // Optional for backward compatibility with single-term metadata.
+  terms: z.array(supportedTermSchema).optional(),
 });
 
 export type CatalogMetadata = z.infer<typeof catalogMetadataSchema>;

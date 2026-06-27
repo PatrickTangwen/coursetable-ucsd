@@ -1,6 +1,6 @@
 import { type Filters, type Option, sortByOptions } from './searchTypes';
 import { CUR_SEASON } from '../config';
-import { seasons } from '../data/catalogSeasons';
+import { supportedTerms } from '../data/catalogSeasons';
 import buildingsData from '../generated/buildings.json';
 import type { Buildings } from '../generated/graphql-types';
 import type { Season } from '../queries/graphql-types';
@@ -49,7 +49,7 @@ export const buildingOptions = buildings.map(
   }),
 );
 
-export const seasonsOptions = seasons.map(
+export const seasonsOptions = supportedTerms.map(
   (x): Option<Season> => ({
     value: x,
     label: toSeasonString(x),

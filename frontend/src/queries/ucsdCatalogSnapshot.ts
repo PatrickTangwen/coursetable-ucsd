@@ -114,10 +114,12 @@ const ucsdCatalogSnapshotSchema = z.object({
   generated_at: z.string(),
   active_planning_term: z.string(),
   term_label: z.string(),
-  term_date_range: z.object({
-    start: z.string(),
-    end: z.string(),
-  }),
+  term_date_range: z
+    .object({
+      start: z.string(),
+      end: z.string(),
+    })
+    .nullable(),
   configured_subjects: z.array(z.string()),
   source_timestamps: sourceTimestampsSchema,
   courses: z.array(ucsdCourseSchema),
