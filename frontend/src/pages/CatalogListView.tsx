@@ -85,7 +85,8 @@ export default function CatalogListView() {
           if (added) toast.success(`Added ${label} to worksheet`);
         });
       } else {
-        addAnonymousWorksheetListing(listing, color);
+        const added = addAnonymousWorksheetListing(listing, color);
+        if (added) toast.success(`Added ${label} to worksheet`);
       }
     },
     [authStatus, addActiveSavedWorksheetListing, addAnonymousWorksheetListing],

@@ -325,6 +325,11 @@ function WorksheetToggleButton({
               ]!,
             );
         if (changed && inWorksheet) toast.success('Removed from worksheet');
+        if (changed && !inWorksheet) {
+          toast.success(
+            `Added ${listing.course_code ?? 'section'} to worksheet`,
+          );
+        }
         return;
       }
 
