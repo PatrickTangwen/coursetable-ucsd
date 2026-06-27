@@ -146,9 +146,9 @@ function Worksheet() {
   if (isListView && isMobile) {
     return (
       <>
-        {!isExoticWorksheet && !isAnonymousWorksheet && (
+        {!isExoticWorksheet && (
           <div className={styles.mobileListDropdowns}>
-            <WorksheetNumDropdown mobile />
+            {!isAnonymousWorksheet && <WorksheetNumDropdown mobile />}
             <SeasonDropdown mobile />
           </div>
         )}
@@ -160,9 +160,9 @@ function Worksheet() {
   // Calendar view (default)
   return (
     <div className={styles.container}>
-      {isMobile && !isExoticWorksheet && !isAnonymousWorksheet && (
+      {isMobile && !isExoticWorksheet && (
         <div className={styles.dropdowns}>
-          <WorksheetNumDropdown mobile />
+          {!isAnonymousWorksheet && <WorksheetNumDropdown mobile />}
           <SeasonDropdown mobile />
         </div>
       )}

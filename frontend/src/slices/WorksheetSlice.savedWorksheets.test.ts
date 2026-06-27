@@ -101,12 +101,20 @@ function toSummary(worksheet: SavedWorksheet): SavedWorksheetSummary {
 
 async function loadStore({
   signedIn = true,
+  anonymousWorksheetStorage,
 }: {
   signedIn?: boolean;
+  anonymousWorksheetStorage?: unknown;
 } = {}) {
   vi.resetModules();
   const localStorage = createStorage();
   const sessionStorage = createStorage();
+  if (anonymousWorksheetStorage) {
+    localStorage.setItem(
+      'anonymousWorksheet',
+      JSON.stringify(anonymousWorksheetStorage),
+    );
+  }
   vi.stubGlobal('localStorage', localStorage);
   vi.stubGlobal('sessionStorage', sessionStorage);
   vi.stubGlobal('window', {
@@ -424,6 +432,21 @@ describe('Saved Worksheet slice behavior', () => {
         },
       }),
     );
+  });
+
+  it('hydrates the signed-out Worksheet Viewed Term from browser-local storage', async () => {
+    const useStore = await loadStore({
+      signedIn: false,
+      anonymousWorksheetStorage: {
+        term: 'FA26',
+        coursesByTerm: {
+          FA26: [{ sectionId: 'FA26-456', color: '#abcdef', hidden: false }],
+        },
+      },
+    });
+
+    expect(useStore.getState().viewedSeason).toBe('FA26');
+    expect(useStore.getState().anonymousWorksheet.term).toBe('FA26');
   });
 
   it('keeps signed-out cross-term worksheet edits isolated by term', async () => {

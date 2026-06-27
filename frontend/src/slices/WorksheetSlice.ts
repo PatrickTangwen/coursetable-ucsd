@@ -262,6 +262,7 @@ export const createWorksheetSlice: StateCreator<
   [],
   WorksheetSlice
 > = (set, get) => {
+  const initialAnonymousWorksheet = readAnonymousWorksheetStorage(CUR_SEASON);
   const pendingMainSavedWorksheetByTerm = new Map<Season, Promise<void>>();
   const setAnonymousWorksheet = (worksheet: AnonymousWorksheetState) => {
     writeAnonymousWorksheetStorage(worksheet);
@@ -356,7 +357,7 @@ export const createWorksheetSlice: StateCreator<
 
   return {
     viewedPerson: 'me',
-    viewedSeason: CUR_SEASON,
+    viewedSeason: initialAnonymousWorksheet.term,
     viewedWorksheetNumber: 0,
     changeViewedPerson(newPerson) {
       set({ viewedWorksheetNumber: 0, viewedPerson: newPerson });
@@ -383,7 +384,7 @@ export const createWorksheetSlice: StateCreator<
     },
     exoticWorksheet: undefined,
     viewAnonymousWorksheet: false,
-    anonymousWorksheet: readAnonymousWorksheetStorage(CUR_SEASON),
+    anonymousWorksheet: initialAnonymousWorksheet,
     anonymousWorksheetMissingSectionIds: [],
     worksheetMissingSectionIds: [],
     activeSavedWorksheet: undefined,

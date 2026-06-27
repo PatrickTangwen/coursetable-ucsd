@@ -63,6 +63,36 @@ describe('NavbarWorksheetSearch', () => {
     expect(html).not.toContain('Add Friend');
   });
 
+  it('shows the term selector for signed-out desktop worksheet users', async () => {
+    const { NavbarWorksheetSearchView } =
+      await import('./NavbarWorksheetSearch');
+
+    const html = renderToStaticMarkup(
+      <NavbarWorksheetSearchView
+        isMobile={false}
+        worksheetView="calendar"
+        changeWorksheetView={() => {}}
+        isExoticWorksheet={false}
+        exitExoticWorksheet={() => {}}
+        hasLegacyWorksheetAccount={false}
+        hasSavedWorksheetAccount={false}
+        activeSavedWorksheet={undefined}
+        savedWorksheetSummaries={[]}
+        savedWorksheetListStatus="idle"
+        savedWorksheetBootstrapStatus="idle"
+        selectSavedWorksheet={() => Promise.resolve(true)}
+        createBlankSavedWorksheetForTerm={() => Promise.resolve(true)}
+        renameSavedWorksheet={() => Promise.resolve(true)}
+        deleteSavedWorksheet={() => Promise.resolve(true)}
+      />,
+    );
+
+    expect(html).toContain('Calendar');
+    expect(html).toContain('List');
+    expect(html).toContain('Spring 2026');
+    expect(html).not.toContain('New Worksheet');
+  });
+
   it('shows active-term Saved Worksheets and a blank-create action in the selector menu', async () => {
     const { SavedWorksheetMenuView } = await import('./NavbarWorksheetSearch');
 

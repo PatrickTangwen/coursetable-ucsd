@@ -689,11 +689,7 @@ export default function UcsdSnapshotCourseModal({
         );
         return;
       }
-      const anonymousAdded = addAnonymousWorksheetListing(
-        worksheetListing,
-        color,
-      );
-      if (anonymousAdded) toast.success(`Added ${label} to worksheet`);
+      addAnonymousWorksheetListing(worksheetListing, color);
     },
     [addActiveSavedWorksheetListing, addAnonymousWorksheetListing, authStatus],
   );

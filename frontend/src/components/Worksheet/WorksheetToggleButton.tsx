@@ -324,11 +324,7 @@ function WorksheetToggleButton({
                 Math.floor(Math.random() * worksheetColors.length)
               ]!,
             );
-        if (changed) {
-          toast.success(
-            inWorksheet ? 'Removed from worksheet' : 'Added to worksheet',
-          );
-        }
+        if (changed && inWorksheet) toast.success('Removed from worksheet');
         return;
       }
 

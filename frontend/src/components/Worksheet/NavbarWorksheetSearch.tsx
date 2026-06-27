@@ -455,7 +455,9 @@ export function NavbarWorksheetSearchView({
           renameSavedWorksheet={renameSavedWorksheet}
           deleteSavedWorksheet={deleteSavedWorksheet}
         />
-      ) : null}
+      ) : (
+        <SeasonDropdown mobile={false} />
+      )}
     </div>
   );
 }
