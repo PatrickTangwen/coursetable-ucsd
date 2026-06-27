@@ -129,28 +129,24 @@ describe('formatTime', () => {
 });
 
 describe('seatsColor', () => {
-  it('returns green below 60%', () => {
-    expect(seatsColor(29, 50)).toBe('available');
+  it('returns red below 25% availability', () => {
+    expect(seatsColor(29, 32)).toBe('critical');
   });
 
-  it('returns green at 59%', () => {
-    expect(seatsColor(59, 100)).toBe('available');
+  it('returns coral from 25% to below 50% availability', () => {
+    expect(seatsColor(20, 32)).toBe('low');
   });
 
-  it('returns blue at 60%', () => {
-    expect(seatsColor(60, 100)).toBe('filling');
+  it('returns amber from 50% to below 75% availability', () => {
+    expect(seatsColor(12, 32)).toBe('medium');
   });
 
-  it('returns blue at 89%', () => {
-    expect(seatsColor(89, 100)).toBe('filling');
+  it('returns teal from 75% to below 90% availability', () => {
+    expect(seatsColor(5, 32)).toBe('high');
   });
 
-  it('returns red at 90%', () => {
-    expect(seatsColor(90, 100)).toBe('nearly-full');
-  });
-
-  it('returns red at 100%', () => {
-    expect(seatsColor(50, 50)).toBe('nearly-full');
+  it('returns green at 90% availability and above', () => {
+    expect(seatsColor(3, 32)).toBe('available');
   });
 
   it('handles null enrolled', () => {

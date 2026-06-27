@@ -5,6 +5,7 @@ import {
   buildOfferingGroups,
   seatsColor,
   type OfferingGroup,
+  type SeatsStatus,
 } from '../../utilities/catalogView';
 
 export type UcsdModalListing =
@@ -26,11 +27,7 @@ export type UcsdSnapshotModalCourse = {
   selectedSectionCode: string | null;
 };
 
-export type UcsdAvailabilityStatus =
-  | 'available'
-  | 'filling'
-  | 'nearly-full'
-  | 'full';
+export type UcsdAvailabilityStatus = SeatsStatus | 'full';
 
 export type UcsdAvailabilityDisplay = {
   main: string;
@@ -193,19 +190,18 @@ export function formatUcsdAvailability(
     };
   }
 
-  const detail = `${enrolled}/${capacity}`;
   if (enrolled >= capacity) {
     return {
       main: waitlistCount > 0 ? `FULL · WL(${waitlistCount})` : 'FULL',
-      detail,
+      detail: '',
       status: 'full',
     };
   }
 
   const remaining = capacity - enrolled;
   return {
-    main: `${remaining} ${remaining === 1 ? 'seat' : 'seats'}`,
-    detail,
+    main: `${remaining} ${remaining === 1 ? 'seat' : 'seats'} left`,
+    detail: '',
     status: seatsColor(enrolled, capacity),
   };
 }

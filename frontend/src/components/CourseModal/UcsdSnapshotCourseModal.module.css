@@ -615,13 +615,25 @@
   text-align: right;
 }
 
-.availabilityFilling {
-  color: #b7791f;
+.availabilityCritical,
+.availabilityFull {
+  color: #e24b4a;
 }
 
-.availabilityNearlyFull,
-.availabilityFull {
-  color: #dc2626;
+.availabilityLow {
+  color: #d85a30;
+}
+
+.availabilityMedium {
+  color: #eda100;
+}
+
+.availabilityHigh {
+  color: #1d9e75;
+}
+
+.availabilityAvailable {
+  color: #639922;
 }
 
 .availabilityDetail {

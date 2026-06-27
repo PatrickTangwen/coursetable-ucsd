@@ -265,7 +265,7 @@ export default function FilterBar({
   const termChipLabel =
     selectedSeasons.length === 1
       ? selectedSeasons[0]!.label
-      : `Terms: ${selectedSeasons.length}`;
+      : `Terms: ${selectedSeasons.map((season) => season.value).join(', ')}`;
 
   return (
     <div className={styles.container}>

@@ -185,9 +185,9 @@ describe('UCSD snapshot modal data', () => {
       status: 'full',
     });
     expect(formatUcsdAvailability(37, 49, 0)).toMatchObject({
-      main: '12 seats',
-      detail: '37/49',
-      status: 'filling',
+      main: '12 seats left',
+      detail: '',
+      status: 'critical',
     });
     expect(
       formatSnapshotUpdatedLabel(

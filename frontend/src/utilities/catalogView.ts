@@ -63,7 +63,7 @@ export function formatTime(
   return `${s.display} ${s.period} – ${e.display} ${e.period}`;
 }
 
-export type SeatsStatus = 'available' | 'filling' | 'nearly-full';
+export type SeatsStatus = 'critical' | 'low' | 'medium' | 'high' | 'available';
 
 export function seatsColor(
   enrolled: number | null,
@@ -71,9 +71,11 @@ export function seatsColor(
 ): SeatsStatus {
   if (enrolled === null || capacity === null || capacity === 0)
     return 'available';
-  const pct = (enrolled / capacity) * 100;
-  if (pct >= 90) return 'nearly-full';
-  if (pct >= 60) return 'filling';
+  const availablePct = ((capacity - enrolled) / capacity) * 100;
+  if (availablePct < 25) return 'critical';
+  if (availablePct < 50) return 'low';
+  if (availablePct < 75) return 'medium';
+  if (availablePct < 90) return 'high';
   return 'available';
 }
 
