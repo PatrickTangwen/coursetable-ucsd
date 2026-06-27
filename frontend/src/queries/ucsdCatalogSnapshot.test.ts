@@ -307,4 +307,73 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
       ],
     });
   });
+
+  it('normalizes missing seat fields from tracer sections as unknown availability', () => {
+    const catalog = catalogResponseToCourseMap({
+      run_id: 'run-tracer-fixture',
+      generated_at: '2026-06-19T12:00:00.000Z',
+      active_planning_term: 'FA26',
+      term_label: 'Fall 2026',
+      term_date_range: {
+        start: '2026-09-24',
+        end: '2026-12-12',
+      },
+      configured_subjects: ['CSE'],
+      source_timestamps: {
+        schedule_of_classes: null,
+        general_catalog: null,
+        instructor_grade_archive: null,
+      },
+      courses: [
+        {
+          course_id: 'CSE:3',
+          subject: 'CSE',
+          course_number: '3',
+          title: 'Tracer Course',
+          units: '4',
+          description: null,
+          prerequisites_text: null,
+          restrictions_text: null,
+          catalog_url: null,
+          archive_avg_gpa: null,
+          archive_record_count: 0,
+          grade_archive_records: [],
+          ge_matches: [],
+          sections: [
+            {
+              section_id: 'FA26:CSE-TRACER-3',
+              course_id: 'CSE:3',
+              section_code: 'A00',
+              meeting_type: 'Lecture',
+              instructors: [],
+              meetings: [
+                {
+                  days: [],
+                  start_time: null,
+                  end_time: null,
+                  building: null,
+                  room: null,
+                  is_tba: true,
+                  raw_days: null,
+                  raw_time: 'TBA',
+                  raw_location: null,
+                },
+              ],
+              raw: {
+                source: 'tracer',
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    const [course] = [...catalog.values()];
+
+    expect(getCalendarDetails(course)).toMatchObject({
+      enrolled: null,
+      capacity: null,
+      waitlist_count: 0,
+    });
+  });
 });

@@ -89,9 +89,21 @@ const ucsdSectionSchema = z.object({
   meeting_type: z.string().nullable(),
   instructors: z.array(z.string()),
   meetings: z.array(ucsdMeetingSchema),
-  enrolled: z.number().nullable(),
-  capacity: z.number().nullable(),
-  waitlist_count: z.number(),
+  enrolled: z
+    .number()
+    .nullable()
+    .optional()
+    .transform((value) => value ?? null),
+  capacity: z
+    .number()
+    .nullable()
+    .optional()
+    .transform((value) => value ?? null),
+  waitlist_count: z
+    .number()
+    .nullable()
+    .optional()
+    .transform((value) => value ?? 0),
   raw: z.record(z.unknown()),
 });
 
