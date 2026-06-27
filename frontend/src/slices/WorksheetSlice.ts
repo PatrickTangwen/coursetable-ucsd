@@ -50,6 +50,7 @@ import {
 } from '../utilities/anonymousWorksheet';
 import { createLocalStorageSlot } from '../utilities/browserStorage';
 import { worksheetColors } from '../utilities/constants';
+import { toSeasonString } from '../utilities/course';
 import {
   buildRestoredAnonymousWorksheet,
   type SavedWorksheetRestoreSource,
@@ -110,6 +111,7 @@ interface WorksheetState {
   activeSavedWorksheet: SavedWorksheet | undefined;
   activeSavedWorksheetOwnerId: number | undefined;
   activeSavedWorksheetIdsByTerm: { [term: string]: number | undefined };
+  crossTermSavedSections: { [term: string]: SavedWorksheetSection[] };
   savedWorksheetSummaries: SavedWorksheetSummary[];
   savedWorksheetListStatus: 'idle' | 'loading' | 'ready' | 'error';
   savedWorksheetListError: Error | null;
@@ -304,6 +306,9 @@ export const createWorksheetSlice: StateCreator<
 
     lastViewedSavedWorksheetTermSlot.set(worksheet.term);
 
+    const { [worksheet.term]: _cleared, ...restCrossTermSections } =
+      get().crossTermSavedSections;
+
     set({
       activeSavedWorksheet: worksheet,
       activeSavedWorksheetOwnerId: userId,
@@ -311,6 +316,7 @@ export const createWorksheetSlice: StateCreator<
         ...get().activeSavedWorksheetIdsByTerm,
         [worksheet.term]: worksheet.id,
       },
+      crossTermSavedSections: restCrossTermSections,
       savedWorksheetBootstrapStatus: 'ready',
       savedWorksheetBootstrapError: null,
       viewedPerson: 'me',
@@ -344,29 +350,31 @@ export const createWorksheetSlice: StateCreator<
     activateSavedWorksheet(updatedWorksheet, user.user_id);
     return true;
   };
-  const getActiveSavedWorksheetSectionId = (
-    listing: AnonymousWorksheetListing,
-  ) => {
+  const getListingSectionIdOrWarn = (listing: AnonymousWorksheetListing) => {
     const sectionId = getListingSectionId(listing);
     if (!sectionId) {
       toast.error('This section cannot be saved to a Saved Worksheet.');
       return null;
     }
-
-    const { activeSavedWorksheet } = get();
-    const listingTerm = listing.course?.season_code;
-    if (
-      activeSavedWorksheet &&
-      listingTerm &&
-      listingTerm !== activeSavedWorksheet.term
-    ) {
-      toast.error(
-        'This section belongs to a different term than the active Saved Worksheet.',
-      );
-      return null;
-    }
-
     return sectionId;
+  };
+  const resolveWorksheetForTerm = async (
+    term: Season,
+  ): Promise<SavedWorksheet | null> => {
+    const rememberedId = get().activeSavedWorksheetIdsByTerm[term];
+    if (rememberedId) {
+      const worksheet = await fetchSavedWorksheet(rememberedId);
+      if (worksheet?.term === term) return worksheet;
+    }
+    const worksheet = await ensureMainSavedWorksheet(term);
+    if (!worksheet) return null;
+    set({
+      activeSavedWorksheetIdsByTerm: {
+        ...get().activeSavedWorksheetIdsByTerm,
+        [term]: worksheet.id,
+      },
+    });
+    return worksheet;
   };
 
   return {
@@ -404,6 +412,7 @@ export const createWorksheetSlice: StateCreator<
     activeSavedWorksheet: undefined,
     activeSavedWorksheetOwnerId: undefined,
     activeSavedWorksheetIdsByTerm: {},
+    crossTermSavedSections: {},
     savedWorksheetSummaries: [],
     savedWorksheetListStatus: 'idle',
     savedWorksheetListError: null,
@@ -635,13 +644,63 @@ export const createWorksheetSlice: StateCreator<
       return true;
     },
     async addActiveSavedWorksheetListing(listing, color) {
-      const sectionId = getActiveSavedWorksheetSectionId(listing);
+      const sectionId = getListingSectionIdOrWarn(listing);
+      if (!sectionId) return false;
+
+      const listingTerm = listing.course?.season_code;
       let { activeSavedWorksheet } = get();
-      if (sectionId && !activeSavedWorksheet && listing.course?.season_code) {
-        await get().ensureMainSavedWorksheetForTerm(listing.course.season_code);
+
+      if (!activeSavedWorksheet && listingTerm) {
+        await get().ensureMainSavedWorksheetForTerm(listingTerm);
         ({ activeSavedWorksheet } = get());
       }
-      if (!sectionId || !activeSavedWorksheet) return false;
+      if (!activeSavedWorksheet) return false;
+
+      const isCrossTerm =
+        listingTerm && listingTerm !== activeSavedWorksheet.term;
+
+      if (isCrossTerm) {
+        try {
+          const targetWorksheet = await resolveWorksheetForTerm(listingTerm);
+          if (!targetWorksheet) {
+            toast.error(
+              `Failed to add to ${toSeasonString(listingTerm)} worksheet`,
+            );
+            return false;
+          }
+          if (
+            targetWorksheet.sections.some(
+              (section) => section.sectionId === sectionId,
+            )
+          )
+            return false;
+
+          const updatedWorksheet = await updateSavedWorksheetSections(
+            targetWorksheet.id,
+            [...targetWorksheet.sections, { sectionId, color, hidden: false }],
+          );
+          if (!updatedWorksheet) {
+            toast.error(
+              `Failed to add to ${toSeasonString(listingTerm)} worksheet`,
+            );
+            return false;
+          }
+
+          set({
+            crossTermSavedSections: {
+              ...get().crossTermSavedSections,
+              [listingTerm]: updatedWorksheet.sections,
+            },
+          });
+          return true;
+        } catch {
+          toast.error(
+            `Failed to add to ${toSeasonString(listingTerm)} worksheet`,
+          );
+          return false;
+        }
+      }
+
       if (
         activeSavedWorksheet.sections.some(
           (section) => section.sectionId === sectionId,
@@ -655,9 +714,57 @@ export const createWorksheetSlice: StateCreator<
       ]);
     },
     async removeActiveSavedWorksheetListing(listing) {
-      const sectionId = getActiveSavedWorksheetSectionId(listing);
+      const sectionId = getListingSectionIdOrWarn(listing);
+      if (!sectionId) return false;
+
+      const listingTerm = listing.course?.season_code;
       const { activeSavedWorksheet } = get();
-      if (!sectionId || !activeSavedWorksheet) return false;
+      if (!activeSavedWorksheet) return false;
+
+      const isCrossTerm =
+        listingTerm && listingTerm !== activeSavedWorksheet.term;
+
+      if (isCrossTerm) {
+        try {
+          const targetWorksheet = await resolveWorksheetForTerm(listingTerm);
+          if (!targetWorksheet) {
+            toast.error(
+              `Failed to remove from ${toSeasonString(listingTerm)} worksheet`,
+            );
+            return false;
+          }
+          const nextSections = targetWorksheet.sections.filter(
+            (section) => section.sectionId !== sectionId,
+          );
+          if (nextSections.length === targetWorksheet.sections.length)
+            return false;
+
+          const updatedWorksheet = await updateSavedWorksheetSections(
+            targetWorksheet.id,
+            nextSections,
+          );
+          if (!updatedWorksheet) {
+            toast.error(
+              `Failed to remove from ${toSeasonString(listingTerm)} worksheet`,
+            );
+            return false;
+          }
+
+          set({
+            crossTermSavedSections: {
+              ...get().crossTermSavedSections,
+              [listingTerm]: updatedWorksheet.sections,
+            },
+          });
+          return true;
+        } catch {
+          toast.error(
+            `Failed to remove from ${toSeasonString(listingTerm)} worksheet`,
+          );
+          return false;
+        }
+      }
+
       const nextSections = activeSavedWorksheet.sections.filter(
         (section) => section.sectionId !== sectionId,
       );
@@ -667,7 +774,7 @@ export const createWorksheetSlice: StateCreator<
       return await replaceActiveSavedWorksheetSections(nextSections);
     },
     async setActiveSavedWorksheetListingHidden(listing, hidden) {
-      const sectionId = getActiveSavedWorksheetSectionId(listing);
+      const sectionId = getListingSectionIdOrWarn(listing);
       const { activeSavedWorksheet } = get();
       if (!sectionId || !activeSavedWorksheet) return false;
 
@@ -684,7 +791,7 @@ export const createWorksheetSlice: StateCreator<
       return await replaceActiveSavedWorksheetSections(nextSections);
     },
     async setActiveSavedWorksheetListingColor(listing, color) {
-      const sectionId = getActiveSavedWorksheetSectionId(listing);
+      const sectionId = getListingSectionIdOrWarn(listing);
       const { activeSavedWorksheet } = get();
       if (!sectionId || !activeSavedWorksheet) return false;
 

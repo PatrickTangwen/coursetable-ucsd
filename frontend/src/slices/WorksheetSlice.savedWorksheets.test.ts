@@ -449,6 +449,171 @@ describe('Saved Worksheet slice behavior', () => {
     expect(useStore.getState().anonymousWorksheet.term).toBe('FA26');
   });
 
+  it('routes a cross-term add into the target term worksheet without switching view', async () => {
+    const fa26 = 'FA26' as Season;
+    const fa26Main: SavedWorksheet = {
+      id: 20,
+      name: 'Main Worksheet',
+      term: fa26,
+      createdAt: 1,
+      updatedAt: 1,
+      private: true,
+      isMain: true,
+      sourceSectionCount: 0,
+      savedSectionCount: 0,
+      sections: [],
+    };
+    const useStore = await loadStore();
+    useStore.setState({
+      activeSavedWorksheet: mainWorksheet,
+      activeSavedWorksheetOwnerId: testUser.user_id,
+      activeSavedWorksheetIdsByTerm: { [s126]: mainWorksheet.id },
+      savedWorksheetSummaries: [toSummary(mainWorksheet)],
+    });
+
+    const fa26Listing = {
+      crn: '456' as never,
+      section_id: 'FA26-456',
+      course: {
+        season_code: fa26,
+        listings: [{ crn: '456' as never, section_id: 'FA26-456' }],
+      },
+    };
+    const updatedFa26 = {
+      ...fa26Main,
+      updatedAt: 3,
+      sections: [{ sectionId: 'FA26-456', color: '#abcdef', hidden: false }],
+    };
+    apiMocks.ensureMainSavedWorksheet.mockResolvedValue(fa26Main);
+    apiMocks.updateSavedWorksheetSections.mockResolvedValue(updatedFa26);
+
+    const added = await useStore
+      .getState()
+      .addActiveSavedWorksheetListing(fa26Listing, '#abcdef');
+
+    expect(added).toBe(true);
+    expect(apiMocks.ensureMainSavedWorksheet).toHaveBeenCalledWith(fa26);
+    expect(apiMocks.updateSavedWorksheetSections).toHaveBeenCalledWith(20, [
+      { sectionId: 'FA26-456', color: '#abcdef', hidden: false },
+    ]);
+    // View must stay on the original term
+    expect(useStore.getState().activeSavedWorksheet?.id).toBe(mainWorksheet.id);
+    expect(useStore.getState().activeSavedWorksheet?.term).toBe(s126);
+    // Cross-term sections cache populated
+    expect(useStore.getState().crossTermSavedSections[fa26]).toEqual([
+      { sectionId: 'FA26-456', color: '#abcdef', hidden: false },
+    ]);
+    // Target term's worksheet id is remembered
+    expect(useStore.getState().activeSavedWorksheetIdsByTerm[fa26]).toBe(20);
+  });
+
+  it('routes a cross-term remove from the target term worksheet', async () => {
+    const fa26 = 'FA26' as Season;
+    const fa26Main: SavedWorksheet = {
+      id: 20,
+      name: 'Main Worksheet',
+      term: fa26,
+      createdAt: 1,
+      updatedAt: 1,
+      private: true,
+      isMain: true,
+      sourceSectionCount: 1,
+      savedSectionCount: 1,
+      sections: [{ sectionId: 'FA26-456', color: '#abcdef', hidden: false }],
+    };
+    const useStore = await loadStore();
+    useStore.setState({
+      activeSavedWorksheet: mainWorksheet,
+      activeSavedWorksheetOwnerId: testUser.user_id,
+      activeSavedWorksheetIdsByTerm: { [s126]: mainWorksheet.id, [fa26]: 20 },
+      crossTermSavedSections: { [fa26]: fa26Main.sections },
+    });
+
+    const fa26Listing = {
+      crn: '456' as never,
+      section_id: 'FA26-456',
+      course: {
+        season_code: fa26,
+        listings: [{ crn: '456' as never, section_id: 'FA26-456' }],
+      },
+    };
+    const updatedFa26 = { ...fa26Main, updatedAt: 3, sections: [] };
+    apiMocks.fetchSavedWorksheet.mockResolvedValue(fa26Main);
+    apiMocks.updateSavedWorksheetSections.mockResolvedValue(updatedFa26);
+
+    const removed = await useStore
+      .getState()
+      .removeActiveSavedWorksheetListing(fa26Listing);
+
+    expect(removed).toBe(true);
+    expect(apiMocks.fetchSavedWorksheet).toHaveBeenCalledWith(20);
+    expect(apiMocks.updateSavedWorksheetSections).toHaveBeenCalledWith(20, []);
+    expect(useStore.getState().activeSavedWorksheet?.id).toBe(mainWorksheet.id);
+    expect(useStore.getState().crossTermSavedSections[fa26]).toEqual([]);
+  });
+
+  it('shows an error toast with term name when cross-term add fails', async () => {
+    const fa26 = 'FA26' as Season;
+    const useStore = await loadStore();
+    useStore.setState({
+      activeSavedWorksheet: mainWorksheet,
+      activeSavedWorksheetOwnerId: testUser.user_id,
+      activeSavedWorksheetIdsByTerm: { [s126]: mainWorksheet.id },
+    });
+
+    const fa26Listing = {
+      crn: '456' as never,
+      section_id: 'FA26-456',
+      course: {
+        season_code: fa26,
+        listings: [{ crn: '456' as never, section_id: 'FA26-456' }],
+      },
+    };
+    apiMocks.ensureMainSavedWorksheet.mockResolvedValue(null);
+
+    const added = await useStore
+      .getState()
+      .addActiveSavedWorksheetListing(fa26Listing, '#abcdef');
+
+    expect(added).toBe(false);
+    expect(useStore.getState().crossTermSavedSections[fa26]).toBeUndefined();
+  });
+
+  it('same-term add still works through the active worksheet path', async () => {
+    const useStore = await loadStore();
+    useStore.setState({
+      activeSavedWorksheet: mainWorksheet,
+      activeSavedWorksheetOwnerId: testUser.user_id,
+      activeSavedWorksheetIdsByTerm: { [s126]: mainWorksheet.id },
+      savedWorksheetSummaries: [toSummary(mainWorksheet)],
+    });
+    apiMocks.updateSavedWorksheetSections.mockImplementation(
+      (id: number, sections: SavedWorksheet['sections']) =>
+        Promise.resolve({
+          ...mainWorksheet,
+          id,
+          updatedAt: 3,
+          sourceSectionCount: sections.length,
+          savedSectionCount: sections.length,
+          sections,
+        }),
+    );
+
+    const added = await useStore
+      .getState()
+      .addActiveSavedWorksheetListing(firstListing, '#123456');
+
+    expect(added).toBe(true);
+    expect(apiMocks.updateSavedWorksheetSections).toHaveBeenCalledWith(10, [
+      { sectionId: 'S126-123', color: '#123456', hidden: false },
+    ]);
+    expect(useStore.getState().activeSavedWorksheet?.sections).toEqual([
+      { sectionId: 'S126-123', color: '#123456', hidden: false },
+    ]);
+    // No cross-term cache entry for same-term add
+    expect(useStore.getState().crossTermSavedSections[s126]).toBeUndefined();
+  });
+
   it('keeps signed-out cross-term worksheet edits isolated by term', async () => {
     const useStore = await loadStore({ signedIn: false });
     const fallListing = {

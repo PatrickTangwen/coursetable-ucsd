@@ -188,6 +188,7 @@ function WorksheetToggleButton({
     anonymousWorksheet,
     isAnonymousWorksheet,
     activeSavedWorksheet,
+    crossTermSavedSections,
     addAnonymousWorksheetListing,
     removeAnonymousWorksheetListing,
     addActiveSavedWorksheetListing,
@@ -197,6 +198,7 @@ function WorksheetToggleButton({
       anonymousWorksheet: state.anonymousWorksheet,
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
       activeSavedWorksheet: state.activeSavedWorksheet,
+      crossTermSavedSections: state.crossTermSavedSections,
       addAnonymousWorksheetListing: state.addAnonymousWorksheetListing,
       removeAnonymousWorksheetListing: state.removeAnonymousWorksheetListing,
       addActiveSavedWorksheetListing: state.addActiveSavedWorksheetListing,
@@ -273,30 +275,44 @@ function WorksheetToggleButton({
     [worksheets, getRelevantWorksheetNumber],
   );
 
-  const inWorksheet = useMemo(
-    () =>
-      isAnonymousWorksheet
-        ? anonymousWorksheetHasListing(anonymousWorksheet, listing)
-        : hasSavedWorksheetAccount
-          ? Boolean(
-              getListingSectionId(listing) &&
-              activeSavedWorksheet?.sections.some(
-                (section) => section.sectionId === getListingSectionId(listing),
-              ),
-            )
-          : (inWorksheetProp ??
-            isInWorksheet(listing, selectedWorksheet, worksheets)),
-    [
-      activeSavedWorksheet,
-      anonymousWorksheet,
-      hasSavedWorksheetAccount,
-      inWorksheetProp,
-      isAnonymousWorksheet,
-      listing,
-      selectedWorksheet,
-      worksheets,
-    ],
-  );
+  const inWorksheet = useMemo(() => {
+    if (isAnonymousWorksheet)
+      return anonymousWorksheetHasListing(anonymousWorksheet, listing);
+    if (hasSavedWorksheetAccount) {
+      const sectionId = getListingSectionId(listing);
+      if (!sectionId) return false;
+      const listingTerm = listing.course.season_code;
+      if (
+        activeSavedWorksheet &&
+        listingTerm &&
+        listingTerm !== activeSavedWorksheet.term
+      ) {
+        const crossSections = crossTermSavedSections[listingTerm];
+        return (
+          crossSections?.some((section) => section.sectionId === sectionId) ??
+          false
+        );
+      }
+      return Boolean(
+        activeSavedWorksheet?.sections.some(
+          (section) => section.sectionId === sectionId,
+        ),
+      );
+    }
+    return (
+      inWorksheetProp ?? isInWorksheet(listing, selectedWorksheet, worksheets)
+    );
+  }, [
+    activeSavedWorksheet,
+    anonymousWorksheet,
+    crossTermSavedSections,
+    hasSavedWorksheetAccount,
+    inWorksheetProp,
+    isAnonymousWorksheet,
+    listing,
+    selectedWorksheet,
+    worksheets,
+  ]);
 
   const isLgDesktop = useStore((state) => state.isLgDesktop);
 
