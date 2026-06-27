@@ -54,7 +54,7 @@ const ucsdGradeArchiveRecordSchema = z.object({
   raw: z.record(z.string()),
 });
 
-const ucsdCourseArchiveSchema = z.object({
+const ucsdCourseArchiveWireSchema = z.object({
   archive_avg_gpa: z.number().nullable(),
   archive_record_count: z.number(),
   source_timestamp: z.string().nullable(),
@@ -64,6 +64,9 @@ const ucsdCourseArchiveSchema = z.object({
   prerequisites_text: z.string().nullable(),
   restrictions_text: z.string().nullable(),
   grade_archive_records: z.array(ucsdGradeArchiveRecordSchema),
+});
+const ucsdCourseArchiveSchema = ucsdCourseArchiveWireSchema.omit({
+  archive_avg_gpa: true,
 });
 
 const ucsdMeetingSchema = z.object({
@@ -243,7 +246,6 @@ function toCoursePublic(
     subject: course.subject,
   };
   const ucsdArchive: UcsdCourseArchive = {
-    archive_avg_gpa: course.archive_avg_gpa,
     archive_record_count: course.archive_record_count,
     source_timestamp: snapshot.source_timestamps.instructor_grade_archive,
     catalog_source_timestamp: snapshot.source_timestamps.general_catalog,

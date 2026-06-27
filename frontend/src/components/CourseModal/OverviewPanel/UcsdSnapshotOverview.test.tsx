@@ -65,7 +65,6 @@ function listing() {
 }
 
 const archiveWithRecord: UcsdCourseArchive = {
-  archive_avg_gpa: 3.42,
   archive_record_count: 1,
   source_timestamp: null,
   catalog_source_timestamp: null,

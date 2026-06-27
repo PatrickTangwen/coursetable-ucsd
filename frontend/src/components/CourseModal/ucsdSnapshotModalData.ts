@@ -8,6 +8,8 @@ import {
   type SeatsStatus,
 } from '../../utilities/catalogView';
 
+export { formatSnapshotStalenessLabel } from '../../utilities/catalogFreshness';
+
 export type UcsdModalListing =
   | CatalogListing
   | CourseModalPrefetchListingDataFragment;

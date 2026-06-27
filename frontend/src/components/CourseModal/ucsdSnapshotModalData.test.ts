@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildUcsdSnapshotModalCourse,
+  formatSnapshotStalenessLabel,
   formatSnapshotUpdatedLabel,
   formatUcsdAvailability,
   getSectionVaryingMeetings,
@@ -195,5 +196,57 @@ describe('UCSD snapshot modal data', () => {
         new Date('2026-06-26T00:00:00.000Z'),
       ),
     ).toBe('Updated 6 days ago');
+  });
+
+  it('formats availability staleness by Supported Term state', () => {
+    const now = new Date('2026-06-27T12:00:00.000Z');
+
+    expect(
+      formatSnapshotStalenessLabel(
+        {
+          term: 'FA26',
+          label: 'Fall 2026',
+          date_range: { start: '2026-09-24', end: '2026-12-12' },
+          frozen: false,
+          generated_at: '2026-06-26T12:00:00.000Z',
+          snapshot_path: 'catalogs/public/FA26.json',
+          manifest_path: 'catalogs/import-manifests/FA26.json',
+        },
+        '2026-06-20T12:00:00.000Z',
+        now,
+      ),
+    ).toBe('Updated 1 day ago');
+
+    expect(
+      formatSnapshotStalenessLabel(
+        {
+          term: 'SP26',
+          label: 'Spring 2026',
+          date_range: { start: '2026-03-30', end: '2026-06-12' },
+          frozen: false,
+          generated_at: '2026-06-20T12:00:00.000Z',
+          snapshot_path: 'catalogs/public/SP26.json',
+          manifest_path: 'catalogs/import-manifests/SP26.json',
+        },
+        '2026-06-20T12:00:00.000Z',
+        now,
+      ),
+    ).toBe('As of Jun 12, 2026 · historical snapshot, not live');
+
+    expect(
+      formatSnapshotStalenessLabel(
+        {
+          term: 'FA25',
+          label: 'Fall 2025',
+          date_range: { start: '2025-09-25', end: '2025-12-13' },
+          frozen: true,
+          generated_at: '2025-12-14T12:00:00.000Z',
+          snapshot_path: 'catalogs/public/FA25.json',
+          manifest_path: 'catalogs/import-manifests/FA25.json',
+        },
+        '2025-12-14T12:00:00.000Z',
+        now,
+      ),
+    ).toBe('As of Dec 13, 2025 · historical snapshot, not live');
   });
 });

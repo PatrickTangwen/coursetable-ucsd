@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { useShallow } from 'zustand/react/shallow';
 
 import { useFerry } from '../../hooks/useFerry';
+import type { Season } from '../../queries/graphql-types';
 import {
   buildCatalogListAdvancedFilterReset,
   countCatalogListAdvancedFilters,
@@ -12,6 +13,7 @@ import type { Option } from '../../search/searchTypes';
 import { useStore } from '../../store';
 import {
   getCatalogLastUpdated,
+  getCatalogStalenessLabel,
   toRelativeUpdateTime,
 } from '../../utilities/catalogFreshness';
 import styles from './FilterBar.module.css';
@@ -147,10 +149,12 @@ function FilterChip({
   );
 }
 
-function UpdatedLabel() {
+function UpdatedLabel({ season }: { readonly season: Season | null }) {
   const { courses } = useFerry();
   const lastUpdated = getCatalogLastUpdated(courses);
-  const relative = toRelativeUpdateTime(lastUpdated);
+  const label = season
+    ? getCatalogStalenessLabel(courses, season)
+    : `Updated ${toRelativeUpdateTime(lastUpdated)} ago`;
   return (
     <div className={styles.updated}>
       <svg
@@ -166,9 +170,8 @@ function UpdatedLabel() {
         <circle cx="6.5" cy="6.5" r="5" />
         <polyline points="6.5,3.5 6.5,6.5 8.5,8" />
       </svg>
-      Updated{' '}
       <time title={lastUpdated.toString()} dateTime={lastUpdated.toISOString()}>
-        {relative} ago
+        {label}
       </time>
     </div>
   );
@@ -321,7 +324,13 @@ export default function FilterBar({
       )}
 
       <div className={styles.spacer} />
-      <UpdatedLabel />
+      <UpdatedLabel
+        season={
+          selectedSeasons.length === 1
+            ? (selectedSeasons[0]!.value as Season)
+            : null
+        }
+      />
     </div>
   );
 }

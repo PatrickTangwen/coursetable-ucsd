@@ -178,7 +178,6 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
     expect(typeof listing!.crn).toBe('number');
 
     expect(getUcsdArchiveDetails(course)).toEqual({
-      archive_avg_gpa: 3.42,
       archive_record_count: 1,
       source_timestamp: null,
       catalog_source_timestamp: null,
@@ -223,6 +222,7 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
         },
       ],
     });
+    expect(getUcsdArchiveDetails(course)).not.toHaveProperty('archive_avg_gpa');
   });
 
   it('preserves TBA and arranged Meeting metadata for skipped calendar summaries', () => {
