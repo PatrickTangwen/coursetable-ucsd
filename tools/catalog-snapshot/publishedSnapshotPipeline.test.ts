@@ -440,6 +440,42 @@ describe('Published Snapshot pipeline', () => {
     );
   });
 
+  it('keeps source loading bounded to one in-flight cell', async () => {
+    const config = await makeTempConfig();
+    const state = {
+      active: 0,
+      maxActive: 0,
+    };
+    const baseLoaders = makeSourceLoaders();
+
+    function bounded<T extends keyof PublishedSnapshotSourceLoaders>(
+      key: T,
+    ): PublishedSnapshotSourceLoaders[T] {
+      return (async (subject, context) => {
+        state.active += 1;
+        state.maxActive = Math.max(state.maxActive, state.active);
+        await Promise.resolve();
+        try {
+          return await baseLoaders[key](subject, context);
+        } finally {
+          state.active -= 1;
+        }
+      }) as PublishedSnapshotSourceLoaders[T];
+    }
+
+    await runPublishedSnapshotPipeline(config, {
+      runId: 'run-bounded-fetch',
+      generatedAt,
+      sourceLoaders: {
+        scheduleOfClasses: bounded('scheduleOfClasses'),
+        generalCatalog: bounded('generalCatalog'),
+        instructorGradeArchive: bounded('instructorGradeArchive'),
+      },
+    });
+
+    expect(state.maxActive).toBe(1);
+  });
+
   it('retries transient fetch failures before recording the cell as ok', async () => {
     const config = await makeTempConfig();
     const attemptsBySubject = new Map<string, number>();

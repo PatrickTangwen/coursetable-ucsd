@@ -64,9 +64,21 @@ describe('termWindow', () => {
     });
 
     expect(descriptors).toEqual([
-      { term: 'FA25', label: 'Fall 2025' },
-      { term: 'SP26', label: 'Spring 2026' },
-      { term: 'FA26', label: 'Fall 2026' },
+      expect.objectContaining({
+        term: 'FA25',
+        label: 'Fall 2025',
+        subjects: ['CSE', 'MATH'],
+      }),
+      expect.objectContaining({
+        term: 'SP26',
+        label: 'Spring 2026',
+        subjects: ['CSE', 'MATH'],
+      }),
+      expect.objectContaining({
+        term: 'FA26',
+        label: 'Fall 2026',
+        subjects: ['CSE', 'MATH'],
+      }),
     ]);
   });
 

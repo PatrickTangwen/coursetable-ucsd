@@ -488,4 +488,49 @@ describe('UCSD Schedule of Classes fetcher', () => {
     ]);
     expect(parsed.map((result) => result.subject)).toEqual(['CSE', 'MATH']);
   });
+
+  it('reuses an injected subject list instead of refetching it per subject', async () => {
+    const requests: { url: string; init?: RequestInit }[] = [];
+
+    await fetchScheduleOfClassesForSubjects(['CSE', 'MATH'], {
+      term: 'SP26',
+      subjectList: {
+        url: 'https://act.ucsd.edu/scheduleOfClasses/subject-list.json?selectedTerm=SP26',
+        raw: JSON.stringify([
+          { code: 'CSE ', value: 'CSE  - Computer Science & Engineering' },
+          { code: 'MATH', value: 'MATH - Mathematics' },
+        ]),
+        subjects: [
+          { code: 'CSE ', value: 'CSE  - Computer Science & Engineering' },
+          { code: 'MATH', value: 'MATH - Mathematics' },
+        ],
+      },
+      fetch(url, init) {
+        const urlText = requestUrlText(url);
+        requests.push({ url: urlText, init });
+        const body = init?.body as URLSearchParams;
+        const subject = body.get('selectedSubjects')?.trim();
+        return Promise.resolve(
+          new Response(subject === 'CSE' ? cseFixture : mathFixture, {
+            status: 200,
+            headers: {
+              'Content-Type': 'text/html; charset=utf-8',
+            },
+          }),
+        );
+      },
+      fetchedAt,
+    });
+
+    expect(
+      requests.filter((request) => request.url.includes('subject-list.json')),
+    ).toEqual([]);
+    expect(
+      requests
+        .filter((request) => request.init?.method === 'POST')
+        .map((request) =>
+          (request.init!.body as URLSearchParams).get('selectedSubjects'),
+        ),
+    ).toEqual(['CSE ', 'MATH']);
+  });
 });

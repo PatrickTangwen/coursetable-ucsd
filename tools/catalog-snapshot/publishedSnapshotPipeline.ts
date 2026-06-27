@@ -25,6 +25,7 @@ import {
   fetchRawScheduleOfClassesForSubject,
   parseScheduleOfClassesHtml,
   type ParsedScheduleOfClasses,
+  type SubjectListSource,
 } from './scheduleOfClasses';
 import {
   createFileSnapshotStorage,
@@ -66,6 +67,7 @@ export type PublishedSnapshotSourceLoadContext = {
   runId: string;
   generatedAt: string;
   fetch?: FetchAdapter;
+  subjectList?: SubjectListSource;
 };
 
 export type PublishedSnapshotSourceLoaders = {
@@ -348,7 +350,11 @@ async function collectSources<T>(
   loader: SourceLoader<T>,
   context: PublishedSnapshotSourceLoadContext,
   paths: RunPaths,
-  options: { maxFetchAttempts: number; fetchRetryDelayMs: number },
+  options: {
+    maxFetchAttempts: number;
+    fetchRetryDelayMs: number;
+    fetchDelayMs: number;
+  },
   rowCountsForData: (data: T) => { [key: string]: number },
 ): Promise<{
   collected: CollectedSource<T>[];
@@ -360,6 +366,9 @@ async function collectSources<T>(
   const cells: ImportManifestCell[] = [];
 
   for (const subject of subjects) {
+    if (collected.length + errors.length > 0 && options.fetchDelayMs > 0)
+      await sleep(options.fetchDelayMs);
+
     const sourceLoadResult = await runRetriableStep(
       { source, subject, phase: 'fetch' },
       {
@@ -717,6 +726,7 @@ export function defaultSourceLoaders(): PublishedSnapshotSourceLoaders {
         term: context.config.active_planning_term,
         fetch: context.fetch,
         fetchedAt: context.generatedAt,
+        subjectList: context.subjectList,
       });
       return {
         subject: rawSource.subject,
@@ -845,6 +855,8 @@ export async function runPublishedSnapshotPipeline(
     writeMetadata?: boolean;
     maxFetchAttempts?: number;
     fetchRetryDelayMs?: number;
+    fetchDelayMs?: number;
+    subjectList?: SubjectListSource;
     systemicParserFailureThreshold?: number;
     storage?: SnapshotStorage;
   } = {},
@@ -853,6 +865,7 @@ export async function runPublishedSnapshotPipeline(
   const runId = options.runId ?? defaultRunId(generatedAt);
   const maxFetchAttempts = options.maxFetchAttempts ?? 3;
   const fetchRetryDelayMs = options.fetchRetryDelayMs ?? 250;
+  const fetchDelayMs = options.fetchDelayMs ?? 0;
   const systemicParserFailureThreshold =
     options.systemicParserFailureThreshold ?? 0.5;
   const storage = options.storage ?? createFileSnapshotStorage();
@@ -870,6 +883,7 @@ export async function runPublishedSnapshotPipeline(
     runId,
     generatedAt,
     fetch: options.fetch,
+    subjectList: options.subjectList,
   };
   const sourceLoaders = options.sourceLoaders ?? defaultSourceLoaders();
 
@@ -879,7 +893,7 @@ export async function runPublishedSnapshotPipeline(
     sourceLoaders.scheduleOfClasses,
     context,
     paths,
-    { maxFetchAttempts, fetchRetryDelayMs },
+    { maxFetchAttempts, fetchRetryDelayMs, fetchDelayMs },
     scheduleSubjectCounts,
   );
   const generalCatalogResult = await collectSources(
@@ -888,7 +902,7 @@ export async function runPublishedSnapshotPipeline(
     sourceLoaders.generalCatalog,
     context,
     paths,
-    { maxFetchAttempts, fetchRetryDelayMs },
+    { maxFetchAttempts, fetchRetryDelayMs, fetchDelayMs },
     generalCatalogRowCounts,
   );
   const gradeArchiveResult = await collectSources(
@@ -897,7 +911,7 @@ export async function runPublishedSnapshotPipeline(
     sourceLoaders.instructorGradeArchive,
     context,
     paths,
-    { maxFetchAttempts, fetchRetryDelayMs },
+    { maxFetchAttempts, fetchRetryDelayMs, fetchDelayMs },
     gradeArchiveRowCounts,
   );
   const sourceErrors = [

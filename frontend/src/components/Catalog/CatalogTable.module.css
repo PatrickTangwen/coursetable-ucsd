@@ -17,6 +17,10 @@
   scrollbar-gutter: stable;
 }
 
+.virtualRows {
+  position: relative;
+}
+
 /* Holds the header + rows so the columns keep their natural width and the
    whole table scrolls horizontally (instead of squashing the Seats column)
    when the viewport is narrower than the sum of the fixed columns. */
@@ -124,6 +128,7 @@
 .row {
   display: flex;
   align-items: center;
+  min-height: 45px;
   border-bottom: 1px solid var(--sg-row-separator);
   transition: background 0.1s;
   cursor: pointer;
@@ -331,6 +336,7 @@
 .parentRow {
   display: flex;
   align-items: center;
+  min-height: 45px;
   border-bottom: 1px solid var(--sg-row-separator);
   transition: background 0.1s;
   cursor: pointer;
@@ -392,6 +398,7 @@
 .subRow {
   display: flex;
   align-items: center;
+  min-height: 37px;
   background: #fafbfc;
   border-bottom: 1px solid #eef0f4;
   font-size: 13px;
@@ -462,6 +469,8 @@
 }
 
 .scrollHint {
+  min-height: 24px;
+  box-sizing: border-box;
   padding: 5px 16px;
   background: var(--sg-bg-alt-row);
   text-align: center;

@@ -27,6 +27,7 @@ import {
 
 type FetchAdapter = typeof fetch;
 type TermDateRange = CatalogSnapshot['term_date_range'];
+const defaultMultiTermFetchDelayMs = 100;
 
 export type MultiTermSnapshotPipelineResult = {
   registry: SupportedTermRegistry;
@@ -83,6 +84,7 @@ export async function runMultiTermSnapshotPipeline(
     generatedAt?: string;
     runId?: string;
     sourceLoaders?: PublishedSnapshotSourceLoaders;
+    fetchDelayMs?: number;
     storage?: SnapshotStorage;
   } = {},
 ): Promise<MultiTermSnapshotPipelineResult> {
@@ -112,6 +114,7 @@ export async function runMultiTermSnapshotPipeline(
       active_planning_term: descriptor.term,
       term_label: descriptor.label,
       term_date_range: resolveTermDateRange(config, descriptor.term, options),
+      configured_subjects: descriptor.subjects ?? config.configured_subjects,
     };
 
     const result = await runPublishedSnapshotPipeline(perTermConfig, {
@@ -121,6 +124,8 @@ export async function runMultiTermSnapshotPipeline(
       sourceLoaders: loaders,
       writeMetadata: false,
       storage,
+      fetchDelayMs: options.fetchDelayMs ?? defaultMultiTermFetchDelayMs,
+      subjectList: descriptor.subjectList,
     });
 
     termResults.push({ descriptor, result });

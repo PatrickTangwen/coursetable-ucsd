@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -27,6 +27,12 @@ type CourseRow = {
   totalSections: number;
   listings: CatalogListing[];
 };
+
+const baseRowHeight = 45;
+const subRowHeight = 37;
+const expandedScrollHeight = 132;
+const scrollHintHeight = 24;
+const overscanRows = 8;
 
 const courseCodeCollator = new Intl.Collator(undefined, {
   numeric: true,
@@ -173,6 +179,71 @@ function sortRows(rows: CourseRow[], key: CatalogSortKey, asc: boolean) {
     }
   });
   return sorted;
+}
+
+function expandedRowHeight(row: CourseRow): number {
+  const visibleSubRows =
+    row.totalSections > 3
+      ? expandedScrollHeight
+      : row.totalSections * subRowHeight;
+  return (
+    baseRowHeight +
+    visibleSubRows +
+    (row.totalSections > 3 ? scrollHintHeight : 0)
+  );
+}
+
+function courseRowHeight(row: CourseRow, expandedCourses: Set<string>): number {
+  if (row.totalSections <= 1) return baseRowHeight;
+  return expandedCourses.has(row.rowId)
+    ? expandedRowHeight(row)
+    : baseRowHeight;
+}
+
+function prefixOffsets(heights: number[]): number[] {
+  const offsets = [0];
+  for (const height of heights)
+    offsets.push(offsets[offsets.length - 1]! + height);
+  return offsets;
+}
+
+function firstVisibleIndex(offsets: number[], scrollTop: number): number {
+  let low = 0;
+  let high = offsets.length - 1;
+  while (low < high) {
+    const mid = Math.floor((low + high) / 2);
+    if (offsets[mid + 1]! <= scrollTop) low = mid + 1;
+    else high = mid;
+  }
+  return low;
+}
+
+function lastVisibleIndex(offsets: number[], viewportBottom: number): number {
+  let low = 0;
+  let high = offsets.length - 1;
+  while (low < high) {
+    const mid = Math.ceil((low + high) / 2);
+    if (offsets[mid]! < viewportBottom) low = mid;
+    else high = mid - 1;
+  }
+  return Math.max(0, low);
+}
+
+function useElementHeight(ref: React.RefObject<HTMLElement | null>): number {
+  const [height, setHeight] = useState(0);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return undefined;
+
+    const updateHeight = () => setHeight(element.clientHeight);
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ref]);
+
+  return height;
 }
 
 function SortHeader({
@@ -602,10 +673,17 @@ export default function CatalogTable({
   readonly onAdd: (listing: CatalogListing) => void;
   readonly onOpenModal: (listing: CatalogListing) => void;
 }) {
-  const { sortKey, sortAsc } = useStore(
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const wrapperHeight = useElementHeight(wrapperRef);
+  const headerHeight = useElementHeight(headerRef);
+  const [scrollTop, setScrollTop] = useState(0);
+
+  const { sortKey, sortAsc, expandedCourses } = useStore(
     useShallow((s) => ({
       sortKey: s.catalogSortKey,
       sortAsc: s.catalogSortAsc,
+      expandedCourses: s.catalogExpandedCourses,
     })),
   );
 
@@ -617,6 +695,31 @@ export default function CatalogTable({
     () => new Set(courseRows.map((row) => row.seasonCode)).size > 1,
     [courseRows],
   );
+  const rowHeights = useMemo(
+    () => courseRows.map((row) => courseRowHeight(row, expandedCourses)),
+    [courseRows, expandedCourses],
+  );
+  const rowOffsets = useMemo(() => prefixOffsets(rowHeights), [rowHeights]);
+  const totalRowsHeight = rowOffsets[rowOffsets.length - 1] ?? 0;
+  const rowScrollTop = Math.max(0, scrollTop - headerHeight);
+  const viewportHeight = Math.max(0, wrapperHeight - headerHeight);
+  const visibleStart = courseRows.length
+    ? Math.max(0, firstVisibleIndex(rowOffsets, rowScrollTop) - overscanRows)
+    : 0;
+  const visibleEnd = courseRows.length
+    ? Math.min(
+        courseRows.length - 1,
+        lastVisibleIndex(rowOffsets, rowScrollTop + viewportHeight) +
+          overscanRows,
+      )
+    : -1;
+  const visibleRows =
+    visibleEnd >= visibleStart
+      ? courseRows.slice(visibleStart, visibleEnd + 1)
+      : [];
+  const topSpacerHeight = rowOffsets[visibleStart] ?? 0;
+  const bottomSpacerHeight =
+    totalRowsHeight - (rowOffsets[visibleEnd + 1] ?? topSpacerHeight);
 
   const renderRow = useCallback(
     (row: CourseRow) => {
@@ -645,14 +748,18 @@ export default function CatalogTable({
   );
 
   return (
-    <div className={styles.tableWrapper}>
+    <div
+      ref={wrapperRef}
+      className={styles.tableWrapper}
+      onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
+    >
       <div
         className={clsx(
           styles.tableInner,
           showTermColumn && styles.tableInnerWithTerm,
         )}
       >
-        <div className={styles.header}>
+        <div ref={headerRef} className={styles.header}>
           <div className={clsx(styles.headerCell, styles.colAdd)} />
           <SortHeader label="Code" sortKey="code" className={styles.colCode} />
           <SortHeader
@@ -684,7 +791,16 @@ export default function CatalogTable({
         {courseRows.length === 0 ? (
           <div className={styles.empty}>No courses match your filters.</div>
         ) : (
-          courseRows.map(renderRow)
+          <div
+            className={styles.virtualRows}
+            style={{ minHeight: totalRowsHeight }}
+          >
+            {topSpacerHeight > 0 && <div style={{ height: topSpacerHeight }} />}
+            {visibleRows.map(renderRow)}
+            {bottomSpacerHeight > 0 && (
+              <div style={{ height: bottomSpacerHeight }} />
+            )}
+          </div>
         )}
       </div>
     </div>

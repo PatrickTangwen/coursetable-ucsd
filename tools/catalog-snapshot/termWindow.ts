@@ -1,10 +1,15 @@
-import { fetchSubjectListCodes } from './scheduleOfClasses';
+import {
+  fetchSubjectListSource,
+  type SubjectListSource,
+} from './scheduleOfClasses';
 
 type FetchAdapter = typeof fetch;
 
 export type TermDescriptor = {
   term: string;
   label: string;
+  subjects?: string[];
+  subjectList?: SubjectListSource;
 };
 
 // UCSD quarter codes in chronological order within an academic year.
@@ -59,9 +64,20 @@ export async function discoverTermWindow(
 ): Promise<TermDescriptor[]> {
   const descriptors: TermDescriptor[] = [];
   for (const term of candidateTerms) {
-    const codes = await fetchSubjectListCodes(term, { fetch: options.fetch });
-    if (codes.length > 0)
-      descriptors.push({ term, label: deriveTermLabel(term) });
+    const subjectList = await fetchSubjectListSource(term, {
+      fetch: options.fetch,
+    });
+    const codes = subjectList.subjects
+      .map((entry) => entry.code.trim())
+      .filter((code) => code.length > 0);
+    if (codes.length > 0) {
+      descriptors.push({
+        term,
+        label: deriveTermLabel(term),
+        subjects: codes,
+        subjectList,
+      });
+    }
   }
   return descriptors;
 }

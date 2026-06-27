@@ -27,7 +27,9 @@ function makeConfig(rootDir: string): CatalogSnapshotConfig {
 }
 
 function courseNumber(subject: string): string {
-  return subject === 'CSE' ? '101' : '20A';
+  if (subject === 'CSE') return '101';
+  if (subject === 'MATH') return '20A';
+  return '1';
 }
 
 function makeScheduleCourse(
@@ -191,6 +193,7 @@ describe('Multi-term snapshot pipeline', () => {
         { term: 'SP26', label: 'Spring 2026' },
       ],
       sourceLoaders: makeCountingLoaders(counters),
+      fetchDelayMs: 0,
     });
 
     const fa25 = JSON.parse(
@@ -271,6 +274,7 @@ describe('Multi-term snapshot pipeline', () => {
         { term: 'SP26', label: 'Spring 2026' },
       ],
       sourceLoaders: makeCountingLoaders(counters),
+      fetchDelayMs: 0,
     });
 
     // Schedule of Classes is term-specific: 2 terms x 2 subjects.
@@ -283,6 +287,54 @@ describe('Multi-term snapshot pipeline', () => {
     // Term-agnostic sources fetched once per subject across both terms.
     expect(counters.generalCatalog.sort()).toEqual(['CSE', 'MATH']);
     expect(counters.gradeArchive.sort()).toEqual(['CSE', 'MATH']);
+  });
+
+  it('uses each term discovered subject list instead of configured subjects', async () => {
+    const config = await makeTempConfig();
+    const counters: Counters = {
+      schedule: [],
+      generalCatalog: [],
+      gradeArchive: [],
+    };
+
+    await runMultiTermSnapshotPipeline(config, {
+      runId: 'multi-run',
+      generatedAt,
+      terms: [
+        { term: 'FA25', label: 'Fall 2025', subjects: ['CSE'] },
+        {
+          term: 'SP26',
+          label: 'Spring 2026',
+          subjects: ['CSE', 'MATH', 'VIS'],
+        },
+      ],
+      sourceLoaders: makeCountingLoaders(counters),
+      fetchDelayMs: 0,
+    });
+
+    const fa25 = JSON.parse(
+      await readFile(
+        join(config.paths.public_catalog_dir, 'FA25.json'),
+        'utf-8',
+      ),
+    ) as CatalogSnapshot;
+    const sp26Manifest = JSON.parse(
+      await readFile(
+        join(config.paths.public_catalog_dir, '../import-manifests/SP26.json'),
+        'utf-8',
+      ),
+    ) as { configured_subjects: string[] };
+
+    expect(fa25.configured_subjects).toEqual(['CSE']);
+    expect(sp26Manifest.configured_subjects).toEqual(['CSE', 'MATH', 'VIS']);
+    expect(counters.schedule.sort()).toEqual([
+      'FA25:CSE',
+      'SP26:CSE',
+      'SP26:MATH',
+      'SP26:VIS',
+    ]);
+    expect(counters.generalCatalog.sort()).toEqual(['CSE', 'MATH', 'VIS']);
+    expect(counters.gradeArchive.sort()).toEqual(['CSE', 'MATH', 'VIS']);
   });
 
   it('retains terms that leave the window as frozen snapshots in injected storage', async () => {
@@ -311,6 +363,7 @@ describe('Multi-term snapshot pipeline', () => {
         { term: 'SP26', label: 'Spring 2026' },
       ],
       sourceLoaders: makeCountingLoaders(counters),
+      fetchDelayMs: 0,
       storage,
     });
     const frozenSnapshotPath = join(
@@ -347,6 +400,7 @@ describe('Multi-term snapshot pipeline', () => {
       generatedAt: '2026-07-01T12:00:00.000Z',
       terms: [{ term: 'SP26', label: 'Spring 2026' }],
       sourceLoaders: makeCountingLoaders(counters),
+      fetchDelayMs: 0,
       storage,
     });
 

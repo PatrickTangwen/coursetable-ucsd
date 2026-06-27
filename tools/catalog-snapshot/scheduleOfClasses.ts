@@ -35,6 +35,13 @@ type FetchOptions = {
   term: string;
   fetch?: FetchAdapter;
   fetchedAt?: string;
+  subjectList?: SubjectListSource;
+};
+
+export type SubjectListSource = {
+  url: string;
+  raw: string;
+  subjects: { code: string; value: string }[];
 };
 
 type Cell = {
@@ -607,19 +614,32 @@ function parseSubjectListData(data: unknown, term: string) {
   });
 }
 
-export async function fetchSubjectListCodes(
+export async function fetchSubjectListSource(
   term: string,
   options: { fetch?: FetchAdapter } = {},
-): Promise<string[]> {
+): Promise<SubjectListSource> {
   const fetchAdapter = options.fetch ?? fetch;
-  const response = await fetchAdapter(subjectListUrl(term));
+  const url = subjectListUrl(term);
+  const response = await fetchAdapter(url);
   if (!response.ok) {
     throw new Error(
       `UCSD Schedule subject list failed for ${term}: ${response.status} ${response.statusText}`,
     );
   }
   const raw = await response.text();
-  return parseSubjectListRaw(raw, term)
+  return {
+    url,
+    raw,
+    subjects: parseSubjectListRaw(raw, term),
+  };
+}
+
+export async function fetchSubjectListCodes(
+  term: string,
+  options: { fetch?: FetchAdapter } = {},
+): Promise<string[]> {
+  const source = await fetchSubjectListSource(term, options);
+  return source.subjects
     .map((entry) => entry.code.trim())
     .filter((code) => code.length > 0);
 }
@@ -630,16 +650,10 @@ export async function fetchRawScheduleOfClassesForSubject(
 ): Promise<RawScheduleOfClassesSource> {
   const fetchAdapter = options.fetch ?? fetch;
   const fetchedAt = options.fetchedAt ?? new Date().toISOString();
-  const listUrl = subjectListUrl(options.term);
-  const subjectListResponse = await fetchAdapter(listUrl);
-  if (!subjectListResponse.ok) {
-    throw new Error(
-      `UCSD Schedule subject list failed for ${options.term}: ${subjectListResponse.status} ${subjectListResponse.statusText}`,
-    );
-  }
-  const subjectListRaw = await subjectListResponse.text();
-  const subjectList = parseSubjectListRaw(subjectListRaw, options.term);
-  const subjectEntry = subjectList.find(
+  const subjectList =
+    options.subjectList ??
+    (await fetchSubjectListSource(options.term, { fetch: fetchAdapter }));
+  const subjectEntry = subjectList.subjects.find(
     (item) => normalizeSubject(item.code) === normalizeSubject(subject),
   );
   if (!subjectEntry) {
@@ -665,8 +679,8 @@ export async function fetchRawScheduleOfClassesForSubject(
     subject: normalizeSubject(subject),
     term: options.term,
     fetched_at: fetchedAt,
-    subject_list_url: listUrl,
-    subject_list_raw: subjectListRaw,
+    subject_list_url: subjectList.url,
+    subject_list_raw: subjectList.raw,
     source_url: scheduleResultUrl,
     html: await response.text(),
   };
