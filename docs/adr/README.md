@@ -42,6 +42,16 @@ logs, or transient setup notes directly in ADRs.
   Saved Worksheet data ownership separate from legacy worksheet-number APIs.
 - `0011-introduce-snapshot-static-availability-data.md`: introduce enrolled,
   capacity, and waitlist as snapshot-static section fields, superseding ADR 0004.
+- `0012-forward-accumulating-term-archive-bounded-by-source.md`: live schedule
+  snapshots are bounded by the UCSD source's rolling term window; multi-term depth
+  is built by forward accumulation of frozen snapshots in external storage, and
+  pre-window history (e.g. 2021) is delivered only as Historical GPA.
+- `0013-per-cell-partial-snapshot-with-import-manifest.md`: at all-subject /
+  multi-term scale, snapshot generation tolerates per-cell failures and publishes
+  an auditable Import Manifest, superseding the global fail-hard rule of ADR 0005.
+- `0014-multi-term-display-semantics.md`: availability staleness is labeled by
+  term state and there is no single course-level Average GPA summary, refining
+  ADR 0011 and superseding the Average GPA card of ADR 0003.
 
 ## Editing Rule
 

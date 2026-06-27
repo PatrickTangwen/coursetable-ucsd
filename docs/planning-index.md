@@ -40,6 +40,10 @@ For new agent or human planning work, read in this order:
   acceptance record for issue #34 and the final interaction-alignment follow-up.
 - `docs/grade-archive-ui-update-2026-06-21.md`: current UI/data contract for
   Average GPA, Record Count, and Past Grades.
+- `docs/populate-ucsd-course-data-multi-term-2026-06-26.md`: plan for moving the
+  catalog pipeline to a forward-accumulating, all-subject, multi-term archive,
+  with the source-availability finding and dependency-ordered implementation
+  slices. Read with ADRs 0012–0014.
 - `docs/beta-0-ui-surface-inventory-2026-06-20.md`: current Beta-0 UI surface
   inventory.
 - `docs/mvp-1-non-ui-acceptance-2026-06-20.md`: MVP-1 non-UI acceptance record.
@@ -69,6 +73,17 @@ For new agent or human planning work, read in this order:
 - `docs/adr/0010-reuse-worksheet-management-interface-with-saved-worksheet-model.md`:
   reuse the original worksheet management interface pattern while keeping UCSD
   Saved Worksheet data ownership separate from legacy worksheet-number APIs.
+- `docs/adr/0011-introduce-snapshot-static-availability-data.md`: enrolled,
+  capacity, and waitlist as snapshot-static section fields, superseding ADR 0004.
+- `docs/adr/0012-forward-accumulating-term-archive-bounded-by-source.md`:
+  multi-term depth via forward accumulation bounded by the UCSD source window;
+  pre-window history (2021) delivered only as Historical GPA.
+- `docs/adr/0013-per-cell-partial-snapshot-with-import-manifest.md`: per-cell
+  partial-tolerant snapshot generation with an auditable Import Manifest,
+  superseding the global fail-hard rule of ADR 0005.
+- `docs/adr/0014-multi-term-display-semantics.md`: term-state availability
+  staleness and no single course-level GPA summary, refining ADR 0011 and
+  superseding the Average GPA card of ADR 0003.
 
 ## Stable Reference Docs
 
