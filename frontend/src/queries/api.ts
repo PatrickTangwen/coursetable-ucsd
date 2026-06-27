@@ -1065,6 +1065,17 @@ const currentUserResponseSchema = z.union([
   }),
 ]);
 
+const compatibleCurrentUserResponseSchema = z.preprocess((data) => {
+  if (
+    typeof data === 'object' &&
+    data !== null &&
+    !Object.hasOwn(data, 'authenticated') &&
+    (data as { user?: unknown }).user === null
+  )
+    return { authenticated: false, user: null };
+  return data;
+}, currentUserResponseSchema);
+
 function appUserResponseToUserInfo(
   user: z.infer<typeof currentUserResponseSchema>['user'],
 ): AppUserInfo {
@@ -1084,7 +1095,7 @@ function appUserResponseToUserInfo(
 
 export async function fetchCurrentUser(): Promise<UserInfo | null | undefined> {
   const res = await fetchAPI('/auth/current-user', {
-    schema: currentUserResponseSchema,
+    schema: compatibleCurrentUserResponseSchema,
     breadcrumb: {
       category: 'user',
       message: 'Fetching current user',

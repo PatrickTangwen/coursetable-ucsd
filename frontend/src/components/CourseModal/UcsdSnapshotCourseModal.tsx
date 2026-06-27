@@ -7,7 +7,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { UcsdSnapshotPastGrades } from './OverviewPanel/UcsdSnapshotOverview';
 import {
   buildUcsdSnapshotModalCourse,
-  formatSnapshotStalenessLabel,
+  formatSnapshotUpdatedLabel,
   formatUcsdAvailability,
   getSectionVaryingMeetings,
   type UcsdModalListing,
@@ -555,10 +555,6 @@ export default function UcsdSnapshotCourseModal({
     () => buildUcsdSnapshotModalCourse(listing, allListings),
     [allListings, listing],
   );
-  const supportedTerm = useMemo(
-    () => courses[season]?.metadata.terms?.find((term) => term.term === season),
-    [courses, season],
-  );
   const {
     activeFamilyState,
     selectedSections,
@@ -649,10 +645,7 @@ export default function UcsdSnapshotCourseModal({
 
   const activeFamily = activeFamilyState ?? modalCourse.activeFamily;
   const currentView = view === 'past-grades' ? 'past-grades' : 'overview';
-  const updatedLabel = formatSnapshotStalenessLabel(
-    supportedTerm,
-    snapshotGeneratedAt(listing),
-  );
+  const updatedLabel = formatSnapshotUpdatedLabel(snapshotGeneratedAt(listing));
   const units = unitsLabel(archive, listing);
   const level = courseLevelLabel(listingCourseNumber(listing));
   const hasRestrictions = Boolean(archive?.restrictions_text);
