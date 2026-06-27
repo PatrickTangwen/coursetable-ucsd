@@ -26,8 +26,18 @@ function createStorage() {
 
 describe('NavbarWorksheetSearch', () => {
   beforeEach(() => {
-    vi.stubGlobal('localStorage', createStorage());
-    vi.stubGlobal('sessionStorage', createStorage());
+    vi.resetModules();
+    const localStorage = createStorage();
+    const sessionStorage = createStorage();
+    vi.stubGlobal('localStorage', localStorage);
+    vi.stubGlobal('sessionStorage', sessionStorage);
+    vi.stubGlobal('window', {
+      localStorage,
+      sessionStorage,
+      scrollTo: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    });
   });
 
   it('shows UCSD signed-in worksheet header state without unsupported controls', async () => {
@@ -91,6 +101,28 @@ describe('NavbarWorksheetSearch', () => {
     expect(html).toContain('List');
     expect(html).toContain('Spring 2026');
     expect(html).not.toContain('New Worksheet');
+  });
+
+  it('builds anonymous worksheet term labels with hidden courses counted', async () => {
+    const { getAnonymousWorksheetCourseCountsByTerm, getSeasonLabel } =
+      await import('./SeasonDropdown');
+    const counts = getAnonymousWorksheetCourseCountsByTerm({
+      term: 'SP26' as Season,
+      coursesByTerm: {
+        SP26: [
+          { sectionId: 'SP26-CSE-1', color: '#123456', hidden: false },
+          { sectionId: 'SP26-CSE-2', color: '#abcdef', hidden: true },
+        ],
+        FA25: [],
+      },
+    });
+
+    expect(counts.SP26).toBe(2);
+    expect(counts.FA25).toBeUndefined();
+    expect(getSeasonLabel('SP26' as Season, counts.SP26)).toBe(
+      'Spring 2026 · 2',
+    );
+    expect(getSeasonLabel('FA25' as Season, counts.FA25)).toBe('Fall 2025');
   });
 
   it('shows active-term Saved Worksheets and a blank-create action in the selector menu', async () => {

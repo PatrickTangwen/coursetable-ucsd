@@ -6,6 +6,10 @@ import { useFerry } from '../../hooks/useFerry';
 import type { Season } from '../../queries/graphql-types';
 import type { Option } from '../../search/searchTypes';
 import { useStore } from '../../store';
+import {
+  getAnonymousWorksheetCourses,
+  type AnonymousWorksheetState,
+} from '../../utilities/anonymousWorksheet';
 import { toSeasonString } from '../../utilities/course';
 import { supportedTermCodes } from '../../utilities/termPlanning';
 import { Popout } from '../Search/Popout';
@@ -26,8 +30,45 @@ function useWorksheetSeasonCodes() {
     : fallbackSeasonCodes;
 }
 
+export function getSeasonLabel(
+  season: Season,
+  courseCount: number | undefined,
+) {
+  const label = toSeasonString(season);
+  return courseCount ? `${label} · ${courseCount}` : label;
+}
+
+export function getAnonymousWorksheetCourseCountsByTerm(
+  anonymousWorksheet: AnonymousWorksheetState,
+) {
+  const counts: { [term: string]: number } = {};
+  for (const term of Object.keys(anonymousWorksheet.coursesByTerm)) {
+    const count = getAnonymousWorksheetCourses(
+      anonymousWorksheet,
+      term as Season,
+    ).length;
+    if (count > 0) counts[term] = count;
+  }
+  return counts;
+}
+
+function useAnonymousWorksheetCourseCounts() {
+  const { anonymousWorksheet, isAnonymousWorksheet } = useStore(
+    useShallow((state) => ({
+      anonymousWorksheet: state.anonymousWorksheet,
+      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+    })),
+  );
+
+  return useMemo(() => {
+    if (!isAnonymousWorksheet) return {};
+    return getAnonymousWorksheetCourseCountsByTerm(anonymousWorksheet);
+  }, [anonymousWorksheet, isAnonymousWorksheet]);
+}
+
 function SeasonDropdownDesktop() {
   const seasonCodes = useWorksheetSeasonCodes();
+  const anonymousCourseCounts = useAnonymousWorksheetCourseCounts();
   const { viewedSeason, changeViewedSeason } = useStore(
     useShallow((state) => ({
       viewedSeason: state.viewedSeason,
@@ -39,11 +80,14 @@ function SeasonDropdownDesktop() {
     if (viewedSeason) {
       return {
         value: viewedSeason,
-        label: toSeasonString(viewedSeason),
+        label: getSeasonLabel(
+          viewedSeason,
+          anonymousCourseCounts[viewedSeason],
+        ),
       };
     }
     return null;
-  }, [viewedSeason]);
+  }, [anonymousCourseCounts, viewedSeason]);
 
   return (
     <Popout
@@ -57,7 +101,7 @@ function SeasonDropdownDesktop() {
         value={selectedSeason}
         options={seasonCodes.map((seasonCode) => ({
           value: seasonCode,
-          label: toSeasonString(seasonCode),
+          label: getSeasonLabel(seasonCode, anonymousCourseCounts[seasonCode]),
         }))}
         onChange={(selectedOption) => {
           changeViewedSeason(selectedOption!.value);
@@ -71,6 +115,7 @@ function SeasonDropdownDesktop() {
 
 function SeasonDropdownMobile() {
   const seasonCodes = useWorksheetSeasonCodes();
+  const anonymousCourseCounts = useAnonymousWorksheetCourseCounts();
   const { viewedSeason, changeViewedSeason } = useStore(
     useShallow((state) => ({
       viewedSeason: state.viewedSeason,
@@ -81,7 +126,7 @@ function SeasonDropdownMobile() {
   return (
     <DropdownButton
       variant="dark"
-      title={toSeasonString(viewedSeason)}
+      title={getSeasonLabel(viewedSeason, anonymousCourseCounts[viewedSeason])}
       onSelect={(s) => changeViewedSeason(s as Season)}
     >
       {seasonCodes.map((season) => (
@@ -95,7 +140,9 @@ function SeasonDropdownMobile() {
               season === viewedSeason ? 'var(--color-primary)' : '',
           }}
         >
-          <div className="mx-auto">{toSeasonString(season)}</div>
+          <div className="mx-auto">
+            {getSeasonLabel(season, anonymousCourseCounts[season])}
+          </div>
         </Dropdown.Item>
       ))}
     </DropdownButton>
