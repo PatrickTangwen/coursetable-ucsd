@@ -1,5 +1,10 @@
+import { writeFile } from 'node:fs/promises';
 import { loadCatalogSnapshotConfig } from './catalogSnapshot.js';
-import { runPublishedSnapshotPipeline } from './publishedSnapshotPipeline.js';
+import { runMultiTermSnapshotPipeline } from './multiTermPipeline.js';
+
+// The catalog term selector imports this generated list (UCSD alpha term
+// codes) so it stays in sync with the published Term Archive. See ADR 0012.
+const supportedTermsPath = 'frontend/src/generated/supported-terms.json';
 
 function readConfigPath() {
   const index = process.argv.indexOf('--config');
@@ -11,18 +16,26 @@ function readConfigPath() {
 
 try {
   const config = await loadCatalogSnapshotConfig(readConfigPath());
-  const result = await runPublishedSnapshotPipeline(config);
+  const result = await runMultiTermSnapshotPipeline(config);
+
+  const supportedTerms = result.registry.terms.map((entry) => entry.term);
+  await writeFile(
+    supportedTermsPath,
+    `${JSON.stringify(supportedTerms)}\n`,
+    'utf-8',
+  );
 
   console.log(
     JSON.stringify(
       {
-        run_id: result.report.run_id,
-        active_planning_term: result.report.active_planning_term,
-        configured_subjects: result.report.configured_subjects,
-        status: result.report.status,
-        snapshot_path: result.snapshotPath,
         metadata_path: result.metadataPath,
-        report_path: result.reportPath,
+        supported_terms_path: supportedTermsPath,
+        terms: result.terms.map(({ descriptor, result: termResult }) => ({
+          term: descriptor.term,
+          label: descriptor.label,
+          status: termResult.report.status,
+          snapshot_path: termResult.snapshotPath,
+        })),
       },
       null,
       2,
