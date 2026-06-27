@@ -137,7 +137,7 @@ function useSearchUrlSync(
   const [, setSearchParams] = useSearchParams();
   const searchFilters = useStore((s) => s.searchFilters);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (location.pathname !== '/catalog') return;
     const pendingHydration = pendingHydrationRef.current;
     if (

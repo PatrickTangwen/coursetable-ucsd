@@ -2,6 +2,7 @@ import { CUR_SEASON } from '../config';
 import seasonsData from '../generated/seasons.json';
 import supportedTermsData from '../generated/supported-terms.json';
 import type { Season } from '../queries/graphql-types';
+import { compareSeasonsByRecency } from '../utilities/course';
 
 const generatedSeasons = seasonsData as Season[];
 const generatedSupportedTerms = supportedTermsData as Season[];
@@ -12,7 +13,7 @@ const generatedSupportedTerms = supportedTermsData as Season[];
 export const supportedTerms = [
   CUR_SEASON,
   ...generatedSupportedTerms.filter((term) => term !== CUR_SEASON),
-];
+].sort(compareSeasonsByRecency);
 
 // Every season the app is allowed to load. Supported Terms come first so the
 // UCSD multi-term snapshots are loadable; the inherited numeric codes are kept

@@ -6,16 +6,33 @@ import { useShallow } from 'zustand/react/shallow';
 import CatalogTable from '../components/Catalog/CatalogTable';
 import FAB from '../components/Catalog/FAB';
 import FilterBar, { COURSE_LEVELS } from '../components/Catalog/FilterBar';
+import { useFerry } from '../hooks/useFerry';
 import { useSearch } from '../hooks/useSearch';
 import type { CatalogListing } from '../queries/api';
+import type { Season } from '../queries/graphql-types';
 import { buildCatalogListFilterCleanup } from '../search/catalogListFilters';
+import type { Option } from '../search/searchTypes';
 import { useStore } from '../store';
 import styles from './CatalogListView.module.css';
 
-function extractConfiguredSubjects(data: CatalogListing[] | null): string[] {
-  if (!data) return [];
+type CatalogCache = ReturnType<typeof useFerry>['courses'];
+
+function extractCatalogSubjects(
+  courses: CatalogCache,
+  selectedSeasons: Option<Season>[],
+): string[] {
   const set = new Set<string>();
-  for (const l of data) set.add(l.subject);
+  const seasonCodes =
+    selectedSeasons.length === 0
+      ? (Object.keys(courses) as Season[])
+      : selectedSeasons.map((season) => season.value);
+
+  for (const seasonCode of seasonCodes) {
+    const catalog = courses[seasonCode];
+    if (!catalog) continue;
+    for (const listing of catalog.data.values()) set.add(listing.subject);
+  }
+
   const arr = [...set];
   arr.sort();
   return arr;
@@ -28,6 +45,7 @@ function parseCourseNumber(code: string): number {
 
 export default function CatalogListView() {
   const { searchData, coursesLoading } = useSearch();
+  const { courses } = useFerry();
   const levelFilter = useStore((s) => s.catalogLevelFilter);
   const searchFilters = useStore((s) => s.searchFilters);
   const patchSearchFilters = useStore((s) => s.patchSearchFilters);
@@ -46,8 +64,12 @@ export default function CatalogListView() {
   );
 
   const subjects = useMemo(
-    () => extractConfiguredSubjects(searchData),
-    [searchData],
+    () =>
+      extractCatalogSubjects(
+        courses,
+        searchFilters.selectSeasons,
+      ),
+    [courses, searchFilters.selectSeasons],
   );
 
   useEffect(() => {

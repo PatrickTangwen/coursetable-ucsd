@@ -44,7 +44,7 @@ export function isInWishlist(
   );
 }
 
-function parseUcsdTermCode(seasonCode: Season) {
+export function parseUcsdTermCode(seasonCode: Season) {
   const match = /^(?<term>fa|wi|sp|s1|s2|s3|su)(?<shortYear>\d{2})$/u.exec(
     seasonCode.toLowerCase(),
   );
@@ -57,6 +57,41 @@ function parseUcsdTermCode(seasonCode: Season) {
     yearLabel: `20${shortYear}`,
     yearNumber: Number(`20${shortYear}`),
   };
+}
+
+const UCSD_TERM_RECENCY_RANK: { [term: string]: number } = {
+  fa: 6,
+  s3: 5,
+  s2: 4,
+  s1: 3,
+  su: 3,
+  sp: 2,
+  wi: 1,
+};
+
+function legacySeasonDateValue(seasonCode: Season): number {
+  const year = Number(seasonCode.substring(0, 4));
+  const season = Number(seasonCode[5] ?? 0);
+  return year * 10 + season;
+}
+
+export function compareSeasonsByRecency(a: Season, b: Season): number {
+  const aUcsd = parseUcsdTermCode(a);
+  const bUcsd = parseUcsdTermCode(b);
+
+  if (aUcsd && bUcsd) {
+    if (aUcsd.yearNumber !== bUcsd.yearNumber)
+      return bUcsd.yearNumber - aUcsd.yearNumber;
+    return (
+      (UCSD_TERM_RECENCY_RANK[bUcsd.term] ?? 0) -
+      (UCSD_TERM_RECENCY_RANK[aUcsd.term] ?? 0)
+    );
+  }
+
+  if (aUcsd) return -1;
+  if (bUcsd) return 1;
+
+  return legacySeasonDateValue(b) - legacySeasonDateValue(a);
 }
 
 export function toSeasonString(seasonCode: Season): string {

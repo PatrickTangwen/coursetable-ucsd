@@ -4,10 +4,10 @@ import {
   credits,
   schools,
   skillsAreas,
-  subjects,
   weekdays,
 } from './constants';
 import { toSeasonString } from './course';
+import { formatSubjectLabel } from './subjectLabels';
 import type { Season } from '../queries/graphql-types';
 import {
   booleanAttributes,
@@ -189,8 +189,7 @@ function handleSelectFilter<K extends keyof Filters>(
           return name ? { value: val, label: `${val} - ${name}` } : null;
         }
         case 'selectSubjects': {
-          const name = subjects[val];
-          return name ? { value: val, label: `${val} - ${name}` } : null;
+          return { value: val, label: formatSubjectLabel(val) };
         }
         case 'selectSchools': {
           const name = schools[val];
