@@ -7,7 +7,12 @@ import {
   type PublishedSnapshotSourceLoaders,
 } from './publishedSnapshotPipeline';
 import {
+  createFileSnapshotStorage,
+  type SnapshotStorage,
+} from './snapshotStorage';
+import {
   buildSupportedTermRegistry,
+  readSupportedTermRegistry,
   supportedTermManifestPath,
   supportedTermSnapshotPath,
   writeSupportedTermRegistry,
@@ -78,10 +83,12 @@ export async function runMultiTermSnapshotPipeline(
     generatedAt?: string;
     runId?: string;
     sourceLoaders?: PublishedSnapshotSourceLoaders;
+    storage?: SnapshotStorage;
   } = {},
 ): Promise<MultiTermSnapshotPipelineResult> {
   const generatedAt = options.generatedAt ?? new Date().toISOString();
   const runId = options.runId ?? `multi-${generatedAt}-${randomUUID()}`;
+  const storage = options.storage ?? createFileSnapshotStorage();
 
   const terms =
     options.terms ??
@@ -113,6 +120,7 @@ export async function runMultiTermSnapshotPipeline(
       fetch: options.fetch,
       sourceLoaders: loaders,
       writeMetadata: false,
+      storage,
     });
 
     termResults.push({ descriptor, result });
@@ -127,13 +135,38 @@ export async function runMultiTermSnapshotPipeline(
     });
   }
 
-  const registry = buildSupportedTermRegistry(entries, generatedAt);
+  const existingRegistry = await readSupportedTermRegistry(
+    config.paths.metadata_path,
+    storage,
+  );
+  const registry = buildSupportedTermRegistry(
+    mergeCurrentAndFrozenEntries(entries, existingRegistry),
+    generatedAt,
+  );
   const metadataPath = await writeSupportedTermRegistry(
     registry,
     config.paths.metadata_path,
+    storage,
   );
 
   return { registry, metadataPath, terms: termResults };
+}
+
+function mergeCurrentAndFrozenEntries(
+  currentEntries: SupportedTermEntry[],
+  existingRegistry: SupportedTermRegistry | null,
+): SupportedTermEntry[] {
+  if (!existingRegistry) return currentEntries;
+
+  const currentTerms = new Set(currentEntries.map((entry) => entry.term));
+  const frozenEntries = existingRegistry.terms
+    .filter((entry) => !currentTerms.has(entry.term))
+    .map((entry) => ({
+      ...entry,
+      frozen: true,
+    }));
+
+  return [...currentEntries, ...frozenEntries];
 }
 
 function resolveTermDateRange(

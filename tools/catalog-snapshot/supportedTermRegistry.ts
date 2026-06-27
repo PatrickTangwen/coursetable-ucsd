@@ -1,7 +1,8 @@
-import { randomUUID } from 'node:crypto';
-import { mkdir, rename, rm, writeFile } from 'node:fs/promises';
-import pathModule from 'node:path';
 import type { CatalogSnapshot } from './catalogSnapshot';
+import {
+  createFileSnapshotStorage,
+  type SnapshotStorage,
+} from './snapshotStorage';
 
 export type SupportedTermEntry = {
   term: string;
@@ -41,22 +42,17 @@ export function buildSupportedTermRegistry(
   };
 }
 
-export async function writeSupportedTermRegistry(
+export function readSupportedTermRegistry(
+  metadataPath: string,
+  storage: SnapshotStorage = createFileSnapshotStorage(),
+): Promise<SupportedTermRegistry | null> {
+  return storage.readJson<SupportedTermRegistry>(metadataPath);
+}
+
+export function writeSupportedTermRegistry(
   registry: SupportedTermRegistry,
   metadataPath: string,
+  storage: SnapshotStorage = createFileSnapshotStorage(),
 ): Promise<string> {
-  await mkdir(pathModule.dirname(metadataPath), { recursive: true });
-  const tempPath = `${metadataPath}.tmp-${process.pid}-${Date.now()}-${randomUUID()}`;
-  try {
-    await writeFile(
-      tempPath,
-      `${JSON.stringify(registry, null, 2)}\n`,
-      'utf-8',
-    );
-    await rename(tempPath, metadataPath);
-  } catch (err) {
-    await rm(tempPath, { force: true });
-    throw err;
-  }
-  return metadataPath;
+  return storage.writeJson(metadataPath, registry);
 }

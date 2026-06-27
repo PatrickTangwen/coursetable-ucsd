@@ -1,10 +1,13 @@
-import { randomUUID } from 'node:crypto';
-import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import pathModule from 'node:path';
 import { parse } from 'yaml';
 import { z } from 'zod';
 import type { GeneralCatalogCourse } from './generalCatalog';
 import type { GradeArchiveRecord } from './instructorGradeArchive';
+import {
+  createFileSnapshotStorage,
+  type SnapshotStorage,
+} from './snapshotStorage';
 
 const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/u);
 const termCodeSchema = z
@@ -538,14 +541,10 @@ export function buildCatalogSnapshotMetadata(
   };
 }
 
-function writeJson(pathname: string, value: unknown) {
-  return writeFile(pathname, `${JSON.stringify(value, null, 2)}\n`, 'utf-8');
-}
-
 export async function publishCatalogSnapshot(
   snapshot: CatalogSnapshot,
   config: CatalogSnapshotConfig,
-  options: { writeMetadata?: boolean } = {},
+  options: { writeMetadata?: boolean; storage?: SnapshotStorage } = {},
 ): Promise<{ snapshotPath: string; metadataPath: string | null }> {
   const validation = validateCatalogSnapshot(snapshot, config);
   if (!validation.success) {
@@ -562,26 +561,14 @@ export async function publishCatalogSnapshot(
     `${snapshot.active_planning_term}.json`,
   );
   const metadataPath = config.paths.metadata_path;
-  const tempSuffix = `.tmp-${process.pid}-${Date.now()}-${randomUUID()}`;
-  const tempSnapshotPath = `${snapshotPath}${tempSuffix}`;
-  const tempMetadataPath = `${metadataPath}${tempSuffix}`;
+  const storage = options.storage ?? createFileSnapshotStorage();
 
-  await mkdir(config.paths.public_catalog_dir, { recursive: true });
-
-  try {
-    await writeJson(tempSnapshotPath, snapshot);
-    if (writeMetadata) {
-      await mkdir(pathModule.dirname(metadataPath), { recursive: true });
-      await writeJson(tempMetadataPath, buildCatalogSnapshotMetadata(snapshot));
-    }
-    await rename(tempSnapshotPath, snapshotPath);
-    if (writeMetadata) await rename(tempMetadataPath, metadataPath);
-  } catch (err) {
-    await Promise.all([
-      rm(tempSnapshotPath, { force: true }),
-      rm(tempMetadataPath, { force: true }),
-    ]);
-    throw err;
+  await storage.writeJson(snapshotPath, snapshot);
+  if (writeMetadata) {
+    await storage.writeJson(
+      metadataPath,
+      buildCatalogSnapshotMetadata(snapshot),
+    );
   }
 
   return { snapshotPath, metadataPath: writeMetadata ? metadataPath : null };

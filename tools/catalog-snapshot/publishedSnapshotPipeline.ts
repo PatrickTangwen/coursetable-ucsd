@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { mkdir, rename, rm, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import pathModule from 'node:path';
 import {
   attachGeneralCatalogMetadata,
@@ -26,6 +26,10 @@ import {
   parseScheduleOfClassesHtml,
   type ParsedScheduleOfClasses,
 } from './scheduleOfClasses';
+import {
+  createFileSnapshotStorage,
+  type SnapshotStorage,
+} from './snapshotStorage';
 
 type FetchAdapter = typeof fetch;
 type SourceKind =
@@ -640,20 +644,12 @@ function systemicParserErrors(options: {
   );
 }
 
-async function publishImportManifest(
+function publishImportManifest(
   manifest: PublishedSnapshotImportManifest,
   pathname: string,
+  storage: SnapshotStorage,
 ): Promise<string> {
-  await mkdir(pathModule.dirname(pathname), { recursive: true });
-  const tempPath = `${pathname}.tmp-${process.pid}-${Date.now()}-${randomUUID()}`;
-  try {
-    await writeJson(tempPath, manifest);
-    await rename(tempPath, pathname);
-  } catch (err) {
-    await rm(tempPath, { force: true });
-    throw err;
-  }
-  return pathname;
+  return storage.writeJson(pathname, manifest);
 }
 
 function buildReport(options: {
@@ -850,6 +846,7 @@ export async function runPublishedSnapshotPipeline(
     maxFetchAttempts?: number;
     fetchRetryDelayMs?: number;
     systemicParserFailureThreshold?: number;
+    storage?: SnapshotStorage;
   } = {},
 ): Promise<PublishedSnapshotPipelineResult> {
   const generatedAt = options.generatedAt ?? new Date().toISOString();
@@ -858,6 +855,7 @@ export async function runPublishedSnapshotPipeline(
   const fetchRetryDelayMs = options.fetchRetryDelayMs ?? 250;
   const systemicParserFailureThreshold =
     options.systemicParserFailureThreshold ?? 0.5;
+  const storage = options.storage ?? createFileSnapshotStorage();
   const paths = {
     rawRoot: pathModule.join(config.paths.raw_dir, runId),
     normalizedRoot: pathModule.join(config.paths.normalized_dir, runId),
@@ -999,10 +997,12 @@ export async function runPublishedSnapshotPipeline(
   try {
     const publishResult = await publishCatalogSnapshot(snapshot, config, {
       writeMetadata: options.writeMetadata,
+      storage,
     });
     const manifestPath = await publishImportManifest(
       manifest,
       paths.manifestPath,
+      storage,
     );
     const report = buildReport({
       config,

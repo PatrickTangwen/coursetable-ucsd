@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import type { CatalogSnapshot, CatalogSnapshotConfig } from './catalogSnapshot';
 import { runMultiTermSnapshotPipeline } from './multiTermPipeline';
 import type { PublishedSnapshotSourceLoaders } from './publishedSnapshotPipeline';
+import { createObjectSnapshotStorage } from './snapshotStorage';
 import type { SupportedTermRegistry } from './supportedTermRegistry';
 
 const generatedAt = '2026-06-26T12:00:00.000Z';
@@ -282,5 +283,102 @@ describe('Multi-term snapshot pipeline', () => {
     // Term-agnostic sources fetched once per subject across both terms.
     expect(counters.generalCatalog.sort()).toEqual(['CSE', 'MATH']);
     expect(counters.gradeArchive.sort()).toEqual(['CSE', 'MATH']);
+  });
+
+  it('retains terms that leave the window as frozen snapshots in injected storage', async () => {
+    const config = await makeTempConfig();
+    const objects = new Map<string, string>();
+    const storage = createObjectSnapshotStorage({
+      getObject(key) {
+        return Promise.resolve(objects.get(key) ?? null);
+      },
+      putObject(key, body) {
+        objects.set(key, body);
+        return Promise.resolve();
+      },
+    });
+    const counters: Counters = {
+      schedule: [],
+      generalCatalog: [],
+      gradeArchive: [],
+    };
+
+    await runMultiTermSnapshotPipeline(config, {
+      runId: 'multi-run-one',
+      generatedAt,
+      terms: [
+        { term: 'FA25', label: 'Fall 2025' },
+        { term: 'SP26', label: 'Spring 2026' },
+      ],
+      sourceLoaders: makeCountingLoaders(counters),
+      storage,
+    });
+    const frozenSnapshotPath = join(
+      config.paths.public_catalog_dir,
+      'FA25.json',
+    );
+    const firstFa25Snapshot = objects.get(frozenSnapshotPath);
+    expect(firstFa25Snapshot).toContain('"active_planning_term": "FA25"');
+    await expect(
+      readFile(
+        join(
+          config.paths.raw_dir,
+          'multi-run-one-FA25/schedule_of_classes/CSE.html',
+        ),
+        'utf-8',
+      ),
+    ).resolves.toContain('CSE');
+    await expect(
+      readFile(
+        join(
+          config.paths.normalized_dir,
+          'multi-run-one-FA25/schedule_of_classes/CSE.json',
+        ),
+        'utf-8',
+      ),
+    ).resolves.toContain('"subject": "CSE"');
+
+    counters.schedule = [];
+    counters.generalCatalog = [];
+    counters.gradeArchive = [];
+
+    await runMultiTermSnapshotPipeline(config, {
+      runId: 'multi-run-two',
+      generatedAt: '2026-07-01T12:00:00.000Z',
+      terms: [{ term: 'SP26', label: 'Spring 2026' }],
+      sourceLoaders: makeCountingLoaders(counters),
+      storage,
+    });
+
+    const registry = JSON.parse(
+      objects.get(config.paths.metadata_path) ?? '{}',
+    ) as SupportedTermRegistry;
+
+    expect(objects.get(frozenSnapshotPath)).toBe(firstFa25Snapshot);
+    expect(counters.schedule).toEqual(['SP26:CSE', 'SP26:MATH']);
+    expect(registry.terms).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          term: 'FA25',
+          label: 'Fall 2025',
+          frozen: true,
+          generated_at: generatedAt,
+          snapshot_path: 'catalogs/public/FA25.json',
+        }),
+        expect.objectContaining({
+          term: 'SP26',
+          label: 'Spring 2026',
+          frozen: false,
+          generated_at: '2026-07-01T12:00:00.000Z',
+        }),
+      ]),
+    );
+    expect([...objects.keys()]).not.toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('/raw/'),
+        expect.stringContaining('/normalized/'),
+        expect.stringContaining('/reports/'),
+      ]),
+    );
   });
 });
