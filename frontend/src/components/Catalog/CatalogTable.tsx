@@ -413,7 +413,12 @@ function ExpandableRow({
   return (
     <div className={styles.expandableGroup}>
       {parentRow}
-      <div className={styles.subRowContainer}>
+      <div
+        className={clsx(
+          styles.subRowContainer,
+          row.totalSections > 3 && styles.subRowContainerWithScroll,
+        )}
+      >
         {row.groups.flatMap((group) =>
           group.sections.map((sec) => {
             const { meetings } = sec;

@@ -1,9 +1,8 @@
 .container {
-  --seat-count-slot: 64px;
   --seat-bar-slot: 40px;
 
   display: grid;
-  grid-template-columns: var(--seat-count-slot) var(--seat-bar-slot);
+  grid-template-columns: max-content var(--seat-bar-slot);
   align-items: center;
   column-gap: 8px;
   width: 100%;
@@ -13,8 +12,8 @@
   font-size: 12.5px;
   font-weight: 500;
   white-space: nowrap;
-  text-align: right;
-  justify-self: end;
+  text-align: left;
+  justify-self: start;
 }
 
 .available {
@@ -56,6 +55,8 @@
 }
 
 .subrow {
+  --seat-bar-slot: 48px;
+
   width: max-content;
 }
 

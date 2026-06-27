@@ -7,6 +7,7 @@
   --catalog-meets-col: 220px;
   --catalog-location-col: 100px;
   --catalog-seats-col: 136px;
+  --catalog-subrow-scrollbar-gutter: 15px;
 
   flex: 1;
   min-height: 0;
@@ -311,18 +312,30 @@
 /* ── Sub-rows ── */
 .subRowContainer {
   max-height: 132px;
-  overflow-y: auto;
+  overflow: hidden auto;
   border-top: 1px solid #eef0f4;
 }
 
 .subRow {
   display: flex;
   align-items: center;
-  background: var(--sg-bg-alt-row);
+  background: #fafbfc;
   border-bottom: 1px solid #eef0f4;
   font-size: 13px;
   transition: background 0.1s;
   cursor: pointer;
+}
+
+.subRow .cell {
+  padding: 9px 12px;
+}
+
+.subRow .addCell {
+  padding: 9px 8px 9px 0;
+}
+
+.subRowContainerWithScroll .subRow {
+  width: calc(100% + var(--catalog-subrow-scrollbar-gutter));
 }
 
 .subRow:hover {
@@ -348,6 +361,10 @@
 }
 
 .subSectionBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
   padding: 2px 8px;
   border-radius: 4px;
   background: var(--sg-blue-badge-bg);

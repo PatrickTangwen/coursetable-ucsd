@@ -717,21 +717,76 @@
 
 @media (max-width: 720px) {
   .modal {
-    width: calc(100% - 24px);
-    height: calc(100% - 24px);
+    width: calc(100% - 16px);
+    height: calc(100% - 16px);
+    border-radius: 12px;
   }
 
   .header {
-    padding: 18px 18px 0;
+    padding: 14px 14px 0;
   }
 
-  .body {
-    padding: 18px;
+  .title {
+    font-size: 19px;
+    line-height: 1.25;
+  }
+
+  .courseCode {
+    margin-top: 4px;
+    font-size: 14px;
+  }
+
+  .closeButton {
+    width: 32px;
+    height: 32px;
+  }
+
+  .sectionPills {
+    margin-top: 10px;
+  }
+
+  .sectionPill {
+    min-width: 0;
+    padding: 5px 10px;
+  }
+
+  .pillInstructor {
+    max-width: 108px;
   }
 
   .controls {
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .controlsWithPills {
+    margin-top: 12px;
+  }
+
+  .tabs,
+  .toolbar {
+    gap: 4px;
+  }
+
+  .tab {
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 12.5px;
+  }
+
+  .iconButton {
+    width: 30px;
+    height: 30px;
+  }
+
+  .separator {
+    margin-top: 10px;
+  }
+
+  .body {
+    padding: 14px;
   }
 
   .meetingRow {
@@ -746,5 +801,29 @@
   .availability {
     width: 100%;
     text-align: left;
+  }
+}
+
+@media (max-width: 400px) {
+  .header {
+    padding: 12px 12px 0;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .body {
+    padding: 12px;
+  }
+
+  .tab {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+
+  .iconButton {
+    width: 28px;
+    height: 28px;
   }
 }
