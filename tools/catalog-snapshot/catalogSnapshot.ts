@@ -251,11 +251,6 @@ function validateConfiguredSubjects(
   );
   const errors: string[] = [];
 
-  for (const subject of configured) {
-    if (!subjectsInSnapshot.has(subject))
-      errors.push(`missing configured subject ${subject}`);
-  }
-
   for (const subject of subjectsInSnapshot)
     if (!configured.has(subject)) errors.push(`unexpected subject ${subject}`);
 

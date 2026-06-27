@@ -104,6 +104,8 @@ function makeScheduleCourse(
 function makeSourceLoaders(
   options: {
     failScheduleSubject?: string;
+    failScheduleParseSubjects?: string[];
+    emptyScheduleSubjects?: string[];
     unsafeScheduleRaw?: boolean;
   } = {},
 ): PublishedSnapshotSourceLoaders {
@@ -121,6 +123,8 @@ function makeSourceLoaders(
           },
         ],
         parse() {
+          if (options.failScheduleParseSubjects?.includes(subject))
+            throw new Error(`Schedule parser failed for ${subject}`);
           return {
             source_timestamp: `schedule timestamp ${subject}`,
             data: {
@@ -129,11 +133,13 @@ function makeSourceLoaders(
               source_url: `https://schedule.test/${subject}`,
               fetched_at: context.generatedAt,
               source_timestamp: `schedule timestamp ${subject}`,
-              courses: [
-                makeScheduleCourse(subject, {
-                  unsafeRaw: options.unsafeScheduleRaw && subject === 'CSE',
-                }),
-              ],
+              courses: options.emptyScheduleSubjects?.includes(subject)
+                ? []
+                : [
+                    makeScheduleCourse(subject, {
+                      unsafeRaw: options.unsafeScheduleRaw && subject === 'CSE',
+                    }),
+                  ],
             },
           };
         },
@@ -318,7 +324,34 @@ describe('Published Snapshot pipeline', () => {
         },
       },
       parser_errors: [],
+      errors: [],
     });
+    expect(result.manifest.summary).toEqual({
+      ok: 6,
+      empty: 0,
+      failed: 0,
+      partial: 0,
+    });
+    expect(result.manifest.cells).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          term: 'FA26',
+          subject: 'CSE',
+          source: 'schedule_of_classes',
+          status: 'ok',
+          attempts: 1,
+        }),
+        expect.objectContaining({
+          term: 'FA26',
+          subject: 'CSE',
+          source: 'instructor_grade_archive',
+          status: 'ok',
+        }),
+      ]),
+    );
+    await expect(readFile(result.manifestPath, 'utf-8')).resolves.toContain(
+      '"active_planning_term": "FA26"',
+    );
     await expect(
       readFile(
         join(config.paths.raw_dir, 'run-success/schedule_of_classes/CSE.html'),
@@ -351,7 +384,129 @@ describe('Published Snapshot pipeline', () => {
     ).resolves.toContain('"run_id": "run-success"');
   });
 
-  it('exits hard on a configured subject source failure and preserves the existing Published Snapshot', async () => {
+  it('publishes a partial snapshot and records a persistent cell failure', async () => {
+    const config = await makeTempConfig();
+    const result = await runPublishedSnapshotPipeline(config, {
+      runId: 'run-source-failure',
+      generatedAt,
+      maxFetchAttempts: 2,
+      fetchRetryDelayMs: 0,
+      sourceLoaders: makeSourceLoaders({
+        failScheduleSubject: 'MATH',
+      }),
+    });
+
+    const partialSnapshot = JSON.parse(
+      await readFile(result.snapshotPath, 'utf-8'),
+    ) as CatalogSnapshot;
+    const failureReport = JSON.parse(
+      await readFile(
+        join(config.paths.reports_dir, 'run-source-failure.import-report.json'),
+        'utf-8',
+      ),
+    ) as {
+      status?: string;
+      errors?: { subject?: string; message?: string; attempts?: number }[];
+    };
+
+    expect(partialSnapshot.courses.map((course) => course.subject)).toEqual([
+      'CSE',
+    ]);
+    expect(failureReport.status).toBe('published');
+    expect(failureReport.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          subject: 'MATH',
+          message: 'Schedule subject MATH is unavailable',
+          attempts: 2,
+        }),
+      ]),
+    );
+    expect(result.manifest.summary).toEqual({
+      ok: 5,
+      empty: 0,
+      failed: 1,
+      partial: 0,
+    });
+    expect(result.manifest.cells).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          subject: 'MATH',
+          source: 'schedule_of_classes',
+          status: 'failed',
+          attempts: 2,
+        }),
+      ]),
+    );
+  });
+
+  it('retries transient fetch failures before recording the cell as ok', async () => {
+    const config = await makeTempConfig();
+    const attemptsBySubject = new Map<string, number>();
+    const loaders = makeSourceLoaders();
+
+    const result = await runPublishedSnapshotPipeline(config, {
+      runId: 'run-transient-retry',
+      generatedAt,
+      maxFetchAttempts: 3,
+      fetchRetryDelayMs: 0,
+      sourceLoaders: {
+        ...loaders,
+        scheduleOfClasses(subject, context) {
+          const attempts = (attemptsBySubject.get(subject) ?? 0) + 1;
+          attemptsBySubject.set(subject, attempts);
+          if (subject === 'MATH' && attempts === 1)
+            throw new Error('temporary Schedule gateway timeout');
+          return loaders.scheduleOfClasses(subject, context);
+        },
+      },
+    });
+
+    expect(attemptsBySubject.get('MATH')).toBe(2);
+    expect(result.manifest.cells).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          subject: 'MATH',
+          source: 'schedule_of_classes',
+          status: 'ok',
+          attempts: 2,
+        }),
+      ]),
+    );
+    expect(result.report.errors).toEqual([]);
+  });
+
+  it('records not-offered schedule results as empty without throwing', async () => {
+    const config = await makeTempConfig();
+
+    const result = await runPublishedSnapshotPipeline(config, {
+      runId: 'run-empty-subject',
+      generatedAt,
+      sourceLoaders: makeSourceLoaders({
+        emptyScheduleSubjects: ['MATH'],
+      }),
+    });
+
+    const partialSnapshot = JSON.parse(
+      await readFile(result.snapshotPath, 'utf-8'),
+    ) as CatalogSnapshot;
+
+    expect(partialSnapshot.courses.map((course) => course.subject)).toEqual([
+      'CSE',
+    ]);
+    expect(result.manifest.cells).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          subject: 'MATH',
+          source: 'schedule_of_classes',
+          status: 'empty',
+          reason: 'no Schedule of Classes rows for subject in term',
+        }),
+      ]),
+    );
+  });
+
+  it('aborts systemic parser breakage and preserves the existing Published Snapshot', async () => {
     const config = await makeTempConfig();
     const existingSnapshot = buildTracerCatalogSnapshot(config, {
       runId: 'run-existing',
@@ -361,20 +516,24 @@ describe('Published Snapshot pipeline', () => {
 
     await expect(
       runPublishedSnapshotPipeline(config, {
-        runId: 'run-source-failure',
+        runId: 'run-systemic-parser-failure',
         generatedAt,
+        fetchRetryDelayMs: 0,
         sourceLoaders: makeSourceLoaders({
-          failScheduleSubject: 'MATH',
+          failScheduleParseSubjects: ['CSE', 'MATH'],
         }),
       }),
-    ).rejects.toThrow(/Schedule subject MATH is unavailable/u);
+    ).rejects.toThrow(/Published Snapshot systemic parser failure/u);
 
     const stillPublished = JSON.parse(
       await readFile(published.snapshotPath, 'utf-8'),
     ) as CatalogSnapshot;
     const failureReport = JSON.parse(
       await readFile(
-        join(config.paths.reports_dir, 'run-source-failure.import-report.json'),
+        join(
+          config.paths.reports_dir,
+          'run-systemic-parser-failure.import-report.json',
+        ),
         'utf-8',
       ),
     ) as {
@@ -387,11 +546,21 @@ describe('Published Snapshot pipeline', () => {
     expect(failureReport.parser_errors).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
+          subject: 'CSE',
+          message: 'Schedule parser failed for CSE',
+        }),
+        expect.objectContaining({
           subject: 'MATH',
-          message: 'Schedule subject MATH is unavailable',
+          message: 'Schedule parser failed for MATH',
         }),
       ]),
     );
+    await expect(
+      readFile(
+        join(config.paths.public_catalog_dir, '../import-manifests/FA26.json'),
+        'utf-8',
+      ),
+    ).rejects.toThrow();
   });
 
   it('rejects invalid staging snapshots and preserves the existing Published Snapshot', async () => {

@@ -27,6 +27,10 @@ export function supportedTermSnapshotPath(term: string): string {
   return `catalogs/public/${term}.json`;
 }
 
+export function supportedTermManifestPath(term: string): string {
+  return `catalogs/import-manifests/${term}.json`;
+}
+
 export function buildSupportedTermRegistry(
   entries: SupportedTermEntry[],
   lastUpdate: string,

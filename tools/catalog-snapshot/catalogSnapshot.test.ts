@@ -154,7 +154,7 @@ describe('Catalog Snapshot validation', () => {
     });
   });
 
-  it('rejects snapshots missing a configured subject', () => {
+  it('allows configured subjects with no published courses', () => {
     const config = makeConfig();
     const snapshot = buildTracerCatalogSnapshot(config, {
       runId: 'run-test',
@@ -166,10 +166,7 @@ describe('Catalog Snapshot validation', () => {
 
     const result = validateCatalogSnapshot(snapshot, config);
 
-    expect(result.success).toBe(false);
-    expect(result.errors).toEqual(
-      expect.arrayContaining(['missing configured subject MATH']),
-    );
+    expect(result).toEqual({ success: true, errors: [] });
   });
 
   it('rejects sections without stable Section IDs for the Active Planning Term', () => {

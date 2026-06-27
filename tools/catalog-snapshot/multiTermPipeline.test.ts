@@ -228,7 +228,7 @@ describe('Multi-term snapshot pipeline', () => {
         frozen: false,
         generated_at: generatedAt,
         snapshot_path: 'catalogs/public/FA25.json',
-        manifest_path: null,
+        manifest_path: 'catalogs/import-manifests/FA25.json',
       },
       {
         term: 'SP26',
@@ -237,9 +237,21 @@ describe('Multi-term snapshot pipeline', () => {
         frozen: false,
         generated_at: generatedAt,
         snapshot_path: 'catalogs/public/SP26.json',
-        manifest_path: null,
+        manifest_path: 'catalogs/import-manifests/SP26.json',
       },
     ]);
+    await expect(
+      readFile(
+        join(config.paths.public_catalog_dir, '../import-manifests/FA25.json'),
+        'utf-8',
+      ),
+    ).resolves.toContain('"active_planning_term": "FA25"');
+    await expect(
+      readFile(
+        join(config.paths.public_catalog_dir, '../import-manifests/SP26.json'),
+        'utf-8',
+      ),
+    ).resolves.toContain('"active_planning_term": "SP26"');
   });
 
   it('fetches term-agnostic sources once per subject, schedule per term', async () => {

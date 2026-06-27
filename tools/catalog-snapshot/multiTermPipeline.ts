@@ -8,6 +8,7 @@ import {
 } from './publishedSnapshotPipeline';
 import {
   buildSupportedTermRegistry,
+  supportedTermManifestPath,
   supportedTermSnapshotPath,
   writeSupportedTermRegistry,
   type SupportedTermEntry,
@@ -122,7 +123,7 @@ export async function runMultiTermSnapshotPipeline(
       frozen: false,
       generated_at: generatedAt,
       snapshot_path: supportedTermSnapshotPath(descriptor.term),
-      manifest_path: null,
+      manifest_path: supportedTermManifestPath(descriptor.term),
     });
   }
 

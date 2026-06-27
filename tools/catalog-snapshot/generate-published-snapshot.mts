@@ -35,6 +35,7 @@ try {
           label: descriptor.label,
           status: termResult.report.status,
           snapshot_path: termResult.snapshotPath,
+          manifest_path: termResult.manifestPath,
         })),
       },
       null,

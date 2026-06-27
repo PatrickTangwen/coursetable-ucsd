@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, rename, rm, writeFile } from 'node:fs/promises';
 import pathModule from 'node:path';
 import {
   attachGeneralCatalogMetadata,
@@ -33,6 +33,7 @@ type SourceKind =
   | 'general_catalog'
   | 'instructor_grade_archive';
 type PipelineStatus = 'published' | 'failed';
+type ImportManifestCellStatus = 'ok' | 'empty' | 'failed' | 'partial';
 
 type RawSourceFile = {
   filename: string;
@@ -74,6 +75,7 @@ type PipelineError = {
   subject: string | null;
   phase: 'fetch' | 'parse' | 'write' | 'publish';
   message: string;
+  attempts?: number;
 };
 
 type StepResult<T> =
@@ -94,6 +96,34 @@ type CollectedSource<T> = {
   raw_artifacts: string[];
   normalized_artifact: string;
   data: T;
+};
+
+type ImportManifestCell = {
+  term: string;
+  subject: string;
+  source: SourceKind;
+  status: ImportManifestCellStatus;
+  reason: string | null;
+  attempts: number;
+  row_counts: { [key: string]: number };
+  raw_artifacts: string[];
+  normalized_artifact: string | null;
+};
+
+export type PublishedSnapshotImportManifest = {
+  run_id: string;
+  generated_at: string;
+  active_planning_term: string;
+  term_label: string;
+  configured_subjects: string[];
+  systemic_parser_failure_threshold: number;
+  cells: ImportManifestCell[];
+  summary: {
+    ok: number;
+    empty: number;
+    failed: number;
+    partial: number;
+  };
 };
 
 export type PublishedSnapshotImportReport = {
@@ -150,12 +180,15 @@ export type PublishedSnapshotPipelineResult = {
   reportPath: string;
   snapshotPath: string;
   metadataPath: string | null;
+  manifest: PublishedSnapshotImportManifest;
+  manifestPath: string;
 };
 
 type RunPaths = {
   rawRoot: string;
   normalizedRoot: string;
   reportPath: string;
+  manifestPath: string;
 };
 
 function defaultRunId(generatedAt: string): string {
@@ -231,26 +264,119 @@ async function runStep<T>(
   }
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function runRetriableStep<T>(
+  errorContext: Omit<PipelineError, 'message'>,
+  options: { maxAttempts: number; retryDelayMs: number },
+  action: () => T | Promise<T>,
+): Promise<StepResult<T> & { attempts: number }> {
+  const maxAttempts = Math.max(1, options.maxAttempts);
+  let latestError: PipelineError | null = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const result = await runStep(errorContext, action);
+    if (result.ok) return { ...result, attempts: attempt };
+    latestError = { ...result.error, attempts: attempt };
+    if (attempt < maxAttempts && options.retryDelayMs > 0)
+      await sleep(options.retryDelayMs);
+  }
+
+  return {
+    ok: false,
+    error: latestError ?? {
+      ...errorContext,
+      message: 'step failed without an error',
+      attempts: maxAttempts,
+    },
+    attempts: maxAttempts,
+  };
+}
+
+function emptyReason(source: SourceKind, rowCounts: { [key: string]: number }) {
+  const totalRows = Object.values(rowCounts).reduce(
+    (count, value) => count + value,
+    0,
+  );
+  if (totalRows > 0) return null;
+  if (source === 'schedule_of_classes')
+    return 'no Schedule of Classes rows for subject in term';
+  if (source === 'general_catalog')
+    return 'no General Catalog rows for subject';
+  return 'no Instructor Grade Archive rows for subject';
+}
+
+function manifestSummary(cells: ImportManifestCell[]) {
+  return {
+    ok: cells.filter((cell) => cell.status === 'ok').length,
+    empty: cells.filter((cell) => cell.status === 'empty').length,
+    failed: cells.filter((cell) => cell.status === 'failed').length,
+    partial: cells.filter((cell) => cell.status === 'partial').length,
+  };
+}
+
+function buildManifest(options: {
+  config: CatalogSnapshotConfig;
+  runId: string;
+  generatedAt: string;
+  systemicParserFailureThreshold: number;
+  cells: ImportManifestCell[];
+}): PublishedSnapshotImportManifest {
+  return {
+    run_id: options.runId,
+    generated_at: options.generatedAt,
+    active_planning_term: options.config.active_planning_term,
+    term_label: options.config.term_label,
+    configured_subjects: options.config.configured_subjects,
+    systemic_parser_failure_threshold: options.systemicParserFailureThreshold,
+    cells: options.cells,
+    summary: manifestSummary(options.cells),
+  };
+}
+
 async function collectSources<T>(
   source: SourceKind,
   subjects: string[],
   loader: SourceLoader<T>,
   context: PublishedSnapshotSourceLoadContext,
   paths: RunPaths,
+  options: { maxFetchAttempts: number; fetchRetryDelayMs: number },
+  rowCountsForData: (data: T) => { [key: string]: number },
 ): Promise<{
   collected: CollectedSource<T>[];
   errors: PipelineError[];
+  cells: ImportManifestCell[];
 }> {
   const collected: CollectedSource<T>[] = [];
   const errors: PipelineError[] = [];
+  const cells: ImportManifestCell[] = [];
 
   for (const subject of subjects) {
-    const sourceLoadResult = await runStep(
+    const sourceLoadResult = await runRetriableStep(
       { source, subject, phase: 'fetch' },
+      {
+        maxAttempts: options.maxFetchAttempts,
+        retryDelayMs: options.fetchRetryDelayMs,
+      },
       () => loader(subject, context),
     );
     if (!sourceLoadResult.ok) {
       errors.push(sourceLoadResult.error);
+      cells.push({
+        term: context.config.active_planning_term,
+        subject,
+        source,
+        status: 'failed',
+        reason: sourceLoadResult.error.message,
+        attempts: sourceLoadResult.attempts,
+        row_counts: {},
+        raw_artifacts: [],
+        normalized_artifact: null,
+      });
       continue;
     }
     const sourceLoad = sourceLoadResult.value;
@@ -261,6 +387,17 @@ async function collectSources<T>(
     );
     if (!rawArtifactsResult.ok) {
       errors.push(rawArtifactsResult.error);
+      cells.push({
+        term: context.config.active_planning_term,
+        subject,
+        source,
+        status: 'failed',
+        reason: rawArtifactsResult.error.message,
+        attempts: sourceLoadResult.attempts,
+        row_counts: {},
+        raw_artifacts: [],
+        normalized_artifact: null,
+      });
       continue;
     }
     const rawArtifacts = rawArtifactsResult.value;
@@ -271,9 +408,22 @@ async function collectSources<T>(
     );
     if (!parsedResult.ok) {
       errors.push(parsedResult.error);
+      cells.push({
+        term: context.config.active_planning_term,
+        subject,
+        source,
+        status: 'failed',
+        reason: parsedResult.error.message,
+        attempts: sourceLoadResult.attempts,
+        row_counts: {},
+        raw_artifacts: rawArtifacts,
+        normalized_artifact: null,
+      });
       continue;
     }
     const parsed = parsedResult.value;
+    const rowCounts = rowCountsForData(parsed.data);
+    const emptyCellReason = emptyReason(source, rowCounts);
 
     const normalizedArtifactResult = await runStep(
       { source, subject, phase: 'write' },
@@ -281,6 +431,17 @@ async function collectSources<T>(
     );
     if (!normalizedArtifactResult.ok) {
       errors.push(normalizedArtifactResult.error);
+      cells.push({
+        term: context.config.active_planning_term,
+        subject: sourceLoad.subject,
+        source,
+        status: 'failed',
+        reason: normalizedArtifactResult.error.message,
+        attempts: sourceLoadResult.attempts,
+        row_counts: rowCounts,
+        raw_artifacts: rawArtifacts,
+        normalized_artifact: null,
+      });
       continue;
     }
 
@@ -293,9 +454,20 @@ async function collectSources<T>(
       normalized_artifact: normalizedArtifactResult.value,
       data: parsed.data,
     });
+    cells.push({
+      term: context.config.active_planning_term,
+      subject: sourceLoad.subject,
+      source,
+      status: emptyCellReason ? 'empty' : 'ok',
+      reason: emptyCellReason,
+      attempts: sourceLoadResult.attempts,
+      row_counts: rowCounts,
+      raw_artifacts: rawArtifacts,
+      normalized_artifact: normalizedArtifactResult.value,
+    });
   }
 
-  return { collected, errors };
+  return { collected, errors, cells };
 }
 
 function firstTimestamp<T>(sources: CollectedSource<T>[]): string | null {
@@ -406,6 +578,14 @@ function sourceRowCounts(
   };
 }
 
+function generalCatalogRowCounts(data: GeneralCatalogCourse[]) {
+  return { courses: data.length };
+}
+
+function gradeArchiveRowCounts(data: GradeArchiveRecord[]) {
+  return { records: data.length };
+}
+
 function sourceReport(
   source: CollectedSource<
     ParsedScheduleOfClasses | GeneralCatalogCourse[] | GradeArchiveRecord[]
@@ -420,6 +600,60 @@ function sourceReport(
     normalized_artifact: source.normalized_artifact,
     row_counts: sourceRowCounts(source),
   };
+}
+
+function sourcePublicManifestPath(config: CatalogSnapshotConfig): string {
+  return pathModule.join(
+    pathModule.dirname(config.paths.public_catalog_dir),
+    'import-manifests',
+    `${config.active_planning_term}.json`,
+  );
+}
+
+function systemicParserErrors(options: {
+  errors: PipelineError[];
+  subjects: string[];
+  threshold: number;
+}): PipelineError[] {
+  const subjectsBySource = new Map<SourceKind, Set<string>>();
+  for (const error of options.errors) {
+    if (error.source === 'publish') continue;
+    if (error.phase !== 'parse') continue;
+    if (!error.subject) continue;
+    const subjects = subjectsBySource.get(error.source) ?? new Set<string>();
+    subjects.add(error.subject);
+    subjectsBySource.set(error.source, subjects);
+  }
+
+  const configuredCount = Math.max(1, options.subjects.length);
+  const systemicSources = new Set<SourceKind>();
+  for (const [source, subjects] of subjectsBySource) {
+    if (subjects.size / configuredCount > options.threshold)
+      systemicSources.add(source);
+  }
+
+  return options.errors.filter(
+    (error) =>
+      error.source !== 'publish' &&
+      systemicSources.has(error.source) &&
+      error.phase === 'parse',
+  );
+}
+
+async function publishImportManifest(
+  manifest: PublishedSnapshotImportManifest,
+  pathname: string,
+): Promise<string> {
+  await mkdir(pathModule.dirname(pathname), { recursive: true });
+  const tempPath = `${pathname}.tmp-${process.pid}-${Date.now()}-${randomUUID()}`;
+  try {
+    await writeJson(tempPath, manifest);
+    await rename(tempPath, pathname);
+  } catch (err) {
+    await rm(tempPath, { force: true });
+    throw err;
+  }
+  return pathname;
 }
 
 function buildReport(options: {
@@ -508,11 +742,6 @@ export function defaultSourceLoaders(): PublishedSnapshotSourceLoaders {
             sourceUrl: rawSource.source_url,
             fetchedAt: rawSource.fetched_at,
           });
-          if (!parsed.courses.length) {
-            throw new Error(
-              `UCSD Schedule returned no courses for ${subject} ${context.config.active_planning_term}`,
-            );
-          }
           return {
             source_timestamp: parsed.source_timestamp,
             data: parsed,
@@ -618,10 +847,17 @@ export async function runPublishedSnapshotPipeline(
     fetch?: FetchAdapter;
     sourceLoaders?: PublishedSnapshotSourceLoaders;
     writeMetadata?: boolean;
+    maxFetchAttempts?: number;
+    fetchRetryDelayMs?: number;
+    systemicParserFailureThreshold?: number;
   } = {},
 ): Promise<PublishedSnapshotPipelineResult> {
   const generatedAt = options.generatedAt ?? new Date().toISOString();
   const runId = options.runId ?? defaultRunId(generatedAt);
+  const maxFetchAttempts = options.maxFetchAttempts ?? 3;
+  const fetchRetryDelayMs = options.fetchRetryDelayMs ?? 250;
+  const systemicParserFailureThreshold =
+    options.systemicParserFailureThreshold ?? 0.5;
   const paths = {
     rawRoot: pathModule.join(config.paths.raw_dir, runId),
     normalizedRoot: pathModule.join(config.paths.normalized_dir, runId),
@@ -629,6 +865,7 @@ export async function runPublishedSnapshotPipeline(
       config.paths.reports_dir,
       `${runId}.import-report.json`,
     ),
+    manifestPath: sourcePublicManifestPath(config),
   };
   const context = {
     config,
@@ -644,6 +881,8 @@ export async function runPublishedSnapshotPipeline(
     sourceLoaders.scheduleOfClasses,
     context,
     paths,
+    { maxFetchAttempts, fetchRetryDelayMs },
+    scheduleSubjectCounts,
   );
   const generalCatalogResult = await collectSources(
     'general_catalog',
@@ -651,6 +890,8 @@ export async function runPublishedSnapshotPipeline(
     sourceLoaders.generalCatalog,
     context,
     paths,
+    { maxFetchAttempts, fetchRetryDelayMs },
+    generalCatalogRowCounts,
   );
   const gradeArchiveResult = await collectSources(
     'instructor_grade_archive',
@@ -658,16 +899,35 @@ export async function runPublishedSnapshotPipeline(
     sourceLoaders.instructorGradeArchive,
     context,
     paths,
+    { maxFetchAttempts, fetchRetryDelayMs },
+    gradeArchiveRowCounts,
   );
   const sourceErrors = [
     ...scheduleResult.errors,
     ...generalCatalogResult.errors,
     ...gradeArchiveResult.errors,
   ];
+  const manifestCells = [
+    ...scheduleResult.cells,
+    ...generalCatalogResult.cells,
+    ...gradeArchiveResult.cells,
+  ];
+  const manifest = buildManifest({
+    config,
+    runId,
+    generatedAt,
+    systemicParserFailureThreshold,
+    cells: manifestCells,
+  });
+  const systemicErrors = systemicParserErrors({
+    errors: sourceErrors,
+    subjects: config.configured_subjects,
+    threshold: systemicParserFailureThreshold,
+  });
 
   await mkdir(config.paths.reports_dir, { recursive: true });
 
-  if (sourceErrors.length) {
+  if (systemicErrors.length) {
     const report = buildReport({
       config,
       runId,
@@ -679,17 +939,19 @@ export async function runPublishedSnapshotPipeline(
       snapshot: null,
       validation: {
         success: false,
-        errors: ['validation was not run because source collection failed'],
+        errors: [
+          'validation was not run because source parsing failed systemically',
+        ],
       },
-      errors: sourceErrors,
-      parserErrors: sourceErrors,
+      errors: systemicErrors,
+      parserErrors: systemicErrors,
       stagingSnapshotPath: null,
       publishedSnapshotPath: null,
       metadataPath: null,
     });
     await writeJson(paths.reportPath, report);
     throw new Error(
-      `Published Snapshot source collection failed:\n${sourceErrors
+      `Published Snapshot systemic parser failure:\n${systemicErrors
         .map((error) => error.message)
         .join('\n')}`,
     );
@@ -722,8 +984,8 @@ export async function runPublishedSnapshotPipeline(
       gradeArchiveSources: gradeArchiveResult.collected,
       snapshot,
       validation,
-      errors: [],
-      parserErrors: [],
+      errors: sourceErrors,
+      parserErrors: sourceErrors.filter((error) => error.phase === 'parse'),
       stagingSnapshotPath,
       publishedSnapshotPath: null,
       metadataPath: null,
@@ -738,6 +1000,10 @@ export async function runPublishedSnapshotPipeline(
     const publishResult = await publishCatalogSnapshot(snapshot, config, {
       writeMetadata: options.writeMetadata,
     });
+    const manifestPath = await publishImportManifest(
+      manifest,
+      paths.manifestPath,
+    );
     const report = buildReport({
       config,
       runId,
@@ -748,7 +1014,7 @@ export async function runPublishedSnapshotPipeline(
       gradeArchiveSources: gradeArchiveResult.collected,
       snapshot,
       validation,
-      errors: [],
+      errors: sourceErrors,
       parserErrors: [],
       stagingSnapshotPath,
       publishedSnapshotPath: publishResult.snapshotPath,
@@ -760,9 +1026,12 @@ export async function runPublishedSnapshotPipeline(
       reportPath: paths.reportPath,
       snapshotPath: publishResult.snapshotPath,
       metadataPath: publishResult.metadataPath,
+      manifest,
+      manifestPath,
     };
   } catch (err) {
     const errors = [
+      ...sourceErrors,
       {
         source: 'publish' as const,
         subject: null,
@@ -781,7 +1050,7 @@ export async function runPublishedSnapshotPipeline(
       snapshot,
       validation,
       errors,
-      parserErrors: [],
+      parserErrors: sourceErrors.filter((error) => error.phase === 'parse'),
       stagingSnapshotPath,
       publishedSnapshotPath: null,
       metadataPath: null,
