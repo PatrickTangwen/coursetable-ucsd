@@ -104,6 +104,7 @@ function staticCatalogPlugin(): import('vite').Plugin {
             const file = path.join(staticDir, 'metadata.json');
             if (fs.existsSync(file)) {
               res.setHeader('Content-Type', 'application/json');
+              res.setHeader('Cache-Control', 'no-store');
               res.end(fs.readFileSync(file));
               return;
             }
@@ -120,6 +121,7 @@ function staticCatalogPlugin(): import('vite').Plugin {
             );
             if (fs.existsSync(file)) {
               res.setHeader('Content-Type', 'application/json');
+              res.setHeader('Cache-Control', 'no-store');
               res.end(fs.readFileSync(file));
               return;
             }

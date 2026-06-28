@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -287,6 +287,38 @@ describe('Multi-term snapshot pipeline', () => {
     // Term-agnostic sources fetched once per subject across both terms.
     expect(counters.generalCatalog.sort()).toEqual(['CSE', 'MATH']);
     expect(counters.gradeArchive.sort()).toEqual(['CSE', 'MATH']);
+  });
+
+  it('publishes registry when an old single-term metadata file exists', async () => {
+    const config = await makeTempConfig();
+    await writeFile(
+      config.paths.metadata_path,
+      JSON.stringify({ last_update: '2026-06-01T00:00:00.000Z' }),
+      'utf-8',
+    );
+
+    await runMultiTermSnapshotPipeline(config, {
+      runId: 'multi-run',
+      generatedAt,
+      terms: [{ term: 'SP26', label: 'Spring 2026' }],
+      sourceLoaders: makeCountingLoaders({
+        schedule: [],
+        generalCatalog: [],
+        gradeArchive: [],
+      }),
+      fetchDelayMs: 0,
+    });
+
+    const registry = JSON.parse(
+      await readFile(config.paths.metadata_path, 'utf-8'),
+    ) as SupportedTermRegistry;
+
+    expect(registry.terms).toEqual([
+      expect.objectContaining({
+        term: 'SP26',
+        frozen: false,
+      }),
+    ]);
   });
 
   it('uses each term discovered subject list instead of configured subjects', async () => {

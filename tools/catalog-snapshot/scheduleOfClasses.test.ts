@@ -104,6 +104,44 @@ const cseFixture = `
 </table>
 `;
 
+const cseSecondPageFixture = `
+<div>Page  (2&nbsp;of&nbsp;2)</div>
+<table id="socDeptTab">
+  <tr>
+    <td colspan="13">
+      <h2><span class="centeralign">Computer Science &amp; Engineering (CSE  )</span></h2>
+      <span class="centeralign"><span class="bold_text">As of: 04/01/2026, 05:27:00</span></span>
+    </td>
+  </tr>
+  <tr>
+    <td class="crsheader"></td>
+    <td class="crsheader">30</td>
+    <td class="crsheader" colspan="5">
+      <a href="javascript:openNewWindow('http://www.ucsd.edu/catalog/courses/CSE.html#cse30')">
+        <span class="boldtxt">Computer Organization</span>
+      </a>
+      ( 4 Units)
+    </td>
+    <td class="crsheader" colspan="6" align="right">Prerequisites | Evaluations</td>
+  </tr>
+  <tr class="sectxt">
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr">300001</td>
+    <td class="brdr"><span id="insTyp" title="Lecture">LE</span></td>
+    <td class="brdr">A01</td>
+    <td class="brdr">TuTh</td>
+    <td class="brdr">9:30a-10:50a</td>
+    <td class="brdr">WLH</td>
+    <td class="brdr">2001</td>
+    <td class="brdr"><a href="#!">Chin, Bryan W.</a><br></td>
+    <td class="brdr">5</td>
+    <td class="brdr">100</td>
+    <td class="brdr">bookstore</td>
+  </tr>
+</table>
+`;
+
 const mathFixture = `
 <table id="socDeptTab">
   <tr>
@@ -487,6 +525,64 @@ describe('UCSD Schedule of Classes fetcher', () => {
       'MATH',
     ]);
     expect(parsed.map((result) => result.subject)).toEqual(['CSE', 'MATH']);
+  });
+
+  it('fetches and parses paginated Schedule of Classes result pages', async () => {
+    const requests: { url: string; init?: RequestInit }[] = [];
+
+    const [parsed] = await fetchScheduleOfClassesForSubjects(['CSE'], {
+      term: 'SP26',
+      fetch(url, init) {
+        const urlText = requestUrlText(url);
+        requests.push({ url: urlText, init });
+        if (urlText.endsWith('subject-list.json?selectedTerm=SP26')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify([
+                {
+                  code: 'CSE ',
+                  value: 'CSE  - Computer Science & Engineering',
+                },
+              ]),
+              { status: 200 },
+            ),
+          );
+        }
+        if (urlText.endsWith('scheduleOfClassesStudentResult.htm?page=2')) {
+          return Promise.resolve(
+            new Response(cseSecondPageFixture, {
+              status: 200,
+              headers: {
+                'Content-Type': 'text/html; charset=utf-8',
+              },
+            }),
+          );
+        }
+        return Promise.resolve(
+          new Response(
+            `${cseFixture}<div>Page  (1&nbsp;of&nbsp;2)</div><a href="scheduleOfClassesStudentResult.htm?page=2">2</a>`,
+            {
+              status: 200,
+              headers: {
+                'Content-Type': 'text/html; charset=utf-8',
+                'Set-Cookie': 'jlinksessionidx=test-session; Path=/',
+              },
+            },
+          ),
+        );
+      },
+      fetchedAt,
+    });
+
+    expect(
+      requests.some((request) =>
+        request.url.endsWith('scheduleOfClassesStudentResult.htm?page=2'),
+      ),
+    ).toBe(true);
+    expect(parsed?.courses.map((course) => course.course_number)).toEqual([
+      '5',
+      '30',
+    ]);
   });
 
   it('reuses an injected subject list instead of refetching it per subject', async () => {
