@@ -26,27 +26,12 @@ For new agent or human planning work, read in this order:
   sequencing. Keep this as a compact map, not a place for detailed issue-level
   notes.
 - `docs/planning/README.md`: current-vs-historical seam for planning inputs.
-- `docs/beta-1-real-backend-auth-validation-2026-06-20.md`: focused plan for
-  issue #20, `Beta-1: Real Backend Auth Validation`.
-- `docs/beta-1-save-anonymous-worksheet-to-account-2026-06-21.md`: completed
-  transitional save/restore slice; read its 2026-06-22 supersession note before
-  using its UX language.
-- `docs/beta-1-saved-worksheet-acceptance-2026-06-21.md`: acceptance record for
-  issue #26 and parent PRD #24.
-- `docs/beta-1-saved-worksheet-management-2026-06-22.md`: PRD for the next
-  post-auth Saved Worksheet Management beta and current worksheet interaction
-  logic.
-- `docs/beta-1-saved-worksheet-management-acceptance-2026-06-22.md`:
-  acceptance record for issue #34 and the final interaction-alignment follow-up.
-- `docs/grade-archive-ui-update-2026-06-21.md`: current UI/data contract for
-  Average GPA, Record Count, and Past Grades.
 - `docs/populate-ucsd-course-data-multi-term-2026-06-26.md`: plan for moving the
   catalog pipeline to a forward-accumulating, all-subject, multi-term archive,
   with the source-availability finding and dependency-ordered implementation
   slices. Read with ADRs 0012–0014.
-- `docs/beta-0-ui-surface-inventory-2026-06-20.md`: current Beta-0 UI surface
-  inventory.
-- `docs/mvp-1-non-ui-acceptance-2026-06-20.md`: MVP-1 non-UI acceptance record.
+- `docs/grade-archive-ui-update-2026-06-21.md`: current UI/data contract for
+  Average GPA, Record Count, and Past Grades.
 - `CONTEXT.md`: shared domain terms and project language.
 
 ## Decision Records
@@ -98,6 +83,30 @@ For new agent or human planning work, read in this order:
 - `docs/styling.md`: styling conventions.
 - `docs/challenge.md`: challenge/context notes.
 
+## Archived Milestone Docs
+
+Completed beta and MVP milestone docs live in `docs/planning/archive/`. These
+are preserved as historical records; they should not be used as current planning
+inputs.
+
+- `docs/planning/archive/beta-0-ui-surface-inventory-2026-06-20.md`: Beta-0 UI
+  surface inventory and acceptance evidence.
+- `docs/planning/archive/beta-1-compose-bringup-runbook-2026-06-20.md`: issue
+  #21 runbook for Doppler-free local backend validation.
+- `docs/planning/archive/beta-1-real-backend-auth-validation-2026-06-20.md`:
+  issue #20 validation plan for real backend auth.
+- `docs/planning/archive/beta-1-save-anonymous-worksheet-to-account-2026-06-21.md`:
+  completed transitional save/restore slice; superseded by the Saved Worksheet
+  Management PRD.
+- `docs/planning/archive/beta-1-saved-worksheet-acceptance-2026-06-21.md`:
+  acceptance record for issue #26 and parent PRD #24.
+- `docs/planning/archive/beta-1-saved-worksheet-management-2026-06-22.md`:
+  completed PRD for Saved Worksheet Management.
+- `docs/planning/archive/beta-1-saved-worksheet-management-acceptance-2026-06-22.md`:
+  acceptance record for issue #34 and final interaction-alignment follow-up.
+- `docs/planning/archive/mvp-1-non-ui-acceptance-2026-06-20.md`: MVP-1 non-UI
+  acceptance record.
+
 ## Historical Planning Inputs
 
 - `docs/planning/archive/ucsd-coursetable-plan.md`: earlier UCSD CourseTable
@@ -119,3 +128,5 @@ For new agent or human planning work, read in this order:
   database dumps, or session artifacts by default.
 - If a doc appears stale, create a new dated note or section that records the
   discrepancy instead of silently rewriting the historical record.
+- When a milestone's acceptance is complete, move its docs to
+  `docs/planning/archive/`.

@@ -7,7 +7,6 @@ type DropdownMenuOption = {
   readonly value: string;
   readonly label: string;
 };
-
 function DropdownChevron() {
   return (
     <svg className={styles.chevronSvg} viewBox="0 0 10 10" aria-hidden="true">
@@ -74,7 +73,6 @@ export function DropdownMenu({
   useEffect(() => {
     if (open && searchable) searchInputRef.current?.focus();
   }, [open, searchable]);
-
   return (
     <div className={styles.dropdownWrapper} ref={ref}>
       <button

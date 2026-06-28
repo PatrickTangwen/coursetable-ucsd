@@ -32,7 +32,7 @@ or sync anonymous worksheet state.
 
 This document records the completed transitional save/restore slice (#24, #27,
 #25, and #26). The current Saved Worksheet Management UX is governed by
-`docs/beta-1-saved-worksheet-management-2026-06-22.md` and ADR 0010's
+`docs/planning/archive/beta-1-saved-worksheet-management-2026-06-22.md` and ADR 0010's
 2026-06-22 interaction alignment note. In the current worksheet page, signed-out
 users and signed-in users share the same visible worksheet interaction model;
 the persistence backend changes from browser local storage to account Saved

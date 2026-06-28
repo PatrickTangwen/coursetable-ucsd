@@ -52,6 +52,11 @@ logs, or transient setup notes directly in ADRs.
 - `0014-multi-term-display-semantics.md`: availability staleness is labeled by
   term state and there is no single course-level Average GPA summary, refining
   ADR 0011 and superseding the Average GPA card of ADR 0003.
+- `0015-multi-term-saved-worksheets-and-cross-term-add-routing.md`: signed-in
+  accounts get a term selector and cross-term catalog adds route silently into
+  that term's Active Saved Worksheet (resolved active → Main → on-demand create)
+  instead of being rejected, reaching parity with anonymous worksheets, extending
+  ADR 0010 without changing the single-term Saved Worksheet model.
 
 ## Editing Rule
 

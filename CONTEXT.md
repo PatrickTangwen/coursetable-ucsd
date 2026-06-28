@@ -186,6 +186,20 @@ current worksheet's term. Past / Frozen terms remain add-able but show a
 term's date range, not a hard-coded current-term literal.
 _Avoid_: Cart, schedule cart, saved schedule, single flat cross-term list
 
+**Worksheet Viewed Term**:
+The Supported Term whose worksheet the Worksheet page is currently showing
+(`viewedSeason`), chosen through the worksheet term selector. It is independent
+of the term the Catalog is browsing — switching the Catalog term never moves it,
+and it persists across navigation between Catalog and Worksheet (and across a
+page reload, once hydrated from the stored worksheet term). It defaults to the
+most recent Supported Term (or, across reloads, the last viewed Supported Term)
+and is never silently reassigned by adding a section from another term; courses
+sitting in other terms are surfaced through the empty-term "your courses are in …" prompt, not by auto-switching or add-time
+notifications. The selector exists for both signed-out and signed-in accounts;
+for a signed-in account it replaces the static term badge and selects that term's
+Active Saved Worksheet. See ADR 0015.
+_Avoid_: Catalog term, Active Planning Term, current term, auto-switch on add
+
 **Anonymous Worksheet**:
 A browser-local worksheet that is not attached to a user account. This term is
 primarily implementation and historical planning language; current user-facing
@@ -244,6 +258,10 @@ _Avoid_: Save current worksheet, duplicate worksheet, import worksheet
 The Saved Worksheet currently selected for a signed-in user within a supported
 term. The planner may remember the last Active Saved Worksheet per term, falling
 back to the term's Main Worksheet if the remembered worksheet no longer exists.
+Adding a catalog section for another term routes it into that term's Active Saved
+Worksheet (creating the term's Main Worksheet on demand if none exists) rather
+than being rejected; this same resolution also defines the catalog toggle
+membership for that term. See ADR 0015.
 _Avoid_: Global active worksheet, cross-term worksheet, browser-only ownership
 
 **Saved Worksheet Management**:

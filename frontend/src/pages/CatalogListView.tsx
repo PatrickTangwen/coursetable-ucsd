@@ -64,11 +64,7 @@ export default function CatalogListView() {
   );
 
   const subjects = useMemo(
-    () =>
-      extractCatalogSubjects(
-        courses,
-        searchFilters.selectSeasons,
-      ),
+    () => extractCatalogSubjects(courses, searchFilters.selectSeasons),
     [courses, searchFilters.selectSeasons],
   );
 

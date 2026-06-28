@@ -688,7 +688,7 @@ Beta-1 Auth Foundation acceptance:
 runbook slice after `Auth Foundation And UCSD User Identity`, not as a new PRD
 or a Saved Worksheet product feature. Detailed scope, pass/fail criteria,
 artifact strategy, and non-goals live in
-`docs/beta-1-real-backend-auth-validation-2026-06-20.md`.
+`docs/planning/archive/beta-1-real-backend-auth-validation-2026-06-20.md`.
 
 This roadmap intentionally keeps only the ordering and product-scope summary:
 

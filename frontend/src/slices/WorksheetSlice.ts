@@ -48,11 +48,24 @@ import {
   type AnonymousWorksheetShare,
   type AnonymousWorksheetState,
 } from '../utilities/anonymousWorksheet';
+import { createLocalStorageSlot } from '../utilities/browserStorage';
 import { worksheetColors } from '../utilities/constants';
+import { toSeasonString } from '../utilities/course';
 import {
   buildRestoredAnonymousWorksheet,
   type SavedWorksheetRestoreSource,
 } from '../utilities/savedWorksheet';
+
+const lastViewedSavedWorksheetTermSlot = createLocalStorageSlot<string>(
+  'sungrid_saved_worksheet_last_viewed_term',
+);
+
+export function getInitialSavedWorksheetTerm(): Season {
+  const stored = lastViewedSavedWorksheetTermSlot.get();
+  if (stored && (allSeasons as readonly string[]).includes(stored))
+    return stored as Season;
+  return CUR_SEASON;
+}
 
 // Utility Types
 export type WorksheetView = 'calendar' | 'list' | 'map';
@@ -98,6 +111,8 @@ interface WorksheetState {
   activeSavedWorksheet: SavedWorksheet | undefined;
   activeSavedWorksheetOwnerId: number | undefined;
   activeSavedWorksheetIdsByTerm: { [term: string]: number | undefined };
+  crossTermSavedSections: { [term: string]: SavedWorksheetSection[] };
+  allTermSavedWorksheetSummaries: SavedWorksheetSummary[];
   savedWorksheetSummaries: SavedWorksheetSummary[];
   savedWorksheetListStatus: 'idle' | 'loading' | 'ready' | 'error';
   savedWorksheetListError: Error | null;
@@ -139,6 +154,8 @@ interface WorksheetActions {
   refreshSavedWorksheetsForTerm: (
     term: Season,
   ) => Promise<SavedWorksheetSummary[]>;
+  refreshAllTermSavedWorksheetSummaries: () => Promise<void>;
+  loadSavedWorksheetSectionsForTerm: (term: Season) => Promise<boolean>;
   selectSavedWorksheet: (id: number) => Promise<boolean>;
   createBlankSavedWorksheetForTerm: (term: Season) => Promise<boolean>;
   renameSavedWorksheet: (id: number, name: string) => Promise<boolean>;
@@ -290,6 +307,11 @@ export const createWorksheetSlice: StateCreator<
       ),
     ].sort((a, b) => b.createdAt - a.createdAt);
 
+    lastViewedSavedWorksheetTermSlot.set(worksheet.term);
+
+    const { [worksheet.term]: _cleared, ...restCrossTermSections } =
+      get().crossTermSavedSections;
+
     set({
       activeSavedWorksheet: worksheet,
       activeSavedWorksheetOwnerId: userId,
@@ -297,6 +319,7 @@ export const createWorksheetSlice: StateCreator<
         ...get().activeSavedWorksheetIdsByTerm,
         [worksheet.term]: worksheet.id,
       },
+      crossTermSavedSections: restCrossTermSections,
       savedWorksheetBootstrapStatus: 'ready',
       savedWorksheetBootstrapError: null,
       viewedPerson: 'me',
@@ -330,29 +353,53 @@ export const createWorksheetSlice: StateCreator<
     activateSavedWorksheet(updatedWorksheet, user.user_id);
     return true;
   };
-  const getActiveSavedWorksheetSectionId = (
-    listing: AnonymousWorksheetListing,
-  ) => {
+  const getListingSectionIdOrWarn = (listing: AnonymousWorksheetListing) => {
     const sectionId = getListingSectionId(listing);
     if (!sectionId) {
       toast.error('This section cannot be saved to a Saved Worksheet.');
       return null;
     }
-
-    const { activeSavedWorksheet } = get();
-    const listingTerm = listing.course?.season_code;
-    if (
-      activeSavedWorksheet &&
-      listingTerm &&
-      listingTerm !== activeSavedWorksheet.term
-    ) {
-      toast.error(
-        'This section belongs to a different term than the active Saved Worksheet.',
-      );
-      return null;
-    }
-
     return sectionId;
+  };
+  const resolveWorksheetForTerm = async (
+    term: Season,
+  ): Promise<SavedWorksheet | null> => {
+    const rememberedId = get().activeSavedWorksheetIdsByTerm[term];
+    if (rememberedId) {
+      const remembered = await fetchSavedWorksheet(rememberedId);
+      if (remembered?.term === term) return remembered;
+    }
+    const worksheet = await ensureMainSavedWorksheet(term);
+    if (!worksheet) return null;
+    set({
+      activeSavedWorksheetIdsByTerm: {
+        ...get().activeSavedWorksheetIdsByTerm,
+        [term]: worksheet.id,
+      },
+    });
+    return worksheet;
+  };
+  const getExistingWorksheetSummaryForTerm = (term: Season) => {
+    const termSummaries = get().allTermSavedWorksheetSummaries.filter(
+      (summary) => summary.term === term,
+    );
+    const rememberedId = get().activeSavedWorksheetIdsByTerm[term];
+    return (
+      (rememberedId
+        ? termSummaries.find((summary) => summary.id === rememberedId)
+        : undefined) ?? termSummaries.find((summary) => summary.isMain)
+    );
+  };
+  const setCrossTermSavedSections = (
+    term: Season,
+    sections: SavedWorksheetSection[],
+  ) => {
+    set({
+      crossTermSavedSections: {
+        ...get().crossTermSavedSections,
+        [term]: sections,
+      },
+    });
   };
 
   return {
@@ -390,6 +437,8 @@ export const createWorksheetSlice: StateCreator<
     activeSavedWorksheet: undefined,
     activeSavedWorksheetOwnerId: undefined,
     activeSavedWorksheetIdsByTerm: {},
+    crossTermSavedSections: {},
+    allTermSavedWorksheetSummaries: [],
     savedWorksheetSummaries: [],
     savedWorksheetListStatus: 'idle',
     savedWorksheetListError: null,
@@ -479,11 +528,13 @@ export const createWorksheetSlice: StateCreator<
             const rememberedWorksheet = await fetchSavedWorksheet(rememberedId);
             if (rememberedWorksheet?.term === term) {
               activateSavedWorksheet(rememberedWorksheet, user.user_id);
+              void get().refreshAllTermSavedWorksheetSummaries();
               return;
             }
           }
 
           activateSavedWorksheet(mainWorksheet, user.user_id);
+          void get().refreshAllTermSavedWorksheetSummaries();
         } catch (error: unknown) {
           set({
             savedWorksheetBootstrapStatus: 'error',
@@ -523,6 +574,51 @@ export const createWorksheetSlice: StateCreator<
         });
         return [];
       }
+    },
+    async refreshAllTermSavedWorksheetSummaries() {
+      if (!hasSavedWorksheetAccount()) return;
+      try {
+        const response = await fetchSavedWorksheets();
+        set({ allTermSavedWorksheetSummaries: response?.data ?? [] });
+      } catch {
+        // Non-critical; don't block the user
+      }
+    },
+    async loadSavedWorksheetSectionsForTerm(term) {
+      if (!hasSavedWorksheetAccount()) return false;
+
+      const { activeSavedWorksheet, crossTermSavedSections } = get();
+      if (activeSavedWorksheet?.term === term) return true;
+      if (Object.hasOwn(crossTermSavedSections, term)) return true;
+
+      if (get().allTermSavedWorksheetSummaries.length === 0) return false;
+
+      const summary = getExistingWorksheetSummaryForTerm(term);
+      if (!summary) {
+        setCrossTermSavedSections(term, []);
+        return false;
+      }
+
+      set({
+        activeSavedWorksheetIdsByTerm: {
+          ...get().activeSavedWorksheetIdsByTerm,
+          [term]: summary.id,
+        },
+      });
+
+      if (summary.sectionCount === 0) {
+        setCrossTermSavedSections(term, []);
+        return true;
+      }
+
+      const worksheet = await fetchSavedWorksheet(summary.id);
+      if (!worksheet || worksheet.term !== term) {
+        setCrossTermSavedSections(term, []);
+        return false;
+      }
+
+      setCrossTermSavedSections(term, worksheet.sections);
+      return true;
     },
     async selectSavedWorksheet(id) {
       const { user } = get();
@@ -621,13 +717,64 @@ export const createWorksheetSlice: StateCreator<
       return true;
     },
     async addActiveSavedWorksheetListing(listing, color) {
-      const sectionId = getActiveSavedWorksheetSectionId(listing);
+      const sectionId = getListingSectionIdOrWarn(listing);
+      if (!sectionId) return false;
+
+      const listingTerm = listing.course?.season_code;
       let { activeSavedWorksheet } = get();
-      if (sectionId && !activeSavedWorksheet && listing.course?.season_code) {
-        await get().ensureMainSavedWorksheetForTerm(listing.course.season_code);
+
+      if (!activeSavedWorksheet && listingTerm) {
+        await get().ensureMainSavedWorksheetForTerm(listingTerm);
         ({ activeSavedWorksheet } = get());
       }
-      if (!sectionId || !activeSavedWorksheet) return false;
+      if (!activeSavedWorksheet) return false;
+
+      const isCrossTerm =
+        listingTerm && listingTerm !== activeSavedWorksheet.term;
+
+      if (isCrossTerm) {
+        try {
+          const targetWorksheet = await resolveWorksheetForTerm(listingTerm);
+          if (!targetWorksheet) {
+            toast.error(
+              `Failed to add to ${toSeasonString(listingTerm)} worksheet`,
+            );
+            return false;
+          }
+          if (
+            targetWorksheet.sections.some(
+              (section) => section.sectionId === sectionId,
+            )
+          )
+            return false;
+
+          const updatedWorksheet = await updateSavedWorksheetSections(
+            targetWorksheet.id,
+            [...targetWorksheet.sections, { sectionId, color, hidden: false }],
+          );
+          if (!updatedWorksheet) {
+            toast.error(
+              `Failed to add to ${toSeasonString(listingTerm)} worksheet`,
+            );
+            return false;
+          }
+
+          set({
+            crossTermSavedSections: {
+              ...get().crossTermSavedSections,
+              [listingTerm]: updatedWorksheet.sections,
+            },
+          });
+          void get().refreshAllTermSavedWorksheetSummaries();
+          return true;
+        } catch {
+          toast.error(
+            `Failed to add to ${toSeasonString(listingTerm)} worksheet`,
+          );
+          return false;
+        }
+      }
+
       if (
         activeSavedWorksheet.sections.some(
           (section) => section.sectionId === sectionId,
@@ -641,9 +788,58 @@ export const createWorksheetSlice: StateCreator<
       ]);
     },
     async removeActiveSavedWorksheetListing(listing) {
-      const sectionId = getActiveSavedWorksheetSectionId(listing);
+      const sectionId = getListingSectionIdOrWarn(listing);
+      if (!sectionId) return false;
+
+      const listingTerm = listing.course?.season_code;
       const { activeSavedWorksheet } = get();
-      if (!sectionId || !activeSavedWorksheet) return false;
+      if (!activeSavedWorksheet) return false;
+
+      const isCrossTerm =
+        listingTerm && listingTerm !== activeSavedWorksheet.term;
+
+      if (isCrossTerm) {
+        try {
+          const targetWorksheet = await resolveWorksheetForTerm(listingTerm);
+          if (!targetWorksheet) {
+            toast.error(
+              `Failed to remove from ${toSeasonString(listingTerm)} worksheet`,
+            );
+            return false;
+          }
+          const crossTermNextSections = targetWorksheet.sections.filter(
+            (section) => section.sectionId !== sectionId,
+          );
+          if (crossTermNextSections.length === targetWorksheet.sections.length)
+            return false;
+
+          const updatedWorksheet = await updateSavedWorksheetSections(
+            targetWorksheet.id,
+            crossTermNextSections,
+          );
+          if (!updatedWorksheet) {
+            toast.error(
+              `Failed to remove from ${toSeasonString(listingTerm)} worksheet`,
+            );
+            return false;
+          }
+
+          set({
+            crossTermSavedSections: {
+              ...get().crossTermSavedSections,
+              [listingTerm]: updatedWorksheet.sections,
+            },
+          });
+          void get().refreshAllTermSavedWorksheetSummaries();
+          return true;
+        } catch {
+          toast.error(
+            `Failed to remove from ${toSeasonString(listingTerm)} worksheet`,
+          );
+          return false;
+        }
+      }
+
       const nextSections = activeSavedWorksheet.sections.filter(
         (section) => section.sectionId !== sectionId,
       );
@@ -653,7 +849,7 @@ export const createWorksheetSlice: StateCreator<
       return await replaceActiveSavedWorksheetSections(nextSections);
     },
     async setActiveSavedWorksheetListingHidden(listing, hidden) {
-      const sectionId = getActiveSavedWorksheetSectionId(listing);
+      const sectionId = getListingSectionIdOrWarn(listing);
       const { activeSavedWorksheet } = get();
       if (!sectionId || !activeSavedWorksheet) return false;
 
@@ -670,7 +866,7 @@ export const createWorksheetSlice: StateCreator<
       return await replaceActiveSavedWorksheetSections(nextSections);
     },
     async setActiveSavedWorksheetListingColor(listing, color) {
-      const sectionId = getActiveSavedWorksheetSectionId(listing);
+      const sectionId = getListingSectionIdOrWarn(listing);
       const { activeSavedWorksheet } = get();
       if (!sectionId || !activeSavedWorksheet) return false;
 
@@ -1018,7 +1214,7 @@ export const useSavedWorksheetBootstrap = () => {
     if (activeSavedWorksheet && activeSavedWorksheetOwnerId === user.user_id)
       return;
 
-    void ensureMainSavedWorksheetForTerm(CUR_SEASON);
+    void ensureMainSavedWorksheetForTerm(getInitialSavedWorksheetTerm());
   }, [
     activeSavedWorksheet,
     activeSavedWorksheetOwnerId,

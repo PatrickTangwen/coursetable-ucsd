@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import clsx from 'clsx';
 import {
   ToggleButton,
@@ -8,7 +8,7 @@ import {
 } from 'react-bootstrap';
 import { MdAdd, MdCheck, MdClose, MdDelete, MdEdit } from 'react-icons/md';
 import { useShallow } from 'zustand/react/shallow';
-import SeasonDropdown from './SeasonDropdown';
+import SeasonDropdown, { useWorksheetSeasonCodes } from './SeasonDropdown';
 import WorksheetNumDropdown from './WorksheetNumberDropdown';
 import WorksheetStatusIcon from './WorksheetStatusIcon';
 
@@ -21,6 +21,8 @@ import {
 import type { Season } from '../../queries/graphql-types';
 import type { WorksheetView } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
+import { toSeasonString } from '../../utilities/course';
+import { DropdownMenu } from '../Catalog/DropdownMenu';
 import { Popout } from '../Search/Popout';
 import styles from './NavbarWorksheetSearch.module.css';
 
@@ -244,6 +246,9 @@ function SavedWorksheetHeaderControlsView({
   createBlankSavedWorksheetForTerm,
   renameSavedWorksheet,
   deleteSavedWorksheet,
+  onSwitchTerm,
+  seasonOptions,
+  viewedSeason,
 }: {
   readonly isMobile: boolean;
   readonly activeSavedWorksheet: SavedWorksheet | undefined;
@@ -258,6 +263,9 @@ function SavedWorksheetHeaderControlsView({
   readonly createBlankSavedWorksheetForTerm: (term: Season) => Promise<boolean>;
   readonly renameSavedWorksheet: (id: number, name: string) => Promise<boolean>;
   readonly deleteSavedWorksheet: (id: number) => Promise<boolean>;
+  readonly onSwitchTerm: (term: Season) => void;
+  readonly seasonOptions: { value: string; label: string }[];
+  readonly viewedSeason: Season;
 }) {
   const activeTerm = activeSavedWorksheet?.term ?? CUR_SEASON;
   const worksheetName =
@@ -281,12 +289,15 @@ function SavedWorksheetHeaderControlsView({
       )}
       aria-label="Saved worksheet header"
     >
-      <span
-        className={styles.termBadge}
-        aria-label={`Active term ${activeTerm}`}
-      >
-        {activeTerm}
-      </span>
+      <DropdownMenu
+        label="Term"
+        displayLabel={toSeasonString(viewedSeason)}
+        options={seasonOptions}
+        selectedValues={[viewedSeason]}
+        onToggle={(season) => onSwitchTerm(season as Season)}
+        closeOnToggle
+        showCheckbox={false}
+      />
       <Popout
         buttonText="Worksheet"
         ariaLabel={`Active saved worksheet: ${worksheetName}`}
@@ -330,6 +341,9 @@ export function NavbarWorksheetSearchView({
   createBlankSavedWorksheetForTerm,
   renameSavedWorksheet,
   deleteSavedWorksheet,
+  onSwitchTerm,
+  seasonOptions,
+  viewedSeason,
 }: {
   readonly isMobile: boolean;
   readonly worksheetView: WorksheetView;
@@ -350,6 +364,9 @@ export function NavbarWorksheetSearchView({
   readonly createBlankSavedWorksheetForTerm: (term: Season) => Promise<boolean>;
   readonly renameSavedWorksheet: (id: number, name: string) => Promise<boolean>;
   readonly deleteSavedWorksheet: (id: number) => Promise<boolean>;
+  readonly onSwitchTerm: (term: Season) => void;
+  readonly seasonOptions: { value: string; label: string }[];
+  readonly viewedSeason: Season;
 }) {
   const visibleWorksheetView =
     worksheetView === 'list' ? worksheetView : 'calendar';
@@ -393,6 +410,9 @@ export function NavbarWorksheetSearchView({
             createBlankSavedWorksheetForTerm={createBlankSavedWorksheetForTerm}
             renameSavedWorksheet={renameSavedWorksheet}
             deleteSavedWorksheet={deleteSavedWorksheet}
+            onSwitchTerm={onSwitchTerm}
+            seasonOptions={seasonOptions}
+            viewedSeason={viewedSeason}
           />
         )}
       </div>
@@ -454,6 +474,9 @@ export function NavbarWorksheetSearchView({
           createBlankSavedWorksheetForTerm={createBlankSavedWorksheetForTerm}
           renameSavedWorksheet={renameSavedWorksheet}
           deleteSavedWorksheet={deleteSavedWorksheet}
+          onSwitchTerm={onSwitchTerm}
+          seasonOptions={seasonOptions}
+          viewedSeason={viewedSeason}
         />
       ) : (
         <SeasonDropdown mobile={false} />
@@ -481,6 +504,8 @@ export function NavbarWorksheetSearch({
     createBlankSavedWorksheetForTerm,
     renameSavedWorksheet,
     deleteSavedWorksheet,
+    ensureMainSavedWorksheetForTerm,
+    viewedSeason,
   } = useStore(
     useShallow((state) => ({
       worksheetView: state.worksheetView,
@@ -496,7 +521,19 @@ export function NavbarWorksheetSearch({
       createBlankSavedWorksheetForTerm: state.createBlankSavedWorksheetForTerm,
       renameSavedWorksheet: state.renameSavedWorksheet,
       deleteSavedWorksheet: state.deleteSavedWorksheet,
+      ensureMainSavedWorksheetForTerm: state.ensureMainSavedWorksheetForTerm,
+      viewedSeason: state.viewedSeason,
     })),
+  );
+
+  const seasonCodes = useWorksheetSeasonCodes();
+  const seasonOptions = useMemo(
+    () =>
+      seasonCodes.map((seasonCode) => ({
+        value: seasonCode,
+        label: toSeasonString(seasonCode),
+      })),
+    [seasonCodes],
   );
 
   const hasLegacyWorksheetAccount = isLegacyUserInfo(user);
@@ -519,6 +556,11 @@ export function NavbarWorksheetSearch({
       createBlankSavedWorksheetForTerm={createBlankSavedWorksheetForTerm}
       renameSavedWorksheet={renameSavedWorksheet}
       deleteSavedWorksheet={deleteSavedWorksheet}
+      onSwitchTerm={(term) => {
+        void ensureMainSavedWorksheetForTerm(term);
+      }}
+      seasonOptions={seasonOptions}
+      viewedSeason={viewedSeason}
     />
   );
 }

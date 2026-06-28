@@ -33,6 +33,7 @@ import {
   setCourseHidden,
   updateWorksheetCourses,
   updateWorksheetMetadata,
+  type SavedWorksheetSummary,
 } from '../../queries/api';
 import type { Crn, Season } from '../../queries/graphql-types';
 import {
@@ -78,6 +79,40 @@ export function getAnonymousWorksheetTermChips(
       },
     ];
   });
+}
+
+type SavedWorksheetTermChip = {
+  term: Season;
+  label: string;
+};
+
+export function getSavedWorksheetTermChips(
+  allSummaries: SavedWorksheetSummary[],
+  activeSavedWorksheetIdsByTerm: { [term: string]: number | undefined },
+  viewedTerm: Season,
+): SavedWorksheetTermChip[] {
+  const summariesByTerm = new Map<string, SavedWorksheetSummary[]>();
+  for (const s of allSummaries) {
+    const list = summariesByTerm.get(s.term) ?? [];
+    list.push(s);
+    summariesByTerm.set(s.term, list);
+  }
+
+  const chips: SavedWorksheetTermChip[] = [];
+  for (const [term, termSummaries] of summariesByTerm) {
+    if (term === viewedTerm) continue;
+    const activeId = activeSavedWorksheetIdsByTerm[term];
+    const resolved =
+      (activeId ? termSummaries.find((s) => s.id === activeId) : undefined) ??
+      termSummaries.find((s) => s.isMain);
+    if (resolved && resolved.sectionCount > 0) {
+      chips.push({
+        term: term as Season,
+        label: toSeasonString(term as Season),
+      });
+    }
+  }
+  return chips;
 }
 
 function buildCourseImports(
@@ -143,6 +178,10 @@ function WorksheetCalendarList({
     setAllActiveSavedWorksheetHidden,
     clearAnonymousWorksheet,
     clearActiveSavedWorksheet,
+    activeSavedWorksheet,
+    activeSavedWorksheetIdsByTerm,
+    allTermSavedWorksheetSummaries,
+    ensureMainSavedWorksheetForTerm,
   } = useStore(
     useShallow((state) => ({
       courses: state.courses,
@@ -163,6 +202,10 @@ function WorksheetCalendarList({
       setAllActiveSavedWorksheetHidden: state.setAllActiveSavedWorksheetHidden,
       clearAnonymousWorksheet: state.clearAnonymousWorksheet,
       clearActiveSavedWorksheet: state.clearActiveSavedWorksheet,
+      activeSavedWorksheet: state.activeSavedWorksheet,
+      activeSavedWorksheetIdsByTerm: state.activeSavedWorksheetIdsByTerm,
+      allTermSavedWorksheetSummaries: state.allTermSavedWorksheetSummaries,
+      ensureMainSavedWorksheetForTerm: state.ensureMainSavedWorksheetForTerm,
     })),
   );
 
@@ -183,6 +226,27 @@ function WorksheetCalendarList({
       isAnonymousWorksheet,
       seasonCodes,
       viewedSeason,
+    ],
+  );
+
+  const savedWorksheetEmptyTermChips = useMemo(
+    () =>
+      !isAnonymousWorksheet &&
+      activeSavedWorksheet &&
+      courses.length === 0 &&
+      allTermSavedWorksheetSummaries.length > 0
+        ? getSavedWorksheetTermChips(
+            allTermSavedWorksheetSummaries,
+            activeSavedWorksheetIdsByTerm,
+            activeSavedWorksheet.term,
+          )
+        : [],
+    [
+      activeSavedWorksheet,
+      activeSavedWorksheetIdsByTerm,
+      allTermSavedWorksheetSummaries,
+      courses.length,
+      isAnonymousWorksheet,
     ],
   );
 
@@ -566,7 +630,8 @@ function WorksheetCalendarList({
           ) : (
             <NoCourses
               heading={
-                anonymousEmptyTermChips.length > 0
+                anonymousEmptyTermChips.length > 0 ||
+                savedWorksheetEmptyTermChips.length > 0
                   ? `${toSeasonString(viewedSeason)} worksheet is empty`
                   : undefined
               }
@@ -583,6 +648,26 @@ function WorksheetCalendarList({
                         type="button"
                         className={styles.emptyTermChip}
                         onClick={() => changeViewedSeason(chip.term)}
+                      >
+                        {chip.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : savedWorksheetEmptyTermChips.length > 0 ? (
+                <div className={styles.emptyTermContent}>
+                  <p className={styles.emptyTermText}>
+                    This term&apos;s worksheet is empty. Your courses are in:
+                  </p>
+                  <div className={styles.emptyTermChips}>
+                    {savedWorksheetEmptyTermChips.map((chip) => (
+                      <button
+                        key={chip.term}
+                        type="button"
+                        className={styles.emptyTermChip}
+                        onClick={() => {
+                          void ensureMainSavedWorksheetForTerm(chip.term);
+                        }}
                       >
                         {chip.label}
                       </button>

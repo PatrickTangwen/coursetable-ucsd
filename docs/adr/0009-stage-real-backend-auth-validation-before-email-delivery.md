@@ -6,4 +6,4 @@ The next validation issue should prove the real database/session path while usin
 
 Signed-in worksheet persistence should remain out of the real backend auth validation issue. That validation issue may confirm that a UCSD email session still uses the existing Anonymous Worksheet behavior and does not accidentally write worksheet state to the App DB. A later Save Anonymous Worksheet To Account slice should add an explicit user action to convert an Anonymous Worksheet into a Saved Worksheet; login itself should not implicitly save or sync worksheet contents.
 
-Detailed validation scope, pass/fail definition, artifact strategy, and non-goals live in `docs/beta-1-real-backend-auth-validation-2026-06-20.md`; the ADR intentionally records the durable decision and points to that validation plan rather than duplicating the execution target.
+Detailed validation scope, pass/fail definition, artifact strategy, and non-goals live in `docs/planning/archive/beta-1-real-backend-auth-validation-2026-06-20.md`; the ADR intentionally records the durable decision and points to that validation plan rather than duplicating the execution target.
