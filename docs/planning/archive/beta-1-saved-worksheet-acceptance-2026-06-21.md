@@ -10,7 +10,7 @@ Date: 2026-06-21
 - Acceptance issue:
   [#26](https://github.com/PatrickTangwen/coursetable-ucsd/issues/26)
 - Planning doc:
-  `docs/beta-1-save-anonymous-worksheet-to-account-2026-06-21.md`
+  `docs/planning/archive/beta-1-save-anonymous-worksheet-to-account-2026-06-21.md`
 - Baseline commit before this acceptance note: `4201c38`
 
 This record validates the saved worksheet save and restore slices implemented

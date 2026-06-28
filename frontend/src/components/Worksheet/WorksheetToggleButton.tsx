@@ -189,6 +189,8 @@ function WorksheetToggleButton({
     isAnonymousWorksheet,
     activeSavedWorksheet,
     crossTermSavedSections,
+    allTermSavedWorksheetSummaries,
+    loadSavedWorksheetSectionsForTerm,
     addAnonymousWorksheetListing,
     removeAnonymousWorksheetListing,
     addActiveSavedWorksheetListing,
@@ -199,6 +201,9 @@ function WorksheetToggleButton({
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
       activeSavedWorksheet: state.activeSavedWorksheet,
       crossTermSavedSections: state.crossTermSavedSections,
+      allTermSavedWorksheetSummaries: state.allTermSavedWorksheetSummaries,
+      loadSavedWorksheetSectionsForTerm:
+        state.loadSavedWorksheetSectionsForTerm,
       addAnonymousWorksheetListing: state.addAnonymousWorksheetListing,
       removeAnonymousWorksheetListing: state.removeAnonymousWorksheetListing,
       addActiveSavedWorksheetListing: state.addActiveSavedWorksheetListing,
@@ -312,6 +317,22 @@ function WorksheetToggleButton({
     listing,
     selectedWorksheet,
     worksheets,
+  ]);
+
+  useEffect(() => {
+    if (!hasSavedWorksheetAccount || !activeSavedWorksheet) return;
+    const listingTerm = listing.course.season_code;
+    if (!listingTerm || listingTerm === activeSavedWorksheet.term) return;
+    if (Object.hasOwn(crossTermSavedSections, listingTerm)) return;
+
+    void loadSavedWorksheetSectionsForTerm(listingTerm);
+  }, [
+    activeSavedWorksheet,
+    allTermSavedWorksheetSummaries,
+    crossTermSavedSections,
+    hasSavedWorksheetAccount,
+    listing.course.season_code,
+    loadSavedWorksheetSectionsForTerm,
   ]);
 
   const isLgDesktop = useStore((state) => state.isLgDesktop);

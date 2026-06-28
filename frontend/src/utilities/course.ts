@@ -105,6 +105,11 @@ export function toSeasonDate(seasonCode: Season): string {
   return `${year}-${date}`;
 }
 
+// Sort newer terms first.
+export function compareSeasonsByRecency(a: Season, b: Season): number {
+  return toSeasonDate(b).localeCompare(toSeasonDate(a));
+}
+
 // Turns a bitmask of days of the week into an array of strings.
 // For example, 42 = 0b101010 = Monday, Wednesday, Friday
 // See constants.ts for the mapping of days of the week to numbers

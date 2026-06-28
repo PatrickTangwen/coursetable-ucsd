@@ -32,7 +32,8 @@ import {
   isLegacyUserInfo,
   setCourseHidden,
   updateWorksheetCourses,
-  updateWorksheetMetadata, type SavedWorksheetSummary 
+  updateWorksheetMetadata,
+  type SavedWorksheetSummary,
 } from '../../queries/api';
 import type { Crn, Season } from '../../queries/graphql-types';
 import {

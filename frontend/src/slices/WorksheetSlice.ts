@@ -155,6 +155,7 @@ interface WorksheetActions {
     term: Season,
   ) => Promise<SavedWorksheetSummary[]>;
   refreshAllTermSavedWorksheetSummaries: () => Promise<void>;
+  loadSavedWorksheetSectionsForTerm: (term: Season) => Promise<boolean>;
   selectSavedWorksheet: (id: number) => Promise<boolean>;
   createBlankSavedWorksheetForTerm: (term: Season) => Promise<boolean>;
   renameSavedWorksheet: (id: number, name: string) => Promise<boolean>;
@@ -378,6 +379,28 @@ export const createWorksheetSlice: StateCreator<
     });
     return worksheet;
   };
+  const getExistingWorksheetSummaryForTerm = (term: Season) => {
+    const termSummaries = get().allTermSavedWorksheetSummaries.filter(
+      (summary) => summary.term === term,
+    );
+    const rememberedId = get().activeSavedWorksheetIdsByTerm[term];
+    return (
+      (rememberedId
+        ? termSummaries.find((summary) => summary.id === rememberedId)
+        : undefined) ?? termSummaries.find((summary) => summary.isMain)
+    );
+  };
+  const setCrossTermSavedSections = (
+    term: Season,
+    sections: SavedWorksheetSection[],
+  ) => {
+    set({
+      crossTermSavedSections: {
+        ...get().crossTermSavedSections,
+        [term]: sections,
+      },
+    });
+  };
 
   return {
     viewedPerson: 'me',
@@ -560,6 +583,42 @@ export const createWorksheetSlice: StateCreator<
       } catch {
         // Non-critical; don't block the user
       }
+    },
+    async loadSavedWorksheetSectionsForTerm(term) {
+      if (!hasSavedWorksheetAccount()) return false;
+
+      const { activeSavedWorksheet, crossTermSavedSections } = get();
+      if (activeSavedWorksheet?.term === term) return true;
+      if (Object.hasOwn(crossTermSavedSections, term)) return true;
+
+      if (get().allTermSavedWorksheetSummaries.length === 0) return false;
+
+      const summary = getExistingWorksheetSummaryForTerm(term);
+      if (!summary) {
+        setCrossTermSavedSections(term, []);
+        return false;
+      }
+
+      set({
+        activeSavedWorksheetIdsByTerm: {
+          ...get().activeSavedWorksheetIdsByTerm,
+          [term]: summary.id,
+        },
+      });
+
+      if (summary.sectionCount === 0) {
+        setCrossTermSavedSections(term, []);
+        return true;
+      }
+
+      const worksheet = await fetchSavedWorksheet(summary.id);
+      if (!worksheet || worksheet.term !== term) {
+        setCrossTermSavedSections(term, []);
+        return false;
+      }
+
+      setCrossTermSavedSections(term, worksheet.sections);
+      return true;
     },
     async selectSavedWorksheet(id) {
       const { user } = get();

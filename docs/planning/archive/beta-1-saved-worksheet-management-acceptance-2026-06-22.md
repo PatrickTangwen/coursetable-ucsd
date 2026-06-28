@@ -10,7 +10,7 @@ Date: 2026-06-22
 - Acceptance issue:
   [#34](https://github.com/PatrickTangwen/coursetable-ucsd/issues/34)
 - Planning doc:
-  `docs/beta-1-saved-worksheet-management-2026-06-22.md`
+  `docs/planning/archive/beta-1-saved-worksheet-management-2026-06-22.md`
 - Baseline commit before this acceptance note: `e2ad522`
 - Final interaction-alignment commit: `ddf597a`
 

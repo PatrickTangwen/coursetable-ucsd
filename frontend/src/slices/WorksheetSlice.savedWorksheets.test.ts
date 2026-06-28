@@ -552,6 +552,94 @@ describe('Saved Worksheet slice behavior', () => {
     expect(useStore.getState().crossTermSavedSections[fa26]).toEqual([]);
   });
 
+  it('loads target term Saved Worksheet sections for cross-term toggle membership without switching view', async () => {
+    const fa26 = 'FA26' as Season;
+    const fa26Main: SavedWorksheet = {
+      id: 20,
+      name: 'Main Worksheet',
+      term: fa26,
+      createdAt: 1,
+      updatedAt: 1,
+      private: true,
+      isMain: true,
+      sourceSectionCount: 1,
+      savedSectionCount: 1,
+      sections: [{ sectionId: 'FA26-456', color: '#abcdef', hidden: false }],
+    };
+    const useStore = await loadStore();
+    useStore.setState({
+      activeSavedWorksheet: mainWorksheet,
+      activeSavedWorksheetOwnerId: testUser.user_id,
+      activeSavedWorksheetIdsByTerm: { [s126]: mainWorksheet.id, [fa26]: 20 },
+      allTermSavedWorksheetSummaries: [
+        toSummary(mainWorksheet),
+        toSummary(fa26Main),
+      ],
+    });
+    apiMocks.fetchSavedWorksheet.mockResolvedValue(fa26Main);
+
+    const loaded = await useStore
+      .getState()
+      .loadSavedWorksheetSectionsForTerm(fa26);
+
+    expect(loaded).toBe(true);
+    expect(apiMocks.fetchSavedWorksheet).toHaveBeenCalledWith(20);
+    expect(apiMocks.ensureMainSavedWorksheet).not.toHaveBeenCalled();
+    expect(useStore.getState().activeSavedWorksheet?.id).toBe(mainWorksheet.id);
+    expect(useStore.getState().activeSavedWorksheet?.term).toBe(s126);
+    expect(useStore.getState().crossTermSavedSections[fa26]).toEqual([
+      { sectionId: 'FA26-456', color: '#abcdef', hidden: false },
+    ]);
+  });
+
+  it('does not cache an empty cross-term membership before all-term summaries load', async () => {
+    const fa26 = 'FA26' as Season;
+    const fa26Main: SavedWorksheet = {
+      id: 20,
+      name: 'Main Worksheet',
+      term: fa26,
+      createdAt: 1,
+      updatedAt: 1,
+      private: true,
+      isMain: true,
+      sourceSectionCount: 1,
+      savedSectionCount: 1,
+      sections: [{ sectionId: 'FA26-456', color: '#abcdef', hidden: false }],
+    };
+    const useStore = await loadStore();
+    useStore.setState({
+      activeSavedWorksheet: mainWorksheet,
+      activeSavedWorksheetOwnerId: testUser.user_id,
+      activeSavedWorksheetIdsByTerm: { [s126]: mainWorksheet.id, [fa26]: 20 },
+      allTermSavedWorksheetSummaries: [],
+    });
+
+    const firstLoad = await useStore
+      .getState()
+      .loadSavedWorksheetSectionsForTerm(fa26);
+
+    expect(firstLoad).toBe(false);
+    expect(apiMocks.fetchSavedWorksheet).not.toHaveBeenCalled();
+    expect(useStore.getState().crossTermSavedSections[fa26]).toBeUndefined();
+
+    useStore.setState({
+      allTermSavedWorksheetSummaries: [
+        toSummary(mainWorksheet),
+        toSummary(fa26Main),
+      ],
+    });
+    apiMocks.fetchSavedWorksheet.mockResolvedValue(fa26Main);
+
+    const secondLoad = await useStore
+      .getState()
+      .loadSavedWorksheetSectionsForTerm(fa26);
+
+    expect(secondLoad).toBe(true);
+    expect(useStore.getState().crossTermSavedSections[fa26]).toEqual([
+      { sectionId: 'FA26-456', color: '#abcdef', hidden: false },
+    ]);
+  });
+
   it('shows an error toast with term name when cross-term add fails', async () => {
     const fa26 = 'FA26' as Season;
     const useStore = await loadStore();
