@@ -161,7 +161,7 @@ function mergeCurrentAndFrozenEntries(
   currentEntries: SupportedTermEntry[],
   existingRegistry: SupportedTermRegistry | null,
 ): SupportedTermEntry[] {
-  if (!existingRegistry) return currentEntries;
+  if (!existingRegistry?.terms) return currentEntries;
 
   const currentTerms = new Set(currentEntries.map((entry) => entry.term));
   const frozenEntries = existingRegistry.terms

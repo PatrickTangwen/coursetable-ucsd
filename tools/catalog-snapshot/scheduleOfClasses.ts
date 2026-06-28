@@ -583,6 +583,79 @@ function scheduleSearchBody(
   return body;
 }
 
+function responseCookieHeader(headers: Headers): string {
+  const headerAccess = headers as Headers & { getSetCookie: () => string[] };
+  const cookieHeaders =
+    'getSetCookie' in headerAccess ? headerAccess.getSetCookie() : [];
+  const rawCookies =
+    cookieHeaders.length > 0
+      ? cookieHeaders
+      : [headers.get('set-cookie') ?? ''];
+
+  return rawCookies
+    .flatMap(splitSetCookieHeader)
+    .map((value) => value.trim().split(';')[0]?.trim() ?? '')
+    .filter(Boolean)
+    .join('; ');
+}
+
+function splitSetCookieHeader(value: string): string[] {
+  const parts: string[] = [];
+  let start = 0;
+
+  for (let index = 0; index < value.length; index += 1) {
+    if (value[index] !== ',') continue;
+
+    const rest = value.slice(index + 1).trimStart();
+    const equalsIndex = rest.indexOf('=');
+    const semicolonIndex = rest.indexOf(';');
+    const commaIndex = rest.indexOf(',');
+    const looksLikeNextCookie =
+      equalsIndex > 0 &&
+      (semicolonIndex === -1 || equalsIndex < semicolonIndex) &&
+      (commaIndex === -1 || equalsIndex < commaIndex);
+    if (!looksLikeNextCookie) continue;
+
+    parts.push(value.slice(start, index));
+    start = index + 1;
+  }
+
+  parts.push(value.slice(start));
+  return parts;
+}
+
+function schedulePageUrl(page: number): string {
+  return `${scheduleResultUrl}?page=${page}`;
+}
+
+function scheduleResultPageCount(html: string): number {
+  const decoded = decodeHtml(html);
+  const pageTextMatch = /page\s*\(\s*\d+\s+of\s+(?<count>\d+)\s*\)/iu.exec(
+    decoded,
+  );
+  const textCount = Number(pageTextMatch?.groups?.count ?? '1');
+  const linkedPages = [...decoded.matchAll(/[?&]page=(?<page>\d+)/giu)]
+    .map((match) => Number(match.groups?.page ?? '1'))
+    .filter((page) => Number.isFinite(page) && page > 0);
+  return Math.max(1, textCount, ...linkedPages);
+}
+
+async function fetchScheduleResultPage(
+  fetchAdapter: FetchAdapter,
+  page: number,
+  cookieHeader: string,
+): Promise<string> {
+  const headers: HeadersInit = {};
+  if (cookieHeader) headers.Cookie = cookieHeader;
+  const response = await fetchAdapter(schedulePageUrl(page), { headers });
+  if (!response.ok) {
+    throw new Error(
+      `UCSD Schedule page ${page} query failed: ${response.status} ${response.statusText}`,
+    );
+  }
+  return response.text();
+}
+
 function subjectListUrl(term: string): string {
   return `${scheduleBaseUrl}/subject-list.json?selectedTerm=${encodeURIComponent(term)}`;
 }
@@ -674,6 +747,15 @@ export async function fetchRawScheduleOfClassesForSubject(
       `UCSD Schedule query failed for ${subject} ${options.term}: ${response.status} ${response.statusText}`,
     );
   }
+  const firstPageHtml = await response.text();
+  const pageCount = scheduleResultPageCount(firstPageHtml);
+  const cookieHeader = responseCookieHeader(response.headers);
+  const htmlPages = [firstPageHtml];
+  for (let page = 2; page <= pageCount; page += 1) {
+    htmlPages.push(
+      await fetchScheduleResultPage(fetchAdapter, page, cookieHeader),
+    );
+  }
 
   return {
     subject: normalizeSubject(subject),
@@ -682,7 +764,7 @@ export async function fetchRawScheduleOfClassesForSubject(
     subject_list_url: subjectList.url,
     subject_list_raw: subjectList.raw,
     source_url: scheduleResultUrl,
-    html: await response.text(),
+    html: htmlPages.join('\n'),
   };
 }
 

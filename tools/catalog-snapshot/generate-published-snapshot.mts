@@ -21,7 +21,7 @@ try {
   const supportedTerms = result.registry.terms.map((entry) => entry.term);
   await writeFile(
     supportedTermsPath,
-    `${JSON.stringify(supportedTerms)}\n`,
+    `${JSON.stringify(supportedTerms, null, 2)}\n`,
     'utf-8',
   );
 
