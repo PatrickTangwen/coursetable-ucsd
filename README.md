@@ -1,9 +1,9 @@
-# UCSD Course Planner
+# SunGrid — UCSD Course Planning Platform
 
-UCSD Course Planner is a student-facing course search and worksheet planning
-tool for UCSD. It is built from the CourseTable codebase, but the current
-product experience is focused on UCSD catalog browsing, historical grade
-context, and schedule planning.
+SunGrid is a student-facing course search and schedule planning tool for UCSD.
+It is built from the CourseTable codebase, with the product experience focused
+on multi-term catalog browsing, historical grade context, snapshot-static
+availability data, and worksheet planning across terms.
 
 The app can be used without an account. In configured beta/backend
 environments, a verified `@ucsd.edu` sign-in enables account-owned saved
@@ -11,45 +11,47 @@ worksheets.
 
 ## What You Can Do
 
-- Browse the published UCSD catalog snapshot for the active planning term.
-- Search and sort supported UCSD courses.
+- Browse published UCSD catalog snapshots across multiple terms.
+- Switch between terms with a term selector in both catalog and worksheet views.
+- Search and sort all UCSD subjects.
 - Open a course detail modal with description, section, meeting time,
-  instructor, units, prerequisite text, restrictions, and source catalog link
-  when available.
+  instructor, units, prerequisite text, restrictions, snapshot-static
+  availability (enrolled, capacity, waitlist), and source catalog link when
+  available.
 - Review historical grade context from UCSD Instructor Grade Archive data:
-  catalog results show Average GPA and Record Count, and course details include
-  a Past Grades tab with raw archive rows.
-- Add sections to a worksheet and view them on a calendar or list.
-- Use the worksheet without signing in; unsigned worksheet changes are stored in
-  the current browser.
+  catalog results show Average GPA, and course details include a Past Grades
+  tab with raw archive rows.
+- Add sections to a per-term worksheet and view them on a calendar or list.
+- Use the worksheet without signing in; unsigned worksheet changes are stored
+  per-term in the current browser.
 - Share or restore worksheet state through supported worksheet URLs.
 - Export worksheet courses to an ICS calendar file.
 - Sign in with a verified UCSD email when the account beta backend is
   configured.
 - Use account-owned Saved Worksheets after sign-in: Main Worksheet, blank
   worksheet creation, worksheet selection, rename, delete, and persisted
-  add/remove/hide/color edits.
+  add/remove/hide/color edits. Cross-term catalog adds route into the target
+  term's saved worksheet.
 
 ## Current Data Scope
 
-The current published snapshot is intentionally narrow:
-
-- Active planning term: `S126` / Summer Session I 2026.
-- Supported subjects: `CSE` and `MATH`.
+- Published catalog terms: 14 terms from Summer Session II 2024 (`S224`)
+  through Summer Session III 2026 (`S326`), via forward-accumulating multi-term
+  archive.
+- Subjects: all UCSD subjects discovered from the Schedule of Classes source.
 - Catalog and meeting data come from UCSD Schedule of Classes and UCSD General
   Catalog sources.
 - Historical grade data comes from UCSD Instructor Grade Archive records.
-
-The app is not a live enrollment tracker. It does not currently show open
-seats, waitlist counts, enrollment demand, or real-time availability.
+- Availability data (enrolled, capacity, waitlist) is snapshot-static, not
+  real-time. Every availability surface shows the snapshot timestamp.
 
 ## Accounts And Worksheets
 
-You can plan before signing in. In that mode, the worksheet auto-saves in this
-browser only.
+You can plan before signing in. In that mode, the worksheet auto-saves per-term
+in this browser only. A term selector lets you switch between terms.
 
 After signing in with a direct `@ucsd.edu` email address, the worksheet page
-opens the account's Main Worksheet for the active term. Extra Saved Worksheets
+opens the account's Main Worksheet for the viewed term. Extra Saved Worksheets
 can be created from the worksheet selector. Course changes on an active Saved
 Worksheet are persisted to the backend.
 
@@ -59,8 +61,6 @@ is future product scope.
 
 ## Not Currently Supported
 
-- All UCSD subjects.
-- Multi-term planning beyond the active published snapshot.
 - Real-time seats, waitlists, enrollment, or demand signals.
 - SET/CAPE or personal UCSD account scraping.
 - Friends, social planning, public worksheet sharing controls, or wishlist.
@@ -99,6 +99,6 @@ bun run test:snapshot
 ## Project Notes
 
 Current planning and decision documents start at
-[`docs/planning-index.md`](docs/planning-index.md). Domain language is recorded
+[`docs/planning/README.md`](docs/planning/README.md). Domain language is recorded
 in [`CONTEXT.md`](CONTEXT.md), and architectural decisions live under
 [`docs/adr/`](docs/adr/).

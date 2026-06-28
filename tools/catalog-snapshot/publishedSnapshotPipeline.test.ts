@@ -35,6 +35,7 @@ function makeConfig(rootDir: string): CatalogSnapshotConfig {
 }
 
 function courseNumber(subject: string): string {
+  if (subject === 'BIPN') return '156';
   return subject === 'CSE' ? '101' : '20A';
 }
 
@@ -46,6 +47,7 @@ function makeScheduleCourse(
   subject: string,
   options: {
     unsafeRaw?: boolean;
+    catalogUrl?: string | null;
   } = {},
 ): CatalogSnapshot['courses'][number] {
   const number = courseNumber(subject);
@@ -59,7 +61,7 @@ function makeScheduleCourse(
     description: null,
     prerequisites_text: null,
     restrictions_text: null,
-    catalog_url: null,
+    catalog_url: options.catalogUrl ?? null,
     archive_avg_gpa: null,
     archive_record_count: 0,
     grade_archive_records: [],
@@ -107,6 +109,7 @@ function makeSourceLoaders(
     failScheduleParseSubjects?: string[];
     emptyScheduleSubjects?: string[];
     unsafeScheduleRaw?: boolean;
+    generalCatalogPages?: string[];
   } = {},
 ): PublishedSnapshotSourceLoaders {
   return {
@@ -137,6 +140,10 @@ function makeSourceLoaders(
                 ? []
                 : [
                     makeScheduleCourse(subject, {
+                      catalogUrl:
+                        subject === 'BIPN'
+                          ? 'https://catalog.ucsd.edu/courses/BIOL.html#bipn156'
+                          : null,
                       unsafeRaw: options.unsafeScheduleRaw && subject === 'CSE',
                     }),
                   ],
@@ -146,6 +153,9 @@ function makeSourceLoaders(
       };
     },
     generalCatalog(subject, context) {
+      options.generalCatalogPages?.push(
+        context.catalogPageBySubject?.[subject] ?? subject,
+      );
       return {
         subject,
         fetched_at: context.generatedAt,
@@ -382,6 +392,29 @@ describe('Published Snapshot pipeline', () => {
         'utf-8',
       ),
     ).resolves.toContain('"run_id": "run-success"');
+  });
+
+  it('uses Schedule of Classes catalog links to choose grouped General Catalog pages', async () => {
+    const config = await makeTempConfig();
+    config.configured_subjects = ['BIPN'];
+    const generalCatalogPages: string[] = [];
+
+    const result = await runPublishedSnapshotPipeline(config, {
+      runId: 'run-grouped-catalog',
+      generatedAt,
+      sourceLoaders: makeSourceLoaders({ generalCatalogPages }),
+    });
+
+    const publishedSnapshot = JSON.parse(
+      await readFile(result.snapshotPath, 'utf-8'),
+    ) as CatalogSnapshot;
+
+    expect(generalCatalogPages).toEqual(['BIOL']);
+    expect(publishedSnapshot.courses[0]).toMatchObject({
+      course_id: 'BIPN:156',
+      title: 'BIPN Catalog Title',
+      description: 'BIPN Catalog Description',
+    });
   });
 
   it('publishes a partial snapshot and records a persistent cell failure', async () => {

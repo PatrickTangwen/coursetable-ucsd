@@ -1,12 +1,12 @@
 {
-  "last_update": "2026-06-28T03:36:47.652Z",
+  "last_update": "2026-06-28T20:35:39.038Z",
   "terms": [
     {
       "term": "S224",
       "label": "Summer Session II 2024",
       "date_range": null,
       "frozen": false,
-      "generated_at": "2026-06-28T03:36:47.652Z",
+      "generated_at": "2026-06-28T20:35:39.038Z",
       "snapshot_path": "catalogs/public/S224.json",
       "manifest_path": "catalogs/import-manifests/S224.json"
     },
@@ -15,7 +15,7 @@
       "label": "Special Summer Session 2024",
       "date_range": null,
       "frozen": false,
-      "generated_at": "2026-06-28T03:36:47.652Z",
+      "generated_at": "2026-06-28T20:35:39.038Z",
       "snapshot_path": "catalogs/public/S324.json",
       "manifest_path": "catalogs/import-manifests/S324.json"
     },
@@ -24,7 +24,7 @@
       "label": "Fall 2024",
       "date_range": null,
       "frozen": false,
-      "generated_at": "2026-06-28T03:36:47.652Z",
+      "generated_at": "2026-06-28T20:35:39.038Z",
       "snapshot_path": "catalogs/public/FA24.json",
       "manifest_path": "catalogs/import-manifests/FA24.json"
     },
@@ -33,7 +33,7 @@
       "label": "Winter 2025",
       "date_range": null,
       "frozen": false,
-      "generated_at": "2026-06-28T03:36:47.652Z",
+      "generated_at": "2026-06-28T20:35:39.038Z",
       "snapshot_path": "catalogs/public/WI25.json",
       "manifest_path": "catalogs/import-manifests/WI25.json"
     },
@@ -42,7 +42,7 @@
       "label": "Spring 2025",
       "date_range": null,
       "frozen": false,
-      "generated_at": "2026-06-28T03:36:47.652Z",
+      "generated_at": "2026-06-28T20:35:39.038Z",
       "snapshot_path": "catalogs/public/SP25.json",
       "manifest_path": "catalogs/import-manifests/SP25.json"
     },
@@ -51,7 +51,7 @@
       "label": "Summer Session I 2025",
       "date_range": null,
       "frozen": false,
-      "generated_at": "2026-06-28T03:36:47.652Z",
+      "generated_at": "2026-06-28T20:35:39.038Z",
       "snapshot_path": "catalogs/public/S125.json",
       "manifest_path": "catalogs/import-manifests/S125.json"
     },
@@ -60,7 +60,7 @@
       "label": "Summer Session II 2025",
       "date_range": null,
       "frozen": false,
-      "generated_at": "2026-06-28T03:36:47.652Z",
+      "generated_at": "2026-06-28T20:35:39.038Z",
       "snapshot_path": "catalogs/public/S225.json",
       "manifest_path": "catalogs/import-manifests/S225.json"
     },
@@ -69,7 +69,7 @@
       "label": "Special Summer Session 2025",
       "date_range": null,
       "frozen": false,
-      "generated_at": "2026-06-28T03:36:47.652Z",
+      "generated_at": "2026-06-28T20:35:39.038Z",
       "snapshot_path": "catalogs/public/S325.json",
       "manifest_path": "catalogs/import-manifests/S325.json"
     },
@@ -78,7 +78,7 @@
       "label": "Fall 2025",
       "date_range": null,
       "frozen": false,
-      "generated_at": "2026-06-28T03:36:47.652Z",
+      "generated_at": "2026-06-28T20:35:39.038Z",
       "snapshot_path": "catalogs/public/FA25.json",
       "manifest_path": "catalogs/import-manifests/FA25.json"
     },
@@ -87,7 +87,7 @@
       "label": "Winter 2026",
       "date_range": null,
       "frozen": false,
-      "generated_at": "2026-06-28T03:36:47.652Z",
+      "generated_at": "2026-06-28T20:35:39.038Z",
       "snapshot_path": "catalogs/public/WI26.json",
       "manifest_path": "catalogs/import-manifests/WI26.json"
     },
@@ -99,7 +99,7 @@
         "end": "2026-06-12"
       },
       "frozen": false,
-      "generated_at": "2026-06-28T03:36:47.652Z",
+      "generated_at": "2026-06-28T20:35:39.038Z",
       "snapshot_path": "catalogs/public/SP26.json",
       "manifest_path": "catalogs/import-manifests/SP26.json"
     },
@@ -108,7 +108,7 @@
       "label": "Summer Session I 2026",
       "date_range": null,
       "frozen": false,
-      "generated_at": "2026-06-28T03:36:47.652Z",
+      "generated_at": "2026-06-28T20:35:39.038Z",
       "snapshot_path": "catalogs/public/S126.json",
       "manifest_path": "catalogs/import-manifests/S126.json"
     },
@@ -117,7 +117,7 @@
       "label": "Summer Session II 2026",
       "date_range": null,
       "frozen": false,
-      "generated_at": "2026-06-28T03:36:47.652Z",
+      "generated_at": "2026-06-28T20:35:39.038Z",
       "snapshot_path": "catalogs/public/S226.json",
       "manifest_path": "catalogs/import-manifests/S226.json"
     },
@@ -126,7 +126,7 @@
       "label": "Special Summer Session 2026",
       "date_range": null,
       "frozen": false,
-      "generated_at": "2026-06-28T03:36:47.652Z",
+      "generated_at": "2026-06-28T20:35:39.038Z",
       "snapshot_path": "catalogs/public/S326.json",
       "manifest_path": "catalogs/import-manifests/S326.json"
     }

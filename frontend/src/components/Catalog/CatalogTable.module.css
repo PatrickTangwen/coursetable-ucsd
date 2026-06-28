@@ -67,17 +67,29 @@
   gap: 4px;
 }
 
-.sortable {
-  cursor: pointer;
-}
-
-.sortable:hover {
-  color: var(--sg-text-muted);
-}
-
 .sortIndicator {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 2px;
   color: var(--sg-primary);
   margin-left: 3px;
+  cursor: pointer;
+  line-height: 1;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.sortIndicator:hover,
+.sortIndicator:focus-visible {
+  color: var(--sg-primary-hover);
+}
+
+.sortIndicator:focus-visible {
+  outline: 2px solid var(--sg-primary);
+  outline-offset: 2px;
+  border-radius: 3px;
 }
 
 .colAdd {

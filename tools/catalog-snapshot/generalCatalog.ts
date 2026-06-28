@@ -196,28 +196,26 @@ export function parseGeneralCatalogHtml(
   const coursePattern =
     /(?:<p\s+class=["'][^"']*\banchor-parent\b[^"']*["'][^>]*>\s*<a\s+class=["'][^"']*\banchor\b[^"']*["'][^>]*\bid=["'](?<anchorId>[^"']+)["'][^>]*><\/a>\s*<\/p>\s*)?<p\s+class=["'][^"']*\bcourse-name\b[^"']*["'][^>]*>(?<nameHtml>[\s\S]*?)<\/p>\s*<p\s+class=["'][^"']*\bcourse-descriptions\b[^"']*["'][^>]*>(?<descriptionHtml>[\s\S]*?)<\/p>/giu;
 
-  const courses = [...html.matchAll(coursePattern)].map((match) => {
+  const courses = [...html.matchAll(coursePattern)].flatMap((match) => {
     const nameHtml = match.groups?.nameHtml ?? '';
     const descriptionHtml = match.groups?.descriptionHtml ?? '';
     const parsedName = parseCourseName(nameHtml);
-    if (parsedName.subject !== expectedSubject) {
-      throw new Error(
-        `UCSD General Catalog ${expectedSubject} page contained ${parsedName.subject} course ${parsedName.courseNumber}`,
-      );
-    }
+    if (parsedName.subject !== expectedSubject) return [];
     const parsedDescription = textByLabels(descriptionHtml);
     const { courseNumber } = parsedName;
-    return {
-      course_id: `${parsedName.subject}:${courseNumber}`,
-      subject: parsedName.subject,
-      course_number: courseNumber,
-      title: parsedName.title,
-      units: parsedName.units,
-      description: parsedDescription.description,
-      prerequisites_text: parsedDescription.prerequisitesText,
-      restrictions_text: parsedDescription.restrictionsText,
-      catalog_url: catalogUrl(options.sourceUrl, match.groups?.anchorId),
-    };
+    return [
+      {
+        course_id: `${parsedName.subject}:${courseNumber}`,
+        subject: parsedName.subject,
+        course_number: courseNumber,
+        title: parsedName.title,
+        units: parsedName.units,
+        description: parsedDescription.description,
+        prerequisites_text: parsedDescription.prerequisitesText,
+        restrictions_text: parsedDescription.restrictionsText,
+        catalog_url: catalogUrl(options.sourceUrl, match.groups?.anchorId),
+      },
+    ];
   });
 
   if (!courses.length) {
@@ -238,10 +236,11 @@ export async function fetchRawGeneralCatalogForSubject(
   options: {
     fetch?: FetchAdapter;
     fetchedAt?: string;
+    catalogPage?: string;
   } = {},
 ): Promise<RawGeneralCatalogSource> {
   const fetchAdapter = options.fetch ?? fetch;
-  const sourceUrl = subjectCatalogUrl(subject);
+  const sourceUrl = subjectCatalogUrl(options.catalogPage ?? subject);
   const response = await fetchAdapter(sourceUrl);
 
   if (!response.ok) {
@@ -262,6 +261,7 @@ export async function fetchGeneralCatalogForSubject(
   subject: string,
   options: {
     fetch?: FetchAdapter;
+    catalogPage?: string;
   } = {},
 ): Promise<GeneralCatalogCourse[]> {
   const rawSource = await fetchRawGeneralCatalogForSubject(subject, options);

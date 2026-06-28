@@ -3,6 +3,7 @@ import type { CatalogSnapshot, CatalogSnapshotConfig } from './catalogSnapshot';
 import {
   defaultSourceLoaders,
   runPublishedSnapshotPipeline,
+  type PublishedSnapshotSourceLoadContext,
   type PublishedSnapshotPipelineResult,
   type PublishedSnapshotSourceLoaders,
 } from './publishedSnapshotPipeline';
@@ -43,15 +44,17 @@ export type MultiTermSnapshotPipelineResult = {
  * Catalog, Instructor Grade Archive) is fetched once per subject across the
  * whole multi-term run instead of once per term. See ADR 0012.
  */
-function memoizeBySubject<C, R>(
+function memoizeByKey<C, R>(
   loader: (subject: string, context: C) => R,
+  keyFor: (subject: string, context: C) => string,
 ): (subject: string, context: C) => R {
   const cache = new Map<string, R>();
   return (subject, context) => {
-    const cached = cache.get(subject);
+    const key = keyFor(subject, context);
+    const cached = cache.get(key);
     if (cached !== undefined) return cached;
     const value = loader(subject, context);
-    cache.set(subject, value);
+    cache.set(key, value);
     return value;
   };
 }
@@ -63,8 +66,15 @@ function sharedLoaders(
     // Schedule of Classes is term-specific: fetched per term.
     scheduleOfClasses: base.scheduleOfClasses,
     // Term-agnostic sources are fetched once per subject and reused per term.
-    generalCatalog: memoizeBySubject(base.generalCatalog),
-    instructorGradeArchive: memoizeBySubject(base.instructorGradeArchive),
+    generalCatalog: memoizeByKey(
+      base.generalCatalog,
+      (subject, context: PublishedSnapshotSourceLoadContext) =>
+        `${subject}:${context.catalogPageBySubject?.[subject] ?? subject}`,
+    ),
+    instructorGradeArchive: memoizeByKey(
+      base.instructorGradeArchive,
+      (subject) => subject,
+    ),
   };
 }
 

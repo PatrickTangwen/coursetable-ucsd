@@ -33,6 +33,17 @@ const mathFixture = `
 </main>
 `;
 
+const biologyFixture = `
+<main>
+  <p class="anchor-parent"><a class="anchor" id="bild1" name="bild1"></a></p>
+  <p class="course-name">BILD 1. The Cell (4)</p>
+  <p class="course-descriptions">Introduction to cellular biology.</p>
+  <p class="anchor-parent"><a class="anchor" id="bipn156" name="bipn156"></a></p>
+  <p class="course-name">BIPN 156. Glial Neurobiology (4)</p>
+  <p class="course-descriptions">Molecular and cellular biology of glial cells in nervous system function.</p>
+</main>
+`;
+
 describe('UCSD General Catalog parser', () => {
   it('parses CSE course metadata and preserves raw prerequisite text', () => {
     const courses = parseGeneralCatalogHtml(cseFixture, {
@@ -94,6 +105,28 @@ describe('UCSD General Catalog parser', () => {
       prerequisites_text: 'MATH 31CH or MATH 109 or consent of instructor.',
     });
   });
+
+  it('filters grouped catalog pages to the requested subject', () => {
+    const courses = parseGeneralCatalogHtml(biologyFixture, {
+      subject: 'BIPN',
+      sourceUrl: 'https://catalog.ucsd.edu/courses/BIOL.html',
+    });
+
+    expect(courses).toEqual([
+      {
+        course_id: 'BIPN:156',
+        subject: 'BIPN',
+        course_number: '156',
+        title: 'Glial Neurobiology',
+        units: '4',
+        description:
+          'Molecular and cellular biology of glial cells in nervous system function.',
+        prerequisites_text: null,
+        restrictions_text: null,
+        catalog_url: 'https://catalog.ucsd.edu/courses/BIOL.html#bipn156',
+      },
+    ]);
+  });
 });
 
 describe('UCSD General Catalog fetcher', () => {
@@ -118,6 +151,27 @@ describe('UCSD General Catalog fetcher', () => {
       'CSE:101',
       'CSE:110',
     ]);
+  });
+
+  it('fetches a requested subject from a grouped UCSD catalog page', async () => {
+    const requests: string[] = [];
+    const courses = await fetchGeneralCatalogForSubject('BIPN', {
+      catalogPage: 'BIOL',
+      fetch(url) {
+        requests.push(requestUrlText(url));
+        return Promise.resolve(
+          new Response(biologyFixture, {
+            status: 200,
+            headers: {
+              'Content-Type': 'text/html; charset=utf-8',
+            },
+          }),
+        );
+      },
+    });
+
+    expect(requests).toEqual(['https://catalog.ucsd.edu/courses/BIOL.html']);
+    expect(courses.map((course) => course.course_id)).toEqual(['BIPN:156']);
   });
 
   it('fetches each configured subject and returns combined catalog courses', async () => {

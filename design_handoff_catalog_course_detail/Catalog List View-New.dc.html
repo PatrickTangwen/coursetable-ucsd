@@ -1,0 +1,1746 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          body {
+            margin: 0;
+          }
+          @keyframes popoverFadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(6px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          @keyframes modalFadeIn {
+            from {
+              opacity: 0;
+              transform: scale(0.97);
+            }
+            to {
+              opacity: 1;
+              transform: scale(1);
+            }
+          }
+          @keyframes backdropFadeIn {
+            from {
+              opacity: 0;
+            }
+            to {
+              opacity: 1;
+            }
+          }
+        </style>
+      </helmet>
+
+      <div
+        style="
+          font-family:
+            'Inter',
+            system-ui,
+            -apple-system,
+            sans-serif;
+          height: 100vh;
+          display: flex;
+          flex-direction: column;
+          background: #fff;
+          color: #1a1a2e;
+          font-size: 14px;
+          position: relative;
+        "
+      >
+        <!-- ========== Top Navigation ========== -->
+        <div
+          style="
+            flex-shrink: 0;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid #e8e9ef;
+          "
+        >
+          <span
+            style="
+              font-size: 20px;
+              font-family: 'Cormorant Garamond', serif;
+              flex-shrink: 0;
+              white-space: nowrap;
+            "
+            ><span style="font-weight: 600; font-style: italic; color: #0e9ae9"
+              >Sun</span
+            ><span style="font-weight: 700; color: #182b50">Grid</span></span
+          >
+          <div style="flex: 1; max-width: 560px; position: relative">
+            <div
+              style="
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #9a9db4;
+              "
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              >
+                <circle cx="7" cy="7" r="4.5"></circle>
+                <line x1="10.2" y1="10.2" x2="14" y2="14"></line>
+              </svg>
+            </div>
+            <input
+              type="text"
+              placeholder="Search by course code, title, instructor, or description"
+              style="
+                width: 100%;
+                box-sizing: border-box;
+                padding: 10px 14px 10px 36px;
+                border: 1px solid #dcdee6;
+                border-radius: 10px;
+                font-size: 14px;
+                font-family: inherit;
+                background: #f8f9fb;
+                color: #1a1a2e;
+                outline: none;
+              "
+            />
+          </div>
+          <div
+            style="
+              font-size: 13px;
+              color: #8b8fa3;
+              white-space: nowrap;
+              flex-shrink: 0;
+            "
+          >
+            Showing 22 results
+          </div>
+          <div style="flex: 1"></div>
+          <div
+            style="display: flex; align-items: center; gap: 6px; flex-shrink: 0"
+          >
+            <button
+              style="
+                width: 34px;
+                height: 34px;
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 8px;
+                color: #5a5d7a;
+              "
+              style-hover="background:#f0f0f5"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 18 18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+              >
+                <circle cx="9" cy="9" r="3.5"></circle>
+                <line x1="9" y1="1" x2="9" y2="3.5"></line>
+                <line x1="9" y1="14.5" x2="9" y2="17"></line>
+                <line x1="1" y1="9" x2="3.5" y2="9"></line>
+                <line x1="14.5" y1="9" x2="17" y2="9"></line>
+                <line x1="3.34" y1="3.34" x2="5.11" y2="5.11"></line>
+                <line x1="12.89" y1="12.89" x2="14.66" y2="14.66"></line>
+                <line x1="3.34" y1="14.66" x2="5.11" y2="12.89"></line>
+                <line x1="12.89" y1="5.11" x2="14.66" y2="3.34"></line>
+              </svg>
+            </button>
+            <button
+              style="
+                padding: 6px 14px;
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                font-size: 13.5px;
+                font-weight: 600;
+                color: #1a56db;
+                font-family: inherit;
+                border-radius: 6px;
+              "
+              style-hover="background:#e8f0fe"
+            >
+              Catalog
+            </button>
+            <button
+              style="
+                padding: 6px 14px;
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                font-size: 13.5px;
+                font-weight: 500;
+                color: #4a4d68;
+                font-family: inherit;
+                border-radius: 6px;
+              "
+              style-hover="background:#f0f0f5"
+            >
+              Worksheet
+            </button>
+            <button
+              style="
+                width: 34px;
+                height: 34px;
+                border: none;
+                background: #e4e5eb;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                color: #6b6e85;
+              "
+              style-hover="opacity:0.8"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+              >
+                <circle cx="8" cy="5.5" r="3"></circle>
+                <path d="M2.5 14.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- ========== Filter Bar ========== -->
+        <div
+          style="
+            flex-shrink: 0;
+            padding: 10px 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+          "
+        >
+          <button
+            style="
+              padding: 7px 12px;
+              border: 1px solid #dcdee6;
+              background: #fff;
+              border-radius: 8px;
+              font-size: 13px;
+              font-weight: 500;
+              color: #4a4d68;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              font-family: inherit;
+            "
+            style-hover="background:#f8f9fb"
+          >
+            Subject
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 10 10"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            >
+              <polyline points="2,3.5 5,6.5 8,3.5"></polyline>
+            </svg>
+          </button>
+          <button
+            style="
+              padding: 7px 12px;
+              border: 1px solid #dcdee6;
+              background: #fff;
+              border-radius: 8px;
+              font-size: 13px;
+              font-weight: 500;
+              color: #4a4d68;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              font-family: inherit;
+            "
+            style-hover="background:#f8f9fb"
+          >
+            Areas/Skills
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 10 10"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            >
+              <polyline points="2,3.5 5,6.5 8,3.5"></polyline>
+            </svg>
+          </button>
+          <div
+            style="
+              padding: 6px 10px 6px 12px;
+              background: #eef3ff;
+              border-radius: 20px;
+              font-size: 12.5px;
+              font-weight: 500;
+              color: #1a56db;
+              display: flex;
+              align-items: center;
+              gap: 6px;
+            "
+          >
+            Summer Session 1 2026
+            <button
+              style="
+                width: 18px;
+                height: 18px;
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #1a56db;
+                border-radius: 50%;
+                font-size: 14px;
+                padding: 0;
+              "
+              style-hover="background:rgba(26,86,219,0.12)"
+            >
+              ×
+            </button>
+          </div>
+          <div
+            style="
+              padding: 6px 10px 6px 12px;
+              background: #eef3ff;
+              border-radius: 20px;
+              font-size: 12.5px;
+              font-weight: 500;
+              color: #1a56db;
+              display: flex;
+              align-items: center;
+              gap: 6px;
+            "
+          >
+            Advanced: 2
+            <button
+              style="
+                width: 18px;
+                height: 18px;
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #1a56db;
+                border-radius: 50%;
+                font-size: 14px;
+                padding: 0;
+              "
+              style-hover="background:rgba(26,86,219,0.12)"
+            >
+              ×
+            </button>
+          </div>
+          <button
+            style="
+              padding: 7px 16px;
+              border: none;
+              background: #e8446a;
+              border-radius: 8px;
+              font-size: 13px;
+              font-weight: 600;
+              color: #fff;
+              cursor: pointer;
+              font-family: inherit;
+            "
+            style-hover="background:#d63a5e"
+          >
+            Reset
+          </button>
+          <div style="flex: 1"></div>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 5px;
+              font-size: 12.5px;
+              color: #8b8fa3;
+              flex-shrink: 0;
+            "
+          >
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 13 13"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            >
+              <circle cx="6.5" cy="6.5" r="5"></circle>
+              <polyline points="6.5,3.5 6.5,6.5 8.5,8"></polyline>
+            </svg>
+            Updated 2 days ago
+          </div>
+        </div>
+
+        <!-- ========== Catalog Table ========== -->
+        <div
+          style="
+            flex: 1;
+            overflow-y: scroll;
+            overflow-x: auto;
+            padding: 0 24px 24px 24px;
+            position: relative;
+            scrollbar-gutter: stable;
+          "
+        >
+          <!-- Header -->
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              border-bottom: 2px solid #e8e9ef;
+              font-size: 11px;
+              font-weight: 600;
+              color: #8b8fa3;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+              position: sticky;
+              top: 0;
+              background: #fff;
+              z-index: 10;
+            "
+          >
+            <div
+              style="width: 44px; flex-shrink: 0; padding: 10px 8px 10px 0"
+            ></div>
+            <div
+              style="
+                width: 140px;
+                flex-shrink: 0;
+                padding: 10px 12px;
+                cursor: pointer;
+              "
+            >
+              <span style="display: inline-flex; align-items: center; gap: 4px"
+                >Code
+                <span style="color: #1a56db; font-size: 10px">▼</span></span
+              >
+            </div>
+            <div
+              style="
+                flex: 1;
+                min-width: 120px;
+                padding: 10px 12px;
+                cursor: pointer;
+              "
+            >
+              <span style="display: inline-flex; align-items: center; gap: 4px"
+                >Title
+                <span style="color: #1a56db; font-size: 10px">▼</span></span
+              >
+            </div>
+            <div style="width: 165px; flex-shrink: 0; padding: 10px 12px">
+              Instructors
+            </div>
+            <div
+              style="
+                width: 220px;
+                flex-shrink: 0;
+                padding: 10px 12px;
+                cursor: pointer;
+              "
+            >
+              <span style="display: inline-flex; align-items: center; gap: 4px"
+                >Meets
+                <span style="color: #1a56db; font-size: 10px">½</span></span
+              >
+            </div>
+            <div style="width: 90px; flex-shrink: 0; padding: 10px 12px">
+              Location
+            </div>
+            <div style="width: 90px; flex-shrink: 0; padding: 10px 12px">
+              Seats
+            </div>
+          </div>
+
+          <!-- Rows -->
+          <sc-for
+            list="{{ displayRows }}"
+            as="drow"
+            hint-placeholder-count="12"
+          >
+            <sc-if
+              value="{{ drow.isSingle }}"
+              hint-placeholder-val="{{ true }}"
+            >
+              <div
+                onClick="{{ drow.openModal }}"
+                style="display:flex;align-items:center;cursor:pointer;background:{{ drow.bg }};border-bottom:1px solid #f0f1f5;transition:background 0.1s;font-size:13.5px"
+                style-hover="background:#f4f6fa"
+              >
+                <div
+                  style="
+                    width: 44px;
+                    flex-shrink: 0;
+                    padding: 11px 8px 11px 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 18 18"
+                    fill="none"
+                    stroke="#1a56db"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    style="cursor: pointer"
+                  >
+                    <line x1="9" y1="4.5" x2="9" y2="13.5"></line>
+                    <line x1="4.5" y1="9" x2="13.5" y2="9"></line>
+                  </svg>
+                </div>
+                <div
+                  style="
+                    width: 140px;
+                    flex-shrink: 0;
+                    padding: 11px 12px;
+                    white-space: nowrap;
+                  "
+                >
+                  <span style="font-weight: 700; color: #1a1a2e"
+                    >{{ drow.code }}</span
+                  >
+                  <span style="color: #8b8fa3; margin-left: 4px"
+                    >{{ drow.section }}</span
+                  >
+                </div>
+                <div
+                  style="
+                    flex: 1;
+                    min-width: 120px;
+                    padding: 11px 12px;
+                    color: #33354d;
+                    font-weight: 500;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                  "
+                >
+                  {{ drow.title }}
+                </div>
+                <div
+                  style="
+                    width: 165px;
+                    flex-shrink: 0;
+                    padding: 11px 12px;
+                    color: #5a5d7a;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    font-size: 12.5px;
+                  "
+                >
+                  {{ drow.instructor }}
+                </div>
+                <div
+                  style="
+                    width: 220px;
+                    flex-shrink: 0;
+                    padding: 11px 12px;
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                  "
+                >
+                  <sc-if
+                    value="{{ drow.showDayDots }}"
+                    hint-placeholder-val="{{ true }}"
+                    ><div style="display: flex; gap: 1px; flex-shrink: 0">
+                      <sc-for
+                        list="{{ drow.dayDots }}"
+                        as="dot"
+                        hint-placeholder-count="5"
+                        ><div
+                          style="width:17px;height:15px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;background:{{ dot.bg }};color:{{ dot.color }}"
+                        >
+                          {{ dot.letter }}
+                        </div></sc-for
+                      >
+                    </div></sc-if
+                  >
+                  <span
+                    style="
+                      font-size: 12.5px;
+                      font-weight: 500;
+                      color: #33354d;
+                      white-space: nowrap;
+                    "
+                    >{{ drow.timeText }}</span
+                  >
+                </div>
+                <div
+                  style="
+                    width: 90px;
+                    flex-shrink: 0;
+                    padding: 11px 12px;
+                    color: #5a5d7a;
+                    font-size: 12.5px;
+                  "
+                >
+                  {{ drow.location }}
+                </div>
+                <div
+                  style="
+                    width: 90px;
+                    flex-shrink: 0;
+                    padding: 11px 12px;
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                  "
+                >
+                  <span
+                    style="font-size:12.5px;font-weight:500;color:{{ drow.seatsColor }}"
+                    >{{ drow.seatsText }}</span
+                  >
+                  <div
+                    style="
+                      width: 28px;
+                      height: 4px;
+                      background: #eef0f4;
+                      border-radius: 2px;
+                      overflow: hidden;
+                    "
+                  >
+                    <div
+                      style="width:{{ drow.seatsPercent }};height:100%;background:{{ drow.seatsBarColor }};border-radius:2px"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if
+              value="{{ drow.isParent }}"
+              hint-placeholder-val="{{ false }}"
+            >
+              <div
+                style="margin:{{ drow.wrapMargin }};border:{{ drow.wrapBorder }};border-radius:{{ drow.wrapRadius }};overflow:{{ drow.wrapOverflow }};box-shadow:{{ drow.wrapShadow }};border-bottom:{{ drow.wrapBorderBottom }}"
+              >
+                <div
+                  style="display:flex;align-items:center;cursor:pointer;background:{{ drow.parentBg }};font-size:13.5px"
+                  style-hover="background:#f3f4f6"
+                >
+                  <div
+                    style="
+                      width: 44px;
+                      flex-shrink: 0;
+                      padding: 11px 8px 11px 0;
+                    "
+                  ></div>
+                  <div
+                    onClick="{{ drow.toggleClick }}"
+                    style="
+                      width: 140px;
+                      flex-shrink: 0;
+                      padding: 11px 12px;
+                      display: flex;
+                      align-items: center;
+                      gap: 6px;
+                      white-space: nowrap;
+                    "
+                  >
+                    <span style="font-weight: 700; color: #1a1a2e"
+                      >{{ drow.code }}</span
+                    >
+                    <span
+                      style="
+                        padding: 2px 8px;
+                        border-radius: 10px;
+                        background: #dbeafe;
+                        color: #1e40af;
+                        font-size: 10px;
+                        font-weight: 600;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 3px;
+                        cursor: pointer;
+                      "
+                      >{{ drow.sectionCount }}
+                      <svg
+                        width="8"
+                        height="8"
+                        viewBox="0 0 8 8"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        style="transition:transform 0.2s;transform:{{ drow.chevronTransform }}"
+                      >
+                        <polyline
+                          points="1.5,2.5 4,5.5 6.5,2.5"
+                        ></polyline></svg
+                    ></span>
+                  </div>
+                  <div
+                    onClick="{{ drow.openModal }}"
+                    style="
+                      flex: 1;
+                      min-width: 120px;
+                      padding: 11px 12px;
+                      color: #33354d;
+                      font-weight: 500;
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                      white-space: nowrap;
+                      cursor: pointer;
+                    "
+                  >
+                    {{ drow.title }}
+                  </div>
+                  <div
+                    style="
+                      width: 165px;
+                      flex-shrink: 0;
+                      padding: 11px 12px;
+                      color: #9a9db4;
+                      font-size: 12px;
+                    "
+                  >
+                    {{ drow.instructorSummary }}
+                  </div>
+                  <div
+                    style="
+                      width: 220px;
+                      flex-shrink: 0;
+                      padding: 11px 12px;
+                      color: #9a9db4;
+                      font-size: 12px;
+                    "
+                  >
+                    {{ drow.meetsSummary }}
+                  </div>
+                  <div
+                    style="
+                      width: 90px;
+                      flex-shrink: 0;
+                      padding: 11px 12px;
+                      color: #9a9db4;
+                      font-size: 12px;
+                    "
+                  >
+                    {{ drow.locationSummary }}
+                  </div>
+                  <div
+                    style="width: 90px; flex-shrink: 0; padding: 11px 12px"
+                  ></div>
+                </div>
+                <sc-if
+                  value="{{ drow.isExpanded }}"
+                  hint-placeholder-val="{{ false }}"
+                >
+                  <div
+                    style="
+                      max-height: 132px;
+                      overflow-y: auto;
+                      border-top: 1px solid #eef0f4;
+                    "
+                  >
+                    <sc-for
+                      list="{{ drow.subRows }}"
+                      as="sub"
+                      hint-placeholder-count="2"
+                    >
+                      <div
+                        onClick="{{ sub.openModal }}"
+                        style="
+                          display: flex;
+                          align-items: center;
+                          cursor: pointer;
+                          background: #fafbfc;
+                          border-bottom: 1px solid #eef0f4;
+                          transition: background 0.1s;
+                          font-size: 13px;
+                        "
+                        style-hover="background:#f3f4f6"
+                      >
+                        <div
+                          style="
+                            width: 44px;
+                            flex-shrink: 0;
+                            padding: 9px 8px 9px 0;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                          "
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 18 18"
+                            fill="none"
+                            stroke="#1a56db"
+                            stroke-width="1.8"
+                            stroke-linecap="round"
+                            style="cursor: pointer"
+                          >
+                            <line x1="9" y1="4.5" x2="9" y2="13.5"></line>
+                            <line x1="4.5" y1="9" x2="13.5" y2="9"></line>
+                          </svg>
+                        </div>
+                        <div
+                          style="
+                            width: 140px;
+                            flex-shrink: 0;
+                            padding: 9px 12px;
+                          "
+                        >
+                          <span
+                            style="
+                              padding: 2px 8px;
+                              border-radius: 4px;
+                              background: #dbeafe;
+                              color: #1e40af;
+                              font-size: 10.5px;
+                              font-weight: 700;
+                            "
+                            >{{ sub.section }}</span
+                          >
+                        </div>
+                        <div
+                          style="
+                            flex: 1;
+                            min-width: 120px;
+                            padding: 9px 12px;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                          "
+                        >
+                          <span
+                            style="
+                              padding: 2px 7px;
+                              border-radius: 4px;
+                              background: #f0f1f5;
+                              color: #5a5d7a;
+                              font-size: 10px;
+                              font-weight: 600;
+                              letter-spacing: 0.03em;
+                            "
+                            >LE</span
+                          ><span
+                            style="font-size:12px;color:{{ sub.seatsColor }}"
+                            >{{ sub.seatsText }}</span
+                          >
+                          <div
+                            style="
+                              width: 48px;
+                              height: 4px;
+                              background: #eef0f4;
+                              border-radius: 2px;
+                              overflow: hidden;
+                            "
+                          >
+                            <div
+                              style="width:{{ sub.seatsPercent }};height:100%;background:{{ sub.seatsBarColor }};border-radius:2px"
+                            ></div>
+                          </div>
+                        </div>
+                        <div
+                          style="
+                            width: 165px;
+                            flex-shrink: 0;
+                            padding: 9px 12px;
+                            color: #5a5d7a;
+                            font-size: 12.5px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                          "
+                        >
+                          {{ sub.instructor }}
+                        </div>
+                        <div
+                          style="
+                            width: 220px;
+                            flex-shrink: 0;
+                            padding: 9px 12px;
+                            display: flex;
+                            align-items: center;
+                            gap: 5px;
+                          "
+                        >
+                          <sc-if
+                            value="{{ sub.showDayDots }}"
+                            hint-placeholder-val="{{ true }}"
+                            ><div
+                              style="display: flex; gap: 1px; flex-shrink: 0"
+                            >
+                              <sc-for
+                                list="{{ sub.dayDots }}"
+                                as="dot"
+                                hint-placeholder-count="5"
+                                ><div
+                                  style="width:17px;height:15px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;background:{{ dot.bg }};color:{{ dot.color }}"
+                                >
+                                  {{ dot.letter }}
+                                </div></sc-for
+                              >
+                            </div></sc-if
+                          >
+                          <span
+                            style="
+                              font-size: 12.5px;
+                              font-weight: 500;
+                              color: #33354d;
+                              white-space: nowrap;
+                            "
+                            >{{ sub.timeText }}</span
+                          >
+                        </div>
+                        <div
+                          style="
+                            width: 90px;
+                            flex-shrink: 0;
+                            padding: 9px 12px;
+                            color: #5a5d7a;
+                            font-size: 12.5px;
+                          "
+                        >
+                          {{ sub.location }}
+                        </div>
+                        <div
+                          style="width: 90px; flex-shrink: 0; padding: 9px 12px"
+                        ></div>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <sc-if
+                    value="{{ drow.showScrollHint }}"
+                    hint-placeholder-val="{{ false }}"
+                  >
+                    <div
+                      style="
+                        padding: 5px 16px;
+                        background: #fafbfc;
+                        text-align: center;
+                        font-size: 10px;
+                        color: #b0b3be;
+                        border-top: 1px solid #eef0f4;
+                      "
+                    >
+                      ↓ scroll for more sections
+                    </div>
+                  </sc-if>
+                </sc-if>
+              </div>
+            </sc-if>
+          </sc-for>
+        </div>
+
+        <!-- FAB -->
+        <button
+          style="
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            background: #1a56db;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(26, 86, 219, 0.35);
+            z-index: 200;
+          "
+          style-hover="transform:scale(1.06)"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- ========== Course Detail Modal (overlay) ========== -->
+      <sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+        <div
+          onClick="{{ modal.close }}"
+          style="
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.42);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', system-ui, sans-serif;
+            animation: backdropFadeIn 0.2s ease-out;
+            opacity: 1;
+          "
+        >
+          <div
+            onClick="{{ modal.stopProp }}"
+            style="
+              background: #fff;
+              border-radius: 14px;
+              width: calc(100% - 56px);
+              max-width: 780px;
+              height: calc(100% - 56px);
+              max-height: 860px;
+              display: flex;
+              flex-direction: column;
+              overflow: hidden;
+              box-shadow:
+                0 24px 80px rgba(0, 0, 0, 0.18),
+                0 4px 16px rgba(0, 0, 0, 0.08);
+              animation: modalFadeIn 0.25s ease-out;
+              opacity: 1;
+            "
+          >
+            <!-- Modal Header -->
+            <div style="padding: 24px 28px 0 28px; flex-shrink: 0">
+              <div
+                style="
+                  display: flex;
+                  align-items: flex-start;
+                  justify-content: space-between;
+                  gap: 16px;
+                "
+              >
+                <div style="flex: 1; min-width: 0">
+                  <div
+                    style="
+                      font-size: 21px;
+                      line-height: 1.35;
+                      letter-spacing: -0.01em;
+                    "
+                  >
+                    <span style="font-weight: 700; color: #1a1a2e"
+                      >{{ modal.title }}
+                    </span>
+                    <span style="font-weight: 400; color: #8b8fa3"
+                      >(Summer Session 1 2026)</span
+                    >
+                  </div>
+                  <div
+                    style="
+                      margin-top: 5px;
+                      font-size: 16px;
+                      font-weight: 500;
+                      color: #9a9db4;
+                      letter-spacing: 0.02em;
+                    "
+                  >
+                    {{ modal.code }}
+                  </div>
+                </div>
+                <button
+                  onClick="{{ modal.close }}"
+                  style="
+                    flex-shrink: 0;
+                    width: 36px;
+                    height: 36px;
+                    border: none;
+                    background: transparent;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 8px;
+                    color: #9a9db4;
+                  "
+                  style-hover="background:#f0f0f5;color:#5a5d7a"
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                  >
+                    <line x1="4" y1="4" x2="16" y2="16"></line>
+                    <line x1="16" y1="4" x2="4" y2="16"></line>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Section pills (multi-section only) -->
+              <sc-if
+                value="{{ modal.showSectionNav }}"
+                hint-placeholder-val="{{ false }}"
+              >
+                <div
+                  style="
+                    display: flex;
+                    gap: 6px;
+                    margin-top: 12px;
+                    flex-wrap: wrap;
+                  "
+                >
+                  <sc-for
+                    list="{{ modal.sectionPills }}"
+                    as="pill"
+                    hint-placeholder-count="3"
+                  >
+                    <button
+                      onClick="{{ pill.onClick }}"
+                      style="padding:4px 12px;border-radius:6px;border:1px solid {{ pill.borderColor }};background:{{ pill.bg }};color:{{ pill.color }};font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;transition:all 0.15s"
+                      style-hover="background:{{ pill.hoverBg }}"
+                    >
+                      {{ pill.label }}
+                      <span
+                        style="font-weight:400;color:{{ pill.subColor }};font-size:10.5px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+                        >{{ pill.instructor }}</span
+                      >
+                    </button>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <!-- Tabs -->
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  margin-top: 14px;
+                "
+              >
+                <div style="display: flex; gap: 6px">
+                  <button
+                    style="
+                      padding: 7px 16px;
+                      border-radius: 8px;
+                      border: none;
+                      background: #e8f0fe;
+                      color: #1a56db;
+                      font-size: 13.5px;
+                      font-weight: 600;
+                      cursor: pointer;
+                      font-family: inherit;
+                    "
+                  >
+                    Overview
+                  </button>
+                  <button
+                    style="
+                      padding: 7px 16px;
+                      border-radius: 8px;
+                      border: none;
+                      background: transparent;
+                      color: #4a4d68;
+                      font-size: 13.5px;
+                      font-weight: 500;
+                      cursor: pointer;
+                      font-family: inherit;
+                    "
+                    style-hover="background:#f4f4f8"
+                  >
+                    Past Grades
+                  </button>
+                </div>
+                <div style="display: flex; gap: 4px">
+                  <button
+                    style="
+                      width: 34px;
+                      height: 34px;
+                      border: none;
+                      background: transparent;
+                      cursor: pointer;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      border-radius: 8px;
+                      color: #1a56db;
+                    "
+                    style-hover="background:#e8f0fe"
+                  >
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 18 18"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.2"
+                      stroke-linecap="round"
+                    >
+                      <line x1="9" y1="3" x2="9" y2="15"></line>
+                      <line x1="3" y1="9" x2="15" y2="9"></line>
+                    </svg>
+                  </button>
+                  <button
+                    style="
+                      width: 34px;
+                      height: 34px;
+                      border: none;
+                      background: transparent;
+                      cursor: pointer;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      border-radius: 8px;
+                      color: #1a56db;
+                    "
+                    style-hover="background:#e8f0fe"
+                  >
+                    <svg
+                      width="17"
+                      height="17"
+                      viewBox="0 0 17 17"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M3.5 10.5v3a1 1 0 001 1h8a1 1 0 001-1v-3"></path>
+                      <polyline points="5.5 6 8.5 3 11.5 6"></polyline>
+                      <line x1="8.5" y1="3" x2="8.5" y2="11"></line>
+                    </svg>
+                  </button>
+                  <button
+                    style="
+                      width: 34px;
+                      height: 34px;
+                      border: none;
+                      background: transparent;
+                      cursor: pointer;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      border-radius: 8px;
+                      color: #1a56db;
+                    "
+                    style-hover="background:#e8f0fe"
+                  >
+                    <svg
+                      width="17"
+                      height="17"
+                      viewBox="0 0 17 17"
+                      fill="currentColor"
+                    >
+                      <circle cx="3.5" cy="8.5" r="1.5"></circle>
+                      <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                      <circle cx="13.5" cy="8.5" r="1.5"></circle>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div
+                style="height: 1px; background: #e8e9ef; margin-top: 12px"
+              ></div>
+            </div>
+
+            <!-- Modal Content -->
+            <div
+              style="flex: 1; overflow-y: auto; padding: 22px 28px 32px 28px"
+            >
+              <div
+                style="
+                  font-size: 14.5px;
+                  line-height: 1.65;
+                  color: #4a4d68;
+                  margin-bottom: 14px;
+                  text-wrap: pretty;
+                "
+              >
+                {{ modal.description }}
+              </div>
+              <div
+                style="
+                  display: flex;
+                  gap: 8px;
+                  align-items: center;
+                  flex-wrap: wrap;
+                  margin-bottom: 20px;
+                "
+              >
+                <span
+                  style="
+                    padding: 4px 10px;
+                    border-radius: 6px;
+                    background: #eef2ff;
+                    color: #3b52a8;
+                    font-size: 12px;
+                    font-weight: 600;
+                  "
+                  >4 Units</span
+                >
+                <span
+                  style="
+                    padding: 4px 10px;
+                    border-radius: 6px;
+                    background: #fff1f2;
+                    color: #be123c;
+                    font-size: 12px;
+                    font-weight: 500;
+                  "
+                  >Upper Division</span
+                >
+              </div>
+
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: baseline;
+                  margin-bottom: 14px;
+                "
+              >
+                <div style="font-size: 15px; font-weight: 700; color: #1a1a2e">
+                  Schedule Options
+                </div>
+                <div style="font-size: 12.5px; color: #8b8fa3">
+                  {{ modal.groupCountLabel }}
+                </div>
+              </div>
+
+              <!-- Offering Groups -->
+              <sc-for
+                list="{{ modal.groups }}"
+                as="mg"
+                hint-placeholder-count="2"
+              >
+                <div
+                  style="margin-bottom:16px;border-radius:10px;border:{{ mg.cardBorder }};overflow:hidden;background:{{ mg.cardBg }};transition:border-color 0.2s"
+                >
+                  <div
+                    style="
+                      padding: 13px 18px;
+                      background: #f5f7fa;
+                      border-bottom: 1px solid #e8e9ef;
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: center;
+                    "
+                  >
+                    <div>
+                      <div
+                        style="
+                          font-size: 14px;
+                          font-weight: 700;
+                          color: #1a1a2e;
+                        "
+                      >
+                        {{ mg.headerLabel }}
+                      </div>
+                      <div
+                        style="font-size: 12px; color: #8b8fa3; margin-top: 2px"
+                      >
+                        {{ mg.headerSublabel }}
+                      </div>
+                    </div>
+                    <div
+                      style="
+                        font-size: 13px;
+                        font-weight: 500;
+                        color: #5a5d7a;
+                        text-align: right;
+                      "
+                    >
+                      {{ mg.instructor }}
+                    </div>
+                  </div>
+                  <!-- LE row -->
+                  <div
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 10px;
+                      padding: 9px 18px;
+                      background: #f8fafd;
+                      border-bottom: 1px solid #f3f4f7;
+                    "
+                  >
+                    <div
+                      style="width: 18px; height: 18px; flex-shrink: 0"
+                    ></div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        width: 100px;
+                        flex-shrink: 0;
+                      "
+                    >
+                      <span
+                        style="
+                          padding: 2px 7px;
+                          border-radius: 4px;
+                          font-size: 10.5px;
+                          font-weight: 700;
+                          letter-spacing: 0.04em;
+                          background: #dbeafe;
+                          color: #1e40af;
+                          line-height: 1.5;
+                        "
+                        >LE</span
+                      >
+                      <span
+                        style="
+                          font-size: 12px;
+                          color: #8b8fa3;
+                          font-weight: 500;
+                        "
+                        >Lecture</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        width: 44px;
+                        flex-shrink: 0;
+                        font-size: 13px;
+                        font-weight: 600;
+                        color: #33354d;
+                      "
+                    >
+                      {{ mg.section }}
+                    </div>
+                    <div
+                      style="
+                        flex: 1;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                      "
+                    >
+                      <sc-if
+                        value="{{ mg.showDayDots }}"
+                        hint-placeholder-val="{{ true }}"
+                      >
+                        <div style="display: flex; gap: 2px; flex-shrink: 0">
+                          <sc-for
+                            list="{{ mg.dayDots }}"
+                            as="dot"
+                            hint-placeholder-count="5"
+                          >
+                            <div
+                              style="width:22px;height:19px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;background:{{ dot.bg }};color:{{ dot.color }}"
+                            >
+                              {{ dot.letter }}
+                            </div>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+                      <div
+                        style="
+                          font-size: 13px;
+                          font-weight: 500;
+                          color: #33354d;
+                          white-space: nowrap;
+                        "
+                      >
+                        {{ mg.timeText }}
+                      </div>
+                    </div>
+                    <div
+                      style="
+                        width: 80px;
+                        flex-shrink: 0;
+                        font-size: 12.5px;
+                        color: #5a5d7a;
+                      "
+                    >
+                      {{ mg.location }}
+                    </div>
+                    <div style="min-width: 68px"></div>
+                  </div>
+                  <!-- Add button -->
+                  <div
+                    style="
+                      padding: 12px 18px;
+                      border-top: 1px solid #eeeff3;
+                      background: #fafbff;
+                    "
+                  >
+                    <button
+                      style="
+                        width: 100%;
+                        padding: 10px 16px;
+                        border: none;
+                        background: #1a56db;
+                        color: #fff;
+                        border-radius: 8px;
+                        font-size: 13.5px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        font-family: inherit;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 6px;
+                        transition: background 0.15s;
+                      "
+                      style-hover="background:#1548b8"
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 14 14"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                      >
+                        <line x1="7" y1="2" x2="7" y2="12"></line>
+                        <line x1="2" y1="7" x2="12" y2="7"></line>
+                      </svg>
+                      {{ mg.addLabel }}
+                    </button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script>
+
+      class Component extends DCLogic {
+        state = {
+          expandedCourses: { 2: true },
+          modalOpen: false,
+          modalCourseIdx: null,
+          modalActiveSection: null
+        };
+
+        parseDays(dayStr) {
+          var allDays = ['M', 'Tu', 'W', 'Th', 'F'];
+          if (!dayStr) return allDays.map(function(d) { return { letter: d, active: false }; });
+          var active = {};
+          var i = 0;
+          while (i < dayStr.length) {
+            if (dayStr[i] === 'M') { active['M'] = true; i++; }
+            else if (dayStr[i] === 'T' && dayStr[i + 1] === 'h') { active['Th'] = true; i += 2; }
+            else if (dayStr[i] === 'T' && dayStr[i + 1] === 'u') { active['Tu'] = true; i += 2; }
+            else if (dayStr[i] === 'T') { active['Tu'] = true; i++; }
+            else if (dayStr[i] === 'W') { active['W'] = true; i++; }
+            else if (dayStr[i] === 'F') { active['F'] = true; i++; }
+            else { i++; }
+          }
+          return allDays.map(function(d) { return { letter: d, active: !!active[d] }; });
+        }
+
+        formatTime(t) {
+          if (!t || t === 'TBA') return 'TBA';
+          var m = t.match(/(\d+:\d+)(am?|pm?)–(\d+:\d+)(am?|pm?)/i);
+          if (!m) return t;
+          var sp = m[2][0] === 'a' || m[2][0] === 'A' ? 'AM' : 'PM';
+          var ep = m[4][0] === 'a' || m[4][0] === 'A' ? 'AM' : 'PM';
+          return sp === ep ? m[1] + ' – ' + m[3] + ' ' + ep : m[1] + ' ' + sp + ' – ' + m[3] + ' ' + ep;
+        }
+
+        splitMeets(ms) {
+          if (!ms || ms === 'TBA') return { days: '', time: 'TBA', isTBA: true };
+          var idx = ms.search(/\s+\d/);
+          return idx > 0 ? { days: ms.substring(0, idx), time: ms.substring(idx).trim(), isTBA: false } : { days: '', time: ms, isTBA: false };
+        }
+
+        buildDots(ms) {
+          var sp = this.splitMeets(ms);
+          var pd = this.parseDays(sp.days);
+          return { dayDots: pd.map(function(d) { return { letter: d.letter, bg: d.active ? '#334155' : '#f0f1f5', color: d.active ? '#fff' : '#c5c8d6' }; }), showDayDots: !sp.isTBA, timeText: this.formatTime(sp.time) };
+        }
+
+        seatsInfo(enrolled, total) {
+          var pct = Math.round(enrolled / total * 100);
+          var color = pct >= 90 ? '#be123c' : pct >= 60 ? '#33354d' : '#166534';
+          var barColor = pct >= 90 ? '#e8446a' : pct >= 60 ? '#1a56db' : '#22c55e';
+          return { seatsText: enrolled + '/' + total, seatsShort: enrolled + '/' + total, seatsPercent: pct + '%', seatsColor: color, seatsBarColor: barColor };
+        }
+
+        getCourseData() {
+          return [
+            { code: 'CSE 100', title: 'Advanced Data Structures', desc: 'Design and analysis of efficient data structures including balanced trees, hashing, priority queues, and graphs.', sections: [{ id: 'A00', instructor: 'Gillespie, Gary N.', meets: 'MTWTh 11:00am–12:20pm', location: 'CENTR 109', enrolled: 38, total: 50 }], added: '6/20/2026' },
+            { code: 'CSE 105', title: 'Theory of Computability', desc: 'Undecidability, intractability, and their consequences. Decidable and recognizable languages. NP-completeness.', sections: [{ id: 'A00', instructor: 'Minnes, Mia', meets: 'MTWTh 9:30am–10:50am', location: 'WLH 2001', enrolled: 12, total: 50 }], added: '6/20/2026' },
+            { code: 'CSE 110', title: 'Software Engineering', desc: 'Introduction to software development and engineering methods. Agile teams, testing, deployment pipelines, and project management.', sections: [
+              { id: 'A00', instructor: 'Powell, Thomas Allan', meets: 'MTWTh 2:00pm–3:20pm', location: 'PCYNH 106', enrolled: 45, total: 50 },
+              { id: 'B00', instructor: 'Ochoa, Benjamin L.', meets: 'MW 6:30pm–7:50pm', location: 'GH 242', enrolled: 22, total: 50 },
+              { id: 'C00', instructor: 'Powell, Thomas Allan', meets: 'TTh 3:30pm–4:50pm', location: 'CENTR 109', enrolled: 31, total: 50 },
+              { id: 'D00', instructor: 'Ochoa, Benjamin L.', meets: 'MWF 10:00am–10:50am', location: 'WLH 2001', enrolled: 48, total: 50 },
+              { id: 'E00', instructor: 'Staff', meets: 'TBA', location: 'TBA', enrolled: 0, total: 50 }
+            ], added: '6/20/2026' },
+            { code: 'CSE 120', title: 'Principles of Computer Operating Systems', desc: 'Basic functions of operating systems including processes, memory management, and file systems.', sections: [
+              { id: 'A00', instructor: 'Voelker, Geoffrey M.', meets: 'TTh 12:30pm–1:50pm', location: 'CENTR 115', enrolled: 35, total: 45 },
+              { id: 'B00', instructor: 'Pasquale, Joseph C.', meets: 'MWF 3:00pm–3:50pm', location: 'WLH 2001', enrolled: 18, total: 45 },
+              { id: 'C00', instructor: 'Voelker, Geoffrey M.', meets: 'TTh 5:00pm–6:20pm', location: 'PCYNH 106', enrolled: 40, total: 45 }
+            ], added: '6/20/2026' },
+            { code: 'CSE 130', title: 'Programming Languages', desc: 'Principles of programming languages covering functional, object-oriented, and logic paradigms.', sections: [
+              { id: 'A00', instructor: 'Jhala, Ranjit', meets: 'MWF 1:00pm–1:50pm', location: 'YORK 2622', enrolled: 28, total: 40 },
+              { id: 'B00', instructor: 'Lerner, Sorin', meets: 'TTh 9:30am–10:50am', location: 'CENTR 109', enrolled: 15, total: 40 }
+            ], added: '6/20/2026' },
+            { code: 'CSE 131', title: 'Compiler Construction', desc: 'Introduction to compilers covering lexing, parsing, type-checking, and code generation.', sections: [{ id: 'A00', instructor: 'Politz, Joe Gibbs', meets: 'TTh 3:30pm–4:50pm', location: 'RWAC 0103', enrolled: 33, total: 40 }], added: '6/20/2026' },
+            { code: 'CSE 132A', title: 'Database System Principles', desc: 'Database design, relational algebra, SQL, and query optimization.', sections: [{ id: 'A00', instructor: 'Deutsch, Alin', meets: 'MTWTh 8:00am–9:20am', location: 'CENTR 109', enrolled: 42, total: 50 }], added: '6/20/2026' },
+            { code: 'CSE 134B', title: 'Web Client Languages', desc: 'Introduces languages and tools used on the client side to design and implement web applications. Topics include XHTML, CSS, JavaScript, and relevant tools.', sections: [{ id: 'A01', instructor: 'Powell, Thomas Allan', meets: 'MTWTh 8:00am–9:20am', location: 'RWAC 0103', enrolled: 25, total: 35 }], added: '6/20/2026' },
+            { code: 'CSE 199', title: 'Independent Study for Undergraduates', desc: 'Independent study or research under the direction of a member of the faculty.', sections: [{ id: '001', instructor: 'Staff', meets: 'TBA', location: 'TBA', enrolled: 3, total: 20 }], added: '6/20/2026' },
+            { code: 'CSE 140', title: 'Components & Design for Digital Systems', desc: 'Design of Boolean logic and finite state machines, implementation with FPGAs.', sections: [{ id: 'A00', instructor: 'Swanson, Steven', meets: 'MWF 10:00am–10:50am', location: 'WLH 2001', enrolled: 47, total: 50 }], added: '6/20/2026' },
+            { code: 'CSE 141', title: 'Intro to Computer Architecture', desc: 'Pipelining, caching, memory hierarchy, and instruction-level parallelism.', sections: [{ id: 'A00', instructor: 'Porter, Leo R.', meets: 'TTh 9:30am–10:50am', location: 'CENTR 115', enrolled: 30, total: 50 }], added: '6/20/2026' },
+            { code: 'CSE 150A', title: 'Introduction to AI: Probabilistic Reasoning', desc: 'Bayesian networks, hidden Markov models, and probabilistic inference for decision making.', sections: [
+              { id: 'A00', instructor: 'Dasgupta, Sanjoy', meets: 'MWF 2:00pm–2:50pm', location: 'PCYNH 106', enrolled: 36, total: 50 },
+              { id: 'B00', instructor: 'Eldridge, Justin', meets: 'TTh 5:00pm–6:20pm', location: 'WLH 2001', enrolled: 19, total: 50 }
+            ], added: '6/20/2026' }
+          ];
+        }
+
+        renderVals() {
+          var self = this;
+          var s = this.state;
+          var courseData = this.getCourseData();
+          var exp = s.expandedCourses;
+
+          // === List view rows ===
+          var displayRows = [];
+          courseData.forEach(function(c, ci) {
+            var isMulti = c.sections.length > 1;
+            var rowBg = ci % 2 === 1 ? '#fafbfc' : '#fff';
+            var openModal = function(secId) {
+              return function() { self.setState({ modalOpen: true, modalCourseIdx: ci, modalActiveSection: secId || c.sections[0].id }); };
+            };
+
+            if (!isMulti) {
+              var md = self.buildDots(c.sections[0].meets);
+              var si = self.seatsInfo(c.sections[0].enrolled, c.sections[0].total);
+              displayRows.push({ isSingle: true, isParent: false, code: c.code, section: c.sections[0].id, title: c.title, instructor: c.sections[0].instructor, dayDots: md.dayDots, showDayDots: md.showDayDots, timeText: md.timeText, location: c.sections[0].location, seatsText: si.seatsText, seatsPercent: si.seatsPercent, seatsColor: si.seatsColor, seatsBarColor: si.seatsBarColor, bg: rowBg, hoverBg: '#f4f6fa', openModal: openModal() });
+            } else {
+              var isExp = !!exp[ci];
+              displayRows.push({
+                isSingle: false, isParent: true, code: c.code, title: c.title, added: c.added,
+                showScrollHint: c.sections.length > 3,
+                sectionCount: c.sections.length + ' sections', isExpanded: isExp,
+                chevronTransform: isExp ? 'rotate(180deg)' : 'rotate(0deg)',
+                parentBg: isExp ? '#fafbfc' : rowBg,
+                wrapMargin: '0',
+                wrapBorder: 'none',
+                wrapRadius: '10px',
+                wrapOverflow: 'hidden',
+                wrapShadow: isExp ? '0 0 0 1px #e0e2e8,0 2px 8px rgba(0,0,0,0.04)' : 'none',
+                wrapBorderBottom: isExp ? 'none' : '1px solid #f0f1f5',
+                instructorSummary: c.sections.length + ' instructors',
+                meetsSummary: 'Multiple schedules',
+                locationSummary: c.sections.length + ' locations',
+                openModal: openModal(),
+                toggleClick: function() {
+                  self.setState(function(prev) {
+                    var next = {}; for (var k in prev.expandedCourses) next[k] = prev.expandedCourses[k];
+                    if (next[ci]) { delete next[ci]; } else { next[ci] = true; }
+                    return { expandedCourses: next };
+                  });
+                },
+                subRows: c.sections.map(function(sec) {
+                  var md = self.buildDots(sec.meets);
+                  var si = self.seatsInfo(sec.enrolled, sec.total);
+                  return { section: sec.id, instructor: sec.instructor, dayDots: md.dayDots, showDayDots: md.showDayDots, timeText: md.timeText, location: sec.location, seatsText: si.seatsText, seatsShort: si.seatsShort, seatsPercent: si.seatsPercent, seatsColor: si.seatsColor, seatsBarColor: si.seatsBarColor, openModal: openModal(sec.id) };
+                })
+              });
+            }
+          });
+
+          // === Modal data ===
+          var modal = { title: '', code: '', description: '', groups: [], sectionPills: [], showSectionNav: false, groupCountLabel: '', close: function() { self.setState({ modalOpen: false }); }, stopProp: function(e) { e.stopPropagation(); } };
+
+          if (s.modalOpen && s.modalCourseIdx != null) {
+            var mc = courseData[s.modalCourseIdx];
+            var activeSec = s.modalActiveSection;
+            modal.title = mc.title;
+            modal.code = mc.code;
+            modal.description = mc.desc;
+            modal.showSectionNav = mc.sections.length > 1;
+            modal.groupCountLabel = mc.sections.length + ' offering group' + (mc.sections.length > 1 ? 's' : '');
+
+            modal.sectionPills = mc.sections.map(function(sec) {
+              var isActive = sec.id === activeSec;
+              return {
+                label: sec.id,
+                instructor: sec.instructor.split(',')[0],
+                bg: isActive ? '#1a56db' : '#fff',
+                color: isActive ? '#fff' : '#4a4d68',
+                subColor: isActive ? 'rgba(255,255,255,0.7)' : '#9a9db4',
+                borderColor: isActive ? '#1a56db' : '#dde3f0',
+                hoverBg: isActive ? '#1548b8' : '#f4f6fa',
+                onClick: function() { self.setState({ modalActiveSection: sec.id }); }
+              };
+            });
+
+            modal.groups = mc.sections.map(function(sec) {
+              var sp = self.splitMeets(sec.meets);
+              var pd = self.parseDays(sp.days);
+              var isActive = sec.id === activeSec;
+              return {
+                section: sec.id,
+                headerLabel: 'Section ' + sec.id,
+                headerSublabel: sp.isTBA ? 'Schedule TBA' : sp.days + ' schedule',
+                instructor: sec.instructor,
+                location: sec.location,
+                dayDots: pd.map(function(d) { return { letter: d.letter, bg: d.active ? '#334155' : '#f0f1f5', color: d.active ? '#fff' : '#c5c8d6' }; }),
+                showDayDots: !sp.isTBA,
+                timeText: self.formatTime(sp.time),
+                cardBorder: isActive ? '1px solid #bfdbfe' : '1px solid #e2e4ea',
+                cardBg: isActive ? '#fafbff' : '#fff',
+                addLabel: 'Add ' + sec.id + ' to Worksheet'
+              };
+            });
+          }
+
+          return { displayRows: displayRows, modalOpen: s.modalOpen, modal: modal };
+        }
+      }
+    </script>
+  </body>
+</html>

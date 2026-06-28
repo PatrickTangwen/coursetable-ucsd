@@ -265,14 +265,18 @@ function SortHeader({
   const active = currentKey === sortKey;
   const sortDirection = active && !asc ? '▲' : '▼';
   return (
-    <button
-      type="button"
-      className={clsx(styles.headerCell, styles.sortable, className)}
-      onClick={() => setSort(sortKey)}
-    >
-      {label}
-      <span className={styles.sortIndicator}>{sortDirection}</span>
-    </button>
+    <div className={clsx(styles.headerCell, className)}>
+      <span>{label}</span>
+      <button
+        type="button"
+        className={styles.sortIndicator}
+        onClick={() => setSort(sortKey)}
+        aria-label={`Sort by ${label}`}
+        aria-pressed={active}
+      >
+        {sortDirection}
+      </button>
+    </div>
   );
 }
 

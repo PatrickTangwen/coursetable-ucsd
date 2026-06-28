@@ -9,7 +9,7 @@ summary to `Average GPA`, moved raw Grade Archive Records into the course modal
 `Past Grades` tab, removed the modal `Record Count` summary card, and changed
 the GPA summary calculation to use the most recent archive term with data. The
 6/20 smoke evidence below is preserved as historical acceptance evidence; use
-`docs/grade-archive-ui-update-2026-06-21.md` for the current UI contract.
+`docs/planning/grade-archive-ui-update-2026-06-21.md` for the current UI contract.
 
 ## Scope
 

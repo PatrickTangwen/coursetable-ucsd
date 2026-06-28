@@ -1,10 +1,22 @@
 # Planning Index
 
-Status: current-vs-historical seam for planning inputs.
+Status: navigation aid and current-vs-historical seam for planning inputs.
 
 This folder contains active planning docs, completed MVP planning records,
-original research notes, and source data sheets. Preserve historical files in
-place unless a later cleanup intentionally updates all references.
+original research notes, and source data sheets.
+
+## Read Order
+
+For new agent or human planning work, read in this order:
+
+1. `CONTEXT.md` for domain vocabulary and stable product terms.
+2. `docs/adr/README.md` for the decision-record boundary, then the ADRs that
+   touch the area being changed.
+3. This file for current-vs-historical planning inputs.
+4. `post-mvp-roadmap.md` for current roadmap order and scope sequencing.
+5. GitHub issues for executable implementation slices.
+6. Focused validation or acceptance docs in this folder when an issue points to
+   them.
 
 ## Current Working Inputs
 
@@ -22,14 +34,34 @@ place unless a later cleanup intentionally updates all references.
   cross-term add routing to the term's Active Saved Worksheet,
   variant-aware empty state, last-viewed-term persistence). Frontend-only; recorded
   by ADR 0015.
+- `populate-ucsd-course-data-multi-term-2026-06-26.md`: plan for moving the
+  catalog pipeline to a forward-accumulating, all-subject, multi-term archive.
+  Read with ADRs 0012–0014.
+- `grade-archive-ui-update-2026-06-21.md`: current UI/data contract for
+  Average GPA, Record Count, and Past Grades.
 - `mvp-1-spec.md`: completed MVP-1 execution specification. Use it as the
   reference for MVP-1 behavior and data contracts.
 - `mvp-1-prd.md`: completed MVP-1 product requirements. Use it for product
   context when interpreting MVP-1 behavior.
 
+## Decision Records
+
+See `docs/adr/README.md` for the full ADR index and editing rules.
+
+## Stable Reference Docs
+
+- `docs/api.md`: API reference.
+- `docs/graphql.md`: GraphQL reference.
+- `docs/containers.md`: container setup and usage.
+- `docs/deployment.md`: deployment notes.
+- `docs/locations.md`: location data notes.
+- `docs/maintenance.md`: maintenance notes.
+- `docs/styling.md`: styling conventions.
+- `docs/challenge.md`: challenge/context notes.
+
 ## Archived Milestone Docs
 
-Completed beta and MVP milestone docs, moved here from `docs/` top level:
+Completed beta and MVP milestone docs:
 
 - `archive/beta-0-ui-surface-inventory-2026-06-20.md`
 - `archive/beta-1-compose-bringup-runbook-2026-06-20.md`
@@ -54,10 +86,12 @@ Completed beta and MVP milestone docs, moved here from `docs/` top level:
 - Use `post-mvp-roadmap.md` for roadmap sequence, scope boundaries, and links
   only.
 - Put issue-sized validation plans, acceptance records, and runbooks in focused
-  dated docs under `docs/`.
-- Put durable decisions in `docs/adr/`.
+  dated docs in this folder.
+- Put durable decisions in `docs/adr/`. Keep ADRs short: decision, context,
+  trade-off, and pointers to detailed docs.
 - Put shared domain language in `CONTEXT.md`.
-
-Avoid appending detailed beta notes to the roadmap when a focused doc would be
-clearer. If an old planning file appears stale, add a new dated note or pointer
-instead of rewriting historical context in place.
+- Do not commit per-run logs, screenshots, evidence JSON, cookie jars, local
+  database dumps, or session artifacts by default.
+- If a doc appears stale, create a new dated note or section that records the
+  discrepancy instead of silently rewriting the historical record.
+- When a milestone's acceptance is complete, move its docs to `archive/`.

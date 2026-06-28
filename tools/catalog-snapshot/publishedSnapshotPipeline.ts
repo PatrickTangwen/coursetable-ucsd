@@ -68,6 +68,7 @@ export type PublishedSnapshotSourceLoadContext = {
   generatedAt: string;
   fetch?: FetchAdapter;
   subjectList?: SubjectListSource;
+  catalogPageBySubject?: { [subject: string]: string };
 };
 
 export type PublishedSnapshotSourceLoaders = {
@@ -759,6 +760,7 @@ export function defaultSourceLoaders(): PublishedSnapshotSourceLoaders {
       const rawSource = await fetchRawGeneralCatalogForSubject(subject, {
         fetch: context.fetch,
         fetchedAt: context.generatedAt,
+        catalogPage: context.catalogPageBySubject?.[subject],
       });
       return {
         subject: rawSource.subject,
@@ -878,7 +880,7 @@ export async function runPublishedSnapshotPipeline(
     ),
     manifestPath: sourcePublicManifestPath(config),
   };
-  const context = {
+  const context: PublishedSnapshotSourceLoadContext = {
     config,
     runId,
     generatedAt,
@@ -896,6 +898,7 @@ export async function runPublishedSnapshotPipeline(
     { maxFetchAttempts, fetchRetryDelayMs, fetchDelayMs },
     scheduleSubjectCounts,
   );
+  context.catalogPageBySubject = catalogPageBySubject(scheduleResult.collected);
   const generalCatalogResult = await collectSources(
     'general_catalog',
     config.configured_subjects,
@@ -1072,4 +1075,41 @@ export async function runPublishedSnapshotPipeline(
     await writeJson(paths.reportPath, report);
     throw err;
   }
+}
+
+function catalogPageFromUrl(value: string | null): string | null {
+  if (!value) return null;
+  const match = /\/courses\/(?<page>[^/#?]+)\.html/iu.exec(value);
+  const page = match?.groups?.page;
+  return page ? page.toUpperCase() : null;
+}
+
+function catalogPageBySubject(
+  scheduleSources: CollectedSource<ParsedScheduleOfClasses>[],
+): { [subject: string]: string } {
+  const pageCountsBySubject = new Map<string, Map<string, number>>();
+
+  for (const source of scheduleSources) {
+    const { subject } = source;
+    const pageCounts =
+      pageCountsBySubject.get(subject) ?? new Map<string, number>();
+    pageCountsBySubject.set(subject, pageCounts);
+
+    for (const course of source.data.courses) {
+      const page = catalogPageFromUrl(course.catalog_url);
+      if (!page) continue;
+      pageCounts.set(page, (pageCounts.get(page) ?? 0) + 1);
+    }
+  }
+
+  const pagesBySubject: { [subject: string]: string } = {};
+  for (const [subject, pageCounts] of pageCountsBySubject.entries()) {
+    const [page] = [...pageCounts.entries()].sort(
+      ([pageA, countA], [pageB, countB]) =>
+        countB - countA || pageA.localeCompare(pageB),
+    )[0] ?? [subject];
+    pagesBySubject[subject] = page;
+  }
+
+  return pagesBySubject;
 }
