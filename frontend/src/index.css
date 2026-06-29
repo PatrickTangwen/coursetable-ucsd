@@ -160,6 +160,10 @@ body {
   transition: background-color var(--trans-dur);
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 a {
   color: var(--color-primary);
   text-decoration: none;

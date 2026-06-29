@@ -231,7 +231,6 @@ export default function WorksheetCalendarListItem({
           <WorksheetHideButton
             crn={listing.crn}
             hidden={hidden}
-            color={color}
             className={clsx(
               styles.hideButton,
               !hidden && styles.hideButtonHidden,

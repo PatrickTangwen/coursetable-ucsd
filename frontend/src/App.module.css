@@ -1,19 +1,19 @@
 .layout {
-  --height-navbar: 63px;
+  --height-navbar: 72px;
 }
 
 /* Catalog uses a single-row top nav (logo + search + tabs); the filter bar
    lives inside the page below the nav, so this only needs to cover the nav. */
 .catalogLayout {
-  --height-navbar: 63px;
+  --height-navbar: 72px;
 }
 
 @media (max-width: calc(1320px - 0.5px)) {
   .layout {
-    --height-navbar: 58px;
+    --height-navbar: 72px;
   }
 
   .catalogLayout {
-    --height-navbar: 55px;
+    --height-navbar: 72px;
   }
 }

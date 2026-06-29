@@ -8,6 +8,7 @@
 }
 
 .topRow {
+  box-sizing: border-box;
   display: flex;
   align-items: flex-start;
   gap: 16px;
@@ -19,6 +20,7 @@
 .topRowPrimary {
   align-items: center;
   flex-wrap: nowrap;
+  min-height: var(--height-navbar);
 }
 
 .logoLink {
@@ -83,6 +85,10 @@
 }
 
 .navTab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
   padding: 6px 14px;
   font-size: 13.5px;
   font-weight: 500;

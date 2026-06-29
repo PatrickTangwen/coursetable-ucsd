@@ -23,6 +23,10 @@ type WishlistListing = WishlistItemWithMetadata & {
   profName?: string;
 };
 
+const emptyWishlistItems: WishlistItem[] = [];
+const emptyWishlistMetadata: WishlistItemWithMetadata[] = [];
+const emptyWishlistCourses: WishlistItemWithListings[] = [];
+
 interface WishlistState {
   wishlistCourses: WishlistItemWithListings[];
   wishlistLoading: boolean;
@@ -46,7 +50,15 @@ export const createWishlistSlice: StateCreator<Store, [], [], WishlistSlice> = (
   wishlistLoading: false,
   wishlistError: undefined,
   setWishlistDisplay(wishlistCourses, wishlistLoading, wishlistError) {
-    set({ wishlistCourses, wishlistLoading, wishlistError });
+    set((state) => {
+      if (
+        state.wishlistCourses === wishlistCourses &&
+        state.wishlistLoading === wishlistLoading &&
+        state.wishlistError === wishlistError
+      )
+        return state;
+      return { wishlistCourses, wishlistLoading, wishlistError };
+    });
   },
 });
 
@@ -76,7 +88,7 @@ function useWishlistWithMetadata(wishlist?: WishlistItem[]) {
     | WishlistItemWithMetadata[]
     | undefined => {
     if (listingIds.length === 0) {
-      if (wishlist?.length === 0) return [];
+      if (wishlist?.length === 0) return emptyWishlistMetadata;
       return undefined;
     }
     if (listingLoading) return undefined;
@@ -115,8 +127,8 @@ function useWishlistInfo(wishlist?: WishlistItemWithMetadata[]) {
   });
 
   const data = useMemo(() => {
-    if (!wishlist) return [];
-    if (loading || error) return [];
+    if (!wishlist) return emptyWishlistCourses;
+    if (loading || error) return emptyWishlistCourses;
     const queryResMap = new Map<number, WishlistListing[]>();
     queryRes?.listings.forEach((queryListing) => {
       const sameCourseId = queryListing.course.same_course_id;
@@ -182,9 +194,12 @@ export function useWishlistEffects() {
   const userWishlist = useStore((state) => state.wishlist);
   const setWishlistDisplay = useStore((state) => state.setWishlistDisplay);
   const hasLegacyWishlistAccount = isLegacyUserInfo(user);
+  const wishlistSource = hasLegacyWishlistAccount
+    ? userWishlist
+    : emptyWishlistItems;
 
   const { wishlistWithMetadata, listingLoading, listingError } =
-    useWishlistWithMetadata(hasLegacyWishlistAccount ? userWishlist : []);
+    useWishlistWithMetadata(wishlistSource);
 
   const {
     loading: sameCourseLoading,
@@ -193,7 +208,9 @@ export function useWishlistEffects() {
   } = useWishlistInfo(wishlistWithMetadata);
 
   useEffect(() => {
-    const displayCourses = hasLegacyWishlistAccount ? wishlistCourses : [];
+    const displayCourses = hasLegacyWishlistAccount
+      ? wishlistCourses
+      : emptyWishlistCourses;
     const displayLoading =
       hasLegacyWishlistAccount &&
       (listingLoading || sameCourseLoading || !userWishlist);

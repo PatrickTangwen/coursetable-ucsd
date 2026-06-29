@@ -1,6 +1,9 @@
 import { useEffect, useMemo } from 'react';
 
-import { getCourseData } from '../ferry/ferryCatalogCache';
+import {
+  getCourseData,
+  shouldSkipCatalogRequest,
+} from '../ferry/ferryCatalogCache';
 import type { UserWorksheets } from '../queries/api';
 import type { Season } from '../queries/graphql-types';
 import { useStore } from '../store';
@@ -24,13 +27,21 @@ export const useCourseData = (requestedSeasons: Season[]) => {
   const authStatus = useStore((s) => s.authStatus);
   const userHasEvals = useStore((s) => s.user?.hasEvals);
   const { error, courses, requestSeasons } = useFerry();
+  const includeEvals = Boolean(authStatus === 'authenticated' && userHasEvals);
 
   // The store action reads auth via get() at call time, but its function
   // reference is stable (unlike the old context useCallback). Re-fetch when
   // auth or eval eligibility changes so eval ratings merge after login.
   useEffect(() => {
+    if (
+      requestedSeasons.length === 0 ||
+      requestedSeasons.every((season) =>
+        shouldSkipCatalogRequest(season, includeEvals),
+      )
+    )
+      return;
     void requestSeasons(requestedSeasons);
-  }, [requestSeasons, requestedSeasons, authStatus, userHasEvals]);
+  }, [includeEvals, requestSeasons, requestedSeasons]);
 
   const loading =
     !error && !requestedSeasons.every((season) => courses[season]);
