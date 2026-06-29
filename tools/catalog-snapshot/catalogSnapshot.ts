@@ -71,6 +71,10 @@ const gradeArchiveRecordSchema = z
 const meetingSchema = z
   .object({
     days: z.array(z.string()),
+    date: dateSchema
+      .nullable()
+      .optional()
+      .transform((value) => value ?? null),
     start_time: z.string().nullable(),
     end_time: z.string().nullable(),
     building: z.string().nullable(),

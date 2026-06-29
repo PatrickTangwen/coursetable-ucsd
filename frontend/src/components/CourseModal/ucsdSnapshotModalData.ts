@@ -82,6 +82,7 @@ function toModalSection(listing: UcsdModalListing): UcsdModalSection {
   const calendar = getCalendar(listing);
   const fallbackMeetings = listing.course.course_meetings.map((meeting) => ({
     days: [] as string[],
+    date: null,
     start_time: meeting.start_time,
     end_time: meeting.end_time,
     building:
@@ -167,6 +168,7 @@ export function buildUcsdSnapshotModalCourse(
 function meetingKey(meeting: UcsdModalMeeting): string {
   return [
     meeting.meeting_type ?? '',
+    meeting.date ?? '',
     meeting.raw_days ?? meeting.days.join(','),
     meeting.start_time ?? '',
     meeting.end_time ?? '',

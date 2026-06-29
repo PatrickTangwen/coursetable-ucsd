@@ -34,7 +34,8 @@ import styles from './UcsdSnapshotCourseModal.module.css';
 
 type UcsdModalView = 'overview' | 'evals' | 'past-grades';
 
-const dayLabels: (keyof DayFlags)[] = ['M', 'Tu', 'W', 'Th', 'F'];
+const weekdayLabels: (keyof DayFlags)[] = ['M', 'Tu', 'W', 'Th', 'F'];
+const weekLabels: (keyof DayFlags)[] = [...weekdayLabels, 'Sa', 'Su'];
 
 const typeClass = {
   AC: styles.typeActivity,
@@ -186,11 +187,18 @@ function CopyUrlButton() {
   );
 }
 
-function ModalDayDots({ rawDays }: { readonly rawDays: string | null }) {
+function ModalDayDots({
+  rawDays,
+  includeWeekend = false,
+}: {
+  readonly rawDays: string | null;
+  readonly includeWeekend?: boolean;
+}) {
   const days = parseDays(rawDays ?? '');
+  const labels = includeWeekend ? weekLabels : weekdayLabels;
   return (
     <div className={styles.dayDots} aria-hidden="true">
-      {dayLabels.map((day) => (
+      {labels.map((day) => (
         <span
           key={day}
           className={clsx(
@@ -203,6 +211,24 @@ function ModalDayDots({ rawDays }: { readonly rawDays: string | null }) {
       ))}
     </div>
   );
+}
+
+function formatMeetingDate(date: string | null | undefined): string | null {
+  if (!date) return null;
+  const [year, month, day] = date.split('-').map(Number);
+  if (!year || !month || !day) return null;
+  const value = new Date(year, month - 1, day);
+  if (
+    value.getFullYear() !== year ||
+    value.getMonth() !== month - 1 ||
+    value.getDate() !== day
+  )
+    return null;
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(value);
 }
 
 function locationText(meeting: UcsdModalSection['meetings'][number]): string {
@@ -324,7 +350,6 @@ function buildMeetingRows(group: UcsdModalOfferingGroup): MeetingRowData[] {
 }
 
 function separatorLabel(row: MeetingRowData): string {
-  if (row.role === 'info') return 'Exam information';
   return `Choose ${ucsdMeetingTypeLabel(row.meeting.meeting_type).toLowerCase()}`;
 }
 
@@ -333,7 +358,6 @@ function shouldShowSeparator(rows: MeetingRowData[], index: number): boolean {
   const previous = rows[index - 1];
   if (row.role === 'selectable')
     return !previous || previous.role !== 'selectable';
-  if (row.role === 'info') return previous?.role !== 'info';
   return false;
 }
 
@@ -342,29 +366,60 @@ function MeetingRow({
   group,
   selected,
   updatedLabel,
+  suppressDivider,
   onSelect,
 }: {
   readonly row: MeetingRowData;
   readonly group: UcsdModalOfferingGroup;
   readonly selected: boolean;
   readonly updatedLabel: string | null;
+  readonly suppressDivider: boolean;
   readonly onSelect: (section: UcsdModalSection) => void;
 }) {
   const code = ucsdMeetingTypeCode(row.meeting.meeting_type);
-  const availability = row.section
-    ? formatUcsdAvailability(
-        row.section.enrolled,
-        row.section.capacity,
-        row.section.waitlist_count,
-      )
-    : null;
+  const availability =
+    row.role !== 'info' && row.section
+      ? formatUcsdAvailability(
+          row.section.enrolled,
+          row.section.capacity,
+          row.section.waitlist_count,
+        )
+      : null;
+  const meetingDate =
+    row.role === 'info' ? formatMeetingDate(row.meeting.date) : null;
+  const meetingTime = formatTime(row.meeting.start_time, row.meeting.end_time);
+  const meetingTimeLabel =
+    row.role === 'info' && meetingDate
+      ? `${meetingDate} · ${meetingTime}`
+      : meetingTime;
   const rowClassName = clsx(
     styles.meetingRow,
     row.role === 'anchor' && styles.anchorRow,
     row.role === 'selectable' && styles.selectableRow,
     row.role === 'info' && styles.infoRow,
+    suppressDivider && styles.meetingRowNoDivider,
     selected && styles.selectedRow,
   );
+
+  if (row.role === 'info') {
+    return (
+      <div className={styles.examInfoRow}>
+        <div className={styles.examInfoLabel}>
+          <span>{ucsdMeetingTypeLabel(row.meeting.meeting_type)}</span>
+        </div>
+        <div className={styles.examInfoDetails}>
+          {meetingDate && (
+            <span className={styles.examInfoDate}>{meetingDate}</span>
+          )}
+          <span className={styles.examInfoTime}>{meetingTime}</span>
+          <span className={styles.examInfoLocation}>
+            {locationText(row.meeting)}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   const content = (
     <>
       <div className={styles.radioSlot}>
@@ -384,7 +439,6 @@ function MeetingRow({
           className={clsx(
             styles.typeBadge,
             typeClass[code as keyof typeof typeClass] ?? styles.typeInstruction,
-            row.role === 'info' && styles.typeInfo,
           )}
         >
           {code}
@@ -395,9 +449,16 @@ function MeetingRow({
       </div>
       <div className={styles.sectionCode}>{row.sectionCode}</div>
       <div className={styles.meetingTime}>
-        {!row.meeting.is_tba && <ModalDayDots rawDays={row.meeting.raw_days} />}
-        <span className={styles.timeText}>
-          {formatTime(row.meeting.start_time, row.meeting.end_time)}
+        {!row.meeting.is_tba && row.role !== 'info' && (
+          <ModalDayDots rawDays={row.meeting.raw_days} includeWeekend={false} />
+        )}
+        <span
+          className={clsx(
+            styles.timeText,
+            row.role === 'info' && styles.infoTimeText,
+          )}
+        >
+          {meetingTimeLabel}
         </span>
       </div>
       <div className={styles.location}>{locationText(row.meeting)}</div>
@@ -486,6 +547,7 @@ function OfferingGroupCard({
               row.section?.section_code === selectedCode
             }
             updatedLabel={updatedLabel}
+            suppressDivider={rows[index + 1]?.role === 'info'}
             onSelect={(section) => onSelect(group, section)}
           />
         </div>

@@ -71,6 +71,11 @@ const ucsdCourseArchiveSchema = ucsdCourseArchiveWireSchema.omit({
 
 const ucsdMeetingSchema = z.object({
   days: z.array(z.string()),
+  date: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((value) => value ?? null),
   start_time: z.string().nullable(),
   end_time: z.string().nullable(),
   building: z.string().nullable(),

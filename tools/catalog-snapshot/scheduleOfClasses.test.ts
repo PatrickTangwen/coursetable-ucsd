@@ -188,6 +188,85 @@ const mathFixture = `
 </table>
 `;
 
+const bildFinalFixture = `
+<table id="socDeptTab">
+  <tr>
+    <td colspan="13">
+      <h2><span class="centeralign">Biology (BILD )</span></h2>
+    </td>
+  </tr>
+  <tr>
+    <td class="crsheader"></td>
+    <td class="crsheader">4</td>
+    <td class="crsheader" colspan="5">
+      <span class="boldtxt">Introductory Biology Lab</span>
+      ( 4 Units)
+    </td>
+    <td class="crsheader" colspan="6"></td>
+  </tr>
+  <tr class="sectxt">
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr"><span id="insTyp" title="Lecture">LE</span></td>
+    <td class="brdr">A00</td>
+    <td class="brdr">TuTh</td>
+    <td class="brdr">11:00a-12:20p</td>
+    <td class="brdr">RWAC</td>
+    <td class="brdr">0103</td>
+    <td class="brdr"><a href="#!">Gonzalez Gamboa, Ivonne</a></td>
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+  </tr>
+  <tr class="sectxt">
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr">261558</td>
+    <td class="brdr"><span id="insTyp" title="Laboratory">LA</span></td>
+    <td class="brdr">A01</td>
+    <td class="brdr">TuTh</td>
+    <td class="brdr">1:00p-3:50p</td>
+    <td class="brdr">TATA</td>
+    <td class="brdr">2301</td>
+    <td class="brdr"><a href="#!">Gonzalez Gamboa, Ivonne</a></td>
+    <td class="brdr">1</td>
+    <td class="brdr">24</td>
+    <td class="brdr"></td>
+  </tr>
+  <tr class="sectxt">
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr">261559</td>
+    <td class="brdr"><span id="insTyp" title="Laboratory">LA</span></td>
+    <td class="brdr">A02</td>
+    <td class="brdr">TuTh</td>
+    <td class="brdr">1:00p-3:50p</td>
+    <td class="brdr">TATA</td>
+    <td class="brdr">2302</td>
+    <td class="brdr"><a href="#!">Gonzalez Gamboa, Ivonne</a></td>
+    <td class="brdr">2</td>
+    <td class="brdr">24</td>
+    <td class="brdr"></td>
+  </tr>
+  <tr class="nonenrtxt">
+    <td class="brdr" colspan="13">Students who enroll in BILD 4 will be charged a lab fee of $40.00.</td>
+  </tr>
+  <tr class="nonenrtxt">
+    <td class="brdr" colspan="2"></td>
+    <td class="brdr"></td>
+    <td class="brdr"><span id="insTyp" title="Final">FI</span></td>
+    <td class="brdr">08/01/2026</td>
+    <td class="brdr">S</td>
+    <td class="brdr">11:30a-2:29p</td>
+    <td class="brdr">RWAC</td>
+    <td class="brdr">0103</td>
+    <td class="brdr"></td>
+    <td class="brdr" colspan="3">&nbsp;</td>
+  </tr>
+</table>
+`;
+
 describe('UCSD Schedule of Classes parser', () => {
   it('parses CSE sections with stable IDs, shared lecture meetings, instructors, availability, and safe raw fields', () => {
     const parsed = parseScheduleOfClassesHtml(cseFixture, {
@@ -313,6 +392,50 @@ describe('UCSD Schedule of Classes parser', () => {
         ],
       },
     ]);
+  });
+
+  it('attaches trailing non-enrolled final exam rows to existing sections', () => {
+    const parsed = parseScheduleOfClassesHtml(bildFinalFixture, {
+      subject: 'BILD',
+      term: 'S126',
+      sourceUrl,
+      fetchedAt,
+    });
+
+    const course = parsed.courses.at(0)!;
+    const { sections } = course;
+    expect(sections.map((section) => section.section_code)).toEqual([
+      'A01',
+      'A02',
+    ]);
+
+    for (const section of sections) {
+      expect(section.meetings).toMatchObject([
+        {
+          meeting_type: 'Lecture',
+          raw_time: '11:00a-12:20p',
+          raw_location: 'RWAC 0103',
+        },
+        {
+          meeting_type: 'Laboratory',
+          raw_time: '1:00p-3:50p',
+        },
+        {
+          meeting_type: 'Final',
+          date: '2026-08-01',
+          days: ['Saturday'],
+          start_time: '11:30',
+          end_time: '14:29',
+          raw_time: '11:30a-2:29p',
+          raw_location: 'RWAC 0103',
+        },
+      ]);
+      expect(
+        section.meetings.some((meeting) =>
+          meeting.meeting_type?.includes('lab fee'),
+        ),
+      ).toBe(false);
+    }
   });
 
   it('builds a valid Catalog Snapshot with availability data from parsed CSE and MATH schedule courses', () => {

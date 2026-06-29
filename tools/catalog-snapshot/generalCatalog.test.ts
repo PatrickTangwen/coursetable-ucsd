@@ -79,6 +79,33 @@ const crossListedFixture = `
 </main>
 `;
 
+const catalogSequenceFixture = `
+<main>
+  <p class="anchor-parent"><a class="anchor" id="bggn249a" name="bggn249a"></a></p>
+  <p class="anchor-parent"><a class="anchor" id="bggn249b" name="bggn249b"></a></p>
+  <p class="anchor-parent"><a class="anchor" id="bggn249c" name="bggn249c"></a></p>
+  <p class="course-name">BGGN 249A-B-C. Basic Neuroscience (4-4-4)</p>
+  <p class="course-descriptions">Basic neuroscience sequence.</p>
+  <p class="anchor-parent"><a class="anchor" id="ece145al" name="ece145al"></a></p>
+  <p class="anchor-parent"><a class="anchor" id="ece145bl" name="ece145bl"></a></p>
+  <p class="anchor-parent"><a class="anchor" id="ece145cl" name="ece145cl"></a></p>
+  <p class="course-name">ECE 145AL-BL-CL. Acoustics Laboratory (4-4-4)</p>
+  <p class="course-descriptions">Acoustics laboratory sequence.</p>
+  <p class="anchor-parent"><a class="anchor" id="vis128a" name="vis128a"></a></p>
+  <p class="anchor-parent"><a class="anchor" id="vis128b" name="vis128b"></a></p>
+  <p class="anchor-parent"><a class="anchor" id="vis128c" name="vis128c"></a></p>
+  <p class="anchor-parent"><a class="anchor" id="vis128d" name="vis128d"></a></p>
+  <p class="anchor-parent"><a class="anchor" id="vis128e" name="vis128e"></a></p>
+  <p class="course-name">VIS 128A–E. Topics in Art History and Theory (4)</p>
+  <p class="course-descriptions">Topics in art history and theory.</p>
+  <p class="anchor-parent"><a class="anchor" id="poli5r" name="poli5r"></a></p>
+  <p class="anchor-parent"><a class="anchor" id="poli5dr" name="poli5dr"></a></p>
+  <p class="anchor-parent"><a class="anchor" id="econ5r" name="econ5r"></a></p>
+  <p class="course-name">POLI 5R, POLI 5DR, ECON 5R. Data Analytics for the Social Sciences (4)</p>
+  <p class="course-descriptions">Data analytics for social science.</p>
+</main>
+`;
+
 describe('UCSD General Catalog parser', () => {
   it('parses CSE course metadata and preserves raw prerequisite text', () => {
     const courses = parseGeneralCatalogHtml(cseFixture, {
@@ -385,6 +412,43 @@ describe('UCSD General Catalog parser', () => {
       restrictions_text: null,
       catalog_url: 'https://catalog.ucsd.edu/courses/BENG.html#beng291',
     });
+  });
+
+  it('expands hyphenated, ranged, and comma-separated catalog listings', () => {
+    expect(
+      parseGeneralCatalogHtml(catalogSequenceFixture, {
+        subject: 'BGGN',
+        sourceUrl: 'https://catalog.ucsd.edu/courses/BGGN.html',
+      }).map((course) => course.course_id),
+    ).toEqual(['BGGN:249A', 'BGGN:249B', 'BGGN:249C']);
+
+    expect(
+      parseGeneralCatalogHtml(catalogSequenceFixture, {
+        subject: 'ECE',
+        sourceUrl: 'https://catalog.ucsd.edu/courses/ECE.html',
+      }).map((course) => course.course_id),
+    ).toEqual(['ECE:145AL', 'ECE:145BL', 'ECE:145CL']);
+
+    expect(
+      parseGeneralCatalogHtml(catalogSequenceFixture, {
+        subject: 'VIS',
+        sourceUrl: 'https://catalog.ucsd.edu/courses/VIS.html',
+      }).map((course) => course.course_id),
+    ).toEqual(['VIS:128A', 'VIS:128B', 'VIS:128C', 'VIS:128D', 'VIS:128E']);
+
+    expect(
+      parseGeneralCatalogHtml(catalogSequenceFixture, {
+        subject: 'POLI',
+        sourceUrl: 'https://catalog.ucsd.edu/courses/POLI.html',
+      }).map((course) => course.course_id),
+    ).toEqual(['POLI:5R', 'POLI:5DR']);
+
+    expect(
+      parseGeneralCatalogHtml(catalogSequenceFixture, {
+        subject: 'ECON',
+        sourceUrl: 'https://catalog.ucsd.edu/courses/POLI.html',
+      }).map((course) => course.course_id),
+    ).toEqual(['ECON:5R']);
   });
 });
 

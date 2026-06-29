@@ -1,6 +1,6 @@
 {
-  "run_id": "multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126",
-  "generated_at": "2026-06-28T20:35:39.038Z",
+  "run_id": "multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126",
+  "generated_at": "2026-06-29T08:02:01.606Z",
   "active_planning_term": "S126",
   "term_label": "Summer Session I 2026",
   "configured_subjects": [
@@ -93,13 +93,13 @@
       "row_counts": {
         "courses": 3,
         "sections": 3,
-        "meetings": 3
+        "meetings": 4
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ANBI.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ANBI.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ANBI.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ANBI.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ANBI.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ANBI.json"
     },
     {
       "term": "S126",
@@ -111,13 +111,13 @@
       "row_counts": {
         "courses": 3,
         "sections": 3,
-        "meetings": 3
+        "meetings": 5
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ANAR.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ANAR.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ANAR.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ANAR.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ANAR.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ANAR.json"
     },
     {
       "term": "S126",
@@ -129,13 +129,13 @@
       "row_counts": {
         "courses": 8,
         "sections": 8,
-        "meetings": 11
+        "meetings": 18
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ANTH.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ANTH.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ANTH.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ANTH.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ANTH.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ANTH.json"
     },
     {
       "term": "S126",
@@ -147,13 +147,13 @@
       "row_counts": {
         "courses": 4,
         "sections": 4,
-        "meetings": 4
+        "meetings": 7
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ANSC.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ANSC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ANSC.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ANSC.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ANSC.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ANSC.json"
     },
     {
       "term": "S126",
@@ -165,13 +165,13 @@
       "row_counts": {
         "courses": 5,
         "sections": 5,
-        "meetings": 6
+        "meetings": 8
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BENG.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BENG.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BENG.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BENG.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BENG.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BENG.json"
     },
     {
       "term": "S126",
@@ -183,13 +183,13 @@
       "row_counts": {
         "courses": 4,
         "sections": 7,
-        "meetings": 13
+        "meetings": 17
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BIEB.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BIEB.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BIEB.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BIEB.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BIEB.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BIEB.json"
     },
     {
       "term": "S126",
@@ -201,13 +201,13 @@
       "row_counts": {
         "courses": 5,
         "sections": 12,
-        "meetings": 23
+        "meetings": 38
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BICD.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BICD.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BICD.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BICD.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BICD.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BICD.json"
     },
     {
       "term": "S126",
@@ -219,13 +219,13 @@
       "row_counts": {
         "courses": 2,
         "sections": 6,
-        "meetings": 12
+        "meetings": 14
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BIPN.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BIPN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BIPN.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BIPN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BIPN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BIPN.json"
     },
     {
       "term": "S126",
@@ -237,13 +237,13 @@
       "row_counts": {
         "courses": 7,
         "sections": 17,
-        "meetings": 33
+        "meetings": 49
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BILD.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BILD.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BILD.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BILD.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BILD.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BILD.json"
     },
     {
       "term": "S126",
@@ -255,13 +255,13 @@
       "row_counts": {
         "courses": 6,
         "sections": 15,
-        "meetings": 29
+        "meetings": 36
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BIMM.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BIMM.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BIMM.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BIMM.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BIMM.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BIMM.json"
     },
     {
       "term": "S126",
@@ -276,10 +276,10 @@
         "meetings": 45
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BISP.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BISP.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BISP.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BISP.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/BISP.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/BISP.json"
     },
     {
       "term": "S126",
@@ -294,10 +294,10 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CENG.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CENG.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/CENG.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/CENG.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CENG.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/CENG.json"
     },
     {
       "term": "S126",
@@ -309,13 +309,13 @@
       "row_counts": {
         "courses": 13,
         "sections": 33,
-        "meetings": 62
+        "meetings": 87
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CHEM.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CHEM.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/CHEM.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/CHEM.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CHEM.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/CHEM.json"
     },
     {
       "term": "S126",
@@ -327,13 +327,13 @@
       "row_counts": {
         "courses": 20,
         "sections": 20,
-        "meetings": 37
+        "meetings": 50
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/COGS.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/COGS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/COGS.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/COGS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/COGS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/COGS.json"
     },
     {
       "term": "S126",
@@ -345,31 +345,27 @@
       "row_counts": {
         "courses": 11,
         "sections": 15,
-        "meetings": 21
+        "meetings": 33
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/COMM.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/COMM.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/COMM.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/COMM.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/COMM.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/COMM.json"
     },
     {
       "term": "S126",
       "subject": "CSE",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "failed",
+      "reason": "Schedule section row found before course header for CSE",
       "attempts": 1,
-      "row_counts": {
-        "courses": 8,
-        "sections": 8,
-        "meetings": 16
-      },
+      "row_counts": {},
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CSE.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CSE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/CSE.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/CSE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CSE.json"
+      "normalized_artifact": null
     },
     {
       "term": "S126",
@@ -381,13 +377,13 @@
       "row_counts": {
         "courses": 3,
         "sections": 3,
-        "meetings": 4
+        "meetings": 6
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CCE.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CCE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/CCE.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/CCE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CCE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/CCE.json"
     },
     {
       "term": "S126",
@@ -399,31 +395,27 @@
       "row_counts": {
         "courses": 4,
         "sections": 4,
-        "meetings": 5
+        "meetings": 6
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CGS.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CGS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/CGS.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/CGS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CGS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/CGS.json"
     },
     {
       "term": "S126",
       "subject": "CAT",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "failed",
+      "reason": "Schedule section row found before course header for CAT",
       "attempts": 1,
-      "row_counts": {
-        "courses": 2,
-        "sections": 4,
-        "meetings": 5
-      },
+      "row_counts": {},
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CAT.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CAT.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/CAT.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/CAT.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/CAT.json"
+      "normalized_artifact": null
     },
     {
       "term": "S126",
@@ -435,13 +427,13 @@
       "row_counts": {
         "courses": 2,
         "sections": 2,
-        "meetings": 2
+        "meetings": 3
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/TDMV.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/TDMV.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/TDMV.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/TDMV.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/TDMV.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/TDMV.json"
     },
     {
       "term": "S126",
@@ -453,13 +445,13 @@
       "row_counts": {
         "courses": 7,
         "sections": 8,
-        "meetings": 13
+        "meetings": 19
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/DSC.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/DSC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/DSC.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/DSC.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/DSC.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/DSC.json"
     },
     {
       "term": "S126",
@@ -474,28 +466,24 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/DSGN.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/DSGN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/DSGN.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/DSGN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/DSGN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/DSGN.json"
     },
     {
       "term": "S126",
       "subject": "DOC",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "failed",
+      "reason": "Schedule section row found before course header for DOC",
       "attempts": 1,
-      "row_counts": {
-        "courses": 1,
-        "sections": 1,
-        "meetings": 1
-      },
+      "row_counts": {},
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/DOC.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/DOC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/DOC.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/DOC.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/DOC.json"
+      "normalized_artifact": null
     },
     {
       "term": "S126",
@@ -507,13 +495,13 @@
       "row_counts": {
         "courses": 9,
         "sections": 9,
-        "meetings": 16
+        "meetings": 23
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ECON.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ECON.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ECON.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ECON.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ECON.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ECON.json"
     },
     {
       "term": "S126",
@@ -525,13 +513,13 @@
       "row_counts": {
         "courses": 5,
         "sections": 6,
-        "meetings": 6
+        "meetings": 7
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/EDS.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/EDS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/EDS.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/EDS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/EDS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/EDS.json"
     },
     {
       "term": "S126",
@@ -543,13 +531,13 @@
       "row_counts": {
         "courses": 7,
         "sections": 9,
-        "meetings": 17
+        "meetings": 23
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ECE.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ECE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ECE.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ECE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ECE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ECE.json"
     },
     {
       "term": "S126",
@@ -561,13 +549,13 @@
       "row_counts": {
         "courses": 7,
         "sections": 10,
-        "meetings": 14
+        "meetings": 20
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ETHN.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ETHN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ETHN.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ETHN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/ETHN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/ETHN.json"
     },
     {
       "term": "S126",
@@ -579,13 +567,13 @@
       "row_counts": {
         "courses": 3,
         "sections": 3,
-        "meetings": 4
+        "meetings": 6
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/GLBH.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/GLBH.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/GLBH.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/GLBH.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/GLBH.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/GLBH.json"
     },
     {
       "term": "S126",
@@ -600,10 +588,10 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HITO.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HITO.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HITO.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HITO.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HITO.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HITO.json"
     },
     {
       "term": "S126",
@@ -618,10 +606,10 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HIEA.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HIEA.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HIEA.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HIEA.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HIEA.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HIEA.json"
     },
     {
       "term": "S126",
@@ -636,10 +624,10 @@
         "meetings": 5
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HIEU.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HIEU.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HIEU.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HIEU.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HIEU.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HIEU.json"
     },
     {
       "term": "S126",
@@ -651,13 +639,13 @@
       "row_counts": {
         "courses": 2,
         "sections": 2,
-        "meetings": 2
+        "meetings": 4
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HILA.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HILA.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HILA.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HILA.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HILA.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HILA.json"
     },
     {
       "term": "S126",
@@ -672,10 +660,10 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HISC.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HISC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HISC.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HISC.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HISC.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HISC.json"
     },
     {
       "term": "S126",
@@ -690,10 +678,10 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HINE.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HINE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HINE.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HINE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HINE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HINE.json"
     },
     {
       "term": "S126",
@@ -708,10 +696,10 @@
         "meetings": 3
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HIUS.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HIUS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HIUS.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HIUS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HIUS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HIUS.json"
     },
     {
       "term": "S126",
@@ -726,10 +714,10 @@
         "meetings": 13
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HILD.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HILD.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HILD.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HILD.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HILD.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HILD.json"
     },
     {
       "term": "S126",
@@ -741,13 +729,13 @@
       "row_counts": {
         "courses": 1,
         "sections": 1,
-        "meetings": 2
+        "meetings": 3
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HDS.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HDS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HDS.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HDS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HDS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HDS.json"
     },
     {
       "term": "S126",
@@ -759,13 +747,13 @@
       "row_counts": {
         "courses": 6,
         "sections": 7,
-        "meetings": 12
+        "meetings": 15
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HUM.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HUM.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HUM.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HUM.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/HUM.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/HUM.json"
     },
     {
       "term": "S126",
@@ -777,13 +765,13 @@
       "row_counts": {
         "courses": 1,
         "sections": 1,
-        "meetings": 1
+        "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/JAPN.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/JAPN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/JAPN.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/JAPN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/JAPN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/JAPN.json"
     },
     {
       "term": "S126",
@@ -798,28 +786,24 @@
         "meetings": 7
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LATI.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LATI.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LATI.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LATI.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LATI.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LATI.json"
     },
     {
       "term": "S126",
       "subject": "LIFR",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "failed",
+      "reason": "Schedule section row found before course header for LIFR",
       "attempts": 1,
-      "row_counts": {
-        "courses": 2,
-        "sections": 2,
-        "meetings": 2
-      },
+      "row_counts": {},
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LIFR.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LIFR.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LIFR.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LIFR.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LIFR.json"
+      "normalized_artifact": null
     },
     {
       "term": "S126",
@@ -831,31 +815,27 @@
       "row_counts": {
         "courses": 4,
         "sections": 4,
-        "meetings": 5
+        "meetings": 7
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LIGN.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LIGN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LIGN.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LIGN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LIGN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LIGN.json"
     },
     {
       "term": "S126",
       "subject": "LISP",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "failed",
+      "reason": "Schedule section row found before course header for LISP",
       "attempts": 1,
-      "row_counts": {
-        "courses": 4,
-        "sections": 8,
-        "meetings": 8
-      },
+      "row_counts": {},
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LISP.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LISP.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LISP.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LISP.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LISP.json"
+      "normalized_artifact": null
     },
     {
       "term": "S126",
@@ -867,67 +847,55 @@
       "row_counts": {
         "courses": 1,
         "sections": 1,
-        "meetings": 1
+        "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTAM.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTAM.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTAM.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTAM.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTAM.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTAM.json"
     },
     {
       "term": "S126",
       "subject": "LTAF",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "failed",
+      "reason": "Schedule section row found before course header for LTAF",
       "attempts": 1,
-      "row_counts": {
-        "courses": 1,
-        "sections": 1,
-        "meetings": 1
-      },
+      "row_counts": {},
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTAF.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTAF.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTAF.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTAF.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTAF.json"
+      "normalized_artifact": null
     },
     {
       "term": "S126",
       "subject": "LTCS",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "failed",
+      "reason": "Schedule section row found before course header for LTCS",
       "attempts": 1,
-      "row_counts": {
-        "courses": 1,
-        "sections": 1,
-        "meetings": 1
-      },
+      "row_counts": {},
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTCS.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTCS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTCS.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTCS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTCS.json"
+      "normalized_artifact": null
     },
     {
       "term": "S126",
       "subject": "LTSP",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "failed",
+      "reason": "Schedule section row found before course header for LTSP",
       "attempts": 1,
-      "row_counts": {
-        "courses": 2,
-        "sections": 2,
-        "meetings": 2
-      },
+      "row_counts": {},
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTSP.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTSP.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTSP.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTSP.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTSP.json"
+      "normalized_artifact": null
     },
     {
       "term": "S126",
@@ -939,31 +907,27 @@
       "row_counts": {
         "courses": 1,
         "sections": 1,
-        "meetings": 1
+        "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTWR.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTWR.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTWR.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTWR.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTWR.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTWR.json"
     },
     {
       "term": "S126",
       "subject": "LTEN",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "failed",
+      "reason": "Schedule section row found before course header for LTEN",
       "attempts": 1,
-      "row_counts": {
-        "courses": 4,
-        "sections": 4,
-        "meetings": 4
-      },
+      "row_counts": {},
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTEN.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTEN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTEN.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTEN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTEN.json"
+      "normalized_artifact": null
     },
     {
       "term": "S126",
@@ -975,13 +939,13 @@
       "row_counts": {
         "courses": 2,
         "sections": 2,
-        "meetings": 2
+        "meetings": 4
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTWL.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTWL.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTWL.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTWL.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTWL.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTWL.json"
     },
     {
       "term": "S126",
@@ -993,31 +957,27 @@
       "row_counts": {
         "courses": 2,
         "sections": 2,
-        "meetings": 2
+        "meetings": 4
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTEA.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTEA.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTEA.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTEA.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/LTEA.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/LTEA.json"
     },
     {
       "term": "S126",
       "subject": "MMW",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "failed",
+      "reason": "Schedule section row found before course header for MMW",
       "attempts": 1,
-      "row_counts": {
-        "courses": 2,
-        "sections": 3,
-        "meetings": 3
-      },
+      "row_counts": {},
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/MMW.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/MMW.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/MMW.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/MMW.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/MMW.json"
+      "normalized_artifact": null
     },
     {
       "term": "S126",
@@ -1029,13 +989,13 @@
       "row_counts": {
         "courses": 21,
         "sections": 48,
-        "meetings": 95
+        "meetings": 157
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/MATH.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/MATH.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/MATH.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/MATH.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/MATH.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/MATH.json"
     },
     {
       "term": "S126",
@@ -1047,13 +1007,13 @@
       "row_counts": {
         "courses": 17,
         "sections": 18,
-        "meetings": 19
+        "meetings": 48
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/MAE.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/MAE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/MAE.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/MAE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/MAE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/MAE.json"
     },
     {
       "term": "S126",
@@ -1065,31 +1025,27 @@
       "row_counts": {
         "courses": 10,
         "sections": 21,
-        "meetings": 41
+        "meetings": 61
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/MUS.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/MUS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/MUS.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/MUS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/MUS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/MUS.json"
     },
     {
       "term": "S126",
       "subject": "NANO",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "failed",
+      "reason": "Schedule section row found before course header for NANO",
       "attempts": 1,
-      "row_counts": {
-        "courses": 1,
-        "sections": 2,
-        "meetings": 4
-      },
+      "row_counts": {},
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/NANO.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/NANO.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/NANO.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/NANO.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/NANO.json"
+      "normalized_artifact": null
     },
     {
       "term": "S126",
@@ -1104,10 +1060,10 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SPPS.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SPPS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/SPPS.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/SPPS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SPPS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/SPPS.json"
     },
     {
       "term": "S126",
@@ -1119,13 +1075,13 @@
       "row_counts": {
         "courses": 12,
         "sections": 17,
-        "meetings": 28
+        "meetings": 43
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/PHIL.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/PHIL.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/PHIL.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/PHIL.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/PHIL.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/PHIL.json"
     },
     {
       "term": "S126",
@@ -1137,13 +1093,13 @@
       "row_counts": {
         "courses": 11,
         "sections": 16,
-        "meetings": 21
+        "meetings": 45
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/PHYS.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/PHYS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/PHYS.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/PHYS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/PHYS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/PHYS.json"
     },
     {
       "term": "S126",
@@ -1155,13 +1111,13 @@
       "row_counts": {
         "courses": 23,
         "sections": 24,
-        "meetings": 27
+        "meetings": 43
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/POLI.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/POLI.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/POLI.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/POLI.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/POLI.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/POLI.json"
     },
     {
       "term": "S126",
@@ -1173,13 +1129,13 @@
       "row_counts": {
         "courses": 25,
         "sections": 28,
-        "meetings": 34
+        "meetings": 56
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/PSYC.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/PSYC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/PSYC.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/PSYC.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/PSYC.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/PSYC.json"
     },
     {
       "term": "S126",
@@ -1191,13 +1147,13 @@
       "row_counts": {
         "courses": 5,
         "sections": 6,
-        "meetings": 6
+        "meetings": 8
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/PH.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/PH.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/PH.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/PH.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/PH.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/PH.json"
     },
     {
       "term": "S126",
@@ -1209,13 +1165,13 @@
       "row_counts": {
         "courses": 17,
         "sections": 18,
-        "meetings": 18
+        "meetings": 24
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/MGT.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/MGT.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/MGT.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/MGT.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/MGT.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/MGT.json"
     },
     {
       "term": "S126",
@@ -1230,28 +1186,24 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/RELI.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/RELI.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/RELI.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/RELI.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/RELI.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/RELI.json"
     },
     {
       "term": "S126",
       "subject": "SIO",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "failed",
+      "reason": "Schedule section row found before course header for SIO",
       "attempts": 1,
-      "row_counts": {
-        "courses": 8,
-        "sections": 8,
-        "meetings": 8
-      },
+      "row_counts": {},
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SIO.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SIO.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/SIO.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/SIO.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SIO.json"
+      "normalized_artifact": null
     },
     {
       "term": "S126",
@@ -1263,13 +1215,13 @@
       "row_counts": {
         "courses": 13,
         "sections": 15,
-        "meetings": 20
+        "meetings": 30
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SOCI.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SOCI.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/SOCI.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/SOCI.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SOCI.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/SOCI.json"
     },
     {
       "term": "S126",
@@ -1281,13 +1233,13 @@
       "row_counts": {
         "courses": 5,
         "sections": 5,
-        "meetings": 8
+        "meetings": 16
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SE.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/SE.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/SE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/SE.json"
     },
     {
       "term": "S126",
@@ -1302,10 +1254,10 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SURG.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SURG.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/SURG.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/SURG.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SURG.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/SURG.json"
     },
     {
       "term": "S126",
@@ -1320,10 +1272,10 @@
         "meetings": 10
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SYN.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SYN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/SYN.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/SYN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/SYN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/SYN.json"
     },
     {
       "term": "S126",
@@ -1335,13 +1287,13 @@
       "row_counts": {
         "courses": 1,
         "sections": 1,
-        "meetings": 1
+        "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/TDAC.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/TDAC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/TDAC.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/TDAC.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/TDAC.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/TDAC.json"
     },
     {
       "term": "S126",
@@ -1353,13 +1305,13 @@
       "row_counts": {
         "courses": 8,
         "sections": 10,
-        "meetings": 11
+        "meetings": 15
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/TDGE.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/TDGE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/TDGE.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/TDGE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/TDGE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/TDGE.json"
     },
     {
       "term": "S126",
@@ -1374,10 +1326,10 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/TDHT.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/TDHT.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/TDHT.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/TDHT.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/TDHT.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/TDHT.json"
     },
     {
       "term": "S126",
@@ -1392,10 +1344,10 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/TDPW.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/TDPW.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/TDPW.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/TDPW.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/TDPW.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/TDPW.json"
     },
     {
       "term": "S126",
@@ -1407,13 +1359,13 @@
       "row_counts": {
         "courses": 12,
         "sections": 12,
-        "meetings": 14
+        "meetings": 22
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/USP.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/USP.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/USP.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/USP.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/USP.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/USP.json"
     },
     {
       "term": "S126",
@@ -1425,13 +1377,13 @@
       "row_counts": {
         "courses": 5,
         "sections": 5,
-        "meetings": 5
+        "meetings": 10
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/VIS.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/VIS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/VIS.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/VIS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/VIS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/VIS.json"
     },
     {
       "term": "S126",
@@ -1446,10 +1398,10 @@
         "meetings": 7
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/WCWP.subject-list.json",
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/WCWP.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/WCWP.subject-list.json",
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/WCWP.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/schedule_of_classes/WCWP.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/schedule_of_classes/WCWP.json"
     },
     {
       "term": "S126",
@@ -1462,9 +1414,9 @@
         "courses": 33
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/ANBI.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/ANBI.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/ANBI.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/ANBI.json"
     },
     {
       "term": "S126",
@@ -1474,12 +1426,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 42
+        "courses": 41
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/ANAR.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/ANAR.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/ANAR.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/ANAR.json"
     },
     {
       "term": "S126",
@@ -1489,12 +1441,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 134
+        "courses": 135
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/ANTH.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/ANTH.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/ANTH.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/ANTH.json"
     },
     {
       "term": "S126",
@@ -1507,9 +1459,9 @@
         "courses": 90
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/ANSC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/ANSC.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/ANSC.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/ANSC.json"
     },
     {
       "term": "S126",
@@ -1519,12 +1471,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 110
+        "courses": 116
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/BENG.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/BENG.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/BENG.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/BENG.json"
     },
     {
       "term": "S126",
@@ -1537,9 +1489,9 @@
         "courses": 28
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/BIEB.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/BIEB.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/BIEB.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/BIEB.json"
     },
     {
       "term": "S126",
@@ -1549,12 +1501,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 19
+        "courses": 20
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/BICD.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/BICD.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/BICD.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/BICD.json"
     },
     {
       "term": "S126",
@@ -1567,9 +1519,9 @@
         "courses": 28
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/BIPN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/BIPN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/BIPN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/BIPN.json"
     },
     {
       "term": "S126",
@@ -1579,12 +1531,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 36
+        "courses": 40
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/BILD.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/BILD.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/BILD.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/BILD.json"
     },
     {
       "term": "S126",
@@ -1594,12 +1546,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 28
+        "courses": 29
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/BIMM.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/BIMM.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/BIMM.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/BIMM.json"
     },
     {
       "term": "S126",
@@ -1612,9 +1564,9 @@
         "courses": 12
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/BISP.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/BISP.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/BISP.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/BISP.json"
     },
     {
       "term": "S126",
@@ -1627,9 +1579,9 @@
         "courses": 48
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/CENG.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/CENG.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/CENG.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/CENG.json"
     },
     {
       "term": "S126",
@@ -1639,12 +1591,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 168
+        "courses": 172
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/CHEM.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/CHEM.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/CHEM.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/CHEM.json"
     },
     {
       "term": "S126",
@@ -1654,25 +1606,27 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 131
+        "courses": 138
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/COGS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/COGS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/COGS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/COGS.json"
     },
     {
       "term": "S126",
       "subject": "COMM",
       "source": "general_catalog",
-      "status": "failed",
-      "reason": "UCSD General Catalog course name is invalid: COMM 114M CSI: Communication and the Law (4)",
+      "status": "ok",
+      "reason": null,
       "attempts": 1,
-      "row_counts": {},
+      "row_counts": {
+        "courses": 161
+      },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/COMM.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/COMM.html"
       ],
-      "normalized_artifact": null
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/COMM.json"
     },
     {
       "term": "S126",
@@ -1685,9 +1639,9 @@
         "courses": 212
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/CSE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/CSE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/CSE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/CSE.json"
     },
     {
       "term": "S126",
@@ -1700,9 +1654,9 @@
         "courses": 3
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/CCE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/CCE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/CCE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/CCE.json"
     },
     {
       "term": "S126",
@@ -1712,12 +1666,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 47
+        "courses": 48
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/CGS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/CGS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/CGS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/CGS.json"
     },
     {
       "term": "S126",
@@ -1730,9 +1684,9 @@
         "courses": 22
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/CAT.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/CAT.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/CAT.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/CAT.json"
     },
     {
       "term": "S126",
@@ -1745,9 +1699,9 @@
         "courses": 24
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/TDMV.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/TDMV.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/TDMV.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/TDMV.json"
     },
     {
       "term": "S126",
@@ -1757,12 +1711,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 82
+        "courses": 89
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/DSC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/DSC.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/DSC.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/DSC.json"
     },
     {
       "term": "S126",
@@ -1775,9 +1729,9 @@
         "courses": 17
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/DSGN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/DSGN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/DSGN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/DSGN.json"
     },
     {
       "term": "S126",
@@ -1790,9 +1744,9 @@
         "courses": 4
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/DOC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/DOC.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/DOC.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/DOC.json"
     },
     {
       "term": "S126",
@@ -1802,12 +1756,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 169
+        "courses": 181
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/ECON.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/ECON.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/ECON.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/ECON.json"
     },
     {
       "term": "S126",
@@ -1817,12 +1771,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 189
+        "courses": 192
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/EDS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/EDS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/EDS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/EDS.json"
     },
     {
       "term": "S126",
@@ -1832,12 +1786,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 203
+        "courses": 206
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/ECE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/ECE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/ECE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/ECE.json"
     },
     {
       "term": "S126",
@@ -1847,12 +1801,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 161
+        "courses": 164
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/ETHN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/ETHN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/ETHN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/ETHN.json"
     },
     {
       "term": "S126",
@@ -1869,105 +1823,121 @@
       "term": "S126",
       "subject": "HITO",
       "source": "general_catalog",
-      "status": "failed",
-      "reason": "UCSD General Catalog course name is invalid: HIUS 178/278 The Atlantic World, 1400–1800 (4)",
+      "status": "ok",
+      "reason": null,
       "attempts": 1,
-      "row_counts": {},
+      "row_counts": {
+        "courses": 51
+      },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/HITO.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HITO.html"
       ],
-      "normalized_artifact": null
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HITO.json"
     },
     {
       "term": "S126",
       "subject": "HIEA",
       "source": "general_catalog",
-      "status": "failed",
-      "reason": "UCSD General Catalog course name is invalid: HIUS 178/278 The Atlantic World, 1400–1800 (4)",
+      "status": "ok",
+      "reason": null,
       "attempts": 1,
-      "row_counts": {},
+      "row_counts": {
+        "courses": 50
+      },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/HIEA.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HIEA.html"
       ],
-      "normalized_artifact": null
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HIEA.json"
     },
     {
       "term": "S126",
       "subject": "HIEU",
       "source": "general_catalog",
-      "status": "failed",
-      "reason": "UCSD General Catalog course name is invalid: HIUS 178/278 The Atlantic World, 1400–1800 (4)",
+      "status": "ok",
+      "reason": null,
       "attempts": 1,
-      "row_counts": {},
+      "row_counts": {
+        "courses": 104
+      },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/HIEU.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HIEU.html"
       ],
-      "normalized_artifact": null
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HIEU.json"
     },
     {
       "term": "S126",
       "subject": "HILA",
       "source": "general_catalog",
-      "status": "failed",
-      "reason": "UCSD General Catalog course name is invalid: HIUS 178/278 The Atlantic World, 1400–1800 (4)",
+      "status": "ok",
+      "reason": null,
       "attempts": 1,
-      "row_counts": {},
+      "row_counts": {
+        "courses": 43
+      },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/HILA.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HILA.html"
       ],
-      "normalized_artifact": null
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HILA.json"
     },
     {
       "term": "S126",
       "subject": "HISC",
       "source": "general_catalog",
-      "status": "failed",
-      "reason": "UCSD General Catalog course name is invalid: HIUS 178/278 The Atlantic World, 1400–1800 (4)",
+      "status": "ok",
+      "reason": null,
       "attempts": 1,
-      "row_counts": {},
+      "row_counts": {
+        "courses": 42
+      },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/HISC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HISC.html"
       ],
-      "normalized_artifact": null
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HISC.json"
     },
     {
       "term": "S126",
       "subject": "HINE",
       "source": "general_catalog",
-      "status": "failed",
-      "reason": "UCSD General Catalog course name is invalid: HIUS 178/278 The Atlantic World, 1400–1800 (4)",
+      "status": "ok",
+      "reason": null,
       "attempts": 1,
-      "row_counts": {},
+      "row_counts": {
+        "courses": 38
+      },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/HINE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HINE.html"
       ],
-      "normalized_artifact": null
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HINE.json"
     },
     {
       "term": "S126",
       "subject": "HIUS",
       "source": "general_catalog",
-      "status": "failed",
-      "reason": "UCSD General Catalog course name is invalid: HIUS 178/278 The Atlantic World, 1400–1800 (4)",
+      "status": "ok",
+      "reason": null,
       "attempts": 1,
-      "row_counts": {},
+      "row_counts": {
+        "courses": 96
+      },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/HIUS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HIUS.html"
       ],
-      "normalized_artifact": null
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HIUS.json"
     },
     {
       "term": "S126",
       "subject": "HILD",
       "source": "general_catalog",
-      "status": "failed",
-      "reason": "UCSD General Catalog course name is invalid: HIUS 178/278 The Atlantic World, 1400–1800 (4)",
+      "status": "ok",
+      "reason": null,
       "attempts": 1,
-      "row_counts": {},
+      "row_counts": {
+        "courses": 23
+      },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/HILD.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HILD.html"
       ],
-      "normalized_artifact": null
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HILD.json"
     },
     {
       "term": "S126",
@@ -1977,12 +1947,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 21
+        "courses": 24
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/HDS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HDS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/HDS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HDS.json"
     },
     {
       "term": "S126",
@@ -1995,9 +1965,9 @@
         "courses": 17
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/HUM.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HUM.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/HUM.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/HUM.json"
     },
     {
       "term": "S126",
@@ -2007,12 +1977,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 21
+        "courses": 23
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/JAPN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/JAPN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/JAPN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/JAPN.json"
     },
     {
       "term": "S126",
@@ -2025,21 +1995,19 @@
         "courses": 20
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LATI.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/LATI.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LATI.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/LATI.json"
     },
     {
       "term": "S126",
       "subject": "LIFR",
       "source": "general_catalog",
       "status": "failed",
-      "reason": "UCSD General Catalog courses not found for LIFR",
-      "attempts": 1,
+      "reason": "UCSD General Catalog query failed for LIFR: 404 Not Found",
+      "attempts": 3,
       "row_counts": {},
-      "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LIFR.html"
-      ],
+      "raw_artifacts": [],
       "normalized_artifact": null
     },
     {
@@ -2050,24 +2018,22 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 106
+        "courses": 107
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LIGN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/LIGN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LIGN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/LIGN.json"
     },
     {
       "term": "S126",
       "subject": "LISP",
       "source": "general_catalog",
       "status": "failed",
-      "reason": "UCSD General Catalog courses not found for LISP",
-      "attempts": 1,
+      "reason": "UCSD General Catalog query failed for LISP: 404 Not Found",
+      "attempts": 3,
       "row_counts": {},
-      "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LISP.html"
-      ],
+      "raw_artifacts": [],
       "normalized_artifact": null
     },
     {
@@ -2081,24 +2047,20 @@
         "courses": 11
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LTAM.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/LTAM.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LTAM.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/LTAM.json"
     },
     {
       "term": "S126",
       "subject": "LTAF",
       "source": "general_catalog",
-      "status": "ok",
-      "reason": null,
-      "attempts": 1,
-      "row_counts": {
-        "courses": 3
-      },
-      "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LTAF.html"
-      ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LTAF.json"
+      "status": "failed",
+      "reason": "UCSD General Catalog query failed for LTAF: 404 Not Found",
+      "attempts": 3,
+      "row_counts": {},
+      "raw_artifacts": [],
+      "normalized_artifact": null
     },
     {
       "term": "S126",
@@ -2115,16 +2077,12 @@
       "term": "S126",
       "subject": "LTSP",
       "source": "general_catalog",
-      "status": "ok",
-      "reason": null,
-      "attempts": 1,
-      "row_counts": {
-        "courses": 50
-      },
-      "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LTSP.html"
-      ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LTSP.json"
+      "status": "failed",
+      "reason": "UCSD General Catalog query failed for LTSP: 404 Not Found",
+      "attempts": 3,
+      "row_counts": {},
+      "raw_artifacts": [],
+      "normalized_artifact": null
     },
     {
       "term": "S126",
@@ -2134,27 +2092,23 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 38
+        "courses": 45
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LTWR.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/LTWR.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LTWR.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/LTWR.json"
     },
     {
       "term": "S126",
       "subject": "LTEN",
       "source": "general_catalog",
-      "status": "ok",
-      "reason": null,
-      "attempts": 1,
-      "row_counts": {
-        "courses": 82
-      },
-      "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LTEN.html"
-      ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LTEN.json"
+      "status": "failed",
+      "reason": "UCSD General Catalog query failed for LTEN: 404 Not Found",
+      "attempts": 3,
+      "row_counts": {},
+      "raw_artifacts": [],
+      "normalized_artifact": null
     },
     {
       "term": "S126",
@@ -2164,12 +2118,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 51
+        "courses": 55
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LTWL.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/LTWL.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LTWL.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/LTWL.json"
     },
     {
       "term": "S126",
@@ -2182,9 +2136,9 @@
         "courses": 23
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LTEA.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/LTEA.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/LTEA.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/LTEA.json"
     },
     {
       "term": "S126",
@@ -2197,9 +2151,9 @@
         "courses": 16
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/MMW.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/MMW.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/MMW.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/MMW.json"
     },
     {
       "term": "S126",
@@ -2209,12 +2163,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 224
+        "courses": 238
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/MATH.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/MATH.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/MATH.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/MATH.json"
     },
     {
       "term": "S126",
@@ -2224,12 +2178,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 187
+        "courses": 188
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/MAE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/MAE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/MAE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/MAE.json"
     },
     {
       "term": "S126",
@@ -2239,12 +2193,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 140
+        "courses": 151
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/MUS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/MUS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/MUS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/MUS.json"
     },
     {
       "term": "S126",
@@ -2254,12 +2208,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 92
+        "courses": 93
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/NANO.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/NANO.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/NANO.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/NANO.json"
     },
     {
       "term": "S126",
@@ -2280,12 +2234,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 147
+        "courses": 149
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/PHIL.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/PHIL.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/PHIL.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/PHIL.json"
     },
     {
       "term": "S126",
@@ -2295,12 +2249,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 130
+        "courses": 141
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/PHYS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/PHYS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/PHYS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/PHYS.json"
     },
     {
       "term": "S126",
@@ -2310,12 +2264,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 309
+        "courses": 311
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/POLI.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/POLI.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/POLI.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/POLI.json"
     },
     {
       "term": "S126",
@@ -2325,12 +2279,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 171
+        "courses": 178
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/PSYC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/PSYC.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/PSYC.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/PSYC.json"
     },
     {
       "term": "S126",
@@ -2343,9 +2297,9 @@
         "courses": 98
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/PH.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/PH.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/PH.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/PH.json"
     },
     {
       "term": "S126",
@@ -2355,12 +2309,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 209
+        "courses": 210
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/MGT.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/MGT.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/MGT.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/MGT.json"
     },
     {
       "term": "S126",
@@ -2370,12 +2324,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 38
+        "courses": 39
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/RELI.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/RELI.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/RELI.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/RELI.json"
     },
     {
       "term": "S126",
@@ -2385,25 +2339,27 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 120
+        "courses": 121
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/SIO.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/SIO.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/SIO.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/SIO.json"
     },
     {
       "term": "S126",
       "subject": "SOCI",
       "source": "general_catalog",
-      "status": "failed",
-      "reason": "UCSD General Catalog course name is invalid: SOCI 123 Japanese Culture Inside/Out: A Transnational Perspective (4)",
+      "status": "ok",
+      "reason": null,
       "attempts": 1,
-      "row_counts": {},
+      "row_counts": {
+        "courses": 146
+      },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/SOCI.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/SOCI.html"
       ],
-      "normalized_artifact": null
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/SOCI.json"
     },
     {
       "term": "S126",
@@ -2413,12 +2369,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 127
+        "courses": 128
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/SE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/SE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/SE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/SE.json"
     },
     {
       "term": "S126",
@@ -2442,9 +2398,9 @@
         "courses": 12
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/SYN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/SYN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/SYN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/SYN.json"
     },
     {
       "term": "S126",
@@ -2457,9 +2413,9 @@
         "courses": 18
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/TDAC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/TDAC.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/TDAC.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/TDAC.json"
     },
     {
       "term": "S126",
@@ -2469,12 +2425,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 25
+        "courses": 27
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/TDGE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/TDGE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/TDGE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/TDGE.json"
     },
     {
       "term": "S126",
@@ -2487,9 +2443,9 @@
         "courses": 20
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/TDHT.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/TDHT.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/TDHT.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/TDHT.json"
     },
     {
       "term": "S126",
@@ -2502,9 +2458,9 @@
         "courses": 5
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/TDPW.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/TDPW.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/TDPW.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/TDPW.json"
     },
     {
       "term": "S126",
@@ -2514,12 +2470,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 105
+        "courses": 106
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/USP.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/USP.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/USP.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/USP.json"
     },
     {
       "term": "S126",
@@ -2529,12 +2485,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 248
+        "courses": 257
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/VIS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/VIS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/VIS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/VIS.json"
     },
     {
       "term": "S126",
@@ -2547,9 +2503,9 @@
         "courses": 6
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/WCWP.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/WCWP.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/general_catalog/WCWP.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/general_catalog/WCWP.json"
     },
     {
       "term": "S126",
@@ -2562,9 +2518,9 @@
         "records": 109
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/ANBI.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/ANBI.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/ANBI.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/ANBI.json"
     },
     {
       "term": "S126",
@@ -2577,9 +2533,9 @@
         "records": 88
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/ANAR.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/ANAR.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/ANAR.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/ANAR.json"
     },
     {
       "term": "S126",
@@ -2592,9 +2548,9 @@
         "records": 210
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/ANTH.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/ANTH.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/ANTH.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/ANTH.json"
     },
     {
       "term": "S126",
@@ -2607,9 +2563,9 @@
         "records": 238
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/ANSC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/ANSC.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/ANSC.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/ANSC.json"
     },
     {
       "term": "S126",
@@ -2622,9 +2578,9 @@
         "records": 402
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/BENG.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/BENG.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/BENG.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/BENG.json"
     },
     {
       "term": "S126",
@@ -2637,9 +2593,9 @@
         "records": 140
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/BIEB.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/BIEB.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/BIEB.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/BIEB.json"
     },
     {
       "term": "S126",
@@ -2652,9 +2608,9 @@
         "records": 178
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/BICD.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/BICD.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/BICD.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/BICD.json"
     },
     {
       "term": "S126",
@@ -2667,9 +2623,9 @@
         "records": 292
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/BIPN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/BIPN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/BIPN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/BIPN.json"
     },
     {
       "term": "S126",
@@ -2682,9 +2638,9 @@
         "records": 387
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/BILD.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/BILD.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/BILD.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/BILD.json"
     },
     {
       "term": "S126",
@@ -2697,9 +2653,9 @@
         "records": 471
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/BIMM.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/BIMM.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/BIMM.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/BIMM.json"
     },
     {
       "term": "S126",
@@ -2712,9 +2668,9 @@
         "records": 67
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/BISP.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/BISP.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/BISP.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/BISP.json"
     },
     {
       "term": "S126",
@@ -2727,9 +2683,9 @@
         "records": 210
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/CENG.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/CENG.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/CENG.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/CENG.json"
     },
     {
       "term": "S126",
@@ -2742,9 +2698,9 @@
         "records": 936
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/CHEM.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/CHEM.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/CHEM.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/CHEM.json"
     },
     {
       "term": "S126",
@@ -2757,9 +2713,9 @@
         "records": 742
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/COGS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/COGS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/COGS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/COGS.json"
     },
     {
       "term": "S126",
@@ -2772,9 +2728,9 @@
         "records": 745
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/COMM.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/COMM.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/COMM.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/COMM.json"
     },
     {
       "term": "S126",
@@ -2787,9 +2743,9 @@
         "records": 1098
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/CSE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/CSE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/CSE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/CSE.json"
     },
     {
       "term": "S126",
@@ -2802,9 +2758,9 @@
         "records": 81
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/CCE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/CCE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/CCE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/CCE.json"
     },
     {
       "term": "S126",
@@ -2817,9 +2773,9 @@
         "records": 162
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/CGS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/CGS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/CGS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/CGS.json"
     },
     {
       "term": "S126",
@@ -2832,9 +2788,9 @@
         "records": 273
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/CAT.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/CAT.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/CAT.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/CAT.json"
     },
     {
       "term": "S126",
@@ -2847,9 +2803,9 @@
         "records": 437
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/TDMV.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/TDMV.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/TDMV.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/TDMV.json"
     },
     {
       "term": "S126",
@@ -2862,9 +2818,9 @@
         "records": 271
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/DSC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/DSC.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/DSC.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/DSC.json"
     },
     {
       "term": "S126",
@@ -2877,9 +2833,9 @@
         "records": 68
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/DSGN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/DSGN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/DSGN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/DSGN.json"
     },
     {
       "term": "S126",
@@ -2892,9 +2848,9 @@
         "records": 95
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/DOC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/DOC.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/DOC.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/DOC.json"
     },
     {
       "term": "S126",
@@ -2907,9 +2863,9 @@
         "records": 725
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/ECON.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/ECON.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/ECON.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/ECON.json"
     },
     {
       "term": "S126",
@@ -2922,9 +2878,9 @@
         "records": 519
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/EDS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/EDS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/EDS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/EDS.json"
     },
     {
       "term": "S126",
@@ -2937,9 +2893,9 @@
         "records": 740
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/ECE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/ECE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/ECE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/ECE.json"
     },
     {
       "term": "S126",
@@ -2952,9 +2908,9 @@
         "records": 380
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/ETHN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/ETHN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/ETHN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/ETHN.json"
     },
     {
       "term": "S126",
@@ -2967,9 +2923,9 @@
         "records": 215
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/GLBH.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/GLBH.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/GLBH.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/GLBH.json"
     },
     {
       "term": "S126",
@@ -2982,9 +2938,9 @@
         "records": 62
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HITO.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HITO.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HITO.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HITO.json"
     },
     {
       "term": "S126",
@@ -2997,9 +2953,9 @@
         "records": 81
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HIEA.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HIEA.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HIEA.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HIEA.json"
     },
     {
       "term": "S126",
@@ -3012,9 +2968,9 @@
         "records": 149
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HIEU.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HIEU.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HIEU.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HIEU.json"
     },
     {
       "term": "S126",
@@ -3027,9 +2983,9 @@
         "records": 67
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HILA.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HILA.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HILA.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HILA.json"
     },
     {
       "term": "S126",
@@ -3042,9 +2998,9 @@
         "records": 45
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HISC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HISC.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HISC.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HISC.json"
     },
     {
       "term": "S126",
@@ -3057,9 +3013,9 @@
         "records": 70
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HINE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HINE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HINE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HINE.json"
     },
     {
       "term": "S126",
@@ -3072,9 +3028,9 @@
         "records": 129
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HIUS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HIUS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HIUS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HIUS.json"
     },
     {
       "term": "S126",
@@ -3087,9 +3043,9 @@
         "records": 101
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HILD.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HILD.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HILD.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HILD.json"
     },
     {
       "term": "S126",
@@ -3102,9 +3058,9 @@
         "records": 159
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HDS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HDS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HDS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HDS.json"
     },
     {
       "term": "S126",
@@ -3117,9 +3073,9 @@
         "records": 165
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HUM.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HUM.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/HUM.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/HUM.json"
     },
     {
       "term": "S126",
@@ -3132,9 +3088,9 @@
         "records": 368
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/JAPN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/JAPN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/JAPN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/JAPN.json"
     },
     {
       "term": "S126",
@@ -3147,9 +3103,9 @@
         "records": 64
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LATI.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LATI.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LATI.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LATI.json"
     },
     {
       "term": "S126",
@@ -3162,9 +3118,9 @@
         "records": 134
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LIFR.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LIFR.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LIFR.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LIFR.json"
     },
     {
       "term": "S126",
@@ -3177,9 +3133,9 @@
         "records": 257
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LIGN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LIGN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LIGN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LIGN.json"
     },
     {
       "term": "S126",
@@ -3192,9 +3148,9 @@
         "records": 170
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LISP.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LISP.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LISP.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LISP.json"
     },
     {
       "term": "S126",
@@ -3207,9 +3163,9 @@
         "records": 20
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LTAM.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LTAM.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LTAM.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LTAM.json"
     },
     {
       "term": "S126",
@@ -3222,9 +3178,9 @@
         "records": 7
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LTAF.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LTAF.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LTAF.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LTAF.json"
     },
     {
       "term": "S126",
@@ -3237,9 +3193,9 @@
         "records": 62
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LTCS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LTCS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LTCS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LTCS.json"
     },
     {
       "term": "S126",
@@ -3252,9 +3208,9 @@
         "records": 226
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LTSP.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LTSP.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LTSP.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LTSP.json"
     },
     {
       "term": "S126",
@@ -3267,9 +3223,9 @@
         "records": 223
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LTWR.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LTWR.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LTWR.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LTWR.json"
     },
     {
       "term": "S126",
@@ -3282,9 +3238,9 @@
         "records": 241
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LTEN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LTEN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LTEN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LTEN.json"
     },
     {
       "term": "S126",
@@ -3297,9 +3253,9 @@
         "records": 149
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LTWL.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LTWL.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LTWL.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LTWL.json"
     },
     {
       "term": "S126",
@@ -3312,9 +3268,9 @@
         "records": 75
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LTEA.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LTEA.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/LTEA.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/LTEA.json"
     },
     {
       "term": "S126",
@@ -3327,9 +3283,9 @@
         "records": 153
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/MMW.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/MMW.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/MMW.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/MMW.json"
     },
     {
       "term": "S126",
@@ -3342,9 +3298,9 @@
         "records": 1718
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/MATH.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/MATH.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/MATH.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/MATH.json"
     },
     {
       "term": "S126",
@@ -3357,9 +3313,9 @@
         "records": 787
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/MAE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/MAE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/MAE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/MAE.json"
     },
     {
       "term": "S126",
@@ -3372,9 +3328,9 @@
         "records": 760
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/MUS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/MUS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/MUS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/MUS.json"
     },
     {
       "term": "S126",
@@ -3387,9 +3343,9 @@
         "records": 227
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/NANO.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/NANO.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/NANO.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/NANO.json"
     },
     {
       "term": "S126",
@@ -3402,9 +3358,9 @@
         "records": 0
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/SPPS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/SPPS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/SPPS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/SPPS.json"
     },
     {
       "term": "S126",
@@ -3417,9 +3373,9 @@
         "records": 508
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/PHIL.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/PHIL.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/PHIL.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/PHIL.json"
     },
     {
       "term": "S126",
@@ -3432,9 +3388,9 @@
         "records": 661
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/PHYS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/PHYS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/PHYS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/PHYS.json"
     },
     {
       "term": "S126",
@@ -3447,9 +3403,9 @@
         "records": 704
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/POLI.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/POLI.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/POLI.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/POLI.json"
     },
     {
       "term": "S126",
@@ -3462,9 +3418,9 @@
         "records": 880
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/PSYC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/PSYC.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/PSYC.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/PSYC.json"
     },
     {
       "term": "S126",
@@ -3477,9 +3433,9 @@
         "records": 71
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/PH.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/PH.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/PH.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/PH.json"
     },
     {
       "term": "S126",
@@ -3492,9 +3448,9 @@
         "records": 1144
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/MGT.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/MGT.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/MGT.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/MGT.json"
     },
     {
       "term": "S126",
@@ -3507,9 +3463,9 @@
         "records": 43
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/RELI.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/RELI.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/RELI.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/RELI.json"
     },
     {
       "term": "S126",
@@ -3522,9 +3478,9 @@
         "records": 565
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/SIO.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/SIO.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/SIO.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/SIO.json"
     },
     {
       "term": "S126",
@@ -3537,9 +3493,9 @@
         "records": 774
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/SOCI.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/SOCI.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/SOCI.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/SOCI.json"
     },
     {
       "term": "S126",
@@ -3552,9 +3508,9 @@
         "records": 343
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/SE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/SE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/SE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/SE.json"
     },
     {
       "term": "S126",
@@ -3567,9 +3523,9 @@
         "records": 0
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/SURG.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/SURG.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/SURG.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/SURG.json"
     },
     {
       "term": "S126",
@@ -3582,9 +3538,9 @@
         "records": 291
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/SYN.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/SYN.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/SYN.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/SYN.json"
     },
     {
       "term": "S126",
@@ -3597,9 +3553,9 @@
         "records": 185
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/TDAC.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/TDAC.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/TDAC.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/TDAC.json"
     },
     {
       "term": "S126",
@@ -3612,9 +3568,9 @@
         "records": 150
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/TDGE.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/TDGE.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/TDGE.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/TDGE.json"
     },
     {
       "term": "S126",
@@ -3627,9 +3583,9 @@
         "records": 112
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/TDHT.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/TDHT.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/TDHT.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/TDHT.json"
     },
     {
       "term": "S126",
@@ -3642,9 +3598,9 @@
         "records": 45
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/TDPW.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/TDPW.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/TDPW.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/TDPW.json"
     },
     {
       "term": "S126",
@@ -3657,9 +3613,9 @@
         "records": 557
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/USP.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/USP.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/USP.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/USP.json"
     },
     {
       "term": "S126",
@@ -3672,9 +3628,9 @@
         "records": 1110
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/VIS.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/VIS.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/VIS.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/VIS.json"
     },
     {
       "term": "S126",
@@ -3687,15 +3643,15 @@
         "records": 212
       },
       "raw_artifacts": [
-        "data/raw/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/WCWP.html"
+        "data/raw/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/WCWP.html"
       ],
-      "normalized_artifact": "data/normalized/multi-2026-06-28T20:35:39.038Z-1ecdea29-5173-46d7-b5b5-dce014d9c970-S126/instructor_grade_archive/WCWP.json"
+      "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-S126/instructor_grade_archive/WCWP.json"
     }
   ],
   "summary": {
-    "ok": 210,
+    "ok": 205,
     "empty": 2,
-    "failed": 16,
+    "failed": 21,
     "partial": 0
   }
 }

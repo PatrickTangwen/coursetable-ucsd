@@ -203,6 +203,83 @@ function parseCourseNumberToken(value: string, index: number) {
   };
 }
 
+function courseNumberParts(courseNumber: string) {
+  const match = /^(?<digits>\d+)(?<suffix>[A-Z]*)$/u.exec(courseNumber);
+  const digits = match?.groups?.digits;
+  const suffix = match?.groups?.suffix;
+  if (digits === undefined || suffix === undefined) return null;
+  return {
+    digits,
+    suffix,
+  };
+}
+
+function courseNumberFromFragment(
+  firstCourseNumber: string,
+  fragment: string,
+): string {
+  if (/^\d/u.test(fragment)) return normalizeCourseNumber(fragment);
+  const firstParts = courseNumberParts(firstCourseNumber);
+  if (!firstParts) return normalizeCourseNumber(fragment);
+  const { digits } = firstParts;
+  return `${digits}${normalizeCourseNumber(fragment)}`;
+}
+
+function rangeCourseNumbers(
+  previousCourseNumber: string,
+  endCourseNumber: string,
+): string[] {
+  const previousParts = courseNumberParts(previousCourseNumber);
+  const endParts = courseNumberParts(endCourseNumber);
+  if (
+    !previousParts ||
+    !endParts ||
+    previousParts.digits !== endParts.digits ||
+    previousParts.suffix.length !== 1 ||
+    endParts.suffix.length !== 1
+  )
+    return [endCourseNumber];
+
+  const start = previousParts.suffix.charCodeAt(0);
+  const end = endParts.suffix.charCodeAt(0);
+  if (end <= start) return [endCourseNumber];
+
+  const { digits } = previousParts;
+  return Array.from({ length: end - start }, (_, index) => {
+    const suffix = String.fromCharCode(start + index + 1);
+    return `${digits}${suffix}`;
+  });
+}
+
+function isCourseNumberDash(value: string | undefined): boolean {
+  return value === '-' || value === '–';
+}
+
+function parseCourseNumberSequence(value: string, index: number) {
+  const firstCourseNumberResult = parseCourseNumberToken(value, index);
+  if (!firstCourseNumberResult) return null;
+
+  const courseNumbers = [firstCourseNumberResult.courseNumber];
+  let cursor = firstCourseNumberResult.nextIndex;
+
+  while (isCourseNumberDash(value[cursor])) {
+    cursor += 1;
+    const fragmentResult = parseCourseNumberToken(value, cursor);
+    if (!fragmentResult) return null;
+    const expanded = courseNumberFromFragment(
+      courseNumbers[0]!,
+      fragmentResult.courseNumber,
+    );
+    courseNumbers.push(...rangeCourseNumbers(courseNumbers.at(-1)!, expanded));
+    cursor = fragmentResult.nextIndex;
+  }
+
+  return {
+    courseNumbers,
+    nextIndex: cursor,
+  };
+}
+
 function parseCatalogListings(
   value: string,
 ): { listings: ParsedCatalogListing[]; rest: string } | null {
@@ -215,15 +292,18 @@ function parseCatalogListings(
     cursor = skipSpaces(value, subjectResult.nextIndex);
 
     const courseNumbers: string[] = [];
-    const courseNumberResult = parseCourseNumberToken(value, cursor);
+    const courseNumberResult = parseCourseNumberSequence(value, cursor);
     if (!courseNumberResult) return null;
-    courseNumbers.push(courseNumberResult.courseNumber);
+    courseNumbers.push(...courseNumberResult.courseNumbers);
     cursor = courseNumberResult.nextIndex;
 
     while (value[cursor] === '/' && /\d/u.test(value[cursor + 1] ?? '')) {
-      const nextCourseNumberResult = parseCourseNumberToken(value, cursor + 1);
+      const nextCourseNumberResult = parseCourseNumberSequence(
+        value,
+        cursor + 1,
+      );
       if (!nextCourseNumberResult) return null;
-      courseNumbers.push(nextCourseNumberResult.courseNumber);
+      courseNumbers.push(...nextCourseNumberResult.courseNumbers);
       cursor = nextCourseNumberResult.nextIndex;
     }
 
@@ -239,6 +319,11 @@ function parseCatalogListings(
     const nextChar = value[cursor];
     if (nextChar === '/') {
       cursor += 1;
+      continue;
+    }
+
+    if (nextChar === ',') {
+      cursor = skipSpaces(value, cursor + 1);
       continue;
     }
 

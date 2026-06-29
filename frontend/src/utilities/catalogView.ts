@@ -4,6 +4,8 @@ export type DayFlags = {
   W: boolean;
   Th: boolean;
   F: boolean;
+  Sa: boolean;
+  Su: boolean;
 };
 
 export function parseDays(raw: string): DayFlags {
@@ -13,6 +15,8 @@ export function parseDays(raw: string): DayFlags {
     W: false,
     Th: false,
     F: false,
+    Sa: false,
+    Su: false,
   };
   if (!raw || raw === 'TBA') return flags;
 
@@ -35,6 +39,15 @@ export function parseDays(raw: string): DayFlags {
       i += 1;
     } else if (raw[i] === 'F') {
       flags.F = true;
+      i += 1;
+    } else if (raw[i] === 'S' && raw[i + 1] === 'u') {
+      flags.Su = true;
+      i += 2;
+    } else if (raw[i] === 'S' && raw[i + 1] === 'a') {
+      flags.Sa = true;
+      i += 2;
+    } else if (raw[i] === 'S') {
+      flags.Sa = true;
       i += 1;
     } else {
       i += 1;
@@ -87,6 +100,7 @@ type SectionInput = {
   instructors: string[];
   meetings: {
     days: string[];
+    date?: string | null;
     start_time: string | null;
     end_time: string | null;
     building: string | null;

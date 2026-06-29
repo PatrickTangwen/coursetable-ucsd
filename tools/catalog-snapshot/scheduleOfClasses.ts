@@ -263,6 +263,13 @@ function rawMeetingType(cell: Cell): string | null {
   return nullIfBlank(cell.text);
 }
 
+function hasMeetingTypeMarker(cell: Cell | undefined): boolean {
+  if (!cell) return false;
+  const spanMatch = /<span\b(?<attrs>[^>]*)>/iu.exec(cell.html);
+  if (!spanMatch) return false;
+  return attrValue(spanMatch.groups?.attrs ?? '', 'id') === 'insTyp';
+}
+
 function parseDays(rawDays: string | null): string[] {
   if (!rawDays || isUntimedValue(rawDays)) return [];
   const compact = rawDays.replace(/\s+/gu, '');
@@ -348,6 +355,25 @@ function parseTimeRange(rawTime: string | null): {
   };
 }
 
+function parseMeetingDate(rawDate: string | null): string | null {
+  if (!rawDate) return null;
+  const match = /^(?<month>\d{1,2})\/(?<day>\d{1,2})\/(?<year>\d{4})$/u.exec(
+    rawDate.trim(),
+  );
+  if (!match?.groups) return null;
+  const month = Number(match.groups.month);
+  const day = Number(match.groups.day);
+  const year = Number(match.groups.year);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  )
+    return null;
+  return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
 function locationPart(value: string | null): string | null {
   if (!value || isUntimedValue(value)) return null;
   return value;
@@ -367,6 +393,7 @@ function rawLocation(
 
 function parseMeeting(cells: Cell[]): SnapshotMeeting {
   const type = meetingType(cells[3]!);
+  const date = parseMeetingDate(nullIfBlank(cells[4]?.text ?? ''));
   const rawDays = nullIfBlank(cells[5]?.text ?? '');
   const rawTime = nullIfBlank(cells[6]?.text ?? '');
   const rawBuilding = nullIfBlank(cells[7]?.text ?? '');
@@ -380,6 +407,7 @@ function parseMeeting(cells: Cell[]): SnapshotMeeting {
 
   return {
     days: parseDays(rawDays),
+    date,
     start_time: times.start_time,
     end_time: times.end_time,
     building: locationPart(rawBuilding),
@@ -443,6 +471,33 @@ function mergeUnique(values: string[], additions: string[]): string[] {
   return merged;
 }
 
+function cloneMeeting(meeting: SnapshotMeeting): SnapshotMeeting {
+  return {
+    ...meeting,
+    days: [...meeting.days],
+  };
+}
+
+function appendSharedMeetingToSections(
+  course: SnapshotCourse,
+  family: string,
+  meeting: SnapshotMeeting,
+  instructors: string[],
+): number {
+  const targetSections = family
+    ? course.sections.filter(
+        (section) => sectionFamily(section.section_code) === family,
+      )
+    : course.sections;
+
+  for (const section of targetSections) {
+    section.meetings.push(cloneMeeting(meeting));
+    section.instructors = mergeUnique(section.instructors, instructors);
+  }
+
+  return targetSections.length;
+}
+
 function sectionRaw(
   options: ParseOptions,
   course: SnapshotCourse,
@@ -489,7 +544,11 @@ export function parseScheduleOfClassesHtml(
       continue;
     }
 
-    if (!classNameMatches(rowMatch[0], 'sectxt')) continue;
+    if (
+      !classNameMatches(rowMatch[0], 'sectxt') &&
+      !classNameMatches(rowMatch[0], 'nonenrtxt')
+    )
+      continue;
     if (!currentCourse) {
       throw new Error(
         `Schedule section row found before course header for ${options.subject}`,
@@ -500,22 +559,32 @@ export function parseScheduleOfClassesHtml(
     const sourceSectionId = logicalCells[2]?.text ?? '';
     const sectionCode = nullIfBlank(logicalCells[4]?.text ?? '');
     const family = sectionFamily(sectionCode);
+    if (!hasMeetingTypeMarker(logicalCells[3])) continue;
     const meeting = parseMeeting(logicalCells);
     const instructors = parseInstructors(
       logicalCells[9] ?? { html: '', text: '', colSpan: 1 },
     );
 
     if (!sourceSectionId) {
-      const pendingShared = pendingSharedMeetings.get(family) ?? {
-        meetings: [],
-        instructors: [],
-      };
-      pendingShared.meetings.push(meeting);
-      pendingShared.instructors = mergeUnique(
-        pendingShared.instructors,
+      const attachedCount = appendSharedMeetingToSections(
+        currentCourse,
+        family,
+        meeting,
         instructors,
       );
-      pendingSharedMeetings.set(family, pendingShared);
+
+      if (family || attachedCount === 0) {
+        const pendingShared = pendingSharedMeetings.get(family) ?? {
+          meetings: [],
+          instructors: [],
+        };
+        pendingShared.meetings.push(meeting);
+        pendingShared.instructors = mergeUnique(
+          pendingShared.instructors,
+          instructors,
+        );
+        pendingSharedMeetings.set(family, pendingShared);
+      }
       continue;
     }
 
@@ -538,10 +607,7 @@ export function parseScheduleOfClassesHtml(
       section_code: sectionCode,
       meeting_type: meetingType(logicalCells[3]!),
       instructors: mergeUnique(pending?.instructors ?? [], instructors),
-      meetings: [
-        ...(pending?.meetings ?? []).map((item) => ({ ...item })),
-        meeting,
-      ],
+      meetings: [...(pending?.meetings ?? []).map(cloneMeeting), meeting],
       enrolled: availability.enrolled,
       capacity: availability.capacity,
       waitlist_count: availability.waitlist_count,
@@ -585,8 +651,9 @@ function scheduleSearchBody(
 
 function responseCookieHeader(headers: Headers): string {
   const headerAccess = headers as Headers & { getSetCookie: () => string[] };
-  const cookieHeaders =
-    'getSetCookie' in headerAccess ? headerAccess.getSetCookie() : [];
+  const cookieHeaders = Object.hasOwn(headerAccess, 'getSetCookie')
+    ? headerAccess.getSetCookie()
+    : [];
   const rawCookies =
     cookieHeaders.length > 0
       ? cookieHeaders

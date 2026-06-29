@@ -464,6 +464,10 @@
     border-color 0.12s ease;
 }
 
+.meetingRowNoDivider {
+  border-bottom-color: transparent;
+}
+
 .anchorRow {
   background: #f8fafd;
 }
@@ -485,7 +489,53 @@
 }
 
 .infoRow {
-  opacity: 0.55;
+  background: transparent;
+}
+
+.examInfoRow {
+  display: grid;
+  grid-template-columns: minmax(150px, max-content) minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  margin: 8px 18px 14px 54px;
+  padding: 11px 14px;
+  border: 1px solid #e99d00;
+  border-radius: 8px;
+  background: #ffdda1;
+  color: #6f3a00;
+}
+
+.examInfoLabel {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  color: #7a3f00;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.examInfoDetails {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+  color: #744100;
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.examInfoDate,
+.examInfoTime,
+.examInfoLocation {
+  min-width: 0;
+}
+
+.examInfoLocation {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .radioSlot {
@@ -625,6 +675,11 @@
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
+}
+
+.infoTimeText {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .location {
@@ -783,6 +838,18 @@
     grid-row: 1 / span 2;
     align-self: start;
   }
+
+  .examInfoRow {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .examInfoDetails {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    white-space: normal;
+  }
 }
 
 @media (max-width: 720px) {
@@ -864,6 +931,22 @@
     align-items: flex-start;
     grid-template-columns: 20px minmax(0, 1fr) 44px;
     row-gap: 7px;
+  }
+
+  .examInfoRow {
+    margin: 7px 14px 12px;
+    padding: 10px 11px;
+  }
+
+  .examInfoLabel {
+    font-size: 12.5px;
+  }
+
+  .examInfoDetails {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    font-size: 12px;
   }
 
   .typeCell {

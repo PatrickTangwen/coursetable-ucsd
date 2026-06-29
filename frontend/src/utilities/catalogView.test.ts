@@ -14,6 +14,8 @@ describe('parseDays', () => {
       W: true,
       Th: true,
       F: false,
+      Sa: false,
+      Su: false,
     });
   });
 
@@ -24,6 +26,8 @@ describe('parseDays', () => {
       W: false,
       Th: true,
       F: false,
+      Sa: false,
+      Su: false,
     });
   });
 
@@ -34,6 +38,8 @@ describe('parseDays', () => {
       W: true,
       Th: false,
       F: false,
+      Sa: false,
+      Su: false,
     });
   });
 
@@ -44,6 +50,8 @@ describe('parseDays', () => {
       W: true,
       Th: false,
       F: true,
+      Sa: false,
+      Su: false,
     });
   });
 
@@ -54,6 +62,8 @@ describe('parseDays', () => {
       W: false,
       Th: false,
       F: false,
+      Sa: false,
+      Su: false,
     });
   });
 
@@ -64,6 +74,8 @@ describe('parseDays', () => {
       W: false,
       Th: false,
       F: false,
+      Sa: false,
+      Su: false,
     });
   });
 
@@ -74,6 +86,8 @@ describe('parseDays', () => {
       W: false,
       Th: false,
       F: false,
+      Sa: false,
+      Su: false,
     });
   });
 
@@ -84,6 +98,8 @@ describe('parseDays', () => {
       W: false,
       Th: true,
       F: false,
+      Sa: false,
+      Su: false,
     });
   });
 
@@ -94,6 +110,20 @@ describe('parseDays', () => {
       W: true,
       Th: true,
       F: true,
+      Sa: false,
+      Su: false,
+    });
+  });
+
+  it('parses weekend days', () => {
+    expect(parseDays('SSu')).toEqual({
+      M: false,
+      Tu: false,
+      W: false,
+      Th: false,
+      F: false,
+      Sa: true,
+      Su: true,
     });
   });
 });

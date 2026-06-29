@@ -42,6 +42,7 @@ const scrollHintHeight = 24;
 const overscanRows = 8;
 const minCourseCodeWidthCh = 9;
 const courseCodeWidthBufferCh = 2;
+const horizontalVisibilityTolerance = 1;
 
 const courseCodeCollator = new Intl.Collator(undefined, {
   numeric: true,
@@ -265,6 +266,42 @@ function useElementHeight(ref: React.RefObject<HTMLElement | null>): number {
   }, [ref]);
 
   return height;
+}
+
+function shouldShowHorizontalScrollbar(
+  wrapper: HTMLElement,
+  seatHeader: HTMLElement,
+): boolean {
+  if (
+    wrapper.scrollWidth - wrapper.clientWidth <=
+    horizontalVisibilityTolerance
+  )
+    return false;
+
+  const wrapperRect = wrapper.getBoundingClientRect();
+  const seatHeaderRect = seatHeader.getBoundingClientRect();
+  const wrapperVisible =
+    wrapperRect.bottom > 0 && wrapperRect.top < window.innerHeight;
+  const isScrolledHorizontally =
+    wrapper.scrollLeft > horizontalVisibilityTolerance;
+
+  return (
+    wrapperVisible &&
+    (isScrolledHorizontally ||
+      seatHeaderRect.right <=
+        wrapperRect.left + horizontalVisibilityTolerance ||
+      seatHeaderRect.left >= wrapperRect.right - horizontalVisibilityTolerance)
+  );
+}
+
+function visibleHorizontalFrame(wrapper: HTMLElement) {
+  const wrapperRect = wrapper.getBoundingClientRect();
+  const left = Math.max(0, wrapperRect.left);
+  const right = Math.min(window.innerWidth, wrapperRect.right);
+  return {
+    left,
+    width: Math.max(0, right - left),
+  };
 }
 
 function SortHeader({
@@ -700,9 +737,17 @@ export default function CatalogTable({
 }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
+  const seatHeaderRef = useRef<HTMLDivElement>(null);
+  const horizontalScrollbarRef = useRef<HTMLDivElement>(null);
   const wrapperHeight = useElementHeight(wrapperRef);
   const headerHeight = useElementHeight(headerRef);
   const [scrollTop, setScrollTop] = useState(0);
+  const [showHorizontalScrollbar, setShowHorizontalScrollbar] = useState(false);
+  const [horizontalScrollWidth, setHorizontalScrollWidth] = useState(0);
+  const [horizontalScrollbarFrame, setHorizontalScrollbarFrame] = useState({
+    left: 0,
+    width: 0,
+  });
 
   const { sortKey, sortAsc, expandedCourses } = useStore(
     useShallow((s) => ({
@@ -750,6 +795,51 @@ export default function CatalogTable({
   const bottomSpacerHeight =
     totalRowsHeight - (rowOffsets[visibleEnd + 1] ?? topSpacerHeight);
 
+  const updateHorizontalScrollbarVisibility = useCallback(() => {
+    const wrapper = wrapperRef.current;
+    const seatHeader = seatHeaderRef.current;
+    if (!wrapper || !seatHeader) {
+      setShowHorizontalScrollbar(false);
+      setHorizontalScrollWidth(0);
+      return;
+    }
+
+    setHorizontalScrollWidth(wrapper.scrollWidth);
+    setHorizontalScrollbarFrame(visibleHorizontalFrame(wrapper));
+    setShowHorizontalScrollbar(
+      shouldShowHorizontalScrollbar(wrapper, seatHeader),
+    );
+
+    const horizontalScrollbar = horizontalScrollbarRef.current;
+    if (
+      horizontalScrollbar &&
+      Math.abs(horizontalScrollbar.scrollLeft - wrapper.scrollLeft) >
+        horizontalVisibilityTolerance
+    )
+      horizontalScrollbar.scrollLeft = wrapper.scrollLeft;
+  }, []);
+
+  useEffect(() => {
+    updateHorizontalScrollbarVisibility();
+
+    const wrapper = wrapperRef.current;
+    const seatHeader = seatHeaderRef.current;
+    if (!wrapper || !seatHeader) return undefined;
+
+    const resizeObserver = new ResizeObserver(
+      updateHorizontalScrollbarVisibility,
+    );
+    resizeObserver.observe(wrapper);
+    resizeObserver.observe(seatHeader);
+
+    return () => resizeObserver.disconnect();
+  }, [
+    codeColumnStyle,
+    showTermColumn,
+    totalRowsHeight,
+    updateHorizontalScrollbarVisibility,
+  ]);
+
   const renderRow = useCallback(
     (row: CourseRow) => {
       if (row.totalSections > 1) {
@@ -780,7 +870,10 @@ export default function CatalogTable({
     <div
       ref={wrapperRef}
       className={styles.tableWrapper}
-      onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
+      onScroll={(event) => {
+        setScrollTop(event.currentTarget.scrollTop);
+        updateHorizontalScrollbarVisibility();
+      }}
     >
       <div
         style={codeColumnStyle}
@@ -815,7 +908,12 @@ export default function CatalogTable({
           <div className={clsx(styles.headerCell, styles.colLocation)}>
             Location
           </div>
-          <div className={clsx(styles.headerCell, styles.colSeats)}>Seats</div>
+          <div
+            ref={seatHeaderRef}
+            className={clsx(styles.headerCell, styles.colSeats)}
+          >
+            Seats
+          </div>
         </div>
 
         {courseRows.length === 0 ? (
@@ -832,6 +930,31 @@ export default function CatalogTable({
             )}
           </div>
         )}
+      </div>
+      <div
+        ref={horizontalScrollbarRef}
+        aria-hidden={!showHorizontalScrollbar}
+        className={clsx(
+          styles.horizontalScrollbar,
+          !showHorizontalScrollbar && styles.horizontalScrollbarHidden,
+        )}
+        style={horizontalScrollbarFrame}
+        onScroll={(event) => {
+          const wrapper = wrapperRef.current;
+          if (!wrapper) return;
+          if (
+            Math.abs(wrapper.scrollLeft - event.currentTarget.scrollLeft) >
+            horizontalVisibilityTolerance
+          )
+            wrapper.scrollLeft = event.currentTarget.scrollLeft;
+
+          updateHorizontalScrollbarVisibility();
+        }}
+      >
+        <div
+          className={styles.horizontalScrollbarSpacer}
+          style={{ width: horizontalScrollWidth }}
+        />
       </div>
     </div>
   );
