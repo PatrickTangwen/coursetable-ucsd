@@ -8,6 +8,7 @@ import React, {
 import * as Sentry from '@sentry/react';
 import clsx from 'clsx';
 import { Button, Tooltip, OverlayTrigger, Fade, Modal } from 'react-bootstrap';
+import { BsTrash } from 'react-icons/bs';
 import { MdErrorOutline } from 'react-icons/md';
 import { useApolloClient } from '@apollo/client';
 import { components, type OptionProps } from 'react-select';
@@ -184,10 +185,14 @@ function WorksheetToggleButton({
   listing,
   modal,
   inWorksheet: inWorksheetProp,
+  appearance = 'icon',
+  className,
 }: {
   readonly listing: ListingWithHistoricalInfo;
   readonly modal: boolean;
   readonly inWorksheet?: boolean;
+  readonly appearance?: 'icon' | 'remove';
+  readonly className?: string;
 }) {
   const { worksheets, worksheetsRefresh, getRelevantWorksheetNumber, user } =
     useStore(
@@ -523,6 +528,20 @@ function WorksheetToggleButton({
     (!worksheets && !isAnonymousWorksheet && !hasSavedWorksheetAccount) ||
     (hasSavedWorksheetAccount && !activeSavedWorksheet)
   ) {
+    if (appearance === 'remove') {
+      return (
+        <Button
+          variant="toggle"
+          className={clsx(styles.removeButton, className)}
+          disabled
+          aria-label={buttonLabel}
+        >
+          <BsTrash size={13} aria-hidden="true" />
+          <span>Remove this course</span>
+        </Button>
+      );
+    }
+
     return (
       <div className={styles.container}>
         <OverlayTrigger
@@ -542,6 +561,21 @@ function WorksheetToggleButton({
           </Button>
         </OverlayTrigger>
       </div>
+    );
+  }
+
+  if (appearance === 'remove') {
+    return (
+      <Button
+        variant="toggle"
+        className={clsx(styles.removeButton, className)}
+        onClick={toggleWorkSheet}
+        disabled={!inWorksheet}
+        aria-label={buttonLabel}
+      >
+        <BsTrash size={13} aria-hidden="true" />
+        <span>Remove this course</span>
+      </Button>
     );
   }
 

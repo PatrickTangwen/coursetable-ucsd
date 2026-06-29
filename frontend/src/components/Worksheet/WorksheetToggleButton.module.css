@@ -108,3 +108,30 @@
 .disabledButton:focus {
   box-shadow: none !important;
 }
+
+.removeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 6px;
+  color: #aaa !important;
+  font-size: 12px;
+  font-weight: 500;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.removeButton:hover,
+.removeButton:focus-visible {
+  background: #fef2f2 !important;
+  color: #c94040 !important;
+}
+
+.removeButton:disabled {
+  color: #c7c7c7 !important;
+  cursor: not-allowed;
+}

@@ -1,17 +1,90 @@
 .listItem {
-  display: flex;
-  justify-content: space-between;
-  background-color: transparent;
+  display: block;
   overflow: hidden;
-  border-color: var(--color-border);
+  padding: 0;
+  background: #fff;
+  border: 0;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
   transition:
-    background-color 0.25s ease,
-    border-color var(--trans-dur),
+    box-shadow 0.25s ease,
+    background-color var(--trans-dur),
     color var(--trans-dur);
 }
 
-.listItem:hover {
-  background-color: var(--color-primary-subdued);
+.listItemExpanded {
+  box-shadow: 0 2px 12px rgb(0 0 0 / 8%);
+}
+
+.listItemHidden {
+  color: var(--color-hidden);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 10px 12px;
+  transition: background-color 0.12s ease;
+}
+
+.cardHeader:hover {
+  background: #f7f7f9;
+}
+
+.headerToggle {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 4px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.colorBar {
+  display: block;
+  width: 4px;
+  height: 32px;
+  border-radius: 2px;
+}
+
+.chevronButton {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid #e4e4e9;
+  border-radius: 6px;
+  color: #888;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.chevronButton:hover,
+.chevronButton:focus-visible {
+  background: #f3f3f7;
+  border-color: #d4d4da;
+}
+
+.chevronIcon {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.5;
+  transition: transform 0.2s ease;
+}
+
+.listItemExpanded .chevronIcon {
+  transform: rotate(180deg);
 }
 
 .listItemHighlighted {
@@ -19,6 +92,7 @@
 }
 
 .hideButton {
+  flex: 0 0 auto;
   background-color: transparent;
 }
 
@@ -41,6 +115,9 @@
 .courseTitle {
   display: block;
   width: 100%;
+  margin-top: 1px;
+  color: #777;
+  font-size: 12px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -48,8 +125,12 @@
 
 .courseLocation {
   display: block;
-  font-size: 0.8rem;
+  margin-top: 2px;
+  font-size: 11px;
   color: var(--color-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .courseCodeHidden .courseLocation {
@@ -61,17 +142,44 @@
 }
 
 .courseCode {
+  flex: 1 1 auto;
+  min-width: 0;
   text-align: left;
   overflow: hidden;
   transition: color var(--trans-dur);
-  color: var(--color-text);
+  color: #1a1a1a;
+  text-decoration: none;
+}
+
+.courseCodeLine {
+  display: block;
+  font-size: 14px;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.courseCodeLine strong {
+  font-weight: 700;
+}
+
+.sectionCode {
+  color: #999;
+  font-size: 13px;
+  font-weight: 400;
 }
 
 .courseCode:hover {
-  color: unset;
+  color: #1a1a1a;
+  text-decoration: none;
 }
 
 .courseCodeHidden {
+  color: var(--color-hidden);
+}
+
+.courseCodeHidden .courseTitle {
   color: var(--color-hidden);
 }
 
@@ -85,19 +193,128 @@
   align-items: center;
 }
 
+.examPanel {
+  padding: 4px 14px 10px 28px;
+  border-top: 1px solid #f0f0f3;
+}
+
+.examRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.examDot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  border-radius: 999px;
+}
+
+.examDotMuted {
+  opacity: 0.5;
+}
+
+.examText {
+  min-width: 0;
+}
+
+.examTitleLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.examKind {
+  color: #222;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.countdownBadge {
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.countdownPast {
+  background: #f0f0f0;
+  color: #888;
+}
+
+.countdownSoon {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.countdownUpcoming {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.countdownLater {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.examDate {
+  margin-top: 2px;
+  color: #555;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.examMeta {
+  color: #888;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.examDivider {
+  margin-left: 18px;
+  border-top: 1px dashed #e8e8ec;
+}
+
+.noExamDetails {
+  padding: 12px 0 10px 18px;
+  color: #aaa;
+  font-size: 12px;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid #f0f0f3;
+}
+
 @keyframes highlight-flash {
   0% {
-    background-color: var(--color-primary-subdued);
-    border-color: var(--color-primary);
+    background-color: #eaf0ff;
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 4%),
+      0 0 0 2px rgb(74 108 247 / 35%);
   }
 
   60% {
-    background-color: var(--color-primary-subdued-2);
-    border-color: var(--color-border);
+    background-color: #f5f7ff;
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 4%),
+      0 0 0 1px rgb(74 108 247 / 12%);
   }
 
   100% {
-    background-color: transparent;
-    border-color: var(--color-border);
+    background-color: #fff;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
   }
 }

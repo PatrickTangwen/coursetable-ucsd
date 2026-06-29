@@ -618,12 +618,13 @@ function WorksheetCalendarList({
       <SurfaceComponent className={styles.courseList}>
         <WorksheetCalendarListContext.Provider value={contextValue}>
           {courses.length > 0 ? (
-            <ListGroup variant="flush">
+            <ListGroup variant="flush" className={styles.courseListGroup}>
               {courses.map((course) => (
                 <WorksheetCalendarListItem
                   key={viewedSeason + course.crn}
                   listing={course.listing}
                   hidden={course.hidden ?? false}
+                  color={course.color}
                 />
               ))}
             </ListGroup>
