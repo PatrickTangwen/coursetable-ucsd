@@ -197,10 +197,10 @@ function courseCodeColumnStyle(rows: CourseRow[]): CSSProperties {
     (max, row) => Math.max(max, row.courseCode.length),
     minCourseCodeWidthCh,
   );
+  const courseCodeSlot = `${longestCourseCode + courseCodeWidthBufferCh}ch`;
   return {
-    '--catalog-course-code-slot': `${
-      longestCourseCode + courseCodeWidthBufferCh
-    }ch`,
+    '--catalog-course-code-slot': courseCodeSlot,
+    '--catalog-code-col': `calc(${courseCodeSlot} + var(--catalog-section-slot) + var(--catalog-code-gap) + var(--catalog-code-horizontal-padding))`,
   } as CSSProperties;
 }
 

@@ -1,5 +1,7 @@
 .tableWrapper {
   --catalog-action-col: 44px;
+  --catalog-cell-font-size: 13.5px;
+  --catalog-header-font-size: 11px;
   --catalog-code-gap: 8px;
   --catalog-code-horizontal-padding: 24px;
   --catalog-course-code-slot: 9ch;
@@ -82,7 +84,7 @@
 
 .headerCell {
   box-sizing: border-box;
-  font-size: 11px;
+  font-size: var(--catalog-header-font-size);
   font-weight: 600;
   color: var(--sg-text-placeholder);
   text-transform: uppercase;
@@ -131,6 +133,16 @@
 .colCode {
   width: var(--catalog-code-col);
   flex-shrink: 0;
+}
+
+.headerCell.colCode {
+  font-size: var(--catalog-cell-font-size);
+  font-weight: 400;
+}
+
+.headerCell.colCode > * {
+  font-size: var(--catalog-header-font-size);
+  font-weight: 600;
 }
 
 .colTitle {
@@ -184,7 +196,7 @@
 .cell {
   box-sizing: border-box;
   padding: 11px 12px;
-  font-size: 13.5px;
+  font-size: var(--catalog-cell-font-size);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
