@@ -165,7 +165,15 @@ export function buildUcsdSnapshotModalCourse(
 }
 
 function meetingKey(meeting: UcsdModalMeeting): string {
-  return `${meeting.raw_days ?? meeting.days.join(',')}|${meeting.start_time ?? ''}|${meeting.end_time ?? ''}`;
+  return [
+    meeting.meeting_type ?? '',
+    meeting.raw_days ?? meeting.days.join(','),
+    meeting.start_time ?? '',
+    meeting.end_time ?? '',
+    meeting.raw_location ?? '',
+    meeting.building ?? '',
+    meeting.room ?? '',
+  ].join('|');
 }
 
 export function getSectionVaryingMeetings(

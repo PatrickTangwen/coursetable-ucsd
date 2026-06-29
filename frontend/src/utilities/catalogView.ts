@@ -118,7 +118,15 @@ function getFamilyPrefix(code: string | null): string {
 }
 
 function meetingKey(m: SectionInput['meetings'][number]): string {
-  return `${m.raw_days ?? m.days.join(',')}|${m.start_time ?? ''}|${m.end_time ?? ''}`;
+  return [
+    m.meeting_type ?? '',
+    m.raw_days ?? m.days.join(','),
+    m.start_time ?? '',
+    m.end_time ?? '',
+    m.raw_location ?? '',
+    m.building ?? '',
+    m.room ?? '',
+  ].join('|');
 }
 
 function findSharedMeetings(

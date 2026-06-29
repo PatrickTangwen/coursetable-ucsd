@@ -180,6 +180,54 @@ describe('UCSD snapshot modal data', () => {
     ).toEqual(['Laboratory']);
   });
 
+  it('does not collapse same-time labs in different locations into shared meetings', () => {
+    const lecture = meeting(
+      'Lecture',
+      'TuTh',
+      '11:00',
+      '12:20',
+      'RWAC',
+      '0103',
+    );
+    const a01 = listing({
+      crn: 101,
+      sectionCode: 'A01',
+      meetings: [
+        lecture,
+        meeting('Laboratory', 'TuTh', '13:00', '15:50', 'TATA', '2301'),
+      ],
+      enrolled: 23,
+      capacity: 24,
+    });
+    const a02 = listing({
+      crn: 102,
+      sectionCode: 'A02',
+      meetings: [
+        lecture,
+        meeting('Laboratory', 'TuTh', '13:00', '15:50', 'TATA', '2302'),
+      ],
+      enrolled: 22,
+      capacity: 24,
+    });
+
+    const modalCourse = buildUcsdSnapshotModalCourse(a01, [a01, a02]);
+
+    const [groupA] = modalCourse.groups;
+    expect(groupA!.sharedMeetings.map((m) => m.meeting_type)).toEqual([
+      'Lecture',
+    ]);
+    expect(
+      getSectionVaryingMeetings(groupA!.sections[0]!, groupA!).map(
+        (m) => m.meeting_type,
+      ),
+    ).toEqual(['Laboratory']);
+    expect(
+      getSectionVaryingMeetings(groupA!.sections[1]!, groupA!).map(
+        (m) => m.room,
+      ),
+    ).toEqual(['2302']);
+  });
+
   it('formats availability and snapshot age labels for modal rows', () => {
     expect(formatUcsdAvailability(48, 48, 2)).toMatchObject({
       main: 'FULL · WL(2)',

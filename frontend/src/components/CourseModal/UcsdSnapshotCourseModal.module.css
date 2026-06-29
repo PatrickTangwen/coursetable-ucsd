@@ -115,6 +115,11 @@
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 12px;
+  max-height: min(144px, 24vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 4px 2px 0;
+  scrollbar-gutter: stable;
 }
 
 .sectionPill {
@@ -798,6 +803,7 @@
 
   .sectionPills {
     margin-top: 10px;
+    max-height: min(124px, 22vh);
   }
 
   .sectionPill {
