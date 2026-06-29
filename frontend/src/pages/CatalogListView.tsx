@@ -2,7 +2,6 @@ import { useMemo, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import CatalogTable from '../components/Catalog/CatalogTable';
-import FAB from '../components/Catalog/FAB';
 import FilterBar, { COURSE_LEVELS } from '../components/Catalog/FilterBar';
 import { useFerry } from '../hooks/useFerry';
 import { useSearch } from '../hooks/useSearch';
@@ -110,7 +109,6 @@ export default function CatalogListView() {
     <div className={styles.page}>
       <FilterBar subjects={subjects} />
       <CatalogTable data={filteredData} onOpenModal={handleOpenModal} />
-      <FAB />
     </div>
   );
 }

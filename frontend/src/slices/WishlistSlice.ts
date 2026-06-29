@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import type { ApolloError } from '@apollo/client';
 import type { StateCreator } from 'zustand';
 import { isLegacyUserInfo, type WishlistItem } from '../queries/api';
@@ -192,10 +192,22 @@ export function useWishlistEffects() {
     data: wishlistCourses,
   } = useWishlistInfo(wishlistWithMetadata);
 
-  setWishlistDisplay(
-    hasLegacyWishlistAccount ? wishlistCourses : [],
-    hasLegacyWishlistAccount &&
-      (listingLoading || sameCourseLoading || !userWishlist),
-    listingError ?? sameCourseError,
-  );
+  useEffect(() => {
+    const displayCourses = hasLegacyWishlistAccount ? wishlistCourses : [];
+    const displayLoading =
+      hasLegacyWishlistAccount &&
+      (listingLoading || sameCourseLoading || !userWishlist);
+    const displayError = listingError ?? sameCourseError;
+
+    setWishlistDisplay(displayCourses, displayLoading, displayError);
+  }, [
+    hasLegacyWishlistAccount,
+    listingError,
+    listingLoading,
+    sameCourseError,
+    sameCourseLoading,
+    setWishlistDisplay,
+    userWishlist,
+    wishlistCourses,
+  ]);
 }

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import clsx from 'clsx';
-import { Button, Collapse, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Button, Collapse } from 'react-bootstrap';
 import chroma from 'chroma-js';
 import { useShallow } from 'zustand/react/shallow';
 import type {
@@ -12,7 +12,6 @@ import {
   getWorksheetConflicts,
   isDiscussionSection,
 } from '../../utilities/course';
-import SkillBadge from '../SkillBadge';
 
 import styles from './WorksheetStats.module.css';
 
@@ -112,7 +111,6 @@ export function WorksheetStatsView({
   const countedCourseCodes = new Set();
   let courseCnt = 0;
   let credits = 0;
-  const skillsAreas: { courseCode: string; label: string }[] = [];
 
   for (const { listing, hidden } of courses) {
     const alreadyCounted = listing.course.listings.some((l) =>
@@ -133,12 +131,6 @@ export function WorksheetStatsView({
     });
     courseCnt++;
     credits += listing.course.credits ?? 0;
-    skillsAreas.push(
-      ...[...listing.course.skills, ...listing.course.areas].map((x) => ({
-        courseCode: listing.course_code,
-        label: x,
-      })),
-    );
   }
 
   return (
@@ -211,27 +203,6 @@ export function WorksheetStatsView({
                 <StatPill colorMap={creditColormap} stat={credits}>
                   {credits}
                 </StatPill>
-              </div>
-              <div className={styles.wide}>
-                <dt>Skills & Areas</dt>
-                <dd>
-                  {skillsAreas
-                    .sort((a, b) => a.label.localeCompare(b.label, 'en-US'))
-                    .map((x, i) => (
-                      <OverlayTrigger
-                        key={i}
-                        overlay={
-                          <Tooltip id={`worksheet-stats-skill-${i}-tooltip`}>
-                            {x.courseCode}
-                          </Tooltip>
-                        }
-                      >
-                        <span>
-                          <SkillBadge skill={x.label} />
-                        </span>
-                      </OverlayTrigger>
-                    ))}
-                </dd>
               </div>
             </dl>
             {isExoticWorksheet && isMobile && (

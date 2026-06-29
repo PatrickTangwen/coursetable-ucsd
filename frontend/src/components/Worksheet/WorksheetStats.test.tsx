@@ -120,9 +120,9 @@ describe('WorksheetStats', () => {
     expect(html).toContain('Summary');
     expect(html).toContain('Total courses');
     expect(html).toContain('Total credits');
-    expect(html).toContain('Skills &amp; Areas');
-    expect(html).toContain('WR');
-    expect(html).toContain('Sc');
+    expect(html).not.toContain('Skills &amp; Areas');
+    expect(html).not.toContain('WR');
+    expect(html).not.toContain('Sc');
     expect(html.toLowerCase()).not.toMatch(
       /\b(?:workload|rating|friends?|demand|average gpa)\b/u,
     );

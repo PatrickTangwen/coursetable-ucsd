@@ -8,13 +8,16 @@ import React, {
 import * as Sentry from '@sentry/react';
 import clsx from 'clsx';
 import { Button, Tooltip, OverlayTrigger, Fade, Modal } from 'react-bootstrap';
-import { BsTrash } from 'react-icons/bs';
 import { MdErrorOutline } from 'react-icons/md';
 import { useApolloClient } from '@apollo/client';
 import { components, type OptionProps } from 'react-select';
 import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
 import WorksheetStatusIcon from './WorksheetStatusIcon';
+import {
+  AddWorksheetButton,
+  RemoveWorksheetButton,
+} from './WorksheetToggleControls';
 import { CUR_YEAR } from '../../config';
 import { seasons } from '../../data/catalogSeasons';
 import type { LatestCurrentOfferingQuery } from '../../generated/graphql-types';
@@ -43,13 +46,77 @@ import { Popout } from '../Search/Popout';
 import { PopoutSelect } from '../Search/PopoutSelect';
 import styles from './WorksheetToggleButton.module.css';
 
-type ListingWithHistoricalInfo = ListingWithTimes & {
+export type ListingWithHistoricalInfo = ListingWithTimes & {
   course: ListingWithTimes['course'] & {
     same_course_id?: number;
   };
 };
 
-function CourseConflictIcon({
+export function useWorksheetListingPresence(
+  listing: ListingWithHistoricalInfo,
+  selectedWorksheet: number,
+  inWorksheetProp?: boolean,
+) {
+  const {
+    anonymousWorksheet,
+    isAnonymousWorksheet,
+    activeSavedWorksheet,
+    crossTermSavedSections,
+    user,
+    worksheets,
+  } = useStore(
+    useShallow((state) => ({
+      anonymousWorksheet: state.anonymousWorksheet,
+      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+      activeSavedWorksheet: state.activeSavedWorksheet,
+      crossTermSavedSections: state.crossTermSavedSections,
+      user: state.user,
+      worksheets: state.worksheets,
+    })),
+  );
+  const hasSavedWorksheetAccount = Boolean(user && !isLegacyUserInfo(user));
+
+  return useMemo(() => {
+    if (isAnonymousWorksheet)
+      return anonymousWorksheetHasListing(anonymousWorksheet, listing);
+    if (hasSavedWorksheetAccount) {
+      const sectionId = getListingSectionId(listing);
+      if (!sectionId) return false;
+      const listingTerm = listing.course.season_code;
+      if (
+        activeSavedWorksheet &&
+        listingTerm &&
+        listingTerm !== activeSavedWorksheet.term
+      ) {
+        const crossSections = crossTermSavedSections[listingTerm];
+        return (
+          crossSections?.some((section) => section.sectionId === sectionId) ??
+          false
+        );
+      }
+      return Boolean(
+        activeSavedWorksheet?.sections.some(
+          (section) => section.sectionId === sectionId,
+        ),
+      );
+    }
+    return (
+      inWorksheetProp ?? isInWorksheet(listing, selectedWorksheet, worksheets)
+    );
+  }, [
+    activeSavedWorksheet,
+    anonymousWorksheet,
+    crossTermSavedSections,
+    hasSavedWorksheetAccount,
+    inWorksheetProp,
+    isAnonymousWorksheet,
+    listing,
+    selectedWorksheet,
+    worksheets,
+  ]);
+}
+
+export function useWorksheetConflictWarning({
   listing,
   inWorksheet,
   modal,
@@ -92,7 +159,7 @@ function CourseConflictIcon({
     [listing.course.season_code, supportedTerms],
   );
 
-  const warning = useMemo(() => {
+  return useMemo(() => {
     // If the course is in the worksheet, we never report a conflict
     if (inWorksheet) return undefined;
     if (modal) {
@@ -105,6 +172,25 @@ function CourseConflictIcon({
       return `Conflicts with: ${conflicts.map((x) => x.course_code).join(', ')}`;
     return undefined;
   }, [inWorksheet, modal, listing, termMetadata, worksheetData]);
+}
+
+function CourseConflictIcon({
+  listing,
+  inWorksheet,
+  modal,
+  worksheetNumber,
+}: {
+  readonly listing: ListingWithHistoricalInfo;
+  readonly inWorksheet: boolean;
+  readonly modal: boolean;
+  readonly worksheetNumber: number;
+}) {
+  const warning = useWorksheetConflictWarning({
+    listing,
+    inWorksheet,
+    modal,
+    worksheetNumber,
+  });
 
   return (
     <Fade in={Boolean(warning)}>
@@ -166,33 +252,20 @@ function PopoutOption(props: OptionProps<WorksheetNumberOption>) {
   );
 }
 
-function PlusMinusGlyph() {
-  return (
-    <>
-      <span
-        className={clsx(styles.toggleButtonBar, styles.toggleButtonBarH)}
-        aria-hidden="true"
-      />
-      <span
-        className={clsx(styles.toggleButtonBar, styles.toggleButtonBarV)}
-        aria-hidden="true"
-      />
-    </>
-  );
-}
-
 function WorksheetToggleButton({
   listing,
   modal,
   inWorksheet: inWorksheetProp,
   appearance = 'icon',
   className,
+  showConflictIcon = true,
 }: {
   readonly listing: ListingWithHistoricalInfo;
   readonly modal: boolean;
   readonly inWorksheet?: boolean;
   readonly appearance?: 'icon' | 'remove';
   readonly className?: string;
+  readonly showConflictIcon?: boolean;
 }) {
   const { worksheets, worksheetsRefresh, getRelevantWorksheetNumber, user } =
     useStore(
@@ -204,7 +277,6 @@ function WorksheetToggleButton({
       })),
     );
   const {
-    anonymousWorksheet,
     isAnonymousWorksheet,
     activeSavedWorksheet,
     crossTermSavedSections,
@@ -216,7 +288,6 @@ function WorksheetToggleButton({
     removeActiveSavedWorksheetListing,
   } = useStore(
     useShallow((state) => ({
-      anonymousWorksheet: state.anonymousWorksheet,
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
       activeSavedWorksheet: state.activeSavedWorksheet,
       crossTermSavedSections: state.crossTermSavedSections,
@@ -299,44 +370,11 @@ function WorksheetToggleButton({
     [worksheets, getRelevantWorksheetNumber],
   );
 
-  const inWorksheet = useMemo(() => {
-    if (isAnonymousWorksheet)
-      return anonymousWorksheetHasListing(anonymousWorksheet, listing);
-    if (hasSavedWorksheetAccount) {
-      const sectionId = getListingSectionId(listing);
-      if (!sectionId) return false;
-      const listingTerm = listing.course.season_code;
-      if (
-        activeSavedWorksheet &&
-        listingTerm &&
-        listingTerm !== activeSavedWorksheet.term
-      ) {
-        const crossSections = crossTermSavedSections[listingTerm];
-        return (
-          crossSections?.some((section) => section.sectionId === sectionId) ??
-          false
-        );
-      }
-      return Boolean(
-        activeSavedWorksheet?.sections.some(
-          (section) => section.sectionId === sectionId,
-        ),
-      );
-    }
-    return (
-      inWorksheetProp ?? isInWorksheet(listing, selectedWorksheet, worksheets)
-    );
-  }, [
-    activeSavedWorksheet,
-    anonymousWorksheet,
-    crossTermSavedSections,
-    hasSavedWorksheetAccount,
-    inWorksheetProp,
-    isAnonymousWorksheet,
+  const inWorksheet = useWorksheetListingPresence(
     listing,
     selectedWorksheet,
-    worksheets,
-  ]);
+    inWorksheetProp,
+  );
 
   useEffect(() => {
     if (!hasSavedWorksheetAccount || !activeSavedWorksheet) return;
@@ -530,15 +568,11 @@ function WorksheetToggleButton({
   ) {
     if (appearance === 'remove') {
       return (
-        <Button
-          variant="toggle"
-          className={clsx(styles.removeButton, className)}
+        <RemoveWorksheetButton
+          className={className}
           disabled
-          aria-label={buttonLabel}
-        >
-          <BsTrash size={13} aria-hidden="true" />
-          <span>Remove this course</span>
-        </Button>
+          ariaLabel={buttonLabel}
+        />
       );
     }
 
@@ -552,13 +586,11 @@ function WorksheetToggleButton({
             </Tooltip>
           }
         >
-          <Button
-            className={clsx('p-0', styles.toggleButton, styles.disabledButton)}
+          <AddWorksheetButton
+            className="p-0"
+            ariaLabel={buttonLabel}
             disabled
-            aria-label={buttonLabel}
-          >
-            <PlusMinusGlyph />
-          </Button>
+          />
         </OverlayTrigger>
       </div>
     );
@@ -566,16 +598,12 @@ function WorksheetToggleButton({
 
   if (appearance === 'remove') {
     return (
-      <Button
-        variant="toggle"
-        className={clsx(styles.removeButton, className)}
+      <RemoveWorksheetButton
+        className={className}
         onClick={toggleWorkSheet}
         disabled={!inWorksheet}
-        aria-label={buttonLabel}
-      >
-        <BsTrash size={13} aria-hidden="true" />
-        <span>Remove this course</span>
-      </Button>
+        ariaLabel={buttonLabel}
+      />
     );
   }
 
@@ -584,12 +612,14 @@ function WorksheetToggleButton({
       {/* This div "anchors" the conflict icon to the plus icon instead of the
         whole container */}
       <div className={styles.toggleContainer}>
-        <CourseConflictIcon
-          listing={listing}
-          inWorksheet={inWorksheet}
-          modal={modal}
-          worksheetNumber={selectedWorksheet}
-        />
+        {showConflictIcon && (
+          <CourseConflictIcon
+            listing={listing}
+            inWorksheet={inWorksheet}
+            modal={modal}
+            worksheetNumber={selectedWorksheet}
+          />
+        )}
         <OverlayTrigger
           placement="top"
           delay={modal ? { show: 300, hide: 0 } : undefined}
@@ -599,18 +629,12 @@ function WorksheetToggleButton({
             </Tooltip>
           )}
         >
-          <Button
-            variant="toggle"
-            className={clsx(
-              'p-0',
-              styles.toggleButton,
-              inWorksheet && styles.isAdded,
-            )}
+          <AddWorksheetButton
+            className="p-0"
+            added={inWorksheet}
             onClick={toggleWorkSheet}
-            aria-label={buttonLabel}
-          >
-            <PlusMinusGlyph />
-          </Button>
+            ariaLabel={buttonLabel}
+          />
         </OverlayTrigger>
       </div>
       {modal && !isAnonymousWorksheet && !hasSavedWorksheetAccount && (

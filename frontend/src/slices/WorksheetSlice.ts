@@ -1169,7 +1169,10 @@ export const useWorksheetEffects = () => {
       ? 0
       : viewedWorksheetNumber,
   );
-  setWorksheetInfo(courses, worksheetLoading, worksheetError);
+
+  useEffect(() => {
+    setWorksheetInfo(courses, worksheetLoading, worksheetError);
+  }, [courses, setWorksheetInfo, worksheetError, worksheetLoading]);
 };
 
 export const useSavedWorksheetBootstrap = () => {
