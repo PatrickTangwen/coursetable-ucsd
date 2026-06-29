@@ -98,7 +98,6 @@ function getEmptyFilterFromParams<K extends keyof Filters>(
   key: K,
   fallback: Filters[K],
 ): Filters[K] {
-  if (key === 'selectSeasons') return fallback;
   if (EMPTY_ARRAY_PARAM_KEYS.has(key)) return [] as unknown as Filters[K];
   if (key === 'searchText') return '' as Filters[K];
   return fallback;

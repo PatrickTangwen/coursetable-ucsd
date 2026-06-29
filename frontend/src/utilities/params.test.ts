@@ -17,13 +17,13 @@ describe('getFilterFromParams', () => {
     ]);
   });
 
-  it('treats an empty season param as the default catalog season', () => {
+  it('treats an empty season param as an explicit empty season selection', () => {
     const result = getFilterFromParams(
       'selectSeasons',
       '',
       defaultFilters.selectSeasons,
     );
 
-    expect(result).toEqual(defaultFilters.selectSeasons);
+    expect(result).toEqual([]);
   });
 });

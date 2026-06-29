@@ -16,6 +16,7 @@ import {
   emptyFilters,
   SEARCH_FILTER_KEYS,
 } from './searchConstants';
+import { getSearchSeasonScope } from './searchSeasonScope';
 import { matchesSearchText } from './searchTextMatch';
 import type {
   BooleanAttributes,
@@ -294,6 +295,7 @@ export function SearchBootstrap({
   const searchData = useStore((s) => s.searchData);
   const searchFilters = useStore((s) => s.searchFilters);
   const searchTimingStartMs = useStore((s) => s.searchTimingStartMs);
+  const catalogLevelFilter = useStore((s) => s.catalogLevelFilter);
 
   const {
     worksheets,
@@ -336,11 +338,49 @@ export function SearchBootstrap({
       ),
     [selectSkillsAreas.value],
   );
-  const processedSeasons = useMemo(() => {
-    if (selectSeasons.value.length === 0)
-      return defaultFilters.selectSeasons.map((x: Option<Season>) => x.value);
-    return selectSeasons.value.map((x: Option<Season>) => x.value);
-  }, [selectSeasons.value]);
+  const hasActiveCatalogFilter = useMemo(
+    () =>
+      searchText.value.trim().length > 0 ||
+      catalogLevelFilter !== null ||
+      selectSubjects.value.length > 0 ||
+      selectSkillsAreas.value.length > 0 ||
+      selectDays.value.length > 0 ||
+      selectSchools.value.length > 0 ||
+      selectCredits.value.length > 0 ||
+      selectBuilding.value.length > 0 ||
+      selectCourseInfoAttributes.value.length > 0 ||
+      includeAttributes.value.length > 0 ||
+      hideConflicting.value ||
+      !isEqual(overallBounds.value, defaultFilters.overallBounds) ||
+      !isEqual(workloadBounds.value, defaultFilters.workloadBounds) ||
+      !isEqual(professorBounds.value, defaultFilters.professorBounds) ||
+      !isEqual(timeBounds.value, defaultFilters.timeBounds) ||
+      !isEqual(enrollBounds.value, defaultFilters.enrollBounds) ||
+      !isEqual(numBounds.value, defaultFilters.numBounds),
+    [
+      searchText.value,
+      catalogLevelFilter,
+      selectSubjects.value,
+      selectSkillsAreas.value,
+      selectDays.value,
+      selectSchools.value,
+      selectCredits.value,
+      selectBuilding.value,
+      selectCourseInfoAttributes.value,
+      includeAttributes.value,
+      hideConflicting.value,
+      overallBounds.value,
+      workloadBounds.value,
+      professorBounds.value,
+      timeBounds.value,
+      enrollBounds.value,
+      numBounds.value,
+    ],
+  );
+  const processedSeasons = useMemo(
+    () => getSearchSeasonScope(selectSeasons.value, hasActiveCatalogFilter),
+    [selectSeasons.value, hasActiveCatalogFilter],
+  );
 
   const {
     loading: coursesLoading,
