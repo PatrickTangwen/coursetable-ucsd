@@ -189,7 +189,8 @@ function resolveTermDateRange(
   term: string,
   options: { termDateRanges?: { [term: string]: TermDateRange } },
 ): TermDateRange {
-  const override = options.termDateRanges?.[term];
+  const override =
+    options.termDateRanges?.[term] ?? config.term_date_ranges?.[term];
   if (override !== undefined) return override;
   // The source cannot supply term dates; only the configured term has a known
   // range. Discovered terms are null until a calendar source is wired.

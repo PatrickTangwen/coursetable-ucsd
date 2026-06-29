@@ -148,6 +148,7 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
       subject: 'CSE',
       section_id: 'FA26:CSE-TRACER-001',
     });
+    expect(course!.course_meetings[0]).toHaveProperty('date', null);
     expect(getCalendarDetails(course)).toMatchObject({
       term_date_range: {
         start: '2026-09-24',

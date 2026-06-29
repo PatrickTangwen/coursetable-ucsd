@@ -152,7 +152,8 @@ async function fetchAPI(
         method: method ?? 'GET',
         credentials: 'include',
       };
-  if (isCatalogRequest && shouldCacheBust) fetchInit.cache = 'no-store';
+  if (isCatalogRequest)
+    fetchInit.cache = shouldCacheBust ? 'no-store' : 'no-cache';
   const noResExpected = !schema && fetchInit.method === 'POST';
   try {
     const res = await fetch(

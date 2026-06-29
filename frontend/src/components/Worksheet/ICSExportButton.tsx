@@ -1,4 +1,4 @@
-import saveFile from 'file-saver';
+import { useEffect, useState, type MouseEvent } from 'react';
 import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
 import ICSIcon from '../../images/ics.svg';
@@ -8,27 +8,8 @@ import {
   getCalendarExport,
 } from '../../utilities/calendar';
 
-export default function ICSExportButton() {
-  const { viewedSeason, courses } = useStore(
-    useShallow((state) => ({
-      viewedSeason: state.viewedSeason,
-      courses: state.courses,
-    })),
-  );
-
-  const exportICS = () => {
-    const { events, skippedMeetings } = getCalendarExport(
-      'ics',
-      courses,
-      viewedSeason,
-    );
-    const skippedSummary = formatSkippedMeetingsSummary(skippedMeetings);
-    // Error already reported
-    if (events.length === 0) {
-      if (skippedSummary) toast.warning(skippedSummary);
-      return;
-    }
-    const value = `BEGIN:VCALENDAR
+function buildICSCalendar(events: string[]) {
+  return `BEGIN:VCALENDAR
 CALSCALE:GREGORIAN
 VERSION:2.0
 BEGIN:VTIMEZONE
@@ -50,16 +31,80 @@ END:STANDARD
 END:VTIMEZONE
 ${events.join('\n')}
 END:VCALENDAR`;
-    // Download to user's computer
-    const blob = new Blob([value], { type: 'text/calendar;charset=utf-8' });
-    saveFile(blob, `${viewedSeason}_worksheet.ics`);
-    if (skippedSummary) toast.warning(skippedSummary);
+}
+
+type PreparedDownload = {
+  fileName: string;
+  skippedSummary: string;
+  url: string;
+};
+
+export default function ICSExportButton() {
+  const { viewedSeason, courses } = useStore(
+    useShallow((state) => ({
+      viewedSeason: state.viewedSeason,
+      courses: state.courses,
+    })),
+  );
+  const [preparedDownload, setPreparedDownload] =
+    useState<PreparedDownload | null>(null);
+
+  useEffect(() => {
+    if (!courses.some((course) => !course.hidden)) {
+      setPreparedDownload(null);
+      return undefined;
+    }
+    const { events, skippedMeetings } = getCalendarExport(
+      'ics',
+      courses,
+      viewedSeason,
+      { notify: false },
+    );
+    const skippedSummary = formatSkippedMeetingsSummary(skippedMeetings);
+    if (events.length === 0) {
+      setPreparedDownload(null);
+      return undefined;
+    }
+
+    const fileName = `${viewedSeason}_worksheet.ics`;
+    const blob = new Blob([buildICSCalendar(events)], {
+      type: 'text/calendar;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    setPreparedDownload({ fileName, skippedSummary, url });
+
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [courses, viewedSeason]);
+
+  const exportICS = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (!preparedDownload) {
+      event.preventDefault();
+      const { skippedMeetings } = getCalendarExport(
+        'ics',
+        courses,
+        viewedSeason,
+      );
+      const skippedSummary = formatSkippedMeetingsSummary(skippedMeetings);
+      if (skippedSummary) toast.warning(skippedSummary);
+      return;
+    }
+    toast.success(
+      `Downloaded ${preparedDownload.fileName}. Check Downloads if it does not open.`,
+    );
+    if (preparedDownload.skippedSummary)
+      toast.warning(preparedDownload.skippedSummary);
   };
 
   return (
-    <button type="button" onClick={exportICS}>
+    <a
+      href={preparedDownload?.url ?? '#'}
+      download={preparedDownload?.fileName ?? `${viewedSeason}_worksheet.ics`}
+      onClick={exportICS}
+    >
       <img style={{ height: '2rem' }} src={ICSIcon} alt="" />
       &nbsp;&nbsp;Download as ICS
-    </button>
+    </a>
   );
 }

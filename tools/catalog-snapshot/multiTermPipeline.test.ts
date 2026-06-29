@@ -290,6 +290,58 @@ describe('Multi-term snapshot pipeline', () => {
     expect(counters.gradeArchive.sort()).toEqual(['CSE', 'MATH']);
   });
 
+  it('uses configured date ranges for every published term', async () => {
+    const config = await makeTempConfig();
+    config.term_date_ranges = {
+      SP26: { start: '2026-03-30', end: '2026-06-12' },
+      S126: { start: '2026-06-29', end: '2026-08-01' },
+      S226: { start: '2026-08-03', end: '2026-09-05' },
+    };
+
+    await runMultiTermSnapshotPipeline(config, {
+      runId: 'multi-run',
+      generatedAt,
+      terms: [
+        { term: 'SP26', label: 'Spring 2026' },
+        { term: 'S126', label: 'Summer Session I 2026' },
+        { term: 'S226', label: 'Summer Session II 2026' },
+      ],
+      sourceLoaders: makeCountingLoaders({
+        schedule: [],
+        generalCatalog: [],
+        gradeArchive: [],
+      }),
+      fetchDelayMs: 0,
+    });
+
+    const s126 = JSON.parse(
+      await readFile(
+        join(config.paths.public_catalog_dir, 'S126.json'),
+        'utf-8',
+      ),
+    ) as CatalogSnapshot;
+    const registry = JSON.parse(
+      await readFile(config.paths.metadata_path, 'utf-8'),
+    ) as SupportedTermRegistry;
+
+    expect(s126.term_date_range).toEqual({
+      start: '2026-06-29',
+      end: '2026-08-01',
+    });
+    expect(registry.terms).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          term: 'S126',
+          date_range: { start: '2026-06-29', end: '2026-08-01' },
+        }),
+        expect.objectContaining({
+          term: 'S226',
+          date_range: { start: '2026-08-03', end: '2026-09-05' },
+        }),
+      ]),
+    );
+  });
+
   it('publishes registry when an old single-term metadata file exists', async () => {
     const config = await makeTempConfig();
     await writeFile(

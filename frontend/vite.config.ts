@@ -250,6 +250,13 @@ export default defineConfig({
     port: process.env.FRONTEND_ENDPOINT
       ? Number(new URL(process.env.FRONTEND_ENDPOINT).port || 3000)
       : 3000,
+    proxy: {
+      '/api': {
+        target: process.env.VITE_API_ENDPOINT || 'https://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
   test: {
     environment: 'node',

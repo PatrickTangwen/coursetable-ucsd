@@ -8,9 +8,11 @@ const dayMask = (...days: number[]) =>
   days.reduce((mask, day) => mask | (1 << day), 0);
 
 type Meeting = {
+  date?: string | null;
   days_of_week: number;
   start_time?: string | null;
   end_time?: string | null;
+  meeting_type?: string | null;
   location?: {
     room: string | null;
     building: {
@@ -135,6 +137,7 @@ describe('calendar export', () => {
     expect(exportResult.skippedMeetings).toEqual([]);
     expect(exportResult.events).toHaveLength(1);
     expect(exportResult.events[0]).toContain('SUMMARY:CSE 3 A00 Lecture');
+    expect(exportResult.events[0]).toContain('COLOR:#123456');
     expect(exportResult.events[0]).toContain(
       'DTSTART;TZID=America/New_York:20260928T090000',
     );
@@ -230,5 +233,47 @@ describe('calendar export', () => {
     expect(exportResult.events).toHaveLength(2);
     expect(exportResult.events.join('\n')).toContain('SUMMARY:CSE 3 A00');
     expect(exportResult.events.join('\n')).toContain('SUMMARY:MATH 20A B00');
+  });
+
+  it('exports dated final exams as one-time ICS events', () => {
+    const listing = makeListing({
+      courseCode: 'ECON 120A',
+      crn: 303,
+      section: 'A01',
+      meetings: [
+        {
+          date: '2026-08-01',
+          days_of_week: dayMask(6),
+          start_time: '08:00',
+          end_time: '10:59',
+          meeting_type: 'Final',
+          location: {
+            room: '130',
+            building: {
+              code: 'COA',
+            },
+          },
+        },
+      ],
+    });
+
+    const exportResult = getCalendarExport(
+      'ics',
+      [worksheetCourse(listing)],
+      'S126' as Season,
+    );
+
+    expect(exportResult.skippedMeetings).toEqual([]);
+    expect(exportResult.events).toHaveLength(1);
+    expect(exportResult.events[0]).toContain('SUMMARY:ECON 120A A01 Final');
+    expect(exportResult.events[0]).toContain(
+      'DTSTART;TZID=America/New_York:20260801T080000',
+    );
+    expect(exportResult.events[0]).toContain(
+      'DTEND;TZID=America/New_York:20260801T105900',
+    );
+    expect(exportResult.events[0]).toContain('Meeting type: Final');
+    expect(exportResult.events[0]).toContain('LOCATION:COA 130');
+    expect(exportResult.events[0]).not.toContain('RRULE:');
   });
 });

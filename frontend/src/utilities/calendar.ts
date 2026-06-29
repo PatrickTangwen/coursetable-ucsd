@@ -145,8 +145,10 @@ function toICSEvent({
   recurrence,
   description,
   location,
+  color,
 }: CalendarEvent): ICSEvent {
   return `BEGIN:VEVENT
+COLOR:${color}
 DESCRIPTION:${
     // ICS uses **CRLF**
     description.replaceAll('\n', '\\r\\n')
@@ -199,6 +201,9 @@ function toRBCEvent({
 type GCalEvent = gapi.client.calendar.EventInput;
 type ICSEvent = string;
 type CalendarType = 'gcal' | 'ics' | 'rbc';
+type CalendarExportOptions = {
+  notify?: boolean;
+};
 
 type UcsdCalendarMeeting = {
   days: string[];
@@ -229,6 +234,8 @@ type CourseWithCalendarDetails = CatalogListing['course'] & {
 };
 
 type CourseMeeting = CatalogListing['course']['course_meetings'][number] & {
+  date?: string | null;
+  meeting_type?: string | null;
   raw_location?: string | null;
 };
 
@@ -322,16 +329,24 @@ function sectionLabel(listing: CatalogListing) {
   );
 }
 
-function meetingTypeLabel(listing: CatalogListing) {
-  return ucsdCalendarDetails(listing)?.meeting_type || 'Meeting';
+function meetingTypeLabel(listing: CatalogListing, meeting?: CourseMeeting) {
+  return (
+    meeting?.meeting_type ||
+    ucsdCalendarDetails(listing)?.meeting_type ||
+    'Meeting'
+  );
 }
 
 function sourceNote(listing: CatalogListing) {
   return ucsdCalendarDetails(listing)?.source_note || '';
 }
 
-function eventSummary(listing: CatalogListing) {
-  return [listing.course_code, sectionLabel(listing), meetingTypeLabel(listing)]
+function eventSummary(listing: CatalogListing, meeting?: CourseMeeting) {
+  return [
+    listing.course_code,
+    sectionLabel(listing),
+    meetingTypeLabel(listing, meeting),
+  ]
     .filter(Boolean)
     .join(' ');
 }
@@ -352,11 +367,15 @@ function meetingLocation(meeting: CourseMeeting) {
   return meeting.raw_location ?? '';
 }
 
-function eventDescription(listing: CatalogListing, location: string) {
+function eventDescription(
+  listing: CatalogListing,
+  location: string,
+  meeting?: CourseMeeting,
+) {
   const lines = [
     `Course: ${listing.course_code}`,
     sectionLabel(listing) ? `Section: ${sectionLabel(listing)}` : '',
-    `Meeting type: ${meetingTypeLabel(listing)}`,
+    `Meeting type: ${meetingTypeLabel(listing, meeting)}`,
     `Title: ${listing.course.title}`,
     instructorNames(listing) ? `Instructor: ${instructorNames(listing)}` : '',
     location ? `Location: ${location}` : '',
@@ -459,27 +478,33 @@ export function getCalendarExport(
   type: 'gcal',
   courses: WorksheetCourse[],
   viewedSeason: Season,
+  options?: CalendarExportOptions,
 ): CalendarExportResult<GCalEvent>;
 export function getCalendarExport(
   type: 'ics',
   courses: WorksheetCourse[],
   viewedSeason: Season,
+  options?: CalendarExportOptions,
 ): CalendarExportResult<ICSEvent>;
 export function getCalendarExport(
   type: 'rbc',
   courses: WorksheetCourse[],
   viewedSeason: Season,
+  options?: CalendarExportOptions,
 ): CalendarExportResult<CourseRBCEvent>;
 export function getCalendarExport(
   type: CalendarType,
   courses: WorksheetCourse[],
   viewedSeason: Season,
+  options?: CalendarExportOptions,
 ): CalendarExportResult<GCalEvent | ICSEvent | CourseRBCEvent>;
 export function getCalendarExport(
   type: CalendarType,
   courses: WorksheetCourse[],
   viewedSeason: Season,
+  options: CalendarExportOptions = {},
 ) {
+  const notify = options.notify ?? true;
   const seasonString = toSeasonString(viewedSeason);
   const visibleCourses = courses.filter((course) => !course.hidden);
   const skippedMeetings = visibleCourses.flatMap(({ listing }) =>
@@ -487,11 +512,13 @@ export function getCalendarExport(
   );
 
   if (visibleCourses.length === 0) {
-    if (type !== 'rbc') toast.error(`No courses in ${seasonString} to export!`);
+    if (notify && type !== 'rbc')
+      toast.error(`No courses in ${seasonString} to export!`);
     return { events: [], skippedMeetings };
   }
   const semester = getExportCalendar(visibleCourses, viewedSeason);
   if (!semester && type !== 'rbc') {
+    if (!notify) return { events: [], skippedMeetings };
     toast.error(
       `Can't construct calendar events for ${seasonString} because there is no academic calendar available.`,
     );
@@ -513,13 +540,32 @@ export function getCalendarExport(
         end_time: endTime,
       } = courseMeeting;
       const meeting = courseMeeting as CourseMeeting;
+      const meetingDate = meeting.date
+        ? simpleDateFromIso(meeting.date)
+        : undefined;
       const days = Object.values(weekdays).filter(
         (day) => daysOfWeek & (1 << day),
       );
-      if (days.length === 0 || !startTime || !endTime) {
+      if ((!meetingDate && days.length === 0) || !startTime || !endTime) {
         skippedMeetings.push(skippedMeetingFromCourseMeeting(l, meeting));
         return [];
       }
+      const location = meetingLocation(meeting);
+
+      if (meetingDate) {
+        return toEvent({
+          summary: eventSummary(l, meeting),
+          start: isoString(meetingDate, startTime),
+          end: isoString(meetingDate, endTime),
+          recurrence: [],
+          description: eventDescription(l, location, meeting),
+          location,
+          color,
+          listing: l,
+          days,
+        });
+      }
+
       const firstMeetingDay = semester
         ? firstDaySince(semester.start, days)
         : // Irrelevant for rbc, because it always uses the current date
@@ -537,10 +583,9 @@ export function getCalendarExport(
             .join(',')
         : // Irrelevant for rbc
           '';
-      const location = meetingLocation(meeting);
 
       return toEvent({
-        summary: eventSummary(l),
+        summary: eventSummary(l, meeting),
         start: isoString(firstMeetingDay, startTime),
         end: isoString(firstMeetingDay, endTime),
         recurrence: [
@@ -548,7 +593,7 @@ export function getCalendarExport(
           `EXDATE;TZID=America/New_York:${exDate}`,
           ...(rDate ? [`RDATE;TZID=America/New_York:${rDate}`] : []),
         ],
-        description: eventDescription(l, location),
+        description: eventDescription(l, location, meeting),
         location,
         color,
         listing: l,

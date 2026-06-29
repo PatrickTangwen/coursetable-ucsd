@@ -3,7 +3,10 @@
   "generated_at": "2026-06-29T08:02:01.606Z",
   "active_planning_term": "S325",
   "term_label": "Special Summer Session 2025",
-  "term_date_range": null,
+  "term_date_range": {
+    "start": "2025-06-16",
+    "end": "2025-09-20"
+  },
   "configured_subjects": [
     "AIP",
     "AAS",

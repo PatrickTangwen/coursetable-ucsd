@@ -7,6 +7,7 @@ type CoursePublic = CatalogBySeasonQuery['courses'][number];
 type CourseMap = Map<number, CoursePublic>;
 
 type CourseMeetingWithLocation = CoursePublic['course_meetings'][number] & {
+  date?: string | null;
   location?: {
     room: string | null;
     building: {
@@ -219,6 +220,7 @@ function toCourseMeetings(section: UcsdSection): CourseMeetingWithLocation[] {
         : null;
     return [
       {
+        date: meeting.date,
         days_of_week: toDaysOfWeek(meeting.days),
         start_time: meeting.start_time,
         end_time: meeting.end_time,

@@ -14,18 +14,20 @@ const termCodeSchema = z
   .string()
   .min(1)
   .regex(/^[\w-]+$/u);
+const termDateRangeSchema = z
+  .object({
+    start: dateSchema,
+    end: dateSchema,
+  })
+  .strict()
+  .nullable();
 
 export const catalogSnapshotConfigSchema = z
   .object({
     active_planning_term: termCodeSchema,
     term_label: z.string().min(1),
-    term_date_range: z
-      .object({
-        start: dateSchema,
-        end: dateSchema,
-      })
-      .strict()
-      .nullable(),
+    term_date_range: termDateRangeSchema,
+    term_date_ranges: z.record(termDateRangeSchema).optional(),
     configured_subjects: z.array(z.string().min(1)).min(1),
     paths: z
       .object({

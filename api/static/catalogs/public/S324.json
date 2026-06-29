@@ -3,7 +3,10 @@
   "generated_at": "2026-06-29T14:30:40.925Z",
   "active_planning_term": "S324",
   "term_label": "Special Summer Session 2024",
-  "term_date_range": null,
+  "term_date_range": {
+    "start": "2024-06-17",
+    "end": "2024-09-21"
+  },
   "configured_subjects": [
     "AIP",
     "ANAR",
