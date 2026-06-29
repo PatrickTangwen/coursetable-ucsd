@@ -44,6 +44,41 @@ const biologyFixture = `
 </main>
 `;
 
+const dscFixture = `
+<main>
+  <p class="anchor-parent"><a class="anchor" id="dsc20" name="dsc20"></a></p>
+  <p class="anchor-parent"><a class="anchor" id="dsc20r" name="dsc20r"></a></p>
+  <p class="course-name">DSC 20/R. Programming and Basic Data Structures for Data Science (4)</p>
+  <p class="course-descriptions">Provides an understanding of the structures that underlie the programs, algorithms, and languages used in data science. <strong><em>Prerequisites:</em></strong> DSC 10/R.</p>
+  <p class="anchor-parent"><a class="anchor" id="dsc40b" name="dsc40b"></a></p>
+  <p class="anchor-parent"><a class="anchor" id="dsc40r" name="dsc40r"></a></p>
+  <p class="course-name">DSC 40B/R. Theoretical Foundations of Data Science II (4)</p>
+  <p>The sequence DSC 40A/R-B/R introduces the theoretical foundations of data science. <strong><em>Prerequisites:</em></strong> DSC 20/R and 40A/R.</p>
+  <p class="anchor-parent"><a class="anchor" id="dsc80" name="dsc80"></a></p>
+  <p class="anchor-parent"><a class="anchor" id="dsc80r" name="dsc80r"></a></p>
+  <p class="course-name">DSC 80/R. The Practice and Application of Data Science (4)</p>
+  <p class="course-descriptions">Students master the data science life-cycle. <strong><em>Prerequisites:</em></strong> DSC 30/R and DSC 40A/R.</p>
+</main>
+`;
+
+const crossListedFixture = `
+<main>
+  <p class="anchor-parent"><a class="anchor" id="beng181" name="beng181"></a></p>
+  <p class="course-name">BENG/BIMM/CSE 181. Molecular Sequence Analysis (4)</p>
+  <p class="course-descriptions">This course covers the analysis of nucleic acid and protein sequences. <strong><em>Prerequisites:</em></strong> CSE 100.</p>
+  <p class="anchor-parent"><a class="anchor" id="beng242" name="beng242"></a></p>
+  <p class="course-name">BENG 242/MATS 257/NANO 257. Polymer Science and Engineering (4)</p>
+  <p class="course-descriptions">Quantitative basic understanding of different branches of polymer science.</p>
+  <p class="anchor-parent"><a class="anchor" id="cse256" name="cse256"></a></p>
+  <p class="course-name">CSE 256/LING 256. Statistical Natural Language Processing (4)</p>
+  <p class="course-descriptions">An introduction to modern statistical approaches to natural language processing.</p>
+  <p class="anchor-parent"><a class="anchor" id="beng191" name="beng191"></a></p>
+  <p class="anchor-parent"><a class="anchor" id="beng291" name="beng291"></a></p>
+  <p class="course-name">BENG 191/291. Senior Seminar I: Professional Issues in Bioengineering (2)</p>
+  <p class="course-descriptions">Seminar on professional issues in bioengineering.</p>
+</main>
+`;
+
 describe('UCSD General Catalog parser', () => {
   it('parses CSE course metadata and preserves raw prerequisite text', () => {
     const courses = parseGeneralCatalogHtml(cseFixture, {
@@ -126,6 +161,230 @@ describe('UCSD General Catalog parser', () => {
         catalog_url: 'https://catalog.ucsd.edu/courses/BIOL.html#bipn156',
       },
     ]);
+  });
+
+  it('parses catalog course names when the course number is not followed by a period', () => {
+    const fixture = `
+      <main>
+        <p class="anchor-parent"><a class="anchor" id="comm114m" name="comm114m"></a></p>
+        <p class="course-name">COMM 114M CSI: Communication and the Law (4)</p>
+        <p class="course-descriptions">Examines how law and communication shape public life.</p>
+      </main>
+    `;
+    const courses = parseGeneralCatalogHtml(fixture, {
+      subject: 'COMM',
+      sourceUrl: 'https://catalog.ucsd.edu/courses/COMM.html',
+    });
+
+    expect(courses).toEqual([
+      {
+        course_id: 'COMM:114M',
+        subject: 'COMM',
+        course_number: '114M',
+        title: 'CSI: Communication and the Law',
+        units: '4',
+        description: 'Examines how law and communication shape public life.',
+        prerequisites_text: null,
+        restrictions_text: null,
+        catalog_url: 'https://catalog.ucsd.edu/courses/COMM.html#comm114m',
+      },
+    ]);
+  });
+
+  it('parses grouped catalog course names with the subject code in parentheses', () => {
+    const fixture = `
+      <main>
+        <p class="anchor-parent"><a class="anchor" id="lisl1a" name="lisl1a"></a></p>
+        <p class="course-name">Linguistics/American Sign Language (LISL) 1A. American Sign Language Conversation (2.5)</p>
+        <p class="course-descriptions">Small tutorial meetings with a signer of American Sign Language. <strong><em>Prerequisites:</em></strong> no prior study of ASL.</p>
+      </main>
+    `;
+    const courses = parseGeneralCatalogHtml(fixture, {
+      subject: 'LISL',
+      sourceUrl: 'https://catalog.ucsd.edu/courses/LING.html',
+    });
+
+    expect(courses).toEqual([
+      {
+        course_id: 'LISL:1A',
+        subject: 'LISL',
+        course_number: '1A',
+        title: 'American Sign Language Conversation',
+        units: '2.5',
+        description:
+          'Small tutorial meetings with a signer of American Sign Language.',
+        prerequisites_text: 'no prior study of ASL.',
+        restrictions_text: null,
+        catalog_url: 'https://catalog.ucsd.edu/courses/LING.html#lisl1a',
+      },
+    ]);
+  });
+
+  it('normalizes slash-R course numbers and accepts classless description paragraphs', () => {
+    const courses = parseGeneralCatalogHtml(dscFixture, {
+      subject: 'DSC',
+      sourceUrl: 'https://catalog.ucsd.edu/courses/DSC.html',
+    });
+
+    expect(courses).toEqual([
+      {
+        course_id: 'DSC:20',
+        subject: 'DSC',
+        course_number: '20',
+        title: 'Programming and Basic Data Structures for Data Science',
+        units: '4',
+        description:
+          'Provides an understanding of the structures that underlie the programs, algorithms, and languages used in data science.',
+        prerequisites_text: 'DSC 10/R.',
+        restrictions_text: null,
+        catalog_url: 'https://catalog.ucsd.edu/courses/DSC.html#dsc20',
+      },
+      {
+        course_id: 'DSC:20R',
+        subject: 'DSC',
+        course_number: '20R',
+        title: 'Programming and Basic Data Structures for Data Science',
+        units: '4',
+        description:
+          'Provides an understanding of the structures that underlie the programs, algorithms, and languages used in data science.',
+        prerequisites_text: 'DSC 10/R.',
+        restrictions_text: null,
+        catalog_url: 'https://catalog.ucsd.edu/courses/DSC.html#dsc20r',
+      },
+      {
+        course_id: 'DSC:40B',
+        subject: 'DSC',
+        course_number: '40B',
+        title: 'Theoretical Foundations of Data Science II',
+        units: '4',
+        description:
+          'The sequence DSC 40A/R-B/R introduces the theoretical foundations of data science.',
+        prerequisites_text: 'DSC 20/R and 40A/R.',
+        restrictions_text: null,
+        catalog_url: 'https://catalog.ucsd.edu/courses/DSC.html#dsc40b',
+      },
+      {
+        course_id: 'DSC:40BR',
+        subject: 'DSC',
+        course_number: '40BR',
+        title: 'Theoretical Foundations of Data Science II',
+        units: '4',
+        description:
+          'The sequence DSC 40A/R-B/R introduces the theoretical foundations of data science.',
+        prerequisites_text: 'DSC 20/R and 40A/R.',
+        restrictions_text: null,
+        catalog_url: 'https://catalog.ucsd.edu/courses/DSC.html#dsc40r',
+      },
+      {
+        course_id: 'DSC:80',
+        subject: 'DSC',
+        course_number: '80',
+        title: 'The Practice and Application of Data Science',
+        units: '4',
+        description: 'Students master the data science life-cycle.',
+        prerequisites_text: 'DSC 30/R and DSC 40A/R.',
+        restrictions_text: null,
+        catalog_url: 'https://catalog.ucsd.edu/courses/DSC.html#dsc80',
+      },
+      {
+        course_id: 'DSC:80R',
+        subject: 'DSC',
+        course_number: '80R',
+        title: 'The Practice and Application of Data Science',
+        units: '4',
+        description: 'Students master the data science life-cycle.',
+        prerequisites_text: 'DSC 30/R and DSC 40A/R.',
+        restrictions_text: null,
+        catalog_url: 'https://catalog.ucsd.edu/courses/DSC.html#dsc80r',
+      },
+    ]);
+  });
+
+  it('expands cross-listed catalog rows that share one course number', () => {
+    const courses = parseGeneralCatalogHtml(crossListedFixture, {
+      subject: 'BIMM',
+      sourceUrl: 'https://catalog.ucsd.edu/courses/BENG.html',
+    });
+
+    expect(courses).toEqual([
+      {
+        course_id: 'BIMM:181',
+        subject: 'BIMM',
+        course_number: '181',
+        title: 'Molecular Sequence Analysis',
+        units: '4',
+        description:
+          'This course covers the analysis of nucleic acid and protein sequences.',
+        prerequisites_text: 'CSE 100.',
+        restrictions_text: null,
+        catalog_url: 'https://catalog.ucsd.edu/courses/BENG.html#beng181',
+      },
+    ]);
+  });
+
+  it('expands cross-listed catalog rows with distinct course numbers', () => {
+    const courses = parseGeneralCatalogHtml(crossListedFixture, {
+      subject: 'MATS',
+      sourceUrl: 'https://catalog.ucsd.edu/courses/BENG.html',
+    });
+
+    expect(courses).toEqual([
+      {
+        course_id: 'MATS:257',
+        subject: 'MATS',
+        course_number: '257',
+        title: 'Polymer Science and Engineering',
+        units: '4',
+        description:
+          'Quantitative basic understanding of different branches of polymer science.',
+        prerequisites_text: null,
+        restrictions_text: null,
+        catalog_url: 'https://catalog.ucsd.edu/courses/BENG.html#beng242',
+      },
+    ]);
+  });
+
+  it('expands cross-listed catalog rows with slash-separated subject-number pairs', () => {
+    const courses = parseGeneralCatalogHtml(crossListedFixture, {
+      subject: 'LING',
+      sourceUrl: 'https://catalog.ucsd.edu/courses/CSE.html',
+    });
+
+    expect(courses).toEqual([
+      {
+        course_id: 'LING:256',
+        subject: 'LING',
+        course_number: '256',
+        title: 'Statistical Natural Language Processing',
+        units: '4',
+        description:
+          'An introduction to modern statistical approaches to natural language processing.',
+        prerequisites_text: null,
+        restrictions_text: null,
+        catalog_url: 'https://catalog.ucsd.edu/courses/CSE.html#cse256',
+      },
+    ]);
+  });
+
+  it('expands catalog rows with one subject and multiple course numbers', () => {
+    const courses = parseGeneralCatalogHtml(crossListedFixture, {
+      subject: 'BENG',
+      sourceUrl: 'https://catalog.ucsd.edu/courses/BENG.html',
+    });
+
+    expect(courses.map((course) => course.course_id)).toContain('BENG:191');
+    expect(courses.map((course) => course.course_id)).toContain('BENG:291');
+    expect(courses.find((course) => course.course_id === 'BENG:291')).toEqual({
+      course_id: 'BENG:291',
+      subject: 'BENG',
+      course_number: '291',
+      title: 'Senior Seminar I: Professional Issues in Bioengineering',
+      units: '2',
+      description: 'Seminar on professional issues in bioengineering.',
+      prerequisites_text: null,
+      restrictions_text: null,
+      catalog_url: 'https://catalog.ucsd.edu/courses/BENG.html#beng291',
+    });
   });
 });
 

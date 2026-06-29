@@ -185,7 +185,7 @@ function normalizeSubject(value: string): string {
 }
 
 function normalizeCourseNumber(value: string): string {
-  return value.trim().toUpperCase().replace(/\s+/gu, '');
+  return value.trim().toUpperCase().replace(/\s+/gu, '').replace(/\/R$/u, 'R');
 }
 
 function courseId(subject: string, courseNumber: string): string {

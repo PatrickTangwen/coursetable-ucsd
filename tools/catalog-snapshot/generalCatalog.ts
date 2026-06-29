@@ -79,28 +79,35 @@ function normalizeCourseNumber(value: string): string {
   return value.trim().toUpperCase().replace(/\s+/gu, '');
 }
 
+function catalogCourseNumberAliases(value: string): string[] {
+  const normalized = normalizeCourseNumber(value);
+  if (!normalized.endsWith('/R')) return [normalized];
+  return [normalized.replace(/\/R$/u, ''), normalized.replace(/\/R$/u, 'R')];
+}
+
 function normalizeSubject(value: string): string {
   return value.trim().toUpperCase();
 }
 
-function parseCourseName(value: string): {
+type ParsedCatalogListing = {
   subject: string;
   courseNumber: string;
+};
+
+function parseCourseName(value: string): {
+  listings: ParsedCatalogListing[];
   title: string;
   units: string | null;
 } {
   const normalized = normalizeHtmlText(value);
-  const firstSpace = normalized.indexOf(' ');
-  const dotIndex = normalized.indexOf('.', firstSpace + 1);
-  if (firstSpace === -1 || dotIndex === -1) {
+  const parsedHeader = parseCourseHeaderText(normalized);
+  if (!parsedHeader) {
     throw new Error(
       `UCSD General Catalog course name is invalid: ${normalized}`,
     );
   }
 
-  const subject = normalized.slice(0, firstSpace);
-  const courseNumber = normalized.slice(firstSpace + 1, dotIndex);
-  const rest = normalized.slice(dotIndex + 1).trim();
+  const { listings, rest } = parsedHeader;
   let units: string | null = null;
   let unitStart = -1;
 
@@ -118,19 +125,155 @@ function parseCourseName(value: string): {
 
   if (!units) {
     return {
-      subject: normalizeSubject(subject),
-      courseNumber: normalizeCourseNumber(courseNumber),
+      listings,
       title: rest.trim(),
       units: null,
     };
   }
 
   return {
-    subject: normalizeSubject(subject),
-    courseNumber: normalizeCourseNumber(courseNumber),
+    listings,
     title: rest.slice(0, unitStart).trim(),
     units,
   };
+}
+
+function splitGroupedSubjectCourse(
+  subject: string,
+  value: string,
+): { listings: ParsedCatalogListing[]; rest: string } | null {
+  const trimmed = value.trim();
+  const firstSpace = trimmed.indexOf(' ');
+  if (firstSpace === -1) return null;
+  const courseNumber = trimmed.slice(0, firstSpace).replace(/\.$/u, '');
+  const rest = trimmed.slice(firstSpace + 1).trim();
+  if (!courseNumber || !rest) return null;
+  return {
+    listings: [
+      {
+        subject: normalizeSubject(subject),
+        courseNumber: normalizeCourseNumber(courseNumber),
+      },
+    ],
+    rest,
+  };
+}
+
+function skipSpaces(value: string, index: number): number {
+  let cursor = index;
+  while (cursor < value.length && /\s/u.test(value[cursor] ?? '')) cursor += 1;
+  return cursor;
+}
+
+function parseSubjectList(value: string, index: number) {
+  let cursor = index;
+  while (cursor < value.length && /[a-z\d/]/iu.test(value[cursor] ?? ''))
+    cursor += 1;
+  const subjects = value
+    .slice(index, cursor)
+    .split('/')
+    .filter((subject) => subject.length > 0);
+  if (!subjects.length) return null;
+  if (!subjects.every((subject) => /^[a-z][a-z\d]+$/iu.test(subject)))
+    return null;
+  return {
+    subjects: subjects.map(normalizeSubject),
+    nextIndex: cursor,
+  };
+}
+
+function parseCourseNumberToken(value: string, index: number) {
+  let cursor = index;
+  while (cursor < value.length && /[a-z\d]/iu.test(value[cursor] ?? ''))
+    cursor += 1;
+  let courseNumber = value.slice(index, cursor);
+  if (!courseNumber) return null;
+
+  if (value.slice(cursor, cursor + 2).toUpperCase() === '/R') {
+    const afterSlashR = value[cursor + 2] ?? '';
+    if (!afterSlashR || afterSlashR === '.' || /\s/u.test(afterSlashR)) {
+      courseNumber += value.slice(cursor, cursor + 2);
+      cursor += 2;
+    }
+  }
+
+  return {
+    courseNumber: normalizeCourseNumber(courseNumber),
+    nextIndex: cursor,
+  };
+}
+
+function parseCatalogListings(
+  value: string,
+): { listings: ParsedCatalogListing[]; rest: string } | null {
+  const listings: ParsedCatalogListing[] = [];
+  let cursor = 0;
+
+  while (cursor < value.length) {
+    const subjectResult = parseSubjectList(value, cursor);
+    if (!subjectResult) return null;
+    cursor = skipSpaces(value, subjectResult.nextIndex);
+
+    const courseNumbers: string[] = [];
+    const courseNumberResult = parseCourseNumberToken(value, cursor);
+    if (!courseNumberResult) return null;
+    courseNumbers.push(courseNumberResult.courseNumber);
+    cursor = courseNumberResult.nextIndex;
+
+    while (value[cursor] === '/' && /\d/u.test(value[cursor + 1] ?? '')) {
+      const nextCourseNumberResult = parseCourseNumberToken(value, cursor + 1);
+      if (!nextCourseNumberResult) return null;
+      courseNumbers.push(nextCourseNumberResult.courseNumber);
+      cursor = nextCourseNumberResult.nextIndex;
+    }
+
+    for (const subject of subjectResult.subjects) {
+      for (const courseNumber of courseNumbers) {
+        listings.push({
+          subject,
+          courseNumber,
+        });
+      }
+    }
+
+    const nextChar = value[cursor];
+    if (nextChar === '/') {
+      cursor += 1;
+      continue;
+    }
+
+    if (nextChar === '.') {
+      const rest = value.slice(cursor + 1).trim();
+      return rest ? { listings, rest } : null;
+    }
+
+    if (nextChar && /\s/u.test(nextChar)) {
+      const rest = value.slice(cursor).trim();
+      return rest ? { listings, rest } : null;
+    }
+
+    return null;
+  }
+
+  return null;
+}
+
+function parseCourseHeaderText(
+  normalized: string,
+): { listings: ParsedCatalogListing[]; rest: string } | null {
+  const closeParen = normalized.indexOf(')');
+  if (closeParen !== -1) {
+    const openParen = normalized.lastIndexOf('(', closeParen);
+    const groupedSubject = normalized.slice(openParen + 1, closeParen);
+    const groupedCourse = splitGroupedSubjectCourse(
+      groupedSubject,
+      normalized.slice(closeParen + 1),
+    );
+    if (/^[A-Z][A-Z\d]+$/u.test(groupedSubject) && groupedCourse)
+      return groupedCourse;
+  }
+
+  return parseCatalogListings(normalized);
 }
 
 function textByLabels(descriptionHtml: string): {
@@ -185,6 +328,40 @@ function catalogUrl(sourceUrl: string, anchorId: string | undefined): string {
   return url.toString();
 }
 
+function anchorIds(anchorHtml: string): string[] {
+  return [...anchorHtml.matchAll(/\bid=["'](?<anchorId>[^"']+)["']/giu)]
+    .map((match) => match.groups?.anchorId)
+    .filter((anchorId) => anchorId !== undefined);
+}
+
+function catalogAnchorId(
+  anchorHtml: string,
+  subject: string,
+  rawCourseNumber: string,
+  courseNumber: string,
+): string | undefined {
+  const ids = anchorIds(anchorHtml);
+  const expectedAnchor = `${subject}${courseNumber}`
+    .replaceAll(/[^a-z\d]/giu, '')
+    .toLowerCase();
+  if (ids.includes(expectedAnchor)) return expectedAnchor;
+
+  if (rawCourseNumber.endsWith('/R') && ids.length > 1) {
+    if (courseNumber.endsWith('R')) return ids.at(-1);
+    return ids[0];
+  }
+  return ids.at(-1);
+}
+
+function paragraphClassNames(attrs: string): string[] {
+  const match = /\bclass\s*=\s*["'](?<className>[^"']*)["']/iu.exec(attrs);
+  return match?.groups?.className?.split(/\s+/u) ?? [];
+}
+
+function paragraphHasClass(attrs: string, className: string): boolean {
+  return paragraphClassNames(attrs).includes(className);
+}
+
 export function parseGeneralCatalogHtml(
   html: string,
   options: {
@@ -193,29 +370,57 @@ export function parseGeneralCatalogHtml(
   },
 ): GeneralCatalogCourse[] {
   const expectedSubject = normalizeSubject(options.subject);
-  const coursePattern =
-    /(?:<p\s+class=["'][^"']*\banchor-parent\b[^"']*["'][^>]*>\s*<a\s+class=["'][^"']*\banchor\b[^"']*["'][^>]*\bid=["'](?<anchorId>[^"']+)["'][^>]*><\/a>\s*<\/p>\s*)?<p\s+class=["'][^"']*\bcourse-name\b[^"']*["'][^>]*>(?<nameHtml>[\s\S]*?)<\/p>\s*<p\s+class=["'][^"']*\bcourse-descriptions\b[^"']*["'][^>]*>(?<descriptionHtml>[\s\S]*?)<\/p>/giu;
+  const paragraphPattern = /<p\b(?<attrs>[^>]*)>(?<html>[\s\S]*?)<\/p>/giu;
+  const paragraphs = [...html.matchAll(paragraphPattern)].map((match) => ({
+    attrs: match.groups?.attrs ?? '',
+    html: match.groups?.html ?? '',
+  }));
 
-  const courses = [...html.matchAll(coursePattern)].flatMap((match) => {
-    const nameHtml = match.groups?.nameHtml ?? '';
-    const descriptionHtml = match.groups?.descriptionHtml ?? '';
+  const courses = paragraphs.flatMap((paragraph, index) => {
+    if (!paragraphHasClass(paragraph.attrs, 'course-name')) return [];
+    const descriptionParagraph = paragraphs[index + 1];
+    if (!descriptionParagraph) return [];
+    if (paragraphHasClass(descriptionParagraph.attrs, 'course-name')) return [];
+    if (paragraphHasClass(descriptionParagraph.attrs, 'anchor-parent'))
+      return [];
+
+    let anchorHtml = '';
+    for (let anchorIndex = index - 1; anchorIndex >= 0; anchorIndex -= 1) {
+      const anchorParagraph = paragraphs[anchorIndex];
+      if (!anchorParagraph) break;
+      if (!paragraphHasClass(anchorParagraph.attrs, 'anchor-parent')) break;
+      anchorHtml = `${anchorParagraph.html}${anchorHtml}`;
+    }
+
+    const nameHtml = paragraph.html;
+    const descriptionHtml = descriptionParagraph.html;
     const parsedName = parseCourseName(nameHtml);
-    if (parsedName.subject !== expectedSubject) return [];
     const parsedDescription = textByLabels(descriptionHtml);
-    const { courseNumber } = parsedName;
-    return [
-      {
-        course_id: `${parsedName.subject}:${courseNumber}`,
-        subject: parsedName.subject,
-        course_number: courseNumber,
-        title: parsedName.title,
-        units: parsedName.units,
-        description: parsedDescription.description,
-        prerequisites_text: parsedDescription.prerequisitesText,
-        restrictions_text: parsedDescription.restrictionsText,
-        catalog_url: catalogUrl(options.sourceUrl, match.groups?.anchorId),
-      },
-    ];
+    return parsedName.listings
+      .filter((listing) => listing.subject === expectedSubject)
+      .flatMap((listing) =>
+        catalogCourseNumberAliases(listing.courseNumber).map(
+          (courseNumber) => ({
+            course_id: `${listing.subject}:${courseNumber}`,
+            subject: listing.subject,
+            course_number: courseNumber,
+            title: parsedName.title,
+            units: parsedName.units,
+            description: parsedDescription.description,
+            prerequisites_text: parsedDescription.prerequisitesText,
+            restrictions_text: parsedDescription.restrictionsText,
+            catalog_url: catalogUrl(
+              options.sourceUrl,
+              catalogAnchorId(
+                anchorHtml,
+                listing.subject,
+                listing.courseNumber,
+                courseNumber,
+              ),
+            ),
+          }),
+        ),
+      );
   });
 
   if (!courses.length) {
