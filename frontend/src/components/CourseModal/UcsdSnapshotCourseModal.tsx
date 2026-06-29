@@ -6,6 +6,11 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { UcsdSnapshotPastGrades } from './OverviewPanel/UcsdSnapshotOverview';
 import {
+  isUcsdInfoMeeting,
+  ucsdMeetingTypeCode,
+  ucsdMeetingTypeLabel,
+} from './ucsdMeetingTypes';
+import {
   buildUcsdSnapshotModalCourse,
   formatSnapshotUpdatedLabel,
   formatUcsdAvailability,
@@ -32,12 +37,26 @@ type UcsdModalView = 'overview' | 'evals' | 'past-grades';
 const dayLabels: (keyof DayFlags)[] = ['M', 'Tu', 'W', 'Th', 'F'];
 
 const typeClass = {
+  AC: styles.typeActivity,
+  CL: styles.typeInstruction,
+  CO: styles.typeInstruction,
   LE: styles.typeLE,
   DI: styles.typeDI,
   LA: styles.typeLA,
   FI: styles.typeFI,
+  FM: styles.typeInstruction,
+  FW: styles.typeInstruction,
+  IN: styles.typeInstruction,
+  IT: styles.typeInstruction,
   MI: styles.typeMI,
+  MU: styles.typeInfo,
+  OT: styles.typeInfo,
+  PB: styles.typeInstruction,
+  PR: styles.typeInstruction,
   RE: styles.typeRE,
+  SE: styles.typeInstruction,
+  ST: styles.typeInstruction,
+  TU: styles.typeInstruction,
 };
 
 function CloseIcon({ size = 20 }: { readonly size?: number }) {
@@ -186,33 +205,6 @@ function ModalDayDots({ rawDays }: { readonly rawDays: string | null }) {
   );
 }
 
-function meetingTypeCode(meetingType: string | null | undefined): string {
-  const normalized = meetingType?.trim().toLowerCase() ?? '';
-  if (normalized.includes('lecture')) return 'LE';
-  if (normalized.includes('discussion')) return 'DI';
-  if (normalized.includes('laboratory') || normalized === 'lab') return 'LA';
-  if (normalized.includes('final')) return 'FI';
-  if (normalized.includes('midterm')) return 'MI';
-  if (normalized.includes('review')) return 'RE';
-  return meetingType?.trim().slice(0, 2).toUpperCase() || 'RE';
-}
-
-function meetingTypeLabel(meetingType: string | null | undefined): string {
-  const normalized = meetingType?.trim().toLowerCase() ?? '';
-  if (normalized.includes('lecture')) return 'Lecture';
-  if (normalized.includes('discussion')) return 'Discussion';
-  if (normalized.includes('laboratory') || normalized === 'lab') return 'Lab';
-  if (normalized.includes('final')) return 'Final';
-  if (normalized.includes('midterm')) return 'Midterm';
-  if (normalized.includes('review')) return 'Review';
-  return meetingType?.trim() || 'Meeting';
-}
-
-function isInfoMeeting(meetingType: string | null | undefined): boolean {
-  const code = meetingTypeCode(meetingType);
-  return code === 'FI' || code === 'MI' || code === 'RE';
-}
-
 function locationText(meeting: UcsdModalSection['meetings'][number]): string {
   if (meeting.raw_location) return meeting.raw_location;
   if (meeting.is_tba) return 'TBA';
@@ -301,7 +293,7 @@ type MeetingRowData = {
 function buildMeetingRows(group: UcsdModalOfferingGroup): MeetingRowData[] {
   const rows: MeetingRowData[] = group.sharedMeetings.map((meeting, index) => ({
     key: `${group.familyPrefix}-shared-${index}`,
-    role: isInfoMeeting(meeting.meeting_type) ? 'info' : 'anchor',
+    role: isUcsdInfoMeeting(meeting.meeting_type) ? 'info' : 'anchor',
     meeting,
     section: null,
     sectionCode: anchorSectionCode(group),
@@ -313,7 +305,7 @@ function buildMeetingRows(group: UcsdModalOfferingGroup): MeetingRowData[] {
         ? section.meetings
         : getSectionVaryingMeetings(section, group);
     for (const [index, meeting] of meetings.entries()) {
-      const role = isInfoMeeting(meeting.meeting_type)
+      const role = isUcsdInfoMeeting(meeting.meeting_type)
         ? 'info'
         : group.sections.length > 1
           ? 'selectable'
@@ -333,7 +325,7 @@ function buildMeetingRows(group: UcsdModalOfferingGroup): MeetingRowData[] {
 
 function separatorLabel(row: MeetingRowData): string {
   if (row.role === 'info') return 'Exam information';
-  return `Choose ${meetingTypeLabel(row.meeting.meeting_type).toLowerCase()}`;
+  return `Choose ${ucsdMeetingTypeLabel(row.meeting.meeting_type).toLowerCase()}`;
 }
 
 function shouldShowSeparator(rows: MeetingRowData[], index: number): boolean {
@@ -358,7 +350,7 @@ function MeetingRow({
   readonly updatedLabel: string | null;
   readonly onSelect: (section: UcsdModalSection) => void;
 }) {
-  const code = meetingTypeCode(row.meeting.meeting_type);
+  const code = ucsdMeetingTypeCode(row.meeting.meeting_type);
   const availability = row.section
     ? formatUcsdAvailability(
         row.section.enrolled,
@@ -391,14 +383,14 @@ function MeetingRow({
         <span
           className={clsx(
             styles.typeBadge,
-            typeClass[code as keyof typeof typeClass] ?? styles.typeRE,
+            typeClass[code as keyof typeof typeClass] ?? styles.typeInstruction,
             row.role === 'info' && styles.typeInfo,
           )}
         >
           {code}
         </span>
         <span className={styles.typeLabel}>
-          {meetingTypeLabel(row.meeting.meeting_type)}
+          {ucsdMeetingTypeLabel(row.meeting.meeting_type)}
         </span>
       </div>
       <div className={styles.sectionCode}>{row.sectionCode}</div>
@@ -513,7 +505,7 @@ function OfferingGroupCard({
       ) : (
         <div className={styles.noSelection}>
           Select a{' '}
-          {meetingTypeLabel(
+          {ucsdMeetingTypeLabel(
             rows.find((row) => row.role === 'selectable')?.meeting.meeting_type,
           ).toLowerCase()}{' '}
           section to add this group

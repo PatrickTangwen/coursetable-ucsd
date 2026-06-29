@@ -6,6 +6,7 @@ import {
   to12HourTime,
   toWeekdaysDisplayString,
 } from '../../../utilities/course';
+import { ucsdMeetingTypeCode } from '../ucsdMeetingTypes';
 import styles from './UcsdSnapshotOverview.module.css';
 
 type PrefetchCourse = CourseModalPrefetchListingDataFragment['course'];
@@ -126,19 +127,7 @@ function professorText(course: RuntimeCourse): string {
 }
 
 function meetingTypeLabel(meetingType: string | null | undefined): string {
-  const normalized = meetingType?.trim().toLowerCase();
-  if (!normalized) return '';
-  switch (normalized) {
-    case 'lecture':
-      return 'LE';
-    case 'discussion':
-      return 'DI';
-    case 'laboratory':
-    case 'lab':
-      return 'LA';
-    default:
-      return meetingType?.trim() ?? '';
-  }
+  return meetingType ? ucsdMeetingTypeCode(meetingType) : '';
 }
 
 function typedLine(meeting: RuntimeMeeting, value: string): string {

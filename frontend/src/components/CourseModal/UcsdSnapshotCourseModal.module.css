@@ -528,6 +528,16 @@
   line-height: 1.5;
 }
 
+.typeActivity {
+  background: #fce7f3;
+  color: #9d174d;
+}
+
+.typeInstruction {
+  background: #e0f2fe;
+  color: #075985;
+}
+
 .typeLE {
   background: #dbeafe;
   color: #1e40af;
