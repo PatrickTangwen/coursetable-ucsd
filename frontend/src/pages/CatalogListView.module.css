@@ -1,6 +1,5 @@
 .page {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - var(--height-navbar));
-  overflow: hidden;
+  min-height: calc(100vh - var(--height-navbar));
 }

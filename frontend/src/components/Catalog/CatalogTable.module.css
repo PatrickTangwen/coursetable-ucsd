@@ -1,7 +1,13 @@
 .tableWrapper {
   --catalog-action-col: 44px;
-  --catalog-code-col: 190px;
-  --catalog-course-code-slot: 72px;
+  --catalog-code-gap: 8px;
+  --catalog-code-horizontal-padding: 24px;
+  --catalog-course-code-slot: 9ch;
+  --catalog-section-slot: 92px;
+  --catalog-code-col: calc(
+    var(--catalog-course-code-slot) + var(--catalog-section-slot) +
+      var(--catalog-code-gap) + var(--catalog-code-horizontal-padding)
+  );
   --catalog-title-min-col: 220px;
   --catalog-term-col: 86px;
   --catalog-instructor-col: 165px;
@@ -10,11 +16,10 @@
   --catalog-seats-col: 136px;
   --catalog-subrow-scrollbar-gutter: 15px;
 
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
+  flex: none;
+  min-height: auto;
+  overflow: auto visible;
   padding: 0 24px 24px;
-  scrollbar-gutter: stable;
 }
 
 .virtualRows {
@@ -200,9 +205,11 @@
   width: var(--catalog-code-col);
   flex-shrink: 0;
   display: grid;
-  grid-template-columns: var(--catalog-course-code-slot) minmax(0, 1fr);
+  grid-template-columns:
+    var(--catalog-course-code-slot)
+    minmax(0, var(--catalog-section-slot));
   align-items: center;
-  column-gap: 8px;
+  column-gap: var(--catalog-code-gap);
 }
 
 .toggleCell {
@@ -212,8 +219,8 @@
 .courseCode {
   font-weight: 700;
   color: var(--sg-text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
+  text-overflow: clip;
   white-space: nowrap;
 }
 

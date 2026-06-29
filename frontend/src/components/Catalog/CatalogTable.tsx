@@ -1,4 +1,11 @@
-import { useMemo, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useMemo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react';
 import clsx from 'clsx';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -33,6 +40,8 @@ const subRowHeight = 37;
 const expandedScrollHeight = 132;
 const scrollHintHeight = 24;
 const overscanRows = 8;
+const minCourseCodeWidthCh = 9;
+const courseCodeWidthBufferCh = 2;
 
 const courseCodeCollator = new Intl.Collator(undefined, {
   numeric: true,
@@ -179,6 +188,18 @@ function sortRows(rows: CourseRow[], key: CatalogSortKey, asc: boolean) {
     }
   });
   return sorted;
+}
+
+function courseCodeColumnStyle(rows: CourseRow[]): CSSProperties {
+  const longestCourseCode = rows.reduce(
+    (max, row) => Math.max(max, row.courseCode.length),
+    minCourseCodeWidthCh,
+  );
+  return {
+    '--catalog-course-code-slot': `${
+      longestCourseCode + courseCodeWidthBufferCh
+    }ch`,
+  } as CSSProperties;
 }
 
 function expandedRowHeight(row: CourseRow): number {
@@ -695,6 +716,10 @@ export default function CatalogTable({
     if (!data) return [];
     return sortRows(groupListingsByCourse(data), sortKey, sortAsc);
   }, [data, sortKey, sortAsc]);
+  const codeColumnStyle = useMemo(
+    () => courseCodeColumnStyle(courseRows),
+    [courseRows],
+  );
   const showTermColumn = useMemo(
     () => new Set(courseRows.map((row) => row.seasonCode)).size > 1,
     [courseRows],
@@ -758,6 +783,7 @@ export default function CatalogTable({
       onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
     >
       <div
+        style={codeColumnStyle}
         className={clsx(
           styles.tableInner,
           showTermColumn && styles.tableInnerWithTerm,
