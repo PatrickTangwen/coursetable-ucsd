@@ -11,6 +11,7 @@ import { useSearch } from '../hooks/useSearch';
 import type { CatalogListing } from '../queries/api';
 import type { Season } from '../queries/graphql-types';
 import { buildCatalogListFilterCleanup } from '../search/catalogListFilters';
+import { defaultFilters } from '../search/searchConstants';
 import type { Option } from '../search/searchTypes';
 import { useStore } from '../store';
 import styles from './CatalogListView.module.css';
@@ -67,6 +68,11 @@ export default function CatalogListView() {
     () => extractCatalogSubjects(courses, searchFilters.selectSeasons),
     [courses, searchFilters.selectSeasons],
   );
+
+  useEffect(() => {
+    if (searchFilters.selectSeasons.length === 0)
+      patchSearchFilters({ selectSeasons: defaultFilters.selectSeasons });
+  }, [patchSearchFilters, searchFilters.selectSeasons]);
 
   useEffect(() => {
     const cleanup = buildCatalogListFilterCleanup(searchFilters);

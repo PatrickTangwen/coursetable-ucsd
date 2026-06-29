@@ -115,7 +115,7 @@ export const useStore = create<Store>()(
 );
 
 // Store init effects
-const useHydration = () => {
+export const useHydration = () => {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { getFilterFromParams } from './params';
+import { defaultFilters } from '../search/searchConstants';
 import type { Filters } from '../search/searchTypes';
 
 describe('getFilterFromParams', () => {
@@ -14,5 +15,15 @@ describe('getFilterFromParams', () => {
     expect(result).toEqual([
       { value: 'ANAR', label: 'ANAR - Anthropological Archaeology' },
     ]);
+  });
+
+  it('treats an empty season param as the default catalog season', () => {
+    const result = getFilterFromParams(
+      'selectSeasons',
+      '',
+      defaultFilters.selectSeasons,
+    );
+
+    expect(result).toEqual(defaultFilters.selectSeasons);
   });
 });

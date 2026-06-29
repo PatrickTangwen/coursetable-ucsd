@@ -23,11 +23,10 @@ import type {
   Filters,
   Option,
 } from './searchTypes';
-import { seasons } from '../data/catalogSeasons';
 import { useCourseData, useWorksheetInfo } from '../hooks/useFerry';
 import type { CatalogListing } from '../queries/api';
 import type { Season } from '../queries/graphql-types';
-import { useStore } from '../store';
+import { useHydration, useStore } from '../store';
 import { anonymousWorksheetHasListing } from '../utilities/anonymousWorksheet';
 import { isEqual } from '../utilities/common';
 import { weekdays } from '../utilities/constants';
@@ -69,6 +68,7 @@ function hasAppliedHydration(
 function useSearchUrlHydration() {
   const location = useLocation();
   const patchSearchFilters = useStore((s) => s.patchSearchFilters);
+  const storeHydrated = useHydration();
   const pendingHydrationRef = useRef<PendingUrlHydration | null>(null);
   const clearPendingHydration = useCallback(() => {
     pendingHydrationRef.current = null;
@@ -80,7 +80,6 @@ function useSearchUrlHydration() {
     const searchParams = new URLSearchParams(location.search);
     const updates = SEARCH_FILTER_KEYS.reduce<Partial<Filters>>((acc, key) => {
       const urlValue = searchParams.get(key);
-      if (urlValue === null && key === 'selectSeasons') return acc;
       try {
         const next =
           urlValue === null
@@ -101,7 +100,7 @@ function useSearchUrlHydration() {
     } else {
       pendingHydrationRef.current = null;
     }
-  }, [location.pathname, location.search, patchSearchFilters]);
+  }, [location.pathname, location.search, patchSearchFilters, storeHydrated]);
 
   return { clearPendingHydration, pendingHydrationRef };
 }
@@ -338,10 +337,8 @@ export function SearchBootstrap({
     [selectSkillsAreas.value],
   );
   const processedSeasons = useMemo(() => {
-    if (selectSeasons.value.length === 0) {
-      // Nothing selected, so default to all seasons.
-      return seasons.slice(0, 15);
-    }
+    if (selectSeasons.value.length === 0)
+      return defaultFilters.selectSeasons.map((x: Option<Season>) => x.value);
     return selectSeasons.value.map((x: Option<Season>) => x.value);
   }, [selectSeasons.value]);
 

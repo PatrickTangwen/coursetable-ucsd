@@ -1,3 +1,4 @@
+import supportedTermsData from './generated/supported-terms.json';
 import type { Season } from './queries/graphql-types';
 
 export const isDev = import.meta.env.DEV;
@@ -9,7 +10,75 @@ export const GRAPHQL_API_ENDPOINT = isDev
   : `${import.meta.env.VITE_API_ENDPOINT}/ferry`;
 
 // Active Planning Term shown by default in catalog and worksheet.
-export const CUR_SEASON = 'SP26' as Season;
+const currentSupportedTerms = supportedTermsData as Season[];
+
+type UcsdTermWindow = {
+  term: Season;
+  start: SimpleDate;
+  end: SimpleDate;
+};
+
+const ucsdTermWindows: UcsdTermWindow[] = [
+  { term: 'SP26' as Season, start: [2026, 3, 30], end: [2026, 6, 12] },
+  { term: 'S126' as Season, start: [2026, 6, 13], end: [2026, 8, 2] },
+  { term: 'S226' as Season, start: [2026, 8, 3], end: [2026, 9, 12] },
+  { term: 'S326' as Season, start: [2026, 6, 13], end: [2026, 9, 12] },
+];
+
+function simpleDateFromDate(date: Date): SimpleDate {
+  return [date.getFullYear(), date.getMonth() + 1, date.getDate()];
+}
+
+function compareSimpleDate(a: SimpleDate, b: SimpleDate): number {
+  return a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
+}
+
+function isDateInWindow(date: SimpleDate, window: UcsdTermWindow): boolean {
+  return (
+    compareSimpleDate(window.start, date) <= 0 &&
+    compareSimpleDate(date, window.end) <= 0
+  );
+}
+
+function ucsdTermYear(term: Season): number | null {
+  const match = /(?<year>\d{2})$/u.exec(term);
+  if (!match) return null;
+  return 2000 + Number(match.groups!.year);
+}
+
+function inferUcsdTermFromDate(date: SimpleDate): Season {
+  const [year, month, day] = date;
+  const yy = String(year).slice(-2);
+
+  if (month <= 3) return `WI${yy}` as Season;
+  if (month <= 6 && !(month === 6 && day >= 13)) return `SP${yy}` as Season;
+  if (month < 8 || (month === 8 && day <= 2)) return `S1${yy}` as Season;
+  if (month < 9 || (month === 9 && day <= 12)) return `S2${yy}` as Season;
+  return `FA${yy}` as Season;
+}
+
+export function resolveCurrentUcsdTerm(date = new Date()): Season {
+  const currentDate = simpleDateFromDate(date);
+  const explicitWindow = ucsdTermWindows.find((window) =>
+    isDateInWindow(currentDate, window),
+  );
+  const inferredTerm =
+    explicitWindow?.term ?? inferUcsdTermFromDate(currentDate);
+
+  if (currentSupportedTerms.includes(inferredTerm)) return inferredTerm;
+
+  const currentYear = ucsdTermYear(inferredTerm);
+  const latestPastTerm = [...currentSupportedTerms]
+    .filter((term) => {
+      const year = ucsdTermYear(term);
+      return year !== null && (currentYear === null || year <= currentYear);
+    })
+    .at(-1);
+
+  return latestPastTerm ?? currentSupportedTerms.at(-1)!;
+}
+
+export const CUR_SEASON = resolveCurrentUcsdTerm();
 
 // Active UCSD terms in MVP-1 have no legacy CourseTable evaluation data.
 export const CUR_YEAR = ['SP26'] as Season[];
