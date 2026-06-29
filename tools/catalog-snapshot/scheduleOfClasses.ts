@@ -256,7 +256,7 @@ function meetingType(cell: Cell): string | null {
   const title = spanMatch
     ? attrValue(spanMatch.groups?.attrs ?? '', 'title')
     : null;
-  return nullIfBlank(title ?? cell.text);
+  return nullIfBlank(title ?? '') ?? nullIfBlank(cell.text);
 }
 
 function rawMeetingType(cell: Cell): string | null {
@@ -551,16 +551,16 @@ export function parseScheduleOfClassesHtml(
       !classNameMatches(rowMatch[0], 'nonenrtxt')
     )
       continue;
+    const logicalCells = expandedCells(cells);
+    if (!hasMeetingTypeMarker(logicalCells[3])) continue;
     if (!currentCourse) {
       throw new Error(
         `Schedule section row found before course header for ${options.subject}`,
       );
     }
 
-    const logicalCells = expandedCells(cells);
     const sourceSectionId = logicalCells[2]?.text ?? '';
     const sectionCode = nullIfBlank(logicalCells[4]?.text ?? '');
-    if (!hasMeetingTypeMarker(logicalCells[3])) continue;
     const explicitFamily = sectionFamily(sectionCode);
     const family = sourceSectionId
       ? explicitFamily

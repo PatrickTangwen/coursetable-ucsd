@@ -22,7 +22,7 @@ product capability and not Saved Worksheet persistence.
 - Auth foundation implementation: #14
 - Real backend validation issue: #20
 - Decision record: `docs/adr/0009-stage-real-backend-auth-validation-before-email-delivery.md`
-- Roadmap pointer: `docs/planning/post-mvp-roadmap.md`
+- Roadmap pointer: `docs/planning/archive/post-mvp-roadmap.md`
 
 ## Scope
 

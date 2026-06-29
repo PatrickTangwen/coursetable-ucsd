@@ -1,0 +1,22 @@
+# Documentation Index
+
+Status: top-level navigation for stable project documentation.
+
+## Stable References
+
+- `api.md`: API reference.
+- `graphql.md`: GraphQL reference.
+- `containers.md`: container setup and usage.
+- `deployment.md`: deployment notes.
+- `locations.md`: location data notes.
+- `maintenance.md`: maintenance notes.
+- `snapshot_pipe.md`: catalog snapshot pipeline notes, including General Catalog
+  enrichment, Schedule parser edge cases, and raw HTML replay rules.
+- `styling.md`: styling conventions.
+- `challenge.md`: challenge/context notes.
+
+## Planning And Decisions
+
+- `planning/README.md`: planning archive index and guidance for where current
+  planning work now lives.
+- `adr/README.md`: decision-record index and ADR editing rules.

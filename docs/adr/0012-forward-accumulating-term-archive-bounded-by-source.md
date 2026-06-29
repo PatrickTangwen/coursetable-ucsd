@@ -1,7 +1,7 @@
 # Forward-Accumulating Term Archive Bounded By Source Availability
 
 Status: accepted. Extends the multi-term direction in
-`docs/planning/post-mvp-roadmap.md`; depends on ADR 0001.
+`docs/planning/archive/post-mvp-roadmap.md`; depends on ADR 0001.
 
 ## Context
 

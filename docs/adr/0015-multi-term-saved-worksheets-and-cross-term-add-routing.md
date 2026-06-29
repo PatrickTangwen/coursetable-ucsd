@@ -89,5 +89,5 @@ Saved Worksheet.
   and must be refreshed after cross-term writes so the empty state stays accurate.
 - Signed-in and anonymous worksheet term behavior converge; the `Worksheet Viewed
 Term` and `Active Saved Worksheet` CONTEXT terms carry the shared model.
-- Detailed execution lives in the slice planning doc under `docs/planning/` when
-  that doc is created.
+- Detailed execution should live in GitHub Issues; archived planning context, if
+  needed, lives under `docs/planning/archive/`.

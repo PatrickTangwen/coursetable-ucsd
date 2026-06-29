@@ -430,6 +430,47 @@ const multiFamilyFinalFixture = `
 </table>
 `;
 
+const preHeaderNoteFixture = `
+<table id="socDeptTab">
+  <tr>
+    <td class="crsheader"></td>
+    <td class="crsheader">97</td>
+    <td colspan="11" class="crsheader">Academic Internship</td>
+  </tr>
+  <tr>
+    <td class="nonenrtxt" colspan="2"></td>
+    <td class="nonenrtxt" colspan="11">
+      <span class="ertext">Eligibility requirements are 30 units completed and 3.0 minimum UC gpa</span>
+    </td>
+  </tr>
+  <tr>
+    <td class="crsheader">
+      <span id="crsRestCd" title="Open to Freshmen Only">FR</span>
+    </td>
+    <td class="crsheader">97</td>
+    <td class="crsheader" colspan="5">
+      <a href="javascript:openNewWindow('http://www.ucsd.edu/catalog/courses/AIP.html#aip97')">
+        <span class="boldtxt">Academic Internship</span>
+      </a>
+      ( 2/4 by 2 Units)
+    </td>
+    <td class="crsheader" colspan="6"></td>
+  </tr>
+  <tr class="sectxt">
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr">45088</td>
+    <td class="brdr"><span id="insTyp" title="">IT</span></td>
+    <td class="brdr">001</td>
+    <td class="brdr" colspan="4" align="center">TBA</td>
+    <td class="brdr"><a href="#!">Powell, Lora</a></td>
+    <td class="brdr">Unlim</td>
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+  </tr>
+</table>
+`;
+
 describe('UCSD Schedule of Classes parser', () => {
   it('parses CSE sections with stable IDs, shared lecture meetings, instructors, availability, and safe raw fields', () => {
     const parsed = parseScheduleOfClassesHtml(cseFixture, {
@@ -609,7 +650,7 @@ describe('UCSD Schedule of Classes parser', () => {
       fetchedAt,
     });
 
-    const {sections} = (parsed.courses.at(0)!);
+    const { sections } = parsed.courses.at(0)!;
     expect(sections.map((section) => section.section_code)).toEqual([
       'A01',
       'B01',
@@ -652,6 +693,38 @@ describe('UCSD Schedule of Classes parser', () => {
           location: 'CENTR 101',
         },
       ],
+    ]);
+  });
+
+  it('ignores pre-header note rows until the full course header appears', () => {
+    const parsed = parseScheduleOfClassesHtml(preHeaderNoteFixture, {
+      subject: 'AIP',
+      term: 'FA25',
+      sourceUrl,
+      fetchedAt,
+    });
+
+    expect(parsed.courses).toHaveLength(1);
+    expect(parsed.courses[0]).toMatchObject({
+      course_id: 'AIP:97',
+      course_number: '97',
+      title: 'Academic Internship',
+      catalog_url: 'http://www.ucsd.edu/catalog/courses/AIP.html#aip97',
+    });
+    expect(parsed.courses[0]!.sections).toMatchObject([
+      {
+        section_id: 'FA25:45088',
+        section_code: '001',
+        meeting_type: 'IT',
+        instructors: ['Powell, Lora'],
+        meetings: [
+          {
+            meeting_type: 'IT',
+            is_tba: true,
+            raw_location: 'TBA',
+          },
+        ],
+      },
     ]);
   });
 
