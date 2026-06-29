@@ -209,20 +209,6 @@
   justify-content: center;
 }
 
-.addBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--sg-primary);
-  border-radius: 4px;
-  padding: 2px;
-  transition: background 0.15s;
-}
-
-.addBtn:hover {
-  background: var(--sg-primary-light);
-}
-
 .codeCell {
   width: var(--catalog-code-col);
   flex-shrink: 0;
@@ -465,20 +451,6 @@
 
 .subRow:last-child {
   border-bottom: none;
-}
-
-.subAddBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--sg-primary);
-  border-radius: 4px;
-  padding: 2px;
-  transition: background 0.15s;
-}
-
-.subAddBtn:hover {
-  background: var(--sg-primary-light);
 }
 
 .subSectionBadge {

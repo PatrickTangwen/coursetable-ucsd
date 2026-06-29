@@ -12,6 +12,7 @@ import {
 
 type MeetingFixture = {
   days: string[];
+  date: string | null;
   start_time: string | null;
   end_time: string | null;
   building: string | null;
@@ -33,6 +34,7 @@ function meeting(
 ): MeetingFixture {
   return {
     days: raw_days === 'TuTh' ? ['Tuesday', 'Thursday'] : [raw_days],
+    date: null,
     start_time,
     end_time,
     building,
@@ -42,6 +44,22 @@ function meeting(
     raw_days,
     raw_time: `${start_time}-${end_time}`,
     raw_location: `${building} ${room}`,
+  };
+}
+
+function tbaMeeting(meeting_type: string): MeetingFixture {
+  return {
+    days: [],
+    date: null,
+    start_time: null,
+    end_time: null,
+    building: null,
+    room: null,
+    is_tba: true,
+    meeting_type,
+    raw_days: 'TBA',
+    raw_time: 'TBA',
+    raw_location: 'TBA',
   };
 }
 
@@ -226,6 +244,48 @@ describe('UCSD snapshot modal data', () => {
         (m) => m.room,
       ),
     ).toEqual(['2302']);
+  });
+
+  it('treats a repeated TBA lecture as a shared anchor for discussion sections', () => {
+    const lecture = tbaMeeting('Lecture');
+    const a01 = listing({
+      crn: 101,
+      sectionCode: 'A01',
+      meetings: [
+        lecture,
+        meeting('Discussion', 'F', '09:00', '10:50', 'RCLAS', 'R25'),
+      ],
+      enrolled: 46,
+      capacity: 46,
+    });
+    const a02 = listing({
+      crn: 102,
+      sectionCode: 'A02',
+      meetings: [
+        lecture,
+        meeting('Discussion', 'F', '11:00', '12:50', 'RCLAS', 'R33'),
+      ],
+      enrolled: 46,
+      capacity: 46,
+      waitlist: 1,
+    });
+
+    const modalCourse = buildUcsdSnapshotModalCourse(a01, [a01, a02]);
+
+    const [groupA] = modalCourse.groups;
+    expect(groupA!.sharedMeetings.map((m) => m.meeting_type)).toEqual([
+      'Lecture',
+    ]);
+    expect(
+      getSectionVaryingMeetings(groupA!.sections[0]!, groupA!).map(
+        (m) => m.meeting_type,
+      ),
+    ).toEqual(['Discussion']);
+    expect(
+      getSectionVaryingMeetings(groupA!.sections[1]!, groupA!).map(
+        (m) => m.raw_time,
+      ),
+    ).toEqual(['11:00-12:50']);
   });
 
   it('formats availability and snapshot age labels for modal rows', () => {

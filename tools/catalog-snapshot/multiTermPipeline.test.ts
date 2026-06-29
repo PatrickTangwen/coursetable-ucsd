@@ -61,6 +61,7 @@ function makeScheduleCourse(
         instructors: [`${subject} Instructor`],
         meetings: [
           {
+            date: null,
             days: ['Monday'],
             start_time: '09:00',
             end_time: '09:50',

@@ -1,7 +1,5 @@
 import { useMemo, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { toast } from 'sonner';
-import { useShallow } from 'zustand/react/shallow';
 
 import CatalogTable from '../components/Catalog/CatalogTable';
 import FAB from '../components/Catalog/FAB';
@@ -51,17 +49,6 @@ export default function CatalogListView() {
   const patchSearchFilters = useStore((s) => s.patchSearchFilters);
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useStore((s) => s.navigate);
-  const {
-    addAnonymousWorksheetListing,
-    addActiveSavedWorksheetListing,
-    authStatus,
-  } = useStore(
-    useShallow((s) => ({
-      addAnonymousWorksheetListing: s.addAnonymousWorksheetListing,
-      addActiveSavedWorksheetListing: s.addActiveSavedWorksheetListing,
-      authStatus: s.authStatus,
-    })),
-  );
 
   const subjects = useMemo(
     () => extractCatalogSubjects(courses, searchFilters.selectSeasons),
@@ -85,30 +72,6 @@ export default function CatalogListView() {
       return num >= level.range[0] && num <= level.range[1];
     });
   }, [searchData, levelFilter]);
-
-  const handleAdd = useCallback(
-    (listing: CatalogListing) => {
-      const colors = [
-        '#7B68EE',
-        '#FF6B6B',
-        '#4CAF50',
-        '#FF9800',
-        '#2196F3',
-        '#E91E63',
-      ];
-      const color = colors[Math.floor(Math.random() * colors.length)]!;
-      const label = `${listing.course_code} ${listing.course.section}`.trim();
-      if (authStatus === 'authenticated') {
-        void addActiveSavedWorksheetListing(listing, color).then((added) => {
-          if (added) toast.success(`Added ${label} to worksheet`);
-        });
-      } else {
-        const added = addAnonymousWorksheetListing(listing, color);
-        if (added) toast.success(`Added ${label} to worksheet`);
-      }
-    },
-    [authStatus, addActiveSavedWorksheetListing, addAnonymousWorksheetListing],
-  );
 
   const handleOpenModal = useCallback(
     (listing: CatalogListing) => {
@@ -146,11 +109,7 @@ export default function CatalogListView() {
   return (
     <div className={styles.page}>
       <FilterBar subjects={subjects} />
-      <CatalogTable
-        data={filteredData}
-        onAdd={handleAdd}
-        onOpenModal={handleOpenModal}
-      />
+      <CatalogTable data={filteredData} onOpenModal={handleOpenModal} />
       <FAB />
     </div>
   );

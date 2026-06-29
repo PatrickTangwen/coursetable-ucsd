@@ -413,9 +413,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 13px 18px;
-  border-bottom: 1px solid #e8e9ef;
-  background: #f5f7fa;
+  padding: 18px;
+  border-bottom: 1px solid #e2e4ea;
+  background: transparent;
 }
 
 .cardTitle {
@@ -464,10 +464,6 @@
     border-color 0.12s ease;
 }
 
-.meetingRowNoDivider {
-  border-bottom-color: transparent;
-}
-
 .anchorRow {
   background: #f8fafd;
 }
@@ -490,52 +486,6 @@
 
 .infoRow {
   background: transparent;
-}
-
-.examInfoRow {
-  display: grid;
-  grid-template-columns: minmax(150px, max-content) minmax(0, 1fr);
-  align-items: center;
-  gap: 14px;
-  margin: 8px 18px 14px 54px;
-  padding: 11px 14px;
-  border: 1px solid #e99d00;
-  border-radius: 8px;
-  background: #ffdda1;
-  color: #6f3a00;
-}
-
-.examInfoLabel {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 0;
-  color: #7a3f00;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.examInfoDetails {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 18px;
-  color: #744100;
-  font-size: 12.5px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.examInfoDate,
-.examInfoTime,
-.examInfoLocation {
-  min-width: 0;
-}
-
-.examInfoLocation {
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .radioSlot {
@@ -609,6 +559,11 @@
   color: #854d0e;
 }
 
+.typeFI {
+  background: #fcebeb;
+  color: #791f1f;
+}
+
 .typeRE {
   background: #f3f4f6;
   color: #4b5563;
@@ -677,11 +632,6 @@
   white-space: nowrap;
 }
 
-.infoTimeText {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .location {
   grid-column: 6;
   min-width: 0;
@@ -738,6 +688,10 @@
   font-size: 10px;
   font-weight: 500;
   line-height: 1.3;
+}
+
+.examDate {
+  color: #5a5d7a;
 }
 
 .cardAction {
@@ -838,18 +792,6 @@
     grid-row: 1 / span 2;
     align-self: start;
   }
-
-  .examInfoRow {
-    grid-template-columns: 1fr;
-    gap: 9px;
-  }
-
-  .examInfoDetails {
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    gap: 6px 14px;
-    white-space: normal;
-  }
 }
 
 @media (max-width: 720px) {
@@ -931,22 +873,6 @@
     align-items: flex-start;
     grid-template-columns: 20px minmax(0, 1fr) 44px;
     row-gap: 7px;
-  }
-
-  .examInfoRow {
-    margin: 7px 14px 12px;
-    padding: 10px 11px;
-  }
-
-  .examInfoLabel {
-    font-size: 12.5px;
-  }
-
-  .examInfoDetails {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 4px;
-    font-size: 12px;
   }
 
   .typeCell {

@@ -376,6 +376,7 @@ export function buildTracerCatalogSnapshot(
             instructors: [],
             meetings: [
               {
+                date: null,
                 days: [],
                 start_time: null,
                 end_time: null,

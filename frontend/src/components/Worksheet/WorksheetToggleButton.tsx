@@ -8,7 +8,6 @@ import React, {
 import * as Sentry from '@sentry/react';
 import clsx from 'clsx';
 import { Button, Tooltip, OverlayTrigger, Fade, Modal } from 'react-bootstrap';
-import { FaPlus, FaMinus } from 'react-icons/fa';
 import { MdErrorOutline } from 'react-icons/md';
 import { useApolloClient } from '@apollo/client';
 import { components, type OptionProps } from 'react-select';
@@ -163,6 +162,21 @@ function PopoutOption(props: OptionProps<WorksheetNumberOption>) {
         <span>{props.data.label}</span>
       </div>
     </components.Option>
+  );
+}
+
+function PlusMinusGlyph() {
+  return (
+    <>
+      <span
+        className={clsx(styles.toggleButtonBar, styles.toggleButtonBarH)}
+        aria-hidden="true"
+      />
+      <span
+        className={clsx(styles.toggleButtonBar, styles.toggleButtonBarV)}
+        aria-hidden="true"
+      />
+    </>
   );
 }
 
@@ -335,8 +349,6 @@ function WorksheetToggleButton({
     loadSavedWorksheetSectionsForTerm,
   ]);
 
-  const isLgDesktop = useStore((state) => state.isLgDesktop);
-
   const toggleWorkSheet = useCallback(
     async (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
@@ -495,8 +507,6 @@ function WorksheetToggleButton({
     ],
   );
 
-  const size = modal ? 20 : isLgDesktop ? 16 : 14;
-  const Icon = inWorksheet ? FaMinus : FaPlus;
   const buttonLabel = isAnonymousWorksheet
     ? `${inWorksheet ? 'Remove from' : 'Add to'} worksheet`
     : hasSavedWorksheetAccount
@@ -528,7 +538,7 @@ function WorksheetToggleButton({
             disabled
             aria-label={buttonLabel}
           >
-            <FaPlus size={size} className={styles.disabledButtonIcon} />
+            <PlusMinusGlyph />
           </Button>
         </OverlayTrigger>
       </div>
@@ -558,13 +568,14 @@ function WorksheetToggleButton({
           <Button
             variant="toggle"
             className={clsx(
-              'py-auto px-1 d-flex align-items-center',
+              'p-0',
               styles.toggleButton,
+              inWorksheet && styles.isAdded,
             )}
             onClick={toggleWorkSheet}
             aria-label={buttonLabel}
           >
-            <Icon size={size} className={clsx(modal && styles.scaleIcon)} />
+            <PlusMinusGlyph />
           </Button>
         </OverlayTrigger>
       </div>

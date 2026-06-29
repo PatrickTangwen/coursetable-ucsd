@@ -217,6 +217,7 @@ function makeSection({
     instructors,
     meetings: meetings.map((m: { [key: string]: unknown }) => ({
       days: (m.days ?? []) as string[],
+      date: (m.date ?? null) as string | null,
       start_time: (m.start_time ?? null) as string | null,
       end_time: (m.end_time ?? null) as string | null,
       building: (m.building ?? null) as string | null,
@@ -589,6 +590,59 @@ describe('buildOfferingGroups', () => {
     expect(groups[0]!.sharedMeetings).toHaveLength(2);
     expect(groups[0]!.totalEnrolled).toBe(42);
     expect(groups[0]!.totalCapacity).toBe(60);
+  });
+
+  it('keeps shared TBA lecture out of selectable discussion rows', () => {
+    const sharedTbaLecture = {
+      days: [],
+      date: null,
+      start_time: null,
+      end_time: null,
+      is_tba: true,
+      meeting_type: 'Lecture',
+      raw_days: 'TBA',
+      raw_time: 'TBA',
+      raw_location: 'TBA',
+    };
+    const sections = [
+      makeSection({
+        sectionCode: 'A01',
+        meetingType: 'Discussion',
+        meetings: [
+          sharedTbaLecture,
+          {
+            days: ['Friday'],
+            start_time: '09:00',
+            end_time: '10:50',
+            meeting_type: 'Discussion',
+            raw_days: 'F',
+            raw_time: '9:00a-10:50a',
+            raw_location: 'RCLAS R25',
+          },
+        ],
+      }),
+      makeSection({
+        sectionCode: 'A02',
+        meetingType: 'Discussion',
+        meetings: [
+          sharedTbaLecture,
+          {
+            days: ['Friday'],
+            start_time: '11:00',
+            end_time: '12:50',
+            meeting_type: 'Discussion',
+            raw_days: 'F',
+            raw_time: '11:00a-12:50p',
+            raw_location: 'RCLAS R33',
+          },
+        ],
+      }),
+    ];
+    const groups = buildOfferingGroups(sections);
+    expect(groups).toHaveLength(1);
+    expect(groups[0]!.sharedMeetings).toHaveLength(1);
+    expect(groups[0]!.sharedMeetings[0]!.meeting_type).toBe('Lecture');
+    expect(groups[0]!.sharedMeetings[0]!.is_tba).toBe(true);
   });
 
   it('aggregates seats across sections', () => {

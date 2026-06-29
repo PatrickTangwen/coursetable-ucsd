@@ -267,6 +267,169 @@ const bildFinalFixture = `
 </table>
 `;
 
+const multiFamilyFinalFixture = `
+<table id="socDeptTab">
+  <tr>
+    <td colspan="13">
+      <h2><span class="centeralign">Mathematics (MATH )</span></h2>
+    </td>
+  </tr>
+  <tr>
+    <td class="crsheader"></td>
+    <td class="crsheader">10B</td>
+    <td class="crsheader" colspan="5">
+      <span class="boldtxt">Calculus II</span>
+      ( 4 Units)
+    </td>
+    <td class="crsheader" colspan="6"></td>
+  </tr>
+  <tr class="sectxt">
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr"><span id="insTyp" title="Lecture">LE</span></td>
+    <td class="brdr">A00</td>
+    <td class="brdr">MWF</td>
+    <td class="brdr">10:00a-10:50a</td>
+    <td class="brdr">LEDDN</td>
+    <td class="brdr">AUD</td>
+    <td class="brdr"><a href="#!">Bowers, Adam R.</a></td>
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+  </tr>
+  <tr class="sectxt">
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr">929759</td>
+    <td class="brdr"><span id="insTyp" title="Discussion">DI</span></td>
+    <td class="brdr">A01</td>
+    <td class="brdr">W</td>
+    <td class="brdr">4:00p-4:50p</td>
+    <td class="brdr">APM</td>
+    <td class="brdr">2301</td>
+    <td class="brdr"><a href="#!">Bowers, Adam R.</a></td>
+    <td class="brdr">FULL<br>Waitlist(4)</td>
+    <td class="brdr">36</td>
+    <td class="brdr"></td>
+  </tr>
+  <tr class="nonenrtxt">
+    <td class="brdr" colspan="2"></td>
+    <td class="brdr"></td>
+    <td class="brdr"><span id="insTyp" title="Final">FI</span></td>
+    <td class="brdr">12/12/2025</td>
+    <td class="brdr">F</td>
+    <td class="brdr">8:00a-10:59a</td>
+    <td class="brdr">LEDDN</td>
+    <td class="brdr">AUD</td>
+    <td class="brdr"></td>
+    <td class="brdr" colspan="3"></td>
+  </tr>
+  <tr>
+    <td class="crsheader"></td>
+    <td class="crsheader">10B</td>
+    <td class="crsheader" colspan="5">
+      <span class="boldtxt">Calculus II</span>
+      ( 4 Units)
+    </td>
+    <td class="crsheader" colspan="6"></td>
+  </tr>
+  <tr class="sectxt">
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr"><span id="insTyp" title="Lecture">LE</span></td>
+    <td class="brdr">B00</td>
+    <td class="brdr">MWF</td>
+    <td class="brdr">12:00p-12:50p</td>
+    <td class="brdr">MOS</td>
+    <td class="brdr">0114</td>
+    <td class="brdr"><a href="#!">Briones, Jor-el Thomas Caparas</a></td>
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+  </tr>
+  <tr class="sectxt">
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr">929767</td>
+    <td class="brdr"><span id="insTyp" title="Discussion">DI</span></td>
+    <td class="brdr">B01</td>
+    <td class="brdr">W</td>
+    <td class="brdr">4:00p-4:50p</td>
+    <td class="brdr">WLH</td>
+    <td class="brdr">2209</td>
+    <td class="brdr"><a href="#!">Briones, Jor-el Thomas Caparas</a></td>
+    <td class="brdr">FULL<br>Waitlist(1)</td>
+    <td class="brdr">32</td>
+    <td class="brdr"></td>
+  </tr>
+  <tr class="nonenrtxt">
+    <td class="brdr" colspan="2"></td>
+    <td class="brdr"></td>
+    <td class="brdr"><span id="insTyp" title="Final">FI</span></td>
+    <td class="brdr">12/11/2025</td>
+    <td class="brdr">Th</td>
+    <td class="brdr">11:30a-2:29p</td>
+    <td class="brdr">MOS</td>
+    <td class="brdr">0114</td>
+    <td class="brdr"></td>
+    <td class="brdr" colspan="3"></td>
+  </tr>
+  <tr>
+    <td class="crsheader"></td>
+    <td class="crsheader">10B</td>
+    <td class="crsheader" colspan="5">
+      <span class="boldtxt">Calculus II</span>
+      ( 4 Units)
+    </td>
+    <td class="crsheader" colspan="6"></td>
+  </tr>
+  <tr class="sectxt">
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr"><span id="insTyp" title="Lecture">LE</span></td>
+    <td class="brdr">C00</td>
+    <td class="brdr">MWF</td>
+    <td class="brdr">4:00p-4:50p</td>
+    <td class="brdr">CENTR</td>
+    <td class="brdr">101</td>
+    <td class="brdr"><a href="#!">Huang, Lei</a></td>
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+  </tr>
+  <tr class="sectxt">
+    <td class="brdr"></td>
+    <td class="brdr"></td>
+    <td class="brdr">929778</td>
+    <td class="brdr"><span id="insTyp" title="Discussion">DI</span></td>
+    <td class="brdr">C01</td>
+    <td class="brdr">W</td>
+    <td class="brdr">5:00p-5:50p</td>
+    <td class="brdr">HSS</td>
+    <td class="brdr">1305</td>
+    <td class="brdr"><a href="#!">Huang, Lei</a></td>
+    <td class="brdr">FULL<br>Waitlist(0)</td>
+    <td class="brdr">35</td>
+    <td class="brdr"></td>
+  </tr>
+  <tr class="nonenrtxt">
+    <td class="brdr" colspan="2"></td>
+    <td class="brdr"></td>
+    <td class="brdr"><span id="insTyp" title="Final">FI</span></td>
+    <td class="brdr">12/09/2025</td>
+    <td class="brdr">Tu</td>
+    <td class="brdr">3:00p-5:59p</td>
+    <td class="brdr">CENTR</td>
+    <td class="brdr">101</td>
+    <td class="brdr"></td>
+    <td class="brdr" colspan="3"></td>
+  </tr>
+</table>
+`;
+
 describe('UCSD Schedule of Classes parser', () => {
   it('parses CSE sections with stable IDs, shared lecture meetings, instructors, availability, and safe raw fields', () => {
     const parsed = parseScheduleOfClassesHtml(cseFixture, {
@@ -436,6 +599,60 @@ describe('UCSD Schedule of Classes parser', () => {
         ),
       ).toBe(false);
     }
+  });
+
+  it('keeps non-enrolled final exam rows within their repeated lecture family', () => {
+    const parsed = parseScheduleOfClassesHtml(multiFamilyFinalFixture, {
+      subject: 'MATH',
+      term: 'FA25',
+      sourceUrl,
+      fetchedAt,
+    });
+
+    const {sections} = (parsed.courses.at(0)!);
+    expect(sections.map((section) => section.section_code)).toEqual([
+      'A01',
+      'B01',
+      'C01',
+    ]);
+
+    expect(
+      sections.map((section) =>
+        section.meetings
+          .filter((meeting) => meeting.meeting_type === 'Final')
+          .map((meeting) => ({
+            section: section.section_code,
+            date: meeting.date,
+            time: meeting.raw_time,
+            location: meeting.raw_location,
+          })),
+      ),
+    ).toEqual([
+      [
+        {
+          section: 'A01',
+          date: '2025-12-12',
+          time: '8:00a-10:59a',
+          location: 'LEDDN AUD',
+        },
+      ],
+      [
+        {
+          section: 'B01',
+          date: '2025-12-11',
+          time: '11:30a-2:29p',
+          location: 'MOS 0114',
+        },
+      ],
+      [
+        {
+          section: 'C01',
+          date: '2025-12-09',
+          time: '3:00p-5:59p',
+          location: 'CENTR 101',
+        },
+      ],
+    ]);
   });
 
   it('builds a valid Catalog Snapshot with availability data from parsed CSE and MATH schedule courses', () => {

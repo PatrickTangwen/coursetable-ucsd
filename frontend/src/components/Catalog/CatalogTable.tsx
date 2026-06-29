@@ -22,6 +22,7 @@ import {
   type OfferingGroup,
 } from '../../utilities/catalogView';
 import { toSeasonString } from '../../utilities/course';
+import WorksheetToggleButton from '../Worksheet/WorksheetToggleButton';
 import styles from './CatalogTable.module.css';
 
 type CourseRow = {
@@ -338,25 +339,6 @@ function SortHeader({
   );
 }
 
-function PlusIcon({ size = 18 }: { readonly size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 18 18"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M9 3v12M3 9h12"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 function ChevronIcon({ open }: { readonly open: boolean }) {
   return (
     <svg
@@ -449,12 +431,10 @@ function CourseTitle({ title }: { readonly title: string }) {
 function FlatRow({
   row,
   showTermColumn,
-  onAdd,
   onOpenModal,
 }: {
   readonly row: CourseRow;
   readonly showTermColumn: boolean;
-  readonly onAdd: (courseListing: CatalogListing) => void;
   readonly onOpenModal: (courseListing: CatalogListing) => void;
 }) {
   const group = row.groups[0]!;
@@ -479,19 +459,7 @@ function FlatRow({
       }}
     >
       <div className={styles.addCell}>
-        {isSingle && (
-          <button
-            type="button"
-            className={styles.addBtn}
-            onClick={(e) => {
-              e.stopPropagation();
-              onAdd(listing);
-            }}
-            aria-label="Add to worksheet"
-          >
-            <PlusIcon />
-          </button>
-        )}
+        {isSingle && <WorksheetToggleButton listing={listing} modal={false} />}
       </div>
       <div className={clsx(styles.cell, styles.codeCell)}>
         <span className={styles.courseCode}>{row.courseCode}</span>
@@ -538,12 +506,10 @@ function FlatRow({
 function ExpandableRow({
   row,
   showTermColumn,
-  onAdd,
   onOpenModal,
 }: {
   readonly row: CourseRow;
   readonly showTermColumn: boolean;
-  readonly onAdd: (courseListing: CatalogListing) => void;
   readonly onOpenModal: (courseListing: CatalogListing) => void;
 }) {
   const { expanded, toggle } = useStore(
@@ -666,17 +632,7 @@ function ExpandableRow({
                 }}
               >
                 <div className={styles.addCell}>
-                  <button
-                    type="button"
-                    className={styles.subAddBtn}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onAdd(groupListing);
-                    }}
-                    aria-label="Add to worksheet"
-                  >
-                    <PlusIcon size={16} />
-                  </button>
+                  <WorksheetToggleButton listing={groupListing} modal={false} />
                 </div>
                 <div className={clsx(styles.cell, styles.codeCell)}>
                   <span className={styles.subSectionBadge}>
@@ -728,11 +684,9 @@ function ExpandableRow({
 
 export default function CatalogTable({
   data,
-  onAdd,
   onOpenModal,
 }: {
   readonly data: CatalogListing[] | null;
-  readonly onAdd: (listing: CatalogListing) => void;
   readonly onOpenModal: (listing: CatalogListing) => void;
 }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -848,7 +802,6 @@ export default function CatalogTable({
             key={row.rowId}
             row={row}
             showTermColumn={showTermColumn}
-            onAdd={onAdd}
             onOpenModal={onOpenModal}
           />
         );
@@ -858,12 +811,11 @@ export default function CatalogTable({
           key={row.rowId}
           row={row}
           showTermColumn={showTermColumn}
-          onAdd={onAdd}
           onOpenModal={onOpenModal}
         />
       );
     },
-    [onAdd, onOpenModal, showTermColumn],
+    [onOpenModal, showTermColumn],
   );
 
   return (

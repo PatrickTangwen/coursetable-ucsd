@@ -134,6 +134,7 @@ function getFamilyPrefix(code: string | null): string {
 function meetingKey(m: SectionInput['meetings'][number]): string {
   return [
     m.meeting_type ?? '',
+    m.date ?? '',
     m.raw_days ?? m.days.join(','),
     m.start_time ?? '',
     m.end_time ?? '',
@@ -150,7 +151,6 @@ function findSharedMeetings(
   const first = sections[0]!;
   const shared: SectionInput['meetings'] = [];
   for (const meeting of first.meetings) {
-    if (meeting.is_tba) continue;
     const key = meetingKey(meeting);
     const isShared = sections
       .slice(1)

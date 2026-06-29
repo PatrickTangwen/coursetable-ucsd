@@ -527,6 +527,7 @@ export function parseScheduleOfClassesHtml(
     { meetings: SnapshotMeeting[]; instructors: string[] }
   >();
   let currentCourse: SnapshotCourse | null = null;
+  let currentFamily = '';
 
   for (const rowMatch of html.matchAll(
     /<tr\b[^>]*>(?<html>[\s\S]*?)<\/tr>/giu,
@@ -541,6 +542,7 @@ export function parseScheduleOfClassesHtml(
       if (!coursesById.has(courseHeader.course_id))
         coursesById.set(courseHeader.course_id, currentCourse);
       pendingSharedMeetings.clear();
+      currentFamily = '';
       continue;
     }
 
@@ -558,8 +560,12 @@ export function parseScheduleOfClassesHtml(
     const logicalCells = expandedCells(cells);
     const sourceSectionId = logicalCells[2]?.text ?? '';
     const sectionCode = nullIfBlank(logicalCells[4]?.text ?? '');
-    const family = sectionFamily(sectionCode);
     if (!hasMeetingTypeMarker(logicalCells[3])) continue;
+    const explicitFamily = sectionFamily(sectionCode);
+    const family = sourceSectionId
+      ? explicitFamily
+      : explicitFamily || currentFamily;
+    if (explicitFamily) currentFamily = explicitFamily;
     const meeting = parseMeeting(logicalCells);
     const instructors = parseInstructors(
       logicalCells[9] ?? { html: '', text: '', colSpan: 1 },

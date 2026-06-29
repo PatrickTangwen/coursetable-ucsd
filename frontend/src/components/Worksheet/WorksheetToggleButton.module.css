@@ -27,17 +27,20 @@
   position: relative;
 }
 
-.scaleIcon {
-  transition: 0.1s !important;
-}
-
-.scaleIcon:hover {
-  transform: scale(1.15);
-}
-
 .toggleButton {
-  background-color: transparent;
-  color: var(--color-primary) !important;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0 !important;
+  border-radius: 8px;
+  background: transparent !important;
+  cursor: pointer;
+  transition:
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.15s ease;
 }
 
 .toggleButton:active,
@@ -46,7 +49,39 @@
 }
 
 .toggleButton:hover {
-  opacity: 0.5;
+  background: rgb(0 0 0 / 4%) !important;
+}
+
+.toggleButtonBar {
+  position: absolute;
+  display: block;
+  border-radius: 1.5px;
+  background: #4a6cf7;
+  transition:
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.25s ease;
+}
+
+.toggleButtonBarH {
+  width: 16px;
+  height: 2.5px;
+}
+
+.toggleButtonBarV {
+  width: 2.5px;
+  height: 16px;
+}
+
+.isAdded {
+  transform: rotate(180deg);
+}
+
+.isAdded .toggleButtonBarV {
+  transform: scaleY(0);
+}
+
+.isAdded .toggleButtonBar {
+  background: #e24b4a;
 }
 
 .courseConflictIcon {
@@ -65,8 +100,8 @@
   border-width: 0 !important;
 }
 
-.disabledButtonIcon {
-  color: var(--color-icon-focus);
+.disabledButton .toggleButtonBar {
+  background: var(--color-icon-focus);
 }
 
 .disabledButton:active,
