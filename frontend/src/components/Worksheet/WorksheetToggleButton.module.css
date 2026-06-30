@@ -29,8 +29,8 @@
 
 .courseConflictIcon {
   position: absolute;
-  top: 1px;
-  left: 0;
+  top: -3px;
+  right: -3px;
   z-index: 1;
 }
 

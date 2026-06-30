@@ -8,6 +8,8 @@ Status: top-level navigation for stable project documentation.
 - `graphql.md`: GraphQL reference.
 - `containers.md`: container setup and usage.
 - `deployment.md`: deployment notes.
+- `local_server.md`: local frontend/backend/auth startup and login smoke
+  runbook.
 - `locations.md`: location data notes.
 - `maintenance.md`: maintenance notes.
 - `snapshot_pipe.md`: catalog snapshot pipeline notes, including General Catalog

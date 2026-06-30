@@ -131,7 +131,7 @@ function App() {
       hydration, and things get restored to the default state when those
       components unmount */}
       <Helmet>
-        <title>UCSD Catalog &amp; Worksheet</title>
+        <title>SunGrid</title>
         <meta
           name="description"
           content="UCSD public catalog search and Worksheet planning for browsing courses and building a local schedule from the published catalog snapshot."

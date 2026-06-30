@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
-import NoCoursesFound from '../../images/no_courses_found.svg';
+import NoCoursesFound from '../../images/calendar_img_high_res.png';
 import { useStore } from '../../store';
 import { toSeasonString } from '../../utilities/course';
 import { createCatalogLink } from '../../utilities/navigation';
@@ -20,9 +20,9 @@ function NoCourses({
       <div className="text-center m-auto">
         <img
           alt="No courses found."
-          className="py-5"
+          className="py-4"
           src={NoCoursesFound}
-          style={{ width: '50%' }}
+          style={{ width: '60%', maxWidth: '280px', mixBlendMode: 'multiply' }}
         />
         <h3>
           {heading ?? `No courses found for ${toSeasonString(viewedSeason)}`}

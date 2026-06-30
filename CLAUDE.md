@@ -23,6 +23,8 @@ Current executable planning lives in GitHub Issues.
 The stable docs structure is:
 
 - `docs/README.md` for top-level stable documentation navigation.
+- `docs/local_server.md` for opening or restarting the local frontend,
+  backend/auth stack, and login flow.
 - `docs/snapshot_pipe.md` for catalog snapshot pipeline notes, including General
   Catalog enrichment, Schedule parser edge cases, and raw HTML replay rules.
 
