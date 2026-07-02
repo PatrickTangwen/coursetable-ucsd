@@ -1,0 +1,847 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+          }
+          body {
+            font-family:
+              'Inter',
+              system-ui,
+              -apple-system,
+              sans-serif;
+            -webkit-font-smoothing: antialiased;
+            background: #e8e9ef;
+          }
+          @keyframes modal-fade-in {
+            from {
+              opacity: 0;
+              transform: scale(0.97);
+            }
+            to {
+              opacity: 1;
+              transform: scale(1);
+            }
+          }
+        </style>
+      </helmet>
+
+      <!-- Modal Container -->
+      <div
+        style="
+          max-width: 780px;
+          margin: 28px auto;
+          font-family:
+            Inter,
+            system-ui,
+            -apple-system,
+            sans-serif;
+        "
+      >
+        <div
+          style="
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 0;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow:
+              0 24px 80px rgb(0 0 0 / 18%),
+              0 4px 16px rgb(0 0 0 / 8%);
+          "
+        >
+          <!-- ═══ HEADER (sticky, non-scrolling) ═══ -->
+          <div style="flex-shrink: 0; padding: 24px 28px 0">
+            <!-- Title Row -->
+            <div
+              style="
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 16px;
+              "
+            >
+              <div style="min-width: 0; flex: 1">
+                <div
+                  style="
+                    color: #1a1a2e;
+                    font-size: 21px;
+                    font-weight: 700;
+                    letter-spacing: 0;
+                    line-height: 1.35;
+                  "
+                >
+                  {{ courseTitle }}
+                  <span style="color: #8b8fa3; font-weight: 400"
+                    >{{ termDisplay }}</span
+                  >
+                </div>
+                <div
+                  style="
+                    margin-top: 5px;
+                    color: #9a9db4;
+                    font-size: 16px;
+                    font-weight: 500;
+                    letter-spacing: 0.02em;
+                  "
+                >
+                  {{ courseCode }}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick="{{ closeModal }}"
+                style="
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                  width: 36px;
+                  height: 36px;
+                  flex-shrink: 0;
+                  border: 0;
+                  border-radius: 8px;
+                  background: transparent;
+                  color: #9a9db4;
+                  cursor: pointer;
+                  transition:
+                    background 0.15s ease,
+                    color 0.15s ease;
+                "
+                style-hover="background: #f0f0f5; color: #5a5d7a;"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                  stroke-linecap="round"
+                >
+                  <line x1="4" y1="4" x2="16" y2="16"></line>
+                  <line x1="16" y1="4" x2="4" y2="16"></line>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Section Pills (shown for multi-group courses) -->
+            <sc-if value="{{ showPills }}" hint-placeholder-val="{{ true }}">
+              {{ pillsEl }}
+            </sc-if>
+
+            <!-- Controls Row: Tabs + Toolbar -->
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                margin-top: 14px;
+              "
+            >
+              {{ tabsEl }}
+              <div style="display: flex; align-items: center; gap: 6px">
+                <button
+                  type="button"
+                  style="
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 34px;
+                    height: 34px;
+                    border: 0;
+                    border-radius: 8px;
+                    background: transparent;
+                    color: #1a56db;
+                    cursor: pointer;
+                    transition: background 0.15s ease;
+                  "
+                  style-hover="background: #e8f0fe;"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 18 18"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                  >
+                    <line x1="9" y1="3" x2="9" y2="15"></line>
+                    <line x1="3" y1="9" x2="15" y2="9"></line>
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  style="
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 34px;
+                    height: 34px;
+                    border: 0;
+                    border-radius: 8px;
+                    background: transparent;
+                    color: #1a56db;
+                    cursor: pointer;
+                    transition: background 0.15s ease;
+                  "
+                  style-hover="background: #e8f0fe;"
+                >
+                  <svg
+                    width="17"
+                    height="17"
+                    viewBox="0 0 17 17"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M3.5 10.5v3a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-3"
+                    ></path>
+                    <polyline points="5.5 6 8.5 3 11.5 6"></polyline>
+                    <line x1="8.5" y1="3" x2="8.5" y2="11"></line>
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  style="
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 34px;
+                    height: 34px;
+                    border: 0;
+                    border-radius: 8px;
+                    background: transparent;
+                    color: #1a56db;
+                    cursor: pointer;
+                    transition: background 0.15s ease;
+                  "
+                  style-hover="background: #e8f0fe;"
+                >
+                  <svg
+                    width="17"
+                    height="17"
+                    viewBox="0 0 17 17"
+                    fill="currentColor"
+                  >
+                    <circle cx="3.5" cy="8.5" r="1.5"></circle>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <circle cx="13.5" cy="8.5" r="1.5"></circle>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Separator line -->
+            <div
+              style="height: 1px; margin-top: 12px; background: #e8e9ef"
+            ></div>
+          </div>
+
+          <!-- ═══ BODY ═══ -->
+          <div style="padding: 22px 28px 32px">
+            <!-- OVERVIEW TAB -->
+            <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
+              <!-- Description -->
+              <p
+                style="
+                  margin: 0 0 14px;
+                  color: #4a4d68;
+                  font-size: 14.5px;
+                  line-height: 1.65;
+                  text-wrap: pretty;
+                "
+              >
+                {{ description }}
+              </p>
+
+              <!-- Info Chips Row -->
+              {{ chipsEl }}
+
+              <!-- Prerequisites Expanded Panel -->
+              <sc-if
+                value="{{ prereqExpanded }}"
+                hint-placeholder-val="{{ false }}"
+              >
+                <div
+                  style="
+                    margin-bottom: 8px;
+                    padding: 11px 14px;
+                    border: 1px solid #e9e5f5;
+                    border-radius: 8px;
+                    background: #faf8ff;
+                  "
+                >
+                  <div
+                    style="
+                      display: flex;
+                      align-items: flex-start;
+                      justify-content: space-between;
+                      gap: 12px;
+                    "
+                  >
+                    <div
+                      style="
+                        color: #33354d;
+                        font-size: 13px;
+                        line-height: 1.55;
+                        text-wrap: pretty;
+                      "
+                    >
+                      <span
+                        style="
+                          margin-right: 6px;
+                          color: #6d28d9;
+                          font-weight: 600;
+                        "
+                        >Prereqs:</span
+                      >{{ prereqText }}
+                    </div>
+                    <button
+                      type="button"
+                      onClick="{{ collapsePrereq }}"
+                      style="
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-shrink: 0;
+                        padding: 2px;
+                        border: 0;
+                        border-radius: 4px;
+                        background: transparent;
+                        color: #8b8fa3;
+                        cursor: pointer;
+                        transition: color 0.15s ease;
+                      "
+                      style-hover="color: #6d28d9;"
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        stroke-linecap="round"
+                      >
+                        <line x1="4" y1="4" x2="16" y2="16"></line>
+                        <line x1="16" y1="4" x2="4" y2="16"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </sc-if>
+
+              <!-- Schedule Options Header -->
+              <div
+                style="
+                  display: flex;
+                  align-items: baseline;
+                  justify-content: space-between;
+                  gap: 12px;
+                  margin-top: 14px;
+                  margin-bottom: 14px;
+                "
+              >
+                <div style="color: #1a1a2e; font-size: 15px; font-weight: 700">
+                  Schedule Options
+                </div>
+                <div style="color: #8b8fa3; font-size: 12.5px">
+                  {{ groupCountText }}
+                </div>
+              </div>
+
+              <!-- Offering Group Cards -->
+              {{ cardsEl }}
+            </sc-if>
+
+            <!-- PAST GRADES TAB -->
+            <sc-if
+              value="{{ isPastGrades }}"
+              hint-placeholder-val="{{ false }}"
+            >
+              {{ pastGradesEl }}
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{
+  "$preview": { "width": 780, "height": 860 },
+  "courseTitle": { "editor": "text", "default": "Pharaohs, Mummies, and Pyramids: Introduction to Egyptology", "tsType": "string" },
+  "view": { "editor": "enum", "default": "overview", "options": ["overview", "past-grades"], "tsType": "string" }
+}'
+    >
+
+      class Component extends DCLogic {
+        state = {
+          currentView: 'overview',
+          activeFamily: 'A',
+          selectedSections: {},
+          prereqExpanded: false,
+        };
+
+        getSampleData() {
+          return {
+            courseTitle: 'Pharaohs, Mummies, and Pyramids: Introduction to Egyptology',
+            termDisplay: '(Summer Session 1 2026)',
+            courseCode: 'ANAR 144',
+            description: 'A survey of ancient Egyptian civilization from the Predynastic Period through the Roman conquest. Topics include pharaonic history, religious beliefs and practices, mummification, pyramid construction, hieroglyphic writing, and daily life. Students will examine archaeological evidence, primary texts in translation, and museum collections to understand how Egyptologists reconstruct the past.',
+            units: '4 Units',
+            level: 'Upper Division',
+            prerequisites_text: 'ANAR 100 or ANAR 101 or HIEA 100 or consent of instructor. Upper-division standing required.',
+            catalog_url: 'https://catalog.ucsd.edu/courses/ANAR.html',
+            hasRestrictions: true,
+            groups: [
+              {
+                familyPrefix: 'A',
+                instructor: 'Braswell, Geoffrey E.',
+                sharedMeetings: [
+                  { meeting_type: 'Lecture', raw_days: 'MWF', start_time: '08:00', end_time: '10:50', is_tba: false, raw_location: 'RCLAS R01', date: null },
+                ],
+                sections: [
+                  { section_id: '1', section_code: 'A01', meetings: [{ meeting_type: 'Discussion', raw_days: 'MW', start_time: '11:00', end_time: '11:50', is_tba: false, raw_location: 'RCLAS R02', date: null }], enrolled: 19, capacity: 25, waitlist_count: 0 },
+                  { section_id: '2', section_code: 'A02', meetings: [{ meeting_type: 'Discussion', raw_days: 'MW', start_time: '12:00', end_time: '12:50', is_tba: false, raw_location: 'RCLAS R02', date: null }], enrolled: 22, capacity: 25, waitlist_count: 0 },
+                  { section_id: '3', section_code: 'A03', meetings: [{ meeting_type: 'Discussion', raw_days: 'TuTh', start_time: '11:00', end_time: '11:50', is_tba: false, raw_location: 'PETER 110', date: null }], enrolled: 25, capacity: 25, waitlist_count: 3 },
+                ],
+                infoMeetings: [
+                  { meeting_type: 'Final Exam', raw_days: 'Sa', start_time: '08:00', end_time: '11:00', is_tba: false, raw_location: 'RCLAS R01', date: '2026-08-08' },
+                ]
+              },
+              {
+                familyPrefix: 'B',
+                instructor: 'Anderson, Sarah K.',
+                sharedMeetings: [
+                  { meeting_type: 'Lecture', raw_days: 'TuTh', start_time: '14:00', end_time: '16:50', is_tba: false, raw_location: 'CENTER 212', date: null },
+                ],
+                sections: [
+                  { section_id: '4', section_code: 'B01', meetings: [{ meeting_type: 'Discussion', raw_days: 'TuTh', start_time: '17:00', end_time: '17:50', is_tba: false, raw_location: 'CENTER 214', date: null }], enrolled: 15, capacity: 30, waitlist_count: 0 },
+                  { section_id: '5', section_code: 'B02', meetings: [{ meeting_type: 'Discussion', raw_days: 'MW', start_time: '14:00', end_time: '14:50', is_tba: false, raw_location: 'CENTER 214', date: null }], enrolled: 28, capacity: 30, waitlist_count: 0 },
+                ],
+                infoMeetings: [
+                  { meeting_type: 'Final Exam', raw_days: 'Th', start_time: '15:00', end_time: '18:00', is_tba: false, raw_location: 'CENTER 212', date: '2026-08-06' },
+                ]
+              }
+            ],
+            gradeRecords: [
+              { year: '2025', quarter: 'SP', instructor: 'Braswell, Geoffrey E.', gpa: 3.42, a: 48.2, b: 30.1, c: 14.5, d: 3.8, f: 1.2, w: 2.2, p: null, np: null },
+              { year: '2024', quarter: 'FA', instructor: 'Braswell, Geoffrey E.', gpa: 3.38, a: 45.6, b: 31.8, c: 15.2, d: 4.0, f: 1.5, w: 1.9, p: null, np: null },
+              { year: '2024', quarter: 'SP', instructor: 'Anderson, Sarah K.', gpa: 3.55, a: 52.3, b: 28.4, c: 12.8, d: 3.1, f: 0.8, w: 2.6, p: null, np: null },
+              { year: '2023', quarter: 'FA', instructor: 'Braswell, Geoffrey E.', gpa: 3.31, a: 42.1, b: 33.5, c: 16.0, d: 4.5, f: 2.0, w: 1.9, p: null, np: null },
+              { year: '2023', quarter: 'WI', instructor: 'Anderson, Sarah K.', gpa: 3.61, a: 55.0, b: 26.2, c: 12.4, d: 3.0, f: 0.6, w: 2.8, p: null, np: null },
+            ]
+          };
+        }
+
+        parseDays(raw) {
+          const flags = { M: false, Tu: false, W: false, Th: false, F: false, Sa: false, Su: false };
+          if (!raw || raw === 'TBA') return flags;
+          let i = 0;
+          while (i < raw.length) {
+            if (raw[i] === 'M') { flags.M = true; i++; }
+            else if (raw[i] === 'T' && raw[i+1] === 'h') { flags.Th = true; i += 2; }
+            else if (raw[i] === 'T' && raw[i+1] === 'u') { flags.Tu = true; i += 2; }
+            else if (raw[i] === 'T') { flags.Tu = true; i++; }
+            else if (raw[i] === 'W') { flags.W = true; i++; }
+            else if (raw[i] === 'F') { flags.F = true; i++; }
+            else if (raw[i] === 'S' && raw[i+1] === 'u') { flags.Su = true; i += 2; }
+            else if (raw[i] === 'S' && raw[i+1] === 'a') { flags.Sa = true; i += 2; }
+            else if (raw[i] === 'S') { flags.Sa = true; i++; }
+            else { i++; }
+          }
+          return flags;
+        }
+
+        formatTime(start, end) {
+          if (!start || !end) return 'TBA';
+          const to12 = (t) => {
+            const parts = t.split(':');
+            let h = Number(parts[0]);
+            const m = parts[1] || '00';
+            const period = h >= 12 ? 'PM' : 'AM';
+            if (h === 0) h = 12;
+            else if (h > 12) h -= 12;
+            return { display: h + ':' + m, period };
+          };
+          const s = to12(start);
+          const e = to12(end);
+          if (s.period === e.period) return s.display + ' \u2013 ' + e.display + ' ' + e.period;
+          return s.display + ' ' + s.period + ' \u2013 ' + e.display + ' ' + e.period;
+        }
+
+        meetingTypeCode(type) {
+          if (!type) return 'OT';
+          const map = { 'Lecture': 'LE', 'Discussion': 'DI', 'Laboratory': 'LA', 'Final Exam': 'FI', 'Midterm': 'MI', 'Review Session': 'RE', 'Seminar': 'SE', 'Activity': 'AC' };
+          return map[type] || type.slice(0, 2).toUpperCase();
+        }
+
+        isInfoMeeting(type) {
+          const c = this.meetingTypeCode(type);
+          return c === 'FI' || c === 'MI' || c === 'RE';
+        }
+
+        typeBadgeColors(code) {
+          const map = {
+            LE: ['#dbeafe', '#1e40af'], DI: ['#dcfce7', '#166534'], LA: ['#ede9fe', '#5b21b6'],
+            FI: ['#fcebeb', '#791f1f'], MI: ['#fef9c3', '#854d0e'], RE: ['#f3f4f6', '#4b5563'],
+            AC: ['#fce7f3', '#9d174d'],
+          };
+          return map[code] || ['#e0f2fe', '#075985'];
+        }
+
+        formatAvailability(enrolled, capacity, waitlist) {
+          if (enrolled == null || capacity == null || capacity <= 0) return { main: 'Seats TBA', status: 'available' };
+          if (enrolled >= capacity) return { main: waitlist > 0 ? 'FULL \u00b7 WL(' + waitlist + ')' : 'FULL', status: 'full' };
+          const remaining = capacity - enrolled;
+          const pct = ((capacity - enrolled) / capacity) * 100;
+          let status = 'available';
+          if (pct < 25) status = 'critical';
+          else if (pct < 50) status = 'low';
+          else if (pct < 75) status = 'medium';
+          else if (pct < 90) status = 'high';
+          return { main: remaining + (remaining === 1 ? ' seat' : ' seats') + ' left', status };
+        }
+
+        availabilityColor(status) {
+          return { critical: '#e24b4a', full: '#e24b4a', low: '#d85a30', medium: '#eda100', high: '#1d9e75', available: '#639922' }[status] || '#9a9db4';
+        }
+
+        formatExamDate(date) {
+          if (!date) return null;
+          const parts = date.split('-');
+          if (parts.length < 3) return null;
+          const val = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+          return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(val);
+        }
+
+        // ─── createElement helpers ───
+
+        makeDayDots(rawDays, allowWeekend) {
+          const days = this.parseDays(rawDays);
+          const wkday = ['M', 'Tu', 'W', 'Th', 'F'];
+          const all = ['M', 'Tu', 'W', 'Th', 'F', 'Sa', 'Su'];
+          const ai = all.findIndex(d => days[d]);
+          const ws = allowWeekend && ai >= wkday.length ? Math.max(0, ai - wkday.length + 1) : 0;
+          const labels = all.slice(ws, ws + wkday.length);
+          const h = React.createElement;
+          return h('div', { style: { display: 'flex', flexShrink: 0, gap: '2px' } },
+            labels.map(day => h('span', {
+              key: day,
+              style: {
+                width: 22, height: 19, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                borderRadius: 4, fontSize: '9.5px', fontWeight: 700, lineHeight: 1,
+                background: days[day] ? '#334155' : '#f0f1f5',
+                color: days[day] ? '#fff' : '#c5c8d6',
+              }
+            }, day))
+          );
+        }
+
+        makeMeetingRow(meeting, role, sectionCode, section, groupPrefix, selected) {
+          const h = React.createElement;
+          const code = this.meetingTypeCode(meeting.meeting_type);
+          const time = this.formatTime(meeting.start_time, meeting.end_time);
+          const location = meeting.raw_location || 'TBA';
+          const examDate = role === 'info' ? this.formatExamDate(meeting.date) : null;
+          const avail = (role !== 'info' && section) ? this.formatAvailability(section.enrolled, section.capacity, section.waitlist_count) : null;
+          const bc = this.typeBadgeColors(code);
+
+          let rowBg = 'transparent';
+          let borderLeft = '3px solid transparent';
+          if (role === 'anchor') rowBg = '#f8fafd';
+          if (selected) { rowBg = '#edf4ff'; borderLeft = '3px solid #1a56db'; }
+
+          const rowStyle = {
+            display: 'grid',
+            gridTemplateColumns: '20px 96px 44px 1fr 88px 80px',
+            alignItems: 'center', gap: '4px 8px', padding: '9px 18px',
+            borderBottom: '1px solid #f3f4f7', borderLeft,
+            background: rowBg, cursor: role === 'selectable' ? 'pointer' : 'default',
+            transition: 'background 0.12s ease, border-color 0.12s ease',
+          };
+
+          const onRadioChange = () => {
+            if (role === 'selectable' && section) {
+              this.setState(s => ({
+                selectedSections: { ...s.selectedSections, [groupPrefix]: section.section_code },
+                activeFamily: groupPrefix,
+              }));
+            }
+          };
+
+          const onRowClick = () => {
+            if (role === 'selectable' && section) onRadioChange();
+          };
+
+          const onHover = (e) => {
+            if (role === 'selectable' && !selected) e.currentTarget.style.background = '#eef4ff';
+          };
+          const onLeave = (e) => {
+            if (role === 'selectable' && !selected) e.currentTarget.style.background = 'transparent';
+          };
+
+          // Radio
+          const radio = role === 'selectable' && section
+            ? h('input', { type: 'radio', name: 'modal-group-' + groupPrefix, checked: selected, onChange: onRadioChange,
+                style: { width: 16, height: 16, margin: 0, accentColor: '#1a56db', cursor: 'pointer' } })
+            : null;
+
+          // Availability cell
+          let availCell = null;
+          if (examDate) {
+            availCell = h('div', { style: { gridColumn: 6, justifySelf: 'end', minWidth: 70, color: '#5a5d7a', fontSize: '11.5px', fontWeight: 600, textAlign: 'right', whiteSpace: 'nowrap' } }, examDate);
+          } else if (avail) {
+            availCell = h('div', { style: { gridColumn: 6, justifySelf: 'end', minWidth: 70, color: this.availabilityColor(avail.status), fontSize: '11.5px', fontWeight: 600, textAlign: 'right', whiteSpace: 'nowrap' } },
+              avail.main,
+              h('span', { style: { display: 'block', marginTop: 1, color: '#b0b3c4', fontSize: '10px', fontWeight: 500, lineHeight: 1.3 } }, 'Updated today')
+            );
+          } else {
+            availCell = h('div', { style: { gridColumn: 6 } });
+          }
+
+          const Tag = role === 'selectable' ? 'label' : 'div';
+
+          return h(Tag, { style: rowStyle, onClick: onRowClick, onMouseEnter: onHover, onMouseLeave: onLeave },
+            h('div', { style: { gridColumn: 1, width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' } }, radio),
+            h('div', { style: { gridColumn: 2, display: 'flex', alignItems: 'center', gap: 5 } },
+              h('span', { style: { display: 'inline-block', padding: '2px 7px', borderRadius: 4, fontSize: '10.5px', fontWeight: 700, letterSpacing: '0.04em', lineHeight: 1.5, background: bc[0], color: bc[1] } }, code),
+              h('span', { style: { color: '#8b8fa3', fontSize: 12, fontWeight: 500 } }, meeting.meeting_type || '')
+            ),
+            h('div', { style: { gridColumn: 3, color: '#33354d', fontSize: 13, fontWeight: 600 } }, sectionCode),
+            h('div', { style: { gridColumn: 4, minWidth: 0, display: 'flex', flexWrap: 'nowrap', alignItems: 'center', gap: 8, overflow: 'hidden' } },
+              !meeting.is_tba ? this.makeDayDots(meeting.raw_days, role === 'info') : null,
+              h('span', { style: { color: '#33354d', fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap' } }, time)
+            ),
+            h('div', { style: { gridColumn: 5, minWidth: 0, color: '#5a5d7a', fontSize: '12.5px', overflowWrap: 'anywhere' } }, location),
+            availCell
+          );
+        }
+
+        makeCard(group) {
+          const h = React.createElement;
+          const active = this.state.activeFamily === group.familyPrefix;
+          const selectedCode = this.state.selectedSections[group.familyPrefix] || null;
+          const subtitle = group.sharedMeetings[0] ? this.formatTime(group.sharedMeetings[0].start_time, group.sharedMeetings[0].end_time) : 'Schedule TBA';
+
+          const rows = [];
+
+          // Shared anchor rows
+          for (let i = 0; i < group.sharedMeetings.length; i++) {
+            const m = group.sharedMeetings[i];
+            const role = this.isInfoMeeting(m.meeting_type) ? 'info' : 'anchor';
+            rows.push(h(React.Fragment, { key: 'shared-' + i }, this.makeMeetingRow(m, role, group.familyPrefix + '00', null, group.familyPrefix, false)));
+          }
+
+          // Separator for selectable
+          if (group.sections.length > 1) {
+            rows.push(h('div', { key: 'sep', style: { padding: '10px 18px 5px 54px', borderTop: '1px solid #eeeff3', color: '#8b8fa3', fontSize: '10.5px', fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase' } }, 'CHOOSE DISCUSSION'));
+          }
+
+          // Section rows
+          for (const sec of group.sections) {
+            const role = group.sections.length > 1 ? 'selectable' : 'anchor';
+            for (let j = 0; j < sec.meetings.length; j++) {
+              const selected = role === 'selectable' && sec.section_code === selectedCode;
+              rows.push(h(React.Fragment, { key: sec.section_id + '-' + j }, this.makeMeetingRow(sec.meetings[j], role, sec.section_code, sec, group.familyPrefix, selected)));
+            }
+          }
+
+          // Info meetings
+          if (group.infoMeetings) {
+            for (let k = 0; k < group.infoMeetings.length; k++) {
+              rows.push(h(React.Fragment, { key: 'info-' + k }, this.makeMeetingRow(group.infoMeetings[k], 'info', group.familyPrefix + '00', null, group.familyPrefix, false)));
+            }
+          }
+
+          // Footer
+          const selectedSection = group.sections.length === 1 ? group.sections[0] : group.sections.find(s => s.section_code === selectedCode);
+          let footer;
+          if (selectedSection) {
+            footer = h('div', { style: { padding: '14px 18px', borderTop: '1px solid #eeeff3', background: '#fafbff' } },
+              h('button', { type: 'button', style: { width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '11px 16px', border: 0, borderRadius: 8, background: '#1a56db', color: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13.5px', fontWeight: 600, transition: 'background 0.15s ease' },
+                onMouseEnter: (e) => { e.currentTarget.style.background = '#1548b8'; },
+                onMouseLeave: (e) => { e.currentTarget.style.background = '#1a56db'; },
+              },
+                h('svg', { width: 14, height: 14, viewBox: '0 0 18 18', fill: 'none', stroke: 'currentColor', strokeWidth: 2.2, strokeLinecap: 'round' },
+                  h('line', { x1: 9, y1: 3, x2: 9, y2: 15 }),
+                  h('line', { x1: 3, y1: 9, x2: 15, y2: 9 })
+                ),
+                'Add ' + selectedSection.section_code + ' to Worksheet'
+              )
+            );
+          } else {
+            footer = h('div', { style: { padding: '12px 18px', borderTop: '1px solid #f3f4f7', color: '#9a9db4', fontSize: '12.5px', textAlign: 'center' } }, 'Select a discussion section to add this group');
+          }
+
+          return h('div', { key: group.familyPrefix, style: {
+            containerType: 'inline-size', marginBottom: 16, overflow: 'hidden',
+            border: '1px solid ' + (active ? '#bfdbfe' : '#e2e4ea'), borderRadius: 10,
+            background: active ? '#fafbff' : '#fff', transition: 'background 0.2s ease, border-color 0.2s ease'
+          }},
+            h('div', { style: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, padding: 18, borderBottom: '1px solid #e2e4ea' } },
+              h('div', null,
+                h('div', { style: { color: '#1a1a2e', fontSize: 14, fontWeight: 700, lineHeight: 1.35 } }, 'Section ' + group.familyPrefix),
+                h('div', { style: { marginTop: 2, color: '#5a5d7a', fontSize: 13, fontWeight: 600 } }, subtitle)
+              ),
+              h('div', { style: { color: '#5a5d7a', fontSize: 13, fontWeight: 500, textAlign: 'right' } }, group.instructor)
+            ),
+            ...rows,
+            footer
+          );
+        }
+
+        makePastGrades(records) {
+          const h = React.createElement;
+          if (!records || records.length === 0) {
+            return h('div', { style: { padding: 18, border: '1px solid #e2e4ea', borderRadius: 10, color: '#8b8fa3', fontSize: 13, textAlign: 'center' } }, 'No grade records available.');
+          }
+          const headers = ['Year', 'Qtr', 'Instructor', 'GPA', 'A', 'B', 'C', 'D', 'F', 'W', 'P', 'NP'];
+          const widths = ['7%', '6%', '22%', '7%', '7.25%', '7.25%', '7.25%', '7.25%', '7.25%', '7.25%', '7.25%', '7.25%'];
+          return h('div', { style: { width: '100%', overflow: 'hidden' } },
+            h('table', { style: { width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse', fontSize: '12.5px', fontVariantNumeric: 'tabular-nums', lineHeight: 1.25 } },
+              h('colgroup', null, widths.map((w, i) => h('col', { key: i, style: { width: w } }))),
+              h('thead', null,
+                h('tr', null, headers.map((hdr, i) =>
+                  h('th', { key: i, style: { padding: '8px 4px', borderBottom: '2px solid #e2e4ea', color: '#1a1a2e', fontWeight: 700, fontSize: 11, whiteSpace: 'nowrap', textAlign: i >= 3 ? 'right' : 'left' } }, hdr)
+                ))
+              ),
+              h('tbody', null, records.map((rec, r) => {
+                const pcts = [rec.a, rec.b, rec.c, rec.d, rec.f, rec.w, rec.p, rec.np];
+                return h('tr', { key: r, style: { background: r % 2 === 1 ? 'rgb(0 0 0 / 4%)' : 'transparent' } },
+                  h('td', { style: { padding: '6px 4px', borderBottom: '1px solid #f3f4f7', fontSize: 12 } }, rec.year),
+                  h('td', { style: { padding: '6px 4px', borderBottom: '1px solid #f3f4f7', fontSize: 12 } }, rec.quarter),
+                  h('td', { style: { padding: '6px 4px', borderBottom: '1px solid #f3f4f7', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }, title: rec.instructor }, rec.instructor),
+                  h('td', { style: { padding: '6px 4px', borderBottom: '1px solid #f3f4f7', fontSize: 12, textAlign: 'right', fontWeight: 600 } }, rec.gpa != null ? rec.gpa.toFixed(2) : 'N/A'),
+                  ...pcts.map((v, pi) => h('td', { key: pi, style: { padding: '6px 4px', borderBottom: '1px solid #f3f4f7', fontSize: 12, textAlign: 'right' } }, v != null ? v.toFixed(1) + '%' : 'N/A'))
+                );
+              }))
+            )
+          );
+        }
+
+        renderVals() {
+          const h = React.createElement;
+          const data = this.getSampleData();
+          const { currentView, activeFamily, selectedSections, prereqExpanded } = this.state;
+          const showPills = data.groups.length > 1;
+
+          // Pills
+          const pillsEl = showPills ? h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 12, maxHeight: 'min(144px, 24vh)', overflowY: 'auto', overscrollBehavior: 'contain', padding: '0 4px 2px 0', scrollbarGutter: 'stable' } },
+            data.groups.map(g => {
+              const isActive = activeFamily === g.familyPrefix;
+              return h('button', {
+                key: g.familyPrefix, type: 'button',
+                onClick: () => this.setState({ activeFamily: g.familyPrefix }),
+                style: {
+                  display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center',
+                  minHeight: 32, padding: '4px 12px',
+                  border: isActive ? '1px solid #1a56db' : '1px solid #dde3f0', borderRadius: 6,
+                  background: isActive ? '#1a56db' : '#fff', color: isActive ? '#fff' : '#4a4d68',
+                  cursor: 'pointer', fontFamily: 'inherit', fontSize: '11.5px', fontWeight: 600,
+                  transition: 'background 0.15s ease, border-color 0.15s ease, color 0.15s ease',
+                }
+              },
+                h('span', null, 'Section ' + g.familyPrefix),
+                h('span', { style: { maxWidth: 130, overflow: 'hidden', color: isActive ? 'rgb(255 255 255 / 70%)' : '#9a9db4', fontSize: '10.5px', fontWeight: 400, textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, g.instructor)
+              );
+            })
+          ) : null;
+
+          // Tabs
+          const tabsEl = h('div', { style: { display: 'flex', alignItems: 'center', gap: 6 } },
+            h('button', { type: 'button', onClick: () => this.setState({ currentView: 'overview' }), style: {
+              padding: '7px 16px', border: 0, borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit', fontSize: '13.5px',
+              transition: 'background 0.15s ease',
+              background: currentView === 'overview' ? '#e8f0fe' : 'transparent',
+              color: currentView === 'overview' ? '#1a56db' : '#4a4d68',
+              fontWeight: currentView === 'overview' ? 600 : 500,
+            }}, 'Overview'),
+            h('button', { type: 'button', onClick: () => this.setState({ currentView: 'past-grades' }), style: {
+              padding: '7px 16px', border: 0, borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit', fontSize: '13.5px',
+              transition: 'background 0.15s ease',
+              background: currentView === 'past-grades' ? '#e8f0fe' : 'transparent',
+              color: currentView === 'past-grades' ? '#1a56db' : '#4a4d68',
+              fontWeight: currentView === 'past-grades' ? 600 : 500,
+            }}, 'Past Grades')
+          );
+
+          // Chips
+          const chips = [];
+          if (data.units) chips.push(h('span', { key: 'units', style: { display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', border: 0, borderRadius: 6, fontSize: 12, background: '#eef2ff', color: '#3b52a8', fontWeight: 600 } }, data.units));
+          if (data.level) chips.push(h('span', { key: 'level', style: { display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', border: 0, borderRadius: 6, fontSize: 12, background: '#fff1f2', color: '#be123c', fontWeight: 500 } }, data.level));
+          if (data.hasRestrictions) chips.push(h('span', { key: 'restrict', style: { display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', border: 0, borderRadius: 6, fontSize: 12, background: '#fff1f2', color: '#be123c', fontWeight: 500 } }, 'Restrictions'));
+          if (data.prerequisites_text) {
+            chips.push(h('button', { key: 'prereq', type: 'button', onClick: () => this.setState(s => ({ prereqExpanded: !s.prereqExpanded })),
+              style: { display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', border: 0, borderRadius: 6, fontFamily: 'inherit', fontSize: 12, background: prereqExpanded ? '#ede9fe' : '#f5f3ff', color: '#6d28d9', cursor: 'pointer', fontWeight: 500, transition: 'background 0.15s ease', userSelect: 'none' }
+            },
+              'Prerequisites',
+              h('svg', { width: 10, height: 10, viewBox: '0 0 10 10', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', style: { transition: 'transform 0.2s ease', transform: prereqExpanded ? 'rotate(180deg)' : 'none' } },
+                h('polyline', { points: '2.5,3.5 5,6.5 7.5,3.5' })
+              )
+            ));
+          }
+          if (data.catalog_url) {
+            chips.push(h('a', { key: 'catalog', href: data.catalog_url, target: '_blank', rel: 'noreferrer', style: { display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', border: 0, borderRadius: 6, fontSize: 12, textDecoration: 'none', background: '#f0f9ff', color: '#1a56db', fontWeight: 500, transition: 'background 0.15s ease' } },
+              'Catalog ',
+              h('svg', { width: 10, height: 10, viewBox: '0 0 10 10', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round' },
+                h('path', { d: 'M3 7L7 3M7 3H4.5M7 3V5.5' })
+              )
+            ));
+          }
+          const chipsEl = h('div', { style: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 8 } }, ...chips);
+
+          // Cards
+          const cardsEl = h('div', null, data.groups.map(g => this.makeCard(g)));
+
+          // Past Grades
+          const pastGradesEl = this.makePastGrades(data.gradeRecords);
+
+          return {
+            courseTitle: data.courseTitle,
+            termDisplay: data.termDisplay,
+            courseCode: data.courseCode,
+            description: data.description,
+            showPills,
+            pillsEl,
+            tabsEl,
+            chipsEl,
+            isOverview: currentView === 'overview',
+            isPastGrades: currentView === 'past-grades',
+            prereqExpanded,
+            prereqText: data.prerequisites_text,
+            groupCountText: data.groups.length + ' offering ' + (data.groups.length === 1 ? 'group' : 'groups'),
+            cardsEl,
+            pastGradesEl,
+            collapsePrereq: () => this.setState({ prereqExpanded: false }),
+            closeModal: () => {},
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1956 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          body {
+            font-family:
+              'Inter',
+              system-ui,
+              -apple-system,
+              sans-serif;
+            background: #fff;
+            color: #1a1a2e;
+            -webkit-font-smoothing: antialiased;
+          }
+          @keyframes pulse {
+            0%,
+            100% {
+              opacity: 1;
+              transform: scale(1);
+            }
+            50% {
+              opacity: 0.6;
+              transform: scale(1.2);
+            }
+          }
+          @keyframes highlight-flash {
+            0% {
+              background-color: #eaf0ff;
+              box-shadow:
+                0 1px 2px rgb(0 0 0 / 4%),
+                0 0 0 2px rgb(74 108 247 / 35%);
+            }
+            60% {
+              background-color: #f5f7ff;
+              box-shadow:
+                0 1px 2px rgb(0 0 0 / 4%),
+                0 0 0 1px rgb(74 108 247 / 12%);
+            }
+            100% {
+              background-color: #fff;
+              box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+            }
+          }
+          @keyframes popover-fade-in {
+            from {
+              opacity: 0;
+              transform: translateY(6px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        </style>
+      </helmet>
+
+      <!-- ═══ NAVBAR ═══ -->
+      <div
+        style="
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+          width: 100%;
+          background: #fff;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        "
+      >
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 10px 24px;
+            min-height: 56px;
+          "
+        >
+          <a
+            href="#"
+            style="
+              flex-shrink: 0;
+              display: flex;
+              align-items: baseline;
+              text-decoration: none;
+              font-family: 'Cormorant Garamond', serif;
+              font-size: 20px;
+              line-height: 1;
+              white-space: nowrap;
+            "
+          >
+            <span style="font-weight: 600; font-style: italic; color: #0e9ae9"
+              >Sun</span
+            ><span style="font-weight: 700; color: #182b50">Grid</span>
+          </a>
+          <div style="display: flex; width: 210px; flex-shrink: 0">
+            <button
+              style="
+                font-size: 14px;
+                font-family: inherit;
+                background-color: #1a56db;
+                color: #fff;
+                border: #1a56db 2px solid;
+                padding: 6px 0;
+                width: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 6px 0 0 6px;
+                cursor: pointer;
+                font-weight: 500;
+              "
+            >
+              Calendar
+            </button>
+            <button
+              style="
+                font-size: 14px;
+                font-family: inherit;
+                background-color: #fff;
+                color: #1a1a2e;
+                border: #9a9db4 2px solid;
+                border-left: none;
+                padding: 6px 0;
+                width: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 0 6px 6px 0;
+                cursor: pointer;
+              "
+              style-hover="background-color: #f4f6fa; border-color: #1548b8;"
+            >
+              List
+            </button>
+          </div>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              padding: 6px 14px;
+              border: 2px solid #9a9db4;
+              border-radius: 6px;
+              font-size: 14px;
+              color: #1a1a2e;
+              cursor: pointer;
+              white-space: nowrap;
+            "
+            style-hover="border-color: #1548b8;"
+          >
+            <span>Summer Session 1 2026</span>
+            <svg
+              width="10"
+              height="6"
+              viewBox="0 0 10 6"
+              fill="none"
+              style="margin-left: 2px"
+            >
+              <path
+                d="M1 1L5 5L9 1"
+                stroke="#1a1a2e"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+            </svg>
+          </div>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              font-size: 14px;
+              color: #1a1a2e;
+              cursor: pointer;
+              white-space: nowrap;
+            "
+          >
+            <span style="color: #f59e0b">★</span>
+            <span style="font-weight: 500">Main Worksheet</span>
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+              <path
+                d="M1 1L5 5L9 1"
+                stroke="#1a1a2e"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+            </svg>
+          </div>
+          <div style="flex: 1"></div>
+          <button
+            style="
+              width: 34px;
+              height: 34px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border-radius: 8px;
+              color: #5a5d7a;
+              background: transparent;
+              border: none;
+              cursor: pointer;
+            "
+            style-hover="background: #f0f0f5;"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="3"></circle>
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+              ></path>
+            </svg>
+          </button>
+          <a
+            href="#"
+            style="
+              padding: 6px 14px;
+              font-size: 13.5px;
+              font-weight: 500;
+              color: #4a4d68;
+              border-radius: 8px;
+              text-decoration: none;
+              white-space: nowrap;
+            "
+            style-hover="background: #f0f0f5;"
+            >Catalog</a
+          >
+          <a
+            href="#"
+            style="
+              padding: 6px 14px;
+              font-size: 13.5px;
+              font-weight: 600;
+              color: #1a56db;
+              border-radius: 8px;
+              text-decoration: none;
+              white-space: nowrap;
+            "
+            style-hover="background: #e8f0fe;"
+            >Worksheet</a
+          >
+          <div
+            style="
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+              background: #e8e9ef;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              cursor: pointer;
+              flex-shrink: 0;
+            "
+            style-hover="background: #dcdee6;"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#5a5d7a"
+              stroke-width="2"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ PAGE BODY ═══ -->
+      <div style="display: flex; gap: 1rem; padding: 1rem">
+        <!-- ═══ CALENDAR CARD ═══ -->
+        <div
+          style="
+            position: sticky;
+            top: calc(1rem + 56px);
+            min-width: calc(75% - 1rem);
+            flex-grow: 1;
+            background: #fff;
+            box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            height: calc(100vh - 56px - 2rem);
+            overflow: hidden;
+          "
+        >
+          <!-- Calendar controls cluster (top right) — hover to reveal lock/settings -->
+          <div
+            style="
+              position: absolute;
+              top: 0;
+              right: 0;
+              z-index: 2;
+              transform: translate(50%, -40%);
+            "
+            style-hover="z-index: 10;"
+          >
+            <button
+              onClick="{{ toggleExpanded }}"
+              style="
+                position: relative;
+                width: 22px;
+                height: 22px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 6px;
+                background-color: #e4e5eb;
+                color: #33354d;
+                border: 1px solid #e8e9ef;
+                cursor: pointer;
+                padding: 0;
+                transition: transform 0.15s ease;
+              "
+              style-hover="transform: scale(1.1); background-color: #d8d9e0;"
+            >
+              <svg
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <sc-if
+                  value="{{ isExpanded }}"
+                  hint-placeholder-val="{{ false }}"
+                >
+                  <polyline points="9 21 3 21 3 15"></polyline>
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <line x1="3" y1="21" x2="10" y2="14"></line>
+                  <line x1="21" y1="3" x2="14" y2="10"></line>
+                </sc-if>
+                <sc-if
+                  value="{{ notExpanded }}"
+                  hint-placeholder-val="{{ true }}"
+                >
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <polyline points="9 21 3 21 3 15"></polyline>
+                  <line x1="21" y1="3" x2="14" y2="10"></line>
+                  <line x1="3" y1="21" x2="10" y2="14"></line>
+                </sc-if>
+              </svg>
+              <span
+                style="
+                  position: absolute;
+                  top: -3px;
+                  right: -3px;
+                  width: 6px;
+                  height: 6px;
+                  background-color: #1a56db;
+                  border-radius: 50%;
+                  animation: pulse 2s ease-in-out infinite;
+                "
+              ></span>
+            </button>
+            <!-- Flyout: lock + settings (visible on parent hover via CSS-in-parent hover) -->
+            <div
+              style="
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+                padding-top: 6px;
+                opacity: 0;
+                visibility: hidden;
+                transition:
+                  opacity 0.3s ease,
+                  visibility 0.3s ease;
+              "
+              style-hover="opacity: 1; visibility: visible;"
+            >
+              <button
+                onClick="{{ toggleLock }}"
+                style="
+                  width: 22px;
+                  height: 22px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  border-radius: 6px;
+                  background-color: #e4e5eb;
+                  color: #33354d;
+                  border: 1px solid #e8e9ef;
+                  cursor: pointer;
+                  transition:
+                    transform 0.15s ease,
+                    background-color 0.15s ease;
+                "
+                style-hover="transform: scale(1.1); background-color: #d8d9e0;"
+              >
+                <sc-if
+                  value="{{ isLocked }}"
+                  hint-placeholder-val="{{ false }}"
+                >
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path
+                      d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM9 8V6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9z"
+                    ></path>
+                  </svg>
+                </sc-if>
+                <sc-if
+                  value="{{ notLocked }}"
+                  hint-placeholder-val="{{ true }}"
+                >
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path
+                      d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h2c0-1.66 1.34-3 3-3s3 1.34 3 3v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2z"
+                    ></path>
+                  </svg>
+                </sc-if>
+              </button>
+              <button
+                style="
+                  width: 22px;
+                  height: 22px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  border-radius: 6px;
+                  background-color: #e4e5eb;
+                  color: #33354d;
+                  border: 1px solid #e8e9ef;
+                  cursor: pointer;
+                  transition:
+                    transform 0.15s ease,
+                    background-color 0.15s ease;
+                "
+                style-hover="transform: scale(1.1); background-color: #d8d9e0;"
+              >
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Calendar grid -->
+          <div style="display: flex; flex-direction: column; height: 100%">
+            <!-- Day header row -->
+            <div
+              style="
+                display: grid;
+                grid-template-columns: 54px repeat(5, 1fr);
+                border-bottom: 1px solid #e8e9ef;
+                flex-shrink: 0;
+              "
+            >
+              <div style="border-right: 1px solid #e8e9ef"></div>
+              <div
+                style="
+                  padding: 10px 0;
+                  text-align: center;
+                  font-size: 13px;
+                  font-weight: 500;
+                  color: #4a4d68;
+                  border-right: 1px solid #e8e9ef;
+                "
+              >
+                Mon
+              </div>
+              <div
+                style="
+                  padding: 10px 0;
+                  text-align: center;
+                  font-size: 13px;
+                  font-weight: 500;
+                  color: #4a4d68;
+                  border-right: 1px solid #e8e9ef;
+                "
+              >
+                Tue
+              </div>
+              <div
+                style="
+                  padding: 10px 0;
+                  text-align: center;
+                  font-size: 13px;
+                  font-weight: 500;
+                  color: #4a4d68;
+                  border-right: 1px solid #e8e9ef;
+                "
+              >
+                Wed
+              </div>
+              <div
+                style="
+                  padding: 10px 0;
+                  text-align: center;
+                  font-size: 13px;
+                  font-weight: 500;
+                  color: #4a4d68;
+                  border-right: 1px solid #e8e9ef;
+                "
+              >
+                Thu
+              </div>
+              <div
+                style="
+                  padding: 10px 0;
+                  text-align: center;
+                  font-size: 13px;
+                  font-weight: 500;
+                  color: #4a4d68;
+                "
+              >
+                Fri
+              </div>
+            </div>
+            <!-- Time grid (scrollable) -->
+            <div style="flex: 1; overflow-y: auto; position: relative">
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: 54px repeat(5, 1fr);
+                  position: relative;
+                  padding-top: 8px;
+                "
+              >
+                <!-- Time labels -->
+                <div style="border-right: 1px solid #e8e9ef">
+                  <sc-for list="{{ timeSlots }}" as="slot">
+                    <div
+                      style="
+                        height: 80px;
+                        display: flex;
+                        align-items: flex-start;
+                        justify-content: flex-end;
+                        padding-right: 8px;
+                        font-size: 12px;
+                        color: #4a4d68;
+                        border-bottom: 1px solid #e8e9ef;
+                        position: relative;
+                      "
+                    >
+                      <span
+                        style="
+                          position: absolute;
+                          top: -8px;
+                          right: 8px;
+                          background: #fff;
+                          padding: 0 2px;
+                        "
+                        >{{ slot.label }}</span
+                      >
+                    </div>
+                  </sc-for>
+                </div>
+                <!-- Mon -->
+                <div
+                  style="border-right: 1px solid #e8e9ef; position: relative"
+                >
+                  <sc-for list="{{ timeSlots }}" as="slot"
+                    ><div
+                      style="height: 80px; border-bottom: 1px solid #e8e9ef"
+                    ></div
+                  ></sc-for>
+                  <!-- Current time indicator -->
+                  {{ currentTimeIndicator }}
+                  <sc-for list="{{ monEvents }}" as="ev">
+                    <div
+                      style="{{ ev.style }}"
+                      onMouseEnter="{{ ev.onEnter }}"
+                      onMouseLeave="{{ ev.onLeave }}"
+                    >
+                      <div
+                        style="
+                          width: 100%;
+                          height: 100%;
+                          display: flex;
+                          flex-direction: column;
+                          align-items: flex-start;
+                          overflow: hidden;
+                          padding: 4px 6px;
+                          position: relative;
+                        "
+                      >
+                        <strong
+                          style="
+                            display: block;
+                            max-width: 100%;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            font-size: 13px;
+                          "
+                          >{{ ev.title }}</strong
+                        >
+                        <span
+                          style="
+                            display: block;
+                            max-width: 100%;
+                            font-size: 12px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                          "
+                          >{{ ev.description }}</span
+                        >
+                        <small
+                          style="
+                            display: block;
+                            max-width: 100%;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            font-weight: 400;
+                            font-size: 12px;
+                          "
+                          >{{ ev.location }}</small
+                        >
+                        <sc-if value="{{ ev.lastUpdated }}">
+                          <span
+                            style="
+                              display: block;
+                              max-width: 100%;
+                              font-size: 12px;
+                              font-weight: 500;
+                              font-style: italic;
+                              overflow: hidden;
+                              text-overflow: ellipsis;
+                              white-space: nowrap;
+                            "
+                            >{{ ev.lastUpdated }}</span
+                          >
+                        </sc-if>
+                        <!-- Event hover buttons -->
+                        {{ ev.hoverButtons }}
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+                <!-- Tue -->
+                <div
+                  style="border-right: 1px solid #e8e9ef; position: relative"
+                >
+                  <sc-for list="{{ timeSlots }}" as="slot"
+                    ><div
+                      style="height: 80px; border-bottom: 1px solid #e8e9ef"
+                    ></div
+                  ></sc-for>
+                  <sc-for list="{{ tueEvents }}" as="ev">
+                    <div
+                      style="{{ ev.style }}"
+                      onMouseEnter="{{ ev.onEnter }}"
+                      onMouseLeave="{{ ev.onLeave }}"
+                    >
+                      <div
+                        style="
+                          width: 100%;
+                          height: 100%;
+                          display: flex;
+                          flex-direction: column;
+                          align-items: flex-start;
+                          overflow: hidden;
+                          padding: 4px 6px;
+                          position: relative;
+                        "
+                      >
+                        <strong
+                          style="
+                            display: block;
+                            max-width: 100%;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            font-size: 13px;
+                          "
+                          >{{ ev.title }}</strong
+                        >
+                        <span
+                          style="
+                            display: block;
+                            max-width: 100%;
+                            font-size: 12px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                          "
+                          >{{ ev.description }}</span
+                        >
+                        <small
+                          style="
+                            display: block;
+                            max-width: 100%;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            font-weight: 400;
+                            font-size: 12px;
+                          "
+                          >{{ ev.location }}</small
+                        >
+                        <sc-if value="{{ ev.lastUpdated }}">
+                          <span
+                            style="
+                              display: block;
+                              max-width: 100%;
+                              font-size: 12px;
+                              font-weight: 500;
+                              font-style: italic;
+                              overflow: hidden;
+                              text-overflow: ellipsis;
+                              white-space: nowrap;
+                            "
+                            >{{ ev.lastUpdated }}</span
+                          >
+                        </sc-if>
+                        {{ ev.hoverButtons }}
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+                <!-- Wed -->
+                <div
+                  style="border-right: 1px solid #e8e9ef; position: relative"
+                >
+                  <sc-for list="{{ timeSlots }}" as="slot"
+                    ><div
+                      style="height: 80px; border-bottom: 1px solid #e8e9ef"
+                    ></div
+                  ></sc-for>
+                  <sc-for list="{{ wedEvents }}" as="ev">
+                    <div
+                      style="{{ ev.style }}"
+                      onMouseEnter="{{ ev.onEnter }}"
+                      onMouseLeave="{{ ev.onLeave }}"
+                    >
+                      <div
+                        style="
+                          width: 100%;
+                          height: 100%;
+                          display: flex;
+                          flex-direction: column;
+                          align-items: flex-start;
+                          overflow: hidden;
+                          padding: 4px 6px;
+                          position: relative;
+                        "
+                      >
+                        <strong
+                          style="
+                            display: block;
+                            max-width: 100%;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            font-size: 13px;
+                          "
+                          >{{ ev.title }}</strong
+                        >
+                        <span
+                          style="
+                            display: block;
+                            max-width: 100%;
+                            font-size: 12px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                          "
+                          >{{ ev.description }}</span
+                        >
+                        <small
+                          style="
+                            display: block;
+                            max-width: 100%;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            font-weight: 400;
+                            font-size: 12px;
+                          "
+                          >{{ ev.location }}</small
+                        >
+                        <sc-if value="{{ ev.lastUpdated }}">
+                          <span
+                            style="
+                              display: block;
+                              max-width: 100%;
+                              font-size: 12px;
+                              font-weight: 500;
+                              font-style: italic;
+                              overflow: hidden;
+                              text-overflow: ellipsis;
+                              white-space: nowrap;
+                            "
+                            >{{ ev.lastUpdated }}</span
+                          >
+                        </sc-if>
+                        {{ ev.hoverButtons }}
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+                <!-- Thu -->
+                <div
+                  style="border-right: 1px solid #e8e9ef; position: relative"
+                >
+                  <sc-for list="{{ timeSlots }}" as="slot"
+                    ><div
+                      style="height: 80px; border-bottom: 1px solid #e8e9ef"
+                    ></div
+                  ></sc-for>
+                  <sc-for list="{{ thuEvents }}" as="ev">
+                    <div
+                      style="{{ ev.style }}"
+                      onMouseEnter="{{ ev.onEnter }}"
+                      onMouseLeave="{{ ev.onLeave }}"
+                    >
+                      <div
+                        style="
+                          width: 100%;
+                          height: 100%;
+                          display: flex;
+                          flex-direction: column;
+                          align-items: flex-start;
+                          overflow: hidden;
+                          padding: 4px 6px;
+                          position: relative;
+                        "
+                      >
+                        <strong
+                          style="
+                            display: block;
+                            max-width: 100%;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            font-size: 13px;
+                          "
+                          >{{ ev.title }}</strong
+                        >
+                        <span
+                          style="
+                            display: block;
+                            max-width: 100%;
+                            font-size: 12px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                          "
+                          >{{ ev.description }}</span
+                        >
+                        <small
+                          style="
+                            display: block;
+                            max-width: 100%;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            font-weight: 400;
+                            font-size: 12px;
+                          "
+                          >{{ ev.location }}</small
+                        >
+                        <sc-if value="{{ ev.lastUpdated }}">
+                          <span
+                            style="
+                              display: block;
+                              max-width: 100%;
+                              font-size: 12px;
+                              font-weight: 500;
+                              font-style: italic;
+                              overflow: hidden;
+                              text-overflow: ellipsis;
+                              white-space: nowrap;
+                            "
+                            >{{ ev.lastUpdated }}</span
+                          >
+                        </sc-if>
+                        {{ ev.hoverButtons }}
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+                <!-- Fri -->
+                <div style="position: relative">
+                  <sc-for list="{{ timeSlots }}" as="slot"
+                    ><div
+                      style="height: 80px; border-bottom: 1px solid #e8e9ef"
+                    ></div
+                  ></sc-for>
+                  <sc-for list="{{ friEvents }}" as="ev">
+                    <div
+                      style="{{ ev.style }}"
+                      onMouseEnter="{{ ev.onEnter }}"
+                      onMouseLeave="{{ ev.onLeave }}"
+                    >
+                      <div
+                        style="
+                          width: 100%;
+                          height: 100%;
+                          display: flex;
+                          flex-direction: column;
+                          align-items: flex-start;
+                          overflow: hidden;
+                          padding: 4px 6px;
+                          position: relative;
+                        "
+                      >
+                        <strong
+                          style="
+                            display: block;
+                            max-width: 100%;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            font-size: 13px;
+                          "
+                          >{{ ev.title }}</strong
+                        >
+                        <span
+                          style="
+                            display: block;
+                            max-width: 100%;
+                            font-size: 12px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                          "
+                          >{{ ev.description }}</span
+                        >
+                        <small
+                          style="
+                            display: block;
+                            max-width: 100%;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            font-weight: 400;
+                            font-size: 12px;
+                          "
+                          >{{ ev.location }}</small
+                        >
+                        <sc-if value="{{ ev.lastUpdated }}">
+                          <span
+                            style="
+                              display: block;
+                              max-width: 100%;
+                              font-size: 12px;
+                              font-weight: 500;
+                              font-style: italic;
+                              overflow: hidden;
+                              text-overflow: ellipsis;
+                              white-space: nowrap;
+                            "
+                            >{{ ev.lastUpdated }}</span
+                          >
+                        </sc-if>
+                        {{ ev.hoverButtons }}
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ SIDEBAR ═══ -->
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: calc(25% - 1rem);
+            min-width: 280px;
+          "
+        >
+          <!-- Summary Stats Panel (collapsible) -->
+          <div
+            style="
+              background: rgba(160, 160, 160, 0.13);
+              border-radius: 8px;
+              overflow: hidden;
+            "
+          >
+            <div style="width: 100%; padding: 0.5em">
+              <button
+                onClick="{{ toggleSummary }}"
+                style="
+                  background: none;
+                  border: none;
+                  font-weight: 600;
+                  color: inherit;
+                  cursor: pointer;
+                  font-family: inherit;
+                  font-size: 15px;
+                  display: flex;
+                  align-items: center;
+                  gap: 4px;
+                "
+              >
+                Summary
+                <svg
+                  width="10"
+                  height="6"
+                  viewBox="0 0 10 6"
+                  fill="none"
+                  style="{{ summaryChevronStyle }}"
+                >
+                  <path
+                    d="M1 1L5 5L9 1"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+            <sc-if value="{{ summaryShown }}" hint-placeholder-val="{{ true }}">
+              <div style="padding: 0.5em 0.5em 1em; transition: all 0.3s ease">
+                <div
+                  style="
+                    display: flex;
+                    flex-flow: row wrap;
+                    gap: 1em;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                >
+                  <div
+                    style="
+                      box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.1);
+                      border-radius: 8px;
+                      width: 45%;
+                      display: flex;
+                      flex-direction: row;
+                      align-items: stretch;
+                    "
+                  >
+                    <div
+                      style="
+                        padding: 0.5em;
+                        font-weight: 600;
+                        font-size: 14px;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        text-align: center;
+                        flex-grow: 1;
+                        background-color: #fff;
+                        color: #1a1a2e;
+                        border-radius: 8px 0 0 8px;
+                      "
+                    >
+                      Total courses
+                    </div>
+                    <div
+                      style="padding: 0.5em; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; text-align: center; flex-grow: 1; border-radius: 0 8px 8px 0; background-color: {{ coursePillColor }}; color: #1a1a2e;"
+                    >
+                      {{ visibleCourseCount }}
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.1);
+                      border-radius: 8px;
+                      width: 45%;
+                      display: flex;
+                      flex-direction: row;
+                      align-items: stretch;
+                    "
+                  >
+                    <div
+                      style="
+                        padding: 0.5em;
+                        font-weight: 600;
+                        font-size: 14px;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        text-align: center;
+                        flex-grow: 1;
+                        background-color: #fff;
+                        color: #1a1a2e;
+                        border-radius: 8px 0 0 8px;
+                      "
+                    >
+                      Total credits
+                    </div>
+                    <div
+                      style="padding: 0.5em; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; text-align: center; flex-grow: 1; border-radius: 0 8px 8px 0; background-color: {{ creditPillColor }}; color: #1a1a2e;"
+                    >
+                      {{ totalCredits }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+
+          <!-- Icon button bar -->
+          <div
+            style="
+              background-color: #fff;
+              border-top-left-radius: 8px;
+              border-top-right-radius: 8px;
+              box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.1);
+            "
+          >
+            <div style="padding: 8px; display: flex; gap: 0">
+              <!-- Hide/Show All -->
+              <button
+                onClick="{{ toggleAllVisibility }}"
+                style="
+                  flex: 1;
+                  padding: 8px;
+                  text-align: center;
+                  border: solid 2px #dcdee6;
+                  border-radius: 8px;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  background-color: #fff;
+                  color: #1a1a2e;
+                  cursor: pointer;
+                  margin-right: -1px;
+                  transition:
+                    background-color 0.2s,
+                    border-color 0.2s,
+                    transform 0.3s;
+                "
+                style-hover="background-color: #e8f0fe; border-color: hsl(0deg 0% 70%);"
+              >
+                <sc-if
+                  value="{{ allHidden }}"
+                  hint-placeholder-val="{{ false }}"
+                >
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#b0b3be"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                    ></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                </sc-if>
+                <sc-if
+                  value="{{ notAllHidden }}"
+                  hint-placeholder-val="{{ true }}"
+                >
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                    ></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </sc-if>
+              </button>
+              <!-- Settings -->
+              <button
+                style="
+                  flex: 1;
+                  padding: 8px;
+                  text-align: center;
+                  border: solid 2px #dcdee6;
+                  border-radius: 8px;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  background-color: #fff;
+                  color: #1a1a2e;
+                  cursor: pointer;
+                  margin-right: -1px;
+                  transition:
+                    background-color 0.2s,
+                    border-color 0.2s;
+                "
+                style-hover="background-color: #e8f0fe; border-color: hsl(0deg 0% 70%);"
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                  ></path>
+                </svg>
+              </button>
+              <!-- Export dropdown -->
+              <div style="flex: 1; position: relative">
+                <button
+                  onClick="{{ toggleExportMenu }}"
+                  style="
+                    width: 100%;
+                    padding: 8px;
+                    text-align: center;
+                    border: solid 2px #dcdee6;
+                    border-radius: 8px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap: 4px;
+                    background-color: #fff;
+                    color: #1a1a2e;
+                    cursor: pointer;
+                    transition:
+                      background-color 0.2s,
+                      border-color 0.2s;
+                  "
+                  style-hover="background-color: #e8f0fe; border-color: hsl(0deg 0% 70%);"
+                >
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect
+                      x="3"
+                      y="4"
+                      width="18"
+                      height="18"
+                      rx="2"
+                      ry="2"
+                    ></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                    <path d="M12 14l0 4"></path>
+                    <path d="M9 17l3 3 3-3"></path>
+                  </svg>
+                  <svg width="8" height="5" viewBox="0 0 10 6" fill="none">
+                    <path
+                      d="M1 1L5 5L9 1"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    ></path>
+                  </svg>
+                </button>
+                <!-- Export dropdown menu -->
+                <sc-if
+                  value="{{ exportMenuOpen }}"
+                  hint-placeholder-val="{{ false }}"
+                >
+                  <div
+                    style="
+                      position: absolute;
+                      top: calc(100% + 6px);
+                      right: 0;
+                      z-index: 20;
+                      background: #fff;
+                      border: 1px solid #e8e9ef;
+                      border-radius: 8px;
+                      box-shadow: 0 8px 24px rgb(0 0 0 / 10%);
+                      padding: 6px;
+                      min-width: 200px;
+                      animation: popover-fade-in 0.14s ease-out;
+                    "
+                  >
+                    <button
+                      style="
+                        width: 100%;
+                        text-align: left;
+                        padding: 8px 10px;
+                        font-size: 13px;
+                        font-family: inherit;
+                        color: #33354d;
+                        border-radius: 6px;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        background: transparent;
+                        border: none;
+                        cursor: pointer;
+                        transition: background 0.1s;
+                      "
+                      style-hover="background: #f4f6fa;"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path
+                          d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                        ></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                      Export as .ics file
+                    </button>
+                    <button
+                      style="
+                        width: 100%;
+                        text-align: left;
+                        padding: 8px 10px;
+                        font-size: 13px;
+                        font-family: inherit;
+                        color: #33354d;
+                        border-radius: 6px;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        background: transparent;
+                        border: none;
+                        cursor: pointer;
+                        transition: background 0.1s;
+                      "
+                      style-hover="background: #f4f6fa;"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path
+                          d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                        ></path>
+                        <path
+                          d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                        ></path>
+                      </svg>
+                      Copy shareable URL
+                    </button>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </div>
+
+          <!-- Course list -->
+          <div
+            style="
+              overflow-x: hidden;
+              padding: 8px;
+              background: #fafafa;
+              border-bottom-left-radius: 8px;
+              border-bottom-right-radius: 8px;
+              box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.1);
+              margin-top: -1rem;
+              display: grid;
+              gap: 6px;
+            "
+          >
+            <sc-for list="{{ courseCards }}" as="card">
+              <div style="{{ card.cardStyle }}">
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    min-height: 52px;
+                    padding: 10px 12px;
+                    transition: background-color 0.12s ease;
+                    cursor: pointer;
+                  "
+                  style-hover="background: #f7f7f9;"
+                  onMouseEnter="{{ card.onEnter }}"
+                  onMouseLeave="{{ card.onLeave }}"
+                >
+                  <!-- Color bar -->
+                  <button
+                    onClick="{{ card.toggleExpand }}"
+                    style="
+                      display: flex;
+                      flex: 0 0 auto;
+                      align-items: center;
+                      justify-content: center;
+                      width: 4px;
+                      height: 32px;
+                      padding: 0;
+                      background: transparent;
+                      border: 0;
+                      cursor: pointer;
+                    "
+                  >
+                    <span style="{{ card.colorBarStyle }}"></span>
+                  </button>
+                  <!-- Course info -->
+                  <div style="{{ card.courseInfoStyle }}">
+                    <span
+                      style="
+                        display: block;
+                        font-size: 14px;
+                        line-height: 1.15;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                      "
+                    >
+                      <strong style="font-weight: 700">{{ card.code }}</strong>
+                      <span
+                        style="color: #999; font-size: 13px; font-weight: 400"
+                      >
+                        {{ card.section }}</span
+                      >
+                    </span>
+                    <span
+                      style="
+                        display: block;
+                        width: 100%;
+                        margin-top: 1px;
+                        color: #777;
+                        font-size: 12px;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                      "
+                      >{{ card.title }}</span
+                    >
+                  </div>
+                  <!-- Hide button (appears on hover) -->
+                  <button
+                    onClick="{{ card.toggleHide }}"
+                    style="{{ card.hideButtonStyle }}"
+                    style-hover="opacity: 1;"
+                  >
+                    {{ card.eyeIcon }}
+                  </button>
+                  <!-- Chevron -->
+                  <button
+                    onClick="{{ card.toggleExpand }}"
+                    style="
+                      display: flex;
+                      flex: 0 0 auto;
+                      align-items: center;
+                      justify-content: center;
+                      width: 28px;
+                      height: 28px;
+                      padding: 0;
+                      background: transparent;
+                      border: 1px solid #e4e4e9;
+                      border-radius: 6px;
+                      color: #888;
+                      cursor: pointer;
+                      transition:
+                        background-color 0.15s ease,
+                        border-color 0.15s ease;
+                    "
+                    style-hover="background: #f3f3f7; border-color: #d4d4da;"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      style="{{ card.chevronStyle }}"
+                    >
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+                </div>
+                <!-- Expanded: Exam details panel -->
+                <sc-if
+                  value="{{ card.isExpanded }}"
+                  hint-placeholder-val="{{ false }}"
+                >
+                  <div
+                    style="
+                      padding: 4px 14px 10px 28px;
+                      border-top: 1px solid #f0f0f3;
+                    "
+                  >
+                    <sc-for list="{{ card.examDetails }}" as="exam">
+                      <div
+                        style="
+                          display: flex;
+                          align-items: flex-start;
+                          gap: 10px;
+                          padding: 8px 0;
+                        "
+                      >
+                        <span
+                          style="flex: 0 0 auto; width: 8px; height: 8px; margin-top: 5px; border-radius: 999px; background-color: {{ card.dotColor }};"
+                        ></span>
+                        <div style="flex: 1; min-width: 0">
+                          <div
+                            style="display: flex; align-items: center; gap: 6px"
+                          >
+                            <span
+                              style="
+                                color: #222;
+                                font-size: 13px;
+                                font-weight: 600;
+                                line-height: 1.25;
+                              "
+                              >{{ exam.kind }}</span
+                            >
+                            <span style="{{ exam.badgeStyle }}"
+                              >{{ exam.badgeLabel }}</span
+                            >
+                          </div>
+                          <div
+                            style="
+                              margin-top: 2px;
+                              color: #555;
+                              font-size: 12px;
+                            "
+                          >
+                            {{ exam.date }}
+                          </div>
+                          <div style="color: #888; font-size: 11px">
+                            {{ exam.meta }}
+                          </div>
+                        </div>
+                      </div>
+                    </sc-for>
+                    <!-- Remove course button -->
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: flex-end;
+                        margin-top: 4px;
+                        padding-top: 8px;
+                        border-top: 1px solid #f0f0f3;
+                      "
+                    >
+                      <button
+                        onClick="{{ card.removeCourse }}"
+                        style="
+                          display: inline-flex;
+                          align-items: center;
+                          gap: 5px;
+                          padding: 4px 10px;
+                          background: transparent;
+                          border: 0;
+                          border-radius: 6px;
+                          color: #aaa;
+                          font-size: 12px;
+                          font-weight: 500;
+                          font-family: inherit;
+                          cursor: pointer;
+                          transition:
+                            background-color 0.15s ease,
+                            color 0.15s ease;
+                        "
+                        style-hover="background: #fef2f2; color: #c94040;"
+                      >
+                        <svg
+                          width="13"
+                          height="13"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path
+                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                          ></path>
+                        </svg>
+                        Remove this course
+                      </button>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script>
+
+      class Component extends DCLogic {
+        state = {
+          hoverCourse: null,      // course id being hovered (sidebar or calendar)
+          expandedCards: {},       // { courseId: true }
+          hiddenCourses: {},       // { courseId: true }
+          summaryShown: true,
+          isExpanded: false,
+          isLocked: false,
+          exportMenuOpen: false,
+        };
+
+        renderVals() {
+          const { hoverCourse, expandedCards, hiddenCourses, summaryShown, isExpanded, isLocked, exportMenuOpen } = this.state;
+
+          // Time slots 8am–9pm
+          const timeSlots = [];
+          for (let h = 8; h <= 21; h++) {
+            const ampm = h < 12 ? 'am' : 'pm';
+            const display = h <= 12 ? h : h - 12;
+            timeSlots.push({ label: display + ampm });
+          }
+
+          // Course data
+          const courses = [
+            { id: 'dsc197', code: 'DSC 197', section: '001', title: 'Data Science Internship', color: '#42a5f5', credits: 4, events: [], exams: [
+              { kind: 'No Final', date: 'No exam scheduled', meta: '', badge: 'none' }
+            ]},
+            { id: 'dsc20r', code: 'DSC 20R', section: 'A01', title: 'Programming and Basic Data Structures for Data Science', color: '#26c6da', credits: 4, events: [
+              { day: 'Mon', sh: 12, sm: 0, eh: 13, em: 20, type: 'Discussion', loc: 'RCLAS R115' },
+              { day: 'Mon', sh: 17, sm: 0, eh: 18, em: 20, type: 'Lecture', loc: 'RCLAS R05' },
+              { day: 'Wed', sh: 17, sm: 0, eh: 18, em: 20, type: 'Lecture', loc: 'RCLAS R05' },
+              { day: 'Fri', sh: 19, sm: 0, eh: 21, em: 0, type: 'Final', loc: 'RCLAS R03' },
+            ], exams: [
+              { kind: 'Final Exam', date: 'Fri, Aug 7, 2026 · 7:00 PM', meta: '7:00 PM – 9:00 PM · RCLAS R03', badge: 'upcoming' },
+            ]},
+            { id: 'ece15', code: 'ECE 15', section: 'A01', title: 'Engineering Computation: Introduction to Programming', color: '#ffc107', credits: 2, events: [
+              { day: 'Mon', sh: 9, sm: 50, eh: 10, em: 50, type: 'Lab', loc: 'WLH 2207', altColor: 'rgba(255, 193, 7, 0.85)' },
+              { day: 'Tue', sh: 9, sm: 30, eh: 10, em: 50, type: 'Lecture', loc: 'WLH 2207', altColor: 'rgba(102, 187, 106, 0.85)' },
+              { day: 'Tue', sh: 11, sm: 0, eh: 11, em: 50, type: 'Discussion', loc: '', altColor: 'rgba(255, 193, 7, 0.85)' },
+              { day: 'Wed', sh: 9, sm: 50, eh: 10, em: 50, type: 'Lab', loc: 'WLH 2207', altColor: 'rgba(255, 193, 7, 0.85)' },
+              { day: 'Thu', sh: 9, sm: 30, eh: 10, em: 50, type: 'Lecture', loc: 'WLH 2207', altColor: 'rgba(102, 187, 106, 0.85)' },
+              { day: 'Thu', sh: 11, sm: 0, eh: 11, em: 50, type: 'Discussion', loc: '', altColor: 'rgba(255, 193, 7, 0.85)' },
+              { day: 'Fri', sh: 8, sm: 0, eh: 9, em: 20, type: 'Final', loc: 'WLH 2207', altColor: 'rgba(239, 83, 80, 0.88)', half: 'left' },
+            ], exams: [
+              { kind: 'Final Exam', date: 'Fri, Aug 7, 2026 · 8:00 AM', meta: '8:00 AM – 9:20 AM · WLH 2207', badge: 'upcoming' },
+            ]},
+            { id: 'econ120a', code: 'ECON 120A', section: 'A01', title: 'Econometrics A', color: '#5c6bc0', credits: 3, events: [
+              { day: 'Mon', sh: 8, sm: 0, eh: 9, em: 20, type: 'Lecture', loc: 'COA 130', altColor: 'rgba(232, 177, 48, 0.85)' },
+              { day: 'Wed', sh: 8, sm: 0, eh: 9, em: 20, type: 'Lecture', loc: 'COA 130', altColor: 'rgba(232, 177, 48, 0.85)' },
+              { day: 'Fri', sh: 8, sm: 0, eh: 9, em: 20, type: 'Final', loc: 'COA 130', altColor: 'rgba(232, 177, 48, 0.85)', half: 'right' },
+            ], exams: [
+              { kind: 'Final Exam', date: 'Fri, Aug 7, 2026 · 8:00 AM', meta: '8:00 AM – 9:20 AM · COA 130', badge: 'upcoming' },
+            ]},
+          ];
+
+          // Count visible courses/credits
+          const visibleCourses = courses.filter(c => !hiddenCourses[c.id]);
+          const visibleCourseCount = visibleCourses.length;
+          const totalCredits = visibleCourses.reduce((s, c) => s + c.credits, 0);
+          const allHidden = visibleCourseCount === 0;
+          const notAllHidden = !allHidden;
+
+          // Color scale: green(4) → yellow(5) → red(6+)
+          const lerpColor = (val, domain, colors) => {
+            const t = Math.max(0, Math.min(1, (val - domain[0]) / (domain[1] - domain[0])));
+            const idx = Math.min(Math.floor(t * (colors.length - 1)), colors.length - 2);
+            const f = t * (colors.length - 1) - idx;
+            const c1 = colors[idx], c2 = colors[idx + 1];
+            const lerp = (a, b, t) => Math.round(a + (b - a) * t);
+            return `rgb(${lerp(c1[0], c2[0], f)}, ${lerp(c1[1], c2[1], f)}, ${lerp(c1[2], c2[2], f)})`;
+          };
+          const greenYellowRed = [[99,179,123],[255,235,132],[248,105,107]];
+          const coursePillColor = lerpColor(visibleCourseCount, [4, 6], greenYellowRed);
+          const creditPillColor = lerpColor(totalCredits, [4, 16], greenYellowRed);
+
+          // Event style helper
+          const makeEventStyle = (startHour, startMin, endHour, endMin, bgColor, textColor, extra) => {
+            const topPx = (startHour - 8) * 80 + (startMin / 60) * 80 + 8;
+            const heightPx = ((endHour - startHour) * 60 + (endMin - startMin)) / 60 * 80;
+            let left = '3px', right = '3px';
+            if (extra === 'left') { right = 'calc(50% + 1px)'; }
+            if (extra === 'right') { left = 'calc(50% + 1px)'; }
+            return `position: absolute; top: ${topPx}px; left: ${left}; right: ${right}; height: ${heightPx}px; background-color: ${bgColor}; border-left: 3px solid ${bgColor}; border-radius: 4px; color: ${textColor}; cursor: pointer; overflow: hidden; z-index: 1; font-size: 13px; transition: opacity 0.2s ease, filter 0.15s ease;`;
+          };
+
+          // Parse rgba to get base color for dimming
+          const dimAlpha = (colorStr, alpha) => {
+            const m = colorStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+            if (m) return `rgba(${m[1]}, ${m[2]}, ${m[3]}, ${alpha})`;
+            return colorStr;
+          };
+
+          // Build calendar events per day
+          const dayMap = { Mon: [], Tue: [], Wed: [], Thu: [], Fri: [] };
+          for (const course of courses) {
+            const isHidden = !!hiddenCourses[course.id];
+            for (const ev of course.events) {
+              const baseColor = ev.altColor || `rgba(${parseInt(course.color.slice(1,3),16)}, ${parseInt(course.color.slice(3,5),16)}, ${parseInt(course.color.slice(5,7),16)}, 0.85)`;
+
+              // Hover highlighting
+              let bgColor = baseColor;
+              let opacity = '1';
+              if (isHidden) {
+                opacity = '0';
+              } else if (hoverCourse && hoverCourse !== course.id) {
+                bgColor = dimAlpha(baseColor, 0.3);
+              } else if (hoverCourse === course.id) {
+                // Saturated
+                bgColor = dimAlpha(baseColor, 0.95);
+              }
+
+              const style = makeEventStyle(ev.sh, ev.sm, ev.eh, ev.em, bgColor, 'white', ev.half)
+                + (isHidden ? ' display: none;' : '')
+                + (hoverCourse === course.id ? ' z-index: 3; box-shadow: 0 2px 8px rgba(0,0,0,0.15);' : '');
+
+              const sectionSuffix = course.section ? ' ' + course.section : '';
+              const title = course.code + sectionSuffix + ' ' + ev.type;
+              const truncTitle = title.length > 22 ? title.slice(0, 20) + '…' : title;
+
+              // Hover buttons (createElement for event overlay)
+              const hoverButtons = React.createElement('div', {
+                style: {
+                  display: 'flex', gap: '2px', flexDirection: 'column',
+                  position: 'absolute', top: '2px', right: '2px',
+                  opacity: 0, transition: 'opacity 0.2s ease-in-out',
+                },
+                className: '_evBtns',
+                onMouseEnter: (e) => { e.currentTarget.style.opacity = '1'; },
+                onMouseLeave: (e) => { e.currentTarget.style.opacity = '0'; },
+              },
+                React.createElement('button', {
+                  onClick: (e) => { e.stopPropagation(); this.setState(s => ({ hiddenCourses: { ...s.hiddenCourses, [course.id]: !s.hiddenCourses[course.id] } })); },
+                  style: { backgroundColor: 'white', borderRadius: '50%', width: '24px', height: '24px', border: '1px solid #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 },
+                }, React.createElement('svg', { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: '#666', strokeWidth: 2 },
+                  React.createElement('path', { d: 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z' }),
+                  React.createElement('circle', { cx: 12, cy: 12, r: 3 })
+                )),
+              );
+
+              dayMap[ev.day].push({
+                style, title: truncTitle, description: course.title.length > 36 ? course.title.slice(0, 34) + '…' : course.title,
+                location: ev.loc, courseId: course.id,
+                lastUpdated: ev.type !== 'Discussion' && ev.type !== 'Lab' ? 'Last updated: 6/28/2026' : null,
+                onEnter: () => this.setState({ hoverCourse: course.id }),
+                onLeave: () => this.setState({ hoverCourse: null }),
+                hoverButtons,
+              });
+            }
+          }
+
+          // Parent element hover to show event buttons (inject via componentDidMount)
+          // We'll do it differently: the hover buttons show when the event div is hovered
+
+          // Current time indicator
+          const now = new Date();
+          const currentHour = now.getHours();
+          const currentMin = now.getMinutes();
+          const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon...
+          let currentTimeIndicator = null;
+          if (currentHour >= 8 && currentHour <= 21 && dayOfWeek >= 1 && dayOfWeek <= 5) {
+            const topPx = (currentHour - 8) * 80 + (currentMin / 60) * 80 + 8;
+            const colIndex = dayOfWeek; // 1=Mon maps to grid col 2
+            currentTimeIndicator = React.createElement('div', {
+              style: {
+                position: 'absolute', top: topPx + 'px', left: '-54px',
+                right: 0, height: '2px', backgroundColor: '#1a56db',
+                zIndex: 5, pointerEvents: 'none',
+                boxShadow: '0 0 4px rgba(26, 86, 219, 0.3)',
+              }
+            }, React.createElement('span', {
+              style: {
+                position: 'absolute', left: '-4px', top: '50%', width: '8px', height: '8px',
+                backgroundColor: '#1a56db', borderRadius: '50%', transform: 'translateY(-50%)',
+              }
+            }));
+          }
+
+          // Summary toggle
+          const summaryChevronStyle = summaryShown
+            ? 'margin-left: 2px; transition: transform 0.2s ease;'
+            : 'margin-left: 2px; transition: transform 0.2s ease; transform: rotate(180deg);';
+
+          // Course cards
+          const courseCards = courses.map(c => {
+            const isHidden = !!hiddenCourses[c.id];
+            const isExp = !!expandedCards[c.id];
+            const isHovered = hoverCourse === c.id;
+
+            // Countdown badge style
+            const badgeStyles = {
+              none: 'display: none;',
+              past: 'padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; background: #f0f0f0; color: #888;',
+              soon: 'padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; background: #fee2e2; color: #b91c1c;',
+              upcoming: 'padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; background: #fef3c7; color: #92400e;',
+              later: 'padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; background: #e8f5e9; color: #2e7d32;',
+            };
+            const badgeLabels = { none: '', past: 'Past', soon: 'In 2 days', upcoming: 'In 5 weeks', later: '3+ months' };
+
+            const examDetails = c.exams.map(ex => ({
+              kind: ex.kind,
+              date: ex.date,
+              meta: ex.meta,
+              badgeStyle: badgeStyles[ex.badge] || badgeStyles.later,
+              badgeLabel: badgeLabels[ex.badge] || ex.badge,
+            }));
+
+            // Eye icon (visible on hover or if hidden)
+            const eyeIcon = isHidden
+              ? React.createElement('svg', { width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', stroke: '#b0b3be', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                  React.createElement('path', { d: 'M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24' }),
+                  React.createElement('line', { x1: 1, y1: 1, x2: 23, y2: 23 }))
+              : React.createElement('svg', { width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', stroke: '#1a1a2e', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                  React.createElement('path', { d: 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z' }),
+                  React.createElement('circle', { cx: 12, cy: 12, r: 3 }));
+
+            return {
+              code: c.code, section: c.section,
+              title: c.title.length > 42 ? c.title.slice(0, 40) + '…' : c.title,
+              colorBarStyle: `display: block; width: 4px; height: 32px; border-radius: 2px; background-color: ${c.color};${isHidden ? ' opacity: 0.3;' : ''}`,
+              courseInfoStyle: `flex: 1 1 auto; min-width: 0; text-align: left; overflow: hidden; text-decoration: none;${isHidden ? ' color: #b0b3be;' : ' color: #1a1a1a;'}`,
+              cardStyle: `display: block; overflow: hidden; padding: 0; background: #fff; border: 0; border-radius: 8px; transition: box-shadow 0.25s ease;${isExp ? ' box-shadow: 0 2px 12px rgb(0 0 0 / 8%);' : ' box-shadow: 0 1px 2px rgba(0,0,0,0.04);'}${isHovered ? ' box-shadow: 0 2px 8px rgba(0,0,0,0.1);' : ''}`,
+              chevronStyle: `width: 14px; height: 14px; transition: transform 0.2s ease;${isExp ? ' transform: rotate(180deg);' : ''}`,
+              isExpanded: isExp,
+              examDetails,
+              dotColor: c.color,
+              eyeIcon,
+              hideButtonStyle: `display: flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; background: transparent; border: 0; cursor: pointer; transition: opacity 0.15s ease;${isHidden ? ' opacity: 1;' : ' opacity: 0;'}`,
+              toggleExpand: () => this.setState(s => ({ expandedCards: { ...s.expandedCards, [c.id]: !s.expandedCards[c.id] } })),
+              toggleHide: (e) => { e.stopPropagation(); this.setState(s => ({ hiddenCourses: { ...s.hiddenCourses, [c.id]: !s.hiddenCourses[c.id] } })); },
+              onEnter: () => this.setState({ hoverCourse: c.id }),
+              onLeave: () => this.setState({ hoverCourse: null }),
+              removeCourse: (e) => { e.stopPropagation(); this.setState(s => ({ hiddenCourses: { ...s.hiddenCourses, [c.id]: true } })); },
+            };
+          });
+
+          return {
+            timeSlots,
+            monEvents: dayMap.Mon,
+            tueEvents: dayMap.Tue,
+            wedEvents: dayMap.Wed,
+            thuEvents: dayMap.Thu,
+            friEvents: dayMap.Fri,
+            courseCards,
+            currentTimeIndicator,
+            // Summary
+            summaryShown,
+            summaryChevronStyle,
+            visibleCourseCount,
+            totalCredits,
+            coursePillColor,
+            creditPillColor,
+            // Controls
+            isExpanded,
+            notExpanded: !isExpanded,
+            isLocked,
+            notLocked: !isLocked,
+            allHidden,
+            notAllHidden,
+            exportMenuOpen,
+            // Handlers
+            toggleSummary: () => this.setState(s => ({ summaryShown: !s.summaryShown })),
+            toggleExpanded: () => this.setState(s => ({ isExpanded: !s.isExpanded })),
+            toggleLock: () => this.setState(s => ({ isLocked: !s.isLocked })),
+            toggleExportMenu: () => this.setState(s => ({ exportMenuOpen: !s.exportMenuOpen })),
+            toggleAllVisibility: () => {
+              const allCurrentlyHidden = courses.every(c => !!this.state.hiddenCourses[c.id]);
+              if (allCurrentlyHidden) {
+                this.setState({ hiddenCourses: {} });
+              } else {
+                const all = {};
+                courses.forEach(c => { all[c.id] = true; });
+                this.setState({ hiddenCourses: all });
+              }
+            },
+          };
+        }
+
+        componentDidMount() {
+          // Close export menu on outside click
+          this._closeExport = (e) => {
+            if (this.state.exportMenuOpen) {
+              this.setState({ exportMenuOpen: false });
+            }
+          };
+          document.addEventListener('mousedown', this._closeExport);
+
+          // Make event hover buttons visible when parent event div is hovered
+          const style = document.createElement('style');
+          style.textContent = `
+            [style*="position: absolute"][style*="z-index: 1"]:hover ._evBtns,
+            ._evBtns:hover { opacity: 1 !important; }
+          `;
+          document.head.appendChild(style);
+          this._injectedStyle = style;
+        }
+
+        componentWillUnmount() {
+          document.removeEventListener('mousedown', this._closeExport);
+          if (this._injectedStyle) this._injectedStyle.remove();
+        }
+      }
+    </script>
+  </body>
+</html>

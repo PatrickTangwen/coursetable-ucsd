@@ -1,0 +1,1233 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          body {
+            font-family:
+              'Inter',
+              system-ui,
+              -apple-system,
+              sans-serif;
+            background: #fff;
+            color: #1a1a2e;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+          }
+        </style>
+      </helmet>
+
+      <!-- ═══ TOP NAVIGATION BAR ═══ -->
+      <header
+        style="
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+          width: 100%;
+          background: #fff;
+        "
+      >
+        <nav
+          style="
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            flex-wrap: nowrap;
+            gap: 16px;
+            padding: 14px 24px;
+            border-bottom: 1px solid #e8e9ef;
+            min-height: 72px;
+          "
+        >
+          <!-- Logo -->
+          <a
+            href="#"
+            style="
+              flex-shrink: 0;
+              display: flex;
+              align-items: center;
+              padding-top: 5px;
+              padding-bottom: 5px;
+              text-decoration: none;
+            "
+          >
+            <span
+              style="
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 20px;
+                line-height: 1;
+                white-space: nowrap;
+                display: inline-flex;
+                align-items: baseline;
+              "
+            >
+              <span style="font-weight: 600; font-style: italic; color: #0e9ae9"
+                >Sun</span
+              ><span style="font-weight: 700; color: #182b50">Grid</span>
+            </span>
+          </a>
+          <!-- Search Area -->
+          <div
+            style="flex: 1; display: flex; align-items: center; min-width: 0"
+          >
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                min-height: 0;
+                min-width: 0;
+                width: 100%;
+              "
+            >
+              <!-- Calendar / List Toggle -->
+              <div style="display: flex; width: 210px; flex-shrink: 0">
+                <button
+                  style="
+                    font-size: 14px;
+                    font-family: 'Inter', system-ui, sans-serif;
+                    background-color: #fff;
+                    color: #1a1a2e;
+                    border: #9a9db4 2px solid;
+                    padding: 6px 0;
+                    width: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 6px 0 0 6px;
+                    cursor: pointer;
+                  "
+                  style-hover="background-color: #f4f6fa; border-color: #1548b8;"
+                >
+                  Calendar
+                </button>
+                <button
+                  style="
+                    font-size: 14px;
+                    font-family: 'Inter', system-ui, sans-serif;
+                    background-color: #1a56db;
+                    color: #fff;
+                    border: #1a56db 2px solid;
+                    padding: 6px 0;
+                    width: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 0 6px 6px 0;
+                    cursor: pointer;
+                    font-weight: 500;
+                  "
+                >
+                  List
+                </button>
+              </div>
+              <!-- Term Selector -->
+              <button
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 4px;
+                  padding: 6px 12px;
+                  border: 2px solid #9a9db4;
+                  border-radius: 6px;
+                  font-size: 14px;
+                  font-family: 'Inter', system-ui, sans-serif;
+                  color: #1a1a2e;
+                  cursor: pointer;
+                  white-space: nowrap;
+                  background: #fff;
+                "
+                style-hover="border-color: #1548b8; background-color: #f4f6fa;"
+              >
+                <span>Summer Session 1 2026</span>
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                  <path
+                    d="M1 1L5 5L9 1"
+                    stroke="#1a1a2e"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+              </button>
+              <!-- Worksheet Selector -->
+              <button
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  font-size: 14px;
+                  font-family: 'Inter', system-ui, sans-serif;
+                  color: #1a1a2e;
+                  cursor: pointer;
+                  white-space: nowrap;
+                  background: transparent;
+                  border: none;
+                  padding: 6px 4px;
+                "
+                style-hover="color: #1548b8;"
+              >
+                <span style="color: #f59e0b; font-size: 15px">★</span>
+                <span style="font-weight: 500">Main Worksheet</span>
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                  <path
+                    d="M1 1L5 5L9 1"
+                    stroke="#1a1a2e"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <!-- Nav Actions -->
+          <div
+            style="display: flex; align-items: center; gap: 6px; flex-shrink: 0"
+          >
+            <button
+              style="
+                width: 34px;
+                height: 34px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 8px;
+                color: #5a5d7a;
+                background: transparent;
+                border: none;
+                cursor: pointer;
+              "
+              style-hover="background: #f0f0f5;"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            </button>
+            <a
+              href="#"
+              style="
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 100px;
+                padding: 6px 14px;
+                font-size: 13.5px;
+                font-weight: 500;
+                color: #4a4d68;
+                border-radius: 8px;
+                text-decoration: none;
+                white-space: nowrap;
+              "
+              style-hover="background: #f0f0f5;"
+              >Catalog</a
+            >
+            <a
+              href="#"
+              style="
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 100px;
+                padding: 6px 14px;
+                font-size: 13.5px;
+                font-weight: 600;
+                color: #1a56db;
+                border-radius: 8px;
+                text-decoration: none;
+                white-space: nowrap;
+              "
+              style-hover="background: #e8f0fe;"
+              >Worksheet</a
+            >
+            <button
+              style="
+                width: 30px;
+                height: 30px;
+                border-radius: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: #e4e5eb;
+                color: #33354d;
+                border: none;
+                cursor: pointer;
+              "
+              style-hover="color: #1a56db;"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+              >
+                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"></path>
+                <path
+                  fill-rule="evenodd"
+                  d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"
+                ></path>
+              </svg>
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      <!-- ═══ MAIN CONTENT ═══ -->
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          width: min(920px, calc(100% - 2rem));
+          margin: 1rem auto;
+        "
+      >
+        <!-- ═══ SUMMARY PANEL ═══ -->
+        <div
+          style="background: #a0a0a022; border-radius: 8px; overflow: hidden"
+        >
+          <div
+            style="
+              width: 100%;
+              padding: 0.5em;
+              overflow: hidden;
+              text-align: center;
+            "
+          >
+            <button
+              onClick="{{ toggleSummary }}"
+              style="
+                background: none;
+                border: none;
+                font-weight: 600;
+                color: inherit;
+                cursor: pointer;
+                font-family: 'Inter', system-ui, sans-serif;
+                font-size: 14px;
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+              "
+            >
+              Summary
+              <svg
+                width="10"
+                height="6"
+                viewBox="0 0 10 6"
+                fill="none"
+                style="{{ summaryChevronStyle }}"
+              >
+                <path
+                  d="M1 1L5 5L9 1"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+            </button>
+          </div>
+          <sc-if value="{{ summaryShown }}" hint-placeholder-val="{{ true }}">
+            <div style="padding: 0 0.5em 1em 0.5em">
+              <div
+                style="
+                  list-style: none;
+                  padding: 0;
+                  margin: 0;
+                  display: flex;
+                  flex-flow: row wrap;
+                  gap: 1em;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <div
+                  style="
+                    box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.2);
+                    border-radius: 8px;
+                    width: 45%;
+                    display: flex;
+                    flex-direction: row;
+                    align-items: stretch;
+                  "
+                >
+                  <div
+                    style="
+                      margin: 0;
+                      padding: 0.5em;
+                      font-weight: 600;
+                      font-size: 14px;
+                      flex-grow: 1;
+                      display: inline-flex;
+                      align-items: center;
+                      justify-content: center;
+                      text-align: center;
+                      border-radius: 8px 0 0 8px;
+                      background-color: #fff;
+                      color: #1a1a2e;
+                    "
+                  >
+                    Total courses
+                  </div>
+                  <div
+                    style="margin: 0; padding: 0.5em; font-weight: 600; font-size: 14px; flex-grow: 1; display: inline-flex; align-items: center; justify-content: center; text-align: center; border-radius: 0 8px 8px 0; background-color: {{ courseCountColor }}; color: #1a1a2e;"
+                  >
+                    {{ visibleCourseCount }}
+                  </div>
+                </div>
+                <div
+                  style="
+                    box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.2);
+                    border-radius: 8px;
+                    width: 45%;
+                    display: flex;
+                    flex-direction: row;
+                    align-items: stretch;
+                  "
+                >
+                  <div
+                    style="
+                      margin: 0;
+                      padding: 0.5em;
+                      font-weight: 600;
+                      font-size: 14px;
+                      flex-grow: 1;
+                      display: inline-flex;
+                      align-items: center;
+                      justify-content: center;
+                      text-align: center;
+                      border-radius: 8px 0 0 8px;
+                      background-color: #fff;
+                      color: #1a1a2e;
+                    "
+                  >
+                    Total credits
+                  </div>
+                  <div
+                    style="margin: 0; padding: 0.5em; font-weight: 600; font-size: 14px; flex-grow: 1; display: inline-flex; align-items: center; justify-content: center; text-align: center; border-radius: 0 8px 8px 0; background-color: {{ creditColor }}; color: #1a1a2e;"
+                  >
+                    {{ totalCredits }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <!-- ═══ TOOLBAR + COURSE LIST ═══ -->
+        <div>
+          <!-- Toolbar -->
+          <div
+            style="
+              position: sticky;
+              top: 72px;
+              z-index: 2;
+              background-color: #fff;
+              border-top-left-radius: 8px;
+              border-top-right-radius: 8px;
+              box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.2);
+            "
+          >
+            <div style="padding: 8px">
+              <div style="display: flex; width: 100%; gap: 0">
+                <!-- Eye (Show/Hide All) -->
+                <button
+                  onClick="{{ toggleAllVisibility }}"
+                  style="
+                    flex: 1;
+                    padding: 5px;
+                    text-align: center;
+                    border: solid 2px #dcdee6;
+                    border-radius: 8px 0 0 8px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    user-select: none;
+                    background-color: #fff;
+                    color: #1a1a2e;
+                    cursor: pointer;
+                    min-height: 40px;
+                  "
+                  style-hover="background-color: #e8f0fe; border-color: hsl(0deg 0% 70%);"
+                >
+                  {{ eyeIcon }}
+                </button>
+                <!-- Settings -->
+                <button
+                  style="
+                    flex: 1;
+                    padding: 5px;
+                    text-align: center;
+                    border: solid 2px #dcdee6;
+                    border-left: none;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    user-select: none;
+                    background-color: #fff;
+                    color: #1a1a2e;
+                    cursor: pointer;
+                    min-height: 40px;
+                  "
+                  style-hover="background-color: #e8f0fe; border-color: hsl(0deg 0% 70%);"
+                >
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    style="transition: transform 0.3s"
+                  >
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                    ></path>
+                  </svg>
+                </button>
+                <!-- Export dropdown -->
+                <div style="flex: 1; position: relative">
+                  <button
+                    onClick="{{ toggleExportMenu }}"
+                    style="
+                      width: 100%;
+                      padding: 5px;
+                      text-align: center;
+                      border: solid 2px #dcdee6;
+                      border-left: none;
+                      border-radius: 0 8px 8px 0;
+                      display: flex;
+                      justify-content: center;
+                      align-items: center;
+                      user-select: none;
+                      background-color: #fff;
+                      color: #1a1a2e;
+                      cursor: pointer;
+                      min-height: 40px;
+                      gap: 2px;
+                    "
+                    style-hover="background-color: #e8f0fe; border-color: hsl(0deg 0% 70%);"
+                  >
+                    <svg
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      style="transition: transform 0.3s"
+                    >
+                      <rect
+                        x="3"
+                        y="4"
+                        width="18"
+                        height="18"
+                        rx="2"
+                        ry="2"
+                      ></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                      <path d="M12 14l0 4"></path>
+                      <path d="M9 17l3 3 3-3"></path>
+                    </svg>
+                    <svg width="8" height="5" viewBox="0 0 8 5" fill="none">
+                      <path
+                        d="M1 1l3 3 3-3"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      ></path>
+                    </svg>
+                  </button>
+                  <sc-if
+                    value="{{ exportMenuOpen }}"
+                    hint-placeholder-val="{{ false }}"
+                  >
+                    <div
+                      style="
+                        position: absolute;
+                        top: calc(100% + 4px);
+                        right: 0;
+                        z-index: 20;
+                        background: #fff;
+                        border: 1px solid #dcdee6;
+                        border-radius: 8px;
+                        box-shadow: 0 8px 24px rgb(0 0 0 / 10%);
+                        padding: 4px;
+                        min-width: 220px;
+                      "
+                    >
+                      <button
+                        onClick="{{ handleExportICS }}"
+                        style="
+                          width: 100%;
+                          text-align: left;
+                          padding: 8px 12px;
+                          font-size: 13px;
+                          color: #33354d;
+                          border-radius: 6px;
+                          display: flex;
+                          align-items: center;
+                          gap: 8px;
+                          background: transparent;
+                          border: none;
+                          cursor: pointer;
+                          font-family: 'Inter', system-ui, sans-serif;
+                        "
+                        style-hover="background: #f4f6fa;"
+                      >
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path
+                            d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                          ></path>
+                          <polyline points="7 10 12 15 17 10"></polyline>
+                          <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Export as .ics file
+                      </button>
+                      <button
+                        onClick="{{ handleExportURL }}"
+                        style="
+                          width: 100%;
+                          text-align: left;
+                          padding: 8px 12px;
+                          font-size: 13px;
+                          color: #33354d;
+                          border-radius: 6px;
+                          display: flex;
+                          align-items: center;
+                          gap: 8px;
+                          background: transparent;
+                          border: none;
+                          cursor: pointer;
+                          font-family: 'Inter', system-ui, sans-serif;
+                        "
+                        style-hover="background: #f4f6fa;"
+                      >
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path
+                            d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                          ></path>
+                          <path
+                            d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                          ></path>
+                        </svg>
+                        Copy shareable URL
+                      </button>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Course List -->
+          <div
+            style="
+              overflow-x: hidden;
+              padding: 8px;
+              background: #fafafa;
+              border-bottom-left-radius: 8px;
+              border-bottom-right-radius: 8px;
+              box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.2);
+            "
+          >
+            <div style="display: grid; gap: 6px">
+              <sc-for
+                list="{{ courses }}"
+                as="course"
+                hint-placeholder-count="4"
+              >
+                <div style="{{ course.cardStyle }}">
+                  <div
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 10px;
+                      min-height: 52px;
+                      padding: 10px 12px;
+                      transition: background-color 0.12s ease;
+                    "
+                    style-hover="background: #f7f7f9;"
+                  >
+                    <!-- Color bar (click to expand) -->
+                    <button
+                      onClick="{{ course.toggleExpand }}"
+                      style="
+                        display: flex;
+                        flex: 0 0 auto;
+                        align-items: center;
+                        justify-content: center;
+                        width: 4px;
+                        height: 32px;
+                        padding: 0;
+                        background: transparent;
+                        border: 0;
+                        cursor: pointer;
+                      "
+                    >
+                      <span
+                        style="display: block; width: 4px; height: 32px; border-radius: 2px; background-color: {{ course.color }};"
+                      ></span>
+                    </button>
+                    <!-- Course info -->
+                    <a
+                      href="#"
+                      style="flex: 1 1 auto; min-width: 0; text-align: left; overflow: hidden; color: {{ course.textColor }}; text-decoration: none;"
+                    >
+                      <span
+                        style="
+                          display: block;
+                          font-size: 14px;
+                          line-height: 1.15;
+                          white-space: nowrap;
+                          overflow: hidden;
+                          text-overflow: ellipsis;
+                        "
+                      >
+                        <strong style="font-weight: 700"
+                          >{{ course.code }}</strong
+                        >
+                        <span
+                          style="color: {{ course.sectionColor }}; font-size: 13px; font-weight: 400; margin-left: 4px;"
+                          >{{ course.section }}</span
+                        >
+                      </span>
+                      <span
+                        style="display: block; width: 100%; margin-top: 1px; color: {{ course.titleColor }}; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                        >{{ course.title }}</span
+                      >
+                      <sc-if
+                        value="{{ course.hidden }}"
+                        hint-placeholder-val="{{ true }}"
+                      >
+                        <span
+                          style="
+                            display: block;
+                            width: 100%;
+                            margin-top: 1px;
+                            color: #b0b3be;
+                            font-size: 11px;
+                            font-weight: 500;
+                            text-transform: uppercase;
+                            letter-spacing: 0.02em;
+                          "
+                          >HIDDEN</span
+                        >
+                      </sc-if>
+                    </a>
+                    <!-- Hide/Show eye button -->
+                    <button
+                      onClick="{{ course.toggleHide }}"
+                      style="flex: 0 0 auto; background-color: transparent; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; opacity: {{ course.hideButtonOpacity }}; transition: opacity 0.15s;"
+                      style-hover="opacity: 1;"
+                    >
+                      {{ course.hideIcon }}
+                    </button>
+                    <!-- Chevron button -->
+                    <button
+                      onClick="{{ course.toggleExpand }}"
+                      style="
+                        display: flex;
+                        flex: 0 0 auto;
+                        align-items: center;
+                        justify-content: center;
+                        width: 28px;
+                        height: 28px;
+                        padding: 0;
+                        background: transparent;
+                        border: 1px solid #e4e4e9;
+                        border-radius: 6px;
+                        color: #888;
+                        cursor: pointer;
+                        transition:
+                          background-color 0.15s ease,
+                          border-color 0.15s ease;
+                      "
+                      style-hover="background: #f3f3f7; border-color: #d4d4da;"
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        style="{{ course.chevronStyle }}"
+                      >
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </button>
+                  </div>
+                  <!-- Expanded exam panel -->
+                  <sc-if
+                    value="{{ course.expanded }}"
+                    hint-placeholder-val="{{ false }}"
+                  >
+                    <div
+                      style="
+                        padding: 4px 14px 10px 28px;
+                        border-top: 1px solid #f0f0f3;
+                      "
+                    >
+                      <sc-for
+                        list="{{ course.exams }}"
+                        as="exam"
+                        hint-placeholder-count="1"
+                      >
+                        <div
+                          style="
+                            display: flex;
+                            align-items: flex-start;
+                            gap: 10px;
+                            padding: 8px 0;
+                          "
+                        >
+                          <span
+                            style="flex: 0 0 auto; width: 8px; height: 8px; margin-top: 5px; border-radius: 999px; background-color: {{ course.color }}; opacity: {{ exam.dotOpacity }};"
+                          ></span>
+                          <div style="min-width: 0">
+                            <div
+                              style="
+                                display: flex;
+                                flex-wrap: wrap;
+                                align-items: center;
+                                gap: 6px;
+                              "
+                            >
+                              <span
+                                style="
+                                  color: #222;
+                                  font-size: 13px;
+                                  font-weight: 600;
+                                  line-height: 1.25;
+                                "
+                                >{{ exam.kind }}</span
+                              >
+                              <sc-if
+                                value="{{ exam.badge }}"
+                                hint-placeholder-val="{{ false }}"
+                              >
+                                <span style="{{ exam.badgeStyle }}"
+                                  >{{ exam.badge }}</span
+                                >
+                              </sc-if>
+                            </div>
+                            <div
+                              style="
+                                margin-top: 2px;
+                                color: #555;
+                                font-size: 12px;
+                                line-height: 1.25;
+                              "
+                            >
+                              {{ exam.date }}
+                            </div>
+                            <div
+                              style="
+                                color: #888;
+                                font-size: 11px;
+                                line-height: 1.3;
+                              "
+                            >
+                              {{ exam.meta }}
+                            </div>
+                          </div>
+                        </div>
+                      </sc-for>
+                      <sc-if
+                        value="{{ course.noExams }}"
+                        hint-placeholder-val="{{ false }}"
+                      >
+                        <div
+                          style="
+                            padding: 12px 0 10px 18px;
+                            color: #aaa;
+                            font-size: 12px;
+                          "
+                        >
+                          No exam meetings listed
+                        </div>
+                      </sc-if>
+                      <!-- Remove course button -->
+                      <div
+                        style="
+                          display: flex;
+                          justify-content: flex-end;
+                          margin-top: 4px;
+                          padding-top: 8px;
+                          border-top: 1px solid #f0f0f3;
+                        "
+                      >
+                        <button
+                          onClick="{{ course.removeCourse }}"
+                          style="
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 5px;
+                            padding: 4px 10px;
+                            background: transparent;
+                            border: 0;
+                            border-radius: 6px;
+                            color: #aaa;
+                            font-size: 12px;
+                            font-weight: 500;
+                            cursor: pointer;
+                            font-family: 'Inter', system-ui, sans-serif;
+                            transition:
+                              background-color 0.15s ease,
+                              color 0.15s ease;
+                          "
+                          style-hover="background: #fef2f2; color: #c94040;"
+                        >
+                          <svg
+                            width="13"
+                            height="13"
+                            viewBox="0 0 16 16"
+                            fill="currentColor"
+                          >
+                            <path
+                              d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"
+                            ></path>
+                            <path
+                              fill-rule="evenodd"
+                              d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+                            ></path>
+                          </svg>
+                          <span>Remove this course</span>
+                        </button>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ FOOTER ═══ -->
+      <footer
+        style="
+          border-top: 1.5px solid #e8e9ef;
+          padding: 40px 40px;
+          margin-top: 40px;
+        "
+      >
+        <div style="display: flex; flex-wrap: wrap; gap: 40px">
+          <div style="flex: 1; min-width: 200px">
+            <span
+              style="
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 2rem;
+                line-height: 1;
+                display: inline-flex;
+                align-items: baseline;
+              "
+            >
+              <span style="font-weight: 600; font-style: italic; color: #0e9ae9"
+                >Sun</span
+              ><span style="font-weight: 700; color: #182b50">Grid</span>
+            </span>
+            <small
+              style="
+                display: block;
+                margin-top: 8px;
+                margin-bottom: 12px;
+                color: #33354d;
+                font-size: 13px;
+              "
+              >© 2026</small
+            >
+          </div>
+          <div style="min-width: 120px">
+            <h5
+              style="
+                font-size: 16px;
+                font-weight: 600;
+                color: #1a1a2e;
+                margin-bottom: 12px;
+              "
+            >
+              Explore
+            </h5>
+            <ul
+              style="
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+              "
+            >
+              <li>
+                <a
+                  href="#"
+                  style="color: #33354d; text-decoration: none; font-size: 14px"
+                  style-hover="color: #33354d; text-decoration: underline;"
+                  >Catalog</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  style="color: #33354d; text-decoration: none; font-size: 14px"
+                  style-hover="color: #33354d; text-decoration: underline;"
+                  >Worksheet</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </footer>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script>
+
+      class Component extends DCLogic {
+        state = {
+          summaryShown: true,
+          exportMenuOpen: false,
+          expanded: {},  // { [courseId]: boolean }
+          courses: [
+            { id: 'dsc197', code: 'DSC 197', section: '001', title: 'Data Science Internship', color: '#5bc0de', hidden: true, credits: 4, exams: [{ kind: 'Final', date: 'August 1, 2026', time: '8:00 AM – 11:00 AM', location: 'PCYNH 109', daysUntil: 32 }] },
+            { id: 'dsc20r', code: 'DSC 20R', section: 'A01', title: 'Programming and Basic Data Structures for Data Science', color: '#85c88a', hidden: true, credits: 4, exams: [{ kind: 'Midterm', date: 'July 15, 2026', time: '11:00 AM – 12:20 PM', location: 'CENTR 115', daysUntil: 15 }, { kind: 'Final', date: 'August 1, 2026', time: '11:30 AM – 2:30 PM', location: 'CENTR 115', daysUntil: 32 }] },
+            { id: 'ece15', code: 'ECE 15', section: 'A01', title: 'Engineering Computation: Introduction to Programming in C', color: '#f0c75e', hidden: true, credits: 4, exams: [] },
+            { id: 'econ120a', code: 'ECON 120A', section: 'A01', title: 'Econometrics A', color: '#6fb3f2', hidden: true, credits: 1, exams: [{ kind: 'Final', date: 'August 2, 2026', time: '3:00 PM – 6:00 PM', location: 'WLH 2001', daysUntil: 33 }] },
+          ],
+        };
+
+        // chroma-js-like color scale helper: green → yellow → red
+        colorScale(value, domain, colors) {
+          const [min, max] = domain;
+          let t = (value - min) / (max - min);
+          t = Math.max(0, Math.min(1, t));
+          // 3-stop: green(0) → yellow(0.5) → red(1)
+          const hexToRgb = (hex) => {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return [r, g, b];
+          };
+          const rgbToHex = (r, g, b) =>
+            '#' + [r, g, b].map(c => Math.round(c).toString(16).padStart(2, '0')).join('');
+          const lerp = (a, b, t) => a + (b - a) * t;
+          const c0 = hexToRgb(colors[0]);
+          const c1 = hexToRgb(colors[1]);
+          const c2 = hexToRgb(colors[2]);
+          let rgb;
+          if (t <= 0.5) {
+            const lt = t * 2;
+            rgb = [lerp(c0[0], c1[0], lt), lerp(c0[1], c1[1], lt), lerp(c0[2], c1[2], lt)];
+          } else {
+            const lt = (t - 0.5) * 2;
+            rgb = [lerp(c1[0], c2[0], lt), lerp(c1[1], c2[1], lt), lerp(c1[2], c2[2], lt)];
+          }
+          return rgbToHex(rgb[0], rgb[1], rgb[2]);
+        }
+
+        countdownBadgeStyle(daysUntil) {
+          let bg, color;
+          if (daysUntil < 0) { bg = '#f0f0f0'; color = '#888'; }
+          else if (daysUntil <= 3) { bg = '#fee2e2'; color = '#b91c1c'; }
+          else if (daysUntil <= 14) { bg = '#fef3c7'; color = '#92400e'; }
+          else { bg = '#e8f5e9'; color = '#2e7d32'; }
+          return `padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; line-height: 1.3; letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; background: ${bg}; color: ${color};`;
+        }
+
+        countdownLabel(daysUntil) {
+          if (daysUntil == null) return null;
+          if (daysUntil < 0) return 'Past';
+          if (daysUntil === 0) return 'Today';
+          if (daysUntil === 1) return 'Tomorrow';
+          if (daysUntil <= 3) return `In ${daysUntil} days`;
+          if (daysUntil <= 14) return `In ${daysUntil} days`;
+          return `In ${daysUntil} days`;
+        }
+
+        renderVals() {
+          const { summaryShown, exportMenuOpen, expanded, courses } = this.state;
+
+          const visibleCourses = courses.filter(c => !c.hidden);
+          const visibleCourseCount = courses.length;
+          const totalCredits = courses.reduce((sum, c) => sum + (c.credits ?? 0), 0);
+          const allHidden = courses.every(c => c.hidden);
+
+          const courseCountColor = this.colorScale(visibleCourseCount, [4, 6], ['#63b37b', '#ffeb84', '#f8696b']);
+          const creditColor = this.colorScale(totalCredits, [4, 5.5], ['#63b37b', '#ffeb84', '#f8696b']);
+
+          const summaryChevronStyle = summaryShown
+            ? 'margin-left: 2px; transition: transform 0.2s ease;'
+            : 'margin-left: 2px; transition: transform 0.2s ease; transform: rotate(180deg);';
+
+          // Eye icon SVG element for toolbar
+          const eyeIcon = allHidden
+            ? React.createElement('svg', { width: 24, height: 24, viewBox: '0 0 16 16', fill: 'currentColor', style: { transition: 'transform 0.3s' } },
+                React.createElement('path', { d: 'M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z' }),
+                React.createElement('path', { d: 'M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299l.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z' }),
+                React.createElement('path', { d: 'M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zM1.5 1.5l13 13' }),
+                React.createElement('line', { x1: 1.5, y1: 1.5, x2: 14.5, y2: 14.5, stroke: 'currentColor', strokeWidth: 1.2 })
+              )
+            : React.createElement('svg', { width: 24, height: 24, viewBox: '0 0 16 16', fill: 'currentColor', style: { transition: 'transform 0.3s' } },
+                React.createElement('path', { d: 'M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z' }),
+                React.createElement('path', { d: 'M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z' })
+              );
+
+          const courseItems = courses.map((c, idx) => {
+            const isExpanded = !!expanded[c.id];
+            const chevronStyle = isExpanded
+              ? 'width: 14px; height: 14px; transition: transform 0.2s ease; transform: rotate(180deg);'
+              : 'width: 14px; height: 14px; transition: transform 0.2s ease;';
+            const cardStyle = isExpanded
+              ? 'display: block; overflow: hidden; padding: 0; background: #fff; border: 0; border-radius: 8px; box-shadow: 0 2px 12px rgb(0 0 0 / 8%); transition: box-shadow 0.25s ease;'
+              : 'display: block; overflow: hidden; padding: 0; background: #fff; border: 0; border-radius: 8px; box-shadow: 0 1px 2px rgb(0 0 0 / 4%); transition: box-shadow 0.25s ease;';
+
+            const textColor = c.hidden ? '#b0b3be' : '#1a1a1a';
+            const sectionColor = c.hidden ? '#b0b3be' : '#999';
+            const titleColor = c.hidden ? '#b0b3be' : '#777';
+
+            // Hide eye icon
+            const hideIcon = c.hidden
+              ? React.createElement('svg', { width: 18, height: 18, viewBox: '0 0 16 16', fill: '#b0b3be' },
+                  React.createElement('path', { d: 'M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z' }),
+                  React.createElement('path', { d: 'M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299l.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z' }),
+                  React.createElement('path', { d: 'M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709z' }),
+                  React.createElement('line', { x1: 1.5, y1: 1.5, x2: 14.5, y2: 14.5, stroke: '#b0b3be', strokeWidth: 1.2 })
+                )
+              : React.createElement('svg', { width: 18, height: 18, viewBox: '0 0 16 16', fill: '#1a1a2e' },
+                  React.createElement('path', { d: 'M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z' }),
+                  React.createElement('path', { d: 'M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z' })
+                );
+
+            const exams = c.exams.map(exam => ({
+              kind: exam.kind,
+              date: exam.date,
+              meta: [exam.time, exam.location].filter(Boolean).join(' · '),
+              dotOpacity: exam.kind === 'Midterm' ? '0.5' : '1',
+              badge: this.countdownLabel(exam.daysUntil),
+              badgeStyle: this.countdownBadgeStyle(exam.daysUntil),
+            }));
+
+            return {
+              code: c.code,
+              section: c.section,
+              title: c.title,
+              color: c.color,
+              hidden: c.hidden,
+              expanded: isExpanded,
+              noExams: c.exams.length === 0,
+              cardStyle,
+              textColor,
+              sectionColor,
+              titleColor,
+              chevronStyle,
+              hideButtonOpacity: c.hidden ? '1' : '0',
+              hideIcon,
+              exams,
+              toggleExpand: () => this.setState(s => ({
+                expanded: { ...s.expanded, [c.id]: !s.expanded[c.id] }
+              })),
+              toggleHide: (e) => {
+                if (e && e.stopPropagation) e.stopPropagation();
+                this.setState(s => ({
+                  courses: s.courses.map(cc =>
+                    cc.id === c.id ? { ...cc, hidden: !cc.hidden } : cc
+                  )
+                }));
+              },
+              removeCourse: () => {
+                this.setState(s => ({
+                  courses: s.courses.filter(cc => cc.id !== c.id),
+                  expanded: { ...s.expanded, [c.id]: undefined }
+                }));
+              },
+            };
+          });
+
+          return {
+            summaryShown,
+            summaryChevronStyle,
+            exportMenuOpen,
+            visibleCourseCount,
+            totalCredits,
+            courseCountColor,
+            creditColor,
+            courses: courseItems,
+            eyeIcon,
+            toggleSummary: () => this.setState(s => ({ summaryShown: !s.summaryShown })),
+            toggleExportMenu: () => this.setState(s => ({ exportMenuOpen: !s.exportMenuOpen })),
+            handleExportICS: () => this.setState({ exportMenuOpen: false }),
+            handleExportURL: () => this.setState({ exportMenuOpen: false }),
+            toggleAllVisibility: () => {
+              this.setState(s => {
+                const allHidden = s.courses.every(c => c.hidden);
+                return {
+                  courses: s.courses.map(c => ({ ...c, hidden: !allHidden }))
+                };
+              });
+            },
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

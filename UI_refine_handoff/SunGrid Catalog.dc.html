@@ -1,0 +1,1599 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          *,
+          *::before,
+          *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+          }
+          body {
+            font-family:
+              'Inter',
+              system-ui,
+              -apple-system,
+              sans-serif;
+            background: #fff;
+            color: #33354d;
+            -webkit-font-smoothing: antialiased;
+          }
+          button {
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-family: inherit;
+          }
+          input {
+            font-family: inherit;
+          }
+          @keyframes popover-fade-in {
+            from {
+              opacity: 0;
+              transform: translateY(6px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        </style>
+      </helmet>
+
+      <!-- Full Page Container -->
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+          overflow: hidden;
+        "
+      >
+        <!-- ═══ NAVBAR ═══ -->
+        <div
+          style="
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            width: 100%;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+          "
+        >
+          <div
+            style="
+              display: flex;
+              align-items: flex-start;
+              padding: 0 16px;
+              height: 72px;
+            "
+          >
+            <!-- Left: Logo -->
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                gap: 1.25rem;
+                height: 100%;
+                padding-top: 12px;
+                padding-bottom: 12px;
+                flex-shrink: 0;
+              "
+            >
+              <span
+                style="
+                  font-family: 'Cormorant Garamond', serif;
+                  font-size: 20px;
+                  line-height: 1;
+                  white-space: nowrap;
+                  display: inline-flex;
+                  align-items: baseline;
+                "
+              >
+                <span
+                  style="font-weight: 600; font-style: italic; color: #0e9ae9"
+                  >Sun</span
+                ><span style="font-weight: 700; color: #182b50">Grid</span>
+              </span>
+            </div>
+
+            <!-- Center: Search form -->
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+                margin-left: 24px;
+                margin-right: 16px;
+                height: 100%;
+                justify-content: center;
+              "
+            >
+              <!-- Top row: search input + result count -->
+              <div style="display: flex; align-items: center; height: 36px">
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    width: 40vw;
+                    max-width: 500px;
+                    height: 100%;
+                    position: relative;
+                  "
+                >
+                  <input
+                    type="text"
+                    placeholder="Search by course code, title, instructor, or description"
+                    style="
+                      width: 100%;
+                      height: 100%;
+                      border: 2px solid #dcdee6;
+                      border-radius: 8px;
+                      padding: 0 12px;
+                      font-size: 14px;
+                      color: #33354d;
+                      background: #fff;
+                      outline: none;
+                      transition: border-color 0.15s;
+                    "
+                  />
+                </div>
+                <span
+                  style="
+                    white-space: nowrap;
+                    margin-left: 8px;
+                    font-size: 11px;
+                    color: #8b8fa3;
+                    display: flex;
+                    align-items: flex-end;
+                  "
+                  >Showing {{ resultCount }} results</span
+                >
+              </div>
+              <!-- Bottom row: filter selects -->
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  height: 32px;
+                  gap: 6px;
+                  margin-top: 2px;
+                "
+              ></div>
+            </div>
+
+            <!-- Right: nav links + avatar -->
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 0;
+                height: 100%;
+                flex-shrink: 0;
+              "
+            >
+              <!-- Dark mode button -->
+              <button
+                type="button"
+                style="
+                  padding: 0 16px 0 0;
+                  color: #8b8fa3;
+                  display: flex;
+                  align-items: center;
+                  transition: color 0.1s;
+                "
+                style-hover="color: #1a56db;"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <circle
+                    cx="10"
+                    cy="10"
+                    r="4.5"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    fill="none"
+                  ></circle>
+                  <line
+                    x1="10"
+                    y1="1"
+                    x2="10"
+                    y2="4"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  ></line>
+                  <line
+                    x1="10"
+                    y1="16"
+                    x2="10"
+                    y2="19"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  ></line>
+                  <line
+                    x1="1"
+                    y1="10"
+                    x2="4"
+                    y2="10"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  ></line>
+                  <line
+                    x1="16"
+                    y1="10"
+                    x2="19"
+                    y2="10"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  ></line>
+                  <line
+                    x1="3.9"
+                    y1="3.9"
+                    x2="5.7"
+                    y2="5.7"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  ></line>
+                  <line
+                    x1="14.3"
+                    y1="14.3"
+                    x2="16.1"
+                    y2="16.1"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  ></line>
+                  <line
+                    x1="3.9"
+                    y1="16.1"
+                    x2="5.7"
+                    y2="14.3"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  ></line>
+                  <line
+                    x1="14.3"
+                    y1="5.7"
+                    x2="16.1"
+                    y2="3.9"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  ></line>
+                </svg>
+              </button>
+              <!-- Catalog link -->
+              <a
+                href="#"
+                style="
+                  padding: 8px 16px 8px 0;
+                  user-select: none;
+                  font-weight: 500;
+                  font-size: 1rem;
+                  color: #1a56db;
+                  text-decoration: none;
+                  transition: color 0.15s;
+                "
+                >Catalog</a
+              >
+              <!-- Worksheet link -->
+              <a
+                href="#"
+                style="
+                  padding: 8px 16px 8px 0;
+                  user-select: none;
+                  font-weight: 500;
+                  font-size: 1rem;
+                  color: #8b8fa3;
+                  text-decoration: none;
+                  transition: color 0.15s;
+                "
+                style-hover="color: #1a56db;"
+                >Worksheet</a
+              >
+              <!-- User avatar -->
+              <div style="margin-top: auto; margin-bottom: auto">
+                <button
+                  type="button"
+                  style="
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 15px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: #1a56db;
+                    color: #fff;
+                    font-weight: 700;
+                    font-size: 11px;
+                    transition: background 0.15s;
+                  "
+                >
+                  <span style="transform: scaleX(0.8)">PT</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ FILTER BAR ═══ -->
+        <div
+          style="
+            padding: 10px 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #f0f1f5;
+          "
+        >
+          <!-- Subject dropdown -->
+          <sc-for list="{{ dropdowns }}" as="dd">
+            <div style="position: relative">
+              <button
+                type="button"
+                onClick="{{ dd.toggle }}"
+                style="
+                  padding: 7px 12px;
+                  border: 1px solid #dcdee6;
+                  border-radius: 8px;
+                  font-size: 13px;
+                  font-weight: 500;
+                  color: #4a4d68;
+                  background: #fff;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  transition: background 0.15s;
+                "
+                style-hover="background: #f8f9fb;"
+              >
+                {{ dd.label }}
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 10 10"
+                  fill="none"
+                  style="flex-shrink: 0"
+                >
+                  <path
+                    d="M2 3.5l3 3 3-3"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+              </button>
+              <sc-if value="{{ dd.open }}">
+                <div
+                  style="
+                    position: absolute;
+                    top: calc(100% + 6px);
+                    left: 0;
+                    z-index: 20;
+                    background: #fff;
+                    border: 1px solid #dcdee6;
+                    border-radius: 8px;
+                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+                    padding: 6px;
+                    min-width: 190px;
+                    max-height: 280px;
+                    overflow-y: auto;
+                    animation: popover-fade-in 0.14s ease-out;
+                  "
+                >
+                  <sc-if value="{{ dd.searchable }}">
+                    <div style="padding: 4px 4px 8px">
+                      <input
+                        type="search"
+                        placeholder="{{ dd.searchPlaceholder }}"
+                        style="
+                          width: 100%;
+                          min-width: 260px;
+                          height: 38px;
+                          padding: 0 12px;
+                          border: 1px solid #dcdee6;
+                          border-radius: 8px;
+                          color: #33354d;
+                          background: #fff;
+                          font: inherit;
+                          font-size: 13px;
+                          outline: none;
+                        "
+                      />
+                    </div>
+                  </sc-if>
+                  <sc-for list="{{ dd.options }}" as="opt">
+                    <button
+                      type="button"
+                      onClick="{{ opt.onToggle }}"
+                      style="width: 100%; text-align: left; padding: 8px 10px; font-size: 13px; color: {{ opt.selected }} ? '#1a56db' : '#33354d'; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.1s; font-weight: {{ opt.selected }} ? 600 : 400; background: {{ opt.selected }} ? '#eef3ff' : 'transparent';"
+                      style-hover="background: #f4f6fa;"
+                    >
+                      <span
+                        style="width: 14px; height: 14px; border: 1px solid {{ opt.selected }} ? '#1a56db' : '#dcdee6'; border-radius: 3px; background: {{ opt.selected }} ? '#1a56db' : '#fff'; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff;"
+                      >
+                        <sc-if value="{{ opt.selected }}">
+                          <svg viewBox="0 0 10 10" width="10" height="10">
+                            <path
+                              d="M2 5.2l1.9 1.9L8 3"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="1.7"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            ></path>
+                          </svg>
+                        </sc-if>
+                      </span>
+                      <span
+                        style="
+                          overflow: hidden;
+                          text-overflow: ellipsis;
+                          white-space: nowrap;
+                        "
+                        >{{ opt.label }}</span
+                      >
+                    </button>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+
+          <!-- Filter chips -->
+          <sc-for list="{{ activeChips }}" as="chip">
+            <span
+              style="
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 6px 10px 6px 12px;
+                background: #eef3ff;
+                border-radius: 20px;
+                font-size: 12.5px;
+                font-weight: 500;
+                color: #1a56db;
+              "
+            >
+              {{ chip.label }}
+              <button
+                type="button"
+                onClick="{{ chip.onRemove }}"
+                style="
+                  width: 18px;
+                  height: 18px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  border-radius: 50%;
+                  color: #1a56db;
+                  transition: background 0.15s;
+                "
+                style-hover="background: rgba(26,86,219,0.12);"
+              >
+                <svg width="10" height="10" viewBox="0 0 10 10">
+                  <path
+                    d="M2 2l6 6M8 2l-6 6"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  ></path>
+                </svg>
+              </button>
+            </span>
+          </sc-for>
+
+          <!-- Reset button -->
+          <sc-if value="{{ showReset }}">
+            <button
+              type="button"
+              onClick="{{ resetFilters }}"
+              style="
+                padding: 7px 16px;
+                background: #e8446a;
+                border-radius: 8px;
+                font-size: 13px;
+                font-weight: 600;
+                color: #fff;
+                transition: background 0.15s;
+              "
+              style-hover="background: #d63a5e;"
+            >
+              Reset
+            </button>
+          </sc-if>
+
+          <div style="flex: 1"></div>
+
+          <!-- Updated label -->
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 5px;
+              font-size: 12.5px;
+              color: #8b8fa3;
+              flex-shrink: 0;
+              white-space: nowrap;
+            "
+          >
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 13 13"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            >
+              <circle cx="6.5" cy="6.5" r="5"></circle>
+              <polyline points="6.5,3.5 6.5,6.5 8.5,8"></polyline>
+            </svg>
+            <span>Updated today</span>
+          </div>
+        </div>
+
+        <!-- ═══ CATALOG TABLE ═══ -->
+        <div style="flex: 1; overflow: auto; padding: 0 24px 24px">
+          <div style="min-width: 970px">
+            <!-- Sticky Header -->
+            <div
+              style="
+                position: sticky;
+                top: 0;
+                background: #fff;
+                z-index: 10;
+                border-bottom: 2px solid #e8e9ef;
+                display: flex;
+                align-items: center;
+              "
+            >
+              <!-- Add col -->
+              <div
+                style="width: 44px; flex-shrink: 0; padding: 10px 8px 10px 0"
+              ></div>
+              <!-- Code -->
+              <div
+                style="
+                  width: 200px;
+                  flex-shrink: 0;
+                  font-size: 11px;
+                  font-weight: 600;
+                  color: #8b8fa3;
+                  text-transform: uppercase;
+                  letter-spacing: 0.05em;
+                  padding: 10px 12px;
+                  user-select: none;
+                  display: flex;
+                  align-items: center;
+                  gap: 4px;
+                "
+              >
+                <span>Code</span>
+                <button
+                  type="button"
+                  onClick="{{ sortByCode }}"
+                  style="
+                    appearance: none;
+                    border: 0;
+                    background: transparent;
+                    padding: 2px;
+                    color: #1a56db;
+                    margin-left: 3px;
+                    cursor: pointer;
+                    line-height: 1;
+                    font-family: inherit;
+                    font-size: inherit;
+                    font-weight: inherit;
+                  "
+                  style-hover="color: #1548b8;"
+                >
+                  {{ codeSortIcon }}
+                </button>
+              </div>
+              <!-- Title -->
+              <div
+                style="
+                  flex: 1;
+                  min-width: 0;
+                  font-size: 11px;
+                  font-weight: 600;
+                  color: #8b8fa3;
+                  text-transform: uppercase;
+                  letter-spacing: 0.05em;
+                  padding: 10px 12px;
+                  user-select: none;
+                  display: flex;
+                  align-items: center;
+                  gap: 4px;
+                "
+              >
+                <span>Title</span>
+                <button
+                  type="button"
+                  onClick="{{ sortByTitle }}"
+                  style="
+                    appearance: none;
+                    border: 0;
+                    background: transparent;
+                    padding: 2px;
+                    color: #1a56db;
+                    margin-left: 3px;
+                    cursor: pointer;
+                    line-height: 1;
+                    font-family: inherit;
+                    font-size: inherit;
+                    font-weight: inherit;
+                  "
+                  style-hover="color: #1548b8;"
+                >
+                  {{ titleSortIcon }}
+                </button>
+              </div>
+              <!-- Term -->
+              <sc-if value="{{ showTermCol }}">
+                <div
+                  style="
+                    width: 86px;
+                    flex-shrink: 0;
+                    font-size: 11px;
+                    font-weight: 600;
+                    color: #8b8fa3;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    padding: 10px 12px;
+                    user-select: none;
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                  "
+                >
+                  <span>Term</span>
+                  <button
+                    type="button"
+                    onClick="{{ sortByTerm }}"
+                    style="
+                      appearance: none;
+                      border: 0;
+                      background: transparent;
+                      padding: 2px;
+                      color: #1a56db;
+                      margin-left: 3px;
+                      cursor: pointer;
+                      line-height: 1;
+                      font-family: inherit;
+                      font-size: inherit;
+                      font-weight: inherit;
+                    "
+                    style-hover="color: #1548b8;"
+                  >
+                    ▼
+                  </button>
+                </div>
+              </sc-if>
+              <!-- Instructors -->
+              <div
+                style="
+                  width: 165px;
+                  flex-shrink: 0;
+                  font-size: 11px;
+                  font-weight: 600;
+                  color: #8b8fa3;
+                  text-transform: uppercase;
+                  letter-spacing: 0.05em;
+                  padding: 10px 12px;
+                  user-select: none;
+                "
+              >
+                Instructors
+              </div>
+              <!-- Meets -->
+              <div
+                style="
+                  width: 220px;
+                  flex-shrink: 0;
+                  font-size: 11px;
+                  font-weight: 600;
+                  color: #8b8fa3;
+                  text-transform: uppercase;
+                  letter-spacing: 0.05em;
+                  padding: 10px 12px;
+                  user-select: none;
+                  display: flex;
+                  align-items: center;
+                  gap: 4px;
+                "
+              >
+                <span>Meets</span>
+                <button
+                  type="button"
+                  onClick="{{ sortByMeets }}"
+                  style="
+                    appearance: none;
+                    border: 0;
+                    background: transparent;
+                    padding: 2px;
+                    color: #1a56db;
+                    margin-left: 3px;
+                    cursor: pointer;
+                    line-height: 1;
+                    font-family: inherit;
+                    font-size: inherit;
+                    font-weight: inherit;
+                  "
+                  style-hover="color: #1548b8;"
+                >
+                  {{ meetsSortIcon }}
+                </button>
+              </div>
+              <!-- Location -->
+              <div
+                style="
+                  width: 100px;
+                  flex-shrink: 0;
+                  font-size: 11px;
+                  font-weight: 600;
+                  color: #8b8fa3;
+                  text-transform: uppercase;
+                  letter-spacing: 0.05em;
+                  padding: 10px 12px;
+                  user-select: none;
+                "
+              >
+                Location
+              </div>
+              <!-- Seats -->
+              <div
+                style="
+                  width: 136px;
+                  flex-shrink: 0;
+                  font-size: 11px;
+                  font-weight: 600;
+                  color: #8b8fa3;
+                  text-transform: uppercase;
+                  letter-spacing: 0.05em;
+                  padding: 10px 12px;
+                  user-select: none;
+                "
+              >
+                Seats
+              </div>
+            </div>
+
+            <!-- Course Rows -->
+            <sc-for list="{{ courseRows }}" as="row">
+              <!-- Normal flat row -->
+              <sc-if value="{{ row.isFlat }}">
+                <div
+                  onClick="{{ row.onClick }}"
+                  style="display: flex; align-items: center; min-height: 45px; border-bottom: 1px solid #f0f1f5; transition: background 0.1s; cursor: pointer; background: {{ row.bgColor }};"
+                  style-hover="background: #f4f6fa;"
+                >
+                  <!-- + button -->
+                  <div
+                    style="
+                      width: 44px;
+                      flex-shrink: 0;
+                      padding: 11px 8px 11px 0;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                    "
+                  >
+                    {{ row.toggleBtn }}
+                  </div>
+                  <!-- Code + Section -->
+                  <div
+                    style="
+                      width: 200px;
+                      flex-shrink: 0;
+                      padding: 11px 12px;
+                      font-size: 13.5px;
+                      display: grid;
+                      grid-template-columns: 9ch minmax(0, 92px);
+                      align-items: center;
+                      column-gap: 8px;
+                    "
+                  >
+                    <span
+                      style="
+                        font-weight: 700;
+                        color: #1a1a2e;
+                        white-space: nowrap;
+                      "
+                      >{{ row.code }}</span
+                    >
+                    <span
+                      style="
+                        color: #8b8fa3;
+                        font-weight: 500;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                      "
+                      >{{ row.section }}</span
+                    >
+                  </div>
+                  <!-- Title -->
+                  <div
+                    style="
+                      flex: 1;
+                      min-width: 0;
+                      padding: 11px 12px;
+                      font-size: 13.5px;
+                      font-weight: 500;
+                      color: #33354d;
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                      white-space: nowrap;
+                    "
+                  >
+                    {{ row.title }}
+                  </div>
+                  <!-- Term -->
+                  <sc-if value="{{ showTermCol }}">
+                    <div
+                      style="
+                        width: 86px;
+                        flex-shrink: 0;
+                        padding: 11px 12px;
+                        display: flex;
+                        align-items: center;
+                      "
+                    >
+                      {{ row.termBadge }}
+                    </div>
+                  </sc-if>
+                  <!-- Instructor -->
+                  <div
+                    style="
+                      width: 165px;
+                      flex-shrink: 0;
+                      padding: 11px 12px;
+                      font-size: 12.5px;
+                      color: #5a5d7a;
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                      white-space: nowrap;
+                    "
+                  >
+                    {{ row.instructor }}
+                  </div>
+                  <!-- Meets -->
+                  <div
+                    style="
+                      width: 220px;
+                      flex-shrink: 0;
+                      padding: 11px 12px;
+                      display: flex;
+                      align-items: center;
+                      gap: 6px;
+                    "
+                  >
+                    {{ row.dayDots }}
+                    <span
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 500;
+                        color: #33354d;
+                        white-space: nowrap;
+                      "
+                      >{{ row.time }}</span
+                    >
+                  </div>
+                  <!-- Location -->
+                  <div
+                    style="
+                      width: 100px;
+                      flex-shrink: 0;
+                      padding: 11px 12px;
+                      font-size: 12.5px;
+                      color: #5a5d7a;
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                      white-space: nowrap;
+                    "
+                  >
+                    {{ row.location }}
+                  </div>
+                  <!-- Seats -->
+                  <div
+                    style="
+                      width: 136px;
+                      flex-shrink: 0;
+                      padding: 11px 12px;
+                      overflow: visible;
+                    "
+                  >
+                    {{ row.seatsDisplay }}
+                  </div>
+                </div>
+              </sc-if>
+
+              <!-- Expandable multi-section row -->
+              <sc-if value="{{ row.isExpandable }}">
+                <div
+                  style="border-radius: {{ row.expanded }} ? '10px' : '0'; overflow: hidden; box-shadow: {{ row.expanded }} ? '0 0 0 1px #e0e2e8, 0 2px 8px rgba(0,0,0,0.04)' : 'none'; margin: 0 0 1px;"
+                >
+                  <!-- Parent row -->
+                  <div
+                    style="display: flex; align-items: center; min-height: 45px; border-bottom: 1px solid #f0f1f5; transition: background 0.1s; cursor: pointer; background: {{ row.expanded }} ? '#fafbfc' : {{ row.bgColor }};"
+                    style-hover="background: #f4f6fa;"
+                  >
+                    <div
+                      style="
+                        width: 44px;
+                        flex-shrink: 0;
+                        padding: 11px 8px 11px 0;
+                      "
+                    ></div>
+                    <!-- Code + sections badge -->
+                    <div
+                      onClick="{{ row.toggleExpand }}"
+                      style="
+                        width: 200px;
+                        flex-shrink: 0;
+                        padding: 11px 12px;
+                        font-size: 13.5px;
+                        display: grid;
+                        grid-template-columns: 9ch minmax(0, 92px);
+                        align-items: center;
+                        column-gap: 8px;
+                        cursor: pointer;
+                      "
+                    >
+                      <span
+                        style="
+                          font-weight: 700;
+                          color: #1a1a2e;
+                          white-space: nowrap;
+                        "
+                        >{{ row.code }}</span
+                      >
+                      <span
+                        style="
+                          display: inline-flex;
+                          align-items: center;
+                          gap: 3px;
+                          padding: 2px 8px;
+                          border-radius: 10px;
+                          background: #dbeafe;
+                          color: #1e40af;
+                          font-size: 10px;
+                          font-weight: 600;
+                          white-space: nowrap;
+                        "
+                      >
+                        {{ row.sectionCount }} sections {{ row.chevron }}
+                      </span>
+                    </div>
+                    <!-- Title -->
+                    <div
+                      onClick="{{ row.onClick }}"
+                      style="
+                        flex: 1;
+                        min-width: 0;
+                        padding: 11px 12px;
+                        font-size: 13.5px;
+                        font-weight: 500;
+                        color: #33354d;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        cursor: pointer;
+                      "
+                    >
+                      {{ row.title }}
+                    </div>
+                    <!-- Term -->
+                    <sc-if value="{{ showTermCol }}">
+                      <div
+                        style="
+                          width: 86px;
+                          flex-shrink: 0;
+                          padding: 11px 12px;
+                          display: flex;
+                          align-items: center;
+                        "
+                      >
+                        {{ row.termBadge }}
+                      </div>
+                    </sc-if>
+                    <!-- Summary cells -->
+                    <div
+                      style="
+                        width: 165px;
+                        flex-shrink: 0;
+                        padding: 11px 12px;
+                        font-size: 12px;
+                        color: #9a9db4;
+                      "
+                    >
+                      {{ row.instructorSummary }}
+                    </div>
+                    <div
+                      style="
+                        width: 220px;
+                        flex-shrink: 0;
+                        padding: 11px 12px;
+                        font-size: 12px;
+                        color: #9a9db4;
+                      "
+                    >
+                      Multiple schedules
+                    </div>
+                    <div
+                      style="
+                        width: 100px;
+                        flex-shrink: 0;
+                        padding: 11px 12px;
+                        font-size: 12px;
+                        color: #9a9db4;
+                      "
+                    >
+                      {{ row.locationSummary }}
+                    </div>
+                    <div
+                      style="width: 136px; flex-shrink: 0; padding: 11px 12px"
+                    ></div>
+                  </div>
+                  <!-- Sub-rows -->
+                  <sc-if value="{{ row.expanded }}">
+                    <div
+                      style="
+                        max-height: 180px;
+                        overflow: hidden auto;
+                        border-top: 1px solid #eef0f4;
+                      "
+                    >
+                      <sc-for list="{{ row.subRows }}" as="sub">
+                        <div
+                          style="
+                            display: flex;
+                            align-items: center;
+                            min-height: 37px;
+                            background: #fafbfc;
+                            border-bottom: 1px solid #eef0f4;
+                            font-size: 13px;
+                            transition: background 0.1s;
+                            cursor: pointer;
+                          "
+                          style-hover="background: #f3f4f6;"
+                        >
+                          <div
+                            style="
+                              width: 44px;
+                              flex-shrink: 0;
+                              padding: 9px 8px 9px 0;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                            "
+                          >
+                            {{ sub.toggleBtn }}
+                          </div>
+                          <div
+                            style="
+                              width: 200px;
+                              flex-shrink: 0;
+                              padding: 9px 12px;
+                            "
+                          >
+                            <span
+                              style="
+                                display: inline-flex;
+                                align-items: center;
+                                justify-content: center;
+                                padding: 2px 8px;
+                                border-radius: 4px;
+                                background: #dbeafe;
+                                color: #1e40af;
+                                font-size: 10.5px;
+                                font-weight: 700;
+                              "
+                              >{{ sub.section }}</span
+                            >
+                          </div>
+                          <div
+                            style="
+                              flex: 1;
+                              min-width: 0;
+                              padding: 9px 12px;
+                              display: flex;
+                              align-items: center;
+                              gap: 8px;
+                            "
+                          >
+                            <sc-if value="{{ sub.meetingType }}">
+                              <span
+                                style="
+                                  padding: 2px 7px;
+                                  border-radius: 4px;
+                                  background: #f0f1f5;
+                                  color: #5a5d7a;
+                                  font-size: 10px;
+                                  font-weight: 600;
+                                  letter-spacing: 0.03em;
+                                "
+                                >{{ sub.meetingType }}</span
+                              >
+                            </sc-if>
+                            {{ sub.seatsBar }}
+                          </div>
+                          <sc-if value="{{ showTermCol }}">
+                            <div
+                              style="
+                                width: 86px;
+                                flex-shrink: 0;
+                                padding: 9px 12px;
+                              "
+                            ></div>
+                          </sc-if>
+                          <div
+                            style="
+                              width: 165px;
+                              flex-shrink: 0;
+                              padding: 9px 12px;
+                              font-size: 12.5px;
+                              color: #5a5d7a;
+                              overflow: hidden;
+                              text-overflow: ellipsis;
+                              white-space: nowrap;
+                            "
+                          >
+                            {{ sub.instructor }}
+                          </div>
+                          <div
+                            style="
+                              width: 220px;
+                              flex-shrink: 0;
+                              padding: 9px 12px;
+                              display: flex;
+                              align-items: center;
+                              gap: 6px;
+                            "
+                          >
+                            {{ sub.dayDots }}
+                            <span
+                              style="
+                                font-size: 12.5px;
+                                font-weight: 500;
+                                color: #33354d;
+                                white-space: nowrap;
+                              "
+                              >{{ sub.time }}</span
+                            >
+                          </div>
+                          <div
+                            style="
+                              width: 100px;
+                              flex-shrink: 0;
+                              padding: 9px 12px;
+                              font-size: 12.5px;
+                              color: #5a5d7a;
+                            "
+                          >
+                            {{ sub.location }}
+                          </div>
+                          <div
+                            style="
+                              width: 136px;
+                              flex-shrink: 0;
+                              padding: 9px 12px;
+                            "
+                          ></div>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-if>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{
+  "$preview": { "width": "100%", "height": "100vh" },
+  "showTermColumn": { "editor": "boolean", "default": false, "section": "Display" },
+  "density": { "editor": "enum", "options": ["compact", "default", "comfortable"], "default": "default", "section": "Display" }
+}'
+    >
+
+      class Component extends DCLogic {
+        state = {
+          sortKey: 'code',
+          sortAsc: true,
+          expandedRows: new Set(),
+          openDropdown: null,
+          selectedSubjects: [],
+          selectedLevel: null,
+          selectedTerm: 'S126',
+          addedCourses: new Set(),
+        };
+
+        // Realistic UCSD course data
+        getCourseData() {
+          return [
+            { code: 'ANAR 144', section: 'A00', title: 'Pharaohs, Mummies, and Pyramids', instructor: 'Levy, Thomas', days: { M: true, Tu: false, W: true, Th: false, F: true, Sa: false, Su: false }, time: '9:00a–9:50a', location: 'CENTR 109', seats: { enrolled: 148, capacity: 200 }, season: 'S126', meetingType: null },
+            { code: 'ANBI 132', section: 'A00', title: 'Primate Behavioral Ecology', instructor: 'Jaeggi, Adrian', days: { M: false, Tu: true, W: false, Th: true, F: false, Sa: false, Su: false }, time: '12:30p–1:50p', location: 'PETER 110', seats: { enrolled: 85, capacity: 100 }, season: 'S126', meetingType: null },
+            { code: 'ANAR 111', section: 'A00', title: 'Foundations of Archaeology', instructor: 'Pilloud, Marin', days: { M: true, Tu: false, W: true, Th: false, F: true, Sa: false, Su: false }, time: '11:00a–11:50a', location: 'WLH 2005', seats: { enrolled: 120, capacity: 150 }, season: 'S126', meetingType: null },
+            { code: 'ANBI 167', section: null, title: 'Human Genetics', instructor: null, sectionCount: 4, season: 'S126', subSections: [
+              { section: 'A00', meetingType: 'LE', instructor: 'Muotri, Alysson', days: { M: false, Tu: true, W: false, Th: true, F: false, Sa: false, Su: false }, time: '2:00p–3:20p', location: 'YORK 2622', seats: { enrolled: 155, capacity: 196 } },
+              { section: 'A01', meetingType: 'DI', instructor: 'Muotri, Alysson', days: { M: false, Tu: false, W: true, Th: false, F: false, Sa: false, Su: false }, time: '5:00p–5:50p', location: 'CENTR 212', seats: { enrolled: 38, capacity: 49 } },
+              { section: 'A02', meetingType: 'DI', instructor: 'Muotri, Alysson', days: { M: false, Tu: false, W: true, Th: false, F: false, Sa: false, Su: false }, time: '6:00p–6:50p', location: 'CENTR 212', seats: { enrolled: 40, capacity: 49 } },
+              { section: 'A03', meetingType: 'DI', instructor: 'Muotri, Alysson', days: { M: false, Tu: false, W: false, Th: true, F: false, Sa: false, Su: false }, time: '5:00p–5:50p', location: 'CENTR 212', seats: { enrolled: 38, capacity: 49 } },
+            ]},
+            { code: 'ANSC 101', section: 'A00', title: 'Sociocultural Anthropology', instructor: 'Hankins, Joseph', days: { M: false, Tu: true, W: false, Th: true, F: false, Sa: false, Su: false }, time: '9:30a–10:50a', location: 'CENTR 115', seats: { enrolled: 30, capacity: 197 }, season: 'S126', meetingType: null },
+            { code: 'ANSC 122', section: 'A00', title: 'Culture, Power and Practice', instructor: 'Mendoza-Denton, Norma', days: { M: true, Tu: false, W: true, Th: false, F: false, Sa: false, Su: false }, time: '5:00p–6:20p', location: 'SSB 107', seats: { enrolled: 42, capacity: 80 }, season: 'S126', meetingType: null },
+            { code: 'BENG 1', section: null, title: 'Bioengineering Seminar', instructor: null, sectionCount: 2, season: 'S126', subSections: [
+              { section: 'A00', meetingType: 'SE', instructor: 'Bhatt, Dhruv', days: { M: true, Tu: false, W: false, Th: false, F: false, Sa: false, Su: false }, time: '4:00p–4:50p', location: 'YORK 4050', seats: { enrolled: 25, capacity: 80 } },
+              { section: 'B00', meetingType: 'SE', instructor: 'Bhatt, Dhruv', days: { M: false, Tu: false, W: true, Th: false, F: false, Sa: false, Su: false }, time: '4:00p–4:50p', location: 'YORK 4050', seats: { enrolled: 22, capacity: 80 } },
+            ]},
+            { code: 'BENG 87', section: 'A00', title: 'Bioengineering Freshman Seminar', instructor: 'Bhatt, Dhruv', days: { M: true, Tu: false, W: false, Th: false, F: false, Sa: false, Su: false }, time: '2:00p–2:50p', location: 'YORK 4050', seats: { enrolled: 15, capacity: 35 }, season: 'S126', meetingType: null },
+            { code: 'BENG 100', section: 'A00', title: 'Bioengineering Fundamentals', instructor: 'Bhatt, Dhruv', days: { M: false, Tu: true, W: false, Th: true, F: false, Sa: false, Su: false }, time: '11:00a–12:20p', location: 'WLH 2001', seats: { enrolled: 130, capacity: 150 }, season: 'S126', meetingType: null },
+            { code: 'BENG 110', section: 'A00', title: 'Biomechanics I', instructor: 'Bhatt, Dhruv', days: { M: true, Tu: false, W: true, Th: false, F: true, Sa: false, Su: false }, time: '10:00a–10:50a', location: 'PCYNH 109', seats: { enrolled: 70, capacity: 75 }, season: 'S126', meetingType: null },
+            { code: 'BILD 1', section: null, title: 'The Cell', instructor: null, sectionCount: 6, season: 'S126', subSections: [
+              { section: 'A00', meetingType: 'LE', instructor: 'Bhatt, Dhruv', days: { M: false, Tu: true, W: false, Th: true, F: false, Sa: false, Su: false }, time: '8:00a–9:20a', location: 'YORK 2622', seats: { enrolled: 380, capacity: 400 } },
+              { section: 'A01', meetingType: 'DI', instructor: 'Staff', days: { M: true, Tu: false, W: false, Th: false, F: false, Sa: false, Su: false }, time: '3:00p–3:50p', location: 'CENTR 212', seats: { enrolled: 95, capacity: 100 } },
+              { section: 'A02', meetingType: 'DI', instructor: 'Staff', days: { M: true, Tu: false, W: false, Th: false, F: false, Sa: false, Su: false }, time: '4:00p–4:50p', location: 'CENTR 212', seats: { enrolled: 98, capacity: 100 } },
+              { section: 'A03', meetingType: 'DI', instructor: 'Staff', days: { M: false, Tu: false, W: true, Th: false, F: false, Sa: false, Su: false }, time: '3:00p–3:50p', location: 'CENTR 212', seats: { enrolled: 90, capacity: 100 } },
+              { section: 'A04', meetingType: 'DI', instructor: 'Staff', days: { M: false, Tu: false, W: true, Th: false, F: false, Sa: false, Su: false }, time: '4:00p–4:50p', location: 'CENTR 212', seats: { enrolled: 92, capacity: 100 } },
+              { section: 'B00', meetingType: 'LE', instructor: 'Bhatt, Dhruv', days: { M: false, Tu: true, W: false, Th: true, F: false, Sa: false, Su: false }, time: '12:30p–1:50p', location: 'YORK 2622', seats: { enrolled: 370, capacity: 400 } },
+            ]},
+            { code: 'BILD 2', section: 'A00', title: 'Multicellular Life', instructor: 'Kuo, Calvin', days: { M: true, Tu: false, W: true, Th: false, F: true, Sa: false, Su: false }, time: '9:00a–9:50a', location: 'PETER 110', seats: { enrolled: 250, capacity: 300 }, season: 'S126', meetingType: null },
+            { code: 'BILD 3', section: 'A00', title: 'Organismic & Evolutionary Biology', instructor: 'Kuo, Calvin', days: { M: false, Tu: true, W: false, Th: true, F: false, Sa: false, Su: false }, time: '3:30p–4:50p', location: 'WLH 2005', seats: { enrolled: 178, capacity: 200 }, season: 'S126', meetingType: null },
+            { code: 'CHEM 6A', section: 'A00', title: 'General Chemistry I', instructor: 'Hoeger, Carl', days: { M: true, Tu: false, W: true, Th: false, F: true, Sa: false, Su: false }, time: '8:00a–8:50a', location: 'YORK 2622', seats: { enrolled: 395, capacity: 400 }, season: 'S126', meetingType: null },
+            { code: 'CHEM 6B', section: 'A00', title: 'General Chemistry II', instructor: 'Stallings, Karl', days: { M: true, Tu: false, W: true, Th: false, F: true, Sa: false, Su: false }, time: '10:00a–10:50a', location: 'YORK 2622', seats: { enrolled: 380, capacity: 400 }, season: 'S126', meetingType: null },
+            { code: 'CSE 11', section: null, title: 'Introduction to Programming and Computational Problem-Solving: Accelerated Pace', instructor: null, sectionCount: 3, season: 'S126', subSections: [
+              { section: 'A00', meetingType: 'LE', instructor: 'Cao, Yingjun', days: { M: true, Tu: false, W: true, Th: false, F: true, Sa: false, Su: false }, time: '9:00a–9:50a', location: 'CENTR 109', seats: { enrolled: 198, capacity: 200 } },
+              { section: 'A01', meetingType: 'DI', instructor: 'Staff', days: { M: false, Tu: false, W: false, Th: true, F: false, Sa: false, Su: false }, time: '4:00p–4:50p', location: 'B0A A0117', seats: { enrolled: 98, capacity: 100 } },
+              { section: 'A02', meetingType: 'DI', instructor: 'Staff', days: { M: false, Tu: false, W: false, Th: true, F: false, Sa: false, Su: false }, time: '5:00p–5:50p', location: 'B0A A0117', seats: { enrolled: 100, capacity: 100 } },
+            ]},
+            { code: 'CSE 12', section: 'A00', title: 'Basic Data Structures and Object-Oriented Design', instructor: 'Cao, Yingjun', days: { M: true, Tu: false, W: true, Th: false, F: true, Sa: false, Su: false }, time: '11:00a–11:50a', location: 'CENTR 109', seats: { enrolled: 190, capacity: 200 }, season: 'S126', meetingType: null },
+            { code: 'CSE 15L', section: 'A00', title: 'Software Tools and Techniques Laboratory', instructor: 'Politz, Joe', days: { M: false, Tu: true, W: false, Th: true, F: false, Sa: false, Su: false }, time: '10:00a–11:20a', location: 'CENTR 115', seats: { enrolled: 190, capacity: 200 }, season: 'S126', meetingType: null },
+            { code: 'CSE 30', section: 'A00', title: 'Computer Organization & Systems Programming', instructor: 'Eldon, Leo', days: { M: true, Tu: false, W: true, Th: false, F: true, Sa: false, Su: false }, time: '2:00p–2:50p', location: 'WLH 2005', seats: { enrolled: 196, capacity: 200 }, season: 'S126', meetingType: null },
+            { code: 'CSE 100', section: 'A00', title: 'Advanced Data Structures', instructor: 'Niema, Moshiri', days: { M: false, Tu: true, W: false, Th: true, F: false, Sa: false, Su: false }, time: '2:00p–3:20p', location: 'CENTR 109', seats: { enrolled: 248, capacity: 250 }, season: 'S126', meetingType: null },
+            { code: 'CSE 110', section: 'A00', title: 'Software Engineering', instructor: 'Powell, Thomas', days: { M: true, Tu: false, W: true, Th: false, F: false, Sa: false, Su: false }, time: '3:30p–4:50p', location: 'CENTR 115', seats: { enrolled: 195, capacity: 200 }, season: 'S126', meetingType: null },
+            { code: 'CSE 140', section: 'A00', title: 'Components and Design Techniques for Digital Systems', instructor: 'Swanson, Steven', days: { M: false, Tu: true, W: false, Th: true, F: false, Sa: false, Su: false }, time: '5:00p–6:20p', location: 'WLH 2001', seats: { enrolled: 140, capacity: 150 }, season: 'S126', meetingType: null },
+            { code: 'DSC 10', section: 'A00', title: 'Principles of Data Science', instructor: 'Rampure, Suraj', days: { M: true, Tu: false, W: true, Th: false, F: true, Sa: false, Su: false }, time: '1:00p–1:50p', location: 'CENTR 109', seats: { enrolled: 280, capacity: 300 }, season: 'S126', meetingType: null },
+            { code: 'DSC 20', section: 'A00', title: 'Programming and Data Structures for Data Science', instructor: 'Eldridge, Marina', days: { M: false, Tu: true, W: false, Th: true, F: false, Sa: false, Su: false }, time: '3:30p–4:50p', location: 'PETER 110', seats: { enrolled: 140, capacity: 150 }, season: 'S126', meetingType: null },
+            { code: 'ECE 35', section: 'A00', title: 'Introduction to Analog Design', instructor: 'Bhargava, Maitreyi', days: { M: true, Tu: false, W: true, Th: false, F: true, Sa: false, Su: false }, time: '3:00p–3:50p', location: 'WLH 2001', seats: { enrolled: 125, capacity: 150 }, season: 'S126', meetingType: null },
+            { code: 'ECE 45', section: 'A00', title: 'Circuits and Systems', instructor: 'de Aguiar, Patrick', days: { M: false, Tu: true, W: false, Th: true, F: false, Sa: false, Su: false }, time: '8:00a–9:20a', location: 'WLH 2005', seats: { enrolled: 95, capacity: 100 }, season: 'S126', meetingType: null },
+            { code: 'ECE 100', section: 'A00', title: 'Linear Electronic Systems', instructor: 'Bhargava, Maitreyi', days: { M: true, Tu: false, W: true, Th: false, F: true, Sa: false, Su: false }, time: '4:00p–4:50p', location: 'WLH 2001', seats: { enrolled: 60, capacity: 100 }, season: 'S126', meetingType: null },
+            { code: 'MATH 18', section: 'A00', title: 'Linear Algebra', instructor: 'Eggers, John', days: { M: false, Tu: true, W: false, Th: true, F: false, Sa: false, Su: false }, time: '11:00a–12:20p', location: 'PETER 110', seats: { enrolled: 295, capacity: 300 }, season: 'S126', meetingType: null },
+            { code: 'MATH 20A', section: 'A00', title: 'Calculus for Science and Engineering', instructor: 'Eggers, John', days: { M: true, Tu: false, W: true, Th: false, F: true, Sa: false, Su: false }, time: '8:00a–8:50a', location: 'PETER 110', seats: { enrolled: 290, capacity: 300 }, season: 'S126', meetingType: null },
+            { code: 'MATH 20B', section: 'A00', title: 'Calculus for Science and Engineering', instructor: 'Bowers, Philip', days: { M: true, Tu: false, W: true, Th: false, F: true, Sa: false, Su: false }, time: '12:00p–12:50p', location: 'PETER 110', seats: { enrolled: 285, capacity: 300 }, season: 'S126', meetingType: null },
+            { code: 'MATH 20C', section: 'A00', title: 'Calculus and Analytic Geometry for Science and Engineering', instructor: 'Bowers, Philip', days: { M: false, Tu: true, W: false, Th: true, F: false, Sa: false, Su: false }, time: '2:00p–3:20p', location: 'PETER 110', seats: { enrolled: 270, capacity: 300 }, season: 'S126', meetingType: null },
+            { code: 'PHYS 2A', section: 'A00', title: 'Physics—Mechanics', instructor: 'Sharma, Vivek', days: { M: true, Tu: false, W: true, Th: false, F: true, Sa: false, Su: false }, time: '9:00a–9:50a', location: 'WLH 2005', seats: { enrolled: 350, capacity: 380 }, season: 'S126', meetingType: null },
+            { code: 'PHYS 2B', section: 'A00', title: 'Physics—Electricity and Magnetism', instructor: 'Sharma, Vivek', days: { M: false, Tu: true, W: false, Th: true, F: false, Sa: false, Su: false }, time: '9:30a–10:50a', location: 'WLH 2005', seats: { enrolled: 280, capacity: 300 }, season: 'S126', meetingType: null },
+          ];
+        }
+
+        makeDayDots(days) {
+          const labels = ['M', 'Tu', 'W', 'Th', 'F'];
+          return React.createElement('div', { style: { display: 'flex', gap: '1px' } },
+            labels.map(d =>
+              React.createElement('span', {
+                key: d,
+                style: {
+                  width: 17, height: 15, borderRadius: 3, fontSize: '8.5px', fontWeight: 700,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
+                  background: days[d] ? '#334155' : '#f0f1f5',
+                  color: days[d] ? '#fff' : '#c5c8d6',
+                }
+              }, d)
+            )
+          );
+        }
+
+        makeToggleBtn(courseId, isAdded) {
+          return React.createElement('button', {
+            onClick: (e) => { e.stopPropagation(); this.toggleCourse(courseId); },
+            style: {
+              position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 32, height: 32, border: 0, borderRadius: 8, background: 'transparent', cursor: 'pointer',
+              transition: 'transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background-color 0.15s ease',
+              transform: isAdded ? 'rotate(180deg)' : 'none',
+            }
+          },
+            React.createElement('span', { style: { position: 'absolute', display: 'block', borderRadius: '1.5px', width: 16, height: 2.5, background: isAdded ? '#e24b4a' : '#4a6cf7', transition: 'background-color 0.25s ease' } }),
+            React.createElement('span', { style: { position: 'absolute', display: 'block', borderRadius: '1.5px', width: 2.5, height: isAdded ? 0 : 16, background: isAdded ? '#e24b4a' : '#4a6cf7', transition: 'transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background-color 0.25s ease' } })
+          );
+        }
+
+        makeSeatsDisplay(enrolled, capacity) {
+          if (enrolled === null || capacity === null || capacity <= 0) return null;
+          const available = Math.max(capacity - enrolled, 0);
+          const pct = available / capacity;
+          let color = '#639922';
+          if (pct < 0.25) color = '#e24b4a';
+          else if (pct < 0.5) color = '#d85a30';
+          else if (pct < 0.75) color = '#eda100';
+          else if (pct < 0.9) color = '#1d9e75';
+          return React.createElement('span', { style: { fontSize: '12.5px', fontWeight: 500, fontVariantNumeric: 'tabular-nums', color: '#33354d', whiteSpace: 'nowrap' } }, `${available} left`);
+        }
+
+        makeSeatsBar(enrolled, capacity) {
+          if (enrolled === null || capacity === null || capacity <= 0) return null;
+          const available = Math.max(capacity - enrolled, 0);
+          const pct = available / capacity;
+          let color = '#639922';
+          if (pct < 0.25) color = '#e24b4a';
+          else if (pct < 0.5) color = '#d85a30';
+          else if (pct < 0.75) color = '#eda100';
+          else if (pct < 0.9) color = '#1d9e75';
+          const availablePct = Math.min(pct * 100, 100);
+          return React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'max-content 48px', columnGap: 8, width: 'max-content', alignItems: 'center' } },
+            React.createElement('span', { style: { fontSize: '11.5px', fontWeight: 600, textAlign: 'right', fontVariantNumeric: 'tabular-nums', color } }, `${available}/${capacity}`),
+            React.createElement('div', { style: { width: 48, height: 4, borderRadius: 2, background: '#eef0f4', overflow: 'hidden' } },
+              React.createElement('div', { style: { height: '100%', borderRadius: 2, background: color, width: `${availablePct}%` } })
+            )
+          );
+        }
+
+        makeTermBadge(seasonCode) {
+          const family = (seasonCode || '').slice(0, 2).toUpperCase();
+          let bg = '#dbeafe', text = '#1e40af';
+          if (family === 'FA') { bg = '#f1e5da'; text = '#8b5e3c'; }
+          else if (family === 'WI') { bg = '#dbeafe'; text = '#1d4ed8'; }
+          else if (family === 'SP') { bg = '#dff7e6'; text = '#15803d'; }
+          else if (family.startsWith('S')) { bg = '#ffe5db'; text = '#e8613c'; }
+          return React.createElement('span', {
+            style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '2px 8px', borderRadius: 10, background: bg, color: text, fontSize: 10, fontWeight: 600, lineHeight: 'normal', whiteSpace: 'nowrap' }
+          }, seasonCode);
+        }
+
+        makeChevron(open) {
+          return React.createElement('svg', {
+            viewBox: '0 0 8 8', fill: 'none', width: 8, height: 8,
+            style: { transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }
+          }, React.createElement('path', { d: 'M1 2.5l3 3 3-3', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round' }));
+        }
+
+        toggleCourse(id) {
+          this.setState(s => {
+            const next = new Set(s.addedCourses);
+            if (next.has(id)) next.delete(id); else next.add(id);
+            return { addedCourses: next };
+          });
+        }
+
+        toggleExpand(rowId) {
+          this.setState(s => {
+            const next = new Set(s.expandedRows);
+            if (next.has(rowId)) next.delete(rowId); else next.add(rowId);
+            return { expandedRows: next };
+          });
+        }
+
+        sortBy(key) {
+          this.setState(s => ({
+            sortKey: key,
+            sortAsc: s.sortKey === key ? !s.sortAsc : true,
+          }));
+        }
+
+        toggleDropdown(id) {
+          this.setState(s => ({ openDropdown: s.openDropdown === id ? null : id }));
+        }
+
+        renderVals() {
+          const { sortKey, sortAsc, expandedRows, openDropdown, selectedSubjects, selectedLevel, selectedTerm, addedCourses } = this.state;
+          const allCourses = this.getCourseData();
+
+          // Sort
+          const dir = sortAsc ? 1 : -1;
+          const sorted = [...allCourses].sort((a, b) => {
+            if (sortKey === 'code') return dir * a.code.localeCompare(b.code, undefined, { numeric: true });
+            if (sortKey === 'title') return dir * a.title.localeCompare(b.title);
+            if (sortKey === 'meets') {
+              const getT = (c) => {
+                const t = c.time || (c.subSections && c.subSections[0] && c.subSections[0].time) || '';
+                const m = t.match(/(\d+):(\d+)(a|p)/);
+                if (!m) return Infinity;
+                let h = parseInt(m[1]); const min = parseInt(m[2]);
+                if (m[3] === 'p' && h !== 12) h += 12;
+                if (m[3] === 'a' && h === 12) h = 0;
+                return h * 60 + min;
+              };
+              return dir * (getT(a) - getT(b));
+            }
+            return 0;
+          });
+
+          const showTermCol = false;
+          const resultCount = sorted.length;
+
+          const codeSortIcon = sortKey === 'code' && !sortAsc ? '▲' : '▼';
+          const titleSortIcon = sortKey === 'title' && !sortAsc ? '▲' : '▼';
+          const meetsSortIcon = sortKey === 'meets' && !sortAsc ? '▲' : '▼';
+
+          // Dropdown data
+          const subjectOptions = [
+            { value: 'ANAR', label: 'ANAR - Anthropology/Archaeology' },
+            { value: 'ANBI', label: 'ANBI - Anthropology/Biological' },
+            { value: 'ANSC', label: 'ANSC - Anthropology/Sociocultural' },
+            { value: 'BENG', label: 'BENG - Bioengineering' },
+            { value: 'BILD', label: 'BILD - Biology/Lower Division' },
+            { value: 'CHEM', label: 'CHEM - Chemistry' },
+            { value: 'CSE', label: 'CSE - Computer Science & Engineering' },
+            { value: 'DSC', label: 'DSC - Data Science' },
+            { value: 'ECE', label: 'ECE - Electrical & Computer Engineering' },
+            { value: 'MATH', label: 'MATH - Mathematics' },
+            { value: 'PHYS', label: 'PHYS - Physics' },
+          ];
+          const levelOptions = [
+            { value: 'lower', label: 'Lower Division' },
+            { value: 'upper', label: 'Upper Division' },
+            { value: 'graduate', label: 'Graduate' },
+          ];
+          const termOptions = [
+            { value: 'S126', label: 'Summer Session 1 2026' },
+            { value: 'SP26', label: 'Spring 2026' },
+            { value: 'WI26', label: 'Winter 2026' },
+            { value: 'FA25', label: 'Fall 2025' },
+          ];
+
+          const dropdowns = [
+            {
+              id: 'subject',
+              label: selectedSubjects.length > 0 ? `Subject (${selectedSubjects.length})` : 'Subject',
+              open: openDropdown === 'subject',
+              toggle: () => this.toggleDropdown('subject'),
+              searchable: true,
+              searchPlaceholder: 'All subjects',
+              options: subjectOptions.map(o => ({ ...o, selected: selectedSubjects.includes(o.value), onToggle: () => {
+                this.setState(s => {
+                  const subs = s.selectedSubjects.includes(o.value) ? s.selectedSubjects.filter(x => x !== o.value) : [...s.selectedSubjects, o.value];
+                  return { selectedSubjects: subs };
+                });
+              }})),
+            },
+            {
+              id: 'level',
+              label: selectedLevel ? levelOptions.find(l => l.value === selectedLevel)?.label || 'Course Level' : 'Course Level',
+              open: openDropdown === 'level',
+              toggle: () => this.toggleDropdown('level'),
+              searchable: false,
+              searchPlaceholder: '',
+              options: levelOptions.map(o => ({ ...o, selected: selectedLevel === o.value, onToggle: () => {
+                this.setState(s => ({ selectedLevel: s.selectedLevel === o.value ? null : o.value }));
+              }})),
+            },
+            {
+              id: 'term',
+              label: 'Term',
+              open: openDropdown === 'term',
+              toggle: () => this.toggleDropdown('term'),
+              searchable: false,
+              searchPlaceholder: '',
+              options: termOptions.map(o => ({ ...o, selected: selectedTerm === o.value, onToggle: () => {
+                this.setState({ selectedTerm: o.value, openDropdown: null });
+              }})),
+            },
+          ];
+
+          // Active chips
+          const activeChips = [];
+          if (selectedTerm) {
+            const termLabel = termOptions.find(t => t.value === selectedTerm)?.label || selectedTerm;
+            activeChips.push({ label: termLabel, onRemove: () => this.setState({ selectedTerm: null }) });
+          }
+          selectedSubjects.forEach(sv => {
+            const label = subjectOptions.find(s => s.value === sv)?.label || sv;
+            activeChips.push({ label, onRemove: () => this.setState(s => ({ selectedSubjects: s.selectedSubjects.filter(x => x !== sv) })) });
+          });
+
+          const showReset = activeChips.length > 0;
+          const resetFilters = () => this.setState({ selectedSubjects: [], selectedLevel: null, selectedTerm: 'S126' });
+
+          // Build rows
+          const courseRows = sorted.map((course, i) => {
+            const isExpandable = !!course.subSections;
+            const isFlat = !isExpandable;
+            const rowId = course.code;
+            const expanded = expandedRows.has(rowId);
+            const bgColor = i % 2 === 1 ? '#fafbfc' : 'transparent';
+
+            if (isFlat) {
+              const added = addedCourses.has(course.code);
+              return {
+                isFlat: true,
+                isExpandable: false,
+                code: course.code,
+                section: course.section,
+                title: course.title,
+                instructor: course.instructor,
+                time: course.time,
+                location: course.location,
+                bgColor,
+                toggleBtn: this.makeToggleBtn(course.code, added),
+                dayDots: this.makeDayDots(course.days),
+                seatsDisplay: this.makeSeatsDisplay(course.seats.enrolled, course.seats.capacity),
+                termBadge: this.makeTermBadge(course.season),
+                onClick: () => {},
+              };
+            }
+
+            // Expandable
+            return {
+              isFlat: false,
+              isExpandable: true,
+              code: course.code,
+              title: course.title,
+              sectionCount: course.sectionCount,
+              bgColor,
+              expanded,
+              instructorSummary: `${new Set(course.subSections.map(s => s.instructor)).size} instructors`,
+              locationSummary: `${new Set(course.subSections.map(s => s.location)).size} locations`,
+              toggleExpand: () => this.toggleExpand(rowId),
+              onClick: () => {},
+              chevron: this.makeChevron(expanded),
+              termBadge: this.makeTermBadge(course.season),
+              subRows: course.subSections.map(sub => {
+                const subId = `${course.code}-${sub.section}`;
+                const subAdded = addedCourses.has(subId);
+                return {
+                  section: sub.section,
+                  meetingType: sub.meetingType,
+                  instructor: sub.instructor,
+                  time: sub.time,
+                  location: sub.location,
+                  toggleBtn: this.makeToggleBtn(subId, subAdded),
+                  dayDots: this.makeDayDots(sub.days),
+                  seatsBar: this.makeSeatsBar(sub.seats.enrolled, sub.seats.capacity),
+                };
+              }),
+            };
+          });
+
+          return {
+            resultCount,
+            showTermCol,
+            courseRows,
+            dropdowns,
+            activeChips,
+            showReset,
+            resetFilters,
+            codeSortIcon,
+            titleSortIcon,
+            meetsSortIcon,
+            sortByCode: () => this.sortBy('code'),
+            sortByTitle: () => this.sortBy('title'),
+            sortByMeets: () => this.sortBy('meets'),
+            sortByTerm: () => this.sortBy('term'),
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

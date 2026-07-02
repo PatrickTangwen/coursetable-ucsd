@@ -221,6 +221,18 @@ _Avoid_: Saved worksheet, account worksheet, synced worksheet, import prompt
 The backend persistence store for signed-in user product data such as saved worksheets, saved searches, wishlist, and privacy settings.
 _Avoid_: Course Data Store, Catalog Snapshot database, Hasura requirement
 
+**App Backend**:
+The signed-in product backend boundary for UCSD User Identity, sessions, and
+account-owned product data. It supports the App DB and does not imply moving
+Catalog Snapshot data into a Course Data Store.
+_Avoid_: Course Data Store, catalog GraphQL backend, Ferry migration
+
+**Course Data Store**:
+A future normalized persistence layer for imported catalog/course data, import
+history, audit reports, and richer course queries. It is separate from the App
+DB and is not required for App Backend or login rollout.
+_Avoid_: App DB, login backend, required Hasura adoption
+
 **UCSD User Identity**:
 The signed-in account identity used to own App DB records for UCSD product features.
 _Avoid_: Personal UCSD scraping account, SET/CAPE login, anonymous browser identity

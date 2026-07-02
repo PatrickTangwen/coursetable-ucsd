@@ -1,4 +1,5 @@
 api/static/*
+UI_refine_handoff/support.js
 frontend/build
 frontend/index.html
 frontend/dev-dist

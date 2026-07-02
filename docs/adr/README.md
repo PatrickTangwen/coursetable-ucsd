@@ -57,6 +57,37 @@ logs, or transient setup notes directly in ADRs.
   that term's Active Saved Worksheet (resolved active → Main → on-demand create)
   instead of being rejected, reaching parity with anonymous worksheets, extending
   ADR 0010 without changing the single-term Saved Worksheet model.
+- `0016-stage-real-email-login-on-staging-before-production.md`: real email
+  login rollout starts on staging, while production keeps the public login entry
+  point hidden until staging proves deliverability, HTTPS cookies, Redis session
+  restore, App DB ownership, and failure behavior.
+- `0017-use-verification-codes-for-first-real-email-login.md`: the first hosted
+  email-login rollout uses 6-digit verification codes instead of magic links, so
+  staging can prove real delivery and App Backend behavior with the smallest
+  change from the validated local flow.
+- `0018-use-resend-for-first-real-email-delivery.md`: the first hosted
+  verification-code email rollout uses Resend because it keeps staging setup
+  small while preserving a provider-neutral App Backend boundary for future
+  SES/Postmark migration if needed.
+- `0019-use-dedicated-sending-subdomain-for-verification-email.md`: UCSD
+  verification-code email uses a dedicated sending subdomain under the product
+  domain, isolating DNS records, sender reputation, and future provider
+  migration from the primary web domain.
+- `0020-keep-email-domain-configurable-until-product-domain-is-final.md`: until
+  SunGrid's final product domain is chosen, Resend sender domain/from-address
+  values stay configurable and formal hosted real-email acceptance waits for a
+  verified dedicated sending subdomain.
+- `0021-fail-closed-when-hosted-email-config-is-missing.md`: hosted staging and
+  production email login must fail closed when Resend/sender configuration is
+  missing, while development and tests may use explicit fallback senders.
+- `0022-use-versioned-drizzle-migrations-for-shared-databases.md`: shared
+  staging and production App DB schema changes must use versioned Drizzle
+  migrations, while direct schema push remains limited to disposable local
+  validation databases.
+- `0023-gate-public-production-login-entry-with-feature-flag.md`: production may
+  deploy login backend support before public availability, but user-visible
+  login entry points and public route behavior stay behind an environment flag
+  until hosted acceptance passes.
 
 ## Editing Rule
 

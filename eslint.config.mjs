@@ -24,6 +24,7 @@ export default defineConfig(
       'frontend/src/queries/graphql-queries.ts',
       'frontend/build',
       'frontend/dev-dist',
+      'UI_refine_handoff/support.js',
       'patches/',
       'api/src/**/*.queries.ts',
       'api/src/graphql-types.ts',

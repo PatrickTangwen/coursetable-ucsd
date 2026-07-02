@@ -206,8 +206,34 @@ function toRequirements(course: UcsdCourse): string | null {
   return parts.length > 0 ? parts.join('\n') : null;
 }
 
+function meetingIdentityKey(meeting: UcsdSection['meetings'][number]): string {
+  return [
+    meeting.meeting_type ?? '',
+    meeting.date ?? '',
+    meeting.raw_days ?? meeting.days.join(','),
+    meeting.start_time ?? '',
+    meeting.end_time ?? '',
+    meeting.raw_location ?? '',
+    meeting.building ?? '',
+    meeting.room ?? '',
+    meeting.is_tba ? '1' : '0',
+  ].join('|');
+}
+
+function dedupeMeetings(
+  meetings: UcsdSection['meetings'],
+): UcsdSection['meetings'] {
+  const seen = new Set<string>();
+  return meetings.filter((meeting) => {
+    const key = meetingIdentityKey(meeting);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function toCourseMeetings(section: UcsdSection): CourseMeetingWithLocation[] {
-  return section.meetings.flatMap((meeting) => {
+  return dedupeMeetings(section.meetings).flatMap((meeting) => {
     if (meeting.is_tba || !meeting.start_time || !meeting.end_time) return [];
     const location =
       meeting.building || meeting.room
@@ -249,6 +275,7 @@ function toCoursePublic(
   const crn = stableCompatNumber(section.section_id) as Crn;
   const sameCourseId = stableCompatNumber(course.course_id);
   const courseCode = `${course.subject} ${course.course_number}`;
+  const meetings = dedupeMeetings(section.meetings);
   const courseMeetings = toCourseMeetings(section);
   const instructors = section.instructors.map((name) => ({
     professor: {
@@ -280,7 +307,7 @@ function toCoursePublic(
     section_id: section.section_id,
     section_code: section.section_code,
     meeting_type: section.meeting_type,
-    meetings: section.meetings,
+    meetings,
     enrolled: section.enrolled,
     capacity: section.capacity,
     waitlist_count: section.waitlist_count,

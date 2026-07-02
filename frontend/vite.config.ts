@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import mdx from '@mdx-js/rollup';
-import basicSsl from '@vitejs/plugin-basic-ssl';
 import reactPlugin from '@vitejs/plugin-react';
 import dotenv from 'dotenv';
 import type { Heading, Text } from 'mdast';
@@ -161,7 +160,6 @@ export default defineConfig({
         minifyCSS: true,
       },
     }),
-    basicSsl(),
     visualizer({
       filename: 'build/bundle-map.html',
     }),
@@ -247,6 +245,14 @@ export default defineConfig({
     // Only used in dev
     // Note: in the build-size action we build without doppler, so this must be
     // runnable without env, but it's unused anyway
+    https: {
+      key: fs.readFileSync(
+        path.resolve(__dirname, '../api/src/keys/server.key'),
+      ),
+      cert: fs.readFileSync(
+        path.resolve(__dirname, '../api/src/keys/server.cert'),
+      ),
+    },
     port: process.env.FRONTEND_ENDPOINT
       ? Number(new URL(process.env.FRONTEND_ENDPOINT).port || 3000)
       : 3000,

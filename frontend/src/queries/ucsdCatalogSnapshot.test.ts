@@ -309,6 +309,157 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
     });
   });
 
+  it('dedupes repeated snapshot meetings before exposing them to frontend UI', () => {
+    const catalog = catalogResponseToCourseMap({
+      run_id: 'run-dedupe-fixture',
+      generated_at: '2026-06-30T12:00:00.000Z',
+      active_planning_term: 'FA24',
+      term_label: 'Fall 2024',
+      term_date_range: {
+        start: '2024-09-23',
+        end: '2024-12-14',
+      },
+      configured_subjects: ['MATH'],
+      source_timestamps: {
+        schedule_of_classes: null,
+        general_catalog: null,
+        instructor_grade_archive: null,
+      },
+      courses: [
+        {
+          course_id: 'MATH:3B',
+          subject: 'MATH',
+          course_number: '3B',
+          title: 'Foundations of Precalculus',
+          units: '4',
+          description: null,
+          prerequisites_text: null,
+          restrictions_text: null,
+          catalog_url: null,
+          archive_avg_gpa: null,
+          archive_record_count: 0,
+          grade_archive_records: [],
+          ge_matches: [],
+          sections: [
+            {
+              section_id: 'FA24:560201',
+              course_id: 'MATH:3B',
+              section_code: 'A01',
+              meeting_type: 'Discussion',
+              instructors: ['Hammock, Frances H'],
+              meetings: [
+                {
+                  days: ['Monday', 'Wednesday', 'Friday'],
+                  date: null,
+                  start_time: '09:00',
+                  end_time: '09:50',
+                  building: 'CENTR',
+                  room: '216',
+                  is_tba: false,
+                  meeting_type: 'Lecture',
+                  raw_days: 'MWF',
+                  raw_time: '9:00a-9:50a',
+                  raw_location: 'CENTR 216',
+                },
+                {
+                  days: ['Monday', 'Wednesday', 'Friday'],
+                  date: null,
+                  start_time: '09:00',
+                  end_time: '09:50',
+                  building: 'CENTR',
+                  room: '216',
+                  is_tba: false,
+                  meeting_type: 'Lecture',
+                  raw_days: 'MWF',
+                  raw_time: '9:00a-9:50a',
+                  raw_location: 'CENTR 216',
+                },
+                {
+                  days: ['Tuesday'],
+                  date: null,
+                  start_time: '08:00',
+                  end_time: '08:50',
+                  building: 'HSS',
+                  room: '4025',
+                  is_tba: false,
+                  meeting_type: 'Discussion',
+                  raw_days: 'Tu',
+                  raw_time: '8:00a-8:50a',
+                  raw_location: 'HSS 4025',
+                },
+                {
+                  days: ['Tuesday'],
+                  date: null,
+                  start_time: '08:00',
+                  end_time: '08:50',
+                  building: 'HSS',
+                  room: '4025',
+                  is_tba: false,
+                  meeting_type: 'Discussion',
+                  raw_days: 'Tu',
+                  raw_time: '8:00a-8:50a',
+                  raw_location: 'HSS 4025',
+                },
+                {
+                  days: ['Saturday'],
+                  date: '2024-12-07',
+                  start_time: '08:00',
+                  end_time: '10:59',
+                  building: 'CENTR',
+                  room: '216',
+                  is_tba: false,
+                  meeting_type: 'Final',
+                  raw_days: 'S',
+                  raw_time: '8:00a-10:59a',
+                  raw_location: 'CENTR 216',
+                },
+                {
+                  days: ['Saturday'],
+                  date: '2024-12-07',
+                  start_time: '08:00',
+                  end_time: '10:59',
+                  building: 'CENTR',
+                  room: '216',
+                  is_tba: false,
+                  meeting_type: 'Final',
+                  raw_days: 'S',
+                  raw_time: '8:00a-10:59a',
+                  raw_location: 'CENTR 216',
+                },
+              ],
+              enrolled: 36,
+              capacity: 36,
+              waitlist_count: 0,
+              raw: {
+                source: 'ucsd_schedule_of_classes',
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    const [course] = [...catalog.values()];
+
+    expect(course!.course_meetings).toMatchObject([
+      {
+        meeting_type: 'Lecture',
+        raw_location: 'CENTR 216',
+      },
+      {
+        meeting_type: 'Discussion',
+        raw_location: 'HSS 4025',
+      },
+      {
+        meeting_type: 'Final',
+        raw_location: 'CENTR 216',
+        date: '2024-12-07',
+      },
+    ]);
+    expect(course!.course_meetings).toHaveLength(3);
+    expect(getCalendarDetails(course).meetings).toHaveLength(3);
+  });
+
   it('normalizes missing seat fields from tracer sections as unknown availability', () => {
     const catalog = catalogResponseToCourseMap({
       run_id: 'run-tracer-fixture',
