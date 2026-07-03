@@ -1,5 +1,20 @@
 .page {
+  /* Side padding / column gap shared by the filter bar, table header, and
+     rows via CSS custom properties. Breakpoints must stay in sync with the
+     JS view-mode breakpoints in CatalogTable (900px mobile, 1240px compact). */
+  --ct-side-pad: 40px;
+  --ct-gap: 16px;
+
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - var(--height-navbar));
+  flex: 1;
+  min-height: 0;
+  background: #eeebe4;
+}
+
+@media (max-width: calc(1240px - 0.5px)) {
+  .page {
+    --ct-side-pad: 16px;
+    --ct-gap: 10px;
+  }
 }

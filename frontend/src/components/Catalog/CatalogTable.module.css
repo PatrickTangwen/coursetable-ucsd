@@ -1,513 +1,651 @@
-.tableWrapper {
-  --catalog-action-col: 44px;
-  --catalog-cell-font-size: 13.5px;
-  --catalog-header-font-size: 11px;
-  --catalog-code-gap: 8px;
-  --catalog-code-horizontal-padding: 24px;
-  --catalog-course-code-slot: 9ch;
-  --catalog-section-slot: 92px;
-  --catalog-code-col: calc(
-    var(--catalog-course-code-slot) + var(--catalog-section-slot) +
-      var(--catalog-code-gap) + var(--catalog-code-horizontal-padding)
-  );
-  --catalog-title-min-col: 220px;
-  --catalog-term-col: 86px;
-  --catalog-instructor-col: 165px;
-  --catalog-meets-col: 220px;
-  --catalog-location-col: 100px;
-  --catalog-seats-col: 136px;
-  --catalog-subrow-scrollbar-gutter: 15px;
+/* Finalized SunGrid catalog palette (hardcoded hex, matching the finalized
+   worksheet + course modal styles):
+   text #0b0b0b / #6f6d67 / #9f9d97, surfaces #fff / #fdfcfb / #f9f8f6,
+   accent #2871be / #e6f1fb / #85b7eb / #185fa5, borders rgb(11 11 11 / 8%). */
 
-  flex: none;
-  min-height: auto;
-  overflow: auto visible;
-  padding: 0 24px 24px;
+/* ── Control card: filter bar + table header share one shadow ── */
+.controlCard {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgb(11 11 11 / 12%);
 }
 
-.tableWrapper::-webkit-scrollbar:horizontal {
-  height: 0;
+.header {
+  display: grid;
+  grid-template-columns: var(--ct-grid-cols);
+  column-gap: var(--ct-gap);
+  align-items: center;
+  padding: 12px calc(var(--ct-side-pad) + var(--ct-scrollbar-w, 0px)) 12px
+    var(--ct-side-pad);
+  background: #f9f8f6;
+  border-top: 1px solid rgb(11 11 11 / 8%);
 }
 
-.horizontalScrollbar {
-  position: fixed;
-  bottom: 0;
-  z-index: 40;
-  height: 16px;
-  overflow: auto hidden;
-  background: var(--sg-bg-white);
-  box-shadow: 0 -1px 0 var(--sg-border);
+.headerCell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #9f9d97;
+  user-select: none;
 }
 
-.horizontalScrollbarHidden {
-  display: none;
+.sortHeader {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
-.horizontalScrollbarSpacer {
-  height: 1px;
+.sortHeader:hover {
+  color: #6f6d67;
+}
+
+.sortHeader:focus-visible {
+  outline: 2px solid #2871be;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.sortIcon {
+  color: #185fa5;
+}
+
+/* ── Rows container: the only scrolling area ── */
+.rowsContainer {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: #fff;
+}
+
+.rowsContainerMobile {
+  background: #f9f8f6;
+  padding: 12px 12px 44px;
 }
 
 .virtualRows {
   position: relative;
 }
 
-/* Holds the header + rows so the columns keep their natural width and the
-   whole table scrolls horizontally (instead of squashing the Seats column)
-   when the viewport is narrower than the sum of the fixed columns. */
-.tableInner {
-  min-width: calc(
-    var(--catalog-action-col) + var(--catalog-code-col) +
-      var(--catalog-title-min-col) + var(--catalog-instructor-col) +
-      var(--catalog-meets-col) + var(--catalog-location-col) +
-      var(--catalog-seats-col)
-  );
-}
-
-.tableInnerWithTerm {
-  min-width: calc(
-    var(--catalog-action-col) + var(--catalog-code-col) +
-      var(--catalog-title-min-col) + var(--catalog-term-col) +
-      var(--catalog-instructor-col) + var(--catalog-meets-col) +
-      var(--catalog-location-col) + var(--catalog-seats-col)
-  );
-}
-
-/* ── Header ── */
-.header {
-  position: sticky;
-  top: 0;
-  background: var(--sg-bg-white);
-  z-index: 10;
-  border-bottom: 2px solid var(--sg-border);
-  display: flex;
-  align-items: center;
-}
-
-.headerCell {
-  box-sizing: border-box;
-  font-size: var(--catalog-header-font-size);
-  font-weight: 600;
-  color: var(--sg-text-placeholder);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 10px 12px;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.sortIndicator {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  padding: 2px;
-  color: var(--sg-primary);
-  margin-left: 3px;
-  cursor: pointer;
-  line-height: 1;
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-}
-
-.sortIndicator:hover,
-.sortIndicator:focus-visible {
-  color: var(--sg-primary-hover);
-}
-
-.sortIndicator:focus-visible {
-  outline: 2px solid var(--sg-primary);
-  outline-offset: 2px;
-  border-radius: 3px;
-}
-
-.colAdd {
-  width: var(--catalog-action-col);
-  flex-shrink: 0;
-
-  /* Match the body add cell (padding-left 0, padding-right 8) so the header
-     labels stay aligned with the data columns. */
-  padding: 10px 8px 10px 0;
-}
-
-.colCode {
-  width: var(--catalog-code-col);
-  flex-shrink: 0;
-}
-
-.headerCell.colCode {
-  font-size: var(--catalog-cell-font-size);
-  font-weight: 400;
-}
-
-.headerCell.colCode > * {
-  font-size: var(--catalog-header-font-size);
-  font-weight: 600;
-}
-
-.colTitle {
-  flex: 1;
-  min-width: 0;
-}
-
-.colTerm {
-  width: var(--catalog-term-col);
-  flex-shrink: 0;
-}
-
-.colInstructor {
-  width: var(--catalog-instructor-col);
-  flex-shrink: 0;
-}
-
-.colMeets {
-  width: var(--catalog-meets-col);
-  flex-shrink: 0;
-}
-
-.colLocation {
-  width: var(--catalog-location-col);
-  flex-shrink: 0;
-}
-
-.colSeats {
-  width: var(--catalog-seats-col);
-  flex-shrink: 0;
-}
-
-/* ── Rows ── */
+/* ── Desktop rows ── */
 .row {
-  display: flex;
+  display: grid;
+  grid-template-columns: var(--ct-grid-cols);
+  column-gap: var(--ct-gap);
   align-items: center;
-  min-height: 45px;
-  border-bottom: 1px solid var(--sg-row-separator);
-  transition: background 0.1s;
-  cursor: pointer;
-}
+  box-sizing: border-box;
 
-.row:nth-child(even) {
-  background: var(--sg-bg-alt-row);
+  /* Height must stay in sync with baseRowHeight in CatalogTable.tsx. */
+  height: 55px;
+  padding: 0 var(--ct-side-pad);
+  border-bottom: 1px solid rgb(11 11 11 / 8%);
+  cursor: pointer;
+  transition: background 0.1s;
 }
 
 .row:hover {
-  background: var(--color-surface-hover);
+  background: rgb(11 11 11 / 4%);
 }
 
-.cell {
-  box-sizing: border-box;
-  padding: 11px 12px;
-  font-size: var(--catalog-cell-font-size);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.cellButton {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  font-family: inherit;
-  text-align: left;
-  box-sizing: border-box;
-}
-
-.addCell {
-  box-sizing: border-box;
-  width: var(--catalog-action-col);
-  flex-shrink: 0;
-  padding: 11px 8px 11px 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.codeCell {
-  width: var(--catalog-code-col);
-  flex-shrink: 0;
-  display: grid;
-  grid-template-columns:
-    var(--catalog-course-code-slot)
-    minmax(0, var(--catalog-section-slot));
-  align-items: center;
-  column-gap: var(--catalog-code-gap);
-}
-
-.toggleCell {
-  cursor: pointer;
-}
-
-.courseCode {
-  font-weight: 700;
-  color: var(--sg-text-primary);
-  overflow: visible;
-  text-overflow: clip;
-  white-space: nowrap;
-}
-
-.sectionSlot {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-}
-
-.sectionId {
-  color: var(--sg-text-placeholder);
-  font-weight: 500;
-}
-
-.titleCell {
-  flex: 1;
-  min-width: 0;
-  font-weight: 500;
-  color: var(--sg-text-secondary);
-}
-
-.titleContent {
-  display: block;
-  width: 100%;
-  min-width: 0;
-}
-
-.titleText {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.termBadge {
-  --term-badge-bg: var(--sg-blue-badge-bg);
-  --term-badge-text: var(--sg-blue-badge-text);
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  justify-self: start;
-  padding: 2px 8px;
-  border-radius: 10px;
-  background: var(--term-badge-bg);
-  color: var(--term-badge-text);
-  font-size: 10px;
-  font-weight: 600;
-  line-height: normal;
-  white-space: nowrap;
-}
-
-.termCell {
-  width: var(--catalog-term-col);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-}
-
-.termBadgeFall {
-  --term-badge-bg: #f1e5da;
-  --term-badge-text: #8b5e3c;
-}
-
-.termBadgeWinter {
-  --term-badge-bg: #dbeafe;
-  --term-badge-text: #1d4ed8;
-}
-
-.termBadgeSpring {
-  --term-badge-bg: #dff7e6;
-  --term-badge-text: #15803d;
-}
-
-.termBadgeSummer {
-  --term-badge-bg: #ffe5db;
-  --term-badge-text: #e8613c;
-}
-
-.modalTitleCell {
-  cursor: pointer;
-}
-
-.toggleCell:focus-visible,
-.modalTitleCell:focus-visible {
-  outline: 2px solid var(--sg-primary);
+.row:focus-visible {
+  outline: 2px solid #2871be;
   outline-offset: -2px;
 }
 
-.subTitleCell {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.rowAdded {
+  background: #e9e9e6;
 }
 
-.instructorCell {
-  width: var(--catalog-instructor-col);
-  flex-shrink: 0;
-  font-size: 12.5px;
-  color: var(--sg-text-muted);
-}
-
-.meetsCell {
-  width: var(--catalog-meets-col);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.meetTime {
-  font-size: 12.5px;
-  font-weight: 500;
-  color: var(--sg-text-secondary);
+.cell {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.addCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.courseCode {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0b0b0b;
+}
+
+.sectionText {
+  font-size: 12px;
+  color: #9f9d97;
+}
+
+.titleCell {
+  font-size: 14px;
+  color: #0b0b0b;
+}
+
+.instructorCell {
+  font-size: 12px;
+  color: #6f6d67;
+}
+
+.meetsCell {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.meetTime {
+  font-size: 12px;
+  color: #6f6d67;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meetTba {
+  font-size: 12px;
+  color: #9f9d97;
+}
+
 .locationCell {
-  width: var(--catalog-location-col);
-  flex-shrink: 0;
-  font-size: 12.5px;
-  color: var(--sg-text-muted);
+  font-size: 12px;
+  color: #9f9d97;
 }
 
 .seatsCell {
-  width: var(--catalog-seats-col);
-  flex-shrink: 0;
-  overflow: visible;
+  min-width: 0;
 }
 
-/* ── Expandable parent row ── */
-.parentRow {
-  display: flex;
+.summaryText {
+  font-size: 11px;
+  color: #9f9d97;
+}
+
+/* ── Badges ── */
+.termBadge {
+  display: inline-flex;
   align-items: center;
-  min-height: 45px;
-  border-bottom: 1px solid var(--sg-row-separator);
-  transition: background 0.1s;
-  cursor: pointer;
+  padding: 3px 11px;
+  border-radius: 9999px;
+  background: #f9f8f6;
+  color: #6f6d67;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
-.parentRow:hover {
-  background: var(--color-surface-hover);
+.termBadgeFall {
+  background: #f5e9cf;
+  color: #8a6410;
 }
 
-.expandedParent {
-  background: var(--sg-bg-alt-row);
+.termBadgeWinter {
+  background: #e0ecfb;
+  color: #2a6fbe;
+}
+
+.termBadgeSpring {
+  background: #dceedd;
+  color: #3e8e5b;
+}
+
+.termBadgeSummer {
+  background: #fbe7df;
+  color: #c0492b;
 }
 
 .sectionBadge {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 2px 8px;
-  border-radius: 10px;
-  background: var(--sg-blue-badge-bg);
-  color: var(--sg-blue-badge-text);
-  font-size: 10px;
+  gap: 4px;
+  padding: 2px 9px;
+  border-radius: 9999px;
+  background: #e6f1fb;
+  border: 1px solid #85b7eb;
+  color: #185fa5;
+  font-size: 11px;
   font-weight: 600;
-  cursor: pointer;
   white-space: nowrap;
-  flex-shrink: 0;
+  width: max-content;
 }
 
 .chevron {
-  transition: transform 0.2s;
   width: 8px;
   height: 8px;
+  flex-shrink: 0;
+  transition: transform 0.2s;
 }
 
 .chevronOpen {
   transform: rotate(180deg);
 }
 
-.summaryText {
-  font-size: 12px;
-  color: var(--sg-text-light);
-}
+/* ── Expanded course group ── */
+.expandedGroup {
+  position: relative;
+  z-index: 2;
 
-/* ── Expandable wrapper ── */
-.expandableGroup {
+  /* The 1px bottom margin is accounted for in expandedRowHeight(). */
+  margin-bottom: 1px;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: var(--sg-shadow-expanded);
-  margin: 0 0 1px;
+  background: #fff;
+  box-shadow:
+    0 0 0 1px rgb(11 11 11 / 14%),
+    0 12px 28px -6px rgb(11 11 11 / 28%),
+    0 4px 10px rgb(11 11 11 / 12%);
 }
 
-/* ── Sub-rows ── */
 .subRowContainer {
-  max-height: 132px;
+  /* Max height must stay in sync with subRowsMaxHeight in CatalogTable.tsx. */
+  max-height: 190px;
   overflow: hidden auto;
-  border-top: 1px solid #eef0f4;
+  border-top: 1px solid rgb(11 11 11 / 8%);
+  margin-right: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(11 11 11 / 14%) transparent;
+}
+
+.subRowContainer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.subRowContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.subRowContainer::-webkit-scrollbar-thumb {
+  background: rgb(11 11 11 / 14%);
+  border-radius: 3px;
+}
+
+.subRowContainer::-webkit-scrollbar-thumb:hover {
+  background: rgb(11 11 11 / 22%);
 }
 
 .subRow {
-  display: flex;
+  display: grid;
+  grid-template-columns: var(--ct-grid-cols);
+  column-gap: var(--ct-gap);
   align-items: center;
-  min-height: 37px;
-  background: #fafbfc;
-  border-bottom: 1px solid #eef0f4;
+  box-sizing: border-box;
+
+  /* Height must stay in sync with subRowHeight in CatalogTable.tsx. */
+  height: 42px;
+  padding: 0 var(--ct-side-pad);
+  border-bottom: 1px solid rgb(11 11 11 / 8%);
   font-size: 13px;
-  transition: background 0.1s;
   cursor: pointer;
-}
-
-.subRow .cell {
-  padding: 9px 12px;
-}
-
-.subRow .addCell {
-  padding: 9px 8px 9px 0;
-}
-
-.subRowContainerWithScroll .subRow {
-  width: calc(100% + var(--catalog-subrow-scrollbar-gutter));
+  transition: background 0.1s;
 }
 
 .subRow:hover {
-  background: #f3f4f6;
+  background: rgb(11 11 11 / 4%);
 }
 
-.subRow:last-child {
-  border-bottom: none;
+.subRow:focus-visible {
+  outline: 2px solid #2871be;
+  outline-offset: -2px;
 }
 
 .subSectionBadge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  justify-self: start;
   padding: 2px 8px;
   border-radius: 4px;
-  background: var(--sg-blue-badge-bg);
-  color: var(--sg-blue-badge-text);
+  background: #e6f1fb;
+  color: #185fa5;
   font-size: 10.5px;
   font-weight: 700;
+  width: max-content;
 }
 
 .typeBadge {
   padding: 2px 7px;
   border-radius: 4px;
-  background: var(--sg-row-separator);
-  color: var(--sg-text-muted);
+  background: #f9f8f6;
+  color: #9f9d97;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.03em;
-  margin-left: 4px;
+  flex-shrink: 0;
 }
 
-.subTitleCell .typeBadge {
-  margin-left: 0;
+.subMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
-.scrollHint {
-  min-height: 24px;
-  box-sizing: border-box;
-  padding: 5px 16px;
-  background: var(--sg-bg-alt-row);
-  text-align: center;
-  font-size: 10px;
-  color: var(--sg-text-disabled);
-  border-top: 1px solid #eef0f4;
+.subInstructorCell {
+  font-size: 12.5px;
+  color: #6f6d67;
 }
 
-/* ── Empty state ── */
+.subLocationCell {
+  font-size: 12.5px;
+  color: #9f9d97;
+}
+
+/* ── Empty / loading state ── */
 .empty {
   text-align: center;
   padding: 64px 24px;
-  color: var(--sg-text-placeholder);
+  color: #9f9d97;
   font-size: 15px;
+}
+
+/* ── Mobile cards ── */
+.mobileCard {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 15px 16px;
+  margin-bottom: 10px;
+  border: 1px solid rgb(11 11 11 / 8%);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(11 11 11 / 8%);
+  cursor: pointer;
+}
+
+.mobileCard:focus-visible {
+  outline: 2px solid #2871be;
+  outline-offset: -2px;
+}
+
+.mobileCardAdded {
+  background: #e9e9e6;
+}
+
+.mobileCardTop {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.mobileCardInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mobileCodeRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.mobileCode {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #0b0b0b;
+  letter-spacing: -0.01em;
+}
+
+.mobileSectionBadge {
+  padding: 1px 7px;
+  border-radius: 5px;
+  background: #f9f8f6;
+  color: #6f6d67;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.mobileTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0b0b0b;
+  line-height: 1.3;
+}
+
+.mobileInstructor {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6f6d67;
+  font-size: 12.5px;
+}
+
+.metaIcon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  opacity: 0.55;
+}
+
+.mobileTrunc {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobileAddCircle {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  border: 1px solid rgb(11 11 11 / 8%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fdfcfb;
+}
+
+.mobileAddCircleSmall {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  border: 1px solid rgb(11 11 11 / 8%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
+.mobileCardMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  border-top: 1px solid rgb(11 11 11 / 8%);
+  padding-top: 11px;
+}
+
+.mobileMetaRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #9f9d97;
+}
+
+.mobileMeets {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.mobileTime {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #6f6d67;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobileTba {
+  font-size: 12.5px;
+  color: #9f9d97;
+}
+
+.mobileMetaSplit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mobileLocation {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  color: #9f9d97;
+  font-size: 12.5px;
+}
+
+/* ── Mobile expandable group ── */
+.mobileGroup {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 140px;
+  margin-bottom: 10px;
+  border: 1px solid rgb(11 11 11 / 8%);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(11 11 11 / 8%);
+  transition: box-shadow 0.25s ease;
+}
+
+.mobileGroupExpanded {
+  position: relative;
+  z-index: 2;
+  box-shadow:
+    0 0 0 1px rgb(11 11 11 / 14%),
+    0 12px 28px -6px rgb(11 11 11 / 28%),
+    0 4px 10px rgb(11 11 11 / 12%);
+}
+
+.mobileGroupHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 15px;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.mobileGroupHeader:focus-visible {
+  outline: 2px solid #2871be;
+  outline-offset: -2px;
+}
+
+.mobileGroupTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0b0b0b;
+  line-height: 1.35;
+}
+
+.mobileGroupMeta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  color: #9f9d97;
+  font-size: 11.5px;
+}
+
+.mobileGroupMeta span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mobileGroupMeta .metaIcon {
+  width: 12px;
+  height: 12px;
+  opacity: 0.7;
+}
+
+.mobileSubList {
+  border-top: 1px solid rgb(11 11 11 / 8%);
+  background: #fff;
+}
+
+.mobileSubRow {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 12px 15px;
+  border-bottom: 1px solid rgb(11 11 11 / 8%);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.mobileSubRow:last-child {
+  border-bottom: 0;
+}
+
+.mobileSubRow:hover {
+  background: rgb(11 11 11 / 4%);
+}
+
+.mobileSubRow:focus-visible {
+  outline: 2px solid #2871be;
+  outline-offset: -2px;
+}
+
+.mobileSubTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobileSubSpacer {
+  flex: 1;
+}
+
+.mobileSubInstructor {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #6f6d67;
+  font-size: 12px;
+}
+
+.mobileSubMeets {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
+.mobileSubMeets .mobileTime {
+  margin-left: 4px;
+  font-size: 12px;
+}
+
+.mobileSubLocation {
+  color: #9f9d97;
+  font-size: 12px;
+  max-width: 40%;
 }

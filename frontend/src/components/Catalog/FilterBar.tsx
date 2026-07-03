@@ -41,11 +41,11 @@ function FilterChip({
         onClick={onRemove}
         aria-label={`Remove ${label} filter`}
       >
-        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+        <svg width="11" height="11" viewBox="0 0 11 11" aria-hidden="true">
           <path
-            d="M2 2l6 6M8 2l-6 6"
+            d="M2.5 2.5l6 6M8.5 2.5l-6 6"
             stroke="currentColor"
-            strokeWidth="1.5"
+            strokeWidth="2.2"
             strokeLinecap="round"
           />
         </svg>
@@ -93,8 +93,9 @@ export default function FilterBar({
     searchFilters,
     setSearchFilter,
     patchSearchFilters,
-    levelFilter,
-    setLevelFilter,
+    levelFilters,
+    toggleLevelFilter,
+    clearLevelFilters,
   } = useStore(
     useShallow((s) => ({
       selectedSubjects: s.searchFilters.selectSubjects as Option[],
@@ -102,8 +103,9 @@ export default function FilterBar({
       searchFilters: s.searchFilters,
       setSearchFilter: s.setSearchFilter,
       patchSearchFilters: s.patchSearchFilters,
-      levelFilter: s.catalogLevelFilter,
-      setLevelFilter: s.setCatalogLevelFilter,
+      levelFilters: s.catalogLevelFilters,
+      toggleLevelFilter: s.toggleCatalogLevelFilter,
+      clearLevelFilters: s.clearCatalogLevelFilters,
     })),
   );
 
@@ -130,13 +132,6 @@ export default function FilterBar({
     [selectedSubjects, setSearchFilter],
   );
 
-  const handleLevelToggle = useCallback(
-    (v: string) => {
-      setLevelFilter(levelFilter === v ? null : v);
-    },
-    [levelFilter, setLevelFilter],
-  );
-
   const handleTermToggle = useCallback(
     (v: string) => {
       const isSelected = selectedSeasons.some((s) => s.value === v);
@@ -150,39 +145,33 @@ export default function FilterBar({
     [selectedSeasons, setSearchFilter],
   );
 
-  const advancedFilterCount =
-    countCatalogListAdvancedFilters(searchFilters) + (levelFilter ? 1 : 0);
+  const advancedFilterCount = countCatalogListAdvancedFilters(searchFilters);
   const hasActiveFilters =
     selectedSubjects.length > 0 ||
     selectedSeasons.length > 0 ||
+    levelFilters.length > 0 ||
     advancedFilterCount > 0;
 
   const resetAll = useCallback(() => {
     setSearchFilter('selectSubjects', []);
     setSearchFilter('selectSeasons', defaultFilters.selectSeasons);
     patchSearchFilters(buildCatalogListAdvancedFilterReset());
-    setLevelFilter(null);
-  }, [patchSearchFilters, setSearchFilter, setLevelFilter]);
+    clearLevelFilters();
+  }, [patchSearchFilters, setSearchFilter, clearLevelFilters]);
 
   const resetAdvancedFilters = useCallback(() => {
     patchSearchFilters(buildCatalogListAdvancedFilterReset());
-    setLevelFilter(null);
-  }, [patchSearchFilters, setLevelFilter]);
-
-  const subjectDisplayLabel =
-    selectedSubjects.length > 0
-      ? `Subject (${selectedSubjects.length})`
-      : undefined;
-  const termChipLabel =
-    selectedSeasons.length === 1
-      ? selectedSeasons[0]!.label
-      : `Terms: ${selectedSeasons.map((season) => season.value).join(', ')}`;
+  }, [patchSearchFilters]);
 
   return (
     <div className={styles.container}>
       <DropdownMenu
         label="Subject"
-        displayLabel={subjectDisplayLabel}
+        displayLabel={
+          selectedSubjects.length > 0
+            ? `Subject (${selectedSubjects.length})`
+            : undefined
+        }
         options={subjectOptions}
         selectedValues={selectedSubjects.map((s) => s.value)}
         onToggle={handleSubjectToggle}
@@ -191,33 +180,51 @@ export default function FilterBar({
       />
       <DropdownMenu
         label="Course Level"
+        displayLabel={
+          levelFilters.length > 0
+            ? `Course Level (${levelFilters.length})`
+            : undefined
+        }
         options={COURSE_LEVELS.map((l) => ({ value: l.value, label: l.label }))}
-        selectedValues={levelFilter === null ? [] : [levelFilter]}
-        onToggle={handleLevelToggle}
+        selectedValues={levelFilters}
+        onToggle={toggleLevelFilter}
       />
       <DropdownMenu
         label="Term"
+        displayLabel={
+          selectedSeasons.length > 0
+            ? `Term (${selectedSeasons.length})`
+            : undefined
+        }
         options={seasonsOptions}
         selectedValues={selectedSeasons.map((s) => s.value)}
         onToggle={handleTermToggle}
       />
 
-      {selectedSeasons.length > 0 && (
-        <FilterChip
-          label={termChipLabel}
-          onRemove={() => setSearchFilter('selectSeasons', [])}
-        />
-      )}
-      {selectedSubjects.map((s) => (
+      {selectedSeasons.map((s) => (
         <FilterChip
           key={s.value}
           label={s.label}
+          onRemove={() => handleTermToggle(s.value)}
+        />
+      ))}
+      {selectedSubjects.map((s) => (
+        <FilterChip
+          key={s.value}
+          label={s.value}
           onRemove={() =>
             setSearchFilter(
               'selectSubjects',
               selectedSubjects.filter((x) => x.value !== s.value),
             )
           }
+        />
+      ))}
+      {COURSE_LEVELS.filter((l) => levelFilters.includes(l.value)).map((l) => (
+        <FilterChip
+          key={l.value}
+          label={l.label}
+          onRemove={() => toggleLevelFilter(l.value)}
         />
       ))}
       {advancedFilterCount > 0 && (

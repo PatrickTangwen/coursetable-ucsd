@@ -8,13 +8,14 @@ export interface CatalogViewSliceState {
   catalogExpandedCourses: Set<string>;
   catalogSortKey: CatalogSortKey;
   catalogSortAsc: boolean;
-  catalogLevelFilter: string | null;
+  catalogLevelFilters: string[];
 }
 
 export interface CatalogViewSliceActions {
   toggleCatalogExpanded: (courseId: string) => void;
   setCatalogSort: (key: CatalogSortKey) => void;
-  setCatalogLevelFilter: (level: string | null) => void;
+  toggleCatalogLevelFilter: (level: string) => void;
+  clearCatalogLevelFilters: () => void;
 }
 
 export interface CatalogViewSlice
@@ -29,7 +30,7 @@ export const createCatalogViewSlice: StateCreator<
   catalogExpandedCourses: new Set(),
   catalogSortKey: 'code',
   catalogSortAsc: true,
-  catalogLevelFilter: null,
+  catalogLevelFilters: [],
 
   toggleCatalogExpanded: (courseId) =>
     set((state) => {
@@ -47,5 +48,12 @@ export const createCatalogViewSlice: StateCreator<
       return { catalogSortKey: key, catalogSortAsc: true };
     }),
 
-  setCatalogLevelFilter: (level) => set({ catalogLevelFilter: level }),
+  toggleCatalogLevelFilter: (level) =>
+    set((state) => ({
+      catalogLevelFilters: state.catalogLevelFilters.includes(level)
+        ? state.catalogLevelFilters.filter((l) => l !== level)
+        : [...state.catalogLevelFilters, level],
+    })),
+
+  clearCatalogLevelFilters: () => set({ catalogLevelFilters: [] }),
 });

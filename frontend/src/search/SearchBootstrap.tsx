@@ -295,7 +295,7 @@ export function SearchBootstrap({
   const searchData = useStore((s) => s.searchData);
   const searchFilters = useStore((s) => s.searchFilters);
   const searchTimingStartMs = useStore((s) => s.searchTimingStartMs);
-  const catalogLevelFilter = useStore((s) => s.catalogLevelFilter);
+  const catalogLevelFilters = useStore((s) => s.catalogLevelFilters);
 
   const {
     worksheets,
@@ -341,7 +341,7 @@ export function SearchBootstrap({
   const hasActiveCatalogFilter = useMemo(
     () =>
       searchText.value.trim().length > 0 ||
-      catalogLevelFilter !== null ||
+      catalogLevelFilters.length > 0 ||
       selectSubjects.value.length > 0 ||
       selectSkillsAreas.value.length > 0 ||
       selectDays.value.length > 0 ||
@@ -359,7 +359,7 @@ export function SearchBootstrap({
       !isEqual(numBounds.value, defaultFilters.numBounds),
     [
       searchText.value,
-      catalogLevelFilter,
+      catalogLevelFilters,
       selectSubjects.value,
       selectSkillsAreas.value,
       selectDays.value,

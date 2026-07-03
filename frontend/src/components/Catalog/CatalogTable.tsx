@@ -1,10 +1,10 @@
 import {
   useMemo,
-  useCallback,
   useEffect,
   useRef,
   useState,
   type CSSProperties,
+  type ReactNode,
 } from 'react';
 import clsx from 'clsx';
 import { useShallow } from 'zustand/react/shallow';
@@ -22,7 +22,9 @@ import {
   type OfferingGroup,
 } from '../../utilities/catalogView';
 import { toSeasonString } from '../../utilities/course';
-import WorksheetToggleButton from '../Worksheet/WorksheetToggleButton';
+import WorksheetToggleButton, {
+  useWorksheetListingPresence,
+} from '../Worksheet/WorksheetToggleButton';
 import styles from './CatalogTable.module.css';
 
 type CourseRow = {
@@ -36,14 +38,22 @@ type CourseRow = {
   listings: CatalogListing[];
 };
 
-const baseRowHeight = 45;
-const subRowHeight = 37;
-const expandedScrollHeight = 132;
-const scrollHintHeight = 24;
+type OfferingSection = OfferingGroup['sections'][number];
+
+type ViewMode = 'full' | 'compact' | 'mobile';
+
+// Breakpoints must stay in sync with the CSS media queries in
+// CatalogListView.module.css / CatalogTable.module.css.
+const mobileBreakpoint = 900;
+const compactBreakpoint = 1240;
+
+// Heights must stay in sync with the CSS row heights.
+const baseRowHeight = 55;
+const subRowHeight = 42;
+const subRowsMaxHeight = 190;
 const overscanRows = 8;
 const minCourseCodeWidthCh = 9;
 const courseCodeWidthBufferCh = 2;
-const horizontalVisibilityTolerance = 1;
 
 const courseCodeCollator = new Intl.Collator(undefined, {
   numeric: true,
@@ -192,27 +202,51 @@ function sortRows(rows: CourseRow[], key: CatalogSortKey, asc: boolean) {
   return sorted;
 }
 
-function courseCodeColumnStyle(rows: CourseRow[]): CSSProperties {
-  const longestCourseCode = rows.reduce(
-    (max, row) => Math.max(max, row.courseCode.length),
-    minCourseCodeWidthCh,
-  );
-  const courseCodeSlot = `${longestCourseCode + courseCodeWidthBufferCh}ch`;
-  return {
-    '--catalog-course-code-slot': courseCodeSlot,
-    '--catalog-code-col': `calc(${courseCodeSlot} + var(--catalog-section-slot) + var(--catalog-code-gap) + var(--catalog-code-horizontal-padding))`,
-  } as CSSProperties;
+function buildGridTemplate(
+  compact: boolean,
+  showTermColumn: boolean,
+  codeSlotCh: number,
+): string {
+  const codeCol = `max(${compact ? 86 : 104}px, ${codeSlotCh}ch)`;
+  const parts = compact
+    ? [
+        '32px',
+        codeCol,
+        '92px',
+        'minmax(120px, 1.15fr)',
+        '72px',
+        'minmax(88px, 0.65fr)',
+        // Favor the meets column with the leftover space so times stay
+        // untruncated next to the day dots
+        'minmax(150px, 2fr)',
+        '60px',
+        '64px',
+      ]
+    : [
+        '40px',
+        codeCol,
+        '132px',
+        'minmax(220px, 1.7fr)',
+        '110px',
+        'minmax(140px, 0.9fr)',
+        // Wide enough for the day dots plus an untruncated "11:00 AM – 1:50 PM"
+        'minmax(215px, 1.2fr)',
+        'minmax(90px, 0.6fr)',
+        // Snug fit for "20 left" — anything wider reads as dead space on the
+        // right edge
+        '88px',
+      ];
+  if (!showTermColumn) parts.splice(4, 1);
+  return parts.join(' ');
 }
 
 function expandedRowHeight(row: CourseRow): number {
-  const visibleSubRows =
-    row.totalSections > 3
-      ? expandedScrollHeight
-      : row.totalSections * subRowHeight;
+  // Parent row + sub-list border-top + scrollable sub-list + group margin.
   return (
     baseRowHeight +
-    visibleSubRows +
-    (row.totalSections > 3 ? scrollHintHeight : 0)
+    1 +
+    Math.min(row.totalSections * subRowHeight, subRowsMaxHeight) +
+    1
   );
 }
 
@@ -269,50 +303,76 @@ function useElementHeight(ref: React.RefObject<HTMLElement | null>): number {
   return height;
 }
 
-function shouldShowHorizontalScrollbar(
-  wrapper: HTMLElement,
-  seatHeader: HTMLElement,
-): boolean {
-  if (
-    wrapper.scrollWidth - wrapper.clientWidth <=
-    horizontalVisibilityTolerance
-  )
-    return false;
+function computeViewMode(): ViewMode {
+  if (typeof window === 'undefined') return 'full';
+  if (window.innerWidth < mobileBreakpoint) return 'mobile';
+  if (window.innerWidth < compactBreakpoint) return 'compact';
+  return 'full';
+}
 
-  const wrapperRect = wrapper.getBoundingClientRect();
-  const seatHeaderRect = seatHeader.getBoundingClientRect();
-  const wrapperVisible =
-    wrapperRect.bottom > 0 && wrapperRect.top < window.innerHeight;
-  const isScrolledHorizontally =
-    wrapper.scrollLeft > horizontalVisibilityTolerance;
+function useViewMode(): ViewMode {
+  const [mode, setMode] = useState<ViewMode>(computeViewMode);
 
-  return (
-    wrapperVisible &&
-    (isScrolledHorizontally ||
-      seatHeaderRect.right <=
-        wrapperRect.left + horizontalVisibilityTolerance ||
-      seatHeaderRect.left >= wrapperRect.right - horizontalVisibilityTolerance)
+  useEffect(() => {
+    const onResize = () => setMode(computeViewMode());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  return mode;
+}
+
+function useListingInWorksheet(listing: CatalogListing): boolean {
+  const getRelevantWorksheetNumber = useStore(
+    (s) => s.getRelevantWorksheetNumber,
+  );
+  return useWorksheetListingPresence(
+    listing,
+    getRelevantWorksheetNumber(listing.course.season_code),
   );
 }
 
-function visibleHorizontalFrame(wrapper: HTMLElement) {
-  const wrapperRect = wrapper.getBoundingClientRect();
-  const left = Math.max(0, wrapperRect.left);
-  const right = Math.min(window.innerWidth, wrapperRect.right);
-  return {
-    left,
-    width: Math.max(0, right - left),
-  };
+function countInstructors(row: CourseRow): number {
+  return new Set(
+    row.groups.flatMap((g) => g.sections.flatMap((s) => s.instructors)),
+  ).size;
+}
+
+function countLocations(row: CourseRow): number {
+  return new Set(
+    row.groups
+      .flatMap((g) => [
+        ...g.sharedMeetings,
+        ...g.sections.flatMap((s) => s.meetings),
+      ])
+      .map((m) => [m.building, m.room].filter(Boolean).join(' '))
+      .filter(Boolean),
+  ).size;
+}
+
+function findSectionListing(
+  row: CourseRow,
+  section: OfferingSection,
+): CatalogListing {
+  return (
+    row.listings.find(
+      (l) =>
+        (l.course as { [key: string]: unknown }).ucsd_calendar &&
+        (
+          (l.course as { [key: string]: unknown }).ucsd_calendar as {
+            [key: string]: unknown;
+          }
+        ).section_id === section.section_id,
+    ) ?? row.listings[0]!
+  );
 }
 
 function SortHeader({
   label,
   sortKey,
-  className,
 }: {
   readonly label: string;
   readonly sortKey: CatalogSortKey;
-  readonly className?: string;
 }) {
   const { currentKey, asc, setSort } = useStore(
     useShallow((s) => ({
@@ -322,20 +382,19 @@ function SortHeader({
     })),
   );
   const active = currentKey === sortKey;
-  const sortDirection = active && !asc ? '▲' : '▼';
   return (
-    <div className={clsx(styles.headerCell, className)}>
-      <span>{label}</span>
-      <button
-        type="button"
-        className={styles.sortIndicator}
-        onClick={() => setSort(sortKey)}
-        aria-label={`Sort by ${label}`}
-        aria-pressed={active}
-      >
-        {sortDirection}
-      </button>
-    </div>
+    <button
+      type="button"
+      className={clsx(styles.headerCell, styles.sortHeader)}
+      onClick={() => setSort(sortKey)}
+      aria-label={`Sort by ${label}`}
+      aria-pressed={active}
+    >
+      {label}
+      <span className={styles.sortIcon} aria-hidden="true">
+        {active && !asc ? '▲' : '▼'}
+      </span>
+    </button>
   );
 }
 
@@ -358,19 +417,73 @@ function ChevronIcon({ open }: { readonly open: boolean }) {
   );
 }
 
-function MeetingDisplay({
-  meetings,
-}: {
-  readonly meetings: {
-    raw_days: string | null;
-    start_time: string | null;
-    end_time: string | null;
-    is_tba: boolean;
-  }[];
-}) {
+function InstructorIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={styles.metaIcon}
+      aria-hidden="true"
+    >
+      <path d="M22 10L12 5 2 10l10 5 10-5z" />
+      <path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5" />
+    </svg>
+  );
+}
+
+function ClockIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={styles.metaIcon}
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <polyline points="12 7 12 12 15 14" />
+    </svg>
+  );
+}
+
+function LocationIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={styles.metaIcon}
+      aria-hidden="true"
+    >
+      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+
+type Meeting = {
+  raw_days: string | null;
+  start_time: string | null;
+  end_time: string | null;
+  building: string | null;
+  room: string | null;
+  is_tba: boolean;
+};
+
+function MeetingDisplay({ meetings }: { readonly meetings: Meeting[] }) {
   const [first] = meetings;
   if (!first || first.is_tba)
-    return <span className={styles.meetTime}>TBA</span>;
+    return <span className={styles.meetTba}>TBA</span>;
 
   const days = parseDays(first.raw_days ?? '');
   const time = formatTime(first.start_time, first.end_time);
@@ -382,15 +495,7 @@ function MeetingDisplay({
   );
 }
 
-function LocationDisplay({
-  meetings,
-}: {
-  readonly meetings: {
-    building: string | null;
-    room: string | null;
-    is_tba: boolean;
-  }[];
-}) {
+function LocationDisplay({ meetings }: { readonly meetings: Meeting[] }) {
   const [first] = meetings;
   if (!first || first.is_tba) return <span>TBA</span>;
   const parts = [first.building, first.room].filter(Boolean);
@@ -420,14 +525,6 @@ function TermBadge({ seasonCode }: { readonly seasonCode: Season }) {
   );
 }
 
-function CourseTitle({ title }: { readonly title: string }) {
-  return (
-    <span className={styles.titleContent}>
-      <span className={styles.titleText}>{title}</span>
-    </span>
-  );
-}
-
 function FlatRow({
   row,
   showTermColumn,
@@ -445,12 +542,12 @@ function FlatRow({
       ? group.sharedMeetings
       : firstSection.meetings;
   const listing = row.listings[0]!;
-  const isSingle = row.totalSections === 1;
+  const inWorksheet = useListingInWorksheet(listing);
 
   return (
-    // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- CSS flex grid row, not a real table
+    // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- CSS grid row, not a real table
     <div
-      className={styles.row}
+      className={clsx(styles.row, inWorksheet && styles.rowAdded)}
       onClick={() => onOpenModal(listing)}
       role="row"
       tabIndex={0}
@@ -459,28 +556,17 @@ function FlatRow({
       }}
     >
       <div className={styles.addCell}>
-        {isSingle && <WorksheetToggleButton listing={listing} modal={false} />}
+        <WorksheetToggleButton listing={listing} modal={false} />
       </div>
-      <div className={clsx(styles.cell, styles.codeCell)}>
-        <span className={styles.courseCode}>{row.courseCode}</span>
-        {isSingle && firstSection.section_code && (
-          <span className={clsx(styles.sectionSlot, styles.sectionId)}>
-            {firstSection.section_code}
-          </span>
-        )}
-        {!isSingle && (
-          <span className={styles.sectionSlot}>
-            <span className={styles.sectionBadge}>
-              {row.totalSections} sections
-            </span>
-          </span>
-        )}
-      </div>
-      <div className={clsx(styles.cell, styles.titleCell)}>
-        <CourseTitle title={row.title} />
-      </div>
+      <span className={clsx(styles.cell, styles.courseCode)}>
+        {row.courseCode}
+      </span>
+      <span className={clsx(styles.cell, styles.sectionText)}>
+        {firstSection.section_code}
+      </span>
+      <div className={clsx(styles.cell, styles.titleCell)}>{row.title}</div>
       {showTermColumn && (
-        <div className={clsx(styles.cell, styles.termCell)}>
+        <div className={styles.cell}>
           <TermBadge seasonCode={row.seasonCode} />
         </div>
       )}
@@ -503,6 +589,70 @@ function FlatRow({
   );
 }
 
+function SubRow({
+  row,
+  group,
+  section,
+  showTermColumn,
+  onOpenModal,
+}: {
+  readonly row: CourseRow;
+  readonly group: OfferingGroup;
+  readonly section: OfferingSection;
+  readonly showTermColumn: boolean;
+  readonly onOpenModal: (courseListing: CatalogListing) => void;
+}) {
+  const groupListing = findSectionListing(row, section);
+  const inWorksheet = useListingInWorksheet(groupListing);
+  const { meetings } = section;
+
+  return (
+    // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- CSS grid row, not a real table
+    <div
+      className={clsx(styles.subRow, inWorksheet && styles.rowAdded)}
+      onClick={() => onOpenModal(groupListing)}
+      role="row"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') onOpenModal(groupListing);
+      }}
+    >
+      <div className={styles.addCell}>
+        <WorksheetToggleButton listing={groupListing} modal={false} />
+      </div>
+      <div className={styles.cell}>
+        <span className={styles.subSectionBadge}>
+          {section.section_code ?? group.familyPrefix}
+        </span>
+      </div>
+      <div />
+      <div className={clsx(styles.cell, styles.subMeta)}>
+        {section.meeting_type && (
+          <span className={styles.typeBadge}>
+            {section.meeting_type.slice(0, 2).toUpperCase()}
+          </span>
+        )}
+        <SeatsDisplay
+          enrolled={section.enrolled}
+          capacity={section.capacity}
+          variant="subrow"
+        />
+      </div>
+      {showTermColumn && <div />}
+      <div className={clsx(styles.cell, styles.subInstructorCell)}>
+        {section.instructors[0] ?? 'Staff'}
+      </div>
+      <div className={clsx(styles.cell, styles.meetsCell)}>
+        <MeetingDisplay meetings={meetings} />
+      </div>
+      <div className={clsx(styles.cell, styles.subLocationCell)}>
+        <LocationDisplay meetings={meetings} />
+      </div>
+      <div />
+    </div>
+  );
+}
+
 function ExpandableRow({
   row,
   showTermColumn,
@@ -519,189 +669,322 @@ function ExpandableRow({
     })),
   );
 
-  const listing = row.listings[0]!;
   const toggleExpanded = () => toggle(row.rowId);
-  const openModal = () => onOpenModal(listing);
+  const instructorCount = countInstructors(row);
+  const locationCount = countLocations(row);
 
   const parentRow = (
-    // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- CSS flex grid row, not a real table
+    // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- CSS grid row, not a real table
     <div
-      className={clsx(
-        styles.row,
-        styles.parentRow,
-        expanded && styles.expandedParent,
-      )}
+      className={styles.row}
       role="row"
+      tabIndex={0}
+      aria-expanded={expanded}
+      onClick={toggleExpanded}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') toggleExpanded();
+      }}
     >
       <div className={styles.addCell} />
-      <button
-        type="button"
-        className={clsx(
-          styles.cellButton,
-          styles.cell,
-          styles.codeCell,
-          styles.toggleCell,
-        )}
-        aria-expanded={expanded}
-        aria-label={`${row.courseCode} ${row.totalSections} sections`}
-        onClick={toggleExpanded}
-      >
-        <span className={styles.courseCode}>{row.courseCode}</span>
-        <span className={styles.sectionSlot}>
-          <span className={styles.sectionBadge}>
-            {row.totalSections} sections
-            <ChevronIcon open={expanded} />
-          </span>
+      <span className={clsx(styles.cell, styles.courseCode)}>
+        {row.courseCode}
+      </span>
+      <span className={styles.cell}>
+        <span className={styles.sectionBadge}>
+          {row.totalSections} sections
+          <ChevronIcon open={expanded} />
         </span>
-      </button>
-      <button
-        type="button"
-        className={clsx(
-          styles.cellButton,
-          styles.cell,
-          styles.titleCell,
-          styles.modalTitleCell,
-        )}
-        onClick={openModal}
-      >
-        <CourseTitle title={row.title} />
-      </button>
+      </span>
+      <div className={clsx(styles.cell, styles.titleCell)}>{row.title}</div>
       {showTermColumn && (
-        <div className={clsx(styles.cell, styles.termCell)}>
+        <div className={styles.cell}>
           <TermBadge seasonCode={row.seasonCode} />
         </div>
       )}
-      <div
-        className={clsx(styles.cell, styles.instructorCell, styles.summaryText)}
-      >
-        {
-          new Set(
-            row.groups.flatMap((g) => g.sections.flatMap((s) => s.instructors)),
-          ).size
-        }{' '}
-        instructors
+      <div className={clsx(styles.cell, styles.summaryText)}>
+        {instructorCount === 1
+          ? '1 instructor'
+          : `${instructorCount} instructors`}
       </div>
-      <div className={clsx(styles.cell, styles.meetsCell, styles.summaryText)}>
+      <div className={clsx(styles.cell, styles.summaryText)}>
         Multiple schedules
       </div>
-      <div
-        className={clsx(styles.cell, styles.locationCell, styles.summaryText)}
-      >
-        {row.groups.length} locations
+      <div className={clsx(styles.cell, styles.summaryText)}>
+        {locationCount === 1 ? '1 location' : `${locationCount} locations`}
       </div>
-      <div className={clsx(styles.cell, styles.seatsCell)} />
+      <div />
     </div>
   );
 
   if (!expanded) return parentRow;
 
   return (
-    <div className={styles.expandableGroup}>
+    <div className={styles.expandedGroup}>
       {parentRow}
-      <div
-        className={clsx(
-          styles.subRowContainer,
-          row.totalSections > 3 && styles.subRowContainerWithScroll,
-        )}
-      >
+      <div className={styles.subRowContainer}>
         {row.groups.flatMap((group) =>
-          group.sections.map((sec) => {
-            const { meetings } = sec;
-            const groupListing =
-              row.listings.find(
-                (l) =>
-                  (l.course as { [key: string]: unknown }).ucsd_calendar &&
-                  (
-                    (l.course as { [key: string]: unknown }).ucsd_calendar as {
-                      [key: string]: unknown;
-                    }
-                  ).section_id === sec.section_id,
-              ) ?? listing;
-
-            return (
-              // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- CSS flex grid row, not a real table
-              <div
-                key={sec.section_id}
-                className={styles.subRow}
-                onClick={() => onOpenModal(groupListing)}
-                role="row"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ')
-                    onOpenModal(groupListing);
-                }}
-              >
-                <div className={styles.addCell}>
-                  <WorksheetToggleButton listing={groupListing} modal={false} />
-                </div>
-                <div className={clsx(styles.cell, styles.codeCell)}>
-                  <span className={styles.subSectionBadge}>
-                    {sec.section_code ?? group.familyPrefix}
-                  </span>
-                </div>
-                <div
-                  className={clsx(
-                    styles.cell,
-                    styles.titleCell,
-                    styles.subTitleCell,
-                  )}
-                >
-                  {sec.meeting_type && (
-                    <span className={styles.typeBadge}>
-                      {sec.meeting_type.slice(0, 2).toUpperCase()}
-                    </span>
-                  )}
-                  <SeatsDisplay
-                    enrolled={sec.enrolled}
-                    capacity={sec.capacity}
-                    variant="subrow"
-                  />
-                </div>
-                {showTermColumn && (
-                  <div className={clsx(styles.cell, styles.termCell)} />
-                )}
-                <div className={clsx(styles.cell, styles.instructorCell)}>
-                  {sec.instructors[0] ?? 'Staff'}
-                </div>
-                <div className={clsx(styles.cell, styles.meetsCell)}>
-                  <MeetingDisplay meetings={meetings} />
-                </div>
-                <div className={clsx(styles.cell, styles.locationCell)}>
-                  <LocationDisplay meetings={meetings} />
-                </div>
-                <div className={clsx(styles.cell, styles.seatsCell)} />
-              </div>
-            );
-          }),
-        )}
-        {row.totalSections > 3 && (
-          <div className={styles.scrollHint}>↓ scroll for more sections</div>
+          group.sections.map((sec) => (
+            <SubRow
+              key={sec.section_id}
+              row={row}
+              group={group}
+              section={sec}
+              showTermColumn={showTermColumn}
+              onOpenModal={onOpenModal}
+            />
+          )),
         )}
       </div>
     </div>
   );
 }
 
+function MobileFlatCard({
+  row,
+  showTermColumn,
+  onOpenModal,
+}: {
+  readonly row: CourseRow;
+  readonly showTermColumn: boolean;
+  readonly onOpenModal: (courseListing: CatalogListing) => void;
+}) {
+  const group = row.groups[0]!;
+  const firstSection = group.sections[0]!;
+  const instructor = firstSection.instructors[0] ?? 'Staff';
+  const meetings =
+    group.sharedMeetings.length > 0
+      ? group.sharedMeetings
+      : firstSection.meetings;
+  const listing = row.listings[0]!;
+  const inWorksheet = useListingInWorksheet(listing);
+  const [firstMeeting] = meetings;
+  const isTba = !firstMeeting || firstMeeting.is_tba;
+
+  return (
+    // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- clickable card wraps a nested worksheet toggle button
+    <div
+      className={clsx(styles.mobileCard, inWorksheet && styles.mobileCardAdded)}
+      onClick={() => onOpenModal(listing)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') onOpenModal(listing);
+      }}
+    >
+      <div className={styles.mobileCardTop}>
+        <div className={styles.mobileCardInfo}>
+          <div className={styles.mobileCodeRow}>
+            <span className={styles.mobileCode}>{row.courseCode}</span>
+            {firstSection.section_code && (
+              <span className={styles.mobileSectionBadge}>
+                {firstSection.section_code}
+              </span>
+            )}
+            {showTermColumn && <TermBadge seasonCode={row.seasonCode} />}
+          </div>
+          <div className={styles.mobileTitle}>{row.title}</div>
+          <div className={styles.mobileInstructor}>
+            <InstructorIcon />
+            <span className={styles.mobileTrunc}>{instructor}</span>
+          </div>
+        </div>
+        <div className={styles.mobileAddCircle}>
+          <WorksheetToggleButton listing={listing} modal={false} />
+        </div>
+      </div>
+      <div className={styles.mobileCardMeta}>
+        <div className={styles.mobileMetaRow}>
+          <ClockIcon />
+          {isTba ? (
+            <span className={styles.mobileTba}>Time TBA</span>
+          ) : (
+            <div className={styles.mobileMeets}>
+              <DayDots days={parseDays(firstMeeting.raw_days ?? '')} />
+              <span className={styles.mobileTime}>
+                {formatTime(firstMeeting.start_time, firstMeeting.end_time)}
+              </span>
+            </div>
+          )}
+        </div>
+        <div className={styles.mobileMetaSplit}>
+          <div className={styles.mobileLocation}>
+            <LocationIcon />
+            <span className={styles.mobileTrunc}>
+              <LocationDisplay meetings={meetings} />
+            </span>
+          </div>
+          <SeatsDisplay
+            enrolled={group.totalEnrolled}
+            capacity={group.totalCapacity}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MobileSubRow({
+  row,
+  group,
+  section,
+  onOpenModal,
+}: {
+  readonly row: CourseRow;
+  readonly group: OfferingGroup;
+  readonly section: OfferingSection;
+  readonly onOpenModal: (courseListing: CatalogListing) => void;
+}) {
+  const groupListing = findSectionListing(row, section);
+  const inWorksheet = useListingInWorksheet(groupListing);
+  const { meetings } = section;
+  const [firstMeeting] = meetings;
+  const isTba = !firstMeeting || firstMeeting.is_tba;
+
+  return (
+    // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- clickable row wraps a nested worksheet toggle button
+    <div
+      className={clsx(styles.mobileSubRow, inWorksheet && styles.rowAdded)}
+      onClick={() => onOpenModal(groupListing)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') onOpenModal(groupListing);
+      }}
+    >
+      <div className={styles.mobileSubTop}>
+        <span className={styles.subSectionBadge}>
+          {section.section_code ?? group.familyPrefix}
+        </span>
+        {section.meeting_type && (
+          <span className={styles.typeBadge}>
+            {section.meeting_type.slice(0, 2).toUpperCase()}
+          </span>
+        )}
+        <div className={styles.mobileSubSpacer} />
+        <SeatsDisplay
+          enrolled={section.enrolled}
+          capacity={section.capacity}
+          variant="subrow"
+        />
+        <div className={styles.mobileAddCircleSmall}>
+          <WorksheetToggleButton listing={groupListing} modal={false} />
+        </div>
+      </div>
+      <div className={styles.mobileSubInstructor}>
+        <InstructorIcon />
+        <span className={styles.mobileTrunc}>
+          {section.instructors[0] ?? 'Staff'}
+        </span>
+      </div>
+      <div className={styles.mobileSubMeets}>
+        {isTba ? (
+          <span className={styles.mobileTba}>TBA</span>
+        ) : (
+          <>
+            <DayDots days={parseDays(firstMeeting.raw_days ?? '')} />
+            <span className={styles.mobileTime}>
+              {formatTime(firstMeeting.start_time, firstMeeting.end_time)}
+            </span>
+          </>
+        )}
+        <div className={styles.mobileSubSpacer} />
+        <span className={clsx(styles.mobileSubLocation, styles.mobileTrunc)}>
+          <LocationDisplay meetings={meetings} />
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function MobileExpandableCard({
+  row,
+  showTermColumn,
+  onOpenModal,
+}: {
+  readonly row: CourseRow;
+  readonly showTermColumn: boolean;
+  readonly onOpenModal: (courseListing: CatalogListing) => void;
+}) {
+  const { expanded, toggle } = useStore(
+    useShallow((s) => ({
+      expanded: s.catalogExpandedCourses.has(row.rowId),
+      toggle: s.toggleCatalogExpanded,
+    })),
+  );
+  const toggleExpanded = () => toggle(row.rowId);
+  const instructorCount = countInstructors(row);
+  const locationCount = countLocations(row);
+
+  return (
+    <div
+      className={clsx(
+        styles.mobileGroup,
+        expanded && styles.mobileGroupExpanded,
+      )}
+    >
+      <button
+        type="button"
+        className={styles.mobileGroupHeader}
+        onClick={toggleExpanded}
+        aria-expanded={expanded}
+      >
+        <div className={styles.mobileCodeRow}>
+          <span className={styles.mobileCode}>{row.courseCode}</span>
+          <span className={styles.sectionBadge}>
+            {row.totalSections} sections
+            <ChevronIcon open={expanded} />
+          </span>
+          {showTermColumn && <TermBadge seasonCode={row.seasonCode} />}
+        </div>
+        <div className={styles.mobileGroupTitle}>{row.title}</div>
+        <div className={styles.mobileGroupMeta}>
+          <span>
+            <InstructorIcon />
+            {instructorCount === 1
+              ? '1 instructor'
+              : `${instructorCount} instructors`}
+          </span>
+          <span>
+            <LocationIcon />
+            {locationCount === 1 ? '1 location' : `${locationCount} locations`}
+          </span>
+        </div>
+      </button>
+      {expanded && (
+        <div className={styles.mobileSubList}>
+          {row.groups.flatMap((group) =>
+            group.sections.map((sec) => (
+              <MobileSubRow
+                key={sec.section_id}
+                row={row}
+                group={group}
+                section={sec}
+                onOpenModal={onOpenModal}
+              />
+            )),
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function CatalogTable({
   data,
+  loading,
+  filterBar,
   onOpenModal,
 }: {
   readonly data: CatalogListing[] | null;
+  readonly loading: boolean;
+  readonly filterBar: ReactNode;
   readonly onOpenModal: (listing: CatalogListing) => void;
 }) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const seatHeaderRef = useRef<HTMLDivElement>(null);
-  const horizontalScrollbarRef = useRef<HTMLDivElement>(null);
-  const wrapperHeight = useElementHeight(wrapperRef);
-  const headerHeight = useElementHeight(headerRef);
+  const viewMode = useViewMode();
+  const rowsRef = useRef<HTMLDivElement>(null);
+  const viewportHeight = useElementHeight(rowsRef);
   const [scrollTop, setScrollTop] = useState(0);
-  const [showHorizontalScrollbar, setShowHorizontalScrollbar] = useState(false);
-  const [horizontalScrollWidth, setHorizontalScrollWidth] = useState(0);
-  const [horizontalScrollbarFrame, setHorizontalScrollbarFrame] = useState({
-    left: 0,
-    width: 0,
-  });
+  const [scrollbarWidth, setScrollbarWidth] = useState(0);
 
   const { sortKey, sortAsc, expandedCourses } = useStore(
     useShallow((s) => ({
@@ -715,30 +998,57 @@ export default function CatalogTable({
     if (!data) return [];
     return sortRows(groupListingsByCourse(data), sortKey, sortAsc);
   }, [data, sortKey, sortAsc]);
-  const codeColumnStyle = useMemo(
-    () => courseCodeColumnStyle(courseRows),
-    [courseRows],
-  );
   const showTermColumn = useMemo(
     () => new Set(courseRows.map((row) => row.seasonCode)).size > 1,
     [courseRows],
   );
+  const codeSlotCh = useMemo(
+    () =>
+      courseRows.reduce(
+        (max, row) => Math.max(max, row.courseCode.length),
+        minCourseCodeWidthCh,
+      ) + courseCodeWidthBufferCh,
+    [courseRows],
+  );
+  const gridVars = useMemo(
+    () =>
+      ({
+        '--ct-grid-cols': buildGridTemplate(
+          viewMode === 'compact',
+          showTermColumn,
+          codeSlotCh,
+        ),
+        '--ct-scrollbar-w': `${scrollbarWidth}px`,
+      }) as CSSProperties,
+    [viewMode, showTermColumn, codeSlotCh, scrollbarWidth],
+  );
+
+  // The fixed table header compensates for the rows container's vertical
+  // scrollbar so the header columns stay aligned with the row columns.
+  useEffect(() => {
+    const el = rowsRef.current;
+    if (!el) return undefined;
+
+    const update = () => setScrollbarWidth(el.offsetWidth - el.clientWidth);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [viewMode, courseRows.length]);
+
   const rowHeights = useMemo(
     () => courseRows.map((row) => courseRowHeight(row, expandedCourses)),
     [courseRows, expandedCourses],
   );
   const rowOffsets = useMemo(() => prefixOffsets(rowHeights), [rowHeights]);
   const totalRowsHeight = rowOffsets[rowOffsets.length - 1] ?? 0;
-  const rowScrollTop = Math.max(0, scrollTop - headerHeight);
-  const viewportHeight = Math.max(0, wrapperHeight - headerHeight);
   const visibleStart = courseRows.length
-    ? Math.max(0, firstVisibleIndex(rowOffsets, rowScrollTop) - overscanRows)
+    ? Math.max(0, firstVisibleIndex(rowOffsets, scrollTop) - overscanRows)
     : 0;
   const visibleEnd = courseRows.length
     ? Math.min(
         courseRows.length - 1,
-        lastVisibleIndex(rowOffsets, rowScrollTop + viewportHeight) +
-          overscanRows,
+        lastVisibleIndex(rowOffsets, scrollTop + viewportHeight) + overscanRows,
       )
     : -1;
   const visibleRows =
@@ -749,165 +1059,102 @@ export default function CatalogTable({
   const bottomSpacerHeight =
     totalRowsHeight - (rowOffsets[visibleEnd + 1] ?? topSpacerHeight);
 
-  const updateHorizontalScrollbarVisibility = useCallback(() => {
-    const wrapper = wrapperRef.current;
-    const seatHeader = seatHeaderRef.current;
-    if (!wrapper || !seatHeader) {
-      setShowHorizontalScrollbar(false);
-      setHorizontalScrollWidth(0);
-      return;
-    }
-
-    setHorizontalScrollWidth(wrapper.scrollWidth);
-    setHorizontalScrollbarFrame(visibleHorizontalFrame(wrapper));
-    setShowHorizontalScrollbar(
-      shouldShowHorizontalScrollbar(wrapper, seatHeader),
-    );
-
-    const horizontalScrollbar = horizontalScrollbarRef.current;
-    if (
-      horizontalScrollbar &&
-      Math.abs(horizontalScrollbar.scrollLeft - wrapper.scrollLeft) >
-        horizontalVisibilityTolerance
-    )
-      horizontalScrollbar.scrollLeft = wrapper.scrollLeft;
-  }, []);
-
-  useEffect(() => {
-    updateHorizontalScrollbarVisibility();
-
-    const wrapper = wrapperRef.current;
-    const seatHeader = seatHeaderRef.current;
-    if (!wrapper || !seatHeader) return undefined;
-
-    const resizeObserver = new ResizeObserver(
-      updateHorizontalScrollbarVisibility,
-    );
-    resizeObserver.observe(wrapper);
-    resizeObserver.observe(seatHeader);
-
-    return () => resizeObserver.disconnect();
-  }, [
-    codeColumnStyle,
-    showTermColumn,
-    totalRowsHeight,
-    updateHorizontalScrollbarVisibility,
-  ]);
-
-  const renderRow = useCallback(
-    (row: CourseRow) => {
-      if (row.totalSections > 1) {
-        return (
-          <ExpandableRow
-            key={row.rowId}
-            row={row}
-            showTermColumn={showTermColumn}
-            onOpenModal={onOpenModal}
-          />
-        );
-      }
+  const renderDesktopRow = (row: CourseRow) => {
+    if (row.totalSections > 1) {
       return (
-        <FlatRow
+        <ExpandableRow
           key={row.rowId}
           row={row}
           showTermColumn={showTermColumn}
           onOpenModal={onOpenModal}
         />
       );
-    },
-    [onOpenModal, showTermColumn],
-  );
+    }
+    return (
+      <FlatRow
+        key={row.rowId}
+        row={row}
+        showTermColumn={showTermColumn}
+        onOpenModal={onOpenModal}
+      />
+    );
+  };
+
+  const renderMobileRow = (row: CourseRow) => {
+    if (row.totalSections > 1) {
+      return (
+        <MobileExpandableCard
+          key={row.rowId}
+          row={row}
+          showTermColumn={showTermColumn}
+          onOpenModal={onOpenModal}
+        />
+      );
+    }
+    return (
+      <MobileFlatCard
+        key={row.rowId}
+        row={row}
+        showTermColumn={showTermColumn}
+        onOpenModal={onOpenModal}
+      />
+    );
+  };
 
   return (
-    <div
-      ref={wrapperRef}
-      className={styles.tableWrapper}
-      onScroll={(event) => {
-        setScrollTop(event.currentTarget.scrollTop);
-        updateHorizontalScrollbarVisibility();
-      }}
-    >
-      <div
-        style={codeColumnStyle}
-        className={clsx(
-          styles.tableInner,
-          showTermColumn && styles.tableInnerWithTerm,
+    <>
+      <div className={styles.controlCard} style={gridVars}>
+        {filterBar}
+        {viewMode !== 'mobile' && (
+          <div className={styles.header}>
+            <div className={styles.headerCell} />
+            <SortHeader label="Code" sortKey="code" />
+            <div className={styles.headerCell} />
+            <SortHeader label="Title" sortKey="title" />
+            {showTermColumn && <SortHeader label="Term" sortKey="term" />}
+            <div className={clsx(styles.headerCell, styles.cell)}>
+              {viewMode === 'compact' ? 'Instr.' : 'Instructors'}
+            </div>
+            <SortHeader label="Meets" sortKey="meets" />
+            <div className={clsx(styles.headerCell, styles.cell)}>
+              {viewMode === 'compact' ? 'Loc.' : 'Location'}
+            </div>
+            <div className={styles.headerCell}>Seats</div>
+          </div>
         )}
+      </div>
+      <div
+        ref={rowsRef}
+        className={clsx(
+          styles.rowsContainer,
+          viewMode === 'mobile' && styles.rowsContainerMobile,
+        )}
+        style={gridVars}
+        onScroll={
+          viewMode === 'mobile'
+            ? undefined
+            : (event) => setScrollTop(event.currentTarget.scrollTop)
+        }
       >
-        <div ref={headerRef} className={styles.header}>
-          <div className={clsx(styles.headerCell, styles.colAdd)} />
-          <SortHeader label="Code" sortKey="code" className={styles.colCode} />
-          <SortHeader
-            label="Title"
-            sortKey="title"
-            className={styles.colTitle}
-          />
-          {showTermColumn && (
-            <SortHeader
-              label="Term"
-              sortKey="term"
-              className={styles.colTerm}
-            />
-          )}
-          <div className={clsx(styles.headerCell, styles.colInstructor)}>
-            Instructors
-          </div>
-          <SortHeader
-            label="Meets"
-            sortKey="meets"
-            className={styles.colMeets}
-          />
-          <div className={clsx(styles.headerCell, styles.colLocation)}>
-            Location
-          </div>
-          <div
-            ref={seatHeaderRef}
-            className={clsx(styles.headerCell, styles.colSeats)}
-          >
-            Seats
-          </div>
-        </div>
-
-        {courseRows.length === 0 ? (
+        {loading ? (
+          <div className={styles.empty}>Loading courses...</div>
+        ) : courseRows.length === 0 ? (
           <div className={styles.empty}>No courses match your filters.</div>
+        ) : viewMode === 'mobile' ? (
+          courseRows.map(renderMobileRow)
         ) : (
           <div
             className={styles.virtualRows}
             style={{ minHeight: totalRowsHeight }}
           >
             {topSpacerHeight > 0 && <div style={{ height: topSpacerHeight }} />}
-            {visibleRows.map(renderRow)}
+            {visibleRows.map(renderDesktopRow)}
             {bottomSpacerHeight > 0 && (
               <div style={{ height: bottomSpacerHeight }} />
             )}
           </div>
         )}
       </div>
-      <div
-        ref={horizontalScrollbarRef}
-        aria-hidden={!showHorizontalScrollbar}
-        className={clsx(
-          styles.horizontalScrollbar,
-          !showHorizontalScrollbar && styles.horizontalScrollbarHidden,
-        )}
-        style={horizontalScrollbarFrame}
-        onScroll={(event) => {
-          const wrapper = wrapperRef.current;
-          if (!wrapper) return;
-          if (
-            Math.abs(wrapper.scrollLeft - event.currentTarget.scrollLeft) >
-            horizontalVisibilityTolerance
-          )
-            wrapper.scrollLeft = event.currentTarget.scrollLeft;
-
-          updateHorizontalScrollbarVisibility();
-        }}
-      >
-        <div
-          className={styles.horizontalScrollbarSpacer}
-          style={{ width: horizontalScrollWidth }}
-        />
-      </div>
-    </div>
+    </>
   );
 }

@@ -13,14 +13,15 @@
   align-items: center;
   justify-content: center;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .active {
-  background: var(--sg-day-dot-active);
-  color: var(--sg-bg-white);
+  background: #333b4d;
+  color: #fff;
 }
 
 .inactive {
-  background: var(--sg-day-dot-inactive-bg);
-  color: var(--sg-text-very-light);
+  background: rgb(11 11 11 / 8%);
+  color: #9f9d97;
 }

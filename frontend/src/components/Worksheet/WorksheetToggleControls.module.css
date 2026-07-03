@@ -27,7 +27,7 @@
   position: absolute;
   display: block;
   border-radius: 1.5px;
-  background: #4a6cf7;
+  background: #2871be;
   transition:
     transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
     background-color 0.25s ease;
@@ -52,7 +52,7 @@
 }
 
 .isAdded .toggleButtonBar {
-  background: #e24b4a;
+  background: #a32d2d;
 }
 
 .disabledButton {

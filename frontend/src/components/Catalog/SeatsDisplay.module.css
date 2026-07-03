@@ -1,14 +1,13 @@
 .container {
   display: flex;
   align-items: center;
-  width: 100%;
 }
 
 .text {
-  font-size: 12.5px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: var(--sg-text-secondary);
+  color: #0b0b0b;
   white-space: nowrap;
 }
 
@@ -22,38 +21,34 @@
 }
 
 .subrow .text {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 600;
   text-align: right;
 }
 
+/* The finalized design only distinguishes critical (<25% left, red) and
+   low (<50% left, amber); the remaining statuses render in neutral ink. */
 .critical {
-  color: #e24b4a;
+  color: #a32d2d;
 }
 
 .low {
-  color: #d85a30;
+  color: #854f0b;
 }
 
-.medium {
-  color: #eda100;
-}
-
-.high {
-  color: #1d9e75;
-}
-
+.medium,
+.high,
 .available {
-  color: #639922;
+  color: #0b0b0b;
 }
 
 .bar {
   width: var(--seat-bar-slot);
   height: 4px;
   border-radius: 2px;
-  background: #eef0f4;
+  background: #f9f8f6;
   overflow: hidden;
-  justify-self: start;
+  place-self: center start;
 }
 
 .barFill {
@@ -62,21 +57,15 @@
 }
 
 .barCritical {
-  background: #e24b4a;
+  background: #a32d2d;
 }
 
 .barLow {
-  background: #d85a30;
+  background: #854f0b;
 }
 
-.barMedium {
-  background: #eda100;
-}
-
-.barHigh {
-  background: #1d9e75;
-}
-
+.barMedium,
+.barHigh,
 .barAvailable {
-  background: #639922;
+  background: #0b0b0b;
 }

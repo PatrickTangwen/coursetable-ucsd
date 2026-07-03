@@ -1,25 +1,48 @@
+.dropdownWrapper {
+  position: relative;
+}
+
 .dropdown {
-  padding: 7px 12px;
-  border: 1px solid var(--sg-border-light);
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--sg-text-tertiary);
-  background: var(--sg-bg-white);
-  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: background 0.15s;
+  gap: 7px;
+  padding: 9px 16px;
+  border: 1px solid rgb(11 11 11 / 8%);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6f6d67;
+  background: transparent;
+  cursor: pointer;
+  box-shadow:
+    0 1px 2px rgb(11 11 11 / 8%),
+    0 1px 4px rgb(11 11 11 / 4%);
+  transition:
+    box-shadow 0.25s ease,
+    background 0.15s ease;
 }
 
 .dropdown:hover {
-  background: var(--sg-bg-input);
+  background: #fdfcfb;
+  box-shadow: 0 2px 5px rgb(11 11 11 / 14%);
 }
 
 .dropdownOpen {
-  border-color: var(--sg-primary);
-  background: var(--sg-bg-input);
+  box-shadow:
+    0 2px 4px rgb(11 11 11 / 8%),
+    0 4px 10px rgb(11 11 11 / 8%);
+}
+
+.chevronSvg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: #9f9d97;
+  transition: transform 0.15s;
+}
+
+.dropdownOpen .chevronSvg {
+  transform: rotate(180deg);
 }
 
 .dropdownMenu {
@@ -27,12 +50,12 @@
   top: calc(100% + 6px);
   left: 0;
   z-index: 20;
-  background: var(--sg-bg-white);
-  border: 1px solid var(--sg-border-light);
+  background: #fff;
+  border: 1px solid rgb(11 11 11 / 8%);
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 10%);
+  box-shadow: 0 8px 24px rgb(11 11 11 / 14%);
   padding: 6px;
-  min-width: 190px;
+  min-width: 220px;
   max-height: 280px;
   overflow-y: auto;
   animation: popover-fade-in 0.14s ease-out;
@@ -44,33 +67,33 @@
 
 .searchInput {
   width: 100%;
-  min-width: 260px;
+  min-width: 220px;
   height: 38px;
   padding: 0 12px;
-  border: 1px solid var(--sg-border-light);
+  border: 1px solid rgb(11 11 11 / 8%);
   border-radius: 8px;
-  color: var(--sg-text-secondary);
-  background: var(--sg-bg-white);
+  color: #0b0b0b;
+  background: #fff;
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   outline: none;
 }
 
 .searchInput:focus {
-  border-color: var(--sg-primary);
-  box-shadow: 0 0 0 2px rgb(26 86 219 / 14%);
+  border-color: #2871be;
+  box-shadow: 0 0 0 2px rgb(40 113 190 / 14%);
 }
 
 .searchInput::placeholder {
-  color: var(--sg-text-placeholder);
+  color: #9f9d97;
 }
 
 .dropdownItem {
   width: 100%;
   text-align: left;
   padding: 8px 10px;
-  font-size: 13px;
-  color: var(--sg-text-secondary);
+  font-size: 14px;
+  color: #6f6d67;
   border-radius: 6px;
   cursor: pointer;
   display: flex;
@@ -80,13 +103,13 @@
 }
 
 .dropdownItem:hover {
-  background: var(--color-surface-hover);
+  background: rgb(11 11 11 / 4%);
 }
 
 .dropdownItemActive {
   font-weight: 600;
-  color: var(--sg-primary);
-  background: var(--sg-primary-chip-bg);
+  color: #185fa5;
+  background: #e6f1fb;
 }
 
 .dropdownItemLabel {
@@ -97,17 +120,17 @@
 
 .emptyState {
   padding: 12px 10px;
-  color: var(--sg-text-placeholder);
-  font-size: 13px;
+  color: #9f9d97;
+  font-size: 14px;
 }
 
 .checkbox {
   width: 14px;
   height: 14px;
-  border: 1px solid var(--sg-border-light);
+  border: 1px solid rgb(11 11 11 / 14%);
   border-radius: 3px;
   color: #fff;
-  background: var(--sg-bg-white);
+  background: #fff;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -120,18 +143,8 @@
 }
 
 .checkboxActive {
-  border-color: var(--sg-primary);
-  background: var(--sg-primary);
-}
-
-.dropdownWrapper {
-  position: relative;
-}
-
-.chevronSvg {
-  width: 10px;
-  height: 10px;
-  flex-shrink: 0;
+  border-color: #2871be;
+  background: #2871be;
 }
 
 @keyframes popover-fade-in {

@@ -51,7 +51,9 @@ export default function SeatsDisplay({
 
   return (
     <div className={styles.container}>
-      <span className={styles.text}>{availableSeats} left</span>
+      <span className={clsx(styles.text, textClass[status])}>
+        {availableSeats} left
+      </span>
     </div>
   );
 }

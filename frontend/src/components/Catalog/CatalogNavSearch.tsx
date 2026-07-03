@@ -40,8 +40,19 @@ function ClearIcon() {
   );
 }
 
+export function CatalogResultCount() {
+  const { searchData, coursesLoading } = useSearch();
+  return (
+    <div className={styles.resultCount}>
+      {coursesLoading
+        ? 'Searching…'
+        : `Showing ${searchData?.length ?? 0} results`}
+    </div>
+  );
+}
+
 export default function CatalogNavSearch() {
-  const { filters, searchData, coursesLoading, setStartTime } = useSearch();
+  const { filters, setStartTime } = useSearch();
   const { searchText } = filters;
 
   return (
@@ -73,11 +84,6 @@ export default function CatalogNavSearch() {
             <ClearIcon />
           </button>
         )}
-      </div>
-      <div className={styles.resultCount}>
-        {coursesLoading
-          ? 'Searching…'
-          : `Showing ${searchData?.length ?? 0} results`}
       </div>
     </div>
   );

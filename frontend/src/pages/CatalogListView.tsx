@@ -43,7 +43,7 @@ function parseCourseNumber(code: string): number {
 export default function CatalogListView() {
   const { searchData, coursesLoading } = useSearch();
   const { courses } = useFerry();
-  const levelFilter = useStore((s) => s.catalogLevelFilter);
+  const levelFilters = useStore((s) => s.catalogLevelFilters);
   const searchFilters = useStore((s) => s.searchFilters);
   const patchSearchFilters = useStore((s) => s.patchSearchFilters);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -61,16 +61,18 @@ export default function CatalogListView() {
 
   const filteredData = useMemo(() => {
     if (!searchData) return null;
-    if (!levelFilter) return searchData;
+    if (levelFilters.length === 0) return searchData;
 
-    const level = COURSE_LEVELS.find((l) => l.value === levelFilter);
-    if (!level) return searchData;
+    const ranges = COURSE_LEVELS.filter((l) =>
+      levelFilters.includes(l.value),
+    ).map((l) => l.range);
+    if (ranges.length === 0) return searchData;
 
     return searchData.filter((l) => {
       const num = parseCourseNumber(l.number);
-      return num >= level.range[0] && num <= level.range[1];
+      return ranges.some((range) => num >= range[0] && num <= range[1]);
     });
-  }, [searchData, levelFilter]);
+  }, [searchData, levelFilters]);
 
   const handleOpenModal = useCallback(
     (listing: CatalogListing) => {
@@ -88,27 +90,14 @@ export default function CatalogListView() {
     [navigate, searchParams, setSearchParams],
   );
 
-  if (coursesLoading) {
-    return (
-      <div className={styles.page}>
-        <FilterBar subjects={subjects} />
-        <div
-          style={{
-            textAlign: 'center',
-            padding: '64px 24px',
-            color: '#8b8fa3',
-          }}
-        >
-          Loading courses...
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={styles.page}>
-      <FilterBar subjects={subjects} />
-      <CatalogTable data={filteredData} onOpenModal={handleOpenModal} />
+      <CatalogTable
+        data={filteredData}
+        loading={coursesLoading}
+        filterBar={<FilterBar subjects={subjects} />}
+        onOpenModal={handleOpenModal}
+      />
     </div>
   );
 }
