@@ -31,9 +31,17 @@
   border-radius: 14px;
   color: inherit;
   box-shadow:
-    0 24px 80px rgb(0 0 0 / 18%),
-    0 4px 16px rgb(0 0 0 / 8%);
+    0 2px 4px rgb(11 11 11 / 3%),
+    0 8px 24px rgb(11 11 11 / 5%),
+    0 24px 64px rgb(11 11 11 / 8%);
   animation: modal-fade-in 0.25s ease-out;
+}
+
+.modal :focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 1px #2871be,
+    0 0 0 4px #e6f1fb;
 }
 
 .backdropButton {
@@ -62,24 +70,37 @@
 }
 
 .title {
-  color: #1a1a2e;
-  font-size: 21px;
+  color: #0b0b0b;
+  font-size: 20px;
   font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.35;
+  letter-spacing: -0.02em;
+  line-height: 1.28;
+  text-wrap: pretty;
 }
 
-.term {
-  color: #8b8fa3;
-  font-weight: 400;
+.subtitleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  color: #6f6d67;
+  font-size: 13px;
 }
 
 .courseCode {
-  margin-top: 5px;
-  color: #9a9db4;
-  font-size: 16px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
+  color: #185fa5;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.subtitleDot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #c9c7c1;
 }
 
 .closeButton,
@@ -89,7 +110,7 @@
   justify-content: center;
   border: 0;
   background: transparent;
-  color: #1a56db;
+  color: #185fa5;
   cursor: pointer;
   transition:
     background 0.15s ease,
@@ -101,77 +122,13 @@
   height: 36px;
   flex-shrink: 0;
   border-radius: 8px;
-  color: #9a9db4;
+  color: #9f9d97;
 }
 
 .closeButton:hover,
 .closeButton:focus-visible {
-  background: #f0f0f5;
-  color: #5a5d7a;
-}
-
-.sectionPills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 12px;
-  max-height: min(144px, 24vh);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 0 4px 2px 0;
-  scrollbar-gutter: stable;
-}
-
-.sectionPill {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  min-height: 32px;
-  padding: 4px 12px;
-  border: 1px solid #dde3f0;
-  border-radius: 6px;
-  background: #fff;
-  color: #4a4d68;
-  cursor: pointer;
-  font: inherit;
-  font-size: 11.5px;
-  font-weight: 600;
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
-}
-
-.sectionPill:hover,
-.sectionPill:focus-visible {
-  background: #f4f6fa;
-}
-
-.sectionPillActive {
-  border-color: #1a56db;
-  background: #1a56db;
-  color: #fff;
-}
-
-.sectionPillActive:hover,
-.sectionPillActive:focus-visible {
-  background: #1a56db;
-  color: #fff;
-}
-
-.pillInstructor {
-  max-width: 130px;
-  overflow: hidden;
-  color: #9a9db4;
-  font-size: 10.5px;
-  font-weight: 400;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.sectionPillActive .pillInstructor {
-  color: rgb(255 255 255 / 70%);
+  background: #f3f2ef;
+  color: #6f6d67;
 }
 
 .controls {
@@ -179,11 +136,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 18px;
+  margin-top: 14px;
 }
 
-.controlsWithPills {
-  margin-top: 14px;
+.controlsRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
 
 .tabs,
@@ -196,25 +156,30 @@
 .tab {
   padding: 7px 16px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 6px;
   background: transparent;
-  color: #4a4d68;
+  color: #3d3b37;
   cursor: pointer;
   font: inherit;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 500;
   transition: background 0.15s ease;
 }
 
 .tab:hover,
 .tab:focus-visible {
-  background: #f4f4f8;
+  background: #f3f2ef;
 }
 
 .tabActive {
-  background: #e8f0fe;
-  color: #1a56db;
+  background: #e6f1fb;
+  color: #185fa5;
   font-weight: 600;
+}
+
+.tabActive:hover,
+.tabActive:focus-visible {
+  background: #e6f1fb;
 }
 
 .iconButton {
@@ -225,29 +190,148 @@
 
 .iconButton:hover,
 .iconButton:focus-visible {
-  background: #e8f0fe;
+  background: #e6f1fb;
 }
 
 .iconButton:disabled {
-  color: #b6bdd0;
+  color: #b8b6b0;
   cursor: not-allowed;
+}
+
+.sectionSelect {
+  position: relative;
+  min-width: 0;
+}
+
+.sectionSelectButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  padding: 6px 10px 6px 12px;
+  border: 1px solid rgb(11 11 11 / 12%);
+  border-radius: 8px;
+  background: #fff;
+  color: #0b0b0b;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: border-color 0.15s ease;
+}
+
+.sectionSelectButtonOpen {
+  border-color: rgb(40 113 190 / 40%);
+}
+
+.selectChevron {
+  color: #9f9d97;
+}
+
+.sectionMenuBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.sectionMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 30;
+  min-width: 226px;
+  max-height: min(320px, 48vh);
+  padding: 5px;
+  overflow-y: auto;
+  border: 1px solid rgb(11 11 11 / 10%);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow:
+    0 4px 12px rgb(11 11 11 / 8%),
+    0 12px 32px rgb(11 11 11 / 12%);
+}
+
+.sectionMenuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition: background 0.12s ease;
+}
+
+.sectionMenuItem:hover,
+.sectionMenuItem:focus-visible {
+  background: #f3f2ef;
+}
+
+.sectionMenuItemActive,
+.sectionMenuItemActive:hover,
+.sectionMenuItemActive:focus-visible {
+  background: #e6f1fb;
+}
+
+.sectionMenuText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.sectionMenuTitle {
+  color: #0b0b0b;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.sectionMenuItemActive .sectionMenuTitle {
+  color: #185fa5;
+}
+
+.sectionMenuInstructor {
+  margin-top: 1px;
+  max-width: 200px;
+  overflow: hidden;
+  color: #6f6d67;
+  font-size: 11px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sectionMenuCheck {
+  flex-shrink: 0;
+  color: #185fa5;
 }
 
 .separator {
   height: 1px;
   margin-top: 12px;
-  background: #e8e9ef;
+  background: rgb(11 11 11 / 8%);
 }
 
 .body {
   flex: 1;
-  padding: 22px 28px 32px;
+  min-height: 0;
+  padding: 24px 28px 28px;
   overflow-y: auto;
 }
 
 .description {
   margin: 0 0 14px;
-  color: #4a4d68;
+  color: #3d3b37;
   font-size: 14.5px;
   line-height: 1.65;
   text-wrap: pretty;
@@ -276,21 +360,21 @@
 }
 
 .unitsChip {
-  background: #eef2ff;
-  color: #3b52a8;
+  background: #e1f5ee;
+  color: #0f6e56;
   font-weight: 600;
 }
 
 .levelChip,
 .restrictionChip {
-  background: #fff1f2;
-  color: #be123c;
+  background: #fcebeb;
+  color: #a32d2d;
   font-weight: 500;
 }
 
 .chipButton {
-  background: #f5f3ff;
-  color: #6d28d9;
+  background: #eeedfe;
+  color: #534ab7;
   cursor: pointer;
   font-weight: 500;
   transition: background 0.15s ease;
@@ -300,35 +384,35 @@
 .chipButton:hover,
 .chipButton:focus-visible,
 .chipButtonExpanded {
-  background: #ede9fe;
+  background: #cecbf6;
 }
 
-.chipChevron {
+.chevron {
   transition: transform 0.2s ease;
 }
 
-.chipChevronExpanded {
+.chevronOpen {
   transform: rotate(180deg);
 }
 
 .chipLink {
-  background: #f0f9ff;
-  color: #1a56db;
+  background: #e6f1fb;
+  color: #185fa5;
   font-weight: 500;
   transition: background 0.15s ease;
 }
 
 .chipLink:hover,
 .chipLink:focus-visible {
-  background: #dbeafe;
+  background: #d3e7f8;
 }
 
 .prereqPanel {
   margin-bottom: 8px;
   padding: 11px 14px;
-  border: 1px solid #e9e5f5;
+  border: 1px solid #cecbf6;
   border-radius: 8px;
-  background: #faf8ff;
+  background: #eeedfe;
 }
 
 .prereqPanelInner {
@@ -339,7 +423,7 @@
 }
 
 .prereqText {
-  color: #33354d;
+  color: #0b0b0b;
   font-size: 13px;
   line-height: 1.55;
   text-wrap: pretty;
@@ -347,7 +431,7 @@
 
 .prereqLabel {
   margin-right: 6px;
-  color: #6d28d9;
+  color: #534ab7;
   font-weight: 600;
 }
 
@@ -360,14 +444,14 @@
   border: 0;
   border-radius: 4px;
   background: transparent;
-  color: #8b8fa3;
+  color: #9f9d97;
   cursor: pointer;
   transition: color 0.15s ease;
 }
 
 .prereqClose:hover,
 .prereqClose:focus-visible {
-  color: #6d28d9;
+  color: #534ab7;
 }
 
 .scheduleHeader {
@@ -380,32 +464,38 @@
 }
 
 .scheduleTitle {
-  color: #1a1a2e;
+  color: #0b0b0b;
   font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0;
 }
 
 .scheduleCount {
-  color: #8b8fa3;
+  color: #9f9d97;
   font-size: 12.5px;
 }
 
 .card {
+  --row-highlight: rgb(11 11 11 / 4%);
+
   container-type: inline-size;
   margin-bottom: 16px;
   overflow: hidden;
-  border: 1px solid #e2e4ea;
-  border-radius: 10px;
+  border: 1px solid rgb(11 11 11 / 8%);
+  border-radius: 12px;
   background: #fff;
   transition:
     background 0.2s ease,
-    border-color 0.2s ease;
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .cardActive {
-  border-color: #bfdbfe;
-  background: #fafbff;
+  --row-highlight: rgb(11 11 11 / 6%);
+
+  border-color: rgb(40 113 190 / 25%);
+  box-shadow:
+    0 2px 6px rgb(11 11 11 / 6%),
+    0 10px 28px rgb(11 11 11 / 10%);
 }
 
 .cardHeader {
@@ -414,12 +504,11 @@
   justify-content: space-between;
   gap: 12px;
   padding: 18px;
-  border-bottom: 1px solid #e2e4ea;
-  background: transparent;
+  border-bottom: 1px solid rgb(11 11 11 / 8%);
 }
 
 .cardTitle {
-  color: #1a1a2e;
+  color: #0b0b0b;
   font-size: 14px;
   font-weight: 700;
   line-height: 1.35;
@@ -427,14 +516,14 @@
 
 .cardSubTitle {
   margin-top: 2px;
-  color: #5a5d7a;
+  color: #6f6d67;
   font-size: 13px;
   font-weight: 600;
   line-height: 1.35;
 }
 
 .cardInstructor {
-  color: #5a5d7a;
+  color: #6f6d67;
   font-size: 13px;
   font-weight: 500;
   line-height: 1.35;
@@ -443,8 +532,8 @@
 
 .rowSeparator {
   padding: 10px 18px 5px 54px;
-  border-top: 1px solid #eeeff3;
-  color: #8b8fa3;
+  border-top: 1px solid rgb(11 11 11 / 8%);
+  color: #9f9d97;
   font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 0.07em;
@@ -454,22 +543,17 @@
 .meetingRow {
   display: grid;
   grid-template-columns:
-    20px minmax(96px, max-content) 44px minmax(253px, 1fr)
-    minmax(20px, 0.65fr) minmax(88px, max-content) minmax(20px, 0.65fr)
-    max-content;
+    20px minmax(96px, max-content) 44px minmax(0, 1fr)
+    88px minmax(80px, max-content);
   align-items: center;
   gap: 4px 8px;
   padding: 9px 18px;
-  border-bottom: 1px solid #f3f4f7;
+  border-bottom: 1px solid rgb(11 11 11 / 6%);
   border-left: 3px solid transparent;
   background: transparent;
   transition:
     background 0.12s ease,
     border-color 0.12s ease;
-}
-
-.anchorRow {
-  background: #f8fafd;
 }
 
 .selectableRow {
@@ -478,18 +562,14 @@
 
 .selectableRow:hover,
 .selectableRow:focus-within {
-  background: #eef4ff;
+  background: var(--row-highlight);
 }
 
 .selectedRow,
 .selectedRow:hover,
 .selectedRow:focus-within {
-  border-left-color: #1a56db;
-  background: #edf4ff;
-}
-
-.infoRow {
-  background: transparent;
+  border-left-color: #2871be;
+  background: var(--row-highlight);
 }
 
 .radioSlot {
@@ -510,7 +590,7 @@
   aspect-ratio: 1;
   flex: 0 0 16px;
   margin: 0;
-  accent-color: #1a56db;
+  accent-color: #2871be;
   cursor: pointer;
   min-width: 16px;
 }
@@ -533,34 +613,28 @@
 }
 
 .typeActivity {
-  background: #fce7f3;
-  color: #9d174d;
+  background: #e7e5e1;
+  color: #4a4843;
 }
 
 .typeInstruction {
-  background: #e0f2fe;
-  color: #075985;
+  background: #e6f1fb;
+  color: #185fa5;
 }
 
 .typeLE {
-  background: #dbeafe;
-  color: #1e40af;
+  background: #e1f5ee;
+  color: #085041;
 }
 
 .typeDI {
-  background: #dcfce7;
-  color: #166534;
+  background: #eaf3de;
+  color: #27500a;
 }
 
 .typeLA {
-  background: #ede9fe;
-  color: #5b21b6;
-}
-
-.typeFI,
-.typeMI {
-  background: #fef9c3;
-  color: #854d0e;
+  background: #eeedfe;
+  color: #3c3489;
 }
 
 .typeFI {
@@ -568,25 +642,26 @@
   color: #791f1f;
 }
 
-.typeRE {
-  background: #f3f4f6;
-  color: #4b5563;
+.typeMI {
+  background: #faeeda;
+  color: #633806;
 }
 
+.typeRE,
 .typeInfo {
-  background: #f0f0f2;
-  color: #777;
+  background: #f3f2ef;
+  color: #56544f;
 }
 
 .typeLabel {
-  color: #8b8fa3;
+  color: #9f9d97;
   font-size: 12px;
   font-weight: 500;
 }
 
 .sectionCode {
   grid-column: 3;
-  color: #33354d;
+  color: #0b0b0b;
   font-size: 13px;
   font-weight: 600;
 }
@@ -620,36 +695,35 @@
 }
 
 .dayDotActive {
-  background: #334155;
+  background: #333b4d;
   color: #fff;
 }
 
 .dayDotInactive {
-  background: #f0f1f5;
-  color: #c5c8d6;
+  background: #e7e5e1;
+  color: #9f9d97;
 }
 
 .timeText {
-  color: #33354d;
+  color: #0b0b0b;
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
 }
 
 .location {
-  grid-column: 6;
+  grid-column: 5;
   min-width: 0;
-  place-self: start;
-  color: #5a5d7a;
+  color: #6f6d67;
   font-size: 12.5px;
   overflow-wrap: anywhere;
 }
 
 .availability {
-  grid-column: 8;
+  grid-column: 6;
   justify-self: end;
   min-width: 70px;
-  color: #9a9db4;
+  color: #9f9d97;
   font-size: 11.5px;
   font-weight: 600;
   text-align: right;
@@ -662,11 +736,11 @@
 }
 
 .availabilityLow {
-  color: #d85a30;
+  color: #ba7517;
 }
 
 .availabilityMedium {
-  color: #eda100;
+  color: #ef9f27;
 }
 
 .availabilityHigh {
@@ -680,7 +754,7 @@
 .availabilityDetail {
   display: block;
   margin-top: 1px;
-  color: #9a9db4;
+  color: #b8b6b0;
   font-size: 10.5px;
   font-weight: 500;
 }
@@ -688,20 +762,20 @@
 .updatedLabel {
   display: block;
   margin-top: 1px;
-  color: #b0b3c4;
+  color: #b8b6b0;
   font-size: 10px;
   font-weight: 500;
   line-height: 1.3;
 }
 
 .examDate {
-  color: #5a5d7a;
+  color: #6f6d67;
 }
 
 .cardAction {
   padding: 14px 18px;
-  border-top: 1px solid #eeeff3;
-  background: #fafbff;
+  border-top: 1px solid rgb(11 11 11 / 8%);
+  background: #fff;
 }
 
 .addButton {
@@ -712,8 +786,8 @@
   gap: 6px;
   padding: 11px 16px;
   border: 0;
-  border-radius: 8px;
-  background: #1a56db;
+  border-radius: 6px;
+  background: #2871be;
   color: #fff;
   cursor: pointer;
   font: inherit;
@@ -724,22 +798,22 @@
 
 .addButton:hover,
 .addButton:focus-visible {
-  background: #1548b8;
+  background: #378add;
 }
 
 .noSelection {
   padding: 12px 18px;
-  border-top: 1px solid #f3f4f7;
-  color: #9a9db4;
+  border-top: 1px solid rgb(11 11 11 / 8%);
+  color: #9f9d97;
   font-size: 12.5px;
   text-align: center;
 }
 
 .emptyState {
   padding: 18px;
-  border: 1px solid #e2e4ea;
-  border-radius: 10px;
-  color: #8b8fa3;
+  border: 1px solid rgb(11 11 11 / 8%);
+  border-radius: 12px;
+  color: #9f9d97;
   font-size: 13px;
   text-align: center;
 }
@@ -747,12 +821,12 @@
 @keyframes modal-fade-in {
   from {
     opacity: 0;
-    transform: scale(0.97);
+    transform: translateY(8px);
   }
 
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0);
   }
 }
 
@@ -810,32 +884,17 @@
   }
 
   .title {
-    font-size: 19px;
+    font-size: 18px;
     line-height: 1.25;
   }
 
-  .courseCode {
-    margin-top: 4px;
-    font-size: 14px;
+  .subtitleRow {
+    margin-top: 6px;
   }
 
   .closeButton {
     width: 32px;
     height: 32px;
-  }
-
-  .sectionPills {
-    margin-top: 10px;
-    max-height: min(124px, 22vh);
-  }
-
-  .sectionPill {
-    min-width: 0;
-    padding: 5px 10px;
-  }
-
-  .pillInstructor {
-    max-width: 108px;
   }
 
   .controls {
@@ -845,8 +904,8 @@
     margin-top: 12px;
   }
 
-  .controlsWithPills {
-    margin-top: 12px;
+  .controlsRight {
+    gap: 6px;
   }
 
   .tabs,
@@ -863,6 +922,11 @@
   .iconButton {
     width: 30px;
     height: 30px;
+  }
+
+  .sectionSelectButton {
+    padding: 5px 8px 5px 10px;
+    font-size: 12px;
   }
 
   .separator {
@@ -896,10 +960,12 @@
 
   .location {
     grid-column: 2 / -1;
+    grid-row: auto;
   }
 
   .availability {
     grid-column: 2 / -1;
+    grid-row: auto;
     width: 100%;
     max-width: none;
     justify-self: stretch;
@@ -913,7 +979,7 @@
   }
 
   .title {
-    font-size: 18px;
+    font-size: 17px;
   }
 
   .body {

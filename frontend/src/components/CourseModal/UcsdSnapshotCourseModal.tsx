@@ -1,15 +1,22 @@
-import { useCallback, useEffect, useId, useMemo, useRef } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import clsx from 'clsx';
 import { Helmet } from 'react-helmet';
 import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
 
-import { UcsdSnapshotPastGrades } from './OverviewPanel/UcsdSnapshotOverview';
 import {
   isUcsdInfoMeeting,
   ucsdMeetingTypeCode,
   ucsdMeetingTypeLabel,
 } from './ucsdMeetingTypes';
+import UcsdSnapshotGradeDistribution from './UcsdSnapshotGradeDistribution';
 import {
   buildUcsdSnapshotModalCourse,
   formatSnapshotUpdatedLabel,
@@ -149,12 +156,20 @@ function ExternalIcon() {
   );
 }
 
-function ChevronIcon({ open }: { readonly open: boolean }) {
+function ChevronIcon({
+  open,
+  size = 10,
+  className,
+}: {
+  readonly open: boolean;
+  readonly size?: number;
+  readonly className?: string;
+}) {
   return (
     <svg
-      className={clsx(styles.chipChevron, open && styles.chipChevronExpanded)}
-      width="10"
-      height="10"
+      className={clsx(styles.chevron, open && styles.chevronOpen, className)}
+      width={size}
+      height={size}
       viewBox="0 0 10 10"
       fill="none"
       stroke="currentColor"
@@ -163,6 +178,25 @@ function ChevronIcon({ open }: { readonly open: boolean }) {
       aria-hidden="true"
     >
       <polyline points="2.5,3.5 5,6.5 7.5,3.5" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg
+      className={styles.sectionMenuCheck}
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="2.5,7.5 6,11 11.5,3.5" />
     </svg>
   );
 }
@@ -396,9 +430,7 @@ function MeetingRow({
   const meetingTime = formatTime(row.meeting.start_time, row.meeting.end_time);
   const rowClassName = clsx(
     styles.meetingRow,
-    row.role === 'anchor' && styles.anchorRow,
     row.role === 'selectable' && styles.selectableRow,
-    row.role === 'info' && styles.infoRow,
     selected && styles.selectedRow,
   );
   const examDate =
@@ -578,7 +610,16 @@ export default function UcsdSnapshotCourseModal({
   const titleId = useId();
   const modalRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<{ [family: string]: HTMLDivElement | null }>({});
+  const sectionSelectButtonRef = useRef<HTMLButtonElement>(null);
+  const [sectionMenuOpen, setSectionMenuOpen] = useState(false);
+  const sectionMenuOpenRef = useRef(sectionMenuOpen);
+  sectionMenuOpenRef.current = sectionMenuOpen;
+  const [scrollTarget, setScrollTarget] = useState<{
+    family: string;
+    nonce: number;
+  } | null>(null);
   const { closeModal } = useModalHistory();
   const { courses } = useFerry();
   const season = listing.course.season_code;
@@ -652,6 +693,11 @@ export default function UcsdSnapshotCourseModal({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.stopPropagation();
+        if (sectionMenuOpenRef.current) {
+          setSectionMenuOpen(false);
+          sectionSelectButtonRef.current?.focus();
+          return;
+        }
         closeModal();
         return;
       }
@@ -685,14 +731,33 @@ export default function UcsdSnapshotCourseModal({
   const level = courseLevelLabel(listingCourseNumber(listing));
   const hasRestrictions = Boolean(archive?.restrictions_text);
 
-  const handleSelectPill = (family: string) => {
+  useEffect(() => {
+    if (!scrollTarget) return;
+    const body = bodyRef.current;
+    const card = cardRefs.current[scrollTarget.family];
+    if (!body || !card) return;
+    const delta =
+      card.getBoundingClientRect().top - body.getBoundingClientRect().top;
+    const maxTop = body.scrollHeight - body.clientHeight;
+    const top = Math.max(0, Math.min(maxTop, body.scrollTop + delta - 12));
+    body.scrollTo({ top, behavior: 'smooth' });
+  }, [scrollTarget]);
+
+  const closeSectionMenu = () => {
+    setSectionMenuOpen(false);
+    // The menu unmounts with the focused item in it; return focus to the
+    // trigger so Tab order and the dialog's Escape handler keep working.
+    sectionSelectButtonRef.current?.focus();
+  };
+
+  const handleSelectFamily = (family: string) => {
     setCourseModalActiveFamily(family);
-    window.requestAnimationFrame(() => {
-      cardRefs.current[family]?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-      });
-    });
+    closeSectionMenu();
+    setView('overview');
+    setScrollTarget((previous) => ({
+      family,
+      nonce: (previous?.nonce ?? 0) + 1,
+    }));
   };
 
   const handleSelectSection = (
@@ -766,12 +831,13 @@ export default function UcsdSnapshotCourseModal({
           <div className={styles.titleRow}>
             <div className={styles.titleBlock}>
               <div id={titleId} className={styles.title}>
-                {listing.course.title}{' '}
-                <span className={styles.term}>
-                  ({toSeasonString(listing.course.season_code)})
-                </span>
+                {listing.course.title}
               </div>
-              <div className={styles.courseCode}>{listing.course_code}</div>
+              <div className={styles.subtitleRow}>
+                <span className={styles.courseCode}>{listing.course_code}</span>
+                <span className={styles.subtitleDot} aria-hidden="true" />
+                <span>{toSeasonString(listing.course.season_code)}</span>
+              </div>
             </div>
             <button
               ref={closeButtonRef}
@@ -784,35 +850,7 @@ export default function UcsdSnapshotCourseModal({
             </button>
           </div>
 
-          {modalCourse.groups.length > 1 && (
-            <div className={styles.sectionPills}>
-              {modalCourse.groups.map((group) => (
-                <button
-                  key={group.familyPrefix}
-                  type="button"
-                  className={clsx(
-                    styles.sectionPill,
-                    activeFamily === group.familyPrefix &&
-                      styles.sectionPillActive,
-                  )}
-                  onClick={() => handleSelectPill(group.familyPrefix)}
-                  aria-pressed={activeFamily === group.familyPrefix}
-                >
-                  <span>{sectionLabel(group)}</span>
-                  <span className={styles.pillInstructor}>
-                    {groupInstructor(group)}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-
-          <div
-            className={clsx(
-              styles.controls,
-              modalCourse.groups.length > 1 && styles.controlsWithPills,
-            )}
-          >
+          <div className={styles.controls}>
             <div className={styles.tabs}>
               <button
                 type="button"
@@ -837,38 +875,102 @@ export default function UcsdSnapshotCourseModal({
                 Past Grades
               </button>
             </div>
-            <div className={styles.toolbar}>
-              <button
-                type="button"
-                className={styles.iconButton}
-                onClick={() =>
-                  activeSelected && handleAdd(activeSelected.listing)
-                }
-                aria-label="Add selected section to worksheet"
-              >
-                <PlusIcon />
-              </button>
-              <CopyUrlButton />
-              <button
-                type="button"
-                className={styles.iconButton}
-                disabled={!archive?.catalog_url}
-                onClick={() => {
-                  if (archive?.catalog_url)
-                    window.open(archive.catalog_url, '_blank', 'noreferrer');
-                }}
-                aria-label="Open UCSD catalog"
-              >
-                <MoreIcon />
-              </button>
+            <div className={styles.controlsRight}>
+              {modalCourse.groups.length > 1 && (
+                <div className={styles.sectionSelect}>
+                  <button
+                    ref={sectionSelectButtonRef}
+                    type="button"
+                    className={clsx(
+                      styles.sectionSelectButton,
+                      sectionMenuOpen && styles.sectionSelectButtonOpen,
+                    )}
+                    onClick={() => setSectionMenuOpen((open) => !open)}
+                    aria-haspopup="menu"
+                    aria-expanded={sectionMenuOpen}
+                  >
+                    Section {activeFamily}
+                    <ChevronIcon
+                      open={sectionMenuOpen}
+                      size={11}
+                      className={styles.selectChevron}
+                    />
+                  </button>
+                  {sectionMenuOpen && (
+                    <>
+                      <button
+                        type="button"
+                        className={styles.sectionMenuBackdrop}
+                        onClick={closeSectionMenu}
+                        aria-label="Close section menu"
+                        tabIndex={-1}
+                      />
+                      <div className={styles.sectionMenu} role="menu">
+                        {modalCourse.groups.map((group) => {
+                          const isActive = activeFamily === group.familyPrefix;
+                          return (
+                            <button
+                              key={group.familyPrefix}
+                              type="button"
+                              role="menuitem"
+                              className={clsx(
+                                styles.sectionMenuItem,
+                                isActive && styles.sectionMenuItemActive,
+                              )}
+                              onClick={() =>
+                                handleSelectFamily(group.familyPrefix)
+                              }
+                            >
+                              <span className={styles.sectionMenuText}>
+                                <span className={styles.sectionMenuTitle}>
+                                  {sectionLabel(group)}
+                                </span>
+                                <span className={styles.sectionMenuInstructor}>
+                                  {groupInstructor(group)}
+                                </span>
+                              </span>
+                              {isActive && <CheckIcon />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+              <div className={styles.toolbar}>
+                <button
+                  type="button"
+                  className={styles.iconButton}
+                  onClick={() =>
+                    activeSelected && handleAdd(activeSelected.listing)
+                  }
+                  aria-label="Add selected section to worksheet"
+                >
+                  <PlusIcon />
+                </button>
+                <CopyUrlButton />
+                <button
+                  type="button"
+                  className={styles.iconButton}
+                  disabled={!archive?.catalog_url}
+                  onClick={() => {
+                    if (archive?.catalog_url)
+                      window.open(archive.catalog_url, '_blank', 'noreferrer');
+                  }}
+                  aria-label="Open UCSD catalog"
+                >
+                  <MoreIcon />
+                </button>
+              </div>
             </div>
           </div>
           <div className={styles.separator} />
         </div>
 
-        <div className={styles.body}>
+        <div ref={bodyRef} className={styles.body}>
           {currentView === 'past-grades' ? (
-            <UcsdSnapshotPastGrades archive={archive} />
+            <UcsdSnapshotGradeDistribution archive={archive} />
           ) : (
             <>
               <p className={styles.description}>
