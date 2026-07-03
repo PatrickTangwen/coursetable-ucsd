@@ -5,242 +5,6 @@
   height: 100%;
 }
 
-/* ── Worksheet selector header ── */
-.worksheetHeader {
-  padding: 16px 16px 8px;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 25;
-}
-
-.worksheetHeader[data-open] {
-  background: #fff;
-  border-radius: 0 0 8px 8px;
-  box-shadow: 0 4px 20px rgb(11 11 11 / 14%);
-}
-
-.worksheetToggle {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  font-family: inherit;
-}
-
-.worksheetStar {
-  color: #ef9f27;
-  font-size: 15px;
-}
-
-.worksheetName {
-  font-size: 16px;
-  font-weight: 600;
-  color: #0b0b0b;
-}
-
-.worksheetChevron {
-  color: #9f9d97;
-  transition: transform 0.2s ease;
-}
-
-.worksheetChevron[data-open] {
-  transform: rotate(180deg);
-}
-
-.worksheetMenu {
-  position: absolute;
-  top: calc(100% + 2px);
-  left: 16px;
-  right: 16px;
-  z-index: 20;
-  background: #fff;
-  border: 1px solid rgb(11 11 11 / 8%);
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgb(11 11 11 / 14%);
-  padding: 6px;
-  animation: popover-fade-in 0.14s ease-out;
-}
-
-.wsRow {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  border-radius: 6px;
-  transition: background-color 0.12s ease;
-}
-
-.wsRow[data-active] {
-  background: rgb(11 11 11 / 4%);
-}
-
-.wsRow:hover {
-  background: rgb(11 11 11 / 4%);
-}
-
-.wsRowMain {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-  min-width: 0;
-  padding: 9px 10px;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-}
-
-.wsRowIcon {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  color: #0b0b0b;
-}
-
-.wsRowInfo {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.wsRowName {
-  font-size: 14px;
-  font-weight: 600;
-  color: #0b0b0b;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.wsRowSubtitle {
-  font-size: 12px;
-  color: #9f9d97;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.wsIconButton,
-.wsIconButtonDanger {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-radius: 5px;
-  color: #9f9d97;
-  cursor: pointer;
-  transition:
-    background 0.12s ease,
-    color 0.12s ease;
-}
-
-.wsIconButton:hover {
-  background: rgb(11 11 11 / 4%);
-  color: #0b0b0b;
-}
-
-.wsIconButtonDanger:hover {
-  background: #fcebeb;
-  color: #a32d2d;
-}
-
-.wsEditRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 4px;
-}
-
-.wsEditInput {
-  flex: 1;
-  min-width: 0;
-  padding: 9px 11px;
-  font-size: 14px;
-  font-family: inherit;
-  color: #0b0b0b;
-  background: #fff;
-  border: 1px solid rgb(11 11 11 / 14%);
-  border-radius: 6px;
-  outline: none;
-}
-
-.wsEditInput:focus {
-  border-color: #2871be;
-}
-
-.wsEditConfirm,
-.wsEditCancel {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  background: transparent;
-  border: 1px solid rgb(11 11 11 / 14%);
-  border-radius: 6px;
-  color: #9f9d97;
-  cursor: pointer;
-  transition:
-    background 0.12s ease,
-    color 0.12s ease,
-    border-color 0.12s ease;
-}
-
-.wsEditConfirm:hover {
-  background: #eaf3de;
-  border-color: #97c459;
-  color: #3b6d11;
-}
-
-.wsEditCancel:hover {
-  background: rgb(11 11 11 / 4%);
-  color: #0b0b0b;
-}
-
-.wsDivider {
-  height: 1px;
-  background: rgb(11 11 11 / 8%);
-  margin: 4px 2px;
-}
-
-.wsNewButton {
-  width: 100%;
-  text-align: center;
-  padding: 11px 12px;
-  margin-top: 2px;
-  font-size: 14px;
-  font-weight: 500;
-  font-family: inherit;
-  color: #0b0b0b;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background: transparent;
-  border: 1px solid rgb(11 11 11 / 14%);
-  cursor: pointer;
-  transition: background 0.12s ease;
-}
-
-.wsNewButton:hover {
-  background: rgb(11 11 11 / 4%);
-}
-
 /* ── Stats pills ── */
 .statsRow {
   flex-shrink: 0;
@@ -399,57 +163,85 @@
 }
 
 .emptyList {
-  padding: 24px 12px;
+  padding: 44px 20px;
   text-align: center;
-  color: #9f9d97;
-  font-size: 12px;
 }
 
-/* Paper-like card: faint fiber grain + warm page tint, layered warm shadows */
+.emptyListImage {
+  display: block;
+  width: 150px;
+  max-width: 70%;
+  margin: 0 auto 16px;
+
+  /* Blend the illustration's white background into the off-white panel */
+  mix-blend-mode: multiply;
+}
+
+.emptyListTitle {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0b0b0b;
+}
+
+.emptyListHint {
+  margin: 0 0 18px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #9f9d97;
+}
+
+.emptyListButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #0b0b0b;
+  background: #fff;
+  border: 1px solid rgb(11 11 11 / 14%);
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgb(11 11 11 / 5%);
+  transition:
+    background 0.12s ease,
+    box-shadow 0.2s ease;
+}
+
+.emptyListButton:hover {
+  background: #fff;
+  color: #0b0b0b;
+  text-decoration: none;
+  box-shadow: 0 2px 5px rgb(11 11 11 / 12%);
+}
+
+/* Plain white card with neutral shadows, matching the list-view cards */
 .card {
   display: block;
   overflow: hidden;
   padding: 0;
-  background-color: #fff;
-  background-image:
-    linear-gradient(
-      180deg,
-      rgb(255 252 244 / 60%),
-      rgb(249 245 236 / 22%) 42%,
-      rgb(246 241 231 / 35%)
-    ),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.5'/%3E%3C/svg%3E");
-  background-size:
-    auto,
-    180px 180px;
-  background-blend-mode: normal, multiply;
-  border: 1px solid rgb(120 100 60 / 10%);
+  background: #fff;
+  border: 1px solid rgb(11 11 11 / 8%);
   border-radius: 8px;
   transition:
     box-shadow 0.25s ease,
     transform 0.25s ease;
   box-shadow:
-    0 1px 2px rgb(58 48 28 / 5%),
-    0 3px 8px rgb(58 48 28 / 6%),
-    inset 0 1px 0 rgb(255 255 255 / 75%),
-    inset 0 -1px 0 rgb(120 100 60 / 6%);
+    0 1px 2px rgb(11 11 11 / 5%),
+    0 3px 8px rgb(11 11 11 / 6%);
 }
 
 .card[data-hovered] {
   transform: translateY(-1px);
   box-shadow:
-    0 3px 8px rgb(58 48 28 / 10%),
-    0 8px 20px rgb(58 48 28 / 7%),
-    inset 0 1px 0 rgb(255 255 255 / 80%),
-    inset 0 -1px 0 rgb(120 100 60 / 6%);
+    0 3px 8px rgb(11 11 11 / 10%),
+    0 8px 20px rgb(11 11 11 / 7%);
 }
 
 .card[data-expanded] {
   box-shadow:
-    0 4px 10px rgb(58 48 28 / 10%),
-    0 12px 28px rgb(58 48 28 / 9%),
-    inset 0 1px 0 rgb(255 255 255 / 80%),
-    inset 0 -1px 0 rgb(120 100 60 / 6%);
+    0 4px 10px rgb(11 11 11 / 10%),
+    0 12px 28px rgb(11 11 11 / 9%);
 }
 
 .cardMain {

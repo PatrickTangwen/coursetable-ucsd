@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
-import NoCoursesFound from '../../images/calendar_img_high_res.png';
+import noCoursesImg from '../../images/calendar_img_high_res.png';
 import { useStore } from '../../store';
 import { toSeasonString } from '../../utilities/course';
 import { createCatalogLink } from '../../utilities/navigation';
+import styles from './NoCourses.module.css';
 
 function NoCourses({
   heading,
@@ -16,24 +17,27 @@ function NoCourses({
   const viewedSeason = useStore((state) => state.viewedSeason);
 
   return (
-    <div style={{ width: '100%' }} className="d-flex mb-5">
-      <div className="text-center m-auto">
-        <img
-          alt="No courses found."
-          className="py-4"
-          src={NoCoursesFound}
-          style={{ width: '60%', maxWidth: '280px', mixBlendMode: 'multiply' }}
-        />
-        <h3>
-          {heading ?? `No courses found for ${toSeasonString(viewedSeason)}`}
-        </h3>
-        {children ?? (
-          <div>
-            Add some courses on the{' '}
-            <Link to={createCatalogLink()}>Catalog</Link>.
-          </div>
-        )}
-      </div>
+    <div className={styles.container}>
+      <img
+        alt=""
+        aria-hidden="true"
+        src={noCoursesImg}
+        className={styles.illustration}
+      />
+      <h3 className={styles.heading}>
+        {heading ?? `Nothing planned for ${toSeasonString(viewedSeason)} yet`}
+      </h3>
+      {children ?? (
+        <>
+          <p className={styles.hint}>
+            Browse the catalog and click + on a course to add it to your
+            worksheet.
+          </p>
+          <Link to={createCatalogLink()} className={styles.catalogButton}>
+            Browse Catalog
+          </Link>
+        </>
+      )}
     </div>
   );
 }
