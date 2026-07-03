@@ -1,0 +1,327 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(11 11 11 / 14%);
+  backdrop-filter: blur(3px);
+  animation: backdrop-fade-in 0.15s ease-out;
+}
+
+.backdropButton {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  max-height: 84vh;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid rgb(11 11 11 / 8%);
+  border-radius: 8px;
+  box-shadow: 0 24px 64px rgb(11 11 11 / 22%);
+  animation: popover-fade-in 0.16s ease-out;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid rgb(11 11 11 / 8%);
+}
+
+.headerInfo {
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.colorDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  flex: 0 0 auto;
+}
+
+.code {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0b0b0b;
+}
+
+.section {
+  font-size: 12px;
+  font-weight: 500;
+  color: #9f9d97;
+}
+
+.courseTitle {
+  margin-top: 5px;
+  color: #6f6d67;
+  font-size: 14px;
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+.unitsChip {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 10px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #9f9d97;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.closeButton:hover {
+  background: rgb(11 11 11 / 4%);
+  color: #0b0b0b;
+}
+
+.sectionBlock {
+  padding: 16px 22px 0;
+}
+
+.sectionBlock:last-child {
+  padding-bottom: 20px;
+}
+
+.sectionLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9f9d97;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.listCard {
+  border: 1px solid rgb(11 11 11 / 8%);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.emptyRow {
+  padding: 16px 12px;
+  color: #9f9d97;
+  font-size: 12px;
+  text-align: center;
+}
+
+.meetingRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgb(11 11 11 / 8%);
+}
+
+.meetingRow[data-last] {
+  border-bottom: 0;
+}
+
+.badgeAnchor {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+.viewingDot {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: #e24b4a;
+  border: 1.5px solid #fff;
+  box-sizing: border-box;
+}
+
+.typeBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  flex: 0 0 auto;
+}
+
+.typeLecture {
+  background: #e6f1fb;
+  color: #0c447c;
+}
+
+.typeDiscussion {
+  background: #e1f5ee;
+  color: #085041;
+}
+
+.typeLab {
+  background: #eeedfe;
+  color: #3c3489;
+}
+
+.typeFinal {
+  background: #fcebeb;
+  color: #a32d2d;
+}
+
+.typeMidterm {
+  background: #faeeda;
+  color: #633806;
+}
+
+.typeOther {
+  background: #fdfcfb;
+  color: #6f6d67;
+}
+
+.meetingDays {
+  flex: 0 0 auto;
+  width: 74px;
+  color: #0b0b0b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.meetingTime {
+  flex: 1;
+  min-width: 0;
+  color: #6f6d67;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meetingLocation {
+  flex: 0 0 auto;
+  color: #9f9d97;
+  font-size: 12px;
+}
+
+.examRow {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgb(11 11 11 / 8%);
+}
+
+.examRow[data-last] {
+  border-bottom: 0;
+}
+
+.examKindRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.examKindFinal {
+  color: #a32d2d;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.examKindMidterm {
+  color: #854f0b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.examBadge {
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badgePast {
+  background: #fdfcfb;
+  color: #9f9d97;
+}
+
+.badgeSoon {
+  background: #fcebeb;
+  color: #a32d2d;
+}
+
+.badgeUpcoming {
+  background: #faeeda;
+  color: #854f0b;
+}
+
+.badgeLater {
+  background: #eaf3de;
+  color: #3b6d11;
+}
+
+.examDate {
+  margin-top: 3px;
+  color: #6f6d67;
+  font-size: 12px;
+}
+
+.examMeta {
+  color: #9f9d97;
+  font-size: 11px;
+}
+
+@keyframes backdrop-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes popover-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

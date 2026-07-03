@@ -196,14 +196,8 @@
   background-color: var(--color-surface-hover);
 }
 
-.toggleButtonGroup {
-  width: 210px;
-}
-
-@media (max-width: calc(1200px - 0.5px)) {
-  .toggleButtonGroup {
-    width: 170px;
-  }
+.spacer {
+  flex: 1;
 }
 
 @media (max-width: calc(1320px - 0.5px)) {
@@ -222,8 +216,8 @@
 
 /* Mobile dropdown styles - mimics the toggle button appearance */
 .viewDropdownToggle {
-  --bs-btn-active-bg: var(--color-primary);
-  --bs-btn-active-border-color: var(--color-primary);
+  --bs-btn-active-bg: #fff;
+  --bs-btn-active-border-color: rgb(11 11 11 / 14%);
 
   display: flex;
   align-items: center;
@@ -302,51 +296,6 @@
   color: #fff !important;
 }
 
-.toggleButton {
-  --bs-btn-active-bg: var(--color-primary);
-  --bs-btn-active-border-color: var(--color-primary);
-
-  font-size: 14px;
-  background-color: var(--color-surface);
-  color: var(--color-text);
-  border: var(--color-icon) 2px solid;
-  transition:
-    border-color var(--trans-dur),
-    background-color var(--trans-dur),
-    color var(--trans-dur);
-  padding: 0.25rem 0;
-  width: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-@media (max-width: calc(1320px - 0.5px)) {
-  .toggleButton {
-    font-size: 12px;
-  }
-}
-
-.toggleButton:hover {
-  background-color: var(--color-surface-hover);
-  color: var(--color-text);
-  border: var(--color-primary-hover) 2px solid;
-}
-
-.toggleButton:active {
-  background-color: var(--color-surface-active) !important;
-  color: var(--color-text) !important;
-}
-
-.toggleButton:focus {
-  box-shadow: none !important;
-}
-
-.toggleButton:global(.active) {
-  background-color: var(--color-primary) !important;
-  border-color: var(--color-primary) !important;
-}
-
 .toggleButtonContent {
   display: flex;
   align-items: center;
@@ -397,4 +346,20 @@
   .exoticWorksheetText {
     font-size: 12px;
   }
+}
+
+.finalsBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  margin-left: 6px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  background: #2871be;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
 }

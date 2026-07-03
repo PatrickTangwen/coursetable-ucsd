@@ -1,0 +1,208 @@
+.menu {
+  padding: 12px;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid rgb(11 11 11 / 8%);
+}
+
+.worksheetRoot {
+  position: relative;
+}
+
+.worksheetToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background-color 0.12s ease;
+}
+
+.worksheetToggle:hover {
+  background: rgb(11 11 11 / 4%);
+}
+
+.worksheetStar {
+  color: #ef9f27;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.worksheetName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0b0b0b;
+  white-space: nowrap;
+}
+
+.worksheetChevron {
+  color: #9f9d97;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.worksheetChevron[data-open] {
+  transform: rotate(180deg);
+}
+
+.worksheetMenuPopover {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  z-index: 30;
+  background: #fff;
+  border: 1px solid rgb(11 11 11 / 8%);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(11 11 11 / 14%);
+  padding: 6px;
+  min-width: 268px;
+  animation: popover-fade-in 0.14s ease-out;
+}
+
+.signInButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  background: #e6f1fb;
+  border: 1px solid #85b7eb;
+  border-radius: 6px;
+  color: #185fa5;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.signInButton:hover {
+  background: #b5d4f4;
+  color: #185fa5;
+  text-decoration: none;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.settingsBtn {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: #6f6d67;
+  transition: background 0.15s;
+}
+
+.settingsBtn:hover {
+  background: rgb(11 11 11 / 4%);
+}
+
+.section {
+  margin-bottom: 14px;
+}
+
+.sectionWide {
+  margin-bottom: 16px;
+}
+
+.sectionLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9f9d97;
+  font-weight: 600;
+  padding: 0 12px;
+  margin-bottom: 7px;
+}
+
+.sessionList {
+  border: 1px solid rgb(11 11 11 / 8%);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(11 11 11 / 4%);
+}
+
+.sessionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgb(11 11 11 / 8%);
+  font-family: inherit;
+  text-align: left;
+  transition: background-color 0.12s ease;
+}
+
+.sessionRow:last-child {
+  border-bottom: 0;
+}
+
+.sessionRow:hover {
+  background: rgb(11 11 11 / 4%);
+}
+
+.sessionRowActive,
+.sessionRowActive:hover {
+  background: #e6f1fb;
+}
+
+.sessionLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 400;
+  color: #6f6d67;
+}
+
+.sessionRowActive .sessionLabel {
+  font-weight: 600;
+  color: #185fa5;
+}
+
+.finalsBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  margin-left: 6px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  background: #2871be;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+@keyframes popover-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

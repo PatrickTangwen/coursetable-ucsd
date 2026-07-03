@@ -111,6 +111,10 @@ type CalendarEvent = {
   color: string;
   listing: CatalogListing;
   days: number[];
+  meetingType: string;
+  section: string;
+  /** ISO date for one-off (dated) meetings such as exams; null if recurring */
+  date: string | null;
 };
 
 function toGCalEvent({
@@ -170,6 +174,9 @@ function toRBCEvent({
   color,
   listing,
   days,
+  meetingType,
+  section,
+  date,
 }: CalendarEvent): CourseRBCEvent[] {
   // These are already LOCAL times because the time strings have no timezone!
   const firstStart = new Date(start);
@@ -194,6 +201,10 @@ function toRBCEvent({
       listing,
       color,
       location,
+      meetingType,
+      section,
+      day,
+      date,
     };
   });
 }
@@ -248,6 +259,12 @@ export type CourseRBCEvent = {
   listing: CatalogListing;
   color: string;
   location: string;
+  meetingType: string;
+  section: string;
+  /** Day of week (0 = Sunday … 6 = Saturday) this occurrence falls on */
+  day: number;
+  /** ISO date for one-off (dated) meetings such as exams; null if recurring */
+  date: string | null;
   walkBefore?: WalkBefore;
 };
 
@@ -553,6 +570,9 @@ export function getCalendarExport(
       const location = meetingLocation(meeting);
 
       if (meetingDate) {
+        const dateWeekday = new Date(
+          Date.UTC(meetingDate[0], meetingDate[1] - 1, meetingDate[2]),
+        ).getUTCDay();
         return toEvent({
           summary: eventSummary(l, meeting),
           start: isoString(meetingDate, startTime),
@@ -562,7 +582,10 @@ export function getCalendarExport(
           location,
           color,
           listing: l,
-          days,
+          days: days.length > 0 ? days : [dateWeekday],
+          meetingType: meetingTypeLabel(l, meeting),
+          section: sectionLabel(l),
+          date: meeting.date ?? null,
         });
       }
 
@@ -598,6 +621,9 @@ export function getCalendarExport(
         color,
         listing: l,
         days,
+        meetingType: meetingTypeLabel(l, meeting),
+        section: sectionLabel(l),
+        date: null,
       });
     });
   });

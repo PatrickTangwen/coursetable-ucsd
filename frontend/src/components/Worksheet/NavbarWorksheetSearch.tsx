@@ -1,14 +1,10 @@
 import { useMemo, useState } from 'react';
 import clsx from 'clsx';
-import {
-  ToggleButton,
-  ToggleButtonGroup,
-  Button,
-  Dropdown,
-} from 'react-bootstrap';
+import { Button, Dropdown } from 'react-bootstrap';
 import { MdAdd, MdCheck, MdClose, MdDelete, MdEdit } from 'react-icons/md';
 import { useShallow } from 'zustand/react/shallow';
 import SeasonDropdown, { useWorksheetSeasonCodes } from './SeasonDropdown';
+import SegmentedControl from './SegmentedControl';
 import WorksheetNumDropdown from './WorksheetNumberDropdown';
 import WorksheetStatusIcon from './WorksheetStatusIcon';
 
@@ -344,6 +340,9 @@ export function NavbarWorksheetSearchView({
   onSwitchTerm,
   seasonOptions,
   viewedSeason,
+  calendarMode,
+  onChangeCalendarMode,
+  finalsCount = 0,
 }: {
   readonly isMobile: boolean;
   readonly worksheetView: WorksheetView;
@@ -367,14 +366,42 @@ export function NavbarWorksheetSearchView({
   readonly onSwitchTerm: (term: Season) => void;
   readonly seasonOptions: { value: string; label: string }[];
   readonly viewedSeason: Season;
+  readonly calendarMode?: 'week' | 'finals';
+  readonly onChangeCalendarMode?: (mode: 'week' | 'finals') => void;
+  readonly finalsCount?: number;
 }) {
   const visibleWorksheetView =
     worksheetView === 'list' ? worksheetView : 'calendar';
+
+  // Regular weeks vs finals week — only meaningful on the calendar view.
+  const finalsToggle =
+    onChangeCalendarMode && visibleWorksheetView === 'calendar' ? (
+      <SegmentedControl
+        wide
+        value={calendarMode ?? 'week'}
+        onChange={onChangeCalendarMode}
+        options={[
+          { value: 'week', label: 'Regular' },
+          {
+            value: 'finals',
+            label: (
+              <>
+                Finals
+                {calendarMode === 'finals' && finalsCount > 0 && (
+                  <span className={styles.finalsBadge}>{finalsCount}</span>
+                )}
+              </>
+            ),
+          },
+        ]}
+      />
+    ) : null;
 
   // Mobile: dropdown styled like toggle, flush right next to hamburger
   if (isMobile) {
     return (
       <div className={styles.containerMobile}>
+        {finalsToggle}
         <Dropdown align="end">
           <Dropdown.Toggle className={styles.viewDropdownToggle}>
             <span className={styles.toggleButtonContent}>
@@ -419,32 +446,10 @@ export function NavbarWorksheetSearchView({
     );
   }
 
-  // Desktop: show full toggle with controls
+  // Desktop: term/worksheet controls on the left, Regular/Finals next to
+  // them, view toggle pushed right (finalized SunGrid calendar navbar order).
   return (
     <div className={styles.container}>
-      <ToggleButtonGroup
-        name="worksheet-view-toggle"
-        type="radio"
-        value={visibleWorksheetView}
-        onChange={(val: VisibleWorksheetView) => changeWorksheetView(val)}
-        className={styles.toggleButtonGroup}
-        data-tutorial="worksheet-2"
-      >
-        <ToggleButton
-          id="view-toggle-calendar"
-          className={styles.toggleButton}
-          value="calendar"
-        >
-          Calendar
-        </ToggleButton>
-        <ToggleButton
-          id="view-toggle-list"
-          className={styles.toggleButton}
-          value="list"
-        >
-          List
-        </ToggleButton>
-      </ToggleButtonGroup>
       {isExoticWorksheet ? (
         <div className={styles.exoticWorksheetContainer}>
           <span className={styles.exoticWorksheetText}>
@@ -481,8 +486,33 @@ export function NavbarWorksheetSearchView({
       ) : (
         <SeasonDropdown mobile={false} />
       )}
+      {finalsToggle}
+      <div className={styles.spacer} />
+      <SegmentedControl
+        value={visibleWorksheetView}
+        onChange={changeWorksheetView}
+        dataTutorial="worksheet-2"
+        options={[
+          { value: 'calendar', label: 'Calendar' },
+          { value: 'list', label: 'List' },
+        ]}
+      />
     </div>
   );
+}
+
+export function countCoursesWithFinals(
+  courses: readonly { listing: { course: { course_meetings: unknown[] } } }[],
+) {
+  return courses.filter((course) =>
+    course.listing.course.course_meetings.some((meeting) => {
+      const extended = meeting as {
+        date?: string | null;
+        meeting_type?: string | null;
+      };
+      return Boolean(extended.date) && extended.meeting_type === 'Final';
+    }),
+  ).length;
 }
 
 export function NavbarWorksheetSearch({
@@ -525,6 +555,15 @@ export function NavbarWorksheetSearch({
       viewedSeason: state.viewedSeason,
     })),
   );
+  const { calendarMode, setCalendarMode, courses } = useStore(
+    useShallow((state) => ({
+      calendarMode: state.calendarMode,
+      setCalendarMode: state.setCalendarMode,
+      courses: state.courses,
+    })),
+  );
+
+  const finalsCount = useMemo(() => countCoursesWithFinals(courses), [courses]);
 
   const seasonCodes = useWorksheetSeasonCodes();
   const seasonOptions = useMemo(
@@ -561,6 +600,9 @@ export function NavbarWorksheetSearch({
       }}
       seasonOptions={seasonOptions}
       viewedSeason={viewedSeason}
+      calendarMode={calendarMode}
+      onChangeCalendarMode={setCalendarMode}
+      finalsCount={finalsCount}
     />
   );
 }

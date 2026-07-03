@@ -1,0 +1,117 @@
+.track {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  background: #fdfcfb;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.trackFull {
+  display: flex;
+  width: 100%;
+  gap: 0;
+  border: 1px solid rgb(11 11 11 / 8%);
+  box-shadow: inset 0 1px 2px rgb(11 11 11 / 4%);
+}
+
+.pill {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: 84px;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow:
+    0 2px 4px rgb(11 11 11 / 8%),
+    0 4px 10px rgb(11 11 11 / 8%);
+  transition:
+    transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.25s ease;
+  z-index: 0;
+}
+
+.pillWide {
+  width: 88px;
+}
+
+.pillFull {
+  width: calc(50% - 3px);
+  border-radius: 5px;
+  box-shadow:
+    0 1px 2px rgb(11 11 11 / 8%),
+    0 4px 10px rgb(11 11 11 / 8%);
+}
+
+.pillRight {
+  transform: translateX(calc(100% + 2px));
+}
+
+.pillFull.pillRight {
+  transform: translateX(100%);
+}
+
+.button {
+  position: relative;
+  z-index: 1;
+  width: 84px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  background: transparent;
+  color: #6f6d67;
+  border: none;
+  padding: 4px 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+
+.buttonWide {
+  width: 88px;
+}
+
+.buttonFull {
+  flex: 1;
+  width: auto;
+  padding: 9px 8px;
+  border-radius: 5px;
+}
+
+.button:hover {
+  color: #185fa5;
+}
+
+.buttonActive {
+  color: #0b0b0b;
+  font-weight: 600;
+}
+
+.buttonActive:hover {
+  color: #0b0b0b;
+}
+
+@media (max-width: calc(1320px - 0.5px)) {
+  .pill:not(.pillFull) {
+    width: 70px;
+  }
+
+  .pillWide:not(.pillFull) {
+    width: 74px;
+  }
+
+  .button:not(.buttonFull) {
+    width: 70px;
+    font-size: 13px;
+  }
+
+  .buttonWide:not(.buttonFull) {
+    width: 74px;
+  }
+}

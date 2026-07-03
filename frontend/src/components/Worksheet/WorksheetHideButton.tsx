@@ -7,19 +7,14 @@ import type { Crn } from '../../queries/graphql-types';
 import { useStore } from '../../store';
 import styles from './WorksheetHideButton.module.css';
 
-export default function WorksheetHideButton({
-  hidden,
-  crn,
-  className,
-  color,
-  context = 'calendar',
-}: {
-  readonly hidden: boolean;
-  readonly crn: Crn;
-  readonly className?: string;
-  readonly color?: string;
-  readonly context?: 'calendar' | 'map';
-}) {
+/**
+ * Returns a callback that toggles a worksheet course's hidden flag, handling
+ * the three account modes (anonymous / saved / legacy). Returns null when the
+ * viewed worksheet is not editable.
+ */
+export function useToggleCourseHidden():
+  | ((crn: Crn, hidden: boolean) => Promise<void>)
+  | null {
   const worksheetsRefresh = useStore((state) => state.worksheetsRefresh);
   const {
     viewedSeason,
@@ -48,6 +43,44 @@ export default function WorksheetHideButton({
   );
   const hasSavedWorksheetAccount = Boolean(user && !isLegacyUserInfo(user));
   if (isReadonlyWorksheet || viewedPerson !== 'me') return null;
+  return async (crn: Crn, hidden: boolean) => {
+    if (isAnonymousWorksheet) {
+      const course = courses.find((c) => c.listing.crn === crn);
+      if (course) setAnonymousWorksheetListingHidden(course.listing, !hidden);
+      return;
+    }
+    if (hasSavedWorksheetAccount) {
+      const course = courses.find((c) => c.listing.crn === crn);
+      if (course) 
+        await setActiveSavedWorksheetListingHidden(course.listing, !hidden);
+      
+      return;
+    }
+    await setCourseHidden({
+      season: viewedSeason,
+      worksheetNumber: viewedWorksheetNumber,
+      crn,
+      hidden: !hidden,
+    });
+    await worksheetsRefresh();
+  };
+}
+
+export default function WorksheetHideButton({
+  hidden,
+  crn,
+  className,
+  color,
+  context = 'calendar',
+}: {
+  readonly hidden: boolean;
+  readonly crn: Crn;
+  readonly className?: string;
+  readonly color?: string;
+  readonly context?: 'calendar' | 'map';
+}) {
+  const toggleCourseHidden = useToggleCourseHidden();
+  if (!toggleCourseHidden) return null;
   const buttonLabel =
     context === 'map'
       ? hidden
@@ -70,29 +103,7 @@ export default function WorksheetHideButton({
         onClick={async (e) => {
           // Prevent clicking hide button from opening course modal
           e.stopPropagation();
-          if (isAnonymousWorksheet) {
-            const course = courses.find((c) => c.listing.crn === crn);
-            if (course)
-              setAnonymousWorksheetListingHidden(course.listing, !hidden);
-            return;
-          }
-          if (hasSavedWorksheetAccount) {
-            const course = courses.find((c) => c.listing.crn === crn);
-            if (course) {
-              await setActiveSavedWorksheetListingHidden(
-                course.listing,
-                !hidden,
-              );
-            }
-            return;
-          }
-          await setCourseHidden({
-            season: viewedSeason,
-            worksheetNumber: viewedWorksheetNumber,
-            crn,
-            hidden: !hidden,
-          });
-          await worksheetsRefresh();
+          await toggleCourseHidden(crn, hidden);
         }}
         className={clsx(styles.toggleButton, className)}
         aria-label={buttonLabel}

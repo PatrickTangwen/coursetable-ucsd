@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as Sentry from '@sentry/react';
+import clsx from 'clsx';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import {
   FaLock,
@@ -12,14 +13,10 @@ import { useShallow } from 'zustand/react/shallow';
 
 import ErrorPage from '../components/ErrorPage';
 import Spinner from '../components/Spinner';
-import { SurfaceComponent } from '../components/Typography';
 import CalendarLockSettingsModal from '../components/Worksheet/CalendarLockSettingsModal';
-import SeasonDropdown from '../components/Worksheet/SeasonDropdown';
-import WorksheetCalendar from '../components/Worksheet/WorksheetCalendar';
-import WorksheetCalendarList from '../components/Worksheet/WorksheetCalendarList';
+import SunGridCalendar from '../components/Worksheet/SunGridCalendar';
+import WorksheetCalendarSidebar from '../components/Worksheet/WorksheetCalendarSidebar';
 import WorksheetList from '../components/Worksheet/WorksheetList';
-import WorksheetNumDropdown from '../components/Worksheet/WorksheetNumberDropdown';
-import WorksheetStats from '../components/Worksheet/WorksheetStats';
 
 import { CUR_SEASON } from '../config';
 import { isLegacyUserInfo } from '../queries/api';
@@ -37,8 +34,6 @@ function Worksheet() {
     worksheetLoading,
     worksheetError,
     worksheetView,
-    isExoticWorksheet,
-    isAnonymousWorksheet,
     isCalendarViewLocked,
     authStatus,
     user,
@@ -55,8 +50,6 @@ function Worksheet() {
       worksheetLoading: state.worksheetLoading,
       worksheetError: state.worksheetError,
       worksheetView: state.worksheetView,
-      isExoticWorksheet: state.worksheetMemo.getIsExoticWorksheet(state),
-      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
       isCalendarViewLocked: state.isCalendarViewLocked,
       authStatus: state.authStatus,
       user: state.user,
@@ -70,7 +63,6 @@ function Worksheet() {
     })),
   );
   const [expanded, setExpanded] = useState(false);
-  const emptyMissingBuildingCodes = useMemo(() => new Set<string>(), []);
   const skipAccountBootstrapRef = useRef(
     typeof window !== 'undefined' &&
       (() => {
@@ -135,7 +127,6 @@ function Worksheet() {
     return <ErrorPage message="There seems to be an issue with our server" />;
   }
   if (worksheetLoading) return <Spinner message="Loading worksheet data..." />;
-  const hasSavedWorksheetAccount = Boolean(user && !isLegacyUserInfo(user));
   const isListView = worksheetView === 'list';
   if (isListView && !isMobile) return <WorksheetList />;
   const LockIcon = isCalendarViewLocked ? FaLock : FaUnlock;
@@ -144,39 +135,20 @@ function Worksheet() {
   const FullScreenIcon = expanded ? FaCompressAlt : FaExpandAlt;
   const fullScreenLabel = expanded ? 'Compress calendar' : 'Expand calendar';
 
-  // Mobile list view - show dropdowns and list
-  if (isListView && isMobile) {
-    return (
-      <>
-        {!isExoticWorksheet && !hasSavedWorksheetAccount && (
-          <div className={styles.mobileListDropdowns}>
-            {!isAnonymousWorksheet && <WorksheetNumDropdown mobile />}
-            <SeasonDropdown mobile />
-          </div>
-        )}
-        <WorksheetList />
-      </>
-    );
-  }
+  // Mobile list view — term/worksheet switching lives in the navbar menu
+  if (isListView && isMobile) return <WorksheetList />;
 
   // Calendar view (default)
   return (
-    <div className={styles.container}>
-      {isMobile && !isExoticWorksheet && !hasSavedWorksheetAccount && (
-        <div className={styles.dropdowns}>
-          {!isAnonymousWorksheet && <WorksheetNumDropdown mobile />}
-          <SeasonDropdown mobile />
-        </div>
-      )}
-      <SurfaceComponent className={styles.calendar}>
-        <WorksheetCalendar showWalkingTimes={false} />
+    <div className={clsx(styles.pageBody, isMobile && styles.pageBodyMobile)}>
+      <div className={styles.calendarZone}>
         {!isMobile && (
           <div className={styles.calendarControls}>
             <OverlayTrigger
               placement="top"
               overlay={
                 <Tooltip id="worksheet-fullscreen-tooltip">
-                  {fullScreenLabel} + new buttons! (beta)
+                  {fullScreenLabel}
                 </Tooltip>
               }
             >
@@ -214,20 +186,16 @@ function Worksheet() {
             </div>
           </div>
         )}
-      </SurfaceComponent>
-      {(isMobile || !expanded) && (
-        <div className={styles.calendarSidebar}>
-          <WorksheetStats />
-          <WorksheetCalendarList
-            highlightBuilding={null}
-            showLocation={false}
-            showMissingLocationIcon={false}
-            controlsMode="full"
-            missingBuildingCodes={emptyMissingBuildingCodes}
-            hideTooltipContext="calendar"
-          />
-        </div>
-      )}
+        <SunGridCalendar />
+      </div>
+      <div
+        className={clsx(
+          styles.sidebar,
+          !isMobile && expanded && styles.sidebarCollapsed,
+        )}
+      >
+        <WorksheetCalendarSidebar />
+      </div>
       <CalendarLockSettingsModal />
     </div>
   );
