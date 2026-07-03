@@ -1,0 +1,273 @@
+/* Saved-worksheet selector shared by the calendar sidebar and the list-view
+   navbar (finalized SunGrid design). */
+.worksheetHeader {
+  padding: 16px 16px 8px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 25;
+}
+
+.worksheetHeader[data-open] {
+  background: #fff;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 20px rgb(11 11 11 / 14%);
+}
+
+.worksheetToggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-family: inherit;
+}
+
+.worksheetStar {
+  color: #ef9f27;
+  font-size: 15px;
+}
+
+.worksheetName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0b0b0b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.worksheetChevron {
+  flex-shrink: 0;
+  color: #9f9d97;
+  transition: transform 0.2s ease;
+}
+
+.worksheetChevron[data-open] {
+  transform: rotate(180deg);
+}
+
+.worksheetMenu {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 16px;
+  right: 16px;
+  z-index: 20;
+  background: #fff;
+  border: 1px solid rgb(11 11 11 / 8%);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(11 11 11 / 14%);
+  padding: 6px;
+  animation: popover-fade-in 0.14s ease-out;
+}
+
+/* Navbar variant: the toggle sits inline in the nav row; the menu drops
+   below it at a fixed width instead of spanning the sidebar. */
+.worksheetHeaderNavbar {
+  padding: 0;
+  min-width: 0;
+}
+
+.worksheetHeaderNavbar[data-open] {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.worksheetHeaderNavbar .worksheetMenu {
+  top: calc(100% + 10px);
+  left: 0;
+  right: auto;
+  width: 280px;
+}
+
+.wsRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 6px;
+  transition: background-color 0.12s ease;
+}
+
+.wsRow[data-active] {
+  background: rgb(11 11 11 / 4%);
+}
+
+.wsRow:hover {
+  background: rgb(11 11 11 / 4%);
+}
+
+.wsRowMain {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  padding: 9px 10px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.wsRowIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  color: #0b0b0b;
+}
+
+.wsRowInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.wsRowName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0b0b0b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wsRowSubtitle {
+  font-size: 12px;
+  color: #9f9d97;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wsIconButton,
+.wsIconButtonDanger {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  color: #9f9d97;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.wsIconButton:hover {
+  background: rgb(11 11 11 / 4%);
+  color: #0b0b0b;
+}
+
+.wsIconButtonDanger:hover {
+  background: #fcebeb;
+  color: #a32d2d;
+}
+
+.wsEditRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+}
+
+.wsEditInput {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 11px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #0b0b0b;
+  background: #fff;
+  border: 1px solid rgb(11 11 11 / 14%);
+  border-radius: 6px;
+  outline: none;
+}
+
+.wsEditInput:focus {
+  border-color: #2871be;
+}
+
+.wsEditConfirm,
+.wsEditCancel {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid rgb(11 11 11 / 14%);
+  border-radius: 6px;
+  color: #9f9d97;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.wsEditConfirm:hover {
+  background: #eaf3de;
+  border-color: #97c459;
+  color: #3b6d11;
+}
+
+.wsEditCancel:hover {
+  background: rgb(11 11 11 / 4%);
+  color: #0b0b0b;
+}
+
+.wsDivider {
+  height: 1px;
+  background: rgb(11 11 11 / 8%);
+  margin: 4px 2px;
+}
+
+.wsNewButton {
+  width: 100%;
+  text-align: center;
+  padding: 11px 12px;
+  margin-top: 2px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  color: #0b0b0b;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid rgb(11 11 11 / 14%);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.wsNewButton:hover {
+  background: rgb(11 11 11 / 4%);
+}
+
+@keyframes popover-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -27,22 +27,6 @@
   gap: 0.35rem;
 }
 
-.savedWorksheetButton {
-  min-width: 190px;
-  max-width: 240px;
-}
-
-.savedWorksheetButton > div {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.savedWorksheetDropdown {
-  min-width: 240px;
-}
-
 .savedWorksheetMenu {
   display: flex;
   flex-direction: column;
@@ -201,16 +185,8 @@
 }
 
 @media (max-width: calc(1320px - 0.5px)) {
-  .savedWorksheetButton {
-    min-width: 160px;
-    max-width: 190px;
-  }
-}
-
-@media (max-width: calc(768px - 0.5px)) {
-  .savedWorksheetButton {
-    min-width: 140px;
-    max-width: 160px;
+  .container {
+    gap: 10px;
   }
 }
 

@@ -6,9 +6,9 @@ import { useShallow } from 'zustand/react/shallow';
 import SeasonDropdown, { useWorksheetSeasonCodes } from './SeasonDropdown';
 import SegmentedControl from './SegmentedControl';
 import WorksheetNumDropdown from './WorksheetNumberDropdown';
+import WorksheetPicker from './WorksheetPicker';
 import WorksheetStatusIcon from './WorksheetStatusIcon';
 
-import { CUR_SEASON } from '../../config';
 import {
   isLegacyUserInfo,
   type SavedWorksheet,
@@ -19,7 +19,6 @@ import type { WorksheetView } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
 import { toSeasonString } from '../../utilities/course';
 import { DropdownMenu } from '../Catalog/DropdownMenu';
-import { Popout } from '../Search/Popout';
 import styles from './NavbarWorksheetSearch.module.css';
 
 type VisibleWorksheetView = Exclude<WorksheetView, 'map'>;
@@ -234,10 +233,9 @@ export function SavedWorksheetMenuView({
 
 function SavedWorksheetHeaderControlsView({
   isMobile,
+  showWorksheetPicker,
   activeSavedWorksheet,
   savedWorksheetSummaries,
-  savedWorksheetListStatus,
-  savedWorksheetBootstrapStatus,
   selectSavedWorksheet,
   createBlankSavedWorksheetForTerm,
   renameSavedWorksheet,
@@ -247,14 +245,9 @@ function SavedWorksheetHeaderControlsView({
   viewedSeason,
 }: {
   readonly isMobile: boolean;
+  readonly showWorksheetPicker: boolean;
   readonly activeSavedWorksheet: SavedWorksheet | undefined;
   readonly savedWorksheetSummaries: SavedWorksheetSummary[];
-  readonly savedWorksheetListStatus: 'idle' | 'loading' | 'ready' | 'error';
-  readonly savedWorksheetBootstrapStatus:
-    | 'idle'
-    | 'loading'
-    | 'ready'
-    | 'error';
   readonly selectSavedWorksheet: (id: number) => Promise<boolean>;
   readonly createBlankSavedWorksheetForTerm: (term: Season) => Promise<boolean>;
   readonly renameSavedWorksheet: (id: number, name: string) => Promise<boolean>;
@@ -263,20 +256,6 @@ function SavedWorksheetHeaderControlsView({
   readonly seasonOptions: { value: string; label: string }[];
   readonly viewedSeason: Season;
 }) {
-  const activeTerm = activeSavedWorksheet?.term ?? CUR_SEASON;
-  const worksheetName =
-    savedWorksheetBootstrapStatus === 'loading'
-      ? 'Loading worksheet'
-      : (activeSavedWorksheet?.name ?? 'Main Worksheet');
-  const selectedWorksheet = {
-    value: activeSavedWorksheet?.id ?? 'main',
-    label: worksheetName,
-  };
-  const worksheetIcon = WorksheetStatusIcon(
-    activeSavedWorksheet?.isMain === false ? 1 : 0,
-    activeSavedWorksheet?.private,
-  );
-
   return (
     <div
       className={clsx(
@@ -294,29 +273,18 @@ function SavedWorksheetHeaderControlsView({
         closeOnToggle
         showCheckbox={false}
       />
-      <Popout
-        buttonText="Worksheet"
-        ariaLabel={`Active saved worksheet: ${worksheetName}`}
-        displayOptionLabel
-        selectedOptions={selectedWorksheet}
-        clearIcon={false}
-        Icon={worksheetIcon}
-        className={styles.savedWorksheetButton}
-        dropdownClassName={styles.savedWorksheetDropdown}
-      >
-        <SavedWorksheetMenuView
-          term={activeTerm}
-          activeWorksheetId={activeSavedWorksheet?.id}
+      {showWorksheetPicker && (
+        <WorksheetPicker
+          variant="navbar"
+          viewedSeason={viewedSeason}
+          activeSavedWorksheet={activeSavedWorksheet}
           savedWorksheetSummaries={savedWorksheetSummaries}
-          onSelectSavedWorksheet={selectSavedWorksheet}
-          onCreateBlankSavedWorksheet={() =>
-            createBlankSavedWorksheetForTerm(activeTerm)
-          }
-          onRenameSavedWorksheet={renameSavedWorksheet}
-          onDeleteSavedWorksheet={deleteSavedWorksheet}
-          isCreating={savedWorksheetListStatus === 'loading'}
+          selectSavedWorksheet={selectSavedWorksheet}
+          createBlankSavedWorksheetForTerm={createBlankSavedWorksheetForTerm}
+          renameSavedWorksheet={renameSavedWorksheet}
+          deleteSavedWorksheet={deleteSavedWorksheet}
         />
-      </Popout>
+      )}
     </div>
   );
 }
@@ -331,8 +299,6 @@ export function NavbarWorksheetSearchView({
   hasSavedWorksheetAccount,
   activeSavedWorksheet,
   savedWorksheetSummaries,
-  savedWorksheetListStatus,
-  savedWorksheetBootstrapStatus,
   selectSavedWorksheet,
   createBlankSavedWorksheetForTerm,
   renameSavedWorksheet,
@@ -353,12 +319,6 @@ export function NavbarWorksheetSearchView({
   readonly hasSavedWorksheetAccount: boolean;
   readonly activeSavedWorksheet: SavedWorksheet | undefined;
   readonly savedWorksheetSummaries: SavedWorksheetSummary[];
-  readonly savedWorksheetListStatus: 'idle' | 'loading' | 'ready' | 'error';
-  readonly savedWorksheetBootstrapStatus:
-    | 'idle'
-    | 'loading'
-    | 'ready'
-    | 'error';
   readonly selectSavedWorksheet: (id: number) => Promise<boolean>;
   readonly createBlankSavedWorksheetForTerm: (term: Season) => Promise<boolean>;
   readonly renameSavedWorksheet: (id: number, name: string) => Promise<boolean>;
@@ -429,10 +389,9 @@ export function NavbarWorksheetSearchView({
         {hasSavedWorksheetAccount && (
           <SavedWorksheetHeaderControlsView
             isMobile={isMobile}
+            showWorksheetPicker
             activeSavedWorksheet={activeSavedWorksheet}
             savedWorksheetSummaries={savedWorksheetSummaries}
-            savedWorksheetListStatus={savedWorksheetListStatus}
-            savedWorksheetBootstrapStatus={savedWorksheetBootstrapStatus}
             selectSavedWorksheet={selectSavedWorksheet}
             createBlankSavedWorksheetForTerm={createBlankSavedWorksheetForTerm}
             renameSavedWorksheet={renameSavedWorksheet}
@@ -469,12 +428,14 @@ export function NavbarWorksheetSearchView({
           <WorksheetNumDropdown mobile={false} />
         </>
       ) : hasSavedWorksheetAccount ? (
+        // On the calendar view the sidebar owns the worksheet picker, so the
+        // navbar only shows the term selector; the list view has no other
+        // switcher, so the picker stays in the navbar there.
         <SavedWorksheetHeaderControlsView
           isMobile={isMobile}
+          showWorksheetPicker={visibleWorksheetView === 'list'}
           activeSavedWorksheet={activeSavedWorksheet}
           savedWorksheetSummaries={savedWorksheetSummaries}
-          savedWorksheetListStatus={savedWorksheetListStatus}
-          savedWorksheetBootstrapStatus={savedWorksheetBootstrapStatus}
           selectSavedWorksheet={selectSavedWorksheet}
           createBlankSavedWorksheetForTerm={createBlankSavedWorksheetForTerm}
           renameSavedWorksheet={renameSavedWorksheet}
@@ -528,8 +489,6 @@ export function NavbarWorksheetSearch({
     user,
     activeSavedWorksheet,
     savedWorksheetSummaries,
-    savedWorksheetListStatus,
-    savedWorksheetBootstrapStatus,
     selectSavedWorksheet,
     createBlankSavedWorksheetForTerm,
     renameSavedWorksheet,
@@ -545,8 +504,6 @@ export function NavbarWorksheetSearch({
       user: state.user,
       activeSavedWorksheet: state.activeSavedWorksheet,
       savedWorksheetSummaries: state.savedWorksheetSummaries,
-      savedWorksheetListStatus: state.savedWorksheetListStatus,
-      savedWorksheetBootstrapStatus: state.savedWorksheetBootstrapStatus,
       selectSavedWorksheet: state.selectSavedWorksheet,
       createBlankSavedWorksheetForTerm: state.createBlankSavedWorksheetForTerm,
       renameSavedWorksheet: state.renameSavedWorksheet,
@@ -589,8 +546,6 @@ export function NavbarWorksheetSearch({
       hasSavedWorksheetAccount={hasSavedWorksheetAccount}
       activeSavedWorksheet={activeSavedWorksheet}
       savedWorksheetSummaries={savedWorksheetSummaries}
-      savedWorksheetListStatus={savedWorksheetListStatus}
-      savedWorksheetBootstrapStatus={savedWorksheetBootstrapStatus}
       selectSavedWorksheet={selectSavedWorksheet}
       createBlankSavedWorksheetForTerm={createBlankSavedWorksheetForTerm}
       renameSavedWorksheet={renameSavedWorksheet}

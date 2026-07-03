@@ -44,36 +44,43 @@ describe('NavbarWorksheetSearch', () => {
     const { NavbarWorksheetSearchView } =
       await import('./NavbarWorksheetSearch');
 
-    const html = renderToStaticMarkup(
-      <NavbarWorksheetSearchView
-        isMobile={false}
-        worksheetView="calendar"
-        changeWorksheetView={() => {}}
-        isExoticWorksheet={false}
-        exitExoticWorksheet={() => {}}
-        hasLegacyWorksheetAccount={false}
-        hasSavedWorksheetAccount
-        activeSavedWorksheet={mainWorksheet}
-        savedWorksheetSummaries={[{ ...mainWorksheet, sectionCount: 0 }]}
-        savedWorksheetListStatus="ready"
-        savedWorksheetBootstrapStatus="ready"
-        selectSavedWorksheet={() => Promise.resolve(true)}
-        createBlankSavedWorksheetForTerm={() => Promise.resolve(true)}
-        renameSavedWorksheet={() => Promise.resolve(true)}
-        deleteSavedWorksheet={() => Promise.resolve(true)}
-        onSwitchTerm={() => {}}
-        seasonOptions={[{ value: 'S126', label: 'Summer Session 1 2026' }]}
-        viewedSeason={'S126' as Season}
-      />,
-    );
+    const renderView = (worksheetView: 'calendar' | 'list') =>
+      renderToStaticMarkup(
+        <NavbarWorksheetSearchView
+          isMobile={false}
+          worksheetView={worksheetView}
+          changeWorksheetView={() => {}}
+          isExoticWorksheet={false}
+          exitExoticWorksheet={() => {}}
+          hasLegacyWorksheetAccount={false}
+          hasSavedWorksheetAccount
+          activeSavedWorksheet={mainWorksheet}
+          savedWorksheetSummaries={[{ ...mainWorksheet, sectionCount: 0 }]}
+          selectSavedWorksheet={() => Promise.resolve(true)}
+          createBlankSavedWorksheetForTerm={() => Promise.resolve(true)}
+          renameSavedWorksheet={() => Promise.resolve(true)}
+          deleteSavedWorksheet={() => Promise.resolve(true)}
+          onSwitchTerm={() => {}}
+          seasonOptions={[{ value: 'S126', label: 'Summer Session 1 2026' }]}
+          viewedSeason={'S126' as Season}
+        />,
+      );
 
-    expect(html).toContain('Calendar');
-    expect(html).toContain('List');
-    expect(html).toContain('Summer Session 1 2026');
-    expect(html).toContain('Main Worksheet');
-    expect(html).not.toContain('Map');
-    expect(html).not.toContain('Friends');
-    expect(html).not.toContain('Add Friend');
+    const calendarHtml = renderView('calendar');
+    expect(calendarHtml).toContain('Calendar');
+    expect(calendarHtml).toContain('List');
+    expect(calendarHtml).toContain('Summer Session 1 2026');
+    // The calendar sidebar owns the worksheet picker; the navbar must not
+    // duplicate it (finalized SunGrid design).
+    expect(calendarHtml).not.toContain('Main Worksheet');
+    expect(calendarHtml).not.toContain('Map');
+    expect(calendarHtml).not.toContain('Friends');
+    expect(calendarHtml).not.toContain('Add Friend');
+
+    // The list view has no other worksheet switcher, so the navbar keeps it.
+    const listHtml = renderView('list');
+    expect(listHtml).toContain('Summer Session 1 2026');
+    expect(listHtml).toContain('Main Worksheet');
   });
 
   it('shows the term selector for signed-out desktop worksheet users', async () => {
@@ -91,8 +98,6 @@ describe('NavbarWorksheetSearch', () => {
         hasSavedWorksheetAccount={false}
         activeSavedWorksheet={undefined}
         savedWorksheetSummaries={[]}
-        savedWorksheetListStatus="idle"
-        savedWorksheetBootstrapStatus="idle"
         selectSavedWorksheet={() => Promise.resolve(true)}
         createBlankSavedWorksheetForTerm={() => Promise.resolve(true)}
         renameSavedWorksheet={() => Promise.resolve(true)}
@@ -105,7 +110,11 @@ describe('NavbarWorksheetSearch', () => {
 
     expect(html).toContain('Calendar');
     expect(html).toContain('List');
-    expect(html).toContain('Spring 2026');
+    // The signed-out term selector reads the store's viewed season (not the
+    // seasonOptions prop), so assert the dropdown itself rather than a
+    // specific season label.
+    expect(html).toContain('aria-haspopup="menu"');
+    expect(html).not.toContain('Main Worksheet');
     expect(html).not.toContain('New Worksheet');
   });
 
