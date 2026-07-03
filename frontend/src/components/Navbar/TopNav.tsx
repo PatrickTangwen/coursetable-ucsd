@@ -9,8 +9,11 @@ import { logout } from '../../queries/api';
 import { useStore } from '../../store';
 import { scrollToTop } from '../../utilities/display';
 import { createCatalogLink } from '../../utilities/navigation';
-import CatalogNavSearch from '../Catalog/CatalogNavSearch';
+import CatalogNavSearch, {
+  CatalogResultCount,
+} from '../Catalog/CatalogNavSearch';
 import { NavbarWorksheetSearch } from '../Worksheet/NavbarWorksheetSearch';
+import WorksheetMobileMenu from '../Worksheet/WorksheetMobileMenu';
 import styles from './TopNav.module.css';
 
 export default function TopNav() {
@@ -20,8 +23,9 @@ export default function TopNav() {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const showCatalogSearch = !isMobile && location.pathname === '/catalog';
+  const showCatalogSearch = location.pathname === '/catalog';
   const isWorksheetPage = location.pathname === '/worksheet';
+  const isWorksheetMobile = isWorksheetPage && isMobile;
 
   return (
     <header className={styles.container}>
@@ -41,19 +45,48 @@ export default function TopNav() {
         </NavLink>
 
         {showCatalogSearch && <CatalogNavSearch />}
-        {isWorksheetPage && (
+        {isWorksheetPage && !isMobile && (
           <div className={styles.searchArea}>
-            <NavbarWorksheetSearch isMobile={isMobile} />
+            <NavbarWorksheetSearch isMobile={false} />
           </div>
         )}
 
-        {!showCatalogSearch && !isWorksheetPage && (
+        {(!isWorksheetPage || isWorksheetMobile) && (
           <div className={styles.spacer} />
+        )}
+
+        {showCatalogSearch && <CatalogResultCount />}
+
+        {isWorksheetMobile && (
+          <NavLink
+            to={createCatalogLink()}
+            className={styles.mobileCatalogLink}
+            onClick={scrollToTop}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.9"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+            </svg>
+            Catalog
+          </NavLink>
         )}
 
         <button
           type="button"
-          className={styles.menuToggle}
+          className={clsx(
+            styles.menuToggle,
+            isWorksheetMobile && styles.menuToggleBoxed,
+          )}
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle navigation"
           aria-expanded={menuOpen}
@@ -68,57 +101,78 @@ export default function TopNav() {
           </svg>
         </button>
 
-        <div
-          className={clsx(styles.navActions, menuOpen && styles.navActionsOpen)}
-        >
-          <DarkModeButton className={styles.settingsBtn} />
-          <NavLink
-            to={createCatalogLink()}
-            className={({ isActive }) =>
-              clsx(styles.navTab, isActive && styles.navTabActive)
-            }
-            onClick={(e) => {
-              scrollToTop(e);
-              setMenuOpen(false);
-            }}
+        {isWorksheetMobile ? (
+          menuOpen && (
+            <>
+              <button
+                type="button"
+                className={styles.mobileMenuBackdrop}
+                aria-label="Close menu"
+                onClick={() => setMenuOpen(false)}
+              />
+              <div className={styles.mobileMenuPanel}>
+                <WorksheetMobileMenu onClose={() => setMenuOpen(false)} />
+              </div>
+            </>
+          )
+        ) : (
+          <div
+            className={clsx(
+              styles.navActions,
+              menuOpen && styles.navActionsOpen,
+            )}
           >
-            Catalog
-          </NavLink>
-          <NavLink
-            to="/worksheet"
-            className={({ isActive }) =>
-              clsx(styles.navTab, isActive && styles.navTabActive)
-            }
-            onClick={(e) => {
-              scrollToTop(e);
-              setMenuOpen(false);
-            }}
-            data-tutorial="worksheet-1"
-          >
-            Worksheet
-          </NavLink>
-          {isMobile ? (
-            <button
-              type="button"
-              className={styles.navTab}
-              onClick={
-                authStatus !== 'authenticated'
-                  ? () => {
-                      window.location.href = '/login';
-                    }
-                  : async () => {
-                      await logout();
-                      await refreshAuth();
-                      window.location.href = '/';
-                    }
+            <DarkModeButton className={styles.settingsBtn} />
+            <NavLink
+              to={createCatalogLink()}
+              className={({ isActive }) =>
+                clsx(styles.navTab, isActive && styles.navTabActive)
               }
+              onClick={(e) => {
+                scrollToTop(e);
+                setMenuOpen(false);
+              }}
+              data-label="Catalog"
             >
-              {authStatus !== 'authenticated' ? 'Sign in (beta)' : 'Sign out'}
-            </button>
-          ) : (
-            <MeDropdown />
-          )}
-        </div>
+              Catalog
+            </NavLink>
+            <NavLink
+              to="/worksheet"
+              className={({ isActive }) =>
+                clsx(styles.navTab, isActive && styles.navTabActive)
+              }
+              onClick={(e) => {
+                scrollToTop(e);
+                setMenuOpen(false);
+              }}
+              data-tutorial="worksheet-1"
+              data-label="Worksheet"
+            >
+              Worksheet
+            </NavLink>
+            {isMobile ? (
+              <button
+                type="button"
+                className={styles.navTab}
+                onClick={
+                  authStatus !== 'authenticated'
+                    ? () => {
+                        window.location.href = '/login';
+                      }
+                    : async () => {
+                        await logout();
+                        await refreshAuth();
+                        window.location.href = '/';
+                      }
+                }
+              >
+                {authStatus !== 'authenticated' ? 'Sign in' : 'Sign out'}
+              </button>
+            ) : (
+              <MeDropdown />
+            )}
+          </div>
+        )}
       </nav>
     </header>
   );

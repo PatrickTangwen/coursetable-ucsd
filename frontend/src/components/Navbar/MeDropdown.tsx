@@ -1,163 +1,144 @@
-import React from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import clsx from 'clsx';
-import { Collapse } from 'react-bootstrap';
-import type { IconType } from 'react-icons';
-import { BsFillPersonFill } from 'react-icons/bs';
-import { FaSignOutAlt, FaSignInAlt } from 'react-icons/fa';
 import { FcBusinessman } from 'react-icons/fc';
 
 import { isLegacyUserInfo, logout } from '../../queries/api';
 import { useStore } from '../../store';
-import { scrollToTop, useComponentVisible } from '../../utilities/display';
-import { SurfaceComponent, TextComponent } from '../Typography';
 import styles from './MeDropdown.module.css';
 
-function DropdownItem({
-  icon: Icon,
-  iconColor,
-  children,
-  to,
-  href,
-  externalLink,
-  onClick,
-}: {
-  readonly icon: IconType;
-  readonly iconColor?: string;
-  readonly children: string;
-  readonly to?: string;
-  readonly href?: string;
-  readonly externalLink?: boolean;
-  readonly onClick?: (e: React.MouseEvent) => void;
-}) {
-  const innerText = (
-    <TextComponent className={styles.itemText} type="secondary">
-      <Icon size={20} className={styles.linkIcon} color={iconColor} />
-      {children}
-    </TextComponent>
+function PersonIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
   );
-  if (to) {
-    return (
-      <NavLink
-        to={to}
-        onClick={onClick ?? scrollToTop}
-        className={styles.dropdownItem}
-      >
-        {innerText}
-      </NavLink>
-    );
-  } else if (href) {
-    return (
-      // eslint-disable-next-line react/jsx-no-target-blank
-      <a
-        href={href}
-        className={styles.dropdownItem}
-        {...(externalLink && {
-          target: '_blank',
-          rel: 'noreferrer noopener',
-        })}
-      >
-        {innerText}
-      </a>
-    );
-  } else if (onClick) {
-    return (
-      <button type="button" onClick={onClick} className={styles.dropdownItem}>
-        {innerText}
-      </button>
-    );
-  }
-  throw new Error('DropdownItem must have either to, href, or onClick');
 }
 
-function DropdownContent({
-  isExpanded,
-  setIsExpanded,
-}: {
-  readonly isExpanded: boolean;
-  readonly setIsExpanded: (visible: boolean) => void;
-}) {
+function SignOutIcon() {
+  return (
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#a32d2d"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={styles.itemIcon}
+      aria-hidden="true"
+    >
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+  );
+}
+
+function SignInIcon() {
+  return (
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#185fa5"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={styles.itemIcon}
+      aria-hidden="true"
+    >
+      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+      <polyline points="10 17 15 12 10 7" />
+      <line x1="15" y1="12" x2="3" y2="12" />
+    </svg>
+  );
+}
+
+function MeDropdown() {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
   const authStatus = useStore((state) => state.authStatus);
   const user = useStore((state) => state.user);
   const refreshAuth = useStore((state) => state.refreshAuth);
   const hasLegacyProfile = isLegacyUserInfo(user);
 
+  useEffect(() => {
+    if (!open) return undefined;
+    const onMouseDown = (e: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node))
+        setOpen(false);
+    };
+    document.addEventListener('mousedown', onMouseDown);
+    return () => document.removeEventListener('mousedown', onMouseDown);
+  }, [open]);
+
+  const title =
+    user?.firstName && user.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : ((!isLegacyUserInfo(user) ? user?.verifiedEmail : undefined) ??
+        'Your profile');
+
   return (
-    <SurfaceComponent
-      elevated
-      className={styles.collapseContainer}
-      onClick={() => {
-        setIsExpanded(true);
-      }}
-    >
-      <Collapse in={isExpanded}>
-        {/* Do not add vertical spacing to this div because it will break
-          collapsing animation */}
-        <div className="px-3">
+    <div ref={rootRef} className={styles.root}>
+      <button
+        type="button"
+        className={styles.avatarButton}
+        onClick={() => setOpen((x) => !x)}
+        aria-label="Profile"
+        aria-expanded={open}
+        title={title}
+      >
+        <PersonIcon />
+      </button>
+      {open && (
+        <div className={styles.menu}>
           {authStatus === 'authenticated' && hasLegacyProfile && (
-            <DropdownItem icon={FcBusinessman} to="/profile">
+            <NavLink
+              to="/profile"
+              className={styles.menuItem}
+              onClick={() => setOpen(false)}
+            >
+              <FcBusinessman size={17} className={styles.itemIcon} />
               Profile (beta)
-            </DropdownItem>
+            </NavLink>
           )}
           {authStatus === 'authenticated' ? (
-            <DropdownItem
-              icon={FaSignOutAlt}
-              iconColor="#ed5f5f"
+            <button
+              type="button"
+              className={`${styles.menuItem} ${styles.menuItemDanger}`}
               onClick={async () => {
+                setOpen(false);
                 await logout();
                 await refreshAuth();
                 window.location.href = '/';
               }}
             >
+              <SignOutIcon />
               Sign out
-            </DropdownItem>
+            </button>
           ) : (
-            <DropdownItem icon={FaSignInAlt} iconColor="#30e36b" href="/login">
-              Sign in (beta)
-            </DropdownItem>
+            <a
+              href="/login"
+              className={styles.menuItem}
+              onClick={() => setOpen(false)}
+            >
+              <SignInIcon />
+              Sign in
+            </a>
           )}
         </div>
-      </Collapse>
-    </SurfaceComponent>
-  );
-}
-
-function MeDropdown() {
-  // Ref to detect outside clicks for profile dropdown
-  const { elemRef, isComponentVisible, setIsComponentVisible } =
-    useComponentVisible<HTMLButtonElement>(false);
-  const user = useStore((state) => state.user);
-  const hasName = Boolean(user?.firstName && user.lastName);
-  const verifiedEmail = isLegacyUserInfo(user)
-    ? undefined
-    : user?.verifiedEmail;
-  return (
-    <div className={clsx(styles.navbarMe, 'align-self-end')}>
-      <button
-        type="button"
-        ref={elemRef}
-        className={clsx(hasName ? styles.meIcon : styles.anonIcon, 'm-auto')}
-        onClick={() => setIsComponentVisible(!isComponentVisible)}
-        aria-label="Profile"
-      >
-        {hasName ? (
-          <span title={`${user!.firstName!} ${user!.lastName!}`}>
-            {user!.firstName![0]!}
-            {user!.lastName![0]!}
-          </span>
-        ) : (
-          <BsFillPersonFill
-            title={verifiedEmail}
-            className="m-auto"
-            size={20}
-            color={isComponentVisible ? '#007bff' : undefined}
-          />
-        )}
-      </button>
-      <DropdownContent
-        isExpanded={isComponentVisible}
-        setIsExpanded={setIsComponentVisible}
-      />
+      )}
     </div>
   );
 }

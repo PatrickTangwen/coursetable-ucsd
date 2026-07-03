@@ -9,12 +9,12 @@
 }
 
 .sun {
-  font-weight: 600;
-  font-style: italic;
-  color: var(--sg-logo-sun);
+  font-weight: 700;
+  font-style: normal;
+  color: #0b0b0b;
 }
 
 .grid {
   font-weight: 700;
-  color: var(--sg-logo-grid);
+  color: #0b0b0b;
 }

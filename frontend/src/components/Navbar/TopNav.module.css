@@ -3,24 +3,30 @@
   top: 0;
   z-index: 1000;
   width: 100%;
-  background: var(--color-bg);
-  transition: background-color var(--trans-dur);
+  flex-shrink: 0;
+  background: #fff;
+  border-bottom: 1px solid rgb(11 11 11 / 8%);
 }
 
+/* Horizontal padding matches the catalog control card side padding
+   (40px full / 16px below 1240px) so the logo aligns with the filter bar. */
 .topRow {
   box-sizing: border-box;
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  padding: 14px 24px;
-  border-bottom: 1px solid var(--sg-border);
+  padding: 14px 40px;
   flex-wrap: wrap;
 }
 
+/* The navbar is shared chrome: padding and heights must be identical on the
+   catalog and worksheet pages so nothing shifts when switching between them.
+   40px (16px below 1240px) matches the catalog control card side padding. */
 .topRowPrimary {
   align-items: center;
   flex-wrap: nowrap;
-  min-height: var(--height-navbar);
+  gap: 16px;
+  min-height: calc(var(--height-navbar) - 1px);
 }
 
 .logoLink {
@@ -52,14 +58,14 @@
   width: 34px;
   height: 34px;
   border-radius: 8px;
-  color: var(--sg-text-muted);
+  color: #6f6d67;
   align-items: center;
   justify-content: center;
   align-self: center;
 }
 
 .menuToggle:hover {
-  background: #f0f0f5;
+  background: rgb(11 11 11 / 4%);
 }
 
 .navActions {
@@ -76,24 +82,24 @@
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  color: var(--sg-text-muted);
+  color: #6f6d67;
   transition: background 0.15s;
 }
 
 .settingsBtn:hover {
-  background: #f0f0f5;
+  background: rgb(11 11 11 / 4%);
 }
 
 .navTab {
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100px;
-  padding: 6px 14px;
-  font-size: 13.5px;
+  padding: 6px 16px;
+  font-size: 14px;
   font-weight: 500;
-  color: var(--sg-text-tertiary);
-  border-radius: 8px;
+  color: #6f6d67;
+  border-radius: 6px;
   text-decoration: none;
   white-space: nowrap;
   transition:
@@ -101,20 +107,42 @@
     color 0.15s;
 }
 
+/* Reserve the bold (active) width so the tab doesn't change size — and shift
+   its neighbors — when navigating between Catalog and Worksheet. */
+.navTab::after {
+  content: attr(data-label);
+  font-weight: 600;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .navTab:hover {
-  background: #f0f0f5;
-  color: var(--sg-text-tertiary);
+  background: rgb(11 11 11 / 4%);
+  color: #185fa5;
   text-decoration: none;
 }
 
 .navTabActive {
   font-weight: 600;
-  color: var(--sg-primary);
+  color: #185fa5;
+  background: #e6f1fb;
 }
 
 .navTabActive:hover {
-  background: var(--sg-primary-light);
-  color: var(--sg-primary);
+  background: #e6f1fb;
+  color: #185fa5;
+}
+
+@media (max-width: calc(1240px - 0.5px)) {
+  .topRow {
+    padding: 14px 16px;
+  }
+
+  .topRowPrimary {
+    gap: 16px;
+  }
 }
 
 /* ── Mobile responsive ── */
@@ -123,12 +151,13 @@
     padding: 10px 16px;
   }
 
-  .menuToggle {
-    display: flex;
+  .topRowPrimary {
+    flex-wrap: wrap;
+    gap: 12px;
   }
 
-  .spacer {
-    display: none;
+  .menuToggle {
+    display: flex;
   }
 
   .navActions {
@@ -146,10 +175,83 @@
 
   .navTab {
     width: 100%;
+    justify-content: flex-start;
     padding: 8px 14px;
   }
 
   .settingsBtn {
     margin-bottom: 4px;
+  }
+}
+
+/* ── Worksheet mobile navbar (finalized calendar design) ── */
+.mobileCatalogLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6f6d67;
+  border-radius: 6px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.mobileCatalogLink:hover {
+  background: rgb(11 11 11 / 4%);
+  color: #185fa5;
+  text-decoration: none;
+}
+
+.menuToggleBoxed {
+  width: 38px;
+  height: 38px;
+  background: #fdfcfb;
+  border: 1px solid rgb(11 11 11 / 14%);
+  border-radius: 6px;
+  color: #6f6d67;
+}
+
+.mobileMenuBackdrop {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  z-index: 40;
+  background: rgb(11 11 11 / 8%);
+  border: 0;
+  padding: 0;
+  cursor: default;
+}
+
+.mobileMenuPanel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 41;
+  background: #fff;
+  border-bottom: 1px solid rgb(11 11 11 / 8%);
+  box-shadow: 0 10px 28px rgb(11 11 11 / 14%);
+  max-height: calc(100vh - var(--height-navbar));
+  overflow-y: auto;
+  animation: mobile-menu-fade-in 0.14s ease-out;
+}
+
+@keyframes mobile-menu-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
