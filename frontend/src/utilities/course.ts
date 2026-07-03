@@ -622,6 +622,39 @@ export function isDiscussionSection(
   return /^[A-Z]*$/u.test(listing.section);
 }
 
+type WorksheetStatsCourse = {
+  listing: {
+    course: Pick<CatalogListing['course'], 'listings' | 'credits' | 'section'>;
+  };
+  hidden: boolean | null;
+};
+
+// Don't count a course in one of the following cases:
+// - Cross-listing has been counted
+// - Another section has been counted (we just randomly pick one)
+// - Is discussion section
+// - Is hidden
+export function getWorksheetCourseStats(
+  courses: readonly WorksheetStatsCourse[],
+) {
+  const countedCourseCodes = new Set<string>();
+  let courseCount = 0;
+  let credits = 0;
+  for (const { listing, hidden } of courses) {
+    const alreadyCounted = listing.course.listings.some((l) =>
+      countedCourseCodes.has(l.course_code),
+    );
+    if (alreadyCounted || hidden || isDiscussionSection(listing.course))
+      continue;
+    listing.course.listings.forEach((l) => {
+      countedCourseCodes.add(l.course_code);
+    });
+    courseCount++;
+    credits += listing.course.credits ?? 0;
+  }
+  return { courseCount, credits };
+}
+
 /**
  * @param course a course
  * @returns section number padded to two characters or empty string if NA

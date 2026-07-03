@@ -1,0 +1,330 @@
+.card {
+  overflow: hidden;
+  border: 1px solid rgb(11 11 11 / 8%);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow:
+    0 1px 2px rgb(11 11 11 / 8%),
+    0 1px 4px rgb(11 11 11 / 4%);
+  transition: box-shadow 0.25s ease;
+}
+
+.card:hover {
+  box-shadow: 0 2px 5px rgb(11 11 11 / 14%);
+}
+
+.cardExpanded,
+.cardExpanded:hover {
+  box-shadow:
+    0 2px 4px rgb(11 11 11 / 8%),
+    0 4px 10px rgb(11 11 11 / 8%);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.header:hover {
+  background: rgb(11 11 11 / 4%);
+}
+
+.colorBar {
+  width: 4px;
+  min-height: 36px;
+  align-self: stretch;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+
+.cardHidden .colorBar {
+  opacity: 0.25;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.topRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.codeLink {
+  color: #0b0b0b;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  text-decoration: none;
+}
+
+.codeLink:hover,
+.codeLink:focus-visible {
+  color: #185fa5;
+  text-decoration: underline;
+}
+
+.cardHidden .codeLink {
+  color: #9f9d97;
+}
+
+.sectionCode {
+  margin-left: 5px;
+  color: #9f9d97;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.credits {
+  flex-shrink: 0;
+  color: #9f9d97;
+  font-size: 11px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.title {
+  margin-top: 2px;
+  color: #6f6d67;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardHidden .title {
+  color: #d0cec8;
+}
+
+.preview {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgb(11 11 11 / 4%);
+}
+
+.previewTime {
+  color: #6f6d67;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.previewSeparator {
+  color: #d0cec8;
+}
+
+.previewLocation {
+  color: #9f9d97;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hiddenLabel {
+  margin-top: 4px;
+  color: rgb(11 11 11 / 22%);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sideButtons {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 2px;
+  cursor: default;
+}
+
+.hideButton,
+.chevronButton {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #9f9d97;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.hideButton:hover,
+.hideButton:focus-visible,
+.chevronButton:hover,
+.chevronButton:focus-visible {
+  background: rgb(11 11 11 / 6%);
+  color: #56544f;
+}
+
+.hideButton svg {
+  width: 14px;
+  height: 14px;
+}
+
+.chevron {
+  transition: transform 0.18s ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.dayDots {
+  display: flex;
+  flex-shrink: 0;
+  gap: 2px;
+}
+
+.dayDot {
+  width: 16px;
+  height: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.dayDotActive {
+  background: #333b4d;
+  color: #fff;
+}
+
+.dayDotInactive {
+  background: #e7e5e1;
+  color: #9f9d97;
+}
+
+.expandPanel {
+  padding: 8px 16px 14px 36px;
+  border-top: 1px solid rgb(11 11 11 / 4%);
+}
+
+.meetingRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+}
+
+.meetingDot {
+  width: 6px;
+  height: 6px;
+  margin-top: 5px;
+  flex-shrink: 0;
+  border-radius: 9999px;
+}
+
+.meetingKindRow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.meetingKind {
+  color: #0b0b0b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.kindMidterm {
+  color: #854f0b;
+}
+
+.kindFinal {
+  color: #a32d2d;
+}
+
+.countdown {
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 600;
+}
+
+.countdownPast {
+  background: #fdfcfb;
+  color: #9f9d97;
+}
+
+.countdownSoon {
+  background: #fcebeb;
+  color: #a32d2d;
+}
+
+.countdownUpcoming {
+  background: #faeeda;
+  color: #854f0b;
+}
+
+.countdownLater {
+  background: #eaf3de;
+  color: #3b6d11;
+}
+
+.meetingDate {
+  margin-top: 3px;
+  color: #6f6d67;
+  font-size: 11.5px;
+}
+
+.meetingMeta {
+  margin-top: 3px;
+  color: #9f9d97;
+  font-size: 11px;
+}
+
+.noMeetings {
+  padding: 8px 0;
+  color: #9f9d97;
+  font-size: 12px;
+}
+
+.panelFooter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid rgb(11 11 11 / 4%);
+}
+
+.removeButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #9f9d97;
+  font-size: 12.5px;
+  font-weight: 500;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.removeButton:hover,
+.removeButton:focus-visible {
+  background: #fcebeb;
+  color: #a32d2d;
+}

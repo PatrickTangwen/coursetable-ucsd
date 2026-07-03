@@ -1,0 +1,270 @@
+import { useMemo, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import clsx from 'clsx';
+import { FiChevronDown } from 'react-icons/fi';
+
+import WorksheetHideButton from './WorksheetHideButton';
+import {
+  buildWorksheetItemMeetings,
+  countdownLabel,
+  countdownSeverity,
+  listDayLabels,
+  type ListDayFlags,
+  type WorksheetDatedMeeting,
+} from './worksheetListMeetings';
+import WorksheetToggleButton from './WorksheetToggleButton';
+import type { WorksheetCourse } from '../../slices/WorksheetSlice';
+import { useStore } from '../../store';
+import { formatWorksheetSectionSuffix } from '../../utilities/course';
+import { useCourseModalLink } from '../../utilities/display';
+import styles from './WorksheetListItem.module.css';
+
+function ListDayDots({ days }: { readonly days: ListDayFlags }) {
+  const hasWeekend = days.Sa || days.Su;
+  const labels = hasWeekend ? listDayLabels : listDayLabels.slice(0, 5);
+  return (
+    <div className={styles.dayDots} aria-hidden="true">
+      {labels.map((day) => (
+        <span
+          key={day}
+          className={clsx(
+            styles.dayDot,
+            days[day] ? styles.dayDotActive : styles.dayDotInactive,
+          )}
+        >
+          {day}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function CountdownBadge({ daysUntil }: { readonly daysUntil: number | null }) {
+  const label = countdownLabel(daysUntil);
+  if (!label) return null;
+  const severity = countdownSeverity(daysUntil);
+  return (
+    <span
+      className={clsx(
+        styles.countdown,
+        severity === 'past' && styles.countdownPast,
+        severity === 'soon' && styles.countdownSoon,
+        severity === 'upcoming' && styles.countdownUpcoming,
+        severity === 'later' && styles.countdownLater,
+      )}
+    >
+      {label}
+    </span>
+  );
+}
+
+function meetingMeta(meeting: { time: string; location: string }): string {
+  return [meeting.time === 'TBA' ? '' : meeting.time, meeting.location]
+    .filter(Boolean)
+    .join(' · ');
+}
+
+function datedKindClass(meeting: WorksheetDatedMeeting): string | false {
+  if (meeting.tone === 'midterm') return styles.kindMidterm!;
+  if (meeting.tone === 'final') return styles.kindFinal!;
+  return false;
+}
+
+export default function WorksheetListItem({
+  course,
+  expanded,
+  onToggleExpand,
+}: {
+  readonly course: WorksheetCourse;
+  readonly expanded: boolean;
+  readonly onToggleExpand: () => void;
+}) {
+  const { listing, color } = course;
+  const hidden = course.hidden ?? false;
+  const cardRef = useRef<HTMLDivElement>(null);
+  const target = useCourseModalLink(listing);
+  const setHoverCourse = useStore((state) => state.setHoverCourse);
+  const { weekly, dated } = useMemo(
+    () => buildWorksheetItemMeetings(listing),
+    [listing],
+  );
+  const preview = weekly.find((meeting) => meeting.time !== 'TBA') ?? null;
+  const { credits } = listing.course;
+
+  const handleToggle = () => {
+    const willExpand = !expanded;
+    onToggleExpand();
+    if (!willExpand) return;
+    // After the panel renders, nudge the page so the newly revealed content
+    // is visible, without pushing the card's top under the navbar.
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        const card = cardRef.current;
+        if (!card) return;
+        const rect = card.getBoundingClientRect();
+        const bottomMargin = 24;
+        const navHeight = 64;
+        if (rect.bottom <= window.innerHeight - bottomMargin) return;
+        const overflow = rect.bottom - (window.innerHeight - bottomMargin);
+        const maxDelta = Math.max(rect.top - navHeight, 0);
+        const delta = Math.min(overflow, maxDelta);
+        if (delta > 0) window.scrollBy({ top: delta, behavior: 'smooth' });
+      });
+    });
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      className={clsx(
+        styles.card,
+        expanded && styles.cardExpanded,
+        hidden && styles.cardHidden,
+      )}
+      onMouseEnter={() => setHoverCourse(listing.crn)}
+      onMouseLeave={() => setHoverCourse(null)}
+      onFocus={() => setHoverCourse(listing.crn)}
+      onBlur={() => setHoverCourse(null)}
+    >
+      {/* The chevron button is the keyboard-accessible expand control. */}
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
+      <div className={styles.header} onClick={handleToggle}>
+        <span
+          className={styles.colorBar}
+          style={{ backgroundColor: color }}
+          aria-hidden="true"
+        />
+        <div className={styles.main}>
+          <div className={styles.topRow}>
+            <Link
+              to={target}
+              className={styles.codeLink}
+              onClick={(event) => event.stopPropagation()}
+            >
+              {listing.course_code}
+              <span className={styles.sectionCode}>
+                {formatWorksheetSectionSuffix(listing)}
+              </span>
+            </Link>
+            {credits !== null && (
+              <span className={styles.credits}>
+                {credits} {credits === 1 ? 'credit' : 'credits'}
+              </span>
+            )}
+          </div>
+          <div className={styles.title}>{listing.course.title}</div>
+          {preview && (
+            <div className={styles.preview}>
+              <ListDayDots days={preview.days} />
+              <span className={styles.previewTime}>{preview.time}</span>
+              {preview.location && (
+                <>
+                  <span className={styles.previewSeparator} aria-hidden="true">
+                    ·
+                  </span>
+                  <span className={styles.previewLocation}>
+                    {preview.location}
+                  </span>
+                </>
+              )}
+            </div>
+          )}
+          {hidden && (
+            <div className={styles.hiddenLabel}>Hidden from calendar</div>
+          )}
+        </div>
+        <div className={styles.sideButtons}>
+          <WorksheetHideButton
+            crn={listing.crn}
+            hidden={hidden}
+            className={styles.hideButton}
+            context="calendar"
+          />
+          <button
+            type="button"
+            className={styles.chevronButton}
+            onClick={(event) => {
+              // Don't let the header's own click handler toggle a second time
+              event.stopPropagation();
+              handleToggle();
+            }}
+            aria-expanded={expanded}
+            aria-label={`${expanded ? 'Collapse' : 'Expand'} ${listing.course_code}`}
+          >
+            <FiChevronDown
+              className={clsx(styles.chevron, expanded && styles.chevronOpen)}
+              aria-hidden="true"
+            />
+          </button>
+        </div>
+      </div>
+
+      {expanded && (
+        <div className={styles.expandPanel}>
+          {weekly.map((meeting, index) => (
+            <div key={`weekly-${index}`} className={styles.meetingRow}>
+              <span
+                className={styles.meetingDot}
+                style={{ backgroundColor: color }}
+                aria-hidden="true"
+              />
+              <div>
+                <div className={styles.meetingKindRow}>
+                  <span className={styles.meetingKind}>{meeting.kind}</span>
+                </div>
+                <div className={styles.meetingDate}>
+                  <ListDayDots days={meeting.days} />
+                </div>
+                {meetingMeta(meeting) && (
+                  <div className={styles.meetingMeta}>
+                    {meetingMeta(meeting)}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+          {dated.map((meeting, index) => (
+            <div key={`dated-${index}`} className={styles.meetingRow}>
+              <span
+                className={styles.meetingDot}
+                style={{ backgroundColor: color }}
+                aria-hidden="true"
+              />
+              <div>
+                <div className={styles.meetingKindRow}>
+                  <span
+                    className={clsx(
+                      styles.meetingKind,
+                      datedKindClass(meeting),
+                    )}
+                  >
+                    {meeting.kind}
+                  </span>
+                  <CountdownBadge daysUntil={meeting.daysUntil} />
+                </div>
+                <div className={styles.meetingDate}>{meeting.dateLabel}</div>
+                {meetingMeta(meeting) && (
+                  <div className={styles.meetingMeta}>
+                    {meetingMeta(meeting)}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+          {weekly.length === 0 && dated.length === 0 && (
+            <div className={styles.noMeetings}>No meetings listed</div>
+          )}
+          <div className={styles.panelFooter}>
+            <WorksheetToggleButton
+              listing={listing}
+              modal={false}
+              inWorksheet
+              appearance="remove"
+              className={styles.removeButton}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

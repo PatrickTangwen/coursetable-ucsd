@@ -115,7 +115,7 @@ export function getSavedWorksheetTermChips(
   return chips;
 }
 
-function buildCourseImports(
+export function buildCourseImports(
   currentCourses: readonly WorksheetCourse[],
   targetSeason: Season,
   targetWorksheetNumber: number,

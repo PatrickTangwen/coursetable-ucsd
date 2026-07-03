@@ -39,7 +39,7 @@ type PreparedDownload = {
   url: string;
 };
 
-export default function ICSExportButton() {
+export function useICSExport() {
   const { viewedSeason, courses } = useStore(
     useShallow((state) => ({
       viewedSeason: state.viewedSeason,
@@ -97,12 +97,17 @@ export default function ICSExportButton() {
       toast.warning(preparedDownload.skippedSummary);
   };
 
+  return {
+    href: preparedDownload?.url ?? '#',
+    download: preparedDownload?.fileName ?? `${viewedSeason}_worksheet.ics`,
+    onClick: exportICS,
+  };
+}
+
+export default function ICSExportButton() {
+  const { href, download, onClick } = useICSExport();
   return (
-    <a
-      href={preparedDownload?.url ?? '#'}
-      download={preparedDownload?.fileName ?? `${viewedSeason}_worksheet.ics`}
-      onClick={exportICS}
-    >
+    <a href={href} download={download} onClick={onClick}>
       <img style={{ height: '2rem' }} src={ICSIcon} alt="" />
       &nbsp;&nbsp;Download as ICS
     </a>

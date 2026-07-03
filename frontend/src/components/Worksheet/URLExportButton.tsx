@@ -21,7 +21,7 @@ async function copyToClipboard(text: string, successMessage: string) {
   }
 }
 
-export default function URLExportButton() {
+export function useWorksheetURLExport() {
   const {
     viewedSeason,
     viewedWorksheetName,
@@ -98,6 +98,11 @@ export default function URLExportButton() {
     );
   }
 
+  return handleExport;
+}
+
+export default function URLExportButton() {
+  const handleExport = useWorksheetURLExport();
   return (
     <button type="button" onClick={handleExport}>
       <span style={{ height: '2rem', width: '2rem', display: 'inline-block' }}>

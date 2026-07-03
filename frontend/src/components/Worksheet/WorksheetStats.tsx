@@ -10,7 +10,7 @@ import type {
 import { useStore } from '../../store';
 import {
   getWorksheetConflicts,
-  isDiscussionSection,
+  getWorksheetCourseStats,
 } from '../../utilities/course';
 
 import styles from './WorksheetStats.module.css';
@@ -108,30 +108,7 @@ export function WorksheetStatsView({
   readonly isMobile: boolean;
 }) {
   const [shown, setShown] = useState(true);
-  const countedCourseCodes = new Set();
-  let courseCnt = 0;
-  let credits = 0;
-
-  for (const { listing, hidden } of courses) {
-    const alreadyCounted = listing.course.listings.some((l) =>
-      countedCourseCodes.has(l.course_code),
-    );
-
-    // Don't count in one of the following cases:
-    // - Cross-listing has been counted
-    // - Another section has been counted (we just randomly pick one)
-    // - Is discussion section
-    // - Is hidden
-    if (alreadyCounted || hidden || isDiscussionSection(listing.course))
-      continue;
-
-    // Mark codes as counted, no double counting
-    listing.course.listings.forEach((l) => {
-      countedCourseCodes.add(l.course_code);
-    });
-    courseCnt++;
-    credits += listing.course.credits ?? 0;
-  }
+  const { courseCount: courseCnt, credits } = getWorksheetCourseStats(courses);
 
   return (
     <div className={clsx(shown ? 'dropdown' : 'dropup', styles.statsContainer)}>
