@@ -9,7 +9,7 @@
 }
 
 /* Horizontal padding matches the catalog control card side padding
-   (40px full / 16px below 1240px) so the logo aligns with the filter bar. */
+   (40px full / 16px below 1320px) so the logo aligns with the filter bar. */
 .topRow {
   box-sizing: border-box;
   display: flex;
@@ -21,7 +21,7 @@
 
 /* The navbar is shared chrome: padding and heights must be identical on the
    catalog and worksheet pages so nothing shifts when switching between them.
-   40px (16px below 1240px) matches the catalog control card side padding. */
+   40px (16px below 1320px) matches the catalog control card side padding. */
 .topRowPrimary {
   align-items: center;
   flex-wrap: nowrap;
@@ -135,13 +135,21 @@
   color: #185fa5;
 }
 
-@media (max-width: calc(1240px - 0.5px)) {
+@media (max-width: calc(1320px - 0.5px)) {
   .topRow {
     padding: 14px 16px;
   }
 
   .topRowPrimary {
     gap: 16px;
+  }
+
+  .navActions {
+    gap: 4px;
+  }
+
+  .navTab {
+    padding: 6px 10px;
   }
 }
 

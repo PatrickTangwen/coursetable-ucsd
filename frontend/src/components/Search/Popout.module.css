@@ -1,5 +1,8 @@
 .wrapper {
   position: relative;
+
+  /* Shrinkable in tight flex rows; the button label truncates. */
+  min-width: 0;
 }
 
 .arrowIcon {

@@ -82,7 +82,7 @@ export function DropdownMenu({
         aria-haspopup="menu"
         aria-expanded={open}
       >
-        {displayLabel ?? label}
+        <span className={styles.dropdownLabel}>{displayLabel ?? label}</span>
         <DropdownChevron />
       </button>
       {open && (

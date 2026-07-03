@@ -43,9 +43,10 @@ type OfferingSection = OfferingGroup['sections'][number];
 type ViewMode = 'full' | 'compact' | 'mobile';
 
 // Breakpoints must stay in sync with the CSS media queries in
-// CatalogListView.module.css / CatalogTable.module.css.
+// CatalogListView.module.css / TopNav.module.css. 1320px matches the
+// app-wide compact media queries (and upstream CourseTable's breakpoint).
 const mobileBreakpoint = 900;
-const compactBreakpoint = 1240;
+const compactBreakpoint = 1320;
 
 // Heights must stay in sync with the CSS row heights.
 const baseRowHeight = 55;
@@ -207,31 +208,35 @@ function buildGridTemplate(
   showTermColumn: boolean,
   codeSlotCh: number,
 ): string {
+  // Invariant: the sum of the column minimums plus gaps, side padding, and
+  // the vertical scrollbar must fit the narrowest viewport of the view mode
+  // (compact: 900px, full: 1320px), so the grid never scrolls horizontally.
+  // The meets column is minmax(px, px): the grid maximizes it to the
+  // untruncated "11:00 AM – 1:50 PM" width before any fr track grows, then
+  // caps it so the leftover space flows to the title — same effect as
+  // upstream CourseTable's clamp()ed meets column.
   const codeCol = `max(${compact ? 86 : 104}px, ${codeSlotCh}ch)`;
   const parts = compact
     ? [
         '32px',
         codeCol,
         '92px',
-        'minmax(120px, 1.15fr)',
+        'minmax(120px, 1.6fr)',
         '72px',
-        'minmax(88px, 0.65fr)',
-        // Favor the meets column with the leftover space so times stay
-        // untruncated next to the day dots
-        'minmax(150px, 2fr)',
-        '60px',
+        'minmax(88px, 0.7fr)',
+        'minmax(150px, 215px)',
+        'minmax(60px, 0.3fr)',
         '64px',
       ]
     : [
         '40px',
         codeCol,
         '132px',
-        'minmax(220px, 1.7fr)',
+        'minmax(200px, 1.7fr)',
         '110px',
-        'minmax(140px, 0.9fr)',
-        // Wide enough for the day dots plus an untruncated "11:00 AM – 1:50 PM"
-        'minmax(215px, 1.2fr)',
-        'minmax(90px, 0.6fr)',
+        'minmax(124px, 0.9fr)',
+        'minmax(215px, 232px)',
+        'minmax(72px, 0.6fr)',
         // Snug fit for "20 left" — anything wider reads as dead space on the
         // right edge
         '88px',

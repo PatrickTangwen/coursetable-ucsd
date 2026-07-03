@@ -115,3 +115,24 @@
     width: 74px;
   }
 }
+
+/* Narrow desktop (below the catalog mobile breakpoint the navbar still shows
+   the full control row): free up room for the term dropdown. */
+@media (max-width: calc(900px - 0.5px)) {
+  .pill:not(.pillFull) {
+    width: 62px;
+  }
+
+  .pillWide:not(.pillFull) {
+    width: 66px;
+  }
+
+  .button:not(.buttonFull) {
+    width: 62px;
+    font-size: 12.5px;
+  }
+
+  .buttonWide:not(.buttonFull) {
+    width: 66px;
+  }
+}

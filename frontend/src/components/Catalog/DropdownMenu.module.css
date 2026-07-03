@@ -1,11 +1,17 @@
 .dropdownWrapper {
   position: relative;
+
+  /* Shrinkable in tight flex rows: the pill stays one line and the label
+     truncates instead of wrapping and stretching the row height. */
+  min-width: 0;
 }
 
 .dropdown {
   display: flex;
   align-items: center;
   gap: 7px;
+  max-width: 100%;
+  white-space: nowrap;
   padding: 9px 16px;
   border: 1px solid rgb(11 11 11 / 8%);
   border-radius: 8px;
@@ -33,12 +39,23 @@
     0 4px 10px rgb(11 11 11 / 8%);
 }
 
+.dropdownLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .chevronSvg {
   width: 12px;
   height: 12px;
   flex-shrink: 0;
   color: #9f9d97;
   transition: transform 0.15s;
+}
+
+@media (max-width: calc(1320px - 0.5px)) {
+  .dropdown {
+    padding: 9px 12px;
+  }
 }
 
 .dropdownOpen .chevronSvg {
