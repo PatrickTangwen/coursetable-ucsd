@@ -174,7 +174,7 @@
   background: #fff;
 }
 
-.finalsTileButton {
+.examTileButton {
   width: 100%;
   text-align: left;
   font-family: inherit;
@@ -188,7 +188,7 @@
     transform 0.12s ease;
 }
 
-.finalsTileButton:hover {
+.examTileButton:hover {
   box-shadow: 0 2px 5px rgb(11 11 11 / 8%);
   transform: translateY(-1px);
 }

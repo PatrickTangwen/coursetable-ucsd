@@ -1,9 +1,9 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { buildWorksheetItemMeetings } from './worksheetListMeetings';
 import type { WorksheetCourse } from '../../slices/WorksheetSlice';
-import styles from './FinalsModal.module.css';
+import styles from './ExamsModal.module.css';
 
 function sectionOf(course: WorksheetCourse) {
   const details = (
@@ -14,26 +14,30 @@ function sectionOf(course: WorksheetCourse) {
   return details?.section_code ?? course.listing.course.section;
 }
 
-export default function FinalsModal({
+export default function ExamsModal({
   courses,
   onClose,
 }: {
   readonly courses: readonly WorksheetCourse[];
   readonly onClose: () => void;
 }) {
-  // All finals across every course (hidden included), sorted soonest-first.
-  const finals = useMemo(() => {
+  const [sortBy, setSortBy] = useState<'date' | 'course'>('date');
+
+  // All exams (midterms + finals) across every course, hidden included.
+  const exams = useMemo(() => {
     const list = [];
     for (const course of courses) {
       const { dated } = buildWorksheetItemMeetings(course.listing);
       for (const meeting of dated) {
-        if (meeting.tone !== 'final') continue;
+        if (meeting.tone === 'neutral') continue;
         list.push({
           crn: course.listing.crn,
           code: course.listing.course_code,
           section: sectionOf(course),
           title: course.listing.course.title,
           color: course.color,
+          tone: meeting.tone,
+          kind: meeting.kind,
           date: meeting.dateLabel,
           timeLocation: [
             meeting.time === 'TBA' ? '' : meeting.time,
@@ -45,9 +49,22 @@ export default function FinalsModal({
         });
       }
     }
-    list.sort((a, b) => (a.daysUntil ?? 0) - (b.daysUntil ?? 0));
     return list;
   }, [courses]);
+
+  const sorted = useMemo(() => {
+    const list = [...exams];
+    if (sortBy === 'course') {
+      list.sort(
+        (a, b) =>
+          a.code.localeCompare(b.code) ||
+          (a.daysUntil ?? 0) - (b.daysUntil ?? 0),
+      );
+    } else {
+      list.sort((a, b) => (a.daysUntil ?? 0) - (b.daysUntil ?? 0));
+    }
+    return list;
+  }, [exams, sortBy]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -70,11 +87,11 @@ export default function FinalsModal({
         className={styles.modal}
         role="dialog"
         aria-modal="true"
-        aria-label="Final exams"
+        aria-label="Exams"
       >
         <div className={styles.header}>
           <div className={styles.titleRow}>
-            <span className={styles.title}>Final exams</span>
+            <span className={styles.title}>Exams</span>
             <button
               type="button"
               className={styles.closeButton}
@@ -97,18 +114,39 @@ export default function FinalsModal({
               </svg>
             </button>
           </div>
-          <div className={styles.subtitle}>
-            {finals.length} {finals.length === 1 ? 'final exam' : 'final exams'}{' '}
-            · sorted by date
+          <div className={styles.subtitleRow}>
+            <span className={styles.subtitle}>
+              {exams.length} {exams.length === 1 ? 'exam' : 'exams'}
+            </span>
+            <div className={styles.sortToggle}>
+              <button
+                type="button"
+                className={styles.sortButton}
+                data-active={sortBy === 'date' || undefined}
+                aria-pressed={sortBy === 'date'}
+                onClick={() => setSortBy('date')}
+              >
+                Date
+              </button>
+              <button
+                type="button"
+                className={styles.sortButton}
+                data-active={sortBy === 'course' || undefined}
+                aria-pressed={sortBy === 'course'}
+                onClick={() => setSortBy('course')}
+              >
+                Course
+              </button>
+            </div>
           </div>
         </div>
 
         <div className={styles.body}>
-          {finals.map((exam, i) => (
+          {sorted.map((exam, i) => (
             <div
-              key={`${exam.crn}-${i}`}
-              className={styles.finalRow}
-              data-last={i === finals.length - 1 || undefined}
+              key={`${exam.crn}-${exam.tone}-${i}`}
+              className={styles.examRow}
+              data-last={i === sorted.length - 1 || undefined}
             >
               <div className={styles.codeRow}>
                 <span
@@ -121,15 +159,19 @@ export default function FinalsModal({
               </div>
               <div className={styles.courseTitle}>{exam.title}</div>
               <div className={styles.kindRow}>
-                <span className={styles.kindBadge}>FI</span>
-                <span className={styles.kindLabel}>Final Exam</span>
+                <span className={styles.kindBadge} data-tone={exam.tone}>
+                  {exam.tone === 'final' ? 'FI' : 'MI'}
+                </span>
+                <span className={styles.kindLabel} data-tone={exam.tone}>
+                  {exam.kind}
+                </span>
               </div>
               <div className={styles.date}>{exam.date}</div>
               <div className={styles.timeLocation}>{exam.timeLocation}</div>
             </div>
           ))}
-          {finals.length === 0 && (
-            <div className={styles.empty}>No final exams scheduled</div>
+          {sorted.length === 0 && (
+            <div className={styles.empty}>No exams scheduled</div>
           )}
         </div>
 

@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
 
 import ConflictModal from './ConflictModal';
-import FinalsModal from './FinalsModal';
+import ExamsModal from './ExamsModal';
 import { useICSExport } from './ICSExportButton';
 import { useWorksheetSeasonCodes } from './SeasonDropdown';
 import { useWorksheetURLExport } from './URLExportButton';
@@ -17,7 +17,12 @@ import {
   getAnonymousWorksheetTermChips,
   getSavedWorksheetTermChips,
 } from './WorksheetCalendarList';
-import { busiestDay, creditLoad, firstFinal } from './worksheetInsights';
+import {
+  busiestDay,
+  creditLoad,
+  firstExam,
+  hasAnyExam,
+} from './worksheetInsights';
 import WorksheetListItem from './WorksheetListItem';
 import WorksheetStatusIcon from './WorksheetStatusIcon';
 import {
@@ -197,7 +202,7 @@ function WorksheetList() {
   const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [conflictModalOpen, setConflictModalOpen] = useState(false);
-  const [finalsModalOpen, setFinalsModalOpen] = useState(false);
+  const [examsModalOpen, setExamsModalOpen] = useState(false);
   const [updatingWSState, setUpdatingWSState] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [clearedSnapshot, setClearedSnapshot] =
@@ -250,9 +255,9 @@ function WorksheetList() {
     () => courses.filter((course) => !course.hidden),
     [courses],
   );
-  const finals = useMemo(() => firstFinal(visibleCourses), [visibleCourses]);
-  // The all-finals modal covers every course, hidden included.
-  const hasAnyFinal = useMemo(() => firstFinal(courses) !== null, [courses]);
+  const exam = useMemo(() => firstExam(visibleCourses), [visibleCourses]);
+  // The all-exams modal covers every course, hidden included.
+  const anyExam = useMemo(() => hasAnyExam(courses), [courses]);
   const busiest = useMemo(() => busiestDay(visibleCourses), [visibleCourses]);
   const scheduleConflicts = useMemo(
     () => getScheduleConflicts(visibleCourses),
@@ -613,11 +618,11 @@ function WorksheetList() {
         </div>
 
         <div className={styles.infoGrid}>
-          {hasAnyFinal ? (
+          {anyExam ? (
             <button
               type="button"
-              className={styles.finalsTileButton}
-              onClick={() => setFinalsModalOpen(true)}
+              className={styles.examTileButton}
+              onClick={() => setExamsModalOpen(true)}
             >
               <div className={styles.infoLabel}>
                 <svg
@@ -636,13 +641,13 @@ function WorksheetList() {
                   <line x1="8" y1="2" x2="8" y2="6" />
                   <line x1="3" y1="10" x2="21" y2="10" />
                 </svg>
-                Finals
+                Exam
               </div>
               <div className={styles.infoValue}>
-                {finals ? `in ${finals.daysUntil}d` : '—'}
+                {exam ? exam.countdown : '—'}
               </div>
               <div className={styles.infoSubRow}>
-                First · {finals ? finals.dateShort : '—'}
+                First · {exam ? exam.dateShort : '—'}
                 <svg
                   width="9"
                   height="9"
@@ -677,7 +682,7 @@ function WorksheetList() {
                   <line x1="8" y1="2" x2="8" y2="6" />
                   <line x1="3" y1="10" x2="21" y2="10" />
                 </svg>
-                Finals
+                Exam
               </div>
               <div className={styles.infoValue}>—</div>
               <div className={styles.infoSub}>First · —</div>
@@ -1132,10 +1137,10 @@ function WorksheetList() {
         />
       )}
 
-      {finalsModalOpen && (
-        <FinalsModal
+      {examsModalOpen && (
+        <ExamsModal
           courses={courses}
-          onClose={() => setFinalsModalOpen(false)}
+          onClose={() => setExamsModalOpen(false)}
         />
       )}
     </div>

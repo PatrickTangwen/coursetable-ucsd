@@ -1,5 +1,5 @@
-/* All-finals modal, per the finalized list-view design (hardcoded hex per the
-   finalized-design convention). */
+/* All-exams modal (midterms + finals), per the finalized list-view design
+   (hardcoded hex per the finalized-design convention). */
 
 .backdrop {
   position: fixed;
@@ -11,7 +11,7 @@
   padding: 32px;
   background: rgb(30 26 20 / 42%);
   backdrop-filter: blur(2px);
-  animation: finals-backdrop-fade-in 0.16s ease-out;
+  animation: exams-backdrop-fade-in 0.16s ease-out;
 }
 
 .backdropButton {
@@ -34,7 +34,7 @@
   border-radius: 16px;
   box-shadow: 0 30px 90px rgb(11 11 11 / 28%);
   overflow: hidden;
-  animation: finals-modal-fade-in 0.2s cubic-bezier(0.2, 0.7, 0.3, 1);
+  animation: exams-modal-fade-in 0.2s cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
 .header {
@@ -77,10 +77,46 @@
   color: #0b0b0b;
 }
 
+.subtitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+
 .subtitle {
   font-size: 12.5px;
   color: #9f9d97;
-  margin-top: 4px;
+}
+
+.sortToggle {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: #f0eee9;
+  border-radius: 7px;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+.sortButton {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: transparent;
+  color: #9f9d97;
+}
+
+.sortButton[data-active] {
+  background: #fff;
+  color: #0b0b0b;
+  box-shadow: 0 1px 3px rgb(11 11 11 / 15%);
 }
 
 .body {
@@ -90,12 +126,12 @@
   background: #fdfcfb;
 }
 
-.finalRow {
+.examRow {
   padding: 12px 0;
   border-bottom: 1px solid rgb(11 11 11 / 14%);
 }
 
-.finalRow[data-last] {
+.examRow[data-last] {
   border-bottom: 0;
 }
 
@@ -140,17 +176,32 @@
 .kindBadge {
   font-size: 10.5px;
   font-weight: 700;
-  color: #a32d2d;
-  background: #fcebeb;
   padding: 2px 7px;
   border-radius: 5px;
   letter-spacing: 0.01em;
 }
 
+.kindBadge[data-tone='final'] {
+  color: #a32d2d;
+  background: #fcebeb;
+}
+
+.kindBadge[data-tone='midterm'] {
+  color: #854f0b;
+  background: #faeeda;
+}
+
 .kindLabel {
   font-size: 13.5px;
   font-weight: 700;
+}
+
+.kindLabel[data-tone='final'] {
   color: #a32d2d;
+}
+
+.kindLabel[data-tone='midterm'] {
+  color: #854f0b;
 }
 
 .date {
@@ -199,7 +250,7 @@
   background: #2a2a28;
 }
 
-@keyframes finals-backdrop-fade-in {
+@keyframes exams-backdrop-fade-in {
   from {
     opacity: 0;
   }
@@ -209,7 +260,7 @@
   }
 }
 
-@keyframes finals-modal-fade-in {
+@keyframes exams-modal-fade-in {
   from {
     opacity: 0;
     transform: scale(0.97) translateY(4px);

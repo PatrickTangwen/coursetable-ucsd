@@ -64,12 +64,6 @@
   gap: 10px;
 }
 
-.countLabel {
-  font-size: 13px;
-  font-weight: 700;
-  color: #a32d2d;
-}
-
 .closeButton {
   flex-shrink: 0;
   width: 28px;

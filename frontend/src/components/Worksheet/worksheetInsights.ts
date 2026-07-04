@@ -9,7 +9,7 @@ export function creditLoad(credits: number) {
   return { label: 'Light', color: '#3b6d11' };
 }
 
-const finalsDateFormat = new Intl.DateTimeFormat('en-US', {
+const examDateFormat = new Intl.DateTimeFormat('en-US', {
   month: 'short',
   day: 'numeric',
 });
@@ -31,27 +31,46 @@ function minutesOfClock(time: string) {
   return (hour ?? 0) * 60 + (minute ?? 0);
 }
 
-/** Earliest scheduled final among the given courses, as countdown data. */
-export function firstFinal(courses: readonly WorksheetCourse[]) {
+function isExamCode(meetingType: string | null | undefined) {
+  const code = ucsdMeetingTypeCode(meetingType);
+  return code === 'FI' || code === 'MI';
+}
+
+/** Nearest upcoming exam (midterm or final) among the given courses. */
+export function firstExam(courses: readonly WorksheetCourse[]) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   let first: Date | null = null;
   for (const course of courses) {
     for (const raw of course.listing.course.course_meetings) {
       const meeting = raw as RawMeeting;
-      if (!meeting.date || ucsdMeetingTypeCode(meeting.meeting_type) !== 'FI')
-        continue;
+      if (!meeting.date || !isExamCode(meeting.meeting_type)) continue;
       const date = parseIsoDate(meeting.date);
-      if (!date) continue;
+      if (!date || date < today) continue;
       if (!first || date < first) first = date;
     }
   }
   if (!first) return null;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const daysUntil = Math.max(
-    0,
-    Math.round((first.getTime() - today.getTime()) / 86_400_000),
+  const daysUntil = Math.round(
+    (first.getTime() - today.getTime()) / 86_400_000,
   );
-  return { daysUntil, dateShort: finalsDateFormat.format(first) };
+  const countdown =
+    daysUntil === 0
+      ? 'Today'
+      : daysUntil === 1
+        ? 'Tomorrow'
+        : `in ${daysUntil}d`;
+  return { daysUntil, countdown, dateShort: examDateFormat.format(first) };
+}
+
+/** Whether any course has a scheduled midterm or final, past ones included. */
+export function hasAnyExam(courses: readonly WorksheetCourse[]) {
+  return courses.some((course) =>
+    course.listing.course.course_meetings.some((raw) => {
+      const meeting = raw as RawMeeting;
+      return Boolean(meeting.date) && isExamCode(meeting.meeting_type);
+    }),
+  );
 }
 
 const shortDayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];

@@ -4,11 +4,16 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { getQuickModalData } from './CalendarQuickModal';
 import ConflictModal from './ConflictModal';
-import FinalsModal from './FinalsModal';
+import ExamsModal from './ExamsModal';
 import { useICSExport } from './ICSExportButton';
 import { useWorksheetURLExport } from './URLExportButton';
 import { useToggleCourseHidden } from './WorksheetHideButton';
-import { busiestDay, creditLoad, firstFinal } from './worksheetInsights';
+import {
+  busiestDay,
+  creditLoad,
+  firstExam,
+  hasAnyExam,
+} from './worksheetInsights';
 import WorksheetPicker, { useCloseOnOutsideClick } from './WorksheetPicker';
 import noCoursesImg from '../../images/calendar_img_high_res.png';
 import {
@@ -396,7 +401,7 @@ export default function WorksheetCalendarSidebar() {
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [conflictModalOpen, setConflictModalOpen] = useState(false);
-  const [finalsModalOpen, setFinalsModalOpen] = useState(false);
+  const [examsModalOpen, setExamsModalOpen] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [clearedSnapshot, setClearedSnapshot] =
     useState<ClearedSnapshot | null>(null);
@@ -431,9 +436,9 @@ export default function WorksheetCalendarSidebar() {
     [visibleCourses],
   );
   const load = creditLoad(credits);
-  const finals = useMemo(() => firstFinal(visibleCourses), [visibleCourses]);
-  // The all-finals modal covers every course, hidden included.
-  const hasAnyFinal = useMemo(() => firstFinal(courses) !== null, [courses]);
+  const exam = useMemo(() => firstExam(visibleCourses), [visibleCourses]);
+  // The all-exams modal covers every course, hidden included.
+  const anyExam = useMemo(() => hasAnyExam(courses), [courses]);
   const busiest = useMemo(() => busiestDay(visibleCourses), [visibleCourses]);
   const areHidden = courses.length > 0 && courses.every((c) => c.hidden);
 
@@ -667,11 +672,11 @@ export default function WorksheetCalendarSidebar() {
           )}
         </div>
         <div className={styles.infoGrid}>
-          {hasAnyFinal ? (
+          {anyExam ? (
             <button
               type="button"
-              className={styles.finalsTileButton}
-              onClick={() => setFinalsModalOpen(true)}
+              className={styles.examTileButton}
+              onClick={() => setExamsModalOpen(true)}
             >
               <span className={styles.infoTileLabel}>
                 <svg
@@ -690,13 +695,13 @@ export default function WorksheetCalendarSidebar() {
                   <line x1="8" y1="2" x2="8" y2="6" />
                   <line x1="3" y1="10" x2="21" y2="10" />
                 </svg>
-                Finals
+                Exam
               </span>
               <span className={styles.infoTileValue}>
-                {finals ? `in ${finals.daysUntil}d` : '—'}
+                {exam ? exam.countdown : '—'}
               </span>
               <span className={styles.infoTileSubRow}>
-                First · {finals ? finals.dateShort : '—'}
+                First · {exam ? exam.dateShort : '—'}
                 <svg
                   width="9"
                   height="9"
@@ -731,7 +736,7 @@ export default function WorksheetCalendarSidebar() {
                   <line x1="8" y1="2" x2="8" y2="6" />
                   <line x1="3" y1="10" x2="21" y2="10" />
                 </svg>
-                Finals
+                Exam
               </span>
               <span className={styles.infoTileValue}>—</span>
               <span className={styles.infoTileSub}>First · —</span>
@@ -1158,10 +1163,10 @@ export default function WorksheetCalendarSidebar() {
         />
       )}
 
-      {finalsModalOpen && (
-        <FinalsModal
+      {examsModalOpen && (
+        <ExamsModal
           courses={courses}
-          onClose={() => setFinalsModalOpen(false)}
+          onClose={() => setExamsModalOpen(false)}
         />
       )}
     </div>

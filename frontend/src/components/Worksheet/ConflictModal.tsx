@@ -112,10 +112,6 @@ export default function ConflictModal({
           <div className={styles.titleRow}>
             <span className={styles.title}>Schedule conflicts</span>
             <div className={styles.titleAside}>
-              <span className={styles.countLabel}>
-                {conflicts.length}{' '}
-                {conflicts.length === 1 ? 'conflict' : 'conflicts'}
-              </span>
               <button
                 type="button"
                 className={styles.closeButton}
