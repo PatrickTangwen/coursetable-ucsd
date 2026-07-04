@@ -8,14 +8,14 @@ export interface CatalogViewSliceState {
   catalogExpandedCourses: Set<string>;
   catalogSortKey: CatalogSortKey;
   catalogSortAsc: boolean;
-  catalogLevelFilters: string[];
+  catalogTypeFilters: string[];
 }
 
 export interface CatalogViewSliceActions {
   toggleCatalogExpanded: (courseId: string) => void;
   setCatalogSort: (key: CatalogSortKey) => void;
-  toggleCatalogLevelFilter: (level: string) => void;
-  clearCatalogLevelFilters: () => void;
+  toggleCatalogTypeFilter: (type: string) => void;
+  clearCatalogTypeFilters: () => void;
 }
 
 export interface CatalogViewSlice
@@ -30,7 +30,7 @@ export const createCatalogViewSlice: StateCreator<
   catalogExpandedCourses: new Set(),
   catalogSortKey: 'code',
   catalogSortAsc: true,
-  catalogLevelFilters: [],
+  catalogTypeFilters: [],
 
   toggleCatalogExpanded: (courseId) =>
     set((state) => {
@@ -48,12 +48,12 @@ export const createCatalogViewSlice: StateCreator<
       return { catalogSortKey: key, catalogSortAsc: true };
     }),
 
-  toggleCatalogLevelFilter: (level) =>
+  toggleCatalogTypeFilter: (type) =>
     set((state) => ({
-      catalogLevelFilters: state.catalogLevelFilters.includes(level)
-        ? state.catalogLevelFilters.filter((l) => l !== level)
-        : [...state.catalogLevelFilters, level],
+      catalogTypeFilters: state.catalogTypeFilters.includes(type)
+        ? state.catalogTypeFilters.filter((t) => t !== type)
+        : [...state.catalogTypeFilters, type],
     })),
 
-  clearCatalogLevelFilters: () => set({ catalogLevelFilters: [] }),
+  clearCatalogTypeFilters: () => set({ catalogTypeFilters: [] }),
 });

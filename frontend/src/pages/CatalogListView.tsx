@@ -2,7 +2,7 @@ import { useMemo, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import CatalogTable from '../components/Catalog/CatalogTable';
-import FilterBar, { COURSE_LEVELS } from '../components/Catalog/FilterBar';
+import FilterBar, { COURSE_TYPES } from '../components/Catalog/FilterBar';
 import { useFerry } from '../hooks/useFerry';
 import { useSearch } from '../hooks/useSearch';
 import type { CatalogListing } from '../queries/api';
@@ -35,15 +35,10 @@ function extractCatalogSubjects(
   return arr;
 }
 
-function parseCourseNumber(code: string): number {
-  const match = /\d+/u.exec(code);
-  return match ? Number(match[0]) : 0;
-}
-
 export default function CatalogListView() {
   const { searchData, coursesLoading } = useSearch();
   const { courses } = useFerry();
-  const levelFilters = useStore((s) => s.catalogLevelFilters);
+  const typeFilters = useStore((s) => s.catalogTypeFilters);
   const searchFilters = useStore((s) => s.searchFilters);
   const patchSearchFilters = useStore((s) => s.patchSearchFilters);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -61,18 +56,13 @@ export default function CatalogListView() {
 
   const filteredData = useMemo(() => {
     if (!searchData) return null;
-    if (levelFilters.length === 0) return searchData;
+    if (typeFilters.length === 0) return searchData;
 
-    const ranges = COURSE_LEVELS.filter((l) =>
-      levelFilters.includes(l.value),
-    ).map((l) => l.range);
-    if (ranges.length === 0) return searchData;
+    const matchers = COURSE_TYPES.filter((t) => typeFilters.includes(t.value));
+    if (matchers.length === 0) return searchData;
 
-    return searchData.filter((l) => {
-      const num = parseCourseNumber(l.number);
-      return ranges.some((range) => num >= range[0] && num <= range[1]);
-    });
-  }, [searchData, levelFilters]);
+    return searchData.filter((l) => matchers.some((t) => t.matches(l.number)));
+  }, [searchData, typeFilters]);
 
   const handleOpenModal = useCallback(
     (listing: CatalogListing) => {

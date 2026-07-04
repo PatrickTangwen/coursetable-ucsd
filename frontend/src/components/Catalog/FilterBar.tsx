@@ -19,10 +19,39 @@ import {
 import { formatSubjectLabel } from '../../utilities/subjectLabels';
 import styles from './FilterBar.module.css';
 
-const COURSE_LEVELS = [
-  { value: 'lower', label: 'Lower Division', range: [1, 99] },
-  { value: 'upper', label: 'Upper Division', range: [100, 199] },
-  { value: 'graduate', label: 'Graduate', range: [200, 999] },
+function parseCourseNumber(number: string): number {
+  const match = /\d+/u.exec(number);
+  return match ? Number(match[0]) : 0;
+}
+
+function numberInRange(number: string, min: number, max: number): boolean {
+  const num = parseCourseNumber(number);
+  return num >= min && num <= max;
+}
+
+const COURSE_TYPES = [
+  {
+    value: 'lower',
+    label: 'Lower Division',
+    matches: (number: string) => numberInRange(number, 1, 99),
+  },
+  {
+    value: 'upper',
+    label: 'Upper Division',
+    matches: (number: string) => numberInRange(number, 100, 199),
+  },
+  {
+    value: 'graduate',
+    label: 'Graduate',
+    matches: (number: string) => numberInRange(number, 200, 999),
+  },
+  {
+    // UCSD marks remote sections with an R suffix on the course number
+    // (e.g. CSE 100R).
+    value: 'remote',
+    label: 'Remote',
+    matches: (number: string) => number.trim().toUpperCase().endsWith('R'),
+  },
 ] as const;
 
 function FilterChip({
@@ -93,9 +122,9 @@ export default function FilterBar({
     searchFilters,
     setSearchFilter,
     patchSearchFilters,
-    levelFilters,
-    toggleLevelFilter,
-    clearLevelFilters,
+    typeFilters,
+    toggleTypeFilter,
+    clearTypeFilters,
   } = useStore(
     useShallow((s) => ({
       selectedSubjects: s.searchFilters.selectSubjects as Option[],
@@ -103,9 +132,9 @@ export default function FilterBar({
       searchFilters: s.searchFilters,
       setSearchFilter: s.setSearchFilter,
       patchSearchFilters: s.patchSearchFilters,
-      levelFilters: s.catalogLevelFilters,
-      toggleLevelFilter: s.toggleCatalogLevelFilter,
-      clearLevelFilters: s.clearCatalogLevelFilters,
+      typeFilters: s.catalogTypeFilters,
+      toggleTypeFilter: s.toggleCatalogTypeFilter,
+      clearTypeFilters: s.clearCatalogTypeFilters,
     })),
   );
 
@@ -149,15 +178,15 @@ export default function FilterBar({
   const hasActiveFilters =
     selectedSubjects.length > 0 ||
     selectedSeasons.length > 0 ||
-    levelFilters.length > 0 ||
+    typeFilters.length > 0 ||
     advancedFilterCount > 0;
 
   const resetAll = useCallback(() => {
     setSearchFilter('selectSubjects', []);
     setSearchFilter('selectSeasons', defaultFilters.selectSeasons);
     patchSearchFilters(buildCatalogListAdvancedFilterReset());
-    clearLevelFilters();
-  }, [patchSearchFilters, setSearchFilter, clearLevelFilters]);
+    clearTypeFilters();
+  }, [patchSearchFilters, setSearchFilter, clearTypeFilters]);
 
   const resetAdvancedFilters = useCallback(() => {
     patchSearchFilters(buildCatalogListAdvancedFilterReset());
@@ -179,15 +208,15 @@ export default function FilterBar({
         searchPlaceholder="All subjects"
       />
       <DropdownMenu
-        label="Course Level"
+        label="Course Type"
         displayLabel={
-          levelFilters.length > 0
-            ? `Course Level (${levelFilters.length})`
+          typeFilters.length > 0
+            ? `Course Type (${typeFilters.length})`
             : undefined
         }
-        options={COURSE_LEVELS.map((l) => ({ value: l.value, label: l.label }))}
-        selectedValues={levelFilters}
-        onToggle={toggleLevelFilter}
+        options={COURSE_TYPES.map((t) => ({ value: t.value, label: t.label }))}
+        selectedValues={typeFilters}
+        onToggle={toggleTypeFilter}
       />
       <DropdownMenu
         label="Term"
@@ -220,11 +249,11 @@ export default function FilterBar({
           }
         />
       ))}
-      {COURSE_LEVELS.filter((l) => levelFilters.includes(l.value)).map((l) => (
+      {COURSE_TYPES.filter((t) => typeFilters.includes(t.value)).map((t) => (
         <FilterChip
-          key={l.value}
-          label={l.label}
-          onRemove={() => toggleLevelFilter(l.value)}
+          key={t.value}
+          label={t.label}
+          onRemove={() => toggleTypeFilter(t.value)}
         />
       ))}
       {advancedFilterCount > 0 && (
@@ -252,4 +281,4 @@ export default function FilterBar({
   );
 }
 
-export { COURSE_LEVELS };
+export { COURSE_TYPES };
