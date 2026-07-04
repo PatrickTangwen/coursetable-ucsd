@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -212,13 +213,11 @@ function eventSkin(
   return skin;
 }
 
-function textScale(realPx: number, isMobile: boolean) {
+// One text size for every block — taller blocks don't get larger type, so
+// side-by-side grids read as a single, uniform system.
+function textScale(isMobile: boolean) {
   if (isMobile) return { titleSize: 11, metaSize: 10, lineHeight: 1.15 };
-  if (realPx >= 150) return { titleSize: 15, metaSize: 13, lineHeight: 1.25 };
-  if (realPx >= 118) return { titleSize: 14, metaSize: 12, lineHeight: 1.22 };
-  if (realPx >= 92) return { titleSize: 12, metaSize: 11, lineHeight: 1.2 };
-  if (realPx >= 66) return { titleSize: 11, metaSize: 10, lineHeight: 1.15 };
-  return { titleSize: 10, metaSize: 9, lineHeight: 1.1 };
+  return { titleSize: 12, metaSize: 11, lineHeight: 1.2 };
 }
 
 function EventBlock({
@@ -244,6 +243,9 @@ function EventBlock({
     })),
   );
   const toggleCourseHidden = useToggleCourseHidden();
+  const blockRef = useRef<HTMLDivElement>(null);
+  const fitRef = useRef<HTMLDivElement>(null);
+  const [fitFontPx, setFitFontPx] = useState<number | null>(null);
 
   const { crn } = event.listing;
   const startMin = minutesOf(event.start);
@@ -257,19 +259,67 @@ function EventBlock({
   const hoverState =
     hoverCourse === null ? 'none' : hoverCourse === crn ? 'hovered' : 'dimmed';
 
-  // Scale the text to the block's real rendered height (down to a legible
-  // floor) so all four lines stay visible, and spread lines in tall blocks.
   const realPx = (durationMin / totalRangeMin) * bodyHeight;
-  const { titleSize, metaSize, lineHeight } = textScale(realPx, isMobile);
-  const padding = isMobile
+  const { titleSize, metaSize, lineHeight } = textScale(isMobile);
+  const [padY, padX] = isMobile
     ? realPx < 34
-      ? '1px 4px'
-      : '2px 4px'
+      ? [1, 4]
+      : [2, 4]
     : realPx < 58
-      ? '2px 8px'
+      ? [2, 8]
       : realPx < 92
-        ? '4px 8px'
-        : '7px 9px';
+        ? [4, 8]
+        : [7, 9];
+
+  // Every field must be fully visible no matter the block's size, but the
+  // font should stay as large as possible: lines wrap freely (the field
+  // order — title, section, type, time, location — is what matters), so
+  // tight blocks first trade line breaks for space, and only when even the
+  // wrapped stack overflows the height does the font binary-search down to
+  // the largest size that fits. The observer re-fits on block resizes
+  // (column count / conflict splits / window) and content reflows (font
+  // loading, text-size tier changes).
+  useLayoutEffect(() => {
+    const block = blockRef.current;
+    const fit = fitRef.current;
+    if (!block || !fit) return undefined;
+    const update = () => {
+      const availHeight = block.clientHeight - padY * 2;
+      const fitsAt = (candidate: number) => {
+        fit.style.fontSize = `${candidate}px`;
+        return fit.scrollHeight <= availHeight;
+      };
+      let px = metaSize;
+      if (!fitsAt(px)) {
+        let lo = 4;
+        let hi = metaSize;
+        for (let i = 0; i < 6; i++) {
+          const mid = (lo + hi) / 2;
+          if (fitsAt(mid)) lo = mid;
+          else hi = mid;
+        }
+        px = lo;
+        fit.style.fontSize = `${px}px`;
+      }
+      setFitFontPx((prev) =>
+        prev !== null && Math.abs(prev - px) < 0.1 ? prev : px,
+      );
+    };
+    let disposed = false;
+    update();
+    // Text metrics change once the web font arrives; re-fit then, since the
+    // reflow may leave the wrapped height (and thus the observer) unchanged.
+    void document.fonts.ready.then(() => {
+      if (!disposed) update();
+    });
+    const observer = new ResizeObserver(update);
+    observer.observe(block);
+    observer.observe(fit);
+    return () => {
+      disposed = true;
+      observer.disconnect();
+    };
+  }, [metaSize, padY]);
 
   const timeText = isMobile ? '' : formatTimeRange(event.start, event.end);
   const showType = isMobile ? realPx >= 30 : true;
@@ -286,6 +336,7 @@ function EventBlock({
   return (
     // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- absolutely positioned grid block hosting a nested hide button
     <div
+      ref={blockRef}
       className={styles.eventBlock}
       style={{ ...geometry, ...eventSkin(tag, gridStyle, hoverState) }}
       role="button"
@@ -299,58 +350,63 @@ function EventBlock({
       onFocus={() => setHoverCourse(crn)}
       onBlur={() => setHoverCourse(null)}
     >
-      {/* Content always clusters at the top-left; taller blocks get larger
-          text via textScale instead of spreading lines apart. */}
+      {/* Content always clusters at the top-left at the uniform text size;
+          extra height in tall blocks stays empty rather than inflating type. */}
       <div
         className={styles.eventContent}
-        style={{
-          padding,
-          rowGap: isMobile ? 0 : realPx >= 118 ? 2 : 1,
-        }}
+        style={{ padding: `${padY}px ${padX}px` }}
       >
-        <strong
-          className={styles.eventLine}
-          style={{ fontWeight: 700, fontSize: titleSize, lineHeight }}
+        <div
+          ref={fitRef}
+          className={styles.eventFit}
+          style={{
+            rowGap: isMobile ? 0 : realPx >= 118 ? 2 : 1,
+            fontSize: fitFontPx ?? metaSize,
+          }}
         >
-          {event.title.split(' ').slice(0, 2).join(' ')}
-          {!isMobile && event.section && (
-            <span className={styles.eventSection}> {event.section}</span>
+          <strong
+            className={styles.eventLine}
+            style={{
+              fontWeight: 700,
+              fontSize: `${titleSize / metaSize}em`,
+              lineHeight,
+            }}
+          >
+            {event.title.split(' ').slice(0, 2).join(' ')}
+            {!isMobile && event.section && (
+              <span className={styles.eventSection}> {event.section}</span>
+            )}
+          </strong>
+          {showType && (
+            <span
+              className={styles.eventLine}
+              style={{ fontWeight: 600, lineHeight }}
+            >
+              {event.meetingType}
+            </span>
           )}
-        </strong>
-        {showType && (
-          <span
-            className={styles.eventLine}
-            style={{ fontWeight: 600, fontSize: metaSize, lineHeight }}
-          >
-            {event.meetingType}
-          </span>
-        )}
-        {showTime && (
-          <span
-            className={styles.eventLine}
-            style={{
-              fontWeight: 500,
-              fontSize: metaSize,
-              lineHeight,
-              opacity: 0.9,
-            }}
-          >
-            {timeText}
-          </span>
-        )}
-        {showLocation && (
-          <small
-            className={styles.eventLine}
-            style={{
-              fontWeight: 400,
-              fontSize: metaSize,
-              lineHeight,
-              opacity: 0.72,
-            }}
-          >
-            {event.location}
-          </small>
-        )}
+          {showTime && (
+            <span
+              className={styles.eventLine}
+              style={{ fontWeight: 500, lineHeight, opacity: 0.9 }}
+            >
+              {timeText}
+            </span>
+          )}
+          {showLocation && (
+            <small
+              className={styles.eventLine}
+              style={{
+                fontWeight: 400,
+                fontSize: '1em',
+                lineHeight,
+                opacity: 0.72,
+              }}
+            >
+              {event.location}
+            </small>
+          )}
+        </div>
       </div>
       {toggleCourseHidden && (
         <div className={styles.eventButtons}>
