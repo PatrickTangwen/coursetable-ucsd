@@ -21,8 +21,16 @@ import {
 } from '../../utilities/scheduleConflicts';
 import styles from './SunGridCalendar.module.css';
 
-const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-const weekDays = [1, 2, 3, 4, 5];
+const baseWeekDays = [1, 2, 3, 4, 5];
+const dayLabelByDay: { [day: number]: string } = {
+  1: 'Mon',
+  2: 'Tue',
+  3: 'Wed',
+  4: 'Thu',
+  5: 'Fri',
+  6: 'Sat',
+  0: 'Sun',
+};
 
 // Faint fractal-noise tile — gives the paper skin its matte grain when
 // blended (soft-light) over the tinted fill.
@@ -470,17 +478,29 @@ export default function SunGridCalendar() {
     return slots;
   }, [startHour, endHour, isMobile]);
 
+  // Finals week can include Saturday/Sunday exam blocks — only add those
+  // columns when a final actually lands there, so the regular Mon–Fri grid
+  // (and finals weeks with no weekend exams) stay unchanged.
+  const visibleDays = useMemo(() => {
+    const days = [...baseWeekDays];
+    if (calendarMode === 'finals') {
+      if (events.some((event) => event.day === 6)) days.push(6);
+      if (events.some((event) => event.day === 0)) days.push(0);
+    }
+    return days;
+  }, [events, calendarMode]);
+
   const eventsByDay = useMemo(() => {
     const byDay = new Map<number, CourseRBCEvent[]>();
     for (const event of events) {
       const { day } = event;
-      if (day < 1 || day > 5) continue;
+      if (!visibleDays.includes(day)) continue;
       const list = byDay.get(day) ?? [];
       list.push(event);
       byDay.set(day, list);
     }
-    return weekDays.map((day) => layoutDayEvents(byDay.get(day) ?? []));
-  }, [events]);
+    return visibleDays.map((day) => layoutDayEvents(byDay.get(day) ?? []));
+  }, [events, visibleDays]);
 
   const showNowLine =
     calendarMode === 'week' &&
@@ -491,15 +511,18 @@ export default function SunGridCalendar() {
   const nowTopPct = ((now.minutes - rangeStartMin) / totalRangeMin) * 100;
 
   const gutterWidth = isMobile ? 40 : 54;
-  const gridColumns = { '--cal-gutter': `${gutterWidth}px` } as CSSProperties;
+  const gridColumns = {
+    '--cal-gutter': `${gutterWidth}px`,
+    '--cal-day-cols': visibleDays.length,
+  } as CSSProperties;
 
   return (
     <div className={styles.calendar} style={gridColumns}>
       <div className={styles.headerRow}>
         <div className={styles.headerGutter} />
-        {dayLabels.map((label) => (
-          <div key={label} className={styles.headerDay}>
-            {label}
+        {visibleDays.map((day) => (
+          <div key={day} className={styles.headerDay}>
+            {dayLabelByDay[day]}
           </div>
         ))}
       </div>
@@ -516,11 +539,11 @@ export default function SunGridCalendar() {
               </div>
             ))}
           </div>
-          {weekDays.map((day, dayIndex) => (
+          {visibleDays.map((day, dayIndex) => (
             <div
               key={day}
               className={styles.dayColumn}
-              data-last={dayIndex === weekDays.length - 1 || undefined}
+              data-last={dayIndex === visibleDays.length - 1 || undefined}
             >
               {timeSlots.map((_, i) => (
                 <div key={i} className={styles.hourCell} />

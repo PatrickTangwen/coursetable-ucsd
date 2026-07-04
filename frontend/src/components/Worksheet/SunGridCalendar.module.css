@@ -14,7 +14,10 @@
 
 .headerRow {
   display: grid;
-  grid-template-columns: var(--cal-gutter, 54px) repeat(5, 1fr);
+  grid-template-columns: var(--cal-gutter, 54px) repeat(
+      var(--cal-day-cols, 5),
+      1fr
+    );
   border-bottom: 1px solid rgb(11 11 11 / 8%);
   flex-shrink: 0;
   background: #fff;
@@ -51,7 +54,10 @@
 
 .innerGrid {
   display: grid;
-  grid-template-columns: var(--cal-gutter, 54px) repeat(5, 1fr);
+  grid-template-columns: var(--cal-gutter, 54px) repeat(
+      var(--cal-day-cols, 5),
+      1fr
+    );
   position: relative;
   height: 100%;
   padding-top: 16px;
