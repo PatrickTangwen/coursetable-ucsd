@@ -1,10 +1,12 @@
+/* Match the finalized TopNav tab colors (hardcoded hex per the
+   finalized-design convention): base #6f6d67, hover #185fa5. */
 .button {
   margin-top: auto;
   margin-bottom: auto;
-  transition: color 0.1s;
-  color: var(--color-text-secondary);
+  transition: color 0.15s;
+  color: #6f6d67;
 }
 
 .button:hover {
-  color: var(--color-primary);
+  color: #185fa5;
 }
