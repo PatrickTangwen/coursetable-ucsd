@@ -10,6 +10,8 @@ Status: top-level navigation for stable project documentation.
 - `deployment.md`: deployment notes.
 - `local_server.md`: local frontend/backend/auth startup and login smoke
   runbook.
+- `local_server_endpoints.md`: current local frontend/backend URLs, Docker
+  containers, HTTPS certificates, and `mkcert` notes.
 - `locations.md`: location data notes.
 - `maintenance.md`: maintenance notes.
 - `snapshot_pipe.md`: catalog snapshot pipeline notes, including General Catalog
