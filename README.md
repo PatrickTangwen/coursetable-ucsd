@@ -1,76 +1,81 @@
-# SunGrid — UCSD Course Planning Platform
+# SunGrid
 
-SunGrid is a student-facing course search and schedule planning tool for UCSD.
-It is built from the CourseTable codebase, with the product experience focused
-on multi-term catalog browsing, historical grade context, snapshot-static
-availability data, and worksheet planning across terms.
+SunGrid is a course discovery and schedule planning app for UCSD students. It
+helps students browse UCSD course offerings, compare sections, inspect historical
+grade context, and build worksheets across supported terms.
 
-The app can be used without an account. In configured beta/backend
-environments, a verified `@ucsd.edu` sign-in enables account-owned saved
-worksheets.
+SunGrid is open source and can be used without an account. Signing in with a
+verified UCSD email adds account-backed features such as saved worksheets and
+saved filters/searches.
 
-## What You Can Do
+## What SunGrid Does
 
-- Browse published UCSD catalog snapshots across multiple terms.
-- Switch between terms with a term selector in both catalog and worksheet views.
-- Search and sort all UCSD subjects.
-- Open a course detail modal with description, section, meeting time,
-  instructor, units, prerequisite text, restrictions, snapshot-static
-  availability (enrolled, capacity, waitlist), and source catalog link when
-  available.
-- Review historical grade context from UCSD Instructor Grade Archive data:
-  catalog results show Average GPA, and course details include a Past Grades
-  tab with raw archive rows.
-- Add sections to a per-term worksheet and view them on a calendar or list.
-- Use the worksheet without signing in; unsigned worksheet changes are stored
-  per-term in the current browser.
-- Share or restore worksheet state through supported worksheet URLs.
-- Export worksheet courses to an ICS calendar file.
-- Sign in with a verified UCSD email when the account beta backend is
-  configured.
-- Use account-owned Saved Worksheets after sign-in: Main Worksheet, blank
-  worksheet creation, worksheet selection, rename, delete, and persisted
-  add/remove/hide/color edits. Cross-term catalog adds route into the target
-  term's saved worksheet.
+- Search UCSD courses by course code, title, instructor, subject, building,
+  day/time, course number, enrollment range, and course attributes.
+- Browse multiple supported terms from Summer Session II 2024 through Summer
+  Session III 2026.
+- Open course details with descriptions, sections, meeting times, instructors,
+  units, prerequisite text, restrictions, source catalog links, and section
+  availability from the published snapshot.
+- Review historical GPA context from UCSD Instructor Grade Archive records in a
+  course's Past Grades view.
+- Add sections to a worksheet and view them as a calendar or list.
+- Spot schedule conflicts, hide courses from the calendar, adjust course colors,
+  and switch between supported terms.
+- Export a worksheet as an `.ics` calendar file or copy a shareable worksheet
+  URL.
+- Use the app anonymously with browser-local worksheet storage.
+- Sign in with a verified `@ucsd.edu` email to save worksheets and filters to an
+  account.
 
-## Current Data Scope
+## Data Sources And Freshness
 
-- Published catalog terms: 14 terms from Summer Session II 2024 (`S224`)
-  through Summer Session III 2026 (`S326`), via forward-accumulating multi-term
-  archive.
-- Subjects: all UCSD subjects discovered from the Schedule of Classes source.
-- Catalog and meeting data come from UCSD Schedule of Classes and UCSD General
-  Catalog sources.
-- Historical grade data comes from UCSD Instructor Grade Archive records.
-- Availability data (enrolled, capacity, waitlist) is snapshot-static, not
-  real-time. Every availability surface shows the snapshot timestamp.
+SunGrid is built around published catalog snapshots. The app combines public
+UCSD data from:
 
-## Accounts And Worksheets
+- UCSD Schedule of Classes
+- UCSD General Catalog
+- UCSD Instructor Grade Archive
 
-You can plan before signing in. In that mode, the worksheet auto-saves per-term
-in this browser only. A term selector lets you switch between terms.
+Availability fields such as enrolled count, capacity, and waitlist count are
+snapshot-static. They are useful for planning context, but they are not live
+WebReg data and should not be treated as real-time enrollment availability.
 
-After signing in with a direct `@ucsd.edu` email address, the worksheet page
-opens the account's Main Worksheet for the viewed term. Extra Saved Worksheets
-can be created from the worksheet selector. Course changes on an active Saved
-Worksheet are persisted to the backend.
+## Accounts
 
-Signing in does not automatically merge, sync, clear, or import the browser's
-local worksheet. Copying browser-local worksheet state into an account worksheet
-is future product scope.
+You can plan without signing in. Anonymous worksheets are stored in the current
+browser and can be shared or restored through supported worksheet URLs.
 
-## Not Currently Supported
+With UCSD email sign-in, SunGrid stores account-owned saved worksheets and saved
+filters/searches. Signed-in worksheet data is separate from browser-local
+anonymous worksheet data; signing in does not automatically merge or import a
+local worksheet.
 
-- Real-time seats, waitlists, enrollment, or demand signals.
-- SET/CAPE or personal UCSD account scraping.
-- Friends, social planning, public worksheet sharing controls, or wishlist.
-- Google OAuth or direct Google Calendar export.
-- Production-like email delivery for verification codes.
+## Current Limitations
 
-Some inherited CourseTable code remains in the repository for future reuse, but
-unsupported surfaces are hidden from the current UCSD user flow.
+SunGrid does not provide:
 
-## Running Locally
+- Real-time enrollment, seat, waitlist, or demand tracking.
+- SET/CAPE results or personal UCSD account scraping.
+- Official UCSD enrollment actions.
+- Google OAuth or direct Google Calendar write access.
+- Social planning, friends, wishlist, or public worksheet permission controls.
+
+SunGrid is an independent open-source project and is not an official UCSD
+service.
+
+## For Contributors
+
+This repository contains the SunGrid frontend, backend/auth service, static
+catalog snapshot tooling, and project documentation.
+
+The stable documentation entry point is [`docs/README.md`](docs/README.md).
+Local frontend/backend/login setup is documented in
+[`docs/local_server.md`](docs/local_server.md). Domain terminology is recorded in
+[`CONTEXT.md`](CONTEXT.md), and architectural decisions live in
+[`docs/adr/`](docs/adr/).
+
+### Local Development
 
 This repository uses Bun workspaces.
 
@@ -79,15 +84,10 @@ bun install
 bun run --cwd frontend start
 ```
 
-For the full local backend validation stack, Docker is required:
+For the full local backend and UCSD email sign-in validation stack, follow
+[`docs/local_server.md`](docs/local_server.md).
 
-```bash
-api/compose/local-validation-up.sh
-api/compose/local-validation-schema.sh
-bun run validate:real-backend-auth
-```
-
-Useful project scripts:
+Common maintenance checks:
 
 ```bash
 bun run checks
@@ -95,10 +95,3 @@ bun run snapshot:publish
 bun run snapshot:tracer
 bun run test:snapshot
 ```
-
-## Project Notes
-
-Current planning and decision documents start at
-[`docs/planning/README.md`](docs/planning/README.md). Domain language is recorded
-in [`CONTEXT.md`](CONTEXT.md), and architectural decisions live under
-[`docs/adr/`](docs/adr/).
