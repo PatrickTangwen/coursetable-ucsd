@@ -15,6 +15,10 @@ import {
   getCalendarEvents,
   type CourseRBCEvent,
 } from '../../utilities/calendar';
+import {
+  getScheduleConflicts,
+  groupConflictsByCrn,
+} from '../../utilities/scheduleConflicts';
 import styles from './SunGridCalendar.module.css';
 
 const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
@@ -71,9 +75,9 @@ function layoutDayEvents(events: CourseRBCEvent[]): PositionedEvent[] {
   let columnEnds: number[] = [];
 
   const flushCluster = () => {
-    for (const { event, colIndex } of cluster) 
+    for (const { event, colIndex } of cluster)
       positioned.push({ ...event, colIndex, colCount: columnEnds.length });
-    
+
     cluster = [];
     columnEnds = [];
   };
@@ -400,6 +404,16 @@ export default function SunGridCalendar() {
     [courses, viewedSeason],
   );
 
+  // Conflicts among the courses actually shown on the grid (hidden ones are
+  // excluded from rendering, so they don't count here either).
+  const conflictsByCrn = useMemo(
+    () =>
+      groupConflictsByCrn(
+        getScheduleConflicts(courses.filter((course) => !course.hidden)),
+      ),
+    [courses],
+  );
+
   const modeEvents = useMemo(
     () =>
       allEvents.filter((event) =>
@@ -536,6 +550,7 @@ export default function SunGridCalendar() {
           listing={openedEvent.listing}
           color={openedEvent.color}
           viewingKey={eventMeetingKey(openedEvent)}
+          conflicts={conflictsByCrn.get(openedEvent.listing.crn) ?? []}
           onClose={() => setOpenedEvent(null)}
         />
       )}

@@ -17,7 +17,32 @@ import type { WorksheetCourse } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
 import { formatWorksheetSectionSuffix } from '../../utilities/course';
 import { useCourseModalLink } from '../../utilities/display';
+import {
+  describeConflictSlot,
+  describeCourseConflict,
+  type CourseConflict,
+} from '../../utilities/scheduleConflicts';
 import styles from './WorksheetListItem.module.css';
+
+function ConflictTriangle({ size }: { readonly size: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+      <line x1="12" y1="9" x2="12" y2="13" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
+    </svg>
+  );
+}
 
 function ListDayDots({ days }: { readonly days: ListDayFlags }) {
   const hasWeekend = days.Sa || days.Su;
@@ -73,10 +98,12 @@ function datedKindClass(meeting: WorksheetDatedMeeting): string | false {
 export default function WorksheetListItem({
   course,
   expanded,
+  conflicts,
   onToggleExpand,
 }: {
   readonly course: WorksheetCourse;
   readonly expanded: boolean;
+  readonly conflicts: readonly CourseConflict[];
   readonly onToggleExpand: () => void;
 }) {
   const { listing, color } = course;
@@ -90,6 +117,19 @@ export default function WorksheetListItem({
   );
   const preview = weekly.find((meeting) => meeting.time !== 'TBA') ?? null;
   const { credits } = listing.course;
+
+  const conflictsByMeetingIndex = useMemo(() => {
+    const map = new Map<number, CourseConflict[]>();
+    for (const conflict of conflicts) {
+      const list = map.get(conflict.own.meetingIndex) ?? [];
+      list.push(conflict);
+      map.set(conflict.own.meetingIndex, list);
+    }
+    return map;
+  }, [conflicts]);
+  const conflictingCourseCount = new Set(
+    conflicts.map((conflict) => conflict.other.crn),
+  ).size;
 
   const handleToggle = () => {
     const willExpand = !expanded;
@@ -136,16 +176,29 @@ export default function WorksheetListItem({
         />
         <div className={styles.main}>
           <div className={styles.topRow}>
-            <Link
-              to={target}
-              className={styles.codeLink}
-              onClick={(event) => event.stopPropagation()}
-            >
-              {listing.course_code}
-              <span className={styles.sectionCode}>
-                {formatWorksheetSectionSuffix(listing)}
-              </span>
-            </Link>
+            <span className={styles.topLeft}>
+              <Link
+                to={target}
+                className={styles.codeLink}
+                onClick={(event) => event.stopPropagation()}
+              >
+                {listing.course_code}
+                <span className={styles.sectionCode}>
+                  {formatWorksheetSectionSuffix(listing)}
+                </span>
+              </Link>
+              {conflicts.length > 0 && (
+                <span
+                  className={styles.conflictPill}
+                  title={conflicts.map(describeCourseConflict).join('; ')}
+                >
+                  <ConflictTriangle size={10} />
+                  {conflictingCourseCount === 1
+                    ? 'Conflict'
+                    : `${conflictingCourseCount} conflicts`}
+                </span>
+              )}
+            </span>
             {credits !== null && (
               <span className={styles.credits}>
                 {credits} {credits === 1 ? 'credit' : 'credits'}
@@ -220,6 +273,16 @@ export default function WorksheetListItem({
                     {meetingMeta(meeting)}
                   </div>
                 )}
+                {(conflictsByMeetingIndex.get(meeting.meetingIndex) ?? []).map(
+                  (conflict, conflictIndex) => (
+                    <div key={conflictIndex} className={styles.meetingConflict}>
+                      <ConflictTriangle size={11} />
+                      Overlaps {conflict.other.courseCode}{' '}
+                      {conflict.other.meetingType} ·{' '}
+                      {describeConflictSlot(conflict)}
+                    </div>
+                  ),
+                )}
               </div>
             </div>
           ))}
@@ -247,6 +310,16 @@ export default function WorksheetListItem({
                   <div className={styles.meetingMeta}>
                     {meetingMeta(meeting)}
                   </div>
+                )}
+                {(conflictsByMeetingIndex.get(meeting.meetingIndex) ?? []).map(
+                  (conflict, conflictIndex) => (
+                    <div key={conflictIndex} className={styles.meetingConflict}>
+                      <ConflictTriangle size={11} />
+                      Overlaps {conflict.other.courseCode}{' '}
+                      {conflict.other.meetingType} ·{' '}
+                      {describeConflictSlot(conflict)}
+                    </div>
+                  ),
                 )}
               </div>
             </div>

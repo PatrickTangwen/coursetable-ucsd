@@ -14,6 +14,50 @@
   gap: 8px;
 }
 
+/* ── Conflict banner ── */
+.conflictBanner {
+  flex-shrink: 0;
+  margin: 0 16px 8px;
+  padding: 9px 11px;
+  border: 1px solid #f3d6d6;
+  border-radius: 7px;
+  background: #fef7f7;
+}
+
+.conflictBannerTitle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #a32d2d;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.conflictBannerLine {
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.conflictBannerCodes {
+  display: block;
+  color: #a32d2d;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.conflictBannerMeta {
+  display: block;
+  color: #c46a6a;
+  font-size: 11px;
+}
+
+.cardConflictIcon {
+  display: inline-flex;
+  margin-left: 5px;
+  color: #a32d2d;
+  vertical-align: -1px;
+}
+
 .statPill {
   display: flex;
   border: 1px solid rgb(11 11 11 / 8%);

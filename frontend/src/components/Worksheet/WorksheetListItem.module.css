@@ -58,6 +58,31 @@
   gap: 8px;
 }
 
+.topLeft {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.conflictPill {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #fcebeb;
+  color: #a32d2d;
+  font-size: 9.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.conflictPill svg {
+  flex-shrink: 0;
+}
+
 .codeLink {
   color: #0b0b0b;
   font-size: 14px;
@@ -291,6 +316,20 @@
   margin-top: 3px;
   color: #9f9d97;
   font-size: 11px;
+}
+
+.meetingConflict {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  color: #a32d2d;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.meetingConflict svg {
+  flex-shrink: 0;
 }
 
 .noMeetings {

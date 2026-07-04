@@ -4,6 +4,10 @@ import { createPortal } from 'react-dom';
 
 import type { CatalogListing } from '../../queries/api';
 import { weekdays } from '../../utilities/constants';
+import {
+  describeConflictSlot,
+  type CourseConflict,
+} from '../../utilities/scheduleConflicts';
 import styles from './CalendarQuickModal.module.css';
 
 const dayAbbreviations = ['Su', 'M', 'Tu', 'W', 'Th', 'F', 'Sa'];
@@ -202,11 +206,13 @@ export default function CalendarQuickModal({
   listing,
   color,
   viewingKey,
+  conflicts = [],
   onClose,
 }: {
   readonly listing: CatalogListing;
   readonly color: string;
   readonly viewingKey: string | null;
+  readonly conflicts?: readonly CourseConflict[];
   readonly onClose: () => void;
 }) {
   const { meetings, exams } = useMemo(
@@ -284,6 +290,42 @@ export default function CalendarQuickModal({
             </svg>
           </button>
         </div>
+        {conflicts.length > 0 && (
+          <div className={styles.sectionBlock}>
+            <div className={styles.sectionLabel}>Schedule conflicts</div>
+            <div className={styles.conflictCard}>
+              {conflicts.map((conflict, i) => (
+                <div
+                  key={`${conflict.other.crn}-${conflict.own.meetingIndex}-${conflict.other.meetingIndex}`}
+                  className={styles.conflictRow}
+                  data-last={i === conflicts.length - 1 || undefined}
+                >
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                  <span className={styles.conflictText}>
+                    {conflict.own.meetingType} overlaps{' '}
+                    <strong>{conflict.other.courseCode}</strong>{' '}
+                    {conflict.other.meetingType} ·{' '}
+                    {describeConflictSlot(conflict)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <div className={styles.sectionBlock}>
           <div className={styles.sectionLabel}>Meetings</div>
           <div className={styles.listCard}>

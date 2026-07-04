@@ -45,6 +45,8 @@ export type WorksheetWeeklyMeeting = {
   days: ListDayFlags;
   time: string;
   location: string;
+  /** Index within the course's course_meetings array */
+  meetingIndex: number;
 };
 
 export type WorksheetDatedMeeting = {
@@ -54,6 +56,8 @@ export type WorksheetDatedMeeting = {
   time: string;
   location: string;
   daysUntil: number | null;
+  /** Index within the course's course_meetings array */
+  meetingIndex: number;
 };
 
 export type WorksheetItemMeetings = {
@@ -124,7 +128,10 @@ export function buildWorksheetItemMeetings(
   const weekly: WorksheetWeeklyMeeting[] = [];
   const dated: WorksheetDatedMeeting[] = [];
 
-  for (const courseMeeting of listing.course.course_meetings) {
+  for (const [
+    meetingIndex,
+    courseMeeting,
+  ] of listing.course.course_meetings.entries()) {
     const meeting = courseMeeting as ListItemMeeting;
     if (meeting.date) {
       const code = ucsdMeetingTypeCode(meeting.meeting_type);
@@ -135,6 +142,7 @@ export function buildWorksheetItemMeetings(
         time: formatTime(meeting.start_time, meeting.end_time),
         location: meetingLocation(meeting),
         daysUntil: daysUntilDate(meeting.date),
+        meetingIndex,
       });
       continue;
     }
@@ -143,6 +151,7 @@ export function buildWorksheetItemMeetings(
       days: toListDayFlags(meeting.days_of_week),
       time: formatTime(meeting.start_time, meeting.end_time),
       location: meetingLocation(meeting),
+      meetingIndex,
     });
   }
 

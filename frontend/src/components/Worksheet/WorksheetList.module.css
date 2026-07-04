@@ -166,6 +166,43 @@
   line-height: 1.5;
 }
 
+.conflictBox {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid #f3d6d6;
+  border-radius: 8px;
+  background: #fef7f7;
+}
+
+.conflictHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #a32d2d;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.conflictLine {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.conflictCodes {
+  color: #a32d2d;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.conflictMeta {
+  color: #c46a6a;
+  font-size: 11.5px;
+}
+
 .importRow {
   display: flex;
   align-items: center;

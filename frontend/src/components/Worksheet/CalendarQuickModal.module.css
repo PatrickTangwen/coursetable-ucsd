@@ -135,6 +135,40 @@
   background: #fff;
 }
 
+.conflictCard {
+  border: 1px solid #f3d6d6;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fef7f7;
+}
+
+.conflictRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 12px;
+  border-bottom: 1px solid #f3d6d6;
+  color: #a32d2d;
+}
+
+.conflictRow[data-last] {
+  border-bottom: 0;
+}
+
+.conflictRow svg {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.conflictText {
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.conflictText strong {
+  font-weight: 700;
+}
+
 .emptyRow {
   padding: 16px 12px;
   color: #9f9d97;
