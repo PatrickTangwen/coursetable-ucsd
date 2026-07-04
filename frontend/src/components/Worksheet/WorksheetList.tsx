@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
 
 import ConflictModal from './ConflictModal';
+import FinalsModal from './FinalsModal';
 import { useICSExport } from './ICSExportButton';
 import { useWorksheetSeasonCodes } from './SeasonDropdown';
 import { useWorksheetURLExport } from './URLExportButton';
@@ -196,6 +197,7 @@ function WorksheetList() {
   const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [conflictModalOpen, setConflictModalOpen] = useState(false);
+  const [finalsModalOpen, setFinalsModalOpen] = useState(false);
   const [updatingWSState, setUpdatingWSState] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [clearedSnapshot, setClearedSnapshot] =
@@ -249,6 +251,8 @@ function WorksheetList() {
     [courses],
   );
   const finals = useMemo(() => firstFinal(visibleCourses), [visibleCourses]);
+  // The all-finals modal covers every course, hidden included.
+  const hasAnyFinal = useMemo(() => firstFinal(courses) !== null, [courses]);
   const busiest = useMemo(() => busiestDay(visibleCourses), [visibleCourses]);
   const scheduleConflicts = useMemo(
     () => getScheduleConflicts(visibleCourses),
@@ -559,15 +563,16 @@ function WorksheetList() {
             <button
               type="button"
               className={styles.conflictTile}
+              data-muted={hideConflictWarnings || undefined}
               onClick={() => setConflictModalOpen(true)}
             >
-              <span className={styles.conflictPulseDot} aria-hidden="true" />
-              <div className={styles.conflictTileLabel}>Conflicts</div>
-              <div className={styles.conflictTileValue}>
-                {scheduleConflicts.length}
-              </div>
+              {!hideConflictWarnings && (
+                <span className={styles.conflictPulseDot} aria-hidden="true" />
+              )}
+              <div className={styles.dashLabel}>Conflicts</div>
+              <div className={styles.dashValue}>{scheduleConflicts.length}</div>
               <div className={styles.conflictTileView}>
-                View
+                {hideConflictWarnings ? 'warnings hidden' : 'View'}
                 <svg
                   width="9"
                   height="9"
@@ -608,33 +613,76 @@ function WorksheetList() {
         </div>
 
         <div className={styles.infoGrid}>
-          <div className={styles.infoTile}>
-            <div className={styles.infoLabel}>
-              <svg
-                width="11"
-                height="11"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <rect x="3" y="4" width="18" height="18" rx="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
-              </svg>
-              Finals
+          {hasAnyFinal ? (
+            <button
+              type="button"
+              className={styles.finalsTileButton}
+              onClick={() => setFinalsModalOpen(true)}
+            >
+              <div className={styles.infoLabel}>
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                Finals
+              </div>
+              <div className={styles.infoValue}>
+                {finals ? `in ${finals.daysUntil}d` : '—'}
+              </div>
+              <div className={styles.infoSubRow}>
+                First · {finals ? finals.dateShort : '—'}
+                <svg
+                  width="9"
+                  height="9"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </div>
+            </button>
+          ) : (
+            <div className={styles.infoTile}>
+              <div className={styles.infoLabel}>
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                Finals
+              </div>
+              <div className={styles.infoValue}>—</div>
+              <div className={styles.infoSub}>First · —</div>
             </div>
-            <div className={styles.infoValue}>
-              {finals ? `in ${finals.daysUntil}d` : '—'}
-            </div>
-            <div className={styles.infoSub}>
-              First · {finals ? finals.dateShort : '—'}
-            </div>
-          </div>
+          )}
           <div className={styles.infoTile}>
             <div className={styles.infoLabel}>
               <svg
@@ -1081,6 +1129,13 @@ function WorksheetList() {
           conflicts={scheduleConflicts}
           courses={courses}
           onClose={() => setConflictModalOpen(false)}
+        />
+      )}
+
+      {finalsModalOpen && (
+        <FinalsModal
+          courses={courses}
+          onClose={() => setFinalsModalOpen(false)}
         />
       )}
     </div>

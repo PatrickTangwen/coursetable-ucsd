@@ -112,16 +112,21 @@
   gap: 2px;
   padding: 9px;
   border-radius: 7px;
-  background: #fcebeb;
-  border: 1px solid #f09595;
+  background: #fff;
+  border: 1px solid rgb(11 11 11 / 10%);
   transition:
-    transform 0.12s ease,
-    box-shadow 0.12s ease;
+    box-shadow 0.12s ease,
+    transform 0.12s ease;
 }
 
 .conflictTile:hover {
-  box-shadow: 0 4px 12px rgb(226 75 74 / 24%);
+  box-shadow: 0 2px 5px rgb(11 11 11 / 8%);
   transform: translateY(-1px);
+}
+
+/* "Warnings hidden" state: same quiet tile, no lift on hover */
+.conflictTile[data-muted]:hover {
+  transform: none;
 }
 
 .conflictPulseDot {
@@ -135,29 +140,15 @@
   animation: conflict-dot-pulse 1.6s ease-in-out infinite;
 }
 
-.conflictTileLabel {
-  font-size: 10px;
-  font-weight: 700;
-  color: #a32d2d;
-  white-space: nowrap;
-}
-
-.conflictTileValue {
-  font-size: 21px;
-  font-weight: 700;
-  line-height: 1;
-  color: #a32d2d;
-  font-variant-numeric: tabular-nums;
-}
-
 .conflictTileView {
   font-size: 10px;
-  font-weight: 700;
-  color: #e24b4a;
+  font-weight: 500;
+  color: #9f9d97;
   display: inline-flex;
   align-items: center;
   gap: 2px;
   white-space: nowrap;
+  overflow: hidden;
 }
 
 @keyframes conflict-dot-pulse {
@@ -180,6 +171,7 @@
 }
 
 .infoTile {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -187,6 +179,38 @@
   border-radius: 7px;
   background: #fff;
   border: 1px solid rgb(11 11 11 / 8%);
+}
+
+.finalsTileButton {
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border-radius: 7px;
+  background: #fff;
+  border: 1px solid rgb(11 11 11 / 10%);
+  transition:
+    box-shadow 0.12s ease,
+    transform 0.12s ease;
+}
+
+.finalsTileButton:hover {
+  box-shadow: 0 2px 5px rgb(11 11 11 / 8%);
+  transform: translateY(-1px);
+}
+
+.infoTileSubRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #9f9d97;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .infoTileLabel {
@@ -220,6 +244,7 @@
 /* Equal-width tracks via grid: with flex the eye button's own padding sat on
    top of its flex-basis share and made it wider than the wrapped menus. */
 .controlsRow {
+  position: relative;
   flex-shrink: 0;
   padding: 8px 12px;
   display: grid;
@@ -229,8 +254,10 @@
   border-bottom: 1px solid rgb(11 11 11 / 8%);
 }
 
+/* Menus anchor to the whole controls row (the wrappers stay static) so they
+   can span the sidebar width without overflowing its scroll container. */
 .controlWrapper {
-  position: relative;
+  position: static;
   display: flex;
   min-width: 0;
 }
@@ -263,24 +290,16 @@
 .menu,
 .menuRight {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% - 4px);
+  left: 12px;
+  right: 12px;
   z-index: 20;
   background: #fff;
   border: 1px solid rgb(11 11 11 / 8%);
   border-radius: 8px;
   box-shadow: 0 8px 24px rgb(11 11 11 / 14%);
   padding: 6px;
-  min-width: 180px;
   animation: popover-fade-in 0.14s ease-out;
-}
-
-.menu {
-  left: 0;
-}
-
-.menuRight {
-  right: 0;
-  min-width: 200px;
 }
 
 .menuLabel {
@@ -307,6 +326,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
+  white-space: nowrap;
   transition: background 0.1s;
   text-decoration: none;
 }
@@ -349,6 +369,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
+  white-space: nowrap;
   transition:
     background 0.12s ease,
     color 0.12s ease;

@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { getQuickModalData } from './CalendarQuickModal';
 import ConflictModal from './ConflictModal';
+import FinalsModal from './FinalsModal';
 import { useICSExport } from './ICSExportButton';
 import { useWorksheetURLExport } from './URLExportButton';
 import { useToggleCourseHidden } from './WorksheetHideButton';
@@ -395,6 +396,7 @@ export default function WorksheetCalendarSidebar() {
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [conflictModalOpen, setConflictModalOpen] = useState(false);
+  const [finalsModalOpen, setFinalsModalOpen] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [clearedSnapshot, setClearedSnapshot] =
     useState<ClearedSnapshot | null>(null);
@@ -430,6 +432,8 @@ export default function WorksheetCalendarSidebar() {
   );
   const load = creditLoad(credits);
   const finals = useMemo(() => firstFinal(visibleCourses), [visibleCourses]);
+  // The all-finals modal covers every course, hidden included.
+  const hasAnyFinal = useMemo(() => firstFinal(courses) !== null, [courses]);
   const busiest = useMemo(() => busiestDay(visibleCourses), [visibleCourses]);
   const areHidden = courses.length > 0 && courses.every((c) => c.hidden);
 
@@ -611,15 +615,19 @@ export default function WorksheetCalendarSidebar() {
             <button
               type="button"
               className={styles.conflictTile}
+              data-muted={hideConflictWarnings || undefined}
               onClick={() => setConflictModalOpen(true)}
             >
-              <span className={styles.conflictPulseDot} aria-hidden="true" />
-              <span className={styles.conflictTileLabel}>Conflicts</span>
-              <span className={styles.conflictTileValue}>
+              {!hideConflictWarnings && (
+                <span className={styles.conflictPulseDot} aria-hidden="true" />
+              )}
+              <span className={styles.statTileLabel}>Conflicts</span>
+              <span className={styles.statTileValue}>
                 {visibleConflicts.length}
               </span>
+              {/* The sidebar tile is too narrow for "warnings hidden" */}
               <span className={styles.conflictTileView}>
-                View
+                {hideConflictWarnings ? 'hidden' : 'View'}
                 <svg
                   width="10"
                   height="10"
@@ -659,33 +667,76 @@ export default function WorksheetCalendarSidebar() {
           )}
         </div>
         <div className={styles.infoGrid}>
-          <div className={styles.infoTile}>
-            <span className={styles.infoTileLabel}>
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <rect x="3" y="4" width="18" height="18" rx="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
-              </svg>
-              Finals
-            </span>
-            <span className={styles.infoTileValue}>
-              {finals ? `in ${finals.daysUntil}d` : '—'}
-            </span>
-            <span className={styles.infoTileSub}>
-              First · {finals ? finals.dateShort : '—'}
-            </span>
-          </div>
+          {hasAnyFinal ? (
+            <button
+              type="button"
+              className={styles.finalsTileButton}
+              onClick={() => setFinalsModalOpen(true)}
+            >
+              <span className={styles.infoTileLabel}>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                Finals
+              </span>
+              <span className={styles.infoTileValue}>
+                {finals ? `in ${finals.daysUntil}d` : '—'}
+              </span>
+              <span className={styles.infoTileSubRow}>
+                First · {finals ? finals.dateShort : '—'}
+                <svg
+                  width="9"
+                  height="9"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </span>
+            </button>
+          ) : (
+            <div className={styles.infoTile}>
+              <span className={styles.infoTileLabel}>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                Finals
+              </span>
+              <span className={styles.infoTileValue}>—</span>
+              <span className={styles.infoTileSub}>First · —</span>
+            </div>
+          )}
           <div className={styles.infoTile}>
             <span className={styles.infoTileLabel}>
               <svg
@@ -1104,6 +1155,13 @@ export default function WorksheetCalendarSidebar() {
           conflicts={visibleConflicts}
           courses={courses}
           onClose={() => setConflictModalOpen(false)}
+        />
+      )}
+
+      {finalsModalOpen && (
+        <FinalsModal
+          courses={courses}
+          onClose={() => setFinalsModalOpen(false)}
         />
       )}
     </div>
