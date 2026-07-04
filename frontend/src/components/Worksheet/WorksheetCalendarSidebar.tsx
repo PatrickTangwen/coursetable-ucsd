@@ -39,7 +39,11 @@ function sectionOf(course: WorksheetCourse) {
   return details?.section_code ?? course.listing.course.section;
 }
 
-function WorksheetHeader() {
+function WorksheetHeader({
+  onOpenChange,
+}: {
+  readonly onOpenChange: (open: boolean) => void;
+}) {
   const {
     viewedSeason,
     activeSavedWorksheet,
@@ -69,6 +73,7 @@ function WorksheetHeader() {
       createBlankSavedWorksheetForTerm={createBlankSavedWorksheetForTerm}
       renameSavedWorksheet={renameSavedWorksheet}
       deleteSavedWorksheet={deleteSavedWorksheet}
+      onOpenChange={onOpenChange}
     />
   );
 }
@@ -363,6 +368,7 @@ export default function WorksheetCalendarSidebar() {
 
   const [styleMenuOpen, setStyleMenuOpen] = useState(false);
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const styleRef = useCloseOnOutsideClick(styleMenuOpen, () =>
     setStyleMenuOpen(false),
   );
@@ -442,7 +448,12 @@ export default function WorksheetCalendarSidebar() {
 
   return (
     <div className={styles.sidebar}>
-      {hasSavedWorksheetAccount && <WorksheetHeader />}
+      {hasSavedWorksheetAccount && (
+        <WorksheetHeader onOpenChange={setPickerOpen} />
+      )}
+      {pickerOpen && (
+        <div className={styles.pickerBackdrop} aria-hidden="true" />
+      )}
 
       <div className={styles.statsRow}>
         <div className={styles.statPill}>

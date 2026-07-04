@@ -34,6 +34,7 @@ export default function WorksheetPicker({
   createBlankSavedWorksheetForTerm,
   renameSavedWorksheet,
   deleteSavedWorksheet,
+  onOpenChange,
 }: {
   readonly variant?: 'sidebar' | 'navbar';
   readonly viewedSeason: Season;
@@ -43,6 +44,7 @@ export default function WorksheetPicker({
   readonly createBlankSavedWorksheetForTerm: (term: Season) => Promise<unknown>;
   readonly renameSavedWorksheet: (id: number, name: string) => Promise<unknown>;
   readonly deleteSavedWorksheet: (id: number) => Promise<unknown>;
+  readonly onOpenChange?: (open: boolean) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -51,6 +53,11 @@ export default function WorksheetPicker({
     setOpen(false);
     setEditingId(null);
   });
+
+  useEffect(() => {
+    onOpenChange?.(open);
+    return () => onOpenChange?.(false);
+  }, [open, onOpenChange]);
 
   if (!activeSavedWorksheet) return null;
 
