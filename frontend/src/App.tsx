@@ -106,6 +106,7 @@ function AuthenticatedRoutes() {
 
 function App() {
   const location = useLocation();
+  const worksheetView = useStore((state) => state.worksheetView);
 
   useInitStore();
 
@@ -187,7 +188,12 @@ function App() {
         {/* Catch-all route to NotFound page */}
         <Route path="/*" element={<NotFound />} />
       </SentryRoutes>
-      {location.pathname !== '/catalog' && <Footer />}
+      {/* The worksheet calendar view fills the viewport with no page scroll,
+      so the footer would force a scrollbar; the list view still shows it. */}
+      {location.pathname !== '/catalog' &&
+        !(location.pathname === '/worksheet' && worksheetView !== 'list') && (
+          <Footer />
+        )}
       {/* Globally overlaid components */}
       <Tutorial />
       <ModalHistoryBridge />

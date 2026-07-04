@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { CUR_SEASON } from '../config';
 import type {
   AppUserInfo,
   SavedWorksheet,
@@ -424,9 +425,11 @@ describe('Saved Worksheet slice behavior', () => {
         s126,
       ),
     ).toEqual([{ sectionId: 'S126-123', color: '#123456', hidden: false }]);
+    // The stored term stays at the current season; only the edited term's
+    // course list changes.
     expect(localStorage.getItem('anonymousWorksheet')).toBe(
       JSON.stringify({
-        term: 'SP26',
+        term: CUR_SEASON,
         coursesByTerm: {
           S126: [{ sectionId: 'S126-123', color: '#123456', hidden: false }],
         },
@@ -720,7 +723,9 @@ describe('Saved Worksheet slice behavior', () => {
       useStore.getState().addAnonymousWorksheetListing(fallListing, '#abcdef'),
     ).toBe(true);
 
-    expect(useStore.getState().viewedSeason).toBe('SP26');
+    // Adding listings from other terms never moves the viewed season off the
+    // current one.
+    expect(useStore.getState().viewedSeason).toBe(CUR_SEASON);
     expect(
       getAnonymousWorksheetCourses(
         useStore.getState().anonymousWorksheet,

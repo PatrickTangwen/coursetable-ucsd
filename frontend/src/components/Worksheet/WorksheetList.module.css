@@ -32,34 +32,35 @@
   font-size: 12px;
 }
 
-.summaryCard {
+.summaryStack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin-bottom: 16px;
-  padding: 16px;
-  border: 1px solid rgb(11 11 11 / 8%);
+}
+
+/* ── Dashboard tiles ── */
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 8px;
+}
+
+.dashTile {
+  padding: 10px 14px;
+  border: 1px solid rgb(11 11 11 / 10%);
   border-radius: 8px;
   background: #fff;
 }
 
-.summaryRow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.dashLabel {
+  color: #9f9d97;
+  font-size: 11px;
+  font-weight: 500;
 }
 
-.statTiles {
-  display: flex;
-  flex: 1;
-  gap: 8px;
-}
-
-.statTile {
-  flex: 1;
-  padding: 10px 14px;
-  border-radius: 8px;
-  background: #fdfcfb;
-}
-
-.statValue {
+.dashValue {
+  margin-top: 2px;
   color: #0b0b0b;
   font-size: 20px;
   font-weight: 700;
@@ -67,33 +68,167 @@
   letter-spacing: -0.3px;
 }
 
-.statLabel {
-  margin-top: 1px;
+.dashSub {
+  margin-top: 3px;
   color: #9f9d97;
   font-size: 11px;
   font-weight: 500;
 }
 
+.dashLoad {
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.loadDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dashClear {
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #3b6d11;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.conflictTile {
+  position: relative;
+  padding: 10px 14px;
+  border: 1px solid #f09595;
+  border-radius: 8px;
+  background: #fcebeb;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.conflictTile:hover {
+  box-shadow: 0 4px 12px rgb(226 75 74 / 22%);
+  transform: translateY(-1px);
+}
+
+.conflictPulseDot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e24b4a;
+  animation: list-dot-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes list-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: scale(0.72);
+  }
+}
+
+.conflictTileLabel {
+  color: #a32d2d;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.conflictTileValue {
+  margin-top: 2px;
+  color: #a32d2d;
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.3px;
+}
+
+.conflictTileView {
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #e24b4a;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ── Finals / busiest-day tiles ── */
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.infoTile {
+  padding: 9px 12px;
+  border: 1px solid rgb(11 11 11 / 10%);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.infoLabel {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #9f9d97;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.infoValue {
+  margin-top: 3px;
+  color: #0b0b0b;
+  font-size: 17px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.infoSub {
+  margin-top: 1px;
+  color: #9f9d97;
+  font-size: 10.5px;
+}
+
+/* ── Controls ── */
 .controls {
   display: flex;
-  flex-shrink: 0;
-  gap: 4px;
+  gap: 8px;
 }
 
 .controlButton {
-  width: 34px;
-  height: 34px;
+  flex: 1;
+  width: 100%;
+  padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgb(11 11 11 / 8%);
+  gap: 4px;
+  border: 1px solid rgb(11 11 11 / 14%);
   border-radius: 8px;
   background: #fff;
-  color: #6f6d67;
+  color: #0b0b0b;
   cursor: pointer;
   transition:
-    background 0.15s ease,
-    box-shadow 0.25s ease;
+    background-color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .controlButton:hover,
@@ -102,8 +237,148 @@
   box-shadow: 0 2px 5px rgb(11 11 11 / 14%);
 }
 
-.exportWrapper {
+.menuWrapper {
   position: relative;
+  flex: 1;
+  display: flex;
+}
+
+/* ── Settings menu ── */
+.settingsMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  min-width: 210px;
+  padding: 6px;
+  border: 1px solid rgb(11 11 11 / 8%);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(11 11 11 / 14%);
+}
+
+.settingsMenuRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #6f6d67;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  transition: background 0.12s ease;
+}
+
+.settingsMenuRow:focus-visible {
+  background: rgb(11 11 11 / 4%);
+}
+
+.settingsMenuRow:disabled {
+  color: #d0cec8;
+  cursor: not-allowed;
+}
+
+.settingsMenuRow:hover:not(:disabled) {
+  background: rgb(11 11 11 / 4%);
+}
+
+.settingsMenuDivider {
+  height: 1px;
+  background: rgb(11 11 11 / 8%);
+  margin: 6px 4px;
+}
+
+.settingsMenuDanger,
+.settingsMenuRestore {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #6f6d67;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.settingsMenuDanger:hover {
+  background: #fcebeb;
+  color: #a32d2d;
+}
+
+.settingsMenuRestore:hover {
+  background: rgb(11 11 11 / 4%);
+  color: #0b0b0b;
+}
+
+.confirmBlock {
+  padding: 6px 10px 4px;
+}
+
+.confirmText {
+  font-size: 11px;
+  color: #6f6d67;
+  margin-bottom: 7px;
+  text-wrap: pretty;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 6px;
+}
+
+.confirmClearButton {
+  flex: 1;
+  padding: 6px;
+  background: #e24b4a;
+  border: 1px solid #e24b4a;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.confirmClearButton:hover:not(:disabled) {
+  background: #a32d2d;
+  border-color: #a32d2d;
+}
+
+.confirmCancelButton {
+  flex: 1;
+  padding: 6px;
+  background: transparent;
+  border: 1px solid rgb(11 11 11 / 14%);
+  border-radius: 6px;
+  color: #6f6d67;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.confirmCancelButton:hover {
+  background: rgb(11 11 11 / 4%);
+  color: #0b0b0b;
 }
 
 .menuBackdrop {
@@ -155,9 +430,7 @@
 }
 
 .warnings {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid rgb(11 11 11 / 4%);
+  padding: 2px 2px 0;
 }
 
 .warning {
@@ -166,51 +439,11 @@
   line-height: 1.5;
 }
 
-.conflictBox {
-  margin-top: 12px;
-  padding: 10px 12px;
-  border: 1px solid #f3d6d6;
-  border-radius: 8px;
-  background: #fef7f7;
-}
-
-.conflictHeader {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #a32d2d;
-  font-size: 12.5px;
-  font-weight: 700;
-}
-
-.conflictLine {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 4px 10px;
-  margin-top: 6px;
-  line-height: 1.4;
-}
-
-.conflictCodes {
-  color: #a32d2d;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.conflictMeta {
-  color: #c46a6a;
-  font-size: 11.5px;
-}
-
 .importRow {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgb(11 11 11 / 4%);
 }
 
 .importLabel {
@@ -271,33 +504,8 @@
   border-color: rgb(40 113 190 / 40%);
 }
 
-.clearAllButton {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid #fcebeb;
-  border-radius: 8px;
-  background: transparent;
-  color: #a32d2d;
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.15s ease;
-}
-
-.clearAllButton:hover:not(:disabled) {
-  background: #fcebeb;
-}
-
 @media (max-width: 720px) {
   .page {
     padding: 16px 14px 24px;
-  }
-
-  .summaryRow {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .controls {
-    justify-content: flex-end;
   }
 }

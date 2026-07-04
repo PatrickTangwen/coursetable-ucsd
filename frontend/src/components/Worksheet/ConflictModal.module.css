@@ -1,0 +1,250 @@
+/* Finalized SunGrid conflict-modal palette (hardcoded hex per the
+   finalized-design convention): danger text #a32d2d, danger bg #fcebeb,
+   danger fill #e24b4a, surfaces #fff / #f9f8f6. */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background: rgb(30 26 20 / 42%);
+  backdrop-filter: blur(2px);
+  animation: conflict-backdrop-fade-in 0.16s ease-out;
+}
+
+.backdropButton {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.modal {
+  position: relative;
+  width: 560px;
+  max-width: 100%;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 30px 90px rgb(0 0 0 / 28%);
+  overflow: hidden;
+  animation: conflict-modal-fade-in 0.2s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid rgb(11 11 11 / 8%);
+}
+
+.titleRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0b0b0b;
+  letter-spacing: -0.01em;
+}
+
+.titleAside {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.countLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: #a32d2d;
+}
+
+.closeButton {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  margin: -4px -6px -4px 0;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #9f9d97;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s ease;
+}
+
+.closeButton:hover {
+  background: rgb(11 11 11 / 4%);
+  color: #0b0b0b;
+}
+
+.subtitle {
+  font-size: 12.5px;
+  color: #9f9d97;
+  margin-top: 4px;
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 24px;
+  background: #f9f8f6;
+}
+
+.listCard {
+  border-radius: 13px;
+  background: #fff;
+  border: 1px solid rgb(11 11 11 / 8%);
+  overflow: hidden;
+}
+
+.conflictRow {
+  padding: 13px 22px;
+  border-bottom: 1px solid rgb(11 11 11 / 8%);
+}
+
+.conflictRow[data-last] {
+  border-bottom: 0;
+}
+
+.rowTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+
+.kindLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #a32d2d;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.overlapChip {
+  font-size: 11px;
+  font-weight: 700;
+  color: #a32d2d;
+  background: #fcebeb;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.overlapChip[data-final] {
+  background: #f7c1c1;
+  color: #791f1f;
+  border: 1px solid #f09595;
+}
+
+.coursesLine {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13.5px;
+  flex-wrap: wrap;
+}
+
+.colorChip {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.courseCode {
+  color: #0b0b0b;
+}
+
+.courseSection {
+  color: #9f9d97;
+  font-size: 11.5px;
+}
+
+.vs {
+  color: #9f9d97;
+  font-size: 12px;
+  margin: 0 2px;
+}
+
+.whenLine {
+  font-size: 12px;
+  color: #6f6d67;
+  margin-top: 4px;
+}
+
+.whenBold {
+  color: #a32d2d;
+  font-weight: 700;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 24px;
+  border-top: 1px solid rgb(11 11 11 / 8%);
+  background: #fff;
+}
+
+.footerNote {
+  flex: 1;
+  font-size: 12px;
+  color: #9f9d97;
+  line-height: 1.4;
+}
+
+.gotIt {
+  flex-shrink: 0;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: #0b0b0b;
+  border: none;
+  border-radius: 9px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.gotIt:hover {
+  background: #4a4843;
+}
+
+@keyframes conflict-backdrop-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes conflict-modal-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

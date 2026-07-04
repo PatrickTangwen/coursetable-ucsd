@@ -27,52 +27,6 @@
   }
 }
 
-/* ── Stats pills ── */
-.statsRow {
-  flex-shrink: 0;
-  padding: 8px 16px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-/* ── Conflict banner ── */
-.conflictBanner {
-  flex-shrink: 0;
-  margin: 0 16px 8px;
-  padding: 9px 11px;
-  border: 1px solid #f3d6d6;
-  border-radius: 7px;
-  background: #fef7f7;
-}
-
-.conflictBannerTitle {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: #a32d2d;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.conflictBannerLine {
-  margin-top: 6px;
-  line-height: 1.4;
-}
-
-.conflictBannerCodes {
-  display: block;
-  color: #a32d2d;
-  font-size: 11.5px;
-  font-weight: 600;
-}
-
-.conflictBannerMeta {
-  display: block;
-  color: #c46a6a;
-  font-size: 11px;
-}
-
 .cardConflictIcon {
   display: inline-flex;
   margin-left: 5px;
@@ -80,53 +34,210 @@
   vertical-align: -1px;
 }
 
-.statPill {
+/* ── Dashboard stats ── */
+.statsBlock {
+  flex-shrink: 0;
+  padding: 8px 16px;
   display: flex;
-  border: 1px solid rgb(11 11 11 / 8%);
-  border-radius: 7px;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 8px;
+}
+
+.statTile {
+  min-width: 0;
   overflow: hidden;
-}
-
-.statLabel {
-  padding: 8px 11px;
-  font-weight: 700;
-  font-size: 12px;
-  flex-grow: 1;
-  display: inline-flex;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px;
+  border-radius: 7px;
   background: #fff;
-  color: #9f9d97;
+  border: 1px solid rgb(11 11 11 / 8%);
 }
 
-.statValue {
-  padding: 8px;
+.statTileLabel {
+  font-size: 10px;
   font-weight: 700;
-  font-size: 14px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 40px;
+  color: #9f9d97;
+  white-space: nowrap;
+}
+
+.statTileValue {
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1;
   color: #0b0b0b;
   font-variant-numeric: tabular-nums;
 }
 
+.statTileSub {
+  font-size: 10px;
+  font-weight: 500;
+  color: #9f9d97;
+  white-space: nowrap;
+}
+
+.statTileSubStrong {
+  font-size: 10px;
+  font-weight: 600;
+  color: #6f6d67;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.loadDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.conflictTile {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px;
+  border-radius: 7px;
+  background: #fcebeb;
+  border: 1px solid #f09595;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.conflictTile:hover {
+  box-shadow: 0 4px 12px rgb(226 75 74 / 24%);
+  transform: translateY(-1px);
+}
+
+.conflictPulseDot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e24b4a;
+  animation: conflict-dot-pulse 1.6s ease-in-out infinite;
+}
+
+.conflictTileLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #a32d2d;
+  white-space: nowrap;
+}
+
+.conflictTileValue {
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1;
+  color: #a32d2d;
+  font-variant-numeric: tabular-nums;
+}
+
+.conflictTileView {
+  font-size: 10px;
+  font-weight: 700;
+  color: #e24b4a;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+@keyframes conflict-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.55;
+    transform: scale(1.25);
+  }
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.infoTile {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border-radius: 7px;
+  background: #fff;
+  border: 1px solid rgb(11 11 11 / 8%);
+}
+
+.infoTileLabel {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #9f9d97;
+}
+
+.infoTileValue {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  color: #0b0b0b;
+  font-variant-numeric: tabular-nums;
+}
+
+.infoTileSub {
+  font-size: 11px;
+  font-weight: 500;
+  color: #9f9d97;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* ── Controls row ── */
+
+/* Equal-width tracks via grid: with flex the eye button's own padding sat on
+   top of its flex-basis share and made it wider than the wrapped menus. */
 .controlsRow {
   flex-shrink: 0;
   padding: 8px 12px;
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   gap: 8px;
   border-bottom: 1px solid rgb(11 11 11 / 8%);
 }
 
 .controlWrapper {
-  flex: 1;
   position: relative;
   display: flex;
+  min-width: 0;
 }
 
 .controlButton {
   flex: 1;
+  min-width: 0;
   padding: 8px;
   text-align: center;
   border: 1px solid rgb(11 11 11 / 14%);
@@ -216,7 +327,140 @@
   justify-content: flex-start;
 }
 
+.menuDivider {
+  height: 1px;
+  background: rgb(11 11 11 / 8%);
+  margin: 6px 4px;
+}
+
+.menuDangerItem,
+.menuRestoreItem {
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-family: inherit;
+  color: #6f6d67;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.menuDangerItem:hover {
+  background: #fcebeb;
+  color: #a32d2d;
+}
+
+.menuRestoreItem:hover {
+  background: rgb(11 11 11 / 4%);
+  color: #0b0b0b;
+}
+
+.confirmBlock {
+  padding: 6px 10px 4px;
+}
+
+.confirmText {
+  font-size: 11px;
+  color: #6f6d67;
+  margin-bottom: 7px;
+  text-wrap: pretty;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 6px;
+}
+
+.confirmClearButton {
+  flex: 1;
+  padding: 6px;
+  background: #e24b4a;
+  border: 1px solid #e24b4a;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.confirmClearButton:hover {
+  background: #a32d2d;
+  border-color: #a32d2d;
+}
+
+.confirmCancelButton {
+  flex: 1;
+  padding: 6px;
+  background: transparent;
+  border: 1px solid rgb(11 11 11 / 14%);
+  border-radius: 6px;
+  color: #6f6d67;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.confirmCancelButton:hover {
+  background: rgb(11 11 11 / 4%);
+  color: #0b0b0b;
+}
+
+/* ── Expand / collapse all ── */
+.expandAllRow {
+  flex-shrink: 0;
+  padding: 6px 12px 0;
+  background: #fdfcfb;
+}
+
+.expandAllButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px 3px 2px;
+  color: #9f9d97;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.expandAllButton:hover {
+  color: #6f6d67;
+}
+
+.expandAllChevron {
+  transition: transform 0.2s ease;
+}
+
+.expandAllChevron[data-open] {
+  transform: rotate(180deg);
+}
+
 /* ── Course cards ── */
+
+/* Rows must stay content-sized (max-content): with plain auto rows the grid
+   squeezes expanded cards to fit the container instead of overflowing, so the
+   list never scrolls and card details get clipped. The rtl direction puts the
+   thin scrollbar on the list's left edge, per the finalized design. */
 .courseList {
   flex: 1;
   min-height: 0;
@@ -224,8 +468,36 @@
   padding: 8px;
   background: #fdfcfb;
   display: grid;
+  grid-auto-rows: max-content;
   gap: 8px;
   align-content: start;
+  direction: rtl;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(11 11 11 / 14%) transparent;
+}
+
+.courseList > * {
+  direction: ltr;
+}
+
+.courseList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.courseList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.courseList::-webkit-scrollbar-thumb {
+  background: rgb(11 11 11 / 14%);
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+.courseList:hover::-webkit-scrollbar-thumb {
+  background: rgb(11 11 11 / 36%);
+  background-clip: padding-box;
 }
 
 .emptyList {

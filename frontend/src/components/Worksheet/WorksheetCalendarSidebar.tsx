@@ -1,34 +1,37 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import chroma from 'chroma-js';
 import { useShallow } from 'zustand/react/shallow';
 
 import { getQuickModalData } from './CalendarQuickModal';
+import ConflictModal from './ConflictModal';
 import { useICSExport } from './ICSExportButton';
 import { useWorksheetURLExport } from './URLExportButton';
 import { useToggleCourseHidden } from './WorksheetHideButton';
+import { busiestDay, creditLoad, firstFinal } from './worksheetInsights';
 import WorksheetPicker, { useCloseOnOutsideClick } from './WorksheetPicker';
 import noCoursesImg from '../../images/calendar_img_high_res.png';
 import {
   isLegacyUserInfo,
   setCourseHidden,
   updateWorksheetCourses,
+  type SavedWorksheetSection,
 } from '../../queries/api';
+import type { Crn } from '../../queries/graphql-types';
 import type { WorksheetCourse } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
+import {
+  getAnonymousWorksheetCourses,
+  type AnonymousWorksheetCourse,
+} from '../../utilities/anonymousWorksheet';
 import { getWorksheetCourseStats } from '../../utilities/course';
 import { createCatalogLink } from '../../utilities/navigation';
-import {
-  getScheduleConflicts,
-  summarizeConflictPairs,
-} from '../../utilities/scheduleConflicts';
+import { getScheduleConflicts } from '../../utilities/scheduleConflicts';
 import styles from './WorksheetCalendarSidebar.module.css';
 
-const statPillScale = chroma.scale(['#eaf3de', '#faeeda', '#fcebeb']);
-
-function statPillColor(value: number, domain: [number, number]) {
-  return statPillScale.domain(domain)(value).hex();
-}
+type ClearedSnapshot =
+  | { kind: 'saved'; sections: SavedWorksheetSection[] }
+  | { kind: 'anonymous'; courses: AnonymousWorksheetCourse[] }
+  | { kind: 'legacy'; courses: { crn: Crn; color: string; hidden: boolean }[] };
 
 function sectionOf(course: WorksheetCourse) {
   const details = (
@@ -82,11 +85,17 @@ function CourseCard({
   course,
   canEdit,
   hasConflict,
+  conflictTooltip,
+  expanded,
+  onToggleExpand,
   onRemove,
 }: {
   readonly course: WorksheetCourse;
   readonly canEdit: boolean;
   readonly hasConflict: boolean;
+  readonly conflictTooltip: string | null;
+  readonly expanded: boolean;
+  readonly onToggleExpand: () => void;
   readonly onRemove: (course: WorksheetCourse) => void;
 }) {
   const { hoverCourse, setHoverCourse } = useStore(
@@ -97,7 +106,6 @@ function CourseCard({
   );
   const toggleCourseHidden = useToggleCourseHidden();
   const [, setSearchParams] = useSearchParams();
-  const [expanded, setExpanded] = useState(false);
 
   const { crn } = course.listing;
   const hidden = Boolean(course.hidden);
@@ -152,7 +160,7 @@ function CourseCard({
             {hasConflict && (
               <span
                 className={styles.cardConflictIcon}
-                title="Time conflict with another course"
+                title={conflictTooltip ?? 'Time conflict with another course'}
               >
                 <svg
                   width="12"
@@ -228,7 +236,7 @@ function CourseCard({
           aria-expanded={expanded}
           onClick={(e) => {
             e.stopPropagation();
-            setExpanded((x) => !x);
+            onToggleExpand();
           }}
         >
           <svg
@@ -336,12 +344,20 @@ export default function WorksheetCalendarSidebar() {
     viewedWorksheetNumber,
     user,
     isAnonymousWorksheet,
+    anonymousWorksheet,
+    activeSavedWorksheet,
     gridStyle,
     setGridStyle,
+    hideConflictWarnings,
+    setHideConflictWarnings,
     setAllAnonymousWorksheetHidden,
     setAllActiveSavedWorksheetHidden,
     removeAnonymousWorksheetListing,
     removeActiveSavedWorksheetListing,
+    clearAnonymousWorksheet,
+    clearActiveSavedWorksheet,
+    restoreAnonymousWorksheetCourses,
+    restoreActiveSavedWorksheetSections,
     worksheetsRefresh,
   } = useStore(
     useShallow((state) => ({
@@ -350,13 +366,22 @@ export default function WorksheetCalendarSidebar() {
       viewedWorksheetNumber: state.viewedWorksheetNumber,
       user: state.user,
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+      anonymousWorksheet: state.anonymousWorksheet,
+      activeSavedWorksheet: state.activeSavedWorksheet,
       gridStyle: state.calendarGridStyle,
       setGridStyle: state.setCalendarGridStyle,
+      hideConflictWarnings: state.hideConflictWarnings,
+      setHideConflictWarnings: state.setHideConflictWarnings,
       setAllAnonymousWorksheetHidden: state.setAllAnonymousWorksheetHidden,
       setAllActiveSavedWorksheetHidden: state.setAllActiveSavedWorksheetHidden,
       removeAnonymousWorksheetListing: state.removeAnonymousWorksheetListing,
       removeActiveSavedWorksheetListing:
         state.removeActiveSavedWorksheetListing,
+      clearAnonymousWorksheet: state.clearAnonymousWorksheet,
+      clearActiveSavedWorksheet: state.clearActiveSavedWorksheet,
+      restoreAnonymousWorksheetCourses: state.restoreAnonymousWorksheetCourses,
+      restoreActiveSavedWorksheetSections:
+        state.restoreActiveSavedWorksheetSections,
       worksheetsRefresh: state.worksheetsRefresh,
     })),
   );
@@ -369,38 +394,146 @@ export default function WorksheetCalendarSidebar() {
   const [styleMenuOpen, setStyleMenuOpen] = useState(false);
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
-  const styleRef = useCloseOnOutsideClick(styleMenuOpen, () =>
-    setStyleMenuOpen(false),
+  const [conflictModalOpen, setConflictModalOpen] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
+  const [clearedSnapshot, setClearedSnapshot] =
+    useState<ClearedSnapshot | null>(null);
+  const [expandedCards, setExpandedCards] = useState<ReadonlySet<Crn>>(
+    () => new Set(),
   );
+  const closeStyleMenu = () => {
+    setStyleMenuOpen(false);
+    setConfirmClear(false);
+  };
+  const styleRef = useCloseOnOutsideClick(styleMenuOpen, closeStyleMenu);
   const exportRef = useCloseOnOutsideClick(exportMenuOpen, () =>
     setExportMenuOpen(false),
   );
 
-  const { courseCount, credits } = useMemo(
-    () => getWorksheetCourseStats(courses),
+  // A cleared-courses snapshot only makes sense for the worksheet it came
+  // from; switching term or worksheet discards it.
+  const worksheetKey = `${viewedSeason}|${activeSavedWorksheet?.id ?? ''}|${viewedWorksheetNumber}`;
+  useEffect(() => {
+    setClearedSnapshot(null);
+    setConfirmClear(false);
+  }, [worksheetKey]);
+
+  // Match the grid: hidden courses don't render there, so they don't count
+  // toward the dashboard stats or conflicts.
+  const visibleCourses = useMemo(
+    () => courses.filter((c) => !c.hidden),
     [courses],
   );
+  const { courseCount, credits } = useMemo(
+    () => getWorksheetCourseStats(visibleCourses),
+    [visibleCourses],
+  );
+  const load = creditLoad(credits);
+  const finals = useMemo(() => firstFinal(visibleCourses), [visibleCourses]);
+  const busiest = useMemo(() => busiestDay(visibleCourses), [visibleCourses]);
   const areHidden = courses.length > 0 && courses.every((c) => c.hidden);
 
-  // Match the grid: hidden courses don't render there, so they don't count.
   const visibleConflicts = useMemo(
-    () => getScheduleConflicts(courses.filter((c) => !c.hidden)),
-    [courses],
+    () => getScheduleConflicts(visibleCourses),
+    [visibleCourses],
   );
-  const conflictPairs = useMemo(
-    () => summarizeConflictPairs(visibleConflicts),
-    [visibleConflicts],
-  );
-  const conflictedCrns = useMemo(
-    () =>
-      new Set(
-        visibleConflicts.flatMap((conflict) => [
-          conflict.a.crn,
-          conflict.b.crn,
-        ]),
-      ),
-    [visibleConflicts],
-  );
+  const conflictPartners = useMemo(() => {
+    const sectionByCrn = new Map(
+      courses.map((c) => [c.listing.crn, sectionOf(c)]),
+    );
+    const label = (crn: Crn, code: string) => {
+      const section = sectionByCrn.get(crn);
+      return section ? `${code} ${section}` : code;
+    };
+    const partners = new Map<Crn, Set<string>>();
+    const add = (crn: Crn, partner: string) => {
+      const set = partners.get(crn) ?? new Set();
+      set.add(partner);
+      partners.set(crn, set);
+    };
+    for (const conflict of visibleConflicts) {
+      add(conflict.a.crn, label(conflict.b.crn, conflict.b.courseCode));
+      add(conflict.b.crn, label(conflict.a.crn, conflict.a.courseCode));
+    }
+    return partners;
+  }, [visibleConflicts, courses]);
+
+  const allExpanded =
+    courses.length > 0 &&
+    courses.every((c) => expandedCards.has(c.listing.crn));
+  const toggleExpandAll = () => {
+    setExpandedCards(
+      allExpanded ? new Set() : new Set(courses.map((c) => c.listing.crn)),
+    );
+  };
+  const toggleCardExpanded = (crn: Crn) => {
+    setExpandedCards((prev) => {
+      const next = new Set(prev);
+      if (next.has(crn)) next.delete(crn);
+      else next.add(crn);
+      return next;
+    });
+  };
+
+  const clearAllCourses = async () => {
+    if (courses.length === 0) return;
+    if (isAnonymousWorksheet) {
+      const snapshot = getAnonymousWorksheetCourses(
+        anonymousWorksheet,
+        viewedSeason,
+      );
+      clearAnonymousWorksheet();
+      setClearedSnapshot({ kind: 'anonymous', courses: snapshot });
+    } else if (hasSavedWorksheetAccount) {
+      const sections = activeSavedWorksheet?.sections ?? [];
+      if (await clearActiveSavedWorksheet())
+        setClearedSnapshot({ kind: 'saved', sections });
+    } else {
+      const snapshot = courses.map((c) => ({
+        crn: c.listing.crn,
+        color: c.color,
+        hidden: Boolean(c.hidden),
+      }));
+      const success = await updateWorksheetCourses(
+        courses.map((c) => ({
+          action: 'remove' as const,
+          season: viewedSeason,
+          crn: c.listing.crn,
+          worksheetNumber: viewedWorksheetNumber,
+          color: c.color,
+          hidden: false,
+        })),
+      );
+      if (success) {
+        await worksheetsRefresh();
+        setClearedSnapshot({ kind: 'legacy', courses: snapshot });
+      }
+    }
+    closeStyleMenu();
+  };
+
+  const restoreAllCourses = async () => {
+    if (!clearedSnapshot) return;
+    if (clearedSnapshot.kind === 'anonymous') {
+      restoreAnonymousWorksheetCourses(clearedSnapshot.courses);
+    } else if (clearedSnapshot.kind === 'saved') {
+      await restoreActiveSavedWorksheetSections(clearedSnapshot.sections);
+    } else {
+      const success = await updateWorksheetCourses(
+        clearedSnapshot.courses.map((c) => ({
+          action: 'add' as const,
+          season: viewedSeason,
+          crn: c.crn,
+          worksheetNumber: viewedWorksheetNumber,
+          color: c.color,
+          hidden: c.hidden,
+        })),
+      );
+      if (success) await worksheetsRefresh();
+    }
+    setClearedSnapshot(null);
+    closeStyleMenu();
+  };
 
   const toggleAllHidden = async () => {
     if (isAnonymousWorksheet) {
@@ -455,60 +588,132 @@ export default function WorksheetCalendarSidebar() {
         <div className={styles.pickerBackdrop} aria-hidden="true" />
       )}
 
-      <div className={styles.statsRow}>
-        <div className={styles.statPill}>
-          <div className={styles.statLabel}>Courses</div>
-          <div
-            className={styles.statValue}
-            style={{ background: statPillColor(courseCount, [4, 6]) }}
-          >
-            {courseCount}
+      <div className={styles.statsBlock}>
+        <div className={styles.statsGrid}>
+          <div className={styles.statTile}>
+            <span className={styles.statTileLabel}>Courses</span>
+            <span className={styles.statTileValue}>{courseCount}</span>
+            <span className={styles.statTileSub}>planned</span>
           </div>
+          <div className={styles.statTile}>
+            <span className={styles.statTileLabel}>Credits</span>
+            <span className={styles.statTileValue}>{credits}</span>
+            <span className={styles.statTileSubStrong}>
+              <span
+                className={styles.loadDot}
+                style={{ background: load.color }}
+                aria-hidden="true"
+              />
+              {load.label}
+            </span>
+          </div>
+          {visibleConflicts.length > 0 ? (
+            <button
+              type="button"
+              className={styles.conflictTile}
+              onClick={() => setConflictModalOpen(true)}
+            >
+              <span className={styles.conflictPulseDot} aria-hidden="true" />
+              <span className={styles.conflictTileLabel}>Conflicts</span>
+              <span className={styles.conflictTileValue}>
+                {visibleConflicts.length}
+              </span>
+              <span className={styles.conflictTileView}>
+                View
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </span>
+            </button>
+          ) : (
+            <div className={styles.statTile}>
+              <span className={styles.statTileLabel}>Conflicts</span>
+              <span className={styles.statTileValue}>0</span>
+              <span className={styles.statTileSubStrong}>
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#639922"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                all clear
+              </span>
+            </div>
+          )}
         </div>
-        <div className={styles.statPill}>
-          <div className={styles.statLabel}>Credits</div>
-          <div
-            className={styles.statValue}
-            style={{ background: statPillColor(credits, [4, 16]) }}
-          >
-            {credits}
+        <div className={styles.infoGrid}>
+          <div className={styles.infoTile}>
+            <span className={styles.infoTileLabel}>
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              Finals
+            </span>
+            <span className={styles.infoTileValue}>
+              {finals ? `in ${finals.daysUntil}d` : '—'}
+            </span>
+            <span className={styles.infoTileSub}>
+              First · {finals ? finals.dateShort : '—'}
+            </span>
+          </div>
+          <div className={styles.infoTile}>
+            <span className={styles.infoTileLabel}>
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+              </svg>
+              Busiest day
+            </span>
+            <span className={styles.infoTileValue}>
+              {busiest ? busiest.label : '—'}
+            </span>
+            <span className={styles.infoTileSub}>
+              {busiest
+                ? `${busiest.count} ${busiest.count === 1 ? 'class' : 'classes'}`
+                : 'No weekly classes'}
+            </span>
           </div>
         </div>
       </div>
-
-      {conflictPairs.length > 0 && (
-        <div className={styles.conflictBanner}>
-          <div className={styles.conflictBannerTitle}>
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-            {conflictPairs.length} time conflict
-            {conflictPairs.length === 1 ? '' : 's'}
-          </div>
-          {conflictPairs.map((pair) => (
-            <div key={pair.key} className={styles.conflictBannerLine}>
-              <span className={styles.conflictBannerCodes}>
-                {pair.courseCodes[0]} ↔ {pair.courseCodes[1]}
-              </span>
-              <span className={styles.conflictBannerMeta}>
-                {pair.details.join('; ')}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
 
       <div className={styles.controlsRow}>
         {canEdit && (
@@ -559,22 +764,23 @@ export default function WorksheetCalendarSidebar() {
             className={styles.controlButton}
             aria-label="Grid style"
             aria-expanded={styleMenuOpen}
-            onClick={() => setStyleMenuOpen((x) => !x)}
+            onClick={() => {
+              if (styleMenuOpen) closeStyleMenu();
+              else setStyleMenuOpen(true);
+            }}
           >
             <svg
-              width="17"
-              height="17"
+              width="16"
+              height="16"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="1.8"
+              strokeWidth="1.9"
               strokeLinecap="round"
               strokeLinejoin="round"
               aria-hidden="true"
             >
-              <polygon points="12 2 2 7 12 12 22 7 12 2" />
-              <polyline points="2 17 12 22 22 17" />
-              <polyline points="2 12 12 17 22 12" />
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
             </svg>
             <svg
               width="8"
@@ -624,6 +830,107 @@ export default function WorksheetCalendarSidebar() {
                   )}
                 </button>
               ))}
+              <div className={styles.menuDivider} aria-hidden="true" />
+              <button
+                type="button"
+                className={styles.menuItem}
+                onClick={() => setHideConflictWarnings(!hideConflictWarnings)}
+              >
+                <span>Hide conflict warnings</span>
+                {hideConflictWarnings && (
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#185fa5"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </button>
+              {canEdit && (courses.length > 0 || clearedSnapshot) && (
+                <>
+                  <div className={styles.menuDivider} aria-hidden="true" />
+                  {confirmClear ? (
+                    <div className={styles.confirmBlock}>
+                      <div className={styles.confirmText}>
+                        Remove all {courses.length}{' '}
+                        {courses.length === 1 ? 'course' : 'courses'} from this
+                        worksheet?
+                      </div>
+                      <div className={styles.confirmActions}>
+                        <button
+                          type="button"
+                          className={styles.confirmClearButton}
+                          onClick={() => {
+                            void clearAllCourses();
+                          }}
+                        >
+                          Clear all
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.confirmCancelButton}
+                          onClick={() => setConfirmClear(false)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : courses.length > 0 ? (
+                    <button
+                      type="button"
+                      className={styles.menuDangerItem}
+                      onClick={() => setConfirmClear(true)}
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                      </svg>
+                      Clear all courses
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className={styles.menuRestoreItem}
+                      onClick={() => {
+                        void restoreAllCourses();
+                      }}
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <polyline points="1 4 1 10 7 10" />
+                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                      </svg>
+                      Restore all courses
+                    </button>
+                  )}
+                </>
+              )}
             </div>
           )}
         </div>
@@ -726,18 +1033,53 @@ export default function WorksheetCalendarSidebar() {
         </div>
       </div>
 
+      {courses.length > 0 && (
+        <div className={styles.expandAllRow}>
+          <button
+            type="button"
+            className={styles.expandAllButton}
+            onClick={toggleExpandAll}
+          >
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={styles.expandAllChevron}
+              data-open={allExpanded || undefined}
+              aria-hidden="true"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+            {allExpanded ? 'Collapse all' : 'Expand all'}
+          </button>
+        </div>
+      )}
+
       <div className={styles.courseList}>
-        {courses.map((course) => (
-          <CourseCard
-            key={course.listing.crn}
-            course={course}
-            canEdit={canEdit}
-            hasConflict={conflictedCrns.has(course.listing.crn)}
-            onRemove={(c) => {
-              void removeCourse(c);
-            }}
-          />
-        ))}
+        {courses.map((course) => {
+          const partners = conflictPartners.get(course.listing.crn);
+          return (
+            <CourseCard
+              key={course.listing.crn}
+              course={course}
+              canEdit={canEdit}
+              hasConflict={Boolean(partners) && !hideConflictWarnings}
+              conflictTooltip={
+                partners ? `Conflicts with ${[...partners].join(', ')}` : null
+              }
+              expanded={expandedCards.has(course.listing.crn)}
+              onToggleExpand={() => toggleCardExpanded(course.listing.crn)}
+              onRemove={(c) => {
+                void removeCourse(c);
+              }}
+            />
+          );
+        })}
         {courses.length === 0 && (
           <div className={styles.emptyList}>
             <img
@@ -756,6 +1098,14 @@ export default function WorksheetCalendarSidebar() {
           </div>
         )}
       </div>
+
+      {conflictModalOpen && (
+        <ConflictModal
+          conflicts={visibleConflicts}
+          courses={courses}
+          onClose={() => setConflictModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

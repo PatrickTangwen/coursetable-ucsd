@@ -157,12 +157,12 @@ export default function WorksheetPicker({
           <span className={styles.wsRowIcon} aria-hidden="true">
             {summary.isMain ? (
               <svg
-                width="18"
-                height="18"
+                width="17"
+                height="17"
                 viewBox="0 0 24 24"
                 fill="currentColor"
               >
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                <path d="M19 21l-7-4.5L5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
               </svg>
             ) : (
               <svg
@@ -252,9 +252,22 @@ export default function WorksheetPicker({
         onClick={() => setOpen((x) => !x)}
         aria-expanded={open}
       >
-        <span className={styles.worksheetStar} aria-hidden="true">
-          ★
-        </span>
+        {(variant === 'sidebar' || activeSavedWorksheet.isMain) && (
+          <span className={styles.worksheetBookmark} aria-hidden="true">
+            <svg
+              width={variant === 'navbar' ? 13 : 15}
+              height={variant === 'navbar' ? 13 : 15}
+              viewBox="0 0 24 24"
+              fill="#ef9f27"
+              stroke="#ef9f27"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 21l-7-4.5L5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+            </svg>
+          </span>
+        )}
         <span className={styles.worksheetName}>
           {activeSavedWorksheet.name}
         </span>

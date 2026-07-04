@@ -1,0 +1,107 @@
+/* Weekly load stacked-bar chart, per the finalized list-view design.
+   Hardcoded hex per the finalized-design convention. */
+
+.chartCard {
+  padding: 10px 12px 9px;
+  border: 1px solid rgb(11 11 11 / 10%);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.chartHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.chartTitle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #9f9d97;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.chartTotal {
+  color: #9f9d97;
+  font-size: 10.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.chartBars {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 66px;
+}
+
+.chartColumn {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+}
+
+.chartHours {
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chartBar {
+  width: 100%;
+  max-width: 26px;
+  margin: 0 auto;
+  border-radius: 3px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column-reverse;
+  background: #efede8;
+}
+
+.chartSegment {
+  flex-basis: 0;
+  transition: opacity 0.12s ease;
+  cursor: pointer;
+}
+
+.chartDayLabel {
+  color: #9f9d97;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.chartLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid rgb(11 11 11 / 5%);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: opacity 0.12s ease;
+}
+
+.legendSwatch {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.legendCode {
+  color: #6f6d67;
+  font-size: 10.5px;
+  font-weight: 500;
+}

@@ -14,6 +14,7 @@ interface CalendarSliceState {
   isCalendarLockSettingsOpen: boolean;
   calendarMode: CalendarMode;
   calendarGridStyle: CalendarGridStyle;
+  hideConflictWarnings: boolean;
 }
 
 interface CalendarSliceActions {
@@ -24,6 +25,7 @@ interface CalendarSliceActions {
   setCalendarLockSettingsOpen: (open: boolean) => void;
   setCalendarMode: (mode: CalendarMode) => void;
   setCalendarGridStyle: (style: CalendarGridStyle) => void;
+  setHideConflictWarnings: (hide: boolean) => void;
 }
 
 export interface CalendarSlice
@@ -55,10 +57,14 @@ export const createCalendarSlice: StateCreator<Store, [], [], CalendarSlice> = (
   },
   calendarMode: 'week',
   calendarGridStyle: 'paper',
+  hideConflictWarnings: false,
   setCalendarMode(mode) {
     set({ calendarMode: mode });
   },
   setCalendarGridStyle(style) {
     set({ calendarGridStyle: style });
+  },
+  setHideConflictWarnings(hide) {
+    set({ hideConflictWarnings: hide });
   },
 });

@@ -44,6 +44,7 @@ import {
   setAnonymousWorksheetCourseColor,
   setAnonymousWorksheetCourseHidden,
   writeAnonymousWorksheetStorage,
+  type AnonymousWorksheetCourse,
   type AnonymousWorksheetListing,
   type AnonymousWorksheetShare,
   type AnonymousWorksheetState,
@@ -177,6 +178,9 @@ interface WorksheetActions {
   ) => Promise<boolean>;
   setAllActiveSavedWorksheetHidden: (hidden: boolean) => Promise<boolean>;
   clearActiveSavedWorksheet: () => Promise<boolean>;
+  restoreActiveSavedWorksheetSections: (
+    sections: SavedWorksheetSection[],
+  ) => Promise<boolean>;
   addAnonymousWorksheetListing: (
     listing: AnonymousWorksheetListing,
     color: string,
@@ -194,6 +198,9 @@ interface WorksheetActions {
   ) => void;
   setAllAnonymousWorksheetHidden: (hidden: boolean) => void;
   clearAnonymousWorksheet: () => void;
+  restoreAnonymousWorksheetCourses: (
+    courses: AnonymousWorksheetCourse[],
+  ) => void;
   setAnonymousWorksheetMissingSectionIds: (sectionIds: string[]) => void;
   setWorksheetMissingSectionIds: (sectionIds: string[]) => void;
 
@@ -906,6 +913,10 @@ export const createWorksheetSlice: StateCreator<
 
       return await replaceActiveSavedWorksheetSections([]);
     },
+    async restoreActiveSavedWorksheetSections(sections) {
+      if (sections.length === 0) return false;
+      return await replaceActiveSavedWorksheetSections(sections);
+    },
     addAnonymousWorksheetListing(listing, color) {
       const current = get().anonymousWorksheet;
       const next = addListingToAnonymousWorksheet(current, listing, color);
@@ -955,6 +966,17 @@ export const createWorksheetSlice: StateCreator<
         coursesByTerm: {
           ...get().anonymousWorksheet.coursesByTerm,
           [term]: [],
+        },
+      });
+    },
+    restoreAnonymousWorksheetCourses(courses) {
+      const term = get().viewedSeason;
+      setAnonymousWorksheet({
+        ...get().anonymousWorksheet,
+        term,
+        coursesByTerm: {
+          ...get().anonymousWorksheet.coursesByTerm,
+          [term]: courses,
         },
       });
     },

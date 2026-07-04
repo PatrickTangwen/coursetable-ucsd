@@ -25,9 +25,9 @@
   font-family: inherit;
 }
 
-.worksheetStar {
-  color: #ef9f27;
-  font-size: 15px;
+.worksheetBookmark {
+  display: inline-flex;
+  flex-shrink: 0;
 }
 
 .worksheetName {
@@ -63,8 +63,9 @@
   animation: popover-fade-in 0.14s ease-out;
 }
 
-/* Navbar variant: the toggle sits inline in the nav row; the menu drops
-   below it at a fixed width instead of spanning the sidebar. */
+/* Navbar variant: a bordered pill trigger matching the session selector
+   (finalized list-view design); the menu drops below it at a fixed width
+   instead of spanning the sidebar. */
 .worksheetHeaderNavbar {
   padding: 0;
   min-width: 0;
@@ -76,8 +77,33 @@
   box-shadow: none;
 }
 
+.worksheetHeaderNavbar .worksheetToggle {
+  padding: 8px 18px;
+  border: 1px solid rgb(11 11 11 / 14%);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgb(11 11 11 / 4%);
+  color: #6f6d67;
+  white-space: nowrap;
+  transition:
+    box-shadow 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.worksheetHeaderNavbar .worksheetToggle:hover {
+  color: #0b0b0b;
+  border-color: rgb(11 11 11 / 36%);
+  box-shadow: 0 2px 6px rgb(11 11 11 / 8%);
+}
+
+.worksheetHeaderNavbar .worksheetName {
+  font-size: 14px;
+  font-weight: 500;
+  color: inherit;
+}
+
 .worksheetHeaderNavbar .worksheetMenu {
-  top: calc(100% + 10px);
+  top: calc(100% + 8px);
   left: 0;
   right: auto;
   width: 280px;
