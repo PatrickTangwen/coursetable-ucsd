@@ -291,13 +291,13 @@ function EventBlock({
       onFocus={() => setHoverCourse(crn)}
       onBlur={() => setHoverCourse(null)}
     >
+      {/* Content always clusters at the top-left; taller blocks get larger
+          text via textScale instead of spreading lines apart. */}
       <div
         className={styles.eventContent}
         style={{
           padding,
-          justifyContent:
-            !isMobile && realPx >= 118 ? 'space-between' : 'flex-start',
-          rowGap: isMobile ? 0 : 1,
+          rowGap: isMobile ? 0 : realPx >= 118 ? 2 : 1,
         }}
       >
         <strong
