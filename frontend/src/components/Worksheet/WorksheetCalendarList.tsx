@@ -324,16 +324,10 @@ function WorksheetCalendarList({
 
   const handleClearAll = async () => {
     if (courses.length === 0) return;
-    const courseCount = courses.length;
 
     if (isAnonymousWorksheet) {
       clearAnonymousWorksheet();
       setClearModalOpen(false);
-      toast.success(
-        courseCount === 1
-          ? 'Removed class from worksheet'
-          : `Removed all ${courseCount} classes from worksheet`,
-      );
       return;
     }
 
@@ -341,14 +335,7 @@ function WorksheetCalendarList({
       setClearing(true);
       try {
         const cleared = await clearActiveSavedWorksheet();
-        if (cleared) {
-          setClearModalOpen(false);
-          toast.success(
-            courseCount === 1
-              ? 'Removed class from Saved Worksheet'
-              : `Removed all ${courseCount} classes from Saved Worksheet`,
-          );
-        }
+        if (cleared) setClearModalOpen(false);
       } finally {
         setClearing(false);
       }
@@ -367,12 +354,6 @@ function WorksheetCalendarList({
       await updateWorksheetCourses(actions);
       await worksheetsRefresh();
       setClearModalOpen(false);
-
-      toast.success(
-        courseCount === 1
-          ? 'Removed class from worksheet'
-          : `Removed all ${courseCount} classes from worksheet`,
-      );
     } finally {
       setClearing(false);
     }

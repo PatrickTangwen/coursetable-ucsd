@@ -373,14 +373,6 @@ function WorksheetList() {
 
   const handleClearAll = async () => {
     if (courses.length === 0) return;
-    const courseCnt = courses.length;
-    const removedToast = () => {
-      toast.success(
-        courseCnt === 1
-          ? 'Removed class from worksheet'
-          : `Removed all ${courseCnt} classes from worksheet`,
-      );
-    };
 
     if (isAnonymousWorksheet) {
       const anonymousSnapshot = getAnonymousWorksheetCourses(
@@ -390,7 +382,6 @@ function WorksheetList() {
       clearAnonymousWorksheet();
       setClearedSnapshot({ kind: 'anonymous', courses: anonymousSnapshot });
       closeSettingsMenu();
-      removedToast();
       return;
     }
 
@@ -402,7 +393,6 @@ function WorksheetList() {
         if (cleared) {
           setClearedSnapshot({ kind: 'saved', sections });
           closeSettingsMenu();
-          removedToast();
         }
       } finally {
         setClearing(false);
@@ -429,7 +419,6 @@ function WorksheetList() {
         await worksheetsRefresh();
         setClearedSnapshot({ kind: 'legacy', courses: snapshot });
         closeSettingsMenu();
-        removedToast();
       }
     } finally {
       setClearing(false);
