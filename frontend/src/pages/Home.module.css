@@ -399,6 +399,15 @@
   min-width: 0;
 }
 
+/* Anchor navigation (#worksheet, #how, …) stops each section just below the
+   sticky header (81px tall on desktop) instead of underneath it. */
+.worksheetSection,
+.examsSection,
+.courseSection,
+.howSection {
+  scroll-margin-top: 81px;
+}
+
 /* ═══ Shared visual columns ═══ */
 
 .visCol {
@@ -939,6 +948,14 @@
     grid-template-columns: 1fr;
     padding: 52px 18px;
     gap: 28px;
+  }
+
+  /* The mobile header is shorter (67px). */
+  .worksheetSection,
+  .examsSection,
+  .courseSection,
+  .howSection {
+    scroll-margin-top: 67px;
   }
 
   /* Once the section stacks, the desktop column order (demo left of copy)
