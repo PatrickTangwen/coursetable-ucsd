@@ -84,8 +84,9 @@
   border-radius: 5px;
 }
 
+/* Hover never recolors the label — only the active segment darkens. */
 .button:hover {
-  color: #185fa5;
+  color: #6f6d67;
 }
 
 .buttonActive {
