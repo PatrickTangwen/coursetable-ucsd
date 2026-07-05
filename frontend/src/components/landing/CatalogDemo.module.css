@@ -1,0 +1,325 @@
+.vis {
+  position: relative;
+}
+
+.glow {
+  position: absolute;
+  inset: 8% -6%;
+  background: radial-gradient(80% 70% at 60% 30%, #e6f1fb, transparent 70%);
+  filter: blur(6px);
+  z-index: 0;
+}
+
+/* Slide indicator: tucked just below the card's bottom-right corner. */
+.slideDots {
+  position: absolute;
+  bottom: -20px;
+  right: 8px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgb(11 11 11 / 18%);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition:
+    width 0.3s ease,
+    background 0.3s ease;
+}
+
+.dotActive {
+  width: 20px;
+  background: #185fa5;
+}
+
+.viewport {
+  position: relative;
+  z-index: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgb(11 11 11 / 8%);
+  box-shadow:
+    0 40px 80px -40px rgb(11 11 11 / 50%),
+    0 6px 16px rgb(11 11 11 / 8%);
+  background: #fff;
+}
+
+.appBar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 18px;
+  border-bottom: 1px solid rgb(11 11 11 / 8%);
+}
+
+.wordmark {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #0b0b0b;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.searchBox {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgb(11 11 11 / 3%);
+  border: 1px solid rgb(11 11 11 / 9%);
+  border-radius: 10px;
+  padding: 9px 13px;
+  min-width: 0;
+}
+
+.searchPlaceholder {
+  font-size: 13px;
+  color: #9f9d97;
+}
+
+.searchQuery {
+  font-size: 13px;
+  color: #0b0b0b;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resultCount {
+  font-size: 12px;
+  color: #9f9d97;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgb(11 11 11 / 8%);
+}
+
+.filterBarTight {
+  gap: 5px;
+  flex-wrap: nowrap;
+}
+
+.filterChip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgb(11 11 11 / 10%);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #3d3b37;
+}
+
+.filterChipSm {
+  gap: 5px;
+  padding: 6px 9px;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.activeChip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: #e6f1fb;
+  border: 1px solid #85b7eb;
+  border-radius: 8px;
+  padding: 7px 8px 7px 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #185fa5;
+}
+
+.activeChipSm {
+  gap: 6px;
+  padding: 6px 6px 6px 9px;
+  font-size: 12px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.resetBtn {
+  margin-left: 2px;
+  padding: 7px 15px;
+  border-radius: 8px;
+  background: #a32d2d;
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.thead {
+  display: grid;
+  column-gap: 10px;
+  padding: 9px 18px;
+  background: #f7f6f4;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #9f9d97;
+  border-bottom: 1px solid rgb(11 11 11 / 8%);
+}
+
+.searchCols {
+  grid-template-columns: 18px 88px minmax(0, 1fr) 82px 154px 54px;
+}
+
+.filterCols {
+  grid-template-columns: 18px 74px 96px minmax(0, 1fr) 56px;
+}
+
+.th {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.sortArrow {
+  color: #2871be;
+  font-size: 8px;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  column-gap: 10px;
+  align-items: center;
+  padding: 11px 18px;
+  border-bottom: 1px solid rgb(11 11 11 / 6%);
+}
+
+.rowTall {
+  padding: 12px 18px;
+}
+
+.rows .row:last-child {
+  border-bottom: none;
+}
+
+.addIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.codeCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.code {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.secLabel {
+  font-size: 11px;
+  color: #9f9d97;
+}
+
+.title {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.instr {
+  font-size: 12px;
+  color: #6f6d67;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meets {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.time {
+  font-size: 10.5px;
+  color: #3d3b37;
+  white-space: nowrap;
+}
+
+.loc {
+  font-size: 11px;
+  color: #9f9d97;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sectionsBadge {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid #85b7eb;
+  color: #185fa5;
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.termBadge {
+  justify-self: start;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.termGreen {
+  background: #e1f5ee;
+  color: #0f6e56;
+}
+
+.termBlue {
+  background: #e6f1fb;
+  color: #185fa5;
+}
+
+/* The hero "next" arrow nudges sideways to invite a click. */
+.nudge {
+  animation: nudge 1.8s ease-in-out infinite;
+}
+
+@keyframes nudge {
+  0%,
+  100% {
+    transform: translateY(-50%);
+  }
+
+  50% {
+    transform: translateY(-50%) translateX(4px);
+  }
+}

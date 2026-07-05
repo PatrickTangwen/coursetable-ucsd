@@ -1,0 +1,32 @@
+.chips {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-weight: 700;
+  background: #e7e5e1;
+  color: #9f9d97;
+}
+
+.sm {
+  width: 15px;
+  height: 15px;
+  font-size: 8px;
+}
+
+.md {
+  width: 18px;
+  height: 16px;
+  font-size: 8.5px;
+}
+
+.on {
+  background: #333b4d;
+  color: #fff;
+}

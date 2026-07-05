@@ -17,6 +17,7 @@ import Tutorial from './components/Tutorial';
 
 // Popular pages are eagerly fetched
 import CatalogListView from './pages/CatalogListView';
+import Home from './pages/Home';
 import Worksheet from './pages/Worksheet';
 import { useStore, useInitStore } from './store';
 
@@ -147,14 +148,13 @@ function App() {
         // Don't remove this wrapper.
         id={26}
       />
-      <TopNav />
+      {/* The landing page brings its own header and footer */}
+      {location.pathname !== '/' && <TopNav />}
       <SentryRoutes>
-        <Route element={<AuthenticatedRoutes />}>
-          <Route
-            path="/"
-            element={<Navigate to={createCatalogLink()} replace />}
-          />
+        {/* Public landing page; renders instantly without waiting on auth */}
+        <Route path="/" element={<Home />} />
 
+        <Route element={<AuthenticatedRoutes />}>
           {/* Authenticated routes */}
           {/* Catalog and worksheet can be viewed by anyone; we put them under
           authenticated routes because we want loading auth to show a loading
@@ -190,7 +190,8 @@ function App() {
       </SentryRoutes>
       {/* The worksheet calendar view fills the viewport with no page scroll,
       so the footer would force a scrollbar; the list view still shows it. */}
-      {location.pathname !== '/catalog' &&
+      {location.pathname !== '/' &&
+        location.pathname !== '/catalog' &&
         !(location.pathname === '/worksheet' && worksheetView !== 'list') && (
           <Footer />
         )}

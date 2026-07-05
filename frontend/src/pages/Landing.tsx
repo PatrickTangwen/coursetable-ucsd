@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { requestUcsdVerification, verifyUcsdEmail } from '../queries/api';
@@ -9,8 +9,12 @@ import styles from './Landing.module.css';
 
 function Landing() {
   const navigate = useNavigate();
+  const location = useLocation();
   const refreshAuth = useStore((state) => state.refreshAuth);
-  const [email, setEmail] = useState('');
+  // The landing page CTA can hand off an email typed there
+  const [email, setEmail] = useState(
+    (location.state as { email?: string } | null)?.email ?? '',
+  );
   const [code, setCode] = useState('');
   const [verifiedEmail, setVerifiedEmail] = useState('');
   const [devCode, setDevCode] = useState<string | undefined>();

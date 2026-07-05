@@ -1,0 +1,981 @@
+.page {
+  --ink: #0b0b0b;
+  --muted: #6f6d67;
+  --faint: #9f9d97;
+  --accent: #2871be;
+  --accent-strong: #185fa5;
+  --line: rgb(11 11 11 / 8%);
+  --line-soft: rgb(11 11 11 / 6%);
+  --serif: 'Cormorant Garamond', serif;
+
+  width: 100%;
+  min-height: 100vh;
+  background: #fff;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+.page a {
+  text-decoration: none;
+}
+
+/* ═══ Header ═══ */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgb(255 255 255 / 82%);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+.headerInner {
+  position: relative;
+  z-index: 3;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px 40px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.logoSvg {
+  width: 66px;
+  height: 44px;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 2px;
+}
+
+.navLink {
+  padding: 8px 15px;
+  border-radius: 8px;
+  font-size: 18.5px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.navLink:hover {
+  background: rgb(11 11 11 / 5%);
+  color: var(--ink);
+}
+
+.authBtn {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.spacer {
+  flex: 1;
+}
+
+/* Hamburger button — hidden on desktop, revealed at the mobile breakpoint. */
+.menuBtn {
+  display: none;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.menuBtn:hover {
+  background: rgb(11 11 11 / 5%);
+}
+
+.menuBars,
+.menuBars::before,
+.menuBars::after {
+  position: absolute;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ink);
+}
+
+/* Middle bar is centered in the 40px button; the outer bars are positioned
+   relative to it (their containing block), so they use left:0 to stay aligned. */
+.menuBars {
+  top: 19px;
+  left: 10px;
+}
+
+.menuBars::before {
+  content: '';
+  left: 0;
+  top: -6px;
+}
+
+.menuBars::after {
+  content: '';
+  left: 0;
+  top: 6px;
+}
+
+/* Dropdown menu + its click-away backdrop are hidden unless the mobile
+   breakpoint turns them on (they only render when the menu is open). */
+.menuBackdrop {
+  display: none;
+}
+
+.mobileMenu {
+  display: none;
+}
+
+/* Same interaction language as the desktop nav links: muted by default,
+   soft grey pill + ink text on hover/press. */
+.mobileMenuLink {
+  display: block;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.mobileMenuLink:hover,
+.mobileMenuLink:active {
+  background: rgb(11 11 11 / 5%);
+  color: var(--ink);
+}
+
+/* ═══ Hero ═══ */
+
+.hero {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 44px 40px 60px;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.32fr);
+  gap: 52px;
+  align-items: center;
+}
+
+.heroCopyClip {
+  position: relative;
+  overflow: hidden;
+}
+
+.heroTrack {
+  /* Space between slides keeps the inactive panel's text off the clip seam, so
+     it can't bleed a hairline speck into the gap. The translate in Home.tsx
+     adds this gap back per slide (see trackStyle). */
+  --slide-gap: 48px;
+
+  display: flex;
+  gap: var(--slide-gap);
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.copyPanel {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.heroPanel1 {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  max-width: 520px;
+}
+
+.h1 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 64px;
+  line-height: 1.02;
+  letter-spacing: -1px;
+}
+
+.heroLead {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 440px;
+}
+
+.ctaRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 50px;
+  padding: 0 24px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 15.5px;
+  font-weight: 600;
+  box-shadow: 0 8px 20px -8px rgb(24 95 165 / 55%);
+}
+
+.btnPrimary:hover {
+  background: var(--accent-strong);
+  color: #fff;
+}
+
+.btnGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 50px;
+  padding: 0 22px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid rgb(11 11 11 / 14%);
+  color: var(--ink);
+  font-size: 15.5px;
+  font-weight: 600;
+}
+
+.btnGhost:hover {
+  border-color: rgb(11 11 11 / 30%);
+  background: #fafaf9;
+  color: var(--ink);
+}
+
+.freeNote {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--faint);
+}
+
+.stats {
+  display: flex;
+  gap: 36px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  margin-top: 2px;
+}
+
+.statNum {
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.heroPanel2 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.heroPanel2Inner {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 460px;
+}
+
+.h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 42px;
+  line-height: 1.08;
+  letter-spacing: -0.5px;
+}
+
+.sectionLead {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.feature {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.featureIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.featureTitle {
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.featureDesc {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.iconBlue {
+  background: #e6f1fb;
+}
+
+.iconGreen {
+  background: #e1f5ee;
+}
+
+.iconPurple {
+  background: #eeedfe;
+}
+
+.iconRed {
+  background: #fdecec;
+}
+
+.iconGray {
+  background: #e2e0da;
+}
+
+.redDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #a32d2d;
+}
+
+.heroWrap {
+  min-width: 0;
+}
+
+/* ═══ Shared visual columns ═══ */
+
+.visCol {
+  display: block;
+  min-width: 0;
+}
+
+.visRel {
+  position: relative;
+}
+
+.glow {
+  position: absolute;
+  inset: 6% -6%;
+  filter: blur(6px);
+  z-index: 0;
+}
+
+.glowRed {
+  background: radial-gradient(80% 70% at 50% 30%, #fdecec, transparent 72%);
+}
+
+.glowPurple {
+  background: radial-gradient(80% 70% at 50% 30%, #eeedfe, transparent 72%);
+}
+
+/* ═══ Department strip ═══ */
+
+.strip {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8px 40px 44px;
+}
+
+.stripInner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 22px 28px;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.stripLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+
+.stripDivider {
+  width: 1px;
+  height: 16px;
+  background: rgb(11 11 11 / 10%);
+}
+
+.stripChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.stripChip {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgb(11 11 11 / 7%);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* ═══ Worksheet section ═══ */
+
+.worksheetSection {
+  background: #f7f6f4;
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.worksheetGrid {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 64px 40px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.95fr) minmax(0, 1fr);
+  gap: 44px;
+  align-items: center;
+}
+
+.copyCol {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 460px;
+}
+
+.eyebrow {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+/* ═══ Exams section ═══ */
+
+.examsSection {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 72px 40px;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 56px;
+  align-items: center;
+}
+
+/* ═══ Course detail section ═══ */
+
+.courseSection {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 72px 40px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.14fr) minmax(0, 0.9fr);
+  gap: 56px;
+  align-items: center;
+}
+
+.courseCopy {
+  order: 2;
+}
+
+.courseVis {
+  order: 1;
+}
+
+/* ═══ Sync section ═══ */
+
+.syncSection {
+  background: #f7f6f4;
+  border-top: 1px solid var(--line-soft);
+}
+
+.syncInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 72px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.syncHeader {
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 28px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cardIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.cardDesc {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* ═══ How it works ═══ */
+
+.howSection {
+  background: #fff;
+  border-top: 1px solid var(--line-soft);
+}
+
+.howInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 72px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 44px;
+}
+
+.howHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  text-align: center;
+}
+
+.howH2 {
+  line-height: 1.05;
+}
+
+.howGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.stepTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stepNum {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepLine {
+  flex: 1;
+  height: 1px;
+  background: rgb(11 11 11 / 10%);
+}
+
+.stepTitle {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.stepDesc {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* ═══ Final CTA ═══ */
+
+.ctaSection {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 40px;
+}
+
+.ctaCard {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  background: radial-gradient(
+    120% 130% at 12% 0%,
+    var(--accent) 0%,
+    var(--accent-strong) 55%,
+    #12508c 100%
+  );
+  color: #fff;
+  padding: 64px 56px;
+}
+
+.ctaDots {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    rgb(255 255 255 / 14%) 1.2px,
+    transparent 1.2px
+  );
+  background-size: 22px 22px;
+  opacity: 0.5;
+}
+
+.ctaBigS {
+  position: absolute;
+  right: -70px;
+  bottom: -90px;
+  font-family: var(--serif);
+  font-size: 340px;
+  line-height: 0.8;
+  font-weight: 600;
+  color: rgb(255 255 255 / 7%);
+  pointer-events: none;
+}
+
+.ctaContent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  max-width: 560px;
+}
+
+.ctaH2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 48px;
+  line-height: 1.04;
+  letter-spacing: -0.5px;
+}
+
+.ctaLead {
+  margin: 0;
+  font-size: 16.5px;
+  line-height: 1.6;
+  color: rgb(255 255 255 / 84%);
+}
+
+.ctaRowWrap {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.ctaPill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border-radius: 11px;
+  padding: 5px 5px 5px 16px;
+  margin: 0;
+}
+
+.ctaInput {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  width: 210px;
+}
+
+.ctaSubmit {
+  height: 44px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent-strong);
+  color: #fff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ctaSubmit:hover {
+  background: #12508c;
+}
+
+.ctaBrowse {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 54px;
+  padding: 0 22px;
+  border-radius: 11px;
+  background: rgb(255 255 255 / 14%);
+  border: 1px solid rgb(255 255 255 / 30%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.ctaBrowse:hover {
+  background: rgb(255 255 255 / 22%);
+  color: #fff;
+}
+
+/* ═══ Footer ═══ */
+
+.footer {
+  border-top: 1px solid var(--line);
+}
+
+.footerInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.footerLogo {
+  display: flex;
+  align-items: baseline;
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.footerNav {
+  display: flex;
+  gap: 6px;
+  font-size: 15px;
+  color: var(--muted);
+  margin-left: -8px;
+}
+
+.footerLink {
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: var(--muted);
+}
+
+.footerLink:hover {
+  background: rgb(11 11 11 / 5%);
+  color: var(--ink);
+}
+
+/* ═══ Responsive ═══ */
+
+@media (max-width: 768px) {
+  .page {
+    overflow-x: clip;
+  }
+
+  .h1 {
+    font-size: 38px;
+    line-height: 1.04;
+  }
+
+  .h2,
+  .ctaH2 {
+    font-size: 30px;
+    line-height: 1.1;
+  }
+
+  .headerInner {
+    padding: 11px 16px;
+    gap: 12px;
+  }
+
+  .nav {
+    display: none;
+  }
+
+  .menuBtn {
+    display: block;
+  }
+
+  /* Match the desktop navbar button (muted text, grey/ink hover from
+     .navLink) — just tuned smaller to fit the mobile header row. */
+  .authBtn {
+    padding: 8px 12px;
+    font-size: 15px;
+  }
+
+  /* Dim only the page below the header, so the header row stays crisp. */
+  .menuBackdrop {
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    z-index: 1;
+    padding: 0;
+    border: none;
+    background: rgb(11 11 11 / 8%);
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobileMenu {
+    display: flex;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 14px 16px;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 18px 30px -22px rgb(11 11 11 / 45%);
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 30px 18px 34px;
+    gap: 26px;
+  }
+
+  .stats {
+    gap: 20px;
+  }
+
+  .worksheetGrid {
+    grid-template-columns: 1fr;
+    padding: 44px 18px;
+    gap: 28px;
+  }
+
+  .courseSection,
+  .examsSection {
+    grid-template-columns: 1fr;
+    padding: 52px 18px;
+    gap: 28px;
+  }
+
+  .grid3,
+  .howGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .syncInner,
+  .howInner,
+  .ctaSection {
+    padding: 40px 18px;
+  }
+
+  .footerInner {
+    padding: 40px 18px;
+  }
+
+  .strip {
+    padding: 8px 18px 40px;
+  }
+
+  .ctaCard {
+    padding: 40px 22px;
+  }
+
+  .ctaBigS {
+    font-size: 190px;
+    right: -28px;
+    bottom: -44px;
+  }
+
+  .ctaPill {
+    width: 100%;
+  }
+
+  .ctaInput {
+    width: 100%;
+    flex: 1;
+  }
+}
+
+@media (max-width: 400px) {
+  .h1 {
+    font-size: 32px;
+  }
+
+  .h2,
+  .ctaH2 {
+    font-size: 26px;
+  }
+}

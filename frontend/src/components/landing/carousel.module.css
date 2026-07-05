@@ -1,0 +1,65 @@
+/* Shared carousel primitives for the landing page demo figures. */
+
+.track {
+  display: flex;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide {
+  width: 100%;
+  flex-shrink: 0;
+  background: #fff;
+}
+
+.arrow {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background 0.15s,
+    transform 0.1s;
+}
+
+.prev {
+  left: -16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid rgb(11 11 11 / 10%);
+  box-shadow: 0 6px 18px -6px rgb(11 11 11 / 35%);
+}
+
+.prev:hover {
+  background: #fafaf9;
+}
+
+.prev:active {
+  background: #edebe5;
+  transform: translateY(-50%) scale(0.92);
+}
+
+.next {
+  right: -16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #2871be;
+  border: none;
+  box-shadow: 0 8px 22px -6px rgb(40 113 190 / 60%);
+}
+
+.next:hover {
+  background: #185fa5;
+}
+
+.next:active {
+  background: #185fa5;
+  transform: translateY(-50%) scale(0.92);
+}

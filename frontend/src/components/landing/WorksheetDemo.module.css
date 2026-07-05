@@ -1,0 +1,314 @@
+.frame {
+  position: relative;
+  z-index: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgb(11 11 11 / 8%);
+  box-shadow:
+    0 30px 60px -30px rgb(11 11 11 / 40%),
+    0 4px 12px rgb(11 11 11 / 6%);
+  background: #fff;
+  height: 504px;
+}
+
+.split {
+  display: flex;
+  align-items: flex-start;
+}
+
+/* ── Calendar ── */
+
+.calendar {
+  flex: 1.92;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.dayHead {
+  display: flex;
+  padding-left: 40px;
+  border-bottom: 1px solid rgb(11 11 11 / 8%);
+  position: relative;
+}
+
+.dayHeadCell {
+  flex: 1;
+  text-align: center;
+  padding: 9px 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6f6d67;
+}
+
+.gridBody {
+  display: flex;
+  position: relative;
+  height: 440px;
+}
+
+.timeAxis {
+  width: 40px;
+  flex-shrink: 0;
+  position: relative;
+  border-right: 1px solid rgb(11 11 11 / 8%);
+}
+
+.hourLabel {
+  position: absolute;
+  right: 5px;
+  font-size: 8px;
+  color: #9f9d97;
+  font-weight: 500;
+}
+
+.hourSuffix {
+  font-size: 6.5px;
+}
+
+.dayCol {
+  flex: 1;
+  position: relative;
+  border-right: 1px solid rgb(11 11 11 / 6%);
+  background-image: repeating-linear-gradient(
+    #f1efeb 0 1px,
+    transparent 1px 40px
+  );
+}
+
+.dayCol:last-child {
+  border-right: none;
+}
+
+.event {
+  position: absolute;
+  border: 1px solid;
+  border-radius: 7px;
+  padding: 4px 6px;
+  overflow: hidden;
+}
+
+.evCode {
+  font-size: 8.5px;
+  font-weight: 700;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+.evSec {
+  font-weight: 600;
+  font-size: 7px;
+}
+
+.evKind {
+  font-size: 7.5px;
+  line-height: 1.15;
+}
+
+.evMeta {
+  font-size: 7px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* ── Sidebar ── */
+
+.sidebar {
+  flex: 1;
+  min-width: 0;
+  border-left: 1px solid rgb(11 11 11 / 8%);
+  background: #fdfcfb;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.infoZone {
+  background: #fff;
+  margin: -12px -12px 0;
+  padding: 12px 12px 11px;
+  border-bottom: 1px solid rgb(11 11 11 / 9%);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.wsHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 1px 2px;
+}
+
+.wsTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0b0b0b;
+}
+
+.tileGrid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.tileGrid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.tile,
+.tileRelative {
+  border: 1px solid rgb(11 11 11 / 9%);
+  border-radius: 9px;
+  padding: 7px 8px;
+  background: #fff;
+}
+
+.tileRelative {
+  position: relative;
+}
+
+.tileLabel {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #9f9d97;
+}
+
+.tileValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0b0b0b;
+  line-height: 1.05;
+  margin-top: 1px;
+}
+
+.tileValueSm {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0b0b0b;
+  line-height: 1.05;
+  margin-top: 3px;
+}
+
+.tileSub {
+  font-size: 8px;
+  color: #9f9d97;
+  margin-top: 1px;
+}
+
+.tileSubRow {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 1px;
+}
+
+.tileLink {
+  font-size: 8px;
+  color: #9f9d97;
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+.tileIconRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #9f9d97;
+}
+
+.tileIconLabel {
+  font-size: 8px;
+  font-weight: 600;
+}
+
+.redDotSm {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #c0504d;
+}
+
+.redDotCorner {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #c0504d;
+}
+
+.actionRow {
+  display: flex;
+  gap: 6px;
+}
+
+.actionBtn {
+  flex: 1;
+  height: 28px;
+  border: 1px solid rgb(11 11 11 / 10%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #6f6d67;
+}
+
+.courseList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 1px;
+}
+
+.courseRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid rgb(11 11 11 / 9%);
+  border-radius: 9px;
+  padding: 8px 10px;
+  background: #fff;
+}
+
+.courseBar {
+  align-self: stretch;
+  width: 3px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.courseInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.courseCode {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #0b0b0b;
+}
+
+.courseSec {
+  font-weight: 600;
+  color: #9f9d97;
+  font-size: 9px;
+}
+
+.courseTitle {
+  font-size: 9px;
+  color: #9f9d97;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
