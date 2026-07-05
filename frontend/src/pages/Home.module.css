@@ -16,6 +16,12 @@
     system-ui,
     -apple-system,
     sans-serif;
+
+  /* The design mock renders in a page with no inherited line-height (i.e.
+     "normal"); the app's global stylesheet sets body { line-height: 1.5 }.
+     Restore the mock's baseline here or every fixed-height demo figure grows
+     a few px per text line and crops at the bottom. */
+  line-height: normal;
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
 }
@@ -927,6 +933,16 @@
     grid-template-columns: 1fr;
     padding: 52px 18px;
     gap: 28px;
+  }
+
+  /* Once the section stacks, the desktop column order (demo left of copy)
+     would put the demo above the copy — swap back to copy first. */
+  .courseCopy {
+    order: 1;
+  }
+
+  .courseVis {
+    order: 2;
   }
 
   .grid3,
