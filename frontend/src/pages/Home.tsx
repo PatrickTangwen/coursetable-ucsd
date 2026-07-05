@@ -29,19 +29,17 @@ const DEPARTMENTS = [
 ];
 
 function Feature({
-  iconClass,
   icon,
   title,
   desc,
 }: {
-  readonly iconClass: string | undefined;
   readonly icon: ReactNode;
   readonly title: string;
   readonly desc: string;
 }) {
   return (
     <div className={styles.feature}>
-      <div className={clsx(styles.featureIcon, iconClass)}>{icon}</div>
+      <div className={styles.featureIcon}>{icon}</div>
       <div>
         <div className={styles.featureTitle}>{title}</div>
         <div className={styles.featureDesc}>{desc}</div>
@@ -126,17 +124,15 @@ function Hero() {
               </p>
               <div className={styles.features}>
                 <Feature
-                  iconClass={styles.iconBlue}
-                  icon={<SearchIcon size={16} color="#185FA5" />}
+                  icon={<SearchIcon size={22} color="#185FA5" />}
                   title="Search any field"
                   desc="Code, title, instructor, or keyword — results narrow as you type."
                 />
                 <Feature
-                  iconClass={styles.iconGreen}
                   icon={
                     <svg
-                      width="16"
-                      height="16"
+                      width="22"
+                      height="22"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="#085041"
@@ -153,11 +149,10 @@ function Hero() {
                   desc="Narrow by subject, course level, and term in a couple of clicks."
                 />
                 <Feature
-                  iconClass={styles.iconPurple}
                   icon={
                     <svg
-                      width="16"
-                      height="16"
+                      width="22"
+                      height="22"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="#3C3489"
@@ -165,9 +160,10 @@ function Hero() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     >
-                      <line x1="4" y1="6" x2="20" y2="6" />
-                      <line x1="4" y1="12" x2="14" y2="12" />
-                      <line x1="4" y1="18" x2="10" y2="18" />
+                      <rect x="3" y="3" width="7" height="7" rx="1" />
+                      <rect x="14" y="3" width="7" height="7" rx="1" />
+                      <rect x="14" y="14" width="7" height="7" rx="1" />
+                      <rect x="3" y="14" width="7" height="7" rx="1" />
                     </svg>
                   }
                   title="Meeting days in one glance"
@@ -223,17 +219,19 @@ function WorksheetSection() {
           </p>
           <div className={styles.features}>
             <Feature
-              iconClass={styles.iconRed}
-              icon={<span className={styles.redDot} />}
+              icon={
+                <svg width="22" height="22" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="6" fill="#A32D2D" />
+                </svg>
+              }
               title="Conflict detection"
               desc="Overlapping sections are flagged the moment they collide on the grid."
             />
             <Feature
-              iconClass={styles.iconGray}
               icon={
                 <svg
-                  width="16"
-                  height="16"
+                  width="22"
+                  height="22"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="#6F6D67"
@@ -248,11 +246,10 @@ function WorksheetSection() {
               desc="Quickly view your workload, finals, busiest day, credits, and more."
             />
             <Feature
-              iconClass={styles.iconGreen}
               icon={
                 <svg
-                  width="16"
-                  height="16"
+                  width="22"
+                  height="22"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="#085041"
@@ -289,17 +286,15 @@ function ExamsSection() {
         </p>
         <div className={styles.features}>
           <Feature
-            iconClass={styles.iconBlue}
-            icon={<CalendarIcon color="#185FA5" />}
+            icon={<CalendarIcon size={22} color="#185FA5" />}
             title="Full exam list"
             desc="Every midterm and final across your worksheet, sorted by date or grouped by course."
           />
           <Feature
-            iconClass={styles.iconRed}
             icon={
               <svg
-                width="16"
-                height="16"
+                width="22"
+                height="22"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="#A32D2D"
@@ -316,8 +311,7 @@ function ExamsSection() {
             desc="Each collision shows the exact overlap window, down to the minute."
           />
           <Feature
-            iconClass={styles.iconGreen}
-            icon={<CheckIcon size={16} color="#085041" />}
+            icon={<CheckIcon size={22} color="#085041" />}
             title="You're still in control"
             desc="Conflicts don't block enrolling — resolve them with your instructor as needed."
           />
@@ -348,11 +342,10 @@ function CourseSection() {
         </p>
         <div className={styles.features}>
           <Feature
-            iconClass={styles.iconGreen}
             icon={
               <svg
-                width="16"
-                height="16"
+                width="22"
+                height="22"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="#085041"
@@ -360,20 +353,19 @@ function CourseSection() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <rect x="3" y="4" width="18" height="16" rx="2" />
-                <line x1="3" y1="9" x2="21" y2="9" />
-                <line x1="8" y1="2" x2="8" y2="6" />
+                <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                <polyline points="2 12 12 17 22 12" />
+                <polyline points="2 17 12 22 22 17" />
               </svg>
             }
             title="Every section & meeting"
             desc="Lectures, discussions, labs and finals, grouped by offering."
           />
           <Feature
-            iconClass={styles.iconPurple}
             icon={
               <svg
-                width="16"
-                height="16"
+                width="22"
+                height="22"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="#534AB7"
@@ -389,11 +381,10 @@ function CourseSection() {
             desc="Know what you need before it costs you an enrollment window."
           />
           <Feature
-            iconClass={styles.iconBlue}
             icon={
               <svg
-                width="16"
-                height="16"
+                width="22"
+                height="22"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="#185FA5"
@@ -438,20 +429,18 @@ function SyncSection() {
         </div>
         <div className={styles.grid3}>
           <div className={styles.card}>
-            <div className={clsx(styles.cardIcon, styles.iconBlue)}>
-              <svg
-                width="19"
-                height="19"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#185FA5"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-              </svg>
-            </div>
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#185FA5"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+            </svg>
             <div className={styles.cardTitle}>Saved searches</div>
             <div className={styles.cardDesc}>
               Keep the filters you use every quarter one click away — no
@@ -459,21 +448,19 @@ function SyncSection() {
             </div>
           </div>
           <div className={styles.card}>
-            <div className={clsx(styles.cardIcon, styles.iconGreen)}>
-              <svg
-                width="19"
-                height="19"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#085041"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M21 12a9 9 0 1 1-9-9c2.5 0 4.5 1 6 2.5" />
-                <polyline points="21 3 21 9 15 9" />
-              </svg>
-            </div>
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#085041"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 12a9 9 0 1 1-9-9c2.5 0 4.5 1 6 2.5" />
+              <polyline points="21 3 21 9 15 9" />
+            </svg>
             <div className={styles.cardTitle}>Synced worksheets</div>
             <div className={styles.cardDesc}>
               Start a schedule on your laptop, finish it on your phone — same
@@ -481,9 +468,22 @@ function SyncSection() {
             </div>
           </div>
           <div className={styles.card}>
-            <div className={clsx(styles.cardIcon, styles.iconPurple)}>
-              <CalendarIcon size={19} color="#3C3489" />
-            </div>
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#3C3489"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="4" y="3" width="16" height="18" rx="2" />
+              <line x1="9" y1="3" x2="9" y2="21" />
+              <line x1="12.5" y1="7.5" x2="17" y2="7.5" />
+              <line x1="12.5" y1="11.5" x2="17" y2="11.5" />
+              <line x1="12.5" y1="15.5" x2="15" y2="15.5" />
+            </svg>
             <div className={styles.cardTitle}>Finals view</div>
             <div className={styles.cardDesc}>
               See your final exam schedule laid out the moment your sections are
