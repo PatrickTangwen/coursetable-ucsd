@@ -6,7 +6,10 @@
 /* ── Control card: filter bar + table header share one shadow ── */
 .controlCard {
   position: relative;
-  z-index: 2;
+
+  /* Above the expanded course groups (z-index 2) so the filter dropdowns
+     open over them rather than behind. */
+  z-index: 3;
   flex-shrink: 0;
   box-shadow: 0 4px 12px rgb(11 11 11 / 12%);
 }
