@@ -291,3 +291,26 @@ pre code {
 [data-sonner-toaster] {
   --width: min(20rem, calc(100vw - 2rem)) !important;
 }
+
+/*
+ * Map sonner's rich-colors palette onto the project tokens. This stylesheet
+ * loads after sonner/dist/styles.css (see the Globals.tsx import order), so
+ * these equal-specificity declarations win the cascade.
+ */
+[data-sonner-toaster][data-sonner-theme='light'] {
+  --normal-bg: var(--color-surface);
+  --normal-border: var(--color-border);
+  --normal-text: var(--color-text);
+  --success-bg: var(--sg-green-badge-bg);
+  --success-border: var(--sg-green-bar);
+  --success-text: var(--sg-green-text);
+  --error-bg: var(--sg-red-chip-bg);
+  --error-border: var(--sg-danger-red);
+  --error-text: var(--sg-danger-text);
+  --info-bg: var(--sg-blue-info-bg);
+  --info-border: var(--sg-blue-border);
+  --info-text: var(--sg-blue-info-text);
+  --warning-bg: var(--sg-yellow-badge-bg);
+  --warning-border: var(--sg-yellow-badge-text);
+  --warning-text: var(--sg-yellow-badge-text);
+}

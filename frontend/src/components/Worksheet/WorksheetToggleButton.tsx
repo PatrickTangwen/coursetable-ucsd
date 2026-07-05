@@ -408,14 +408,21 @@ function WorksheetToggleButton({
           toast.error('This section cannot be added to this worksheet.');
           return;
         }
-        if (inWorksheet) {
-          removeAnonymousWorksheetListing(listing);
-        } else {
-          addAnonymousWorksheetListing(
-            listing,
-            worksheetColors[
-              Math.floor(Math.random() * worksheetColors.length)
-            ]!,
+        const changed = inWorksheet
+          ? removeAnonymousWorksheetListing(listing)
+          : addAnonymousWorksheetListing(
+              listing,
+              worksheetColors[
+                Math.floor(Math.random() * worksheetColors.length)
+              ]!,
+            );
+        if (changed && inWorksheet)
+          toast.success('Removed from worksheet', { duration: 800 });
+
+        if (changed && !inWorksheet) {
+          toast.success(
+            `Added ${listing.course_code ?? 'section'} to worksheet`,
+            { duration: 800 },
           );
         }
         return;
@@ -428,8 +435,17 @@ function WorksheetToggleButton({
         }
         const color =
           worksheetColors[Math.floor(Math.random() * worksheetColors.length)]!;
-        if (inWorksheet) await removeActiveSavedWorksheetListing(listing);
-        else await addActiveSavedWorksheetListing(listing, color);
+        const changed = inWorksheet
+          ? await removeActiveSavedWorksheetListing(listing)
+          : await addActiveSavedWorksheetListing(listing, color);
+        if (changed) {
+          toast.success(
+            inWorksheet
+              ? 'Removed from Saved Worksheet'
+              : 'Added to Saved Worksheet',
+            { duration: 800 },
+          );
+        }
         return;
       }
 
