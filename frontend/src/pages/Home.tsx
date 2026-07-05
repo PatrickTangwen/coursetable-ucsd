@@ -8,6 +8,7 @@ import FitFigure from '../components/landing/FitFigure';
 import {
   CalendarIcon,
   CheckIcon,
+  LogoMark,
   SearchIcon,
 } from '../components/landing/icons';
 import WorksheetDemo from '../components/landing/WorksheetDemo';
@@ -24,116 +25,6 @@ const DEPARTMENTS = [
   'CHEM',
   '+178 more',
 ];
-
-function LogoMark() {
-  return (
-    <svg
-      className={styles.logoSvg}
-      viewBox="0 0 80 80"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <rect
-        x="14"
-        y="10"
-        width="44"
-        height="60"
-        rx="3"
-        fill="#fff"
-        stroke="#2d2a24"
-        strokeWidth="2"
-      />
-      <rect x="14" y="10" width="6" height="60" fill="#e8e5da" />
-      <line x1="14" y1="10" x2="14" y2="70" stroke="#2d2a24" strokeWidth="2" />
-      <line x1="20" y1="10" x2="20" y2="70" stroke="#2d2a24" strokeWidth="1" />
-      <rect
-        x="24"
-        y="18"
-        width="28"
-        height="2"
-        rx="1"
-        fill="#2d2a24"
-        opacity="0.15"
-      />
-      <rect
-        x="24"
-        y="24"
-        width="22"
-        height="1.5"
-        rx="0.75"
-        fill="#2d2a24"
-        opacity="0.1"
-      />
-      <rect
-        x="24"
-        y="29"
-        width="26"
-        height="1.5"
-        rx="0.75"
-        fill="#2d2a24"
-        opacity="0.1"
-      />
-      <rect
-        x="24"
-        y="36"
-        width="28"
-        height="10"
-        rx="2"
-        fill="#2d2a24"
-        opacity="0.05"
-        stroke="#2d2a24"
-        strokeWidth="0.8"
-        strokeOpacity="0.1"
-      />
-      <rect
-        x="26"
-        y="38"
-        width="14"
-        height="2"
-        rx="1"
-        fill="#2d2a24"
-        opacity="0.18"
-      />
-      <rect
-        x="26"
-        y="42"
-        width="10"
-        height="1.5"
-        rx="0.75"
-        fill="#2d2a24"
-        opacity="0.12"
-      />
-      <rect
-        x="24"
-        y="50"
-        width="20"
-        height="1.5"
-        rx="0.75"
-        fill="#2d2a24"
-        opacity="0.1"
-      />
-      <rect
-        x="24"
-        y="55"
-        width="26"
-        height="1.5"
-        rx="0.75"
-        fill="#2d2a24"
-        opacity="0.1"
-      />
-      <rect
-        x="24"
-        y="60"
-        width="18"
-        height="1.5"
-        rx="0.75"
-        fill="#2d2a24"
-        opacity="0.1"
-      />
-      <path d="M46,8 L46,52 L49.5,47 L53,52 L53,8 Z" fill="#2d2a24" />
-    </svg>
-  );
-}
 
 function Feature({
   iconClass,
@@ -722,7 +613,7 @@ export default function Home() {
             title="SunGrid"
             onClick={closeMenu}
           >
-            <LogoMark />
+            <LogoMark className={styles.logoSvg} />
           </a>
           <nav className={styles.nav}>
             <Link to={createCatalogLink()} className={styles.navLink}>
@@ -810,6 +701,9 @@ export default function Home() {
             <a href="#how" className={styles.footerLink}>
               How it works
             </a>
+            <Link to="/login" className={styles.footerLink}>
+              Sign in
+            </Link>
           </nav>
           <div className={styles.spacer} />
         </div>

@@ -952,13 +952,28 @@
   }
 
   .syncInner,
-  .howInner,
-  .ctaSection {
+  .howInner {
     padding: 40px 18px;
   }
 
+  /* Scrolled to the bottom, one phone screen should hold: some air above the
+     card, the whole CTA card, and the whole one-line footer. The compact
+     paddings below buy the ~90px that layout needs vs the desktop spacing. */
+  .ctaSection {
+    padding: 32px 18px;
+  }
+
   .footerInner {
-    padding: 40px 18px;
+    padding: 28px 18px;
+    gap: 16px;
+  }
+
+  .footerNav {
+    font-size: 14px;
+  }
+
+  .footerLink {
+    padding: 6px 9px;
   }
 
   .strip {
@@ -966,13 +981,21 @@
   }
 
   .ctaCard {
-    padding: 40px 22px;
+    padding: 34px 20px;
   }
 
+  .ctaContent {
+    gap: 18px;
+  }
+
+  .ctaBrowse {
+    height: 44px;
+  }
+
+  /* On phone widths the giant S would sit right behind the buttons — the
+     card reads cleaner with no watermark text at all. */
   .ctaBigS {
-    font-size: 190px;
-    right: -28px;
-    bottom: -44px;
+    display: none;
   }
 
   .ctaPill {

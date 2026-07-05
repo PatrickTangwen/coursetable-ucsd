@@ -27,7 +27,7 @@ import styles from './App.module.css';
 
 const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
 
-const Landing = suspended(() => import('./pages/Landing'));
+const SignIn = suspended(() => import('./pages/SignIn'));
 const About = suspended(() => import('./pages/About'));
 const FAQ = suspended(() => import('./pages/FAQ'));
 const Privacy = suspended(() => import('./pages/Privacy.mdx'));
@@ -148,8 +148,10 @@ function App() {
         // Don't remove this wrapper.
         id={26}
       />
-      {/* The landing page brings its own header and footer */}
-      {location.pathname !== '/' && <TopNav />}
+      {/* The landing and sign-in pages bring their own header and footer */}
+      {location.pathname !== '/' && location.pathname !== '/login' && (
+        <TopNav />
+      )}
       <SentryRoutes>
         {/* Public landing page; renders instantly without waiting on auth */}
         <Route path="/" element={<Home />} />
@@ -162,7 +164,7 @@ function App() {
           <Route path="/catalog" element={<CatalogListView />} />
           <Route path="/worksheet" element={<Worksheet />} />
           <Route path="/graphiql" element={<Graphiql />} />
-          <Route path="/login" element={<Landing />} />
+          <Route path="/login" element={<SignIn />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
 
@@ -191,6 +193,7 @@ function App() {
       {/* The worksheet calendar view fills the viewport with no page scroll,
       so the footer would force a scrollbar; the list view still shows it. */}
       {location.pathname !== '/' &&
+        location.pathname !== '/login' &&
         location.pathname !== '/catalog' &&
         !(location.pathname === '/worksheet' && worksheetView !== 'list') && (
           <Footer />
