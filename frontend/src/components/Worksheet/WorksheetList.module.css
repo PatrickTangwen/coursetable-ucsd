@@ -279,6 +279,7 @@
   box-shadow: 0 8px 24px rgb(11 11 11 / 14%);
 }
 
+/* Typography matches .exportMenuItem so both dropdowns read the same. */
 .settingsMenuRow {
   width: 100%;
   display: flex;
@@ -289,10 +290,10 @@
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: #6f6d67;
+  color: #0b0b0b;
   cursor: pointer;
   font: inherit;
-  font-size: 12px;
+  font-size: 12.5px;
   text-align: left;
   white-space: nowrap;
   transition: background 0.12s ease;
@@ -327,10 +328,10 @@
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: #6f6d67;
+  color: #0b0b0b;
   cursor: pointer;
   font: inherit;
-  font-size: 12px;
+  font-size: 12.5px;
   text-align: left;
   white-space: nowrap;
   transition:
