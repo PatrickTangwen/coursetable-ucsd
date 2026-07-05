@@ -12,6 +12,8 @@ import {
   SearchIcon,
 } from '../components/landing/icons';
 import WorksheetDemo from '../components/landing/WorksheetDemo';
+import { logout } from '../queries/api';
+import { useStore } from '../store';
 import { createCatalogLink } from '../utilities/navigation';
 import styles from './Home.module.css';
 
@@ -592,6 +594,15 @@ function CtaSection() {
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
+  const authStatus = useStore((state) => state.authStatus);
+  const refreshAuth = useStore((state) => state.refreshAuth);
+
+  // Signed-in visitors (e.g. arriving via the logo from catalog/worksheet)
+  // get a sign-out action in place of the sign-in link.
+  const signOut = async () => {
+    await logout();
+    await refreshAuth();
+  };
 
   // Close the mobile menu on Escape (also for narrow-desktop keyboards).
   useEffect(() => {
@@ -627,9 +638,21 @@ export default function Home() {
             </a>
           </nav>
           <div className={styles.spacer} />
-          <Link to="/login" className={clsx(styles.navLink, styles.authBtn)}>
-            Sign in
-          </Link>
+          {authStatus === 'authenticated' ? (
+            <button
+              type="button"
+              className={clsx(styles.navLink, styles.authBtn)}
+              onClick={() => {
+                void signOut();
+              }}
+            >
+              Sign out
+            </button>
+          ) : (
+            <Link to="/login" className={clsx(styles.navLink, styles.authBtn)}>
+              Sign in
+            </Link>
+          )}
           <button
             type="button"
             className={styles.menuBtn}

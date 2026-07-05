@@ -83,10 +83,16 @@
   color: var(--ink);
 }
 
+/* Used on both the sign-in link and the sign-out button — the button needs
+   its UA chrome reset to render identically. */
 .authBtn {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .spacer {
