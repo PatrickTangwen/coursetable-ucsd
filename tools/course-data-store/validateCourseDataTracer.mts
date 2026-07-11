@@ -107,12 +107,31 @@ export async function validateCourseDataTracer() {
     const temporaryDirectory = await mkdtemp(
       path.join(os.tmpdir(), 'course-data-tracer-'),
     );
+    const acceptedManifestPath = path.join(
+      temporaryDirectory,
+      'accepted-manifest.json',
+    );
+    const acceptedManifest = JSON.parse(
+      await readFile(tracer.manifestPath, 'utf8'),
+    ) as {
+      cells: { source: string; status: string; reason: string | null }[];
+      summary: { empty: number; failed: number };
+    };
+    for (const cell of acceptedManifest.cells) {
+      if (cell.source !== 'schedule_of_classes' || cell.status !== 'failed')
+        continue;
+      cell.status = 'empty';
+      cell.reason = 'Issue #92 validated mutable-term fixture';
+      acceptedManifest.summary.failed -= 1;
+      acceptedManifest.summary.empty += 1;
+    }
+    await writeFile(acceptedManifestPath, JSON.stringify(acceptedManifest));
     const invalidSnapshot = path.join(temporaryDirectory, 'invalid.json');
     await writeFile(invalidSnapshot, JSON.stringify({ courses: [] }));
     await importSnapshot(
       invalidSnapshot,
       databaseUrl,
-      tracer.manifestPath,
+      acceptedManifestPath,
     ).then(
       () => {
         throw new Error('Invalid Snapshot was accepted');
@@ -126,12 +145,12 @@ export async function validateCourseDataTracer() {
     const firstImport = await importSnapshot(
       tracer.snapshotPath,
       databaseUrl,
-      tracer.manifestPath,
+      acceptedManifestPath,
     );
     const secondImport = await importSnapshot(
       tracer.snapshotPath,
       databaseUrl,
-      tracer.manifestPath,
+      acceptedManifestPath,
     );
     if (firstImport.courses.created !== tracer.expectedCourses)
       throw new Error('Tracer did not create the expected Course count');
@@ -185,7 +204,7 @@ export async function validateCourseDataTracer() {
       'conflicting-manifest.json',
     );
     const conflictingManifest = JSON.parse(
-      await readFile(tracer.manifestPath, 'utf8'),
+      await readFile(acceptedManifestPath, 'utf8'),
     ) as { run_id: string };
     conflictingManifest.run_id = conflictingSnapshot.run_id;
     await writeFile(
@@ -201,10 +220,7 @@ export async function validateCourseDataTracer() {
         throw new Error('Conflicting Snapshot artifact was accepted');
       },
       (error: unknown) => {
-        if (
-          !(error instanceof Error) ||
-          !error.message.includes('different accepted artifact')
-        )
+        if (!(error instanceof Error) || !error.message.includes('not newer'))
           throw error;
       },
     );
@@ -269,8 +285,11 @@ export async function validateCourseDataTracer() {
         throw new Error('Invalid relationship import was accepted');
       },
       (error: unknown) => {
-        const postgresError = error as { code?: string };
-        if (postgresError.code !== '23503') throw error;
+        if (
+          !(error instanceof Error) ||
+          !error.message.includes('invalid Section relationship')
+        )
+          throw error;
       },
     );
     const preservedCounts = await acceptedTermCounts();
@@ -521,8 +540,8 @@ export async function validateCourseDataTracer() {
       importRun?.generatedAt !== '2026-06-29T08:02:01.606+00:00' ||
       importRun.scheduleSourceTimestamp !== '06/28/2026, 02:05:00' ||
       importRun.manifestOk !== 99 ||
-      importRun.manifestEmpty !== 11 ||
-      importRun.manifestFailed !== 7 ||
+      importRun.manifestEmpty !== 15 ||
+      importRun.manifestFailed !== 3 ||
       importRun.manifestPartial !== 0
     )
       throw new Error('Import provenance did not round-trip');
@@ -557,6 +576,185 @@ export async function validateCourseDataTracer() {
     if (!mutation.errors)
       throw new Error('Anonymous Course Data Store mutation was allowed');
 
+    const replacementSnapshotPath = path.join(
+      temporaryDirectory,
+      'newer-snapshot.json',
+    );
+    const replacementManifestPath = path.join(
+      temporaryDirectory,
+      'newer-manifest.json',
+    );
+    const replacementSnapshot = JSON.parse(
+      await readFile(tracer.snapshotPath, 'utf8'),
+    ) as {
+      run_id: string;
+      generated_at: string;
+      courses: {
+        course_id: string;
+        title: string;
+        sections: { meetings: unknown[]; instructors: string[] }[];
+        grade_archive_records: unknown[];
+      }[];
+    };
+    replacementSnapshot.run_id += '-newer';
+    replacementSnapshot.generated_at = new Date(
+      new Date(replacementSnapshot.generated_at).getTime() + 60_000,
+    ).toISOString();
+    const removedCourse = replacementSnapshot.courses.pop();
+    const [updatedCourse] = replacementSnapshot.courses;
+    if (!removedCourse || !updatedCourse)
+      throw new Error('Replacement fixture lacks representative Courses');
+    const removedSectionCount = removedCourse.sections.length;
+    const removedMeetingCount = removedCourse.sections.reduce(
+      (total, section) => total + section.meetings.length,
+      0,
+    );
+    updatedCourse.title += ' refreshed';
+    await writeFile(
+      replacementSnapshotPath,
+      JSON.stringify(replacementSnapshot),
+    );
+    const replacementManifest = JSON.parse(
+      await readFile(acceptedManifestPath, 'utf8'),
+    ) as {
+      run_id: string;
+      generated_at: string;
+      cells: { source: string; status: string; reason: string | null }[];
+      summary: { empty: number; failed: number };
+    };
+    replacementManifest.run_id = replacementSnapshot.run_id;
+    replacementManifest.generated_at = replacementSnapshot.generated_at;
+    for (const cell of replacementManifest.cells) {
+      if (cell.source !== 'schedule_of_classes' || cell.status !== 'failed')
+        continue;
+      cell.status = 'empty';
+      cell.reason = 'Issue #92 validated replacement fixture';
+      replacementManifest.summary.failed -= 1;
+      replacementManifest.summary.empty += 1;
+    }
+    await writeFile(
+      replacementManifestPath,
+      JSON.stringify(replacementManifest),
+    );
+
+    const beforeDryRun = await acceptedTermCounts();
+    const dryRun = await importSnapshot(
+      replacementSnapshotPath,
+      databaseUrl,
+      replacementManifestPath,
+      { dryRun: true },
+    );
+    const afterDryRun = await acceptedTermCounts();
+    if (
+      !dryRun.dryRun ||
+      dryRun.courses.removed !== 1 ||
+      dryRun.courses.updated !== 1 ||
+      dryRun.courses.unchanged !== tracer.expectedCourses - 2 ||
+      dryRun.courses.identities.removed[0] !== removedCourse.course_id ||
+      JSON.stringify(beforeDryRun) !== JSON.stringify(afterDryRun)
+    ) {
+      throw new Error(
+        `Dry run mutated state or omitted removal evidence: ${JSON.stringify({ dryRun, beforeDryRun, afterDryRun })}`,
+      );
+    }
+
+    const { promise: replacementPaused, resolve: releaseReplacement } =
+      Promise.withResolvers<undefined>();
+    const { promise: removalStarted, resolve: removalReached } =
+      Promise.withResolvers<undefined>();
+    const replacementPromise = importSnapshot(
+      replacementSnapshotPath,
+      databaseUrl,
+      replacementManifestPath,
+      {
+        async afterTermRemoval() {
+          removalReached(undefined);
+          await replacementPaused;
+        },
+      },
+    );
+    await removalStarted;
+    const duringReplacement = await queryAnonymous(`
+      query DuringReplacement {
+        supportedTerms(where: {termCode: {_eq: "${tracer.term}"}}) {
+          courses { courseId }
+        }
+      }
+    `);
+    const visibleCourses = (
+      duringReplacement.data?.supportedTerms as { courses: unknown[] }[]
+    )[0]?.courses;
+    if (
+      duringReplacement.errors ||
+      visibleCourses?.length !== tracer.expectedCourses
+    )
+      throw new Error('Concurrent reader observed a mixed replacement');
+    releaseReplacement(undefined);
+    const replacement = await replacementPromise;
+    if (replacement.courses.removed !== 1) {
+      throw new Error(
+        'Replacement did not report an explicitly removed Course',
+      );
+    }
+
+    const failedSnapshot = JSON.parse(
+      await readFile(replacementSnapshotPath, 'utf8'),
+    ) as typeof replacementSnapshot;
+    failedSnapshot.run_id += '-failed';
+    failedSnapshot.generated_at = new Date(
+      new Date(failedSnapshot.generated_at).getTime() + 60_000,
+    ).toISOString();
+    const failedSnapshotPath = path.join(
+      temporaryDirectory,
+      'failed-newer.json',
+    );
+    await writeFile(failedSnapshotPath, JSON.stringify(failedSnapshot));
+    const failedNewerManifest = JSON.parse(
+      await readFile(replacementManifestPath, 'utf8'),
+    ) as typeof replacementManifest;
+    failedNewerManifest.run_id = failedSnapshot.run_id;
+    failedNewerManifest.generated_at = failedSnapshot.generated_at;
+    const failedNewerManifestPath = path.join(
+      temporaryDirectory,
+      'failed-newer-manifest.json',
+    );
+    await writeFile(
+      failedNewerManifestPath,
+      JSON.stringify(failedNewerManifest),
+    );
+    await importSnapshot(
+      failedSnapshotPath,
+      databaseUrl,
+      failedNewerManifestPath,
+      { failAfterTermRemoval: true },
+    ).then(
+      () => {
+        throw new Error('Injected mid-import failure was accepted');
+      },
+      (error: unknown) => {
+        if (!(error instanceof Error) || !error.message.includes('Injected'))
+          throw error;
+      },
+    );
+    const afterFailure = await queryAnonymous(`
+      query AfterFailedReplacement {
+        supportedTerms(where: {termCode: {_eq: "${tracer.term}"}}) {
+          courses { courseId }
+        }
+      }
+    `);
+    const preservedReplacementCourses = (
+      afterFailure.data?.supportedTerms as { courses: unknown[] }[]
+    )[0]?.courses;
+    if (
+      afterFailure.errors ||
+      preservedReplacementCourses?.length !== tracer.expectedCourses - 1
+    ) {
+      throw new Error(
+        'Failed replacement damaged the accepted GraphQL projection',
+      );
+    }
+
     const sql = postgres(databaseUrl, { max: 1 });
     try {
       const [counts] = await sql<
@@ -586,16 +784,17 @@ export async function validateCourseDataTracer() {
           (select count(*)::int from import_manifest_cells) as "manifestCells"
       `;
       if (
-        counts?.courses !== tracer.expectedCourses + 1 ||
-        counts.runs !== 2 ||
+        counts?.courses !== tracer.expectedCourses ||
+        counts.runs !== 3 ||
         counts.terms !== 2 ||
-        counts.sections !== tracer.expectedSections + 1 ||
-        counts.meetings !== tracer.expectedMeetings ||
-        counts.instructors !== tracer.expectedInstructors ||
-        counts.instructorLinks !== tracer.expectedInstructorLinks ||
-        counts.gradeRecords !== tracer.expectedGradeRecords ||
-        counts.availability !== tracer.expectedAvailabilityObservations + 1 ||
-        counts.manifestCells !== tracer.expectedManifestCells + 3
+        counts.sections !== tracer.expectedSections + 1 - removedSectionCount ||
+        counts.meetings !== tracer.expectedMeetings - removedMeetingCount ||
+        counts.gradeRecords !==
+          tracer.expectedGradeRecords -
+            removedCourse.grade_archive_records.length ||
+        counts.availability !==
+          tracer.expectedAvailabilityObservations + 1 - removedSectionCount ||
+        counts.manifestCells !== tracer.expectedManifestCells * 2 + 3
       )
         throw new Error('Course Data Store counts were not idempotent');
     } finally {
