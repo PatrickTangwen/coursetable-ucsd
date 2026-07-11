@@ -51,4 +51,27 @@ describe('verification email capture sender', () => {
       'capture directory must be absolute',
     );
   });
+
+  it('removes temporary capture state when message creation fails', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'email-capture-'));
+    temporaryDirectories.push(directory);
+    const sender = createCaptureVerificationEmailSender(directory);
+
+    await expect(
+      sender.sendVerificationEmail({
+        deliveryId: 'verification/1/2',
+        recipient: 'student@ucsd.edu',
+        subject: 'subject',
+        text: 'message without a verification value',
+        html: '<p>missing</p>',
+      }),
+    ).rejects.toThrow('did not contain a code');
+
+    await expect(
+      readFile(
+        path.join(directory, captureFilename('student@ucsd.edu')),
+        'utf8',
+      ),
+    ).rejects.toMatchObject({ code: 'ENOENT' });
+  });
 });

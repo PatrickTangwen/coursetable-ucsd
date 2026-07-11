@@ -8,7 +8,10 @@ import { promisify } from 'node:util';
 
 import { shouldExposeVerificationCode } from '../../api/src/auth/ucsdAuth.exposure.js';
 import { appUserIdToLegacyNetId } from '../../api/src/auth/ucsdIdentity.js';
-import { captureFilename } from '../../api/src/auth/verificationEmail.capture.js';
+import {
+  captureFilename,
+  hostedValidationCaptureDirectory,
+} from '../../api/src/auth/verificationEmail.capture.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -29,6 +32,10 @@ const expectedIndexes = [
   'worksheets_unique_idx',
   'worksheet_courses_unique_idx',
 ];
+const expectedConstraints = [
+  'savedSearches_userId_appUsers_id_fk',
+  'savedWorksheets_userId_appUsers_id_fk',
+];
 
 export interface RunConfig {
   apiOrigin: string;
@@ -44,7 +51,6 @@ export interface RunConfig {
 
 interface ApiResponse {
   body: unknown;
-  bodyText: string;
   headers: http.IncomingHttpHeaders;
   status: number;
 }
@@ -68,10 +74,13 @@ interface EvidenceSummaryInput {
   };
   postgres: {
     expectedIndexesPresent: boolean;
+    expectedOwnershipConstraintsPresent: boolean;
     expectedTablesPresent: boolean;
     savedSearchDeleted: boolean;
     savedSearchOwnedByUserId: boolean;
     accountOwnedDataIsolated: boolean;
+    existingAppUserRestored: boolean;
+    savedWorksheetIsolated: boolean;
     userRowFound: boolean;
     verificationRowConsumed: boolean;
     worksheetCourseRowsAfter: number;
@@ -166,7 +175,6 @@ function requestRaw(
         }
         resolve({
           body: parsed,
-          bodyText: text,
           headers: res.headers,
           status: res.statusCode ?? 0,
         });
@@ -396,6 +404,10 @@ export async function runValidation(config: RunConfig) {
       schemaEvidence.indexes,
       expectedIndexes,
     );
+    const expectedOwnershipConstraintsPresent = allPresent(
+      schemaEvidence.constraints,
+      expectedConstraints,
+    );
     if (!expectedTablesPresent) {
       throw new Error(
         `Missing expected tables: ${missing(schemaEvidence.tables, expectedTables).join(', ')}`,
@@ -405,6 +417,9 @@ export async function runValidation(config: RunConfig) {
       throw new Error(
         `Missing expected indexes: ${missing(schemaEvidence.indexes, expectedIndexes).join(', ')}`,
       );
+    }
+    if (!expectedOwnershipConstraintsPresent) {
+      throw new Error('Missing App User ownership constraints');
     }
 
     const verify = await requestAndVerify(config, api, config.email);
@@ -473,6 +488,28 @@ export async function runValidation(config: RunConfig) {
       );
     }
 
+    const createSavedWorksheet = await api.post(
+      '/api/savedWorksheets/from-anonymous',
+      {
+        name: `Hosted validation ${config.runId}`,
+        term: 'FA26',
+        courses: [
+          {
+            sectionId: 'hosted-validation-section',
+            color: '#123456',
+            hidden: false,
+          },
+        ],
+      },
+    );
+    httpEvidence.createSavedWorksheetStatus = createSavedWorksheet.status;
+    expectStatus(
+      createSavedWorksheet,
+      200,
+      'POST /api/savedWorksheets/from-anonymous',
+    );
+    const savedWorksheetId = expectNumericId(createSavedWorksheet.body);
+
     const boundaryEmail = `auth-boundary+${config.runId.toLowerCase()}@ucsd.edu`;
     const boundaryApi = new ApiClient(config.apiOrigin);
     const boundaryVerify = await requestAndVerify(
@@ -516,6 +553,38 @@ export async function runValidation(config: RunConfig) {
     );
     if (!(await collectSavedSearchRow(config, savedSearchId)))
       throw new Error('Another App User deleted account-owned data');
+
+    const boundaryWorksheetRead = await boundaryApi.get(
+      `/api/savedWorksheets/${savedWorksheetId}`,
+    );
+    httpEvidence.boundaryWorksheetReadStatus = boundaryWorksheetRead.status;
+    expectStatus(
+      boundaryWorksheetRead,
+      404,
+      'GET /api/savedWorksheets/:id as other account',
+    );
+    const boundaryWorksheetRename = await boundaryApi.post(
+      `/api/savedWorksheets/${savedWorksheetId}/rename`,
+      { name: 'unauthorized rename' },
+    );
+    httpEvidence.boundaryWorksheetRenameStatus = boundaryWorksheetRename.status;
+    expectStatus(
+      boundaryWorksheetRename,
+      404,
+      'POST /api/savedWorksheets/:id/rename as other account',
+    );
+    const ownerWorksheetRead = await api.get(
+      `/api/savedWorksheets/${savedWorksheetId}`,
+    );
+    httpEvidence.ownerWorksheetReadStatus = ownerWorksheetRead.status;
+    expectStatus(
+      ownerWorksheetRead,
+      200,
+      'GET /api/savedWorksheets/:id as owner',
+    );
+    const ownerWorksheet = expectRecord(ownerWorksheetRead.body);
+    if (ownerWorksheet.name !== `Hosted validation ${config.runId}`)
+      throw new Error('Another App User mutated the Saved Worksheet');
 
     const listSavedSearches = await api.get('/api/savedSearches');
     httpEvidence.listSavedSearchesStatus = listSavedSearches.status;
@@ -561,6 +630,32 @@ export async function runValidation(config: RunConfig) {
     if (anonymousBody.authenticated !== false || anonymousBody.user !== null)
       throw new Error('Current-user did not return anonymous after logout');
 
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 1_100);
+    });
+    const restoredApi = new ApiClient(config.apiOrigin);
+    const restoredVerify = await requestAndVerify(
+      config,
+      restoredApi,
+      config.email,
+    );
+    httpEvidence.restoredVerifyStatus = restoredVerify.status;
+    expectStatus(
+      restoredVerify,
+      200,
+      'POST /api/auth/ucsd/verify for re-login',
+    );
+    const restoredLoginUser = expectRecord(
+      expectRecord(restoredVerify.body).user,
+    );
+    if (restoredLoginUser.user_id !== userId)
+      throw new Error('Re-login created a different App User');
+    if ((await countAppUsers(config, config.email)) !== 1)
+      throw new Error('Re-login duplicated the App User');
+    const restoredLogout = await restoredApi.post('/api/auth/logout');
+    httpEvidence.restoredLogoutStatus = restoredLogout.status;
+    expectStatus(restoredLogout, 200, 'POST /api/auth/logout after re-login');
+
     const worksheetCountsAfter = await collectWorksheetCounts(
       config,
       legacyNetId,
@@ -597,10 +692,13 @@ export async function runValidation(config: RunConfig) {
       nonDevelopmentSafety,
       postgres: {
         accountOwnedDataIsolated: true,
+        existingAppUserRestored: true,
         expectedIndexesPresent,
+        expectedOwnershipConstraintsPresent,
         expectedTablesPresent,
         savedSearchDeleted: true,
         savedSearchOwnedByUserId: true,
+        savedWorksheetIsolated: true,
         userRowFound: Boolean(userRow),
         verificationRowConsumed: Boolean(verificationRow.consumed),
         worksheetCourseRowsAfter: worksheetCountsAfter.worksheetCourses,
@@ -628,13 +726,14 @@ export async function runValidation(config: RunConfig) {
     return summary;
   } catch (error) {
     await writeJsonArtifact(config, 'failure.json', {
-      cleanupAttempted: false,
-      error: error instanceof Error ? error.message : String(error),
-      failedStatePreserved: true,
+      failureCategory: categorizeFailure(error),
       http: httpEvidence,
+      sensitiveCleanupRequired: true,
       sensitiveValuesOmitted: true,
     });
     throw error;
+  } finally {
+    await cleanupCapturedFiles(config);
   }
 }
 
@@ -665,11 +764,10 @@ async function requestAndVerify(
 }
 
 async function consumeCapturedVerification(config: RunConfig, email: string) {
-  const env = await readValidationEnv(config);
-  const directory =
-    env.VERIFICATION_EMAIL_CAPTURE_DIR ??
-    '/tmp/coursetable-verification-capture';
-  const filename = path.posix.join(directory, captureFilename(email));
+  const filename = path.posix.join(
+    hostedValidationCaptureDirectory,
+    captureFilename(email),
+  );
   const output = await runCompose(config, [
     'exec',
     '-T',
@@ -677,9 +775,7 @@ async function consumeCapturedVerification(config: RunConfig, email: string) {
     'cat',
     filename,
   ]).finally(async () => {
-    await runCompose(config, ['exec', '-T', 'api', 'rm', '-f', filename]).catch(
-      () => {},
-    );
+    await runCompose(config, ['exec', '-T', 'api', 'rm', '-f', filename]);
   });
   const captured = expectRecord(JSON.parse(output.trim()) as unknown);
   if (captured.recipient !== email || typeof captured.deliveryId !== 'string')
@@ -745,6 +841,12 @@ select json_build_object(
     from pg_indexes
     where schemaname = 'public'
       and indexname in (${sqlList(expectedIndexes)})
+  ), '[]'::json),
+  'constraints',
+  coalesce((
+    select json_agg(conname order by conname)
+    from pg_constraint
+    where conname in (${sqlList(expectedConstraints)})
   ), '[]'::json)
 );
       `,
@@ -752,6 +854,7 @@ select json_build_object(
   );
 
   return {
+    constraints: toStringArray(result.constraints),
     indexes: toStringArray(result.indexes),
     tables: toStringArray(result.tables),
   };
@@ -777,6 +880,17 @@ select coalesce((
     updatedAt: number;
     verifiedEmail: string;
   };
+}
+
+async function countAppUsers(config: RunConfig, email: string) {
+  const result = expectRecord(
+    await queryPostgresJson(
+      config,
+      `select json_build_object('count', count(*)::int)
+       from "appUsers" where "verifiedEmail" = ${sqlString(email)};`,
+    ),
+  );
+  return numberValue(result.count);
 }
 
 async function collectVerificationRow(config: RunConfig, email: string) {
@@ -859,6 +973,19 @@ with deleted_verifications as (
   delete from "emailVerificationCodes"
   where "normalizedEmail" = ${sqlString(email)}
   returning id
+), validation_users as (
+  select id from "appUsers" where "verifiedEmail" = ${sqlString(email)}
+), deleted_saved_worksheet_sections as (
+  delete from "savedWorksheetSections"
+  where "worksheetId" in (
+    select id from "savedWorksheets"
+    where "userId" in (select id from validation_users)
+  )
+  returning id
+), deleted_saved_worksheets as (
+  delete from "savedWorksheets"
+  where "userId" in (select id from validation_users)
+  returning id
 ), deleted_saved_searches as (
   delete from "savedSearches"
   where name = ${sqlString(savedSearchName)}
@@ -893,6 +1020,21 @@ with deleted as (
 select json_build_object('deleted', count(*)::int) from deleted;
     `,
   );
+}
+
+async function cleanupCapturedFiles(config: RunConfig) {
+  await runCompose(config, [
+    'exec',
+    '-T',
+    'api',
+    'find',
+    hostedValidationCaptureDirectory,
+    '-type',
+    'f',
+    '-delete',
+  ]).catch(() => {
+    throw new Error('Sensitive capture cleanup failed');
+  });
 }
 
 async function redisSessionEvidence(config: RunConfig, sessionId: string) {
@@ -940,16 +1082,32 @@ function resolveRootPath(config: RunConfig, pathname: string) {
 
 function expectStatus(response: ApiResponse, status: number, label: string) {
   if (response.status !== status) {
-    throw new Error(
-      `${label} returned HTTP ${response.status}: ${response.bodyText}`,
-    );
+    throw new Error(`${label} returned unexpected HTTP status`);
   }
 }
 
 function expectRecord(value: unknown) {
   if (!value || typeof value !== 'object' || Array.isArray(value))
-    throw new Error(`Expected object, got ${JSON.stringify(value)}`);
+    throw new Error('Expected response object');
   return value as { [key: string]: unknown };
+}
+
+function expectNumericId(value: unknown) {
+  const record = expectRecord(value);
+  if (typeof record.id !== 'number')
+    throw new Error('Response did not include a numeric identifier');
+  return record.id;
+}
+
+function categorizeFailure(error: unknown) {
+  const message = error instanceof Error ? error.message : '';
+  if (message.includes('cleanup')) return 'sensitive_cleanup_failed';
+  if (message.includes('HTTP status')) return 'unexpected_http_status';
+  if (message.includes('capture')) return 'capture_sender_failed';
+  if (message.includes('Redis')) return 'session_validation_failed';
+  if (message.includes('App User')) return 'app_user_validation_failed';
+  if (message.includes('Worksheet')) return 'worksheet_boundary_failed';
+  return 'hosted_auth_validation_failed';
 }
 
 function expectWorksheetCounts(value: unknown) {
@@ -1022,8 +1180,11 @@ function renderSummary(summary: ReturnType<typeof buildEvidenceSummary>) {
 - Verification code source: ${summary.verificationCodeSource}
 - Saved Search name: ${summary.savedSearchName}
 - Postgres tables/indexes present: ${String(summary.postgres.expectedTablesPresent)}/${String(summary.postgres.expectedIndexesPresent)}
+- App User ownership constraints present: ${String(summary.postgres.expectedOwnershipConstraintsPresent)}
 - Saved Search owned by internal user_id: ${String(summary.postgres.savedSearchOwnedByUserId)}
 - Account-owned data isolated from another App User: ${String(summary.postgres.accountOwnedDataIsolated)}
+- Saved Worksheet isolated from another App User: ${String(summary.postgres.savedWorksheetIsolated)}
+- Existing App User restored without duplicate: ${String(summary.postgres.existingAppUserRestored)}
 - Verification row consumed: ${String(summary.postgres.verificationRowConsumed)}
 - Worksheet rows before/after: ${summary.postgres.worksheetRowsBefore}/${summary.postgres.worksheetRowsAfter}
 - Worksheet course rows before/after: ${summary.postgres.worksheetCourseRowsBefore}/${summary.postgres.worksheetCourseRowsAfter}
@@ -1057,11 +1218,19 @@ if (import.meta.main) {
     console.log(renderSummary(summary));
     console.log(`Evidence written to ${config.artifactDir}`);
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error(message);
+    console.error(`Validation failed: ${categorizeFailure(error)}`);
     if (config)
       console.error(`Failure evidence written to ${config.artifactDir}`);
 
-    process.exitCode = message.startsWith('Usage:') ? 0 : 1;
+    process.exitCode = 1;
+  } finally {
+    if (config) {
+      await runCompose(config, ['down', '--volumes', '--remove-orphans']).catch(
+        () => {
+          console.error('Validation stack teardown failed');
+          process.exitCode = 1;
+        },
+      );
+    }
   }
 }

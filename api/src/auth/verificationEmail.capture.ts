@@ -1,8 +1,11 @@
 import crypto from 'node:crypto';
-import { mkdir, rename, writeFile } from 'node:fs/promises';
+import { mkdir, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import type { VerificationEmailSender } from './verificationEmail.sender.js';
+
+export const hostedValidationCaptureDirectory =
+  '/tmp/coursetable-verification-capture';
 
 export function captureFilename(recipient: string) {
   return `${crypto.createHash('sha256').update(recipient).digest('hex')}.json`;
@@ -20,16 +23,24 @@ export function createCaptureVerificationEmailSender(
       const filename = captureFilename(message.recipient);
       const target = path.join(captureDirectory, filename);
       const temporary = `${target}.${process.pid}.tmp`;
-      await writeFile(
-        temporary,
-        `${JSON.stringify({
-          code: extractCode(message.text),
-          deliveryId: message.deliveryId,
-          recipient: message.recipient,
-        })}\n`,
-        { mode: 0o600 },
-      );
-      await rename(temporary, target);
+      try {
+        await writeFile(
+          temporary,
+          `${JSON.stringify({
+            code: extractCode(message.text),
+            deliveryId: message.deliveryId,
+            recipient: message.recipient,
+          })}\n`,
+          { mode: 0o600 },
+        );
+        await rename(temporary, target);
+      } catch (error) {
+        await Promise.all([
+          rm(temporary, { force: true }),
+          rm(target, { force: true, recursive: true }),
+        ]);
+        throw error;
+      }
     },
   };
 }

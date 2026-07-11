@@ -14,6 +14,7 @@ import './sentry-instrument.js';
 import { passportConfig } from './auth/auth.handlers.js';
 import casAuth from './auth/auth.routes.js';
 import { createDatabaseUcsdAuthStore } from './auth/ucsdAuth.database.js';
+import { resolveVerificationEmailSender } from './auth/verificationEmail.runtime.js';
 import {
   createRedisVerificationAttemptLimiter,
   createRedisVerificationRequestLimiter,
@@ -160,7 +161,7 @@ challenge(app);
 catalog(app);
 casAuth(app, {
   store: createDatabaseUcsdAuthStore(db),
-  emailSender: verificationEmailDelivery.sender,
+  emailSender: resolveVerificationEmailSender(verificationEmailDelivery.sender),
   exposeVerificationCode: verificationEmailDelivery.exposeVerificationCode,
   requestCooldownMs: VERIFICATION_REQUEST_COOLDOWN_MS,
   requestLimiter: createRedisVerificationRequestLimiter(

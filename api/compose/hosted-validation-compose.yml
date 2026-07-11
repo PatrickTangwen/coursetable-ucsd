@@ -1,7 +1,10 @@
 services:
   api:
+    entrypoint: ['bun', 'src/server.hostedValidation.ts']
+    working_dir: /usr/src/app/api
     environment:
-      HOSTED_AUTH_VALIDATION: 'true'
       NODE_ENV: production
-      VERIFICATION_EMAIL_CAPTURE_DIR: ${VERIFICATION_EMAIL_CAPTURE_DIR:-/tmp/coursetable-verification-capture}
-      VERIFICATION_EMAIL_PROVIDER: capture
+      RESEND_API_KEY: hosted-validation-no-network-key
+      VERIFICATION_EMAIL_FROM_ADDRESS: login@validation.invalid
+      VERIFICATION_EMAIL_SENDER_DOMAIN: validation.invalid
+      VERIFICATION_REQUEST_COOLDOWN_SECONDS: '1'

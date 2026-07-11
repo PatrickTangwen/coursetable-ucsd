@@ -6,11 +6,12 @@ historical development-mode procedure.
 
 ## Boundary being tested
 
-The local validation overlay starts the App Backend with `NODE_ENV=production`,
-Postgres App DB persistence, and Redis-backed sessions. It selects the explicit
-`capture` verification-email provider and sets `HOSTED_AUTH_VALIDATION=true`.
-The capture provider is rejected unless that validation guard is enabled, and
-production otherwise defaults to the Resend provider.
+The hosted-validation overlay starts a dedicated validation composition root
+with `NODE_ENV=production`, Postgres App DB persistence, and Redis-backed
+sessions. The normal server composition root always constructs the Resend
+sender in production and has no environment switch for capture delivery. Only
+`server.hostedValidation.ts`, selected explicitly by the validation overlay,
+installs the capture sender before loading the server.
 
 The capture sender writes one mode-`0600` file inside the disposable API
 container. The validator reads the code internally, deletes the file, and uses
@@ -39,9 +40,17 @@ COURSETABLE_AUTH_PROJECT=coursetable-auth-validation \
 ```
 
 The acceptance covers request-verification, the required sender call, code
-verification, App User ID ownership, isolation from a second App User,
-current-user session restoration, Redis session presence/removal, and logout.
+verification, App User ID foreign-key ownership, Saved Search and Saved
+Worksheet isolation from a second App User, current-user session restoration,
+same-email re-login without a duplicate App User, Redis session
+presence/removal, and logout.
 
 Evidence artifacts intentionally contain only HTTP status values, booleans,
 counts, and one-way fingerprints. They omit verification codes, cookies, API
 keys, raw App User IDs, full Redis keys, and database rows.
+
+The validator removes capture files in a `finally` path and treats cleanup
+failure as a failed run. Its CLI also tears down the disposable Compose project
+and volumes after both successful and failed runs. Failure artifacts contain
+only a bounded failure category and already-collected status fields; raw HTTP
+response bodies and thrown provider details are never persisted.

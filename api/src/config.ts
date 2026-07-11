@@ -2,7 +2,6 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import { GraphQLClient } from 'graphql-request';
 import postgres from 'postgres';
 import { createClient } from 'redis';
-import { createCaptureVerificationEmailSender } from './auth/verificationEmail.capture.js';
 import { createResendVerificationEmailSender } from './auth/verificationEmail.resend.js';
 import { createVerificationEmailDelivery } from './auth/verificationEmail.sender.js';
 import { parseTrustedProxyCidrs } from './network/trustedProxy.js';
@@ -78,28 +77,16 @@ export const graphqlClient = new GraphQLClient(GRAPHQL_ENDPOINT, {
 
 const NODE_ENV = getEnv('NODE_ENV', ['development', 'production']);
 export const isDev = NODE_ENV === 'development';
-const hostedVerificationSender = () => {
-  const provider = getEnv('VERIFICATION_EMAIL_PROVIDER', ['resend', 'capture']);
-  if (provider === 'capture') {
-    if (!getEnv('HOSTED_AUTH_VALIDATION', 'boolean')) {
-      throw new Error(
-        'Verification email capture sender requires hosted validation mode',
-      );
-    }
-    return createCaptureVerificationEmailSender(
-      getNonEmptyEnv('VERIFICATION_EMAIL_CAPTURE_DIR'),
-    );
-  }
-  return createResendVerificationEmailSender({
-    apiKey: getNonEmptyEnv('RESEND_API_KEY'),
-    senderDomain: getNonEmptyEnv('VERIFICATION_EMAIL_SENDER_DOMAIN'),
-    fromAddress: getNonEmptyEnv('VERIFICATION_EMAIL_FROM_ADDRESS'),
-  });
-};
 export const verificationEmailDelivery = createVerificationEmailDelivery({
   nodeEnv: NODE_ENV,
   hostedSender:
-    NODE_ENV === 'production' ? hostedVerificationSender() : undefined,
+    NODE_ENV === 'production'
+      ? createResendVerificationEmailSender({
+          apiKey: getNonEmptyEnv('RESEND_API_KEY'),
+          senderDomain: getNonEmptyEnv('VERIFICATION_EMAIL_SENDER_DOMAIN'),
+          fromAddress: getNonEmptyEnv('VERIFICATION_EMAIL_FROM_ADDRESS'),
+        })
+      : undefined,
 });
 export const VERIFICATION_REQUEST_COOLDOWN_MS =
   getPositiveIntegerEnv('VERIFICATION_REQUEST_COOLDOWN_SECONDS') * 1000;

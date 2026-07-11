@@ -23,4 +23,4 @@ docker compose \
   -f local-validation-compose.yml \
   -f hosted-validation-compose.yml \
   -p "$PROJECT_NAME" \
-  exec -T api sh -lc 'cd api && bun run db:migrate'
+  exec -T api bun run db:migrate
