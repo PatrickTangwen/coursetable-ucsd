@@ -45,7 +45,8 @@ jobs:
               - 'frontend/**'
               - '.github/workflows/staging_cd.yml'
             db:
-                - 'api/drizzle/schema.ts'
+              - 'api/drizzle/schema.ts'
+              - 'api/drizzle/migrations/**'
 
   frontend-build-and-deploy:
     needs: changes

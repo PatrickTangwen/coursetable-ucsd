@@ -53,6 +53,7 @@ jobs:
               - '.github/workflows/cd.yml'
             db:
               - 'api/drizzle/schema.ts'
+              - 'api/drizzle/migrations/**'
 
   frontend-build-and-deploy:
     needs: changes

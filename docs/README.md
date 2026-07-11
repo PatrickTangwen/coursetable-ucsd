@@ -5,6 +5,8 @@ Status: top-level navigation for stable project documentation.
 ## Stable References
 
 - `api.md`: API reference.
+- `app_db_migrations.md`: versioned App DB migration generation and shared
+  staging/production rollout.
 - `graphql.md`: GraphQL reference.
 - `containers.md`: container setup and usage.
 - `deployment.md`: deployment notes.
