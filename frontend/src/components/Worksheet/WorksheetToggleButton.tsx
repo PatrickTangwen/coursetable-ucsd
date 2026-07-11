@@ -208,7 +208,13 @@ function CourseConflictIcon({
             placement="top"
             popperConfig={{
               modifiers: [
-                { name: 'preventOverflow', options: { padding: 12 } },
+                {
+                  name: 'preventOverflow',
+                  // AltBoundary confines the tooltip to the icon's scroll
+                  // container (whose client box excludes the container's
+                  // scrollbar) instead of the whole viewport
+                  options: { padding: 8, altBoundary: true },
+                },
               ],
             }}
             overlay={(props) => (
