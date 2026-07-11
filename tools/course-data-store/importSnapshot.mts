@@ -8,6 +8,10 @@ import { catalogSnapshotSchema } from '../catalog-snapshot/catalogSnapshot.js';
 export type SnapshotImportSummary = {
   term: string;
   courses: { created: number; unchanged: number; rejected: number };
+  sections: { created: number; unchanged: number };
+  meetings: { created: number; unchanged: number };
+  instructors: { created: number; unchanged: number };
+  instructorLinks: { created: number; unchanged: number };
   importRun: 'created' | 'unchanged';
 };
 
@@ -32,6 +36,23 @@ export async function importSnapshot(
   }
 
   const snapshot = parsed.data;
+  const sections = snapshot.courses.flatMap((course) => course.sections);
+  const meetings = sections.flatMap((section) =>
+    section.meetings.map((meeting, meetingIndex) => ({
+      ...meeting,
+      sectionId: section.section_id,
+      meetingIndex,
+    })),
+  );
+  const instructorNames = [
+    ...new Set(sections.flatMap((section) => section.instructors)),
+  ];
+  const instructorLinks = sections.flatMap((section) =>
+    section.instructors.map((instructorName) => ({
+      sectionId: section.section_id,
+      instructorName,
+    })),
+  );
   const fingerprint = createHash('sha256').update(contents).digest('hex');
   const sql = postgres(databaseUrl, { max: 1 });
 
@@ -59,6 +80,24 @@ export async function importSnapshot(
           and course_id in ${tx(snapshot.courses.map((course) => course.course_id))}
       `;
       const existingCourseCount = existingCourses?.count ?? 0;
+      const [existingRelationships] = await tx<
+        {
+          sections: number;
+          meetings: number;
+          instructorLinks: number;
+        }[]
+      >`
+        select
+          (select count(*)::int from sections where term_code = ${snapshot.active_planning_term}) as sections,
+          (select count(*)::int from meetings where term_code = ${snapshot.active_planning_term}) as meetings,
+          (select count(*)::int from section_instructors where term_code = ${snapshot.active_planning_term}) as "instructorLinks"
+      `;
+      const [existingInstructors] = instructorNames.length
+        ? await tx<{ count: number }[]>`
+            select count(*)::int as count from instructors
+            where instructor_name in ${tx(instructorNames)}
+          `
+        : [{ count: 0 }];
 
       await tx`
         insert into import_runs (
@@ -99,6 +138,65 @@ export async function importSnapshot(
           on conflict (term_code, course_id) do nothing
         `;
       }
+      if (sections.length > 0) {
+        await tx`
+          insert into sections ${tx(
+            sections.map((section) => ({
+              term_code: snapshot.active_planning_term,
+              section_id: section.section_id,
+              course_id: section.course_id,
+              section_code: section.section_code,
+              meeting_type: section.meeting_type,
+            })),
+          )}
+          on conflict (term_code, section_id) do nothing
+        `;
+      }
+      if (meetings.length > 0) {
+        await tx`
+          insert into meetings ${tx(
+            meetings.map((meeting) => ({
+              term_code: snapshot.active_planning_term,
+              section_id: meeting.sectionId,
+              meeting_index: meeting.meetingIndex,
+              days: meeting.days,
+              meeting_date: meeting.date,
+              start_time: meeting.start_time,
+              end_time: meeting.end_time,
+              building: meeting.building,
+              room: meeting.room,
+              is_tba: meeting.is_tba,
+              meeting_type: meeting.meeting_type,
+              raw_days: meeting.raw_days,
+              raw_time: meeting.raw_time,
+              raw_location: meeting.raw_location,
+            })),
+          )}
+          on conflict (term_code, section_id, meeting_index) do nothing
+        `;
+      }
+      if (instructorNames.length > 0) {
+        await tx`
+          insert into instructors ${tx(
+            instructorNames.map((instructorName) => ({
+              instructor_name: instructorName,
+            })),
+          )}
+          on conflict (instructor_name) do nothing
+        `;
+      }
+      if (instructorLinks.length > 0) {
+        await tx`
+          insert into section_instructors ${tx(
+            instructorLinks.map((link) => ({
+              term_code: snapshot.active_planning_term,
+              section_id: link.sectionId,
+              instructor_name: link.instructorName,
+            })),
+          )}
+          on conflict (term_code, section_id, instructor_name) do nothing
+        `;
+      }
 
       return {
         term: snapshot.active_planning_term,
@@ -106,6 +204,24 @@ export async function importSnapshot(
           created: snapshot.courses.length - existingCourseCount,
           unchanged: existingCourseCount,
           rejected: 0,
+        },
+        sections: {
+          created: sections.length - (existingRelationships?.sections ?? 0),
+          unchanged: existingRelationships?.sections ?? 0,
+        },
+        meetings: {
+          created: meetings.length - (existingRelationships?.meetings ?? 0),
+          unchanged: existingRelationships?.meetings ?? 0,
+        },
+        instructors: {
+          created: instructorNames.length - existingInstructors.count,
+          unchanged: existingInstructors.count,
+        },
+        instructorLinks: {
+          created:
+            instructorLinks.length -
+            (existingRelationships?.instructorLinks ?? 0),
+          unchanged: existingRelationships?.instructorLinks ?? 0,
         },
         importRun: existingRun?.exists ? 'unchanged' : 'created',
       };
