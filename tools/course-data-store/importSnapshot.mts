@@ -8,6 +8,7 @@ import { catalogSnapshotSchema } from '../catalog-snapshot/catalogSnapshot.js';
 
 export type SnapshotImportSummary = {
   term: string;
+  lifecycle: SnapshotLifecycle;
   dryRun: boolean;
   courses: ChangeCounts & { rejected: number };
   sections: ChangeCounts;
@@ -107,9 +108,24 @@ function multisetMap<T>(
 
 export type SnapshotImportOptions = {
   dryRun?: boolean;
+  lifecycle?: SnapshotLifecycle;
   failAfterTermRemoval?: boolean;
   afterTermRemoval?: () => Promise<void>;
 };
+
+type SnapshotLifecycle = 'published' | 'frozen';
+
+class LifecycleError extends Error {
+  readonly reason: 'invalid_lifecycle' | 'frozen_term_immutable';
+
+  constructor(
+    message: string,
+    reason: 'invalid_lifecycle' | 'frozen_term_immutable',
+  ) {
+    super(message);
+    this.reason = reason;
+  }
+}
 
 class ImportRejection extends Error {
   readonly group: 'courses' | 'sections' | 'manifestCells';
@@ -181,6 +197,7 @@ export async function importSnapshot(
   manifestPath: string,
   options: SnapshotImportOptions = {},
 ): Promise<SnapshotImportSummary> {
+  const lifecycle = options.lifecycle ?? 'published';
   const contents = await readFile(snapshotPath, 'utf8');
   const parsed = catalogSnapshotSchema.safeParse(parseSnapshotJson(contents));
   if (!parsed.success) {
@@ -348,13 +365,16 @@ export async function importSnapshot(
   const generatedDate = new Date(snapshot.generated_at)
     .toISOString()
     .slice(0, 10);
-  const termState = !snapshot.term_date_range
-    ? 'undated'
-    : generatedDate < snapshot.term_date_range.start
-      ? 'upcoming'
-      : generatedDate > snapshot.term_date_range.end
-        ? 'historical'
-        : 'active';
+  const termState =
+    lifecycle === 'frozen'
+      ? 'historical'
+      : !snapshot.term_date_range
+        ? 'undated'
+        : generatedDate < snapshot.term_date_range.start
+          ? 'upcoming'
+          : generatedDate > snapshot.term_date_range.end
+            ? 'historical'
+            : 'active';
   const mapRows = <T,>(rows: T[], identity: (row: T) => string) =>
     new Map(rows.map((row) => [identity(row), row]));
   const incoming = {
@@ -451,13 +471,28 @@ export async function importSnapshot(
         ) as exists
       `;
       const [existingTerm] = await tx<
-        { artifactFingerprint: string; generatedAt: string }[]
+        {
+          artifactFingerprint: string;
+          generatedAt: string;
+          lifecycle: SnapshotLifecycle;
+        }[]
       >`
         select artifact_fingerprint as "artifactFingerprint",
-          snapshot_generated_at::text as "generatedAt"
+          snapshot_generated_at::text as "generatedAt",
+          snapshot_lifecycle as lifecycle
         from supported_terms
         where term_code = ${snapshot.active_planning_term}
       `;
+      if (
+        existingTerm?.lifecycle === 'frozen' &&
+        (existingTerm.artifactFingerprint !== fingerprint ||
+          lifecycle !== 'frozen')
+      ) {
+        throw new LifecycleError(
+          'Frozen Snapshot projection is immutable',
+          'frozen_term_immutable',
+        );
+      }
       if (existingTerm && existingTerm.artifactFingerprint !== fingerprint) {
         if (
           new Date(snapshot.generated_at) <= new Date(existingTerm.generatedAt)
@@ -563,8 +598,14 @@ export async function importSnapshot(
       const replacing = Boolean(
         existingTerm && existingTerm.artifactFingerprint !== fingerprint,
       );
+      const freezingExisting = Boolean(
+        existingTerm?.lifecycle === 'published' &&
+        existingTerm.artifactFingerprint === fingerprint &&
+        lifecycle === 'frozen',
+      );
       const summary: SnapshotImportSummary = {
         term: snapshot.active_planning_term,
+        lifecycle,
         dryRun: Boolean(options.dryRun),
         courses: {
           ...changeCounts(incoming.courses, existing.courses),
@@ -591,7 +632,23 @@ export async function importSnapshot(
         ),
         importRun: existingRun?.exists ? 'unchanged' : 'created',
       };
-      if (options.dryRun || existingRun?.exists) return summary;
+      if (options.dryRun) return summary;
+      if (freezingExisting) {
+        await tx`
+          update supported_terms set snapshot_lifecycle = 'frozen'
+          where term_code = ${snapshot.active_planning_term}
+        `;
+        await tx`
+          update import_runs set snapshot_lifecycle = 'frozen'
+          where artifact_fingerprint = ${fingerprint}
+        `;
+        await tx`
+          update snapshot_availability set term_state = 'historical'
+          where term_code = ${snapshot.active_planning_term}
+        `;
+        return summary;
+      }
+      if (existingRun?.exists) return summary;
 
       if (replacing) {
         await tx`delete from supported_terms where term_code = ${snapshot.active_planning_term}`;
@@ -603,12 +660,13 @@ export async function importSnapshot(
       await tx`
         insert into import_runs (
           artifact_fingerprint, snapshot_run_id, generated_at, term_code,
+          snapshot_lifecycle,
           schedule_source_timestamp, catalog_source_timestamp,
           grade_source_timestamp, manifest_fingerprint,
           manifest_ok, manifest_empty, manifest_failed, manifest_partial
         ) values (
           ${fingerprint}, ${snapshot.run_id}, ${snapshot.generated_at},
-          ${snapshot.active_planning_term},
+          ${snapshot.active_planning_term}, ${lifecycle},
           ${snapshot.source_timestamps.schedule_of_classes},
           ${snapshot.source_timestamps.general_catalog},
           ${snapshot.source_timestamps.instructor_grade_archive},
@@ -620,12 +678,12 @@ export async function importSnapshot(
       await tx`
         insert into supported_terms (
           term_code, term_label, date_start, date_end,
-          snapshot_generated_at, artifact_fingerprint
+          snapshot_generated_at, artifact_fingerprint, snapshot_lifecycle
         ) values (
           ${snapshot.active_planning_term}, ${snapshot.term_label},
           ${snapshot.term_date_range?.start ?? null},
           ${snapshot.term_date_range?.end ?? null}, ${snapshot.generated_at},
-          ${fingerprint}
+          ${fingerprint}, ${lifecycle}
         ) on conflict (term_code) do nothing
       `;
 
@@ -788,9 +846,22 @@ export async function importSnapshot(
 async function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
-  const [snapshotPath, manifestPath] = args.filter(
-    (arg) => arg !== '--dry-run',
+  const lifecycleIndex = args.indexOf('--lifecycle');
+  const lifecycleValue =
+    lifecycleIndex === -1 ? 'published' : args[lifecycleIndex + 1];
+  if (lifecycleValue !== 'published' && lifecycleValue !== 'frozen') {
+    throw new LifecycleError(
+      'lifecycle must be either published or frozen',
+      'invalid_lifecycle',
+    );
+  }
+  const positionalArgs = args.filter(
+    (arg, index) =>
+      arg !== '--dry-run' &&
+      arg !== '--lifecycle' &&
+      (lifecycleIndex === -1 || index !== lifecycleIndex + 1),
   );
+  const [snapshotPath, manifestPath] = positionalArgs;
   const databaseUrl = process.env.COURSE_DATA_STORE_DATABASE_URL;
   if (!snapshotPath || !manifestPath)
     throw new Error('usage: importSnapshot.mts <snapshot> <manifest>');
@@ -798,7 +869,10 @@ async function main() {
     throw new Error('env config missing: COURSE_DATA_STORE_DATABASE_URL');
   console.log(
     JSON.stringify(
-      await importSnapshot(snapshotPath, databaseUrl, manifestPath, { dryRun }),
+      await importSnapshot(snapshotPath, databaseUrl, manifestPath, {
+        dryRun,
+        lifecycle: lifecycleValue,
+      }),
     ),
   );
 }
@@ -808,6 +882,7 @@ if (import.meta.main) {
     const invalidSnapshot =
       error instanceof Error && error.message.startsWith('Published Snapshot');
     const rejection = error instanceof ImportRejection ? error : undefined;
+    const lifecycleError = error instanceof LifecycleError ? error : undefined;
     const inferredGroup =
       rejection?.group ??
       (invalidSnapshot
@@ -855,6 +930,7 @@ if (import.meta.main) {
       JSON.stringify({
         result: 'rejected',
         reason:
+          lifecycleError?.reason ??
           rejection?.reason ??
           (invalidSnapshot
             ? 'invalid_snapshot'

@@ -81,6 +81,50 @@ async function queryAnonymous(query: string) {
   };
 }
 
+async function publicArchiveProjection() {
+  const terms = `["${tracer.term}", "RELATIONSHIP-EDGE"]`;
+  const result = await queryAnonymous(`
+    query PublicArchiveProjection {
+      supportedTerms(where: {termCode: {_in: ${terms}}}, order_by: {termCode: asc}) {
+        termCode termLabel dateStart dateEnd snapshotGeneratedAt
+        artifactFingerprint snapshotLifecycle
+      }
+      courses(where: {termCode: {_in: ${terms}}}, order_by: [{termCode: asc}, {courseId: asc}]) {
+        termCode courseId subject courseNumber title units description
+        prerequisitesText restrictionsText catalogUrl
+      }
+      sections(where: {termCode: {_in: ${terms}}}, order_by: [{termCode: asc}, {sectionId: asc}]) {
+        termCode sectionId courseId sectionCode meetingType
+      }
+      meetings(where: {termCode: {_in: ${terms}}}, order_by: [{termCode: asc}, {sectionId: asc}, {meetingIndex: asc}]) {
+        termCode sectionId meetingIndex days date startTime endTime building room
+        isTba meetingType rawDays rawTime rawLocation
+      }
+      instructors(order_by: {instructorName: asc}) { instructorName }
+      sectionInstructors(where: {termCode: {_in: ${terms}}}, order_by: [{termCode: asc}, {sectionId: asc}, {instructorName: asc}]) {
+        termCode sectionId instructorName
+      }
+      gradeArchiveRecords(where: {termCode: {_in: ${terms}}}, order_by: [{termCode: asc}, {courseId: asc}, {recordIndex: asc}]) {
+        termCode courseId recordIndex rawRecord
+      }
+      snapshotAvailability(where: {termCode: {_in: ${terms}}}, order_by: [{termCode: asc}, {sectionId: asc}]) {
+        termCode sectionId enrolled capacity waitlistCount observedAt termState
+      }
+      courseDataImportRuns(where: {termCode: {_in: ${terms}}}, order_by: [{termCode: asc}, {generatedAt: asc}]) {
+        artifactFingerprint snapshotRunId generatedAt termCode snapshotLifecycle
+        scheduleSourceTimestamp catalogSourceTimestamp gradeSourceTimestamp
+        manifestFingerprint manifestOk manifestEmpty manifestFailed manifestPartial
+      }
+      importManifestCells(where: {termCode: {_in: ${terms}}}, order_by: [{termCode: asc}, {subject: asc}, {source: asc}]) {
+        artifactFingerprint termCode subject source status reason attempts
+        rowCounts rawArtifacts normalizedArtifact
+      }
+    }
+  `);
+  if (result.errors) throw new Error('Public Term Archive projection failed');
+  return result.data;
+}
+
 async function acceptedTermCounts() {
   const sql = postgres(databaseUrl, { max: 1 });
   try {
@@ -103,6 +147,7 @@ export async function validateCourseDataTracer() {
   try {
     await compose(['up', '-d', '--wait', '--remove-orphans']);
     await migrateCourseDataStore(databaseUrl);
+    await applyHasuraMetadata(hasuraEndpoint, tracer.adminSecret);
 
     const temporaryDirectory = await mkdtemp(
       path.join(os.tmpdir(), 'course-data-tracer-'),
@@ -230,11 +275,116 @@ export async function validateCourseDataTracer() {
       databaseUrl,
       tracer.partialManifestFixture,
     );
+    const beforeFreeze = await queryAnonymous(`
+      query BeforeFreeze {
+        supportedTerms(where: {termCode: {_eq: "RELATIONSHIP-EDGE"}}) {
+          snapshotLifecycle
+          snapshotGeneratedAt
+          importRuns { generatedAt snapshotLifecycle }
+        }
+      }
+    `);
+    const frozenTransition = await importSnapshot(
+      tracer.zeroMeetingFixture,
+      databaseUrl,
+      tracer.partialManifestFixture,
+      { lifecycle: 'frozen' },
+    );
+    const identicalFrozenImport = await importSnapshot(
+      tracer.zeroMeetingFixture,
+      databaseUrl,
+      tracer.partialManifestFixture,
+      { lifecycle: 'frozen' },
+    );
     if (
       zeroMeetingImport.sections.created !== 1 ||
-      zeroMeetingImport.meetings.created !== 0
+      zeroMeetingImport.meetings.created !== 0 ||
+      zeroMeetingImport.lifecycle !== 'published' ||
+      frozenTransition.lifecycle !== 'frozen' ||
+      frozenTransition.sections.unchanged !== 1 ||
+      identicalFrozenImport.sections.unchanged !== 1 ||
+      identicalFrozenImport.importRun !== 'unchanged'
     )
-      throw new Error('Zero-Meeting fixture did not preserve zero Meetings');
+      throw new Error('Frozen zero-Meeting fixture was not idempotent');
+    const afterFreeze = await queryAnonymous(`
+      query AfterFreeze {
+        supportedTerms(where: {termCode: {_eq: "RELATIONSHIP-EDGE"}}) {
+          snapshotLifecycle
+          snapshotGeneratedAt
+          importRuns { generatedAt snapshotLifecycle }
+        }
+      }
+    `);
+    type LifecycleProjection = {
+      snapshotLifecycle: string;
+      snapshotGeneratedAt: string;
+      importRuns: { generatedAt: string; snapshotLifecycle: string }[];
+    };
+    const beforeFreezeTerm = (
+      beforeFreeze.data?.supportedTerms as LifecycleProjection[] | undefined
+    )?.[0];
+    const afterFreezeTerm = (
+      afterFreeze.data?.supportedTerms as LifecycleProjection[] | undefined
+    )?.[0];
+    if (
+      beforeFreeze.errors ||
+      afterFreeze.errors ||
+      beforeFreezeTerm?.snapshotLifecycle !== 'published' ||
+      afterFreezeTerm?.snapshotLifecycle !== 'frozen' ||
+      beforeFreezeTerm.snapshotGeneratedAt !==
+        afterFreezeTerm.snapshotGeneratedAt ||
+      beforeFreezeTerm.importRuns[0]?.generatedAt !==
+        afterFreezeTerm.importRuns[0]?.generatedAt ||
+      afterFreezeTerm.importRuns[0]?.snapshotLifecycle !== 'frozen'
+    )
+      throw new Error('Frozen transition changed original provenance');
+
+    const frozenOverwritePath = path.join(
+      temporaryDirectory,
+      'frozen-overwrite.json',
+    );
+    const frozenOverwrite = JSON.parse(
+      await readFile(tracer.zeroMeetingFixture, 'utf8'),
+    ) as {
+      run_id: string;
+      generated_at: string;
+      courses: { title: string }[];
+    };
+    frozenOverwrite.run_id += '-overwrite';
+    frozenOverwrite.generated_at = new Date(
+      new Date(frozenOverwrite.generated_at).getTime() + 60_000,
+    ).toISOString();
+    const [frozenCourse] = frozenOverwrite.courses;
+    if (!frozenCourse) throw new Error('Frozen fixture has no Course');
+    frozenCourse.title += ' changed';
+    await writeFile(frozenOverwritePath, JSON.stringify(frozenOverwrite));
+    const frozenOverwriteManifestPath = path.join(
+      temporaryDirectory,
+      'frozen-overwrite-manifest.json',
+    );
+    const frozenOverwriteManifest = JSON.parse(
+      await readFile(tracer.partialManifestFixture, 'utf8'),
+    ) as { run_id: string; generated_at: string };
+    frozenOverwriteManifest.run_id = frozenOverwrite.run_id;
+    frozenOverwriteManifest.generated_at = frozenOverwrite.generated_at;
+    await writeFile(
+      frozenOverwriteManifestPath,
+      JSON.stringify(frozenOverwriteManifest),
+    );
+    await importSnapshot(
+      frozenOverwritePath,
+      databaseUrl,
+      frozenOverwriteManifestPath,
+      { lifecycle: 'frozen' },
+    ).then(
+      () => {
+        throw new Error('Frozen Snapshot overwrite was accepted');
+      },
+      (error: unknown) => {
+        if (!(error instanceof Error) || !error.message.includes('immutable'))
+          throw error;
+      },
+    );
 
     const failedRelationshipPath = path.join(
       temporaryDirectory,
@@ -276,6 +426,7 @@ export async function validateCourseDataTracer() {
     for (const cell of failedManifest.cells)
       cell.term = failedRelationship.active_planning_term;
     await writeFile(failedManifestPath, JSON.stringify(failedManifest));
+    const archiveBeforeFailure = await publicArchiveProjection();
     await importSnapshot(
       failedRelationshipPath,
       databaseUrl,
@@ -292,6 +443,12 @@ export async function validateCourseDataTracer() {
           throw error;
       },
     );
+    const archiveAfterFailure = await publicArchiveProjection();
+    if (
+      JSON.stringify(archiveAfterFailure) !==
+      JSON.stringify(archiveBeforeFailure)
+    )
+      throw new Error('Failed import changed another Supported Term');
     const preservedCounts = await acceptedTermCounts();
     if (
       preservedCounts?.courses !== tracer.expectedCourses ||
@@ -300,7 +457,47 @@ export async function validateCourseDataTracer() {
     )
       throw new Error('Failed relationship import changed accepted projection');
 
-    await applyHasuraMetadata(hasuraEndpoint, tracer.adminSecret);
+    const archive = await queryAnonymous(`
+      query TermArchive {
+        supportedTerms(
+          where: {termCode: {_in: ["${tracer.term}", "RELATIONSHIP-EDGE"]}},
+          order_by: {termCode: asc}
+        ) {
+          termCode
+          snapshotLifecycle
+          snapshotGeneratedAt
+          courses { courseId }
+          importRuns { snapshotLifecycle generatedAt }
+        }
+        frozenAvailability: snapshotAvailability(
+          where: {termCode: {_eq: "RELATIONSHIP-EDGE"}}
+        ) { termCode termState observedAt }
+      }
+    `);
+    const archiveTerms = archive.data?.supportedTerms as
+      | {
+          termCode: string;
+          snapshotLifecycle: string;
+          courses: unknown[];
+          importRuns: { snapshotLifecycle: string }[];
+        }[]
+      | undefined;
+    const frozenAvailability = archive.data?.frozenAvailability as
+      | { termState: string }[]
+      | undefined;
+    if (
+      archive.errors ||
+      archiveTerms?.length !== 2 ||
+      archiveTerms.find(({ termCode }) => termCode === tracer.term)
+        ?.snapshotLifecycle !== 'published' ||
+      archiveTerms.find(({ termCode }) => termCode === 'RELATIONSHIP-EDGE')
+        ?.snapshotLifecycle !== 'frozen' ||
+      archiveTerms.find(({ termCode }) => termCode === 'RELATIONSHIP-EDGE')
+        ?.importRuns[0]?.snapshotLifecycle !== 'frozen' ||
+      frozenAvailability?.[0]?.termState !== 'historical'
+    )
+      throw new Error('Term Archive lifecycle did not round-trip');
+
     const result = await queryAnonymous(`
       query CourseDataTracer {
         supportedTerms(where: {termCode: {_eq: "${tracer.term}"}}) {
@@ -813,7 +1010,13 @@ export async function validateCourseDataTracer() {
       gradeRecords: tracer.expectedGradeRecords,
       availabilityObservations: tracer.expectedAvailabilityObservations,
       manifestCells: tracer.expectedManifestCells,
-      importRuns: 2,
+      importRuns: 3,
+      supportedTerms: 2,
+      publishedToFrozenTransition: true,
+      frozenIdempotent: true,
+      frozenOverwriteRejected: true,
+      crossTermIsolation: true,
+      historicalFrozenAvailability: true,
       zeroMeetingRoundTrip: true,
       oneMeetingRoundTrip: true,
       multipleMeetingRoundTrip: true,

@@ -11,6 +11,39 @@ import { importSnapshot } from './importSnapshot.mjs';
 const execFileAsync = promisify(execFile);
 
 describe('Course Data Store Snapshot Importer', () => {
+  it('rejects an unknown lifecycle before attempting a database connection', async () => {
+    const result = await execFileAsync(
+      'bun',
+      [
+        'tools/course-data-store/importSnapshot.mts',
+        'api/static/catalogs/public/S326.json',
+        'api/static/catalogs/import-manifests/S326.json',
+        '--lifecycle',
+        'archived',
+      ],
+      {
+        cwd: path.resolve(import.meta.dirname, '../..'),
+        env: {
+          ...process.env,
+          COURSE_DATA_STORE_DATABASE_URL:
+            'postgresql://invalid.invalid/database',
+        },
+      },
+    ).then(
+      () => ({ exitCode: 0, stderr: '' }),
+      (error: unknown) => {
+        const failure = error as { code: number; stderr: string };
+        return { exitCode: failure.code, stderr: failure.stderr };
+      },
+    );
+
+    expect(result.exitCode).not.toBe(0);
+    expect(JSON.parse(result.stderr)).toMatchObject({
+      result: 'rejected',
+      reason: 'invalid_lifecycle',
+    });
+  });
+
   it('rejects an invalid snapshot before attempting a database connection', async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'course-import-'));
     const snapshotPath = path.join(directory, 'invalid.json');
