@@ -124,3 +124,34 @@ COURSE_DATA_STORE_DATABASE_URL=<course-data-postgres-url> \
     api/static/catalogs/import-manifests/S326.json \
     --dry-run
 ```
+
+## Frozen Snapshot and Term Archive imports — 2026-07-11
+
+Issue #93 adds an explicit Snapshot lifecycle contract to the importer and
+Course Data Store. The caller maps the authoritative Supported Term registry
+entry's `frozen` flag to the validated `--lifecycle published|frozen` importer
+argument; the importer does not read the registry or infer immutability from
+dates. Existing calls default to `published`.
+
+When a term leaves the Term Window, import its unchanged last Published
+artifact with `--lifecycle frozen`. This atomically marks the accepted
+Supported Term and its import provenance as Frozen while preserving the
+original artifact fingerprint and generation timestamp. Snapshot Availability
+Data for that term becomes explicitly historical. Identical Frozen re-imports
+are idempotent; a lifecycle downgrade or any conflicting Frozen artifact is
+rejected without mutation.
+
+```sh
+COURSE_DATA_STORE_DATABASE_URL=<course-data-postgres-url> \
+  bun run course-data:import -- \
+    <frozen-snapshot.json> \
+    <matching-import-manifest.json> \
+    --lifecycle frozen
+```
+
+Course and Section primary identities remain scoped by Supported Term, so
+Published and Frozen terms accumulate independently in the Term Archive.
+Anonymous Hasura queries expose `termCode` and `snapshotLifecycle` on Supported
+Terms and retain the original import generation timestamps. This is a
+forward-accumulating archive only; it does not claim unavailable pre-Term-Window
+backfill.

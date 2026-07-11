@@ -27,7 +27,8 @@
               "date_start": "dateStart",
               "date_end": "dateEnd",
               "snapshot_generated_at": "snapshotGeneratedAt",
-              "artifact_fingerprint": "artifactFingerprint"
+              "artifact_fingerprint": "artifactFingerprint",
+              "snapshot_lifecycle": "snapshotLifecycle"
             }
           },
           "array_relationships": [
@@ -74,7 +75,8 @@
                   "term_label",
                   "date_start",
                   "date_end",
-                  "snapshot_generated_at"
+                  "snapshot_generated_at",
+                  "snapshot_lifecycle"
                 ],
                 "filter": {},
                 "limit": 100
@@ -455,7 +457,8 @@
               "manifest_ok": "manifestOk",
               "manifest_empty": "manifestEmpty",
               "manifest_failed": "manifestFailed",
-              "manifest_partial": "manifestPartial"
+              "manifest_partial": "manifestPartial",
+              "snapshot_lifecycle": "snapshotLifecycle"
             }
           },
           "select_permissions": [
@@ -474,7 +477,8 @@
                   "manifest_ok",
                   "manifest_empty",
                   "manifest_failed",
-                  "manifest_partial"
+                  "manifest_partial",
+                  "snapshot_lifecycle"
                 ],
                 "filter": {},
                 "limit": 100
