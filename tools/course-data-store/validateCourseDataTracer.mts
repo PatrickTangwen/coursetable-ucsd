@@ -18,6 +18,7 @@ import {
 } from './courseDataParityComparator.js';
 import { importSnapshot } from './importSnapshot.mjs';
 import { migrateCourseDataStore } from './migrateCourseDataStore.mjs';
+import { inspectComposeProject } from '../real-backend-auth-validation/validateRealBackendAuth.mjs';
 
 const execFileAsync = promisify(execFile);
 
@@ -29,7 +30,9 @@ function tracerPort(name: string, fallback: number) {
 }
 
 const tracer = {
-  project: process.env.COURSE_DATA_TRACER_PROJECT ?? 'course-data-tracer',
+  project:
+    process.env.COURSE_DATA_TRACER_PROJECT ??
+    `course-data-tracer-${randomBytes(6).toString('hex')}`,
   databasePort: tracerPort('COURSE_DATA_STORE_PORT', 55_489),
   hasuraPort: tracerPort('COURSE_DATA_HASURA_PORT', 18_089),
   publicGraphqlPort: tracerPort('COURSE_DATA_PUBLIC_GRAPHQL_PORT', 18_090),
@@ -210,12 +213,19 @@ async function acceptedTermCounts() {
 }
 
 export async function validateCourseDataTracer() {
-  let succeeded = false;
+  let ownsComposeProject = false;
   let gatewayProcess: ChildProcess | undefined = undefined;
   let staticCatalogProcess: ChildProcess | undefined = undefined;
   let temporaryDirectory: string | undefined = undefined;
   try {
+    inspectComposeProject(
+      (await compose(['ps', '-a', '--format', 'json'])).stdout,
+    );
+    ownsComposeProject = true;
     await compose(['up', '-d', '--wait', '--remove-orphans']);
+    if (process.env.COURSE_DATA_TRACER_FAILURE_PROBE === 'after-up')
+      throw new Error('Injected Course Data tracer failure after startup');
+    await migrateCourseDataStore(databaseUrl);
     await migrateCourseDataStore(databaseUrl);
     await applyHasuraMetadata(hasuraEndpoint, tracer.adminSecret);
     gatewayProcess = spawn('bun', ['api/src/graphql/publicGraphqlGateway.ts'], {
@@ -1351,7 +1361,6 @@ export async function validateCourseDataTracer() {
       await sql.end();
     }
 
-    succeeded = true;
     return {
       result: 'passed',
       term: tracer.term,
@@ -1392,19 +1401,28 @@ export async function validateCourseDataTracer() {
       browserAdminHeaderDenied: true,
       recursiveExpansionDenied: true,
       idempotent: true,
+      migrationRerun: true,
       publishedSnapshotSemanticParity: true,
       paritySensitivityProbes: true,
       frozenSnapshotSemanticParity: true,
       staticCatalogEndpointsUnchanged: true,
+      health: {
+        courseDataStore: true,
+        hasura: true,
+        publicGraphqlGateway: true,
+        staticCatalog: true,
+      },
     };
   } finally {
     staticCatalogProcess?.kill('SIGTERM');
     gatewayProcess?.kill('SIGTERM');
     if (temporaryDirectory)
       await rm(temporaryDirectory, { force: true, recursive: true });
-    await compose(['down', '--volumes', '--remove-orphans']).catch(() => {
-      if (succeeded) throw new Error('Course Data tracer cleanup failed');
-    });
+    if (ownsComposeProject) {
+      await compose(['down', '--volumes', '--remove-orphans']).catch(() => {
+        throw new Error('Course Data tracer cleanup failed');
+      });
+    }
   }
 }
 

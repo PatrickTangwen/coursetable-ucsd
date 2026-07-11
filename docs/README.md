@@ -15,6 +15,8 @@ Status: top-level navigation for stable project documentation.
   runbook.
 - `local_server_endpoints.md`: current local frontend/backend URLs, Docker
   containers, HTTPS certificates, and `mkcert` notes.
+- `local_course_data_platform.md`: complete disposable App Backend + Course Data
+  Platform operator workflow and staging-readiness contract.
 - `hosted-auth-security-2026-07-10.md`: hosted verification proxy trust,
   abuse-control budgets, and ambiguous-delivery behavior.
 - `hosted-like-auth-validation-2026-07-10.md`: fake-sender, production-mode
