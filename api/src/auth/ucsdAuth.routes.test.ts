@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { createMemoryUcsdAuthStore } from './ucsdAuth.memory.js';
 import { registerUcsdAuthRoutes } from './ucsdAuth.routes.js';
+import { expressAppSession } from './ucsdAuth.session.js';
 import {
   appUserIdToLegacyNetId,
   hashVerificationCode,
@@ -101,8 +102,9 @@ function createTestApp(
     now,
     requestLimiter,
     verificationAttemptLimiter,
+    session: expressAppSession,
   });
-  registerSavedSearchRoutes(app, savedSearchStore);
+  registerSavedSearchRoutes(app, savedSearchStore, expressAppSession);
 
   return { app, authStore, savedSearchStore, verificationRecords };
 }

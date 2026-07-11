@@ -6,7 +6,7 @@ import {
   type SavedWorksheetRecord,
   type SavedWorksheetStore,
 } from './savedWorksheets.store.js';
-import { getAppSessionUser } from '../auth/ucsdAuth.session.js';
+import type { AppSession } from '../auth/appSession.js';
 
 const SavedWorksheetCourseSchema = z.object({
   sectionId: z.string().trim().min(1).max(128),
@@ -68,13 +68,14 @@ function parsePositiveInteger(value: unknown) {
 
 export function createSavedWorksheetHandlers(
   store: SavedWorksheetStore,
-  now = () => Date.now(),
+  now: () => number,
+  getSessionUser: AppSession['getUser'],
 ) {
   const listSavedWorksheets = async (
     req: express.Request,
     res: express.Response,
   ): Promise<void> => {
-    const user = getAppSessionUser(req)!;
+    const user = getSessionUser(req)!;
 
     const queryParseRes = ListSavedWorksheetsQuerySchema.safeParse(req.query);
     if (!queryParseRes.success) {
@@ -96,7 +97,7 @@ export function createSavedWorksheetHandlers(
     req: express.Request,
     res: express.Response,
   ): Promise<void> => {
-    const user = getAppSessionUser(req)!;
+    const user = getSessionUser(req)!;
     const id = parsePositiveInteger(req.params.id);
     if (!id) {
       res.status(400).json({ error: 'INVALID_REQUEST' });
@@ -116,7 +117,7 @@ export function createSavedWorksheetHandlers(
     req: express.Request,
     res: express.Response,
   ): Promise<void> => {
-    const user = getAppSessionUser(req)!;
+    const user = getSessionUser(req)!;
 
     const bodyParseRes = SaveAnonymousWorksheetSchema.safeParse(req.body);
     if (!bodyParseRes.success) {
@@ -142,7 +143,7 @@ export function createSavedWorksheetHandlers(
     req: express.Request,
     res: express.Response,
   ): Promise<void> => {
-    const user = getAppSessionUser(req)!;
+    const user = getSessionUser(req)!;
 
     const bodyParseRes = EnsureMainWorksheetSchema.safeParse(req.body);
     if (!bodyParseRes.success) {
@@ -163,7 +164,7 @@ export function createSavedWorksheetHandlers(
     req: express.Request,
     res: express.Response,
   ): Promise<void> => {
-    const user = getAppSessionUser(req)!;
+    const user = getSessionUser(req)!;
 
     const bodyParseRes = CreateBlankWorksheetSchema.safeParse(req.body);
     if (!bodyParseRes.success) {
@@ -189,7 +190,7 @@ export function createSavedWorksheetHandlers(
     req: express.Request,
     res: express.Response,
   ): Promise<void> => {
-    const user = getAppSessionUser(req)!;
+    const user = getSessionUser(req)!;
     const id = parsePositiveInteger(req.params.id);
     if (!id) {
       res.status(400).json({ error: 'INVALID_REQUEST' });
@@ -224,7 +225,7 @@ export function createSavedWorksheetHandlers(
     req: express.Request,
     res: express.Response,
   ): Promise<void> => {
-    const user = getAppSessionUser(req)!;
+    const user = getSessionUser(req)!;
     const id = parsePositiveInteger(req.params.id);
     if (!id) {
       res.status(400).json({ error: 'INVALID_REQUEST' });
@@ -258,7 +259,7 @@ export function createSavedWorksheetHandlers(
     req: express.Request,
     res: express.Response,
   ): Promise<void> => {
-    const user = getAppSessionUser(req)!;
+    const user = getSessionUser(req)!;
     const id = parsePositiveInteger(req.params.id);
     if (!id) {
       res.status(400).json({ error: 'INVALID_REQUEST' });

@@ -1,4 +1,5 @@
 import { and, asc, count, desc, eq } from 'drizzle-orm';
+import type { drizzle } from 'drizzle-orm/postgres-js';
 
 import {
   dedupeSavedWorksheetSections,
@@ -12,7 +13,9 @@ import {
   savedWorksheetSections,
   savedWorksheets,
 } from '../../drizzle/schema.js';
-import { db } from '../config.js';
+import type * as schema from '../../drizzle/schema.js';
+
+type SavedWorksheetDatabase = ReturnType<typeof drizzle<typeof schema>>;
 
 const savedWorksheetColumns = {
   id: savedWorksheets.id,
@@ -30,7 +33,7 @@ const savedWorksheetSectionColumns = {
   hidden: savedWorksheetSections.hidden,
 };
 
-async function getSections(worksheetId: number) {
+async function getSections(db: SavedWorksheetDatabase, worksheetId: number) {
   return await db
     .select(savedWorksheetSectionColumns)
     .from(savedWorksheetSections)
@@ -38,7 +41,11 @@ async function getSections(worksheetId: number) {
     .orderBy(asc(savedWorksheetSections.id));
 }
 
-async function getMainSavedWorksheet(userId: number, term: string) {
+async function getMainSavedWorksheet(
+  db: SavedWorksheetDatabase,
+  userId: number,
+  term: string,
+) {
   const [record] = await db
     .select(savedWorksheetColumns)
     .from(savedWorksheets)
@@ -55,11 +62,12 @@ async function getMainSavedWorksheet(userId: number, term: string) {
 
   return {
     ...record,
-    sections: await getSections(record.id),
+    sections: await getSections(db, record.id),
   };
 }
 
 async function createSavedWorksheetRecord(
+  db: SavedWorksheetDatabase,
   userId: number,
   input: SavedWorksheetCreateInput,
   createdAt: number,
@@ -101,7 +109,9 @@ async function createSavedWorksheetRecord(
   });
 }
 
-export function createDatabaseSavedWorksheetStore(): SavedWorksheetStore {
+export function createDatabaseSavedWorksheetStore(
+  db: SavedWorksheetDatabase,
+): SavedWorksheetStore {
   return {
     async listByUserId(userId) {
       const records = await db
@@ -112,7 +122,7 @@ export function createDatabaseSavedWorksheetStore(): SavedWorksheetStore {
 
       return await Promise.all(
         records.map(async (record): Promise<SavedWorksheetSummary> => {
-          const sections = await getSections(record.id);
+          const sections = await getSections(db, record.id);
           return {
             ...record,
             sectionCount: sections.length,
@@ -133,18 +143,19 @@ export function createDatabaseSavedWorksheetStore(): SavedWorksheetStore {
 
       return {
         ...record,
-        sections: await getSections(record.id),
+        sections: await getSections(db, record.id),
       };
     },
     async createForUserId(userId, input, createdAt) {
-      return await createSavedWorksheetRecord(userId, input, createdAt);
+      return await createSavedWorksheetRecord(db, userId, input, createdAt);
     },
     async ensureMainForUserId(userId, term, createdAt) {
-      const existing = await getMainSavedWorksheet(userId, term);
+      const existing = await getMainSavedWorksheet(db, userId, term);
       if (existing) return existing;
 
       try {
         return await createSavedWorksheetRecord(
+          db,
           userId,
           {
             name: MAIN_SAVED_WORKSHEET_NAME,
@@ -156,6 +167,7 @@ export function createDatabaseSavedWorksheetStore(): SavedWorksheetStore {
         );
       } catch (error: unknown) {
         const createdByConcurrentRequest = await getMainSavedWorksheet(
+          db,
           userId,
           term,
         );
@@ -189,7 +201,7 @@ export function createDatabaseSavedWorksheetStore(): SavedWorksheetStore {
         status: 'renamed',
         worksheet: {
           ...updated,
-          sections: await getSections(updated.id),
+          sections: await getSections(db, updated.id),
         },
       };
     },

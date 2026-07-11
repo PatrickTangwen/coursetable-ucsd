@@ -7,6 +7,7 @@ import { createMemorySavedWorksheetStore } from './savedWorksheets.memory.js';
 import { registerSavedWorksheetRoutes } from './savedWorksheets.routes.js';
 import { createMemoryUcsdAuthStore } from '../auth/ucsdAuth.memory.js';
 import { registerUcsdAuthRoutes } from '../auth/ucsdAuth.routes.js';
+import { expressAppSession } from '../auth/ucsdAuth.session.js';
 
 class TestClient {
   #origin = '';
@@ -65,8 +66,12 @@ function createTestApp(now = () => 1_000_000) {
     exposeVerificationCode: true,
     codeGenerator: () => '123456',
     now,
+    session: expressAppSession,
   });
-  registerSavedWorksheetRoutes(app, savedWorksheetStore, now);
+  registerSavedWorksheetRoutes(app, savedWorksheetStore, {
+    now,
+    session: expressAppSession,
+  });
 
   return { app, savedWorksheetStore };
 }

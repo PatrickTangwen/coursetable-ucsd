@@ -2,7 +2,7 @@ import type express from 'express';
 import asyncHandler from 'express-async-handler';
 import z from 'zod';
 
-import { establishAppSession, getAppSessionUser } from './ucsdAuth.session.js';
+import type { AppSession } from './appSession.js';
 import type { UcsdAuthStore } from './ucsdAuth.store.js';
 import {
   createVerificationCode,
@@ -42,15 +42,36 @@ export interface UcsdAuthRoutesOptions {
   requestLimiter?: VerificationRequestLimiter;
   requestSource?: (req: express.Request) => string;
   verificationAttemptLimiter?: VerificationAttemptLimiter;
+  session: AppSession;
 }
 
-function appUserPayload(req: express.Request) {
-  const user = getAppSessionUser(req);
+function appUserPayload(req: express.Request, session: AppSession) {
+  const user = session.getUser(req);
   if (!user) return { authenticated: false as const, user: null };
   return {
     authenticated: true as const,
     user: toAppUserResponse(user),
   };
+}
+
+export function registerAuthCheckRoute(
+  app: express.IRouter,
+  session: AppSession,
+): void {
+  app.get('/api/auth/check', (req, res) => {
+    const appUser = session.getUser(req);
+    if (appUser) {
+      res.json({
+        auth: true,
+        netId: null,
+        user: toAppUserResponse(appUser),
+      });
+    } else if (req.user) {
+      res.json({ auth: true, netId: req.user.netId, user: req.user });
+    } else {
+      res.json({ auth: false, netId: null, user: null });
+    }
+  });
 }
 
 function invalidEmailResponse(res: express.Response) {
@@ -60,17 +81,8 @@ function invalidEmailResponse(res: express.Response) {
   });
 }
 
-function destroySession(req: express.Request) {
-  return new Promise<void>((resolve, reject) => {
-    req.session.destroy((err) => {
-      if (err) reject(err);
-      else resolve();
-    });
-  });
-}
-
 export function registerUcsdAuthRoutes(
-  app: express.Express,
+  app: express.IRouter,
   {
     store,
     emailSender,
@@ -81,10 +93,11 @@ export function registerUcsdAuthRoutes(
     requestLimiter = createUnlimitedVerificationRequestLimiter(),
     requestSource = (req) => req.ip ?? req.socket.remoteAddress ?? 'unknown',
     verificationAttemptLimiter = createUnlimitedVerificationAttemptLimiter(),
+    session,
   }: UcsdAuthRoutesOptions,
 ): void {
   app.get('/api/auth/current-user', (req, res) => {
-    res.json(appUserPayload(req));
+    res.json(appUserPayload(req, session));
   });
 
   app.post(
@@ -294,7 +307,7 @@ export function registerUcsdAuthRoutes(
       await verificationAttemptLimiter
         .resetEmail(normalizedEmail)
         .catch(() => {});
-      await establishAppSession(req, user);
+      await session.establish(req, user);
       res.json({
         authenticated: true,
         user: toAppUserResponse(user),
@@ -310,7 +323,7 @@ export function registerUcsdAuthRoutes(
         });
       }
       res.clearCookie('connect.sid');
-      await destroySession(req);
+      await session.destroy(req);
       res.sendStatus(200);
     } catch (err) {
       next(err);

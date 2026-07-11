@@ -11,8 +11,9 @@ import passport from 'passport';
 import './sentry-instrument.js';
 
 import { passportConfig } from './auth/auth.handlers.js';
-import casAuth from './auth/auth.routes.js';
+import { registerLegacyCasRoute } from './auth/auth.routes.js';
 import { createDatabaseUcsdAuthStore } from './auth/ucsdAuth.database.js';
+import { expressAppSession } from './auth/ucsdAuth.session.js';
 import { resolveVerificationEmailSender } from './auth/verificationEmail.runtime.js';
 import {
   createRedisVerificationAttemptLimiter,
@@ -21,6 +22,7 @@ import {
 import canny from './canny/canny.routes.js';
 import catalog from './catalog/catalog.routes.js';
 import { fetchCatalog } from './catalog/catalog.utils.js';
+import { createFilesystemPublishedSnapshotStore } from './catalog/publishedSnapshot.filesystem.js';
 import challenge from './challenge/challenge.routes.js';
 import {
   isDev,
@@ -42,9 +44,11 @@ import {
   VERIFICATION_ATTEMPT_EMAIL_LIMIT,
   VERIFICATION_ATTEMPT_EMAIL_WINDOW_MS,
   TRUSTED_PROXY_CIDRS,
+  STATIC_FILE_DIR,
   db,
   isApiModuleEnabled,
 } from './config.js';
+import { createCoreAppBackend } from './core/coreAppBackend.js';
 import demand from './demand/demand.routes.js';
 import friends from './friends/friends.routes.js';
 import { createPublicGraphqlProxy } from './graphql/publicGraphqlProxy.js';
@@ -54,9 +58,7 @@ import winston from './logging/winston.js';
 import { createTrustedProxyPolicy } from './network/trustedProxy.js';
 import profile from './profile/profile.routes.js';
 import { createDatabaseSavedSearchStore } from './savedSearches/savedSearches.database.js';
-import savedSearches from './savedSearches/savedSearches.routes.js';
 import { createDatabaseSavedWorksheetStore } from './savedWorksheets/savedWorksheets.database.js';
-import savedWorksheets from './savedWorksheets/savedWorksheets.routes.js';
 import user from './user/user.routes.js';
 
 const app = express();
@@ -151,51 +153,50 @@ app.use(express.json());
 
 // Activate catalog, UCSD email auth, and dormant legacy CAS authentication.
 if (isApiModuleEnabled('challenge')) challenge(app);
-catalog(app, isApiModuleEnabled('legacy-catalog'));
-casAuth(
-  app,
-  {
-    store: createDatabaseUcsdAuthStore(db),
-    emailSender: resolveVerificationEmailSender(
-      verificationEmailDelivery.sender,
-    ),
-    exposeVerificationCode: verificationEmailDelivery.exposeVerificationCode,
-    requestCooldownMs: VERIFICATION_REQUEST_COOLDOWN_MS,
-    requestLimiter: createRedisVerificationRequestLimiter(
-      redisClient,
-      SESSION_SECRET,
-      {
-        sourceLimit: VERIFICATION_SOURCE_LIMIT,
-        sourceWindowMs: VERIFICATION_SOURCE_WINDOW_MS,
-        globalLimit: VERIFICATION_GLOBAL_LIMIT,
-        globalWindowMs: VERIFICATION_GLOBAL_WINDOW_MS,
-      },
-    ),
-    verificationAttemptLimiter: createRedisVerificationAttemptLimiter(
-      redisClient,
-      SESSION_SECRET,
-      {
-        sourceLimit: VERIFICATION_ATTEMPT_SOURCE_LIMIT,
-        sourceWindowMs: VERIFICATION_ATTEMPT_SOURCE_WINDOW_MS,
-        emailLimit: VERIFICATION_ATTEMPT_EMAIL_LIMIT,
-        emailWindowMs: VERIFICATION_ATTEMPT_EMAIL_WINDOW_MS,
-      },
-    ),
-  },
-  isApiModuleEnabled('legacy-auth'),
+app.use(
+  createCoreAppBackend({
+    auth: {
+      store: createDatabaseUcsdAuthStore(db),
+      emailSender: resolveVerificationEmailSender(
+        verificationEmailDelivery.sender,
+      ),
+      exposeVerificationCode: verificationEmailDelivery.exposeVerificationCode,
+      requestCooldownMs: VERIFICATION_REQUEST_COOLDOWN_MS,
+      requestLimiter: createRedisVerificationRequestLimiter(
+        redisClient,
+        SESSION_SECRET,
+        {
+          sourceLimit: VERIFICATION_SOURCE_LIMIT,
+          sourceWindowMs: VERIFICATION_SOURCE_WINDOW_MS,
+          globalLimit: VERIFICATION_GLOBAL_LIMIT,
+          globalWindowMs: VERIFICATION_GLOBAL_WINDOW_MS,
+        },
+      ),
+      verificationAttemptLimiter: createRedisVerificationAttemptLimiter(
+        redisClient,
+        SESSION_SECRET,
+        {
+          sourceLimit: VERIFICATION_ATTEMPT_SOURCE_LIMIT,
+          sourceWindowMs: VERIFICATION_ATTEMPT_SOURCE_WINDOW_MS,
+          emailLimit: VERIFICATION_ATTEMPT_EMAIL_LIMIT,
+          emailWindowMs: VERIFICATION_ATTEMPT_EMAIL_WINDOW_MS,
+        },
+      ),
+    },
+    publishedSnapshots: createFilesystemPublishedSnapshotStore(STATIC_FILE_DIR),
+    savedSearches: createDatabaseSavedSearchStore(db),
+    savedWorksheets: createDatabaseSavedWorksheetStore(db),
+    session: expressAppSession,
+  }),
 );
+if (isApiModuleEnabled('legacy-auth')) registerLegacyCasRoute(app);
+if (isApiModuleEnabled('legacy-catalog')) catalog(app);
 if (isApiModuleEnabled('demand')) demand(app);
 if (isApiModuleEnabled('friends')) friends(app);
 if (isApiModuleEnabled('canny')) canny(app);
 if (isApiModuleEnabled('user')) user(app);
 if (isApiModuleEnabled('profile')) profile(app);
 if (isApiModuleEnabled('link-preview')) linkPreview(app);
-savedSearches(app, createDatabaseSavedSearchStore());
-savedWorksheets(app, createDatabaseSavedWorksheetStore());
-
-app.get('/api/ping', (req, res) => {
-  res.json('pong');
-});
 
 // The error handler must be registered before
 // any other error middleware and after all controllers

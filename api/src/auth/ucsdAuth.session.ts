@@ -1,20 +1,23 @@
 import type express from 'express';
+import type { AppSession } from './appSession.js';
 import type { AppUserIdentity } from './ucsdIdentity.js';
 
-export function getAppSessionUser(req: express.Request) {
+function getAppSessionUser(req: express.Request) {
   return req.session.appUser ?? null;
 }
 
-export function authAppUser(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction,
-): void {
-  if (!getAppSessionUser(req)) {
-    res.status(401).json({ error: 'USER_NOT_FOUND' });
-    return;
-  }
-  next();
+export function createAuthAppUser(session: AppSession) {
+  return (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ): void => {
+    if (!session.getUser(req)) {
+      res.status(401).json({ error: 'USER_NOT_FOUND' });
+      return;
+    }
+    next();
+  };
 }
 
 function regenerateSession(req: express.Request) {
@@ -35,7 +38,7 @@ function saveSession(req: express.Request) {
   });
 }
 
-export async function establishAppSession(
+async function establishAppSession(
   req: express.Request,
   user: AppUserIdentity,
 ) {
@@ -43,3 +46,19 @@ export async function establishAppSession(
   req.session.appUser = user;
   await saveSession(req);
 }
+
+function destroyAppSession(req: express.Request) {
+  return new Promise<void>((resolve, reject) => {
+    req.session.destroy((err) => {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
+}
+
+export const expressAppSession: AppSession = {
+  destroy: (context) => destroyAppSession(context as express.Request),
+  establish: (context, user) =>
+    establishAppSession(context as express.Request, user),
+  getUser: (context) => getAppSessionUser(context as express.Request),
+};

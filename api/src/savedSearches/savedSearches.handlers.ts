@@ -2,7 +2,7 @@ import type express from 'express';
 import z from 'zod';
 
 import type { SavedSearchStore } from './savedSearches.store.js';
-import { getAppSessionUser } from '../auth/ucsdAuth.session.js';
+import type { AppSession } from '../auth/appSession.js';
 
 const CreateSavedSearchSchema = z.object({
   name: z.string().min(1).max(64),
@@ -13,12 +13,15 @@ const DeleteSavedSearchSchema = z.object({
   id: z.number().int().positive(),
 });
 
-export function createSavedSearchHandlers(store: SavedSearchStore) {
+export function createSavedSearchHandlers(
+  store: SavedSearchStore,
+  getSessionUser: AppSession['getUser'],
+) {
   const getSavedSearches = async (
     req: express.Request,
     res: express.Response,
   ): Promise<void> => {
-    const user = getAppSessionUser(req)!;
+    const user = getSessionUser(req)!;
 
     const searches = await store.listByUserId(user.user_id);
 
@@ -29,7 +32,7 @@ export function createSavedSearchHandlers(store: SavedSearchStore) {
     req: express.Request,
     res: express.Response,
   ): Promise<void> => {
-    const user = getAppSessionUser(req)!;
+    const user = getSessionUser(req)!;
 
     const bodyParseRes = CreateSavedSearchSchema.safeParse(req.body);
     if (!bodyParseRes.success) {
@@ -57,7 +60,7 @@ export function createSavedSearchHandlers(store: SavedSearchStore) {
     req: express.Request,
     res: express.Response,
   ): Promise<void> => {
-    const user = getAppSessionUser(req)!;
+    const user = getSessionUser(req)!;
 
     const bodyParseRes = DeleteSavedSearchSchema.safeParse(req.body);
     if (!bodyParseRes.success) {
