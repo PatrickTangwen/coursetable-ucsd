@@ -24,6 +24,13 @@ current Saved Worksheet Management UX no longer exposes this as the default
 worksheet-page interaction.
 _Avoid_: Current default worksheet UX, automatic save on login, implicit sync
 
+**Email Delivery Audit**:
+A short-lived operational record that links a verification-email request and
+provider outcome to the addressed UCSD email for maintainer-only delivery
+support. It is not a general application log and contains no verification code,
+session, email body, or provider credential.
+_Avoid_: Email log, authentication log, mailbox history
+
 **Catalog Snapshot**:
 A term-scoped, self-contained JSON data artifact that the frontend uses for catalog search, course detail, and anonymous worksheet planning in MVP-1.
 _Avoid_: Live catalog query, GraphQL catalog, database-backed catalog

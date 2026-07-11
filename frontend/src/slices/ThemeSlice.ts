@@ -9,6 +9,7 @@ interface ThemeSliceState {
 
 interface ThemeSliceActions {
   toggleTheme: () => void;
+  setTheme: (theme: Theme) => void;
 }
 
 export interface ThemeSlice extends ThemeSliceState, ThemeSliceActions {}
@@ -21,5 +22,8 @@ export const createThemeSlice: StateCreator<Store, [], [], ThemeSlice> = (
   toggleTheme() {
     const newTheme: Theme = get().theme === 'light' ? 'dark' : 'light';
     set({ theme: newTheme });
+  },
+  setTheme(theme) {
+    set({ theme });
   },
 });

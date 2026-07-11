@@ -97,6 +97,34 @@ logs, or transient setup notes directly in ADRs.
 - `0026-use-upstash-redis-for-first-worker-hosting.md`: preserve Redis session
   and verification-limit semantics through Upstash REST for the first Worker
   deployment instead of redesigning them around Durable Objects.
+- `0027-use-neon-postgres-through-hyperdrive.md`: retain the App DB's PostgreSQL
+  contract on Neon while Worker runtime queries use Hyperdrive and migrations
+  remain a separate controlled deployment operation.
+- `0028-use-one-origin-for-first-hosted-staging.md`: serve the frontend,
+  Published Snapshot routes, and `/api/*` from one staging origin to reduce
+  browser credential and CORS failure modes during hosted login acceptance.
+- `0029-store-published-snapshots-in-r2.md`: keep accepted Published Snapshots
+  and Import Manifests in private R2 as the hosted serving source now and the
+  import, rollback, and parity record after a future GraphQL cutover.
+- `0030-add-a-worker-composition-root.md`: keep the Node and Docker composition
+  for local validation while a dedicated Worker root assembles hosted adapters
+  around the same Core App Backend behavior and contract tests.
+- `0031-use-fixed-thirty-day-hosted-sessions.md`: expire hosted login sessions
+  thirty days after verification without rolling renewal, using a host-only
+  secure cookie and the same fixed TTL in Upstash.
+- `0032-use-forward-compatible-database-migrations.md`: use forward-only
+  expand-and-contract schema changes so Worker rollback does not require an
+  automatic destructive database down migration.
+- `0033-isolate-hosted-environment-state.md`: give staging and production
+  separate databases, sessions, object storage, email keys, secrets, backup
+  credentials, and deployment identities; create only staging in the first
+  hosted phase.
+- `0034-confine-email-addresses-to-short-lived-delivery-audit.md`: keep full
+  recipient addresses only in a seven-day maintainer-only App DB audit while
+  general telemetry uses masked addresses and environment-specific HMAC refs.
+- `0035-use-only-the-staging-product-origin.md`: expose hosted staging only at
+  the product staging domain and disable public `workers.dev` and `r2.dev`
+  paths that would bypass the single-origin security boundary.
 
 ## Editing Rule
 

@@ -1,6 +1,31 @@
 import { defaultFilters } from './searchConstants';
-import type { Filters } from './searchTypes';
+import type { Filters, Option } from './searchTypes';
+import type { useFerry } from '../hooks/useFerry';
+import type { Season } from '../queries/graphql-types';
 import { isEqual } from '../utilities/common';
+
+type CatalogCache = ReturnType<typeof useFerry>['courses'];
+
+export function extractCatalogSubjects(
+  courses: CatalogCache,
+  selectedSeasons: Option<Season>[],
+): string[] {
+  const set = new Set<string>();
+  const seasonCodes =
+    selectedSeasons.length === 0
+      ? (Object.keys(courses) as Season[])
+      : selectedSeasons.map((season) => season.value);
+
+  for (const seasonCode of seasonCodes) {
+    const catalog = courses[seasonCode];
+    if (!catalog) continue;
+    for (const listing of catalog.data.values()) set.add(listing.subject);
+  }
+
+  const arr = [...set];
+  arr.sort();
+  return arr;
+}
 
 const CATALOG_LIST_VISIBLE_FILTERS = new Set<keyof Filters>([
   'searchText',

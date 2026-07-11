@@ -117,6 +117,7 @@ export default function FilterBar({
   readonly subjects: string[];
 }) {
   const {
+    isMobile,
     selectedSubjects,
     selectedSeasons,
     searchFilters,
@@ -127,6 +128,7 @@ export default function FilterBar({
     clearTypeFilters,
   } = useStore(
     useShallow((s) => ({
+      isMobile: s.isMobile,
       selectedSubjects: s.searchFilters.selectSubjects as Option[],
       selectedSeasons: s.searchFilters.selectSeasons as Option[],
       searchFilters: s.searchFilters,
@@ -191,6 +193,22 @@ export default function FilterBar({
   const resetAdvancedFilters = useCallback(() => {
     patchSearchFilters(buildCatalogListAdvancedFilterReset());
   }, [patchSearchFilters]);
+
+  // On mobile the dropdowns/chips live in the filter bottom sheet (opened
+  // from the navbar's Filters button); only the freshness label remains here.
+  if (isMobile) {
+    return (
+      <div className={styles.mobileUpdatedRow}>
+        <UpdatedLabel
+          season={
+            selectedSeasons.length === 1
+              ? (selectedSeasons[0]!.value as Season)
+              : null
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>

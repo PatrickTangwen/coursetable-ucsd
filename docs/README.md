@@ -21,6 +21,8 @@ Status: top-level navigation for stable project documentation.
   abuse-control budgets, and ambiguous-delivery behavior.
 - `hosted-like-auth-validation-2026-07-10.md`: fake-sender, production-mode
   acceptance path for hosted login.
+- `cloudflare_hosted_staging.md`: proposed Cloudflare Worker staging boundary,
+  external state services, security and cost policies, and acceptance gate.
 - `locations.md`: location data notes.
 - `maintenance.md`: maintenance notes.
 - `snapshot_pipe.md`: catalog snapshot pipeline notes, including General Catalog

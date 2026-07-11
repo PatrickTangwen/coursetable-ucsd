@@ -72,13 +72,58 @@
   flex-shrink: 0;
 }
 
+/* Mobile "Filters" button next to the search box (finalized "SunGrid Mobile
+   Navbar" design); only rendered below the mobile breakpoint. */
+.filtersBtn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgb(11 11 11 / 8%);
+  background: #f9f8f6;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0b0b0b;
+  cursor: pointer;
+  align-self: stretch;
+}
+
+.filtersBtn:hover {
+  border-color: #85b7eb;
+}
+
+.filtersBadge {
+  background: #2871be;
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-sizing: border-box;
+}
+
 @media (max-width: calc(768px - 0.5px)) {
   .container {
     order: 10;
     flex-basis: 100%;
+    gap: 8px;
   }
 
   .searchBox {
     max-width: none;
+  }
+
+  .input {
+    padding: 12px 36px 12px 38px;
+    border-radius: 12px;
+    background: #f9f8f6;
+    font-size: 13.5px;
   }
 }

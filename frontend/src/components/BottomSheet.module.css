@@ -1,0 +1,46 @@
+/* Shared mobile bottom-sheet chrome (finalized "SunGrid Mobile Navbar"
+   design): dimmed backdrop + slide-up rounded panel with a drag handle. */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1040;
+  background: rgb(15 23 42 / 50%);
+  border: 0;
+  padding: 0;
+  cursor: default;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.backdropOpen {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1050;
+  background: #fff;
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 -10px 30px rgb(15 23 42 / 20%);
+  transform: translateY(110%);
+  transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.sheetOpen {
+  transform: translateY(0);
+}
+
+.handle {
+  width: 36px;
+  height: 4px;
+  background: rgb(11 11 11 / 8%);
+  border-radius: 2px;
+  margin: 10px auto 8px;
+  flex-shrink: 0;
+}

@@ -54,15 +54,14 @@ const Spring26Release = suspended(
 // outside so unknown URLs render without it.
 function FooterLayout() {
   const location = useLocation();
-  const worksheetView = useStore((state) => state.worksheetView);
-  // The landing and sign-in pages bring their own footer; the worksheet
-  // calendar view fills the viewport with no page scroll, so the footer would
-  // force a scrollbar; the list view still shows it.
+  // The landing and sign-in pages bring their own footer; the catalog and
+  // worksheet pages manage their own scroll areas, so the footer would
+  // force a scrollbar there.
   const hideFooter =
     location.pathname === '/' ||
     location.pathname === '/login' ||
     location.pathname === '/catalog' ||
-    (location.pathname === '/worksheet' && worksheetView !== 'list');
+    location.pathname === '/worksheet';
   return (
     <>
       <Outlet />

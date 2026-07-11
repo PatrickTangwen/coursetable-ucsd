@@ -1,6 +1,9 @@
-import type React from 'react';
+import React, { useState } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 
+import MobileFilterSheet from './MobileFilterSheet';
 import { useSearch } from '../../hooks/useSearch';
+import { useStore } from '../../store';
 import styles from './CatalogNavSearch.module.css';
 
 function SearchIcon() {
@@ -51,8 +54,56 @@ export function CatalogResultCount() {
   );
 }
 
+function FunnelIcon() {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 5h16l-6 7v6l-4 2v-8z" />
+    </svg>
+  );
+}
+
+function MobileFiltersButton() {
+  const [open, setOpen] = useState(false);
+  const filterCount = useStore(
+    useShallow(
+      (s) =>
+        s.searchFilters.selectSubjects.length +
+        s.searchFilters.selectSeasons.length +
+        s.catalogTypeFilters.length,
+    ),
+  );
+
+  return (
+    <>
+      <button
+        type="button"
+        className={styles.filtersBtn}
+        onClick={() => setOpen(true)}
+      >
+        <FunnelIcon />
+        Filters
+        {filterCount > 0 && (
+          <span className={styles.filtersBadge}>{filterCount}</span>
+        )}
+      </button>
+      <MobileFilterSheet open={open} onClose={() => setOpen(false)} />
+    </>
+  );
+}
+
 export default function CatalogNavSearch() {
   const { filters, setStartTime } = useSearch();
+  const isMobile = useStore((s) => s.isMobile);
   const { searchText } = filters;
 
   return (
@@ -64,7 +115,11 @@ export default function CatalogNavSearch() {
         <input
           type="text"
           className={styles.input}
-          placeholder="Search by course code, title, instructor, or description"
+          placeholder={
+            isMobile
+              ? 'Search'
+              : 'Search by course code, title, instructor, or description'
+          }
           value={searchText.value}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             searchText.set(e.target.value);
@@ -85,6 +140,7 @@ export default function CatalogNavSearch() {
           </button>
         )}
       </div>
+      {isMobile && <MobileFiltersButton />}
     </div>
   );
 }

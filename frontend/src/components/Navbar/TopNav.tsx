@@ -5,14 +5,10 @@ import clsx from 'clsx';
 import DarkModeButton from './DarkModeButton';
 import Logo from './Logo';
 import MeDropdown from './MeDropdown';
-import { logout } from '../../queries/api';
+import MobileNavSheet from './MobileNavSheet';
 import { useStore } from '../../store';
 import { scrollToTop } from '../../utilities/display';
 import { createCatalogLink } from '../../utilities/navigation';
-import {
-  PUBLIC_LOGIN_ENABLED,
-  shouldShowPublicLoginEntry,
-} from '../../utilities/publicLogin';
 import CatalogNavSearch, {
   CatalogResultCount,
 } from '../Catalog/CatalogNavSearch';
@@ -21,8 +17,6 @@ import WorksheetMobileMenu from '../Worksheet/WorksheetMobileMenu';
 import styles from './TopNav.module.css';
 
 export default function TopNav() {
-  const authStatus = useStore((state) => state.authStatus);
-  const refreshAuth = useStore((state) => state.refreshAuth);
   const isMobile = useStore((state) => state.isMobile);
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -95,13 +89,17 @@ export default function TopNav() {
           aria-label="Toggle navigation"
           aria-expanded={menuOpen}
         >
-          <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
-            <path
-              d="M3 5h14M3 10h14M3 15h14"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-            />
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            aria-hidden="true"
+          >
+            <path d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
 
@@ -119,23 +117,17 @@ export default function TopNav() {
               </div>
             </>
           )
+        ) : isMobile ? (
+          <MobileNavSheet open={menuOpen} onClose={() => setMenuOpen(false)} />
         ) : (
-          <div
-            className={clsx(
-              styles.navActions,
-              menuOpen && styles.navActionsOpen,
-            )}
-          >
+          <div className={styles.navActions}>
             <DarkModeButton className={styles.settingsBtn} />
             <NavLink
               to={createCatalogLink()}
               className={({ isActive }) =>
                 clsx(styles.navTab, isActive && styles.navTabActive)
               }
-              onClick={(e) => {
-                scrollToTop(e);
-                setMenuOpen(false);
-              }}
+              onClick={scrollToTop}
               data-label="Catalog"
             >
               Catalog
@@ -145,41 +137,13 @@ export default function TopNav() {
               className={({ isActive }) =>
                 clsx(styles.navTab, isActive && styles.navTabActive)
               }
-              onClick={(e) => {
-                scrollToTop(e);
-                setMenuOpen(false);
-              }}
+              onClick={scrollToTop}
               data-tutorial="worksheet-1"
               data-label="Worksheet"
             >
               Worksheet
             </NavLink>
-            {isMobile ? (
-              shouldShowPublicLoginEntry(
-                authStatus === 'authenticated',
-                PUBLIC_LOGIN_ENABLED,
-              ) && (
-                <button
-                  type="button"
-                  className={styles.navTab}
-                  onClick={
-                    authStatus !== 'authenticated'
-                      ? () => {
-                          window.location.href = '/login';
-                        }
-                      : async () => {
-                          await logout();
-                          await refreshAuth();
-                          window.location.href = '/';
-                        }
-                  }
-                >
-                  {authStatus !== 'authenticated' ? 'Sign in' : 'Sign out'}
-                </button>
-              )
-            ) : (
-              <MeDropdown />
-            )}
+            <MeDropdown />
           </div>
         )}
       </nav>

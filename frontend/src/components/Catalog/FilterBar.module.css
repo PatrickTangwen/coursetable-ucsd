@@ -67,6 +67,13 @@
   flex-shrink: 0;
 }
 
+/* Mobile: the filter bar collapses to just the freshness label (filters live
+   in the bottom sheet); layout per the finalized mobile navbar design. */
+.mobileUpdatedRow {
+  padding: 14px 18px 12px;
+  background: #fff;
+}
+
 @media (max-width: calc(768px - 0.5px)) {
   .spacer {
     display: none;
