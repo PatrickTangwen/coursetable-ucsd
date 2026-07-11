@@ -32,6 +32,21 @@ Drizzle records completed migrations in the database, so rerunning the command
 applies only migrations that have not yet run. Apply and verify staging before
 selecting production.
 
+## Verify the command path locally
+
+The normal API test suite executes the real `db:migrate` command without
+`DB_URL` and verifies that it resolves correctly and fails closed before making
+a connection. To exercise the complete command against an isolated Postgres,
+including its schema, migration journal, and safe rerun, use:
+
+```bash
+api/drizzle/test-migrate.sh
+```
+
+The script starts a temporary `postgres:13` container on a random localhost
+port and removes it on completion. It uses only generated test credentials and
+does not read hosted secrets.
+
 ## Disposable local validation
 
 `bun run --cwd api db:push` remains available only for throwaway local Compose

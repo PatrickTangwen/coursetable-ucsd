@@ -11,6 +11,7 @@
     "db:migrate": "tsx drizzle/migrate.ts",
     "db:push": "drizzle-kit push:pg",
     "db:seed:friends": "tsx drizzle/seed-friends.ts",
+    "test:db:migrate": "vitest run drizzle/migrate.command.test.ts",
     "codegen": "graphql-codegen --config graphql-codegen.ts && tsx ../tools/fix-gql-generated-code.mts",
     "codegen:format": "prettier -w src/**/*.queries.ts src/graphql-types.ts"
   },
