@@ -7,16 +7,10 @@ import styles from './WorksheetToggleControls.module.css';
 
 function PlusMinusGlyph() {
   return (
-    <>
-      <span
-        className={clsx(styles.toggleButtonBar, styles.toggleButtonBarH)}
-        aria-hidden="true"
-      />
-      <span
-        className={clsx(styles.toggleButtonBar, styles.toggleButtonBarV)}
-        aria-hidden="true"
-      />
-    </>
+    <span className={styles.toggleButtonGlyph} aria-hidden="true">
+      <span className={clsx(styles.toggleButtonBar, styles.toggleButtonBarH)} />
+      <span className={clsx(styles.toggleButtonBar, styles.toggleButtonBarV)} />
+    </span>
   );
 }
 
@@ -25,12 +19,14 @@ export function AddWorksheetButton({
   disabled,
   ariaLabel,
   className,
+  mobile,
   onClick,
 }: {
   readonly added?: boolean;
   readonly disabled?: boolean;
   readonly ariaLabel: string;
   readonly className?: string;
+  readonly mobile?: boolean;
   readonly onClick?: MouseEventHandler<HTMLButtonElement>;
 }) {
   return (
@@ -39,6 +35,7 @@ export function AddWorksheetButton({
       className={clsx(
         className,
         styles.toggleButton,
+        mobile && styles.mobileButton,
         added && styles.isAdded,
         disabled && styles.disabledButton,
       )}

@@ -544,7 +544,7 @@
   display: grid;
   grid-template-columns:
     20px minmax(96px, max-content) 44px minmax(0, 1fr)
-    88px minmax(80px, max-content);
+    88px 100px;
   align-items: center;
   gap: 4px 8px;
   padding: 9px 18px;

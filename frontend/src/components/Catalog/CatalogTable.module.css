@@ -446,28 +446,11 @@
   white-space: nowrap;
 }
 
-.mobileAddCircle {
+.mobileAddAction {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: 9999px;
-  border: 1px solid rgb(11 11 11 / 8%);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fdfcfb;
-}
-
-.mobileAddCircleSmall {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 9999px;
-  border: 1px solid rgb(11 11 11 / 8%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
 }
 
 .mobileCardMeta {

@@ -793,8 +793,12 @@ function MobileFlatCard({
             <span className={styles.mobileTrunc}>{instructor}</span>
           </div>
         </div>
-        <div className={styles.mobileAddCircle}>
-          <WorksheetToggleButton listing={listing} modal={false} />
+        <div className={styles.mobileAddAction}>
+          <WorksheetToggleButton
+            listing={listing}
+            modal={false}
+            appearance="mobile"
+          />
         </div>
       </div>
       <div className={styles.mobileCardMeta}>
@@ -871,8 +875,12 @@ function MobileSubRow({
           capacity={section.capacity}
           variant="subrow"
         />
-        <div className={styles.mobileAddCircleSmall}>
-          <WorksheetToggleButton listing={groupListing} modal={false} />
+        <div className={styles.mobileAddAction}>
+          <WorksheetToggleButton
+            listing={groupListing}
+            modal={false}
+            appearance="mobile"
+          />
         </div>
       </div>
       <div className={styles.mobileSubInstructor}>

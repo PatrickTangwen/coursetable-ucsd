@@ -263,7 +263,7 @@ function WorksheetToggleButton({
   readonly listing: ListingWithHistoricalInfo;
   readonly modal: boolean;
   readonly inWorksheet?: boolean;
-  readonly appearance?: 'icon' | 'remove';
+  readonly appearance?: 'icon' | 'mobile' | 'remove';
   readonly className?: string;
   readonly showConflictIcon?: boolean;
 }) {
@@ -594,6 +594,7 @@ function WorksheetToggleButton({
             className="p-0"
             ariaLabel={buttonLabel}
             disabled
+            mobile={appearance === 'mobile'}
           />
         </OverlayTrigger>
       </div>
@@ -638,6 +639,7 @@ function WorksheetToggleButton({
             added={inWorksheet}
             onClick={toggleWorkSheet}
             ariaLabel={buttonLabel}
+            mobile={appearance === 'mobile'}
           />
         </OverlayTrigger>
       </div>
