@@ -3,13 +3,13 @@ import express from 'express';
 import session from 'express-session';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { shouldExposeVerificationCode } from './ucsdAuth.exposure.js';
 import { createMemoryUcsdAuthStore } from './ucsdAuth.memory.js';
 import { registerUcsdAuthRoutes } from './ucsdAuth.routes.js';
 import {
   appUserIdToLegacyNetId,
   normalizeVerifiedUcsdEmail,
 } from './ucsdIdentity.js';
+import type { VerificationEmailSender } from './verificationEmail.sender.js';
 import { createMemorySavedSearchStore } from '../savedSearches/savedSearches.memory.js';
 import { registerSavedSearchRoutes } from '../savedSearches/savedSearches.routes.js';
 
@@ -45,7 +45,13 @@ class TestClient {
   }
 }
 
-function createTestApp(now = () => 1_000_000) {
+function createTestApp(
+  now = () => 1_000_000,
+  emailSender: VerificationEmailSender = {
+    sendVerificationEmail: () => Promise.resolve(),
+  },
+  exposeVerificationCode = true,
+) {
   const app = express();
   const authStore = createMemoryUcsdAuthStore();
   const savedSearchStore = createMemorySavedSearchStore();
@@ -64,7 +70,8 @@ function createTestApp(now = () => 1_000_000) {
   );
   registerUcsdAuthRoutes(app, {
     store: authStore,
-    exposeVerificationCode: true,
+    emailSender,
+    exposeVerificationCode,
     codeGenerator: () => '123456',
     now,
   });
@@ -85,11 +92,6 @@ describe('UCSD auth identity', () => {
   it('keeps legacy netId adapters derived from user_id, not email local-part', () => {
     expect(appUserIdToLegacyNetId(1)).toBe('u0000001');
     expect(appUserIdToLegacyNetId(35)).toBe('u000000z');
-  });
-
-  it('does not expose development verification codes for production env', () => {
-    expect(shouldExposeVerificationCode('development')).toBe(true);
-    expect(shouldExposeVerificationCode('production')).toBe(false);
   });
 });
 
@@ -191,6 +193,109 @@ describe('UCSD auth routes', () => {
       authenticated: false,
       user: null,
     });
+  });
+
+  it('passes the generated verification to the configured sender', async () => {
+    const sent: unknown[] = [];
+    const { app } = createTestApp(() => 1_000_000, {
+      sendVerificationEmail(verification) {
+        sent.push(verification);
+        return Promise.resolve();
+      },
+    });
+    const isolatedClient = new TestClient();
+    const isolatedServer = await isolatedClient.start(app);
+
+    try {
+      const response = await isolatedClient.request(
+        '/api/auth/ucsd/request-verification',
+        {
+          method: 'POST',
+          body: JSON.stringify({ email: ' Student@UCSD.edu ' }),
+        },
+      );
+
+      expect(response.status).toBe(200);
+      expect(sent).toEqual([
+        {
+          email: 'student@ucsd.edu',
+          code: '123456',
+          expiresAt: 1_900_000,
+        },
+      ]);
+    } finally {
+      await new Promise<void>((resolve) => {
+        isolatedServer.close(() => resolve());
+      });
+    }
+  });
+
+  it('does not expose devCode when using a hosted sender', async () => {
+    const { app } = createTestApp(
+      () => 1_000_000,
+      { sendVerificationEmail: () => Promise.resolve() },
+      false,
+    );
+    const isolatedClient = new TestClient();
+    const isolatedServer = await isolatedClient.start(app);
+
+    try {
+      const response = await isolatedClient.request(
+        '/api/auth/ucsd/request-verification',
+        {
+          method: 'POST',
+          body: JSON.stringify({ email: 'student@ucsd.edu' }),
+        },
+      );
+
+      expect(await response.json()).toEqual({
+        status: 'verification_sent',
+        email: 'student@ucsd.edu',
+      });
+    } finally {
+      await new Promise<void>((resolve) => {
+        isolatedServer.close(() => resolve());
+      });
+    }
+  });
+
+  it('returns an operational failure when the sender fails', async () => {
+    const { app } = createTestApp(() => 1_000_000, {
+      sendVerificationEmail: () =>
+        Promise.reject(new Error('verification delivery unavailable')),
+    });
+    app.use(
+      (
+        err: unknown,
+        _req: express.Request,
+        res: express.Response,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        _next: express.NextFunction,
+      ) => {
+        res.status(503).json({ error: String(err) });
+      },
+    );
+    const isolatedClient = new TestClient();
+    const isolatedServer = await isolatedClient.start(app);
+
+    try {
+      const response = await isolatedClient.request(
+        '/api/auth/ucsd/request-verification',
+        {
+          method: 'POST',
+          body: JSON.stringify({ email: 'student@ucsd.edu' }),
+        },
+      );
+
+      expect(response.status).toBe(503);
+      expect(await response.json()).toEqual({
+        error: 'Error: verification delivery unavailable',
+      });
+    } finally {
+      await new Promise<void>((resolve) => {
+        isolatedServer.close(() => resolve());
+      });
+    }
   });
 });
 

@@ -27,6 +27,7 @@ import {
   HASURA_GRAPHQL_ADMIN_SECRET,
   COURSETABLE_ORIGINS,
   NUM_SEASONS,
+  verificationEmailDelivery,
 } from './config.js';
 import demand from './demand/demand.routes.js';
 import friends from './friends/friends.routes.js';
@@ -143,7 +144,8 @@ challenge(app);
 catalog(app);
 casAuth(app, {
   store: createDatabaseUcsdAuthStore(),
-  exposeVerificationCode: isDev,
+  emailSender: verificationEmailDelivery.sender,
+  exposeVerificationCode: verificationEmailDelivery.exposeVerificationCode,
 });
 demand(app);
 friends(app);

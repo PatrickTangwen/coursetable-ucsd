@@ -11,6 +11,7 @@ import {
   toAppUserResponse,
   verificationCodeTtlMs,
 } from './ucsdIdentity.js';
+import type { VerificationEmailSender } from './verificationEmail.sender.js';
 
 const RequestVerificationSchema = z.object({
   email: z.string().min(1).max(256),
@@ -23,6 +24,7 @@ const CompleteVerificationSchema = z.object({
 
 export interface UcsdAuthRoutesOptions {
   store: UcsdAuthStore;
+  emailSender: VerificationEmailSender;
   exposeVerificationCode?: boolean;
   codeGenerator?: () => string;
   now?: () => number;
@@ -57,6 +59,7 @@ export function registerUcsdAuthRoutes(
   app: express.Express,
   {
     store,
+    emailSender,
     exposeVerificationCode = false,
     codeGenerator = createVerificationCode,
     now = Date.now,
@@ -83,11 +86,17 @@ export function registerUcsdAuthRoutes(
 
       const code = codeGenerator();
       const createdAt = now();
+      const expiresAt = createdAt + verificationCodeTtlMs;
       await store.createVerification({
         normalizedEmail,
         codeHash: hashVerificationCode(normalizedEmail, code),
         createdAt,
-        expiresAt: createdAt + verificationCodeTtlMs,
+        expiresAt,
+      });
+      await emailSender.sendVerificationEmail({
+        email: normalizedEmail,
+        code,
+        expiresAt,
       });
 
       res.json({

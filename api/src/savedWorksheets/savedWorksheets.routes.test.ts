@@ -59,6 +59,9 @@ function createTestApp(now = () => 1_000_000) {
   );
   registerUcsdAuthRoutes(app, {
     store: authStore,
+    emailSender: {
+      sendVerificationEmail: () => Promise.resolve(),
+    },
     exposeVerificationCode: true,
     codeGenerator: () => '123456',
     now,
