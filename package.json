@@ -27,6 +27,7 @@
     "test:snapshot": "vitest run tools/**/*.test.ts",
     "validate:real-backend-auth": "bun tools/real-backend-auth-validation/validateRealBackendAuth.mts",
     "validate:core-backend": "bun tools/real-backend-auth-validation/validateRealBackendAuth.mts",
+    "validate:local-platform": "bun tools/local-platform/validateLocalPlatform.mts",
     "course-data:migrate": "bun tools/course-data-store/migrateCourseDataStore.mts",
     "course-data:import": "bun tools/course-data-store/importSnapshot.mts",
     "validate:course-data-tracer": "bun tools/course-data-store/validateCourseDataTracer.mts"

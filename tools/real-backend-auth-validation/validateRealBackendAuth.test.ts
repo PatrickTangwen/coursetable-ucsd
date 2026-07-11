@@ -45,6 +45,9 @@ describe('real backend auth validation CLI', () => {
     expect(config.email).toMatch(
       /^auth-validation\+20260621t040506z-[a-f\d]{8}@ucsd\.edu$/u,
     );
+    expect(config.composeProject).toBe(
+      'coursetable-auth-validation-20260621t040506z',
+    );
   });
 
   it('keeps docker compose evidence collection inside compose containers', () => {
@@ -69,6 +72,19 @@ describe('real backend auth validation CLI', () => {
       'db',
       'psql',
     ]);
+  });
+
+  it('refuses a pre-existing Compose project before acquiring cleanup ownership', () => {
+    expect(validation.inspectComposeProject('[]')).toEqual({
+      available: true,
+      resourceCount: 0,
+    });
+
+    expect(() =>
+      validation.inspectComposeProject(
+        JSON.stringify([{ Name: 'developer-api', Service: 'api' }]),
+      ),
+    ).toThrow('Compose project already owns resources');
   });
 
   it('tracks cookies without leaking session ids into evidence', () => {

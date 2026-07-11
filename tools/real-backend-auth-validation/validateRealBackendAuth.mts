@@ -218,7 +218,7 @@ export function createRunConfig(
     composeProject:
       args.composeProject ??
       env.COURSETABLE_AUTH_PROJECT ??
-      'coursetable-auth-validation',
+      `coursetable-auth-validation-${runId.toLowerCase()}`,
     email,
     keepData: args.keepData ?? false,
     rootDir: env.COURSETABLE_AUTH_REPO_ROOT ?? process.cwd(),
@@ -307,6 +307,20 @@ export function buildComposeArgs(config: RunConfig, command: string[]) {
     config.composeProject,
     ...command,
   ];
+}
+
+export function inspectComposeProject(output: string) {
+  const trimmed = output.trim();
+  if (!trimmed || trimmed === '[]')
+    return { available: true, resourceCount: 0 };
+  const parsed = JSON.parse(trimmed) as unknown;
+  const resources = Array.isArray(parsed) ? parsed : [parsed];
+  if (resources.length > 0) {
+    throw new Error(
+      `Compose project already owns resources (${resources.length}); choose a unique project name`,
+    );
+  }
+  return { available: true, resourceCount: 0 };
 }
 
 function composeDir(config: RunConfig) {
@@ -807,7 +821,7 @@ async function consumeCapturedVerification(config: RunConfig, email: string) {
   return captured.code;
 }
 
-async function runCompose(config: RunConfig, command: string[]) {
+export async function runCompose(config: RunConfig, command: string[]) {
   const { stderr, stdout } = await execFileAsync(
     'docker',
     buildComposeArgs(config, command),
@@ -1234,8 +1248,21 @@ Options:
 
 if (import.meta.main) {
   let config: RunConfig | null = null;
+  let ownsComposeProject = false;
   try {
     config = createRunConfig();
+    inspectComposeProject(
+      await runCompose(config, ['ps', '-a', '--format', 'json']),
+    );
+    ownsComposeProject = true;
+    await runCompose(config, [
+      'up',
+      '-d',
+      '--build',
+      '--wait',
+      '--remove-orphans',
+    ]);
+    await runCompose(config, ['exec', '-T', 'api', 'bun', 'run', 'db:migrate']);
     const summary = await runValidation(config);
     console.log(renderSummary(summary));
     console.log(`Evidence written to ${config.artifactDir}`);
@@ -1246,7 +1273,7 @@ if (import.meta.main) {
 
     process.exitCode = 1;
   } finally {
-    if (config) {
+    if (config && ownsComposeProject) {
       await runCompose(config, ['down', '--volumes', '--remove-orphans']).catch(
         () => {
           console.error('Validation stack teardown failed');

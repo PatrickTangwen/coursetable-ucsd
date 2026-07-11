@@ -76,6 +76,23 @@ services:
     volumes:
       - core-validation-redis-data:/data
 
+  pgadmin:
+    image: dpage/pgadmin4:9.5
+    profiles: ['admin']
+    ports:
+      - 127.0.0.1:${PGADMIN_PORT:-8181}:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL?PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD?PGADMIN_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost/misc/ping']
+      interval: 2s
+      timeout: 5s
+      retries: 60
+
 volumes:
   core-validation-postgres-data:
   core-validation-redis-data:
