@@ -18,6 +18,20 @@ export interface VerificationEmailSender {
   sendVerificationEmail: (message: VerificationEmailMessage) => Promise<void>;
 }
 
+export class VerificationEmailDeliveryError extends Error {
+  readonly outcome: 'definitive_failure' | 'ambiguous';
+
+  constructor(
+    message: string,
+    outcome: 'definitive_failure' | 'ambiguous',
+    options?: ErrorOptions,
+  ) {
+    super(message, options);
+    this.name = 'VerificationEmailDeliveryError';
+    this.outcome = outcome;
+  }
+}
+
 export function createVerificationEmailMessage({
   deliveryId,
   email,

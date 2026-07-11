@@ -4,6 +4,7 @@ import postgres from 'postgres';
 import { createClient } from 'redis';
 import { createResendVerificationEmailSender } from './auth/verificationEmail.resend.js';
 import { createVerificationEmailDelivery } from './auth/verificationEmail.sender.js';
+import { parseTrustedProxyCidrs } from './network/trustedProxy.js';
 import * as schema from '../drizzle/schema.js';
 
 function getEnv(name: string, type?: 'string'): string;
@@ -89,8 +90,6 @@ export const verificationEmailDelivery = createVerificationEmailDelivery({
 });
 export const VERIFICATION_REQUEST_COOLDOWN_MS =
   getPositiveIntegerEnv('VERIFICATION_REQUEST_COOLDOWN_SECONDS') * 1000;
-export const VERIFICATION_PENDING_TIMEOUT_MS =
-  getPositiveIntegerEnv('VERIFICATION_PENDING_TIMEOUT_SECONDS') * 1000;
 export const VERIFICATION_SOURCE_LIMIT = getPositiveIntegerEnv(
   'VERIFICATION_SOURCE_LIMIT',
 );
@@ -101,7 +100,19 @@ export const VERIFICATION_GLOBAL_LIMIT = getPositiveIntegerEnv(
 );
 export const VERIFICATION_GLOBAL_WINDOW_MS =
   getPositiveIntegerEnv('VERIFICATION_GLOBAL_WINDOW_SECONDS') * 1000;
-export const TRUST_PROXY_HOPS = getPositiveIntegerEnv('TRUST_PROXY_HOPS');
+export const VERIFICATION_ATTEMPT_SOURCE_LIMIT = getPositiveIntegerEnv(
+  'VERIFICATION_ATTEMPT_SOURCE_LIMIT',
+);
+export const VERIFICATION_ATTEMPT_SOURCE_WINDOW_MS =
+  getPositiveIntegerEnv('VERIFICATION_ATTEMPT_SOURCE_WINDOW_SECONDS') * 1000;
+export const VERIFICATION_ATTEMPT_EMAIL_LIMIT = getPositiveIntegerEnv(
+  'VERIFICATION_ATTEMPT_EMAIL_LIMIT',
+);
+export const VERIFICATION_ATTEMPT_EMAIL_WINDOW_MS =
+  getPositiveIntegerEnv('VERIFICATION_ATTEMPT_EMAIL_WINDOW_SECONDS') * 1000;
+export const TRUSTED_PROXY_CIDRS = parseTrustedProxyCidrs(
+  getEnv('TRUSTED_PROXY_CIDRS'),
+);
 
 export const OVERWRITE_CATALOG = getEnv('OVERWRITE_CATALOG', 'boolean');
 export const redisClient = createClient({

@@ -17,6 +17,7 @@ describe.skipIf(!databaseUrl)('PostgreSQL verification reservation', () => {
   const database = drizzle(client, { schema });
   const store = createDatabaseUcsdAuthStore(database);
   const email = `issue80-${Date.now()}@ucsd.edu`;
+  const staleEmail = `issue80-stale-${Date.now()}@ucsd.edu`;
 
   beforeAll(async () => {
     await execFileAsync('bun', ['run', 'db:migrate'], {
@@ -29,6 +30,9 @@ describe.skipIf(!databaseUrl)('PostgreSQL verification reservation', () => {
     await database
       .delete(emailVerificationCodes)
       .where(eq(emailVerificationCodes.normalizedEmail, email));
+    await database
+      .delete(emailVerificationCodes)
+      .where(eq(emailVerificationCodes.normalizedEmail, staleEmail));
     await client.end();
   });
 
@@ -40,12 +44,8 @@ describe.skipIf(!databaseUrl)('PostgreSQL verification reservation', () => {
       expiresAt: 1_900_000,
     };
     const [first, second] = await Promise.all([
-      store.reserveVerification(record, 60_000, 30_000),
-      store.reserveVerification(
-        { ...record, codeHash: 'hash-two' },
-        60_000,
-        30_000,
-      ),
+      store.reserveVerification(record, 60_000),
+      store.reserveVerification({ ...record, codeHash: 'hash-two' }, 60_000),
     ]);
     const created = first.status === 'created' ? first : second;
     const blocked = [first, second].find(
@@ -59,7 +59,6 @@ describe.skipIf(!databaseUrl)('PostgreSQL verification reservation', () => {
     const retry = await store.reserveVerification(
       { ...record, codeHash: 'hash-three', createdAt: 1_000_001 },
       60_000,
-      30_000,
     );
     expect(retry).toMatchObject({ status: 'created' });
     if (retry.status !== 'created') throw new Error('retry not created');
@@ -69,8 +68,35 @@ describe.skipIf(!databaseUrl)('PostgreSQL verification reservation', () => {
       store.reserveVerification(
         { ...record, codeHash: 'hash-four', createdAt: 1_000_002 },
         60_000,
-        30_000,
       ),
     ).resolves.toMatchObject({ status: 'blocked', reason: 'cooldown' });
+  });
+
+  it('keeps stale pending delivery unique and consumable until expiry', async () => {
+    const pending = await store.reserveVerification(
+      {
+        normalizedEmail: staleEmail,
+        codeHash: 'ambiguous-hash',
+        createdAt: 1_000_000,
+        expiresAt: 1_900_000,
+      },
+      60_000,
+    );
+    expect(pending.status).toBe('created');
+
+    await expect(
+      store.reserveVerification(
+        {
+          normalizedEmail: staleEmail,
+          codeHash: 'replacement-hash',
+          createdAt: 1_600_000,
+          expiresAt: 2_500_000,
+        },
+        60_000,
+      ),
+    ).resolves.toMatchObject({ status: 'blocked', reason: 'pending' });
+    await expect(
+      store.consumeVerification(staleEmail, 'ambiguous-hash', 1_600_000),
+    ).resolves.toBe('consumed');
   });
 });

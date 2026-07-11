@@ -25,5 +25,8 @@ describe('UCSD auth user-facing error mapping', () => {
     expect(
       completeVerificationErrorMessage('VERIFICATION_CODE_EXPIRED'),
     ).toContain('expired');
+    expect(
+      completeVerificationErrorMessage('VERIFICATION_ATTEMPT_LIMIT', 90),
+    ).toBe('Too many verification attempts. Try again in 2 minutes.');
   });
 });

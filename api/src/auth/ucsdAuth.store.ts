@@ -4,7 +4,6 @@ export interface UcsdAuthStore {
   reserveVerification: (
     record: VerificationRecord,
     cooldownMs: number,
-    pendingTimeoutMs: number,
   ) => Promise<
     | { status: 'created'; verificationId: number }
     | { status: 'blocked'; reason: 'cooldown' | 'pending'; retryAt: number }

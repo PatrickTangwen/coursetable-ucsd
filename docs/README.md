@@ -14,6 +14,8 @@ Status: top-level navigation for stable project documentation.
   runbook.
 - `local_server_endpoints.md`: current local frontend/backend URLs, Docker
   containers, HTTPS certificates, and `mkcert` notes.
+- `hosted-auth-security-2026-07-10.md`: hosted verification proxy trust,
+  abuse-control budgets, and ambiguous-delivery behavior.
 - `locations.md`: location data notes.
 - `maintenance.md`: maintenance notes.
 - `snapshot_pipe.md`: catalog snapshot pipeline notes, including General Catalog

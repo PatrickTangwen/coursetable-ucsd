@@ -13,6 +13,21 @@ export interface VerificationRequestLimiter {
   ) => Promise<{ allowed: true } | { allowed: false; retryAfterMs: number }>;
 }
 
+export interface VerificationAttemptLimitPolicy {
+  sourceLimit: number;
+  sourceWindowMs: number;
+  emailLimit: number;
+  emailWindowMs: number;
+}
+
+export interface VerificationAttemptLimiter {
+  attempt: (
+    source: string,
+    email: string,
+  ) => Promise<{ allowed: true } | { allowed: false; retryAfterMs: number }>;
+  resetEmail: (email: string) => Promise<void>;
+}
+
 interface RedisEvalClient {
   eval: (
     script: string,
@@ -40,9 +55,11 @@ if globalCount == 1 then redis.call('PEXPIRE', KEYS[2], ARGV[4]) end
 return {1, 0}
 `;
 
-function validatePolicy(policy: VerificationRequestLimitPolicy) {
+const resetKeyScript = `return redis.call('DEL', KEYS[1])`;
+
+function validatePolicy(policy: object) {
   for (const [name, value] of Object.entries(policy)) {
-    if (!Number.isSafeInteger(value) || value <= 0)
+    if (typeof value !== 'number' || !Number.isSafeInteger(value) || value <= 0)
       throw new Error(`Verification request policy ${name} must be positive`);
   }
 }
@@ -87,4 +104,58 @@ export function createRedisVerificationRequestLimiter(
 
 export function createUnlimitedVerificationRequestLimiter(): VerificationRequestLimiter {
   return { attempt: () => Promise.resolve({ allowed: true }) };
+}
+
+function digestKey(secret: string, value: string) {
+  return createHmac('sha256', secret).update(value).digest('hex');
+}
+
+export function createRedisVerificationAttemptLimiter(
+  redis: RedisEvalClient,
+  secret: string,
+  policy: VerificationAttemptLimitPolicy,
+): VerificationAttemptLimiter {
+  if (!secret)
+    throw new Error('Verification attempt limiter secret is required');
+  validatePolicy(policy);
+
+  const emailKey = (email: string) =>
+    `verification-attempt:email:${digestKey(secret, email)}`;
+  return {
+    async attempt(source, email) {
+      const result = await redis.eval(attemptScript, {
+        keys: [
+          `verification-attempt:source:${digestKey(secret, source)}`,
+          emailKey(email),
+        ],
+        arguments: [
+          String(policy.sourceLimit),
+          String(policy.sourceWindowMs),
+          String(policy.emailLimit),
+          String(policy.emailWindowMs),
+        ],
+      });
+      if (!Array.isArray(result) || result.length !== 2)
+        throw new Error('Invalid verification attempt limiter response');
+      const allowed = Number(result[0]);
+      const retryAfterMs = Number(result[1]);
+      if (allowed === 1) return { allowed: true };
+      if (allowed === 0 && Number.isFinite(retryAfterMs))
+        return { allowed: false, retryAfterMs: Math.max(1, retryAfterMs) };
+      throw new Error('Invalid verification attempt limiter response');
+    },
+    async resetEmail(email) {
+      await redis.eval(resetKeyScript, {
+        keys: [emailKey(email)],
+        arguments: [],
+      });
+    },
+  };
+}
+
+export function createUnlimitedVerificationAttemptLimiter(): VerificationAttemptLimiter {
+  return {
+    attempt: () => Promise.resolve({ allowed: true }),
+    resetEmail: () => Promise.resolve(),
+  };
 }

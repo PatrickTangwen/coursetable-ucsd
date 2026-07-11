@@ -11,8 +11,14 @@ import {
   normalizeVerifiedUcsdEmail,
   type VerificationRecord,
 } from './ucsdIdentity.js';
-import type { VerificationEmailSender } from './verificationEmail.sender.js';
-import type { VerificationRequestLimiter } from './verificationRequest.limiter.js';
+import {
+  type VerificationEmailSender,
+  VerificationEmailDeliveryError,
+} from './verificationEmail.sender.js';
+import type {
+  VerificationRequestLimiter,
+  VerificationAttemptLimiter,
+} from './verificationRequest.limiter.js';
 import { createMemorySavedSearchStore } from '../savedSearches/savedSearches.memory.js';
 import { registerSavedSearchRoutes } from '../savedSearches/savedSearches.routes.js';
 
@@ -55,23 +61,22 @@ function createTestApp(
   },
   exposeVerificationCode = true,
   requestLimiter?: VerificationRequestLimiter,
+  verificationAttemptLimiter?: VerificationAttemptLimiter,
+  failMarkSent = false,
 ) {
   const app = express();
   const memoryAuthStore = createMemoryUcsdAuthStore();
   const verificationRecords: VerificationRecord[] = [];
   const authStore = {
     ...memoryAuthStore,
-    reserveVerification(
-      record: VerificationRecord,
-      cooldownMs: number,
-      pendingTimeoutMs: number,
-    ) {
+    reserveVerification(record: VerificationRecord, cooldownMs: number) {
       verificationRecords.push(record);
-      return memoryAuthStore.reserveVerification(
-        record,
-        cooldownMs,
-        pendingTimeoutMs,
-      );
+      return memoryAuthStore.reserveVerification(record, cooldownMs);
+    },
+    markVerificationSent(verificationId: number) {
+      if (failMarkSent)
+        return Promise.reject(new Error('database unavailable'));
+      return memoryAuthStore.markVerificationSent(verificationId);
     },
   };
   const savedSearchStore = createMemorySavedSearchStore();
@@ -95,6 +100,7 @@ function createTestApp(
     codeGenerator: () => '123456',
     now,
     requestLimiter,
+    verificationAttemptLimiter,
   });
   registerSavedSearchRoutes(app, savedSearchStore);
 
@@ -297,7 +303,12 @@ describe('UCSD auth routes', () => {
       sendVerificationEmail() {
         attempts += 1;
         return attempts === 1
-          ? Promise.reject(new Error('provider secret detail'))
+          ? Promise.reject(
+              new VerificationEmailDeliveryError(
+                'provider rejected',
+                'definitive_failure',
+              ),
+            )
           : Promise.resolve();
       },
     });
@@ -327,6 +338,82 @@ describe('UCSD auth routes', () => {
       );
       expect(retry.status).toBe(200);
       expect(attempts).toBe(2);
+    } finally {
+      await new Promise<void>((resolve) => {
+        isolatedServer.close(() => resolve());
+      });
+    }
+  });
+
+  it('retains an ambiguously delivered code without sending a replacement', async () => {
+    let sends = 0;
+    const { app } = createTestApp(() => 1_000_000, {
+      sendVerificationEmail() {
+        sends += 1;
+        return Promise.reject(new Error('connection reset after request'));
+      },
+    });
+    const isolatedClient = new TestClient();
+    const isolatedServer = await isolatedClient.start(app);
+
+    try {
+      const request = () =>
+        isolatedClient.request('/api/auth/ucsd/request-verification', {
+          method: 'POST',
+          body: JSON.stringify({ email: 'student@ucsd.edu' }),
+        });
+      const uncertain = await request();
+      expect(await uncertain.json()).toEqual({
+        error: 'VERIFICATION_DELIVERY_UNCERTAIN',
+        message:
+          'Email delivery is still being confirmed. Use the first code if it arrives.',
+      });
+      const retry = await request();
+      expect(await retry.json()).toMatchObject({
+        error: 'VERIFICATION_REQUEST_PENDING',
+      });
+      expect(sends).toBe(1);
+
+      const verify = await isolatedClient.request('/api/auth/ucsd/verify', {
+        method: 'POST',
+        body: JSON.stringify({ email: 'student@ucsd.edu', code: '123456' }),
+      });
+      expect(verify.status).toBe(200);
+    } finally {
+      await new Promise<void>((resolve) => {
+        isolatedServer.close(() => resolve());
+      });
+    }
+  });
+
+  it('keeps an accepted code consumable when marking delivery sent fails', async () => {
+    const { app } = createTestApp(
+      () => 1_000_000,
+      { sendVerificationEmail: () => Promise.resolve() },
+      true,
+      undefined,
+      undefined,
+      true,
+    );
+    const isolatedClient = new TestClient();
+    const isolatedServer = await isolatedClient.start(app);
+
+    try {
+      const request = await isolatedClient.request(
+        '/api/auth/ucsd/request-verification',
+        {
+          method: 'POST',
+          body: JSON.stringify({ email: 'student@ucsd.edu' }),
+        },
+      );
+      expect(await request.json()).toMatchObject({
+        error: 'VERIFICATION_DELIVERY_UNCERTAIN',
+      });
+      const verify = await isolatedClient.request('/api/auth/ucsd/verify', {
+        method: 'POST',
+        body: JSON.stringify({ email: 'student@ucsd.edu', code: '123456' }),
+      });
+      expect(verify.status).toBe(200);
     } finally {
       await new Promise<void>((resolve) => {
         isolatedServer.close(() => resolve());
@@ -367,7 +454,7 @@ describe('UCSD auth routes', () => {
       expect(await duplicate.json()).toEqual({
         error: 'VERIFICATION_REQUEST_PENDING',
         message: 'A verification request is already being processed.',
-        retryAfterSeconds: 30,
+        retryAfterSeconds: 900,
       });
       expect(sends).toBe(1);
       releaseSend();
@@ -509,6 +596,99 @@ describe('UCSD auth routes', () => {
         error: 'VERIFICATION_CODE_EXPIRED',
         message: 'Verification code has expired or was already used.',
       });
+    } finally {
+      await new Promise<void>((resolve) => {
+        isolatedServer.close(() => resolve());
+      });
+    }
+  });
+
+  it('bounds code guessing and returns a non-enumerating retry response', async () => {
+    let attempts = 0;
+    const attemptLimiter: VerificationAttemptLimiter = {
+      attempt() {
+        attempts += 1;
+        return Promise.resolve(
+          attempts <= 2
+            ? { allowed: true as const }
+            : { allowed: false as const, retryAfterMs: 80_000 },
+        );
+      },
+      resetEmail: () => Promise.resolve(),
+    };
+    const { app } = createTestApp(
+      () => 1_000_000,
+      undefined,
+      true,
+      undefined,
+      attemptLimiter,
+    );
+    const isolatedClient = new TestClient();
+    const isolatedServer = await isolatedClient.start(app);
+
+    try {
+      await isolatedClient.request('/api/auth/ucsd/request-verification', {
+        method: 'POST',
+        body: JSON.stringify({ email: 'student@ucsd.edu' }),
+      });
+      const verify = () =>
+        isolatedClient.request('/api/auth/ucsd/verify', {
+          method: 'POST',
+          body: JSON.stringify({ email: 'student@ucsd.edu', code: '000000' }),
+        });
+      expect((await verify()).status).toBe(400);
+      expect((await verify()).status).toBe(400);
+      const limited = await verify();
+      expect(limited.status).toBe(429);
+      expect(limited.headers.get('retry-after')).toBe('80');
+      expect(await limited.json()).toEqual({
+        error: 'VERIFICATION_ATTEMPT_LIMIT',
+        message: 'Too many verification attempts. Try again later.',
+        retryAfterSeconds: 80,
+      });
+    } finally {
+      await new Promise<void>((resolve) => {
+        isolatedServer.close(() => resolve());
+      });
+    }
+  });
+
+  it('clears the email guess budget after successful consumption', async () => {
+    const resetEmails: string[] = [];
+    const attemptLimiter: VerificationAttemptLimiter = {
+      attempt: () => Promise.resolve({ allowed: true }),
+      resetEmail(email) {
+        resetEmails.push(email);
+        return Promise.resolve();
+      },
+    };
+    const { app } = createTestApp(
+      () => 1_000_000,
+      undefined,
+      true,
+      undefined,
+      attemptLimiter,
+    );
+    const isolatedClient = new TestClient();
+    const isolatedServer = await isolatedClient.start(app);
+
+    try {
+      await isolatedClient.request('/api/auth/ucsd/request-verification', {
+        method: 'POST',
+        body: JSON.stringify({ email: 'student@ucsd.edu' }),
+      });
+      expect(
+        (
+          await isolatedClient.request('/api/auth/ucsd/verify', {
+            method: 'POST',
+            body: JSON.stringify({
+              email: 'student@ucsd.edu',
+              code: '123456',
+            }),
+          })
+        ).status,
+      ).toBe(200);
+      expect(resetEmails).toEqual(['student@ucsd.edu']);
     } finally {
       await new Promise<void>((resolve) => {
         isolatedServer.close(() => resolve());

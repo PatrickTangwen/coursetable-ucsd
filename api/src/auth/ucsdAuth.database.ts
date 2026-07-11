@@ -1,4 +1,4 @@
-import { and, desc, eq, gt, isNull, or, sql } from 'drizzle-orm';
+import { and, desc, eq, gt, isNull, ne, or, sql } from 'drizzle-orm';
 import type { drizzle } from 'drizzle-orm/postgres-js';
 
 import type { UcsdAuthStore } from './ucsdAuth.store.js';
@@ -11,7 +11,7 @@ export function createDatabaseUcsdAuthStore(
   db: UcsdAuthDatabase,
 ): UcsdAuthStore {
   return {
-    reserveVerification(record, cooldownMs, pendingTimeoutMs) {
+    reserveVerification(record, cooldownMs) {
       return db.transaction(async (tx) => {
         await tx.execute(
           sql`select pg_advisory_xact_lock(hashtext(${record.normalizedEmail}))`,
@@ -29,14 +29,11 @@ export function createDatabaseUcsdAuthStore(
               ),
               and(
                 eq(emailVerificationCodes.deliveryStatus, 'pending'),
-                gt(
-                  emailVerificationCodes.createdAt,
-                  record.createdAt - pendingTimeoutMs,
-                ),
+                gt(emailVerificationCodes.expiresAt, record.createdAt),
               ),
             ),
           ),
-          columns: { createdAt: true, deliveryStatus: true },
+          columns: { createdAt: true, expiresAt: true, deliveryStatus: true },
           orderBy: [desc(emailVerificationCodes.createdAt)],
         });
         if (latest) {
@@ -47,10 +44,9 @@ export function createDatabaseUcsdAuthStore(
                 ? ('pending' as const)
                 : ('cooldown' as const),
             retryAt:
-              latest.createdAt +
-              (latest.deliveryStatus === 'pending'
-                ? pendingTimeoutMs
-                : cooldownMs),
+              latest.deliveryStatus === 'pending'
+                ? latest.expiresAt
+                : latest.createdAt + cooldownMs,
           };
         }
         const [created] = await tx
@@ -91,7 +87,7 @@ export function createDatabaseUcsdAuthStore(
         where: and(
           eq(emailVerificationCodes.normalizedEmail, normalizedEmail),
           eq(emailVerificationCodes.codeHash, codeHash),
-          eq(emailVerificationCodes.deliveryStatus, 'sent'),
+          ne(emailVerificationCodes.deliveryStatus, 'failed'),
           isNull(emailVerificationCodes.consumedAt),
           gt(emailVerificationCodes.expiresAt, now),
         ),
@@ -105,7 +101,7 @@ export function createDatabaseUcsdAuthStore(
           where: and(
             eq(emailVerificationCodes.normalizedEmail, normalizedEmail),
             eq(emailVerificationCodes.codeHash, codeHash),
-            eq(emailVerificationCodes.deliveryStatus, 'sent'),
+            ne(emailVerificationCodes.deliveryStatus, 'failed'),
           ),
           columns: { id: true },
         });
@@ -114,7 +110,7 @@ export function createDatabaseUcsdAuthStore(
 
       const consumed = await db
         .update(emailVerificationCodes)
-        .set({ consumedAt: now })
+        .set({ consumedAt: now, deliveryStatus: 'sent' })
         .where(
           and(
             eq(emailVerificationCodes.id, verification.id),

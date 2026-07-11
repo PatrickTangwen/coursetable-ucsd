@@ -15,7 +15,7 @@ export function createMemoryUcsdAuthStore(): UcsdAuthStore & {
 
   return {
     usersByEmail,
-    reserveVerification(record, cooldownMs, pendingTimeoutMs) {
+    reserveVerification(record, cooldownMs) {
       const [latest] = verifications
         .filter(
           (item) =>
@@ -23,7 +23,7 @@ export function createMemoryUcsdAuthStore(): UcsdAuthStore & {
             ((item.deliveryStatus === 'sent' &&
               item.createdAt + cooldownMs > record.createdAt) ||
               (item.deliveryStatus === 'pending' &&
-                item.createdAt + pendingTimeoutMs > record.createdAt)),
+                item.expiresAt > record.createdAt)),
         )
         .sort((a, b) => b.createdAt - a.createdAt);
       if (latest) {
@@ -34,10 +34,9 @@ export function createMemoryUcsdAuthStore(): UcsdAuthStore & {
               ? ('pending' as const)
               : ('cooldown' as const),
           retryAt:
-            latest.createdAt +
-            (latest.deliveryStatus === 'pending'
-              ? pendingTimeoutMs
-              : cooldownMs),
+            latest.deliveryStatus === 'pending'
+              ? latest.expiresAt
+              : latest.createdAt + cooldownMs,
         });
       }
       const id = nextVerificationId++;
@@ -74,7 +73,7 @@ export function createMemoryUcsdAuthStore(): UcsdAuthStore & {
           (item) =>
             item.normalizedEmail === normalizedEmail &&
             item.codeHash === codeHash &&
-            item.deliveryStatus === 'sent' &&
+            item.deliveryStatus !== 'failed' &&
             !item.consumedAt &&
             item.expiresAt > now,
         );
@@ -83,13 +82,14 @@ export function createMemoryUcsdAuthStore(): UcsdAuthStore & {
           (item) =>
             item.normalizedEmail === normalizedEmail &&
             item.codeHash === codeHash &&
-            item.deliveryStatus === 'sent',
+            item.deliveryStatus !== 'failed',
         );
         return Promise.resolve(
           hasPriorCode ? 'expired_or_consumed' : 'invalid',
         );
       }
       verification.consumedAt = now;
+      verification.deliveryStatus = 'sent';
       return Promise.resolve('consumed');
     },
     findOrCreateUser(normalizedEmail) {

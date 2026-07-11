@@ -13,10 +13,13 @@ import {
 } from './ucsdIdentity.js';
 import {
   createVerificationEmailMessage,
+  VerificationEmailDeliveryError,
   type VerificationEmailSender,
 } from './verificationEmail.sender.js';
 import {
+  createUnlimitedVerificationAttemptLimiter,
   createUnlimitedVerificationRequestLimiter,
+  type VerificationAttemptLimiter,
   type VerificationRequestLimiter,
 } from './verificationRequest.limiter.js';
 
@@ -36,9 +39,9 @@ export interface UcsdAuthRoutesOptions {
   codeGenerator?: () => string;
   now?: () => number;
   requestCooldownMs?: number;
-  pendingTimeoutMs?: number;
   requestLimiter?: VerificationRequestLimiter;
   requestSource?: (req: express.Request) => string;
+  verificationAttemptLimiter?: VerificationAttemptLimiter;
 }
 
 function appUserPayload(req: express.Request) {
@@ -75,9 +78,9 @@ export function registerUcsdAuthRoutes(
     codeGenerator = createVerificationCode,
     now = Date.now,
     requestCooldownMs = 60_000,
-    pendingTimeoutMs = 30_000,
     requestLimiter = createUnlimitedVerificationRequestLimiter(),
     requestSource = (req) => req.ip ?? req.socket.remoteAddress ?? 'unknown',
+    verificationAttemptLimiter = createUnlimitedVerificationAttemptLimiter(),
   }: UcsdAuthRoutesOptions,
 ): void {
   app.get('/api/auth/current-user', (req, res) => {
@@ -110,7 +113,6 @@ export function registerUcsdAuthRoutes(
           expiresAt,
         },
         requestCooldownMs,
-        pendingTimeoutMs,
       );
       if (reservation.status === 'blocked') {
         const retryAfterSeconds = Math.max(
@@ -168,12 +170,35 @@ export function registerUcsdAuthRoutes(
             expiresAt,
           }),
         );
+      } catch (error) {
+        if (
+          error instanceof VerificationEmailDeliveryError &&
+          error.outcome === 'definitive_failure'
+        )
+          await store.markVerificationFailed(reservation.verificationId);
+
+        res.status(503).json({
+          error:
+            error instanceof VerificationEmailDeliveryError &&
+            error.outcome === 'definitive_failure'
+              ? 'VERIFICATION_DELIVERY_FAILED'
+              : 'VERIFICATION_DELIVERY_UNCERTAIN',
+          message:
+            error instanceof VerificationEmailDeliveryError &&
+            error.outcome === 'definitive_failure'
+              ? 'Verification email could not be sent. Try again shortly.'
+              : 'Email delivery is still being confirmed. Use the first code if it arrives.',
+        });
+        return;
+      }
+
+      try {
         await store.markVerificationSent(reservation.verificationId);
       } catch {
-        await store.markVerificationFailed(reservation.verificationId);
         res.status(503).json({
-          error: 'VERIFICATION_DELIVERY_FAILED',
-          message: 'Verification email could not be sent. Try again shortly.',
+          error: 'VERIFICATION_DELIVERY_UNCERTAIN',
+          message:
+            'Email delivery is still being confirmed. Use the first code if it arrives.',
         });
         return;
       }
@@ -201,6 +226,30 @@ export function registerUcsdAuthRoutes(
         return;
       }
 
+      const attemptLimit = await verificationAttemptLimiter
+        .attempt(requestSource(req), normalizedEmail)
+        .catch(() => null);
+      if (!attemptLimit) {
+        res.status(503).json({
+          error: 'VERIFICATION_REQUEST_UNAVAILABLE',
+          message: 'Verification is temporarily unavailable.',
+        });
+        return;
+      }
+      if (!attemptLimit.allowed) {
+        const retryAfterSeconds = Math.max(
+          1,
+          Math.ceil(attemptLimit.retryAfterMs / 1000),
+        );
+        res.set('Retry-After', String(retryAfterSeconds));
+        res.status(429).json({
+          error: 'VERIFICATION_ATTEMPT_LIMIT',
+          message: 'Too many verification attempts. Try again later.',
+          retryAfterSeconds,
+        });
+        return;
+      }
+
       const consumption = await store.consumeVerification(
         normalizedEmail,
         hashVerificationCode(normalizedEmail, parsed.data.code),
@@ -220,6 +269,9 @@ export function registerUcsdAuthRoutes(
       }
 
       const user = await store.findOrCreateUser(normalizedEmail, now());
+      await verificationAttemptLimiter
+        .resetEmail(normalizedEmail)
+        .catch(() => {});
       await establishAppSession(req, user);
       res.json({
         authenticated: true,

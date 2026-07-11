@@ -14,7 +14,10 @@ import './sentry-instrument.js';
 import { passportConfig } from './auth/auth.handlers.js';
 import casAuth from './auth/auth.routes.js';
 import { createDatabaseUcsdAuthStore } from './auth/ucsdAuth.database.js';
-import { createRedisVerificationRequestLimiter } from './auth/verificationRequest.limiter.js';
+import {
+  createRedisVerificationAttemptLimiter,
+  createRedisVerificationRequestLimiter,
+} from './auth/verificationRequest.limiter.js';
 import canny from './canny/canny.routes.js';
 import catalog from './catalog/catalog.routes.js';
 import { fetchCatalog } from './catalog/catalog.utils.js';
@@ -30,12 +33,15 @@ import {
   NUM_SEASONS,
   verificationEmailDelivery,
   VERIFICATION_REQUEST_COOLDOWN_MS,
-  VERIFICATION_PENDING_TIMEOUT_MS,
   VERIFICATION_SOURCE_LIMIT,
   VERIFICATION_SOURCE_WINDOW_MS,
   VERIFICATION_GLOBAL_LIMIT,
   VERIFICATION_GLOBAL_WINDOW_MS,
-  TRUST_PROXY_HOPS,
+  VERIFICATION_ATTEMPT_SOURCE_LIMIT,
+  VERIFICATION_ATTEMPT_SOURCE_WINDOW_MS,
+  VERIFICATION_ATTEMPT_EMAIL_LIMIT,
+  VERIFICATION_ATTEMPT_EMAIL_WINDOW_MS,
+  TRUSTED_PROXY_CIDRS,
   db,
 } from './config.js';
 import demand from './demand/demand.routes.js';
@@ -43,6 +49,7 @@ import friends from './friends/friends.routes.js';
 import linkPreview from './link-preview/link-preview.routes.js';
 import morgan from './logging/morgan.js';
 import winston from './logging/winston.js';
+import { createTrustedProxyPolicy } from './network/trustedProxy.js';
 import profile from './profile/profile.routes.js';
 import { createDatabaseSavedSearchStore } from './savedSearches/savedSearches.database.js';
 import savedSearches from './savedSearches/savedSearches.routes.js';
@@ -54,7 +61,7 @@ const app = express();
 
 // Trust the proxy.
 // See https://expressjs.com/en/guide/behind-proxies.html.
-app.set('trust proxy', TRUST_PROXY_HOPS);
+app.set('trust proxy', createTrustedProxyPolicy(TRUSTED_PROXY_CIDRS));
 
 // Enable url-encoding
 app.use(express.urlencoded({ extended: true }));
@@ -156,7 +163,6 @@ casAuth(app, {
   emailSender: verificationEmailDelivery.sender,
   exposeVerificationCode: verificationEmailDelivery.exposeVerificationCode,
   requestCooldownMs: VERIFICATION_REQUEST_COOLDOWN_MS,
-  pendingTimeoutMs: VERIFICATION_PENDING_TIMEOUT_MS,
   requestLimiter: createRedisVerificationRequestLimiter(
     redisClient,
     SESSION_SECRET,
@@ -165,6 +171,16 @@ casAuth(app, {
       sourceWindowMs: VERIFICATION_SOURCE_WINDOW_MS,
       globalLimit: VERIFICATION_GLOBAL_LIMIT,
       globalWindowMs: VERIFICATION_GLOBAL_WINDOW_MS,
+    },
+  ),
+  verificationAttemptLimiter: createRedisVerificationAttemptLimiter(
+    redisClient,
+    SESSION_SECRET,
+    {
+      sourceLimit: VERIFICATION_ATTEMPT_SOURCE_LIMIT,
+      sourceWindowMs: VERIFICATION_ATTEMPT_SOURCE_WINDOW_MS,
+      emailLimit: VERIFICATION_ATTEMPT_EMAIL_LIMIT,
+      emailWindowMs: VERIFICATION_ATTEMPT_EMAIL_WINDOW_MS,
     },
   ),
 });

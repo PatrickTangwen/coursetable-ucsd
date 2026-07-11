@@ -21,6 +21,8 @@ export function requestVerificationErrorMessage(
       return `Too many verification requests. Try again in ${wait}.`;
     case 'VERIFICATION_DELIVERY_FAILED':
       return 'We could not send the verification email. Try again shortly.';
+    case 'VERIFICATION_DELIVERY_UNCERTAIN':
+      return 'Email delivery is still being confirmed. Use the first code if it arrives; do not request another yet.';
     case 'VERIFICATION_REQUEST_UNAVAILABLE':
       return 'Verification requests are temporarily unavailable. Try again shortly.';
     default:
@@ -28,7 +30,10 @@ export function requestVerificationErrorMessage(
   }
 }
 
-export function completeVerificationErrorMessage(errorCode: string) {
+export function completeVerificationErrorMessage(
+  errorCode: string,
+  retryAfterSeconds?: number,
+) {
   switch (errorCode) {
     case 'NON_UCSD_EMAIL':
       return 'Use a UCSD email address ending in @ucsd.edu.';
@@ -36,6 +41,8 @@ export function completeVerificationErrorMessage(errorCode: string) {
       return 'That verification code is incorrect.';
     case 'VERIFICATION_CODE_EXPIRED':
       return 'That code has expired or was already used. Request a new code.';
+    case 'VERIFICATION_ATTEMPT_LIMIT':
+      return `Too many verification attempts. Try again in ${retryDuration(retryAfterSeconds)}.`;
     default:
       return null;
   }

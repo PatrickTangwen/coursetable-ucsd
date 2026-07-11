@@ -1191,8 +1191,14 @@ export async function verifyUcsdEmail(
       category: 'auth',
       message: 'Completing UCSD email verification',
     },
-    handleErrorCode(err) {
-      const message = completeVerificationErrorMessage(err);
+    handleErrorCode(err, payload) {
+      const parsedRetry = z
+        .object({ retryAfterSeconds: z.number() })
+        .safeParse(payload);
+      const message = completeVerificationErrorMessage(
+        err,
+        parsedRetry.success ? parsedRetry.data.retryAfterSeconds : undefined,
+      );
       if (message) {
         rejectedMessage = message;
         return true;

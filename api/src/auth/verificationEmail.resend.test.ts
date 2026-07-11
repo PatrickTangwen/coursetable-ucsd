@@ -57,9 +57,10 @@ describe('Resend verification email sender', () => {
       },
     });
 
-    await expect(sender.sendVerificationEmail(message)).rejects.toThrow(
-      'Resend rejected verification email: sender domain is not verified',
-    );
+    await expect(sender.sendVerificationEmail(message)).rejects.toMatchObject({
+      message: 'Resend rejected verification email',
+      outcome: 'definitive_failure',
+    });
   });
 
   it('propagates transport failures', async () => {
@@ -70,9 +71,11 @@ describe('Resend verification email sender', () => {
       },
     });
 
-    await expect(sender.sendVerificationEmail(message)).rejects.toThrow(
-      'network unavailable',
-    );
+    await expect(sender.sendVerificationEmail(message)).rejects.toMatchObject({
+      message: 'Verification email delivery outcome is unknown',
+      outcome: 'ambiguous',
+      cause: new Error('network unavailable'),
+    });
   });
 
   it('fails closed for missing or inconsistent sender configuration', () => {

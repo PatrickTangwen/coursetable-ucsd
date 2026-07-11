@@ -1,6 +1,9 @@
 import { Resend } from 'resend';
 
-import type { VerificationEmailSender } from './verificationEmail.sender.js';
+import {
+  VerificationEmailDeliveryError,
+  type VerificationEmailSender,
+} from './verificationEmail.sender.js';
 
 interface ResendEmailRequest {
   from: string;
@@ -66,24 +69,38 @@ export function createResendVerificationEmailSender({
 
   return {
     async sendVerificationEmail(message) {
-      const response = await emailClient.send(
-        {
-          from: `SunGrid <${fromAddress}>`,
-          to: message.recipient,
-          subject: message.subject,
-          text: message.text,
-          html: message.html,
-        },
-        { idempotencyKey: message.deliveryId },
-      );
+      const response = await emailClient
+        .send(
+          {
+            from: `SunGrid <${fromAddress}>`,
+            to: message.recipient,
+            subject: message.subject,
+            text: message.text,
+            html: message.html,
+          },
+          { idempotencyKey: message.deliveryId },
+        )
+        .catch((error: unknown) => {
+          throw new VerificationEmailDeliveryError(
+            'Verification email delivery outcome is unknown',
+            'ambiguous',
+            { cause: error },
+          );
+        });
 
       if (response.error) {
-        throw new Error(
-          `Resend rejected verification email: ${response.error.message}`,
+        throw new VerificationEmailDeliveryError(
+          'Resend rejected verification email',
+          'definitive_failure',
+          { cause: response.error },
         );
       }
-      if (!response.data)
-        throw new Error('Resend did not accept verification email');
+      if (!response.data) {
+        throw new VerificationEmailDeliveryError(
+          'Verification email delivery outcome is unknown',
+          'ambiguous',
+        );
+      }
     },
   };
 }
