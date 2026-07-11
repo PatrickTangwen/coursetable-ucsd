@@ -31,6 +31,7 @@ export interface UcsdAuthRoutesOptions {
   exposeVerificationCode?: boolean;
   codeGenerator?: () => string;
   now?: () => number;
+  requestCooldownMs?: number;
 }
 
 function appUserPayload(req: express.Request) {
@@ -66,6 +67,7 @@ export function registerUcsdAuthRoutes(
     exposeVerificationCode = false,
     codeGenerator = createVerificationCode,
     now = Date.now,
+    requestCooldownMs = 60_000,
   }: UcsdAuthRoutesOptions,
 ): void {
   app.get('/api/auth/current-user', (req, res) => {
@@ -90,20 +92,46 @@ export function registerUcsdAuthRoutes(
       const code = codeGenerator();
       const createdAt = now();
       const expiresAt = createdAt + verificationCodeTtlMs;
-      await store.createVerification({
-        normalizedEmail,
-        codeHash: hashVerificationCode(normalizedEmail, code),
-        createdAt,
-        expiresAt,
-      });
-      await emailSender.sendVerificationEmail(
-        createVerificationEmailMessage({
-          email: normalizedEmail,
-          code,
+      const reservation = await store.reserveVerification(
+        {
+          normalizedEmail,
+          codeHash: hashVerificationCode(normalizedEmail, code),
           createdAt,
           expiresAt,
-        }),
+        },
+        requestCooldownMs,
       );
+      if (reservation.status === 'cooldown') {
+        const retryAfterSeconds = Math.max(
+          1,
+          Math.ceil((reservation.retryAt - createdAt) / 1000),
+        );
+        res.set('Retry-After', String(retryAfterSeconds));
+        res.status(429).json({
+          error: 'VERIFICATION_COOLDOWN',
+          message: 'Wait before requesting another verification code.',
+          retryAfterSeconds,
+        });
+        return;
+      }
+
+      try {
+        await emailSender.sendVerificationEmail(
+          createVerificationEmailMessage({
+            deliveryId: `verification/${createdAt}/${reservation.verificationId}`,
+            email: normalizedEmail,
+            code,
+            createdAt,
+            expiresAt,
+          }),
+        );
+      } catch {
+        res.status(503).json({
+          error: 'VERIFICATION_DELIVERY_FAILED',
+          message: 'Verification email could not be sent. Try again shortly.',
+        });
+        return;
+      }
 
       res.json({
         status: 'verification_sent',
@@ -128,15 +156,20 @@ export function registerUcsdAuthRoutes(
         return;
       }
 
-      const consumed = await store.consumeVerification(
+      const consumption = await store.consumeVerification(
         normalizedEmail,
         hashVerificationCode(normalizedEmail, parsed.data.code),
         now(),
       );
-      if (!consumed) {
+      if (consumption !== 'consumed') {
+        const expired = consumption === 'expired_or_consumed';
         res.status(400).json({
-          error: 'INVALID_VERIFICATION_CODE',
-          message: 'Verification code is invalid or expired.',
+          error: expired
+            ? 'VERIFICATION_CODE_EXPIRED'
+            : 'INVALID_VERIFICATION_CODE',
+          message: expired
+            ? 'Verification code has expired or was already used.'
+            : 'Verification code is incorrect.',
         });
         return;
       }

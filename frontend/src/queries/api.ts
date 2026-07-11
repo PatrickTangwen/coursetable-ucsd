@@ -13,6 +13,10 @@ import {
   type Crn,
   type NetId,
 } from './graphql-types';
+import {
+  completeVerificationErrorMessage,
+  requestVerificationErrorMessage,
+} from './ucsdAuthErrors';
 import { catalogResponseToCourseMap } from './ucsdCatalogSnapshot';
 import { API_ENDPOINT } from '../config';
 import type {
@@ -1144,8 +1148,9 @@ export async function requestUcsdVerification(
       message: 'Requesting UCSD email verification',
     },
     handleErrorCode(err) {
-      if (err === 'NON_UCSD_EMAIL') {
-        rejectedMessage = 'Use a UCSD email address ending in @ucsd.edu.';
+      const message = requestVerificationErrorMessage(err);
+      if (message) {
+        rejectedMessage = message;
         return true;
       }
       return false;
@@ -1180,16 +1185,12 @@ export async function verifyUcsdEmail(
       message: 'Completing UCSD email verification',
     },
     handleErrorCode(err) {
-      switch (err) {
-        case 'NON_UCSD_EMAIL':
-          rejectedMessage = 'Use a UCSD email address ending in @ucsd.edu.';
-          return true;
-        case 'INVALID_VERIFICATION_CODE':
-          rejectedMessage = 'Verification code is invalid or expired.';
-          return true;
-        default:
-          return false;
+      const message = completeVerificationErrorMessage(err);
+      if (message) {
+        rejectedMessage = message;
+        return true;
       }
+      return false;
     },
   });
   if (!res) {

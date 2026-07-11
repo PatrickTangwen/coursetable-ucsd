@@ -1,4 +1,5 @@
 export interface VerificationEmail {
+  deliveryId: string;
   email: string;
   code: string;
   createdAt: number;
@@ -6,6 +7,7 @@ export interface VerificationEmail {
 }
 
 export interface VerificationEmailMessage {
+  deliveryId: string;
   recipient: string;
   subject: string;
   text: string;
@@ -17,6 +19,7 @@ export interface VerificationEmailSender {
 }
 
 export function createVerificationEmailMessage({
+  deliveryId,
   email,
   code,
   createdAt,
@@ -32,6 +35,7 @@ export function createVerificationEmailMessage({
     'If you did not request this code, you can ignore this email.';
 
   return {
+    deliveryId,
     recipient: email,
     subject: 'Your SunGrid verification code',
     text: `Your SunGrid verification code is ${code}. ${expiryCopy} ${ignoreCopy}`,

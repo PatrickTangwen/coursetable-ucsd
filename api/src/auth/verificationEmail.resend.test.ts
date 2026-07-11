@@ -9,6 +9,7 @@ const config = {
 };
 
 const message = {
+  deliveryId: 'verification/42',
   recipient: 'student@ucsd.edu',
   subject: 'Verification subject',
   text: 'Verification text',
@@ -21,8 +22,8 @@ describe('Resend verification email sender', () => {
     const sender = createResendVerificationEmailSender({
       ...config,
       client: {
-        send(request) {
-          requests.push(request);
+        send(request, options) {
+          requests.push({ request, options });
           return Promise.resolve({ data: { id: 'email_123' }, error: null });
         },
       },
@@ -32,11 +33,14 @@ describe('Resend verification email sender', () => {
 
     expect(requests).toEqual([
       {
-        from: 'SunGrid <login@mail.sungridplanner.com>',
-        to: 'student@ucsd.edu',
-        subject: 'Verification subject',
-        text: 'Verification text',
-        html: '<p>Verification HTML</p>',
+        request: {
+          from: 'SunGrid <login@mail.sungridplanner.com>',
+          to: 'student@ucsd.edu',
+          subject: 'Verification subject',
+          text: 'Verification text',
+          html: '<p>Verification HTML</p>',
+        },
+        options: { idempotencyKey: 'verification/42' },
       },
     ]);
   });

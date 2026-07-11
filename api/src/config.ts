@@ -43,6 +43,13 @@ function getNonEmptyEnv(name: string) {
   return value;
 }
 
+function getPositiveIntegerEnv(name: string) {
+  const value = Number(getEnv(name));
+  if (!Number.isSafeInteger(value) || value <= 0)
+    throw new Error(`env config ${name} must be a positive integer`);
+  return value;
+}
+
 // Read all env vars and validate them. No other code should read process.env
 // directly. You can make sure that this corresponds 1:1 with the env passed
 // from the docker compose files.
@@ -80,6 +87,8 @@ export const verificationEmailDelivery = createVerificationEmailDelivery({
         })
       : undefined,
 });
+export const VERIFICATION_REQUEST_COOLDOWN_MS =
+  getPositiveIntegerEnv('VERIFICATION_REQUEST_COOLDOWN_SECONDS') * 1000;
 
 export const OVERWRITE_CATALOG = getEnv('OVERWRITE_CATALOG', 'boolean');
 export const redisClient = createClient({

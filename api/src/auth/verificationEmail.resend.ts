@@ -10,8 +10,15 @@ interface ResendEmailRequest {
   html: string;
 }
 
+interface ResendSendOptions {
+  idempotencyKey: string;
+}
+
 interface ResendEmailClient {
-  send: (request: ResendEmailRequest) => Promise<{
+  send: (
+    request: ResendEmailRequest,
+    options: ResendSendOptions,
+  ) => Promise<{
     data: { id: string } | null;
     error: { message: string } | null;
   }>;
@@ -52,19 +59,23 @@ export function createResendVerificationEmailSender({
     (() => {
       const resend = new Resend(apiKey);
       return {
-        send: (request: ResendEmailRequest) => resend.emails.send(request),
+        send: (request: ResendEmailRequest, options: ResendSendOptions) =>
+          resend.emails.send(request, options),
       };
     })();
 
   return {
     async sendVerificationEmail(message) {
-      const response = await emailClient.send({
-        from: `SunGrid <${fromAddress}>`,
-        to: message.recipient,
-        subject: message.subject,
-        text: message.text,
-        html: message.html,
-      });
+      const response = await emailClient.send(
+        {
+          from: `SunGrid <${fromAddress}>`,
+          to: message.recipient,
+          subject: message.subject,
+          text: message.text,
+          html: message.html,
+        },
+        { idempotencyKey: message.deliveryId },
+      );
 
       if (response.error) {
         throw new Error(

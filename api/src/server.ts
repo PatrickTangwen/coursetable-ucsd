@@ -28,6 +28,7 @@ import {
   COURSETABLE_ORIGINS,
   NUM_SEASONS,
   verificationEmailDelivery,
+  VERIFICATION_REQUEST_COOLDOWN_MS,
 } from './config.js';
 import demand from './demand/demand.routes.js';
 import friends from './friends/friends.routes.js';
@@ -146,6 +147,7 @@ casAuth(app, {
   store: createDatabaseUcsdAuthStore(),
   emailSender: verificationEmailDelivery.sender,
   exposeVerificationCode: verificationEmailDelivery.exposeVerificationCode,
+  requestCooldownMs: VERIFICATION_REQUEST_COOLDOWN_MS,
 });
 demand(app);
 friends(app);

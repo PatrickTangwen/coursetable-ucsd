@@ -7,6 +7,7 @@ import {
 } from './verificationEmail.sender.js';
 
 const message = {
+  deliveryId: 'verification/42',
   recipient: 'student@ucsd.edu',
   subject: 'Verification subject',
   text: 'Verification text',
@@ -51,6 +52,7 @@ describe('verification email delivery configuration', () => {
 
   it('builds provider-neutral copy from the authoritative lifetime', () => {
     const verificationMessage = createVerificationEmailMessage({
+      deliveryId: 'verification/42',
       email: 'student@ucsd.edu',
       code: '123456',
       createdAt: 1_000_000,
@@ -58,6 +60,7 @@ describe('verification email delivery configuration', () => {
     });
 
     expect(verificationMessage).toEqual({
+      deliveryId: 'verification/42',
       recipient: 'student@ucsd.edu',
       subject: 'Your SunGrid verification code',
       text: 'Your SunGrid verification code is 123456. This code expires in 2 minutes. If you did not request this code, you can ignore this email.',

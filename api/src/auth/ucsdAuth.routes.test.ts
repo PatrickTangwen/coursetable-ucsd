@@ -59,9 +59,9 @@ function createTestApp(
   const verificationRecords: VerificationRecord[] = [];
   const authStore = {
     ...memoryAuthStore,
-    async createVerification(record: VerificationRecord) {
+    reserveVerification(record: VerificationRecord, cooldownMs: number) {
       verificationRecords.push(record);
-      await memoryAuthStore.createVerification(record);
+      return memoryAuthStore.reserveVerification(record, cooldownMs);
     },
   };
   const savedSearchStore = createMemorySavedSearchStore();
@@ -228,6 +228,7 @@ describe('UCSD auth routes', () => {
       expect(response.status).toBe(200);
       expect(sent).toEqual([
         {
+          deliveryId: 'verification/1000000/1',
           recipient: 'student@ucsd.edu',
           subject: 'Your SunGrid verification code',
           text: 'Your SunGrid verification code is 123456. This code expires in 15 minutes. If you did not request this code, you can ignore this email.',
@@ -279,22 +280,16 @@ describe('UCSD auth routes', () => {
     }
   });
 
-  it('returns an operational failure when the sender fails', async () => {
+  it('returns a safe delivery failure without allowing retry spam', async () => {
+    let attempts = 0;
     const { app } = createTestApp(() => 1_000_000, {
-      sendVerificationEmail: () =>
-        Promise.reject(new Error('verification delivery unavailable')),
-    });
-    app.use(
-      (
-        err: unknown,
-        _req: express.Request,
-        res: express.Response,
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        _next: express.NextFunction,
-      ) => {
-        res.status(503).json({ error: String(err) });
+      sendVerificationEmail() {
+        attempts += 1;
+        return attempts === 1
+          ? Promise.reject(new Error('provider secret detail'))
+          : Promise.resolve();
       },
-    );
+    });
     const isolatedClient = new TestClient();
     const isolatedServer = await isolatedClient.start(app);
 
@@ -309,7 +304,102 @@ describe('UCSD auth routes', () => {
 
       expect(response.status).toBe(503);
       expect(await response.json()).toEqual({
-        error: 'Error: verification delivery unavailable',
+        error: 'VERIFICATION_DELIVERY_FAILED',
+        message: 'Verification email could not be sent. Try again shortly.',
+      });
+      const retry = await isolatedClient.request(
+        '/api/auth/ucsd/request-verification',
+        {
+          method: 'POST',
+          body: JSON.stringify({ email: 'student@ucsd.edu' }),
+        },
+      );
+      expect(retry.status).toBe(429);
+      expect(attempts).toBe(1);
+    } finally {
+      await new Promise<void>((resolve) => {
+        isolatedServer.close(() => resolve());
+      });
+    }
+  });
+
+  it('atomically limits repeat sends during the configured cooldown', async () => {
+    let currentTime = 1_000_000;
+    const sent: unknown[] = [];
+    const { app } = createTestApp(() => currentTime, {
+      sendVerificationEmail(message) {
+        sent.push(message);
+        return Promise.resolve();
+      },
+    });
+    const isolatedClient = new TestClient();
+    const isolatedServer = await isolatedClient.start(app);
+
+    try {
+      const request = () =>
+        isolatedClient.request('/api/auth/ucsd/request-verification', {
+          method: 'POST',
+          body: JSON.stringify({ email: 'student@ucsd.edu' }),
+        });
+      expect((await request()).status).toBe(200);
+      const limited = await request();
+      expect(limited.status).toBe(429);
+      expect(limited.headers.get('retry-after')).toBe('60');
+      expect(await limited.json()).toEqual({
+        error: 'VERIFICATION_COOLDOWN',
+        message: 'Wait before requesting another verification code.',
+        retryAfterSeconds: 60,
+      });
+      expect(sent).toHaveLength(1);
+
+      currentTime += 60_000;
+      expect((await request()).status).toBe(200);
+      expect(sent).toHaveLength(2);
+    } finally {
+      await new Promise<void>((resolve) => {
+        isolatedServer.close(() => resolve());
+      });
+    }
+  });
+
+  it('distinguishes incorrect, expired, and consumed verification codes', async () => {
+    let currentTime = 1_000_000;
+    const { app } = createTestApp(() => currentTime);
+    const isolatedClient = new TestClient();
+    const isolatedServer = await isolatedClient.start(app);
+
+    try {
+      const request = () =>
+        isolatedClient.request('/api/auth/ucsd/request-verification', {
+          method: 'POST',
+          body: JSON.stringify({ email: 'student@ucsd.edu' }),
+        });
+      const verify = (code: string) =>
+        isolatedClient.request('/api/auth/ucsd/verify', {
+          method: 'POST',
+          body: JSON.stringify({ email: 'student@ucsd.edu', code }),
+        });
+
+      expect((await request()).status).toBe(200);
+      const incorrect = await verify('000000');
+      expect(await incorrect.json()).toEqual({
+        error: 'INVALID_VERIFICATION_CODE',
+        message: 'Verification code is incorrect.',
+      });
+
+      currentTime += 900_000;
+      const expired = await verify('123456');
+      expect(await expired.json()).toEqual({
+        error: 'VERIFICATION_CODE_EXPIRED',
+        message: 'Verification code has expired or was already used.',
+      });
+
+      expect((await request()).status).toBe(200);
+      expect((await verify('123456')).status).toBe(200);
+      const consumed = await verify('123456');
+      expect(await consumed.json()).toEqual({
+        error: 'VERIFICATION_CODE_EXPIRED',
+        message: 'Verification code has expired or was already used.',
       });
     } finally {
       await new Promise<void>((resolve) => {

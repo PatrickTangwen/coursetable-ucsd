@@ -4,15 +4,32 @@ import type { AppUserIdentity, VerificationRecord } from './ucsdIdentity.js';
 export function createMemoryUcsdAuthStore(): UcsdAuthStore & {
   usersByEmail: Map<string, AppUserIdentity>;
 } {
-  const verifications: (VerificationRecord & { consumedAt?: number })[] = [];
+  const verifications: (VerificationRecord & {
+    id: number;
+    consumedAt?: number;
+  })[] = [];
   const usersByEmail = new Map<string, AppUserIdentity>();
   let nextUserId = 1;
+  let nextVerificationId = 1;
 
   return {
     usersByEmail,
-    createVerification(record) {
-      verifications.push(record);
-      return Promise.resolve();
+    reserveVerification(record, cooldownMs) {
+      const [latest] = verifications
+        .filter((item) => item.normalizedEmail === record.normalizedEmail)
+        .sort((a, b) => b.createdAt - a.createdAt);
+      if (latest && latest.createdAt + cooldownMs > record.createdAt) {
+        return Promise.resolve({
+          status: 'cooldown' as const,
+          retryAt: latest.createdAt + cooldownMs,
+        });
+      }
+      const id = nextVerificationId++;
+      verifications.push({ ...record, id });
+      return Promise.resolve({
+        status: 'created' as const,
+        verificationId: id,
+      });
     },
     consumeVerification(normalizedEmail, codeHash, now) {
       const verification = [...verifications]
@@ -24,9 +41,18 @@ export function createMemoryUcsdAuthStore(): UcsdAuthStore & {
             !item.consumedAt &&
             item.expiresAt > now,
         );
-      if (!verification) return Promise.resolve(false);
+      if (!verification) {
+        const hasPriorCode = verifications.some(
+          (item) =>
+            item.normalizedEmail === normalizedEmail &&
+            item.codeHash === codeHash,
+        );
+        return Promise.resolve(
+          hasPriorCode ? 'expired_or_consumed' : 'invalid',
+        );
+      }
       verification.consumedAt = now;
-      return Promise.resolve(true);
+      return Promise.resolve('consumed');
     },
     findOrCreateUser(normalizedEmail) {
       const existing = usersByEmail.get(normalizedEmail);

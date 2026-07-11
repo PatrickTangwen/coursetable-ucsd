@@ -299,8 +299,9 @@ function SignIn() {
                   type="button"
                   className={clsx(
                     styles.primaryBtn,
-                    !emailValid && styles.primaryBtnDisabled,
+                    (!emailValid || isSubmitting) && styles.primaryBtnDisabled,
                   )}
+                  disabled={isSubmitting}
                   onClick={submitEmail}
                 >
                   {isSubmitting ? 'Sending…' : 'Send verification code'}
@@ -344,8 +345,9 @@ function SignIn() {
                   type="button"
                   className={clsx(
                     styles.primaryBtn,
-                    !codeFilled && styles.primaryBtnDisabled,
+                    (!codeFilled || isSubmitting) && styles.primaryBtnDisabled,
                   )}
+                  disabled={isSubmitting}
                   onClick={() => {
                     void verify();
                   }}
@@ -358,6 +360,7 @@ function SignIn() {
                   <button
                     type="button"
                     className={styles.resendBtn}
+                    disabled={isSubmitting}
                     onClick={() => {
                       void requestCode(sentEmail);
                     }}
@@ -450,8 +453,9 @@ function SignIn() {
                     type="button"
                     className={clsx(
                       styles.mobileSubmit,
-                      !emailValid && styles.mobileBtnDim,
+                      (!emailValid || isSubmitting) && styles.mobileBtnDim,
                     )}
+                    disabled={isSubmitting}
                     onClick={submitEmail}
                   >
                     {isSubmitting ? 'Sending…' : 'Get started'}
@@ -495,8 +499,9 @@ function SignIn() {
                   type="button"
                   className={clsx(
                     styles.mobileVerify,
-                    !codeFilled && styles.mobileBtnDim,
+                    (!codeFilled || isSubmitting) && styles.mobileBtnDim,
                   )}
+                  disabled={isSubmitting}
                   onClick={() => {
                     void verify();
                   }}
@@ -509,6 +514,7 @@ function SignIn() {
                   <button
                     type="button"
                     className={styles.mobileResendBtn}
+                    disabled={isSubmitting}
                     onClick={() => {
                       void requestCode(sentEmail);
                     }}
