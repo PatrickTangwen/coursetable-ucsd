@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": [
+        "run",
+        "--cwd",
+        "frontend",
+        "start",
+        "--",
+        "--host",
+        "127.0.0.1"
+      ],
+      "port": 3001
+    }
+  ]
+}

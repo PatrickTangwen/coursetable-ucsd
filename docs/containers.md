@@ -1,5 +1,17 @@
 # Containers & DB
 
+> [!IMPORTANT]
+> **Status: inherited CourseTable container and database reference.** The body
+> below is preserved as an upstream architecture record; it is not the current
+> SunGrid Core App Backend startup contract. SunGrid currently uses the
+> Express/Bun app backend, App DB/Postgres, and Redis, while Catalog reads the
+> published snapshot JSON. Ferry, Yalies, and the upstream friends, evaluations,
+> and challenge domains are not SunGrid Core dependencies. The UCSD Course Data
+> Platform adaptation is tracked by GitHub issues #87 and #88-#96. Until that
+> work lands, use [`local_server.md`](./local_server.md) and
+> [`local_server_endpoints.md`](./local_server_endpoints.md) for current local
+> startup instructions.
+
 CourseTable uses the following Docker containers for core functionality, so they must be running for the app to work:
 
 - `express`: this contains the Express app code for running the API.
