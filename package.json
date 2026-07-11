@@ -26,7 +26,10 @@
     "snapshot:schedule": "bun tools/catalog-snapshot/generate-schedule-snapshot.mts --config config/catalog-snapshot.ucsd.yaml",
     "test:snapshot": "vitest run tools/**/*.test.ts",
     "validate:real-backend-auth": "bun tools/real-backend-auth-validation/validateRealBackendAuth.mts",
-    "validate:core-backend": "bun tools/real-backend-auth-validation/validateRealBackendAuth.mts"
+    "validate:core-backend": "bun tools/real-backend-auth-validation/validateRealBackendAuth.mts",
+    "course-data:migrate": "bun tools/course-data-store/migrateCourseDataStore.mts",
+    "course-data:import": "bun tools/course-data-store/importSnapshot.mts",
+    "validate:course-data-tracer": "bun tools/course-data-store/validateCourseDataTracer.mts"
   },
   "trustedDependencies": [
     "api",
@@ -74,5 +77,8 @@
   },
   "patchedDependencies": {
     "eslint-plugin-css-modules@2.12.0": "patches/eslint-plugin-css-modules@2.12.0.patch"
+  },
+  "dependencies": {
+    "postgres": "^3.4.5"
   }
 }

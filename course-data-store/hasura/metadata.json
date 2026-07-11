@@ -1,0 +1,108 @@
+{
+  "version": 3,
+  "sources": [
+    {
+      "name": "course_data_store",
+      "kind": "postgres",
+      "configuration": {
+        "connection_info": {
+          "database_url": {
+            "from_env": "COURSE_DATA_STORE_DATABASE_URL"
+          },
+          "isolation_level": "read-committed",
+          "use_prepared_statements": true
+        }
+      },
+      "tables": [
+        {
+          "table": { "schema": "public", "name": "supported_terms" },
+          "configuration": {
+            "custom_root_fields": {
+              "select": "supportedTerms",
+              "select_by_pk": "supportedTerm"
+            },
+            "custom_column_names": {
+              "term_code": "termCode",
+              "term_label": "termLabel",
+              "date_start": "dateStart",
+              "date_end": "dateEnd",
+              "snapshot_generated_at": "snapshotGeneratedAt",
+              "artifact_fingerprint": "artifactFingerprint"
+            }
+          },
+          "array_relationships": [
+            {
+              "name": "courses",
+              "using": {
+                "foreign_key_constraint_on": {
+                  "column": "term_code",
+                  "table": { "schema": "public", "name": "courses" }
+                }
+              }
+            }
+          ],
+          "select_permissions": [
+            {
+              "role": "anonymous",
+              "permission": {
+                "columns": [
+                  "term_code",
+                  "term_label",
+                  "date_start",
+                  "date_end",
+                  "snapshot_generated_at"
+                ],
+                "filter": {},
+                "limit": 100
+              }
+            }
+          ]
+        },
+        {
+          "table": { "schema": "public", "name": "courses" },
+          "configuration": {
+            "custom_root_fields": {
+              "select": "courses",
+              "select_by_pk": "course"
+            },
+            "custom_column_names": {
+              "term_code": "termCode",
+              "course_id": "courseId",
+              "course_number": "courseNumber",
+              "prerequisites_text": "prerequisitesText",
+              "restrictions_text": "restrictionsText",
+              "catalog_url": "catalogUrl"
+            }
+          },
+          "object_relationships": [
+            {
+              "name": "supportedTerm",
+              "using": { "foreign_key_constraint_on": "term_code" }
+            }
+          ],
+          "select_permissions": [
+            {
+              "role": "anonymous",
+              "permission": {
+                "columns": [
+                  "term_code",
+                  "course_id",
+                  "subject",
+                  "course_number",
+                  "title",
+                  "units",
+                  "description",
+                  "prerequisites_text",
+                  "restrictions_text",
+                  "catalog_url"
+                ],
+                "filter": {},
+                "limit": 500
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
