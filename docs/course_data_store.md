@@ -96,3 +96,31 @@ Snapshot Availability Data, source/import provenance, and real
 ok/empty/failed Manifest cells; an explicitly labelled Manifest fixture covers
 the partial status absent from S326. It removes containers and volumes on
 success or failure.
+
+## Mutable Published Term imports — 2026-07-11
+
+Issue #92 supersedes the earlier temporary fail-closed rule described above for
+an already accepted mutable Supported Term. A different artifact is accepted
+only when its `generated_at` is newer and its Snapshot, complete Manifest
+matrix, relationships, and replacement lifecycle are valid. Failed or partial
+Schedule of Classes cells are rejected before any first promotion or
+replacement; non-core enrichment failures remain preserved and queryable in
+the Manifest projection.
+
+Same-term importers serialize on a transaction-scoped Postgres advisory lock.
+The importer removes the previous term projection and inserts the complete new
+projection in one transaction, retaining import-run and Manifest history.
+Postgres MVCC therefore keeps the previous complete projection visible to
+concurrent Hasura readers until the replacement commits. Any relationship or
+database failure rolls the transaction back.
+
+Use `--dry-run` to validate and report grouped created, updated, unchanged,
+removed, and rejected counts without mutation:
+
+```sh
+COURSE_DATA_STORE_DATABASE_URL=<course-data-postgres-url> \
+  bun run course-data:import -- \
+    api/static/catalogs/public/S326.json \
+    api/static/catalogs/import-manifests/S326.json \
+    --dry-run
+```

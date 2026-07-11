@@ -10,8 +10,8 @@
       "term": "RELATIONSHIP-EDGE",
       "subject": "TEST",
       "source": "schedule_of_classes",
-      "status": "partial",
-      "reason": "Boundary fixture for partial-manifest query semantics",
+      "status": "ok",
+      "reason": null,
       "attempts": 1,
       "row_counts": { "courses": 1, "sections": 1, "meetings": 0 },
       "raw_artifacts": [],
@@ -21,8 +21,8 @@
       "term": "RELATIONSHIP-EDGE",
       "subject": "TEST",
       "source": "general_catalog",
-      "status": "empty",
-      "reason": null,
+      "status": "partial",
+      "reason": "Boundary fixture for partial-manifest query semantics",
       "attempts": 1,
       "row_counts": { "courses": 0 },
       "raw_artifacts": [],
@@ -40,5 +40,5 @@
       "normalized_artifact": null
     }
   ],
-  "summary": { "ok": 0, "empty": 2, "failed": 0, "partial": 1 }
+  "summary": { "ok": 1, "empty": 1, "failed": 0, "partial": 1 }
 }
