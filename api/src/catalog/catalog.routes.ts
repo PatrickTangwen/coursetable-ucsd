@@ -5,23 +5,17 @@ import {
   generateCSVCatalog,
   refreshCatalog,
 } from './catalog.handlers.js';
+import {
+  registerStaticCatalogRoutes,
+  staticJSON,
+} from './staticCatalogRoutes.js';
 import { authWithEvals } from '../auth/auth.handlers.js';
 import { STATIC_FILE_DIR } from '../config.js';
-
-const staticJSON = (path: string) =>
-  express.static(`${STATIC_FILE_DIR}${path}`, {
-    cacheControl: true,
-    maxAge: '1h',
-    lastModified: true,
-    etag: true,
-    extensions: ['json'],
-  });
 
 export default (app: express.Express, registerLegacyCatalog = false): void => {
   // Serve the Published Snapshot and its Supported Term metadata independently
   // of Ferry, Hasura, evaluations, or any other legacy integration.
-  app.use('/api/catalog/public', staticJSON('/catalogs/public'));
-  app.use('/api/catalog/metadata', staticJSON('/metadata.json'));
+  registerStaticCatalogRoutes(app, STATIC_FILE_DIR);
 
   if (!registerLegacyCatalog) return;
 
@@ -30,7 +24,11 @@ export default (app: express.Express, registerLegacyCatalog = false): void => {
   app.get('/api/catalog/refresh', verifyHeaders, asyncHandler(refreshCatalog));
 
   // Evals data require NetID authentication
-  app.use('/api/catalog/evals', authWithEvals, staticJSON('/catalogs/evals'));
+  app.use(
+    '/api/catalog/evals',
+    authWithEvals,
+    staticJSON(`${STATIC_FILE_DIR}/catalogs/evals`),
+  );
 
   app.get(
     '/api/catalog/csv/:seasonCode(\\d{6}).csv',
