@@ -39,18 +39,18 @@ describe('public login availability', () => {
       type: 'redirect',
       to: '/catalog',
     });
-    expect(resolvePublicLoginRoute('/profile', false, true)).toEqual({
+    expect(resolvePublicLoginRoute('/graphiql', false, true)).toEqual({
       type: 'redirect',
       to: '/login',
     });
-    expect(resolvePublicLoginRoute('/profile', false, false)).toEqual({
+    expect(resolvePublicLoginRoute('/graphiql', false, false)).toEqual({
       type: 'redirect',
       to: '/catalog',
     });
   });
 
   it('keeps authenticated protected routes available when public login is off', () => {
-    expect(resolvePublicLoginRoute('/profile', true, false)).toEqual({
+    expect(resolvePublicLoginRoute('/graphiql', true, false)).toEqual({
       type: 'allow',
     });
     expect(resolvePublicLoginRoute('/login', true, false)).toEqual({

@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { FcBusinessman } from 'react-icons/fc';
 
 import { isLegacyUserInfo, logout } from '../../queries/api';
 import { useStore } from '../../store';
@@ -75,7 +73,6 @@ function MeDropdown() {
   const authStatus = useStore((state) => state.authStatus);
   const user = useStore((state) => state.user);
   const refreshAuth = useStore((state) => state.refreshAuth);
-  const hasLegacyProfile = isLegacyUserInfo(user);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -115,16 +112,6 @@ function MeDropdown() {
       </button>
       {open && (
         <div className={styles.menu}>
-          {authStatus === 'authenticated' && hasLegacyProfile && (
-            <NavLink
-              to="/profile"
-              className={styles.menuItem}
-              onClick={() => setOpen(false)}
-            >
-              <FcBusinessman size={17} className={styles.itemIcon} />
-              Profile (beta)
-            </NavLink>
-          )}
           {authStatus === 'authenticated' ? (
             <button
               type="button"

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import clsx from 'clsx';
 import { Card } from 'react-bootstrap';
 import { BsFillPersonFill } from 'react-icons/bs';
@@ -7,13 +7,12 @@ import { BsFillPersonFill } from 'react-icons/bs';
 import { TextComponent } from '../components/Typography';
 import {
   getSharedProfile,
-  isLegacyUserInfo,
   isLoadedSharedProfile,
   type SharedProfile,
 } from '../queries/api';
 import type { NetId } from '../queries/graphql-types';
-import { useStore } from '../store';
 import { suspended } from '../utilities/display';
+import { createCatalogLink } from '../utilities/navigation';
 import styles from './UserProfile.module.css';
 
 const NotFound = suspended(() => import('./NotFound'));
@@ -32,7 +31,6 @@ const formatValue = ({
 
 function UserProfile() {
   const { netId } = useParams<{ netId: string }>();
-  const currentUser = useStore((state) => state.user);
   const [profile, setProfile] = useState<SharedProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -67,9 +65,7 @@ function UserProfile() {
     };
   }, [netId]);
 
-  if (!netId) return <Navigate to="/profile" replace />;
-  if (isLegacyUserInfo(currentUser) && currentUser.netId === netId)
-    return <Navigate to="/profile" replace />;
+  if (!netId) return <Navigate to={createCatalogLink()} replace />;
   if (!loading && !loadError && notFound) return <NotFound />;
 
   return (
@@ -176,14 +172,6 @@ function UserProfile() {
           ) : null}
         </Card.Body>
       </Card>
-
-      {currentUser ? (
-        <div className="mt-3">
-          <Link to="/profile" className={styles.friendLink}>
-            Back to my profile
-          </Link>
-        </div>
-      ) : null}
     </div>
   );
 }

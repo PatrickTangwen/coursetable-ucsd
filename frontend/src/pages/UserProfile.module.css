@@ -81,10 +81,6 @@
   text-align: right;
 }
 
-.friendLink {
-  text-decoration: underline;
-}
-
 @media (max-width: calc(768px - 0.5px)) {
   .container {
     width: 90vw;

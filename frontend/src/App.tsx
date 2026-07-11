@@ -34,7 +34,6 @@ const NotFound = suspended(() => import('./pages/NotFound'));
 const Challenge = suspended(() => import('./pages/Challenge'));
 const Graphiql = suspended(() => import('./pages/Graphiql'));
 const Join = suspended(() => import('./pages/Join'));
-const Profile = suspended(() => import('./pages/Profile'));
 const UserProfile = suspended(() => import('./pages/UserProfile'));
 const ReleaseNotes = suspended(() => import('./pages/releases/releases'));
 // TODO: use import.meta.glob instead of manual import
@@ -145,7 +144,6 @@ function App() {
             <Route path="/worksheet" element={<Worksheet />} />
             <Route path="/graphiql" element={<Graphiql />} />
             <Route path="/login" element={<SignIn />} />
-            <Route path="/profile" element={<Profile />} />
           </Route>
 
           {/* Challenge handles its own auth */}

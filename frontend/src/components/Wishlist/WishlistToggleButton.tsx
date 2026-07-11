@@ -1,5 +1,4 @@
 import React, { useMemo, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 import { Button, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import { FaRegBookmark, FaBookmark } from 'react-icons/fa';
@@ -7,7 +6,6 @@ import { toast } from 'sonner';
 
 import { useShallow } from 'zustand/react/shallow';
 import type { CourseModalPrefetchListingDataFragment } from '../../generated/graphql-types';
-import { useModalHistory } from '../../hooks/useModalHistory';
 import { useWishlist } from '../../hooks/useWishlist';
 import { isLegacyUserInfo, updateWishlistCourses } from '../../queries/api';
 import type { Crn, Season } from '../../queries/graphql-types';
@@ -30,7 +28,6 @@ function WishlistToggleButton({
       user: state.user,
     })),
   );
-  const { closeModal } = useModalHistory();
   const tooltipId = `wishlist-tooltip-${listing.course.season_code}-${listing.crn}`;
 
   const { wishlistCourses } = useWishlist();
@@ -66,26 +63,7 @@ function WishlistToggleButton({
             season: listing.course.season_code,
             crn: listing.crn,
           });
-          if (ok) {
-            toast.info(
-              <span>
-                Saved to your wishlist{' '}
-                <span className="text-nowrap">
-                  (
-                  <Link
-                    to="/profile?tab=wishlist"
-                    className="fw-semibold"
-                    onClick={() => {
-                      closeModal();
-                    }}
-                  >
-                    view in profile
-                  </Link>
-                  )
-                </span>
-              </span>,
-            );
-          }
+          if (ok) toast.info('Saved to your wishlist');
         } else {
           const failures: { season: Season; crn: Crn }[] = [];
           for (const course of sameCoursesInWishlist) {
@@ -116,7 +94,6 @@ function WishlistToggleButton({
       }
     },
     [
-      closeModal,
       inWishlist,
       wishlistRefresh,
       listing.course.season_code,
