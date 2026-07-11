@@ -51,29 +51,104 @@ function getPositiveIntegerEnv(name: string) {
   return value;
 }
 
+export const OPTIONAL_API_MODULES = [
+  'canny',
+  'challenge',
+  'course-data-platform',
+  'demand',
+  'friends',
+  'legacy-auth',
+  'legacy-catalog',
+  'link-preview',
+  'profile',
+  'user',
+] as const;
+
+export type OptionalApiModule = (typeof OPTIONAL_API_MODULES)[number];
+
+function parseEnabledApiModules(value = process.env.ENABLED_API_MODULES ?? '') {
+  const modules = new Set(
+    value
+      .split(',')
+      .map((module) => module.trim())
+      .filter(Boolean),
+  );
+  const unknown = [...modules].filter(
+    (module) => !OPTIONAL_API_MODULES.includes(module as OptionalApiModule),
+  );
+  if (unknown.length > 0)
+    throw new Error(`unknown optional API module: ${unknown.join(', ')}`);
+  return modules as Set<OptionalApiModule>;
+}
+
+export const enabledApiModules = parseEnabledApiModules();
+
+const GRAPHQL_DEPENDENT_MODULES: OptionalApiModule[] = [
+  'challenge',
+  'demand',
+  'friends',
+  'legacy-catalog',
+  'link-preview',
+  'user',
+];
+
+const graphqlDependentsWithoutPlatform = GRAPHQL_DEPENDENT_MODULES.filter(
+  (module) =>
+    enabledApiModules.has(module) &&
+    !enabledApiModules.has('course-data-platform'),
+);
+if (graphqlDependentsWithoutPlatform.length > 0) {
+  throw new Error(
+    `optional API module requires course-data-platform: ${graphqlDependentsWithoutPlatform.join(', ')}`,
+  );
+}
+
+export function isApiModuleEnabled(module: OptionalApiModule) {
+  return enabledApiModules.has(module);
+}
+
+function getModuleEnv(
+  modules: OptionalApiModule | OptionalApiModule[],
+  name: string,
+) {
+  const moduleList = Array.isArray(modules) ? modules : [modules];
+  return moduleList.some(isApiModuleEnabled) ? getNonEmptyEnv(name) : undefined;
+}
+
 // Read all env vars and validate them. No other code should read process.env
 // directly. You can make sure that this corresponds 1:1 with the env passed
 // from the docker compose files.
 export const API_PORT = getEnv('API_PORT');
-export const CANNY_KEY = getEnv('CANNY_KEY');
-export const CHALLENGE_PASSWORD = getEnv('CHALLENGE_PASSWORD');
+export const CANNY_KEY = getModuleEnv('canny', 'CANNY_KEY')!;
+export const CHALLENGE_PASSWORD = getModuleEnv(
+  'challenge',
+  'CHALLENGE_PASSWORD',
+)!;
 
 const pool = postgres(getEnv('DB_URL'));
 export const db = drizzle(pool, { schema });
 
-export const FERRY_RELOAD_SECRET = getEnv('FERRY_RELOAD_SECRET');
+export const FERRY_RELOAD_SECRET = getModuleEnv(
+  'legacy-catalog',
+  'FERRY_RELOAD_SECRET',
+)!;
 // Frontend server endpoint (used for redirects)
 export const FRONTEND_ENDPOINT = getEnv('FRONTEND_ENDPOINT');
-const GRAPHQL_ENDPOINT = getEnv('GRAPHQL_ENDPOINT');
-export const HASURA_GRAPHQL_ADMIN_SECRET = getEnv(
-  'HASURA_GRAPHQL_ADMIN_SECRET',
-);
+const courseDataPlatformEnabled = isApiModuleEnabled('course-data-platform');
+const GRAPHQL_ENDPOINT = courseDataPlatformEnabled
+  ? getNonEmptyEnv('GRAPHQL_ENDPOINT')
+  : undefined;
+export const HASURA_GRAPHQL_ADMIN_SECRET = courseDataPlatformEnabled
+  ? getNonEmptyEnv('HASURA_GRAPHQL_ADMIN_SECRET')
+  : undefined;
 
-export const graphqlClient = new GraphQLClient(GRAPHQL_ENDPOINT, {
-  headers: {
-    'x-hasura-admin-secret': HASURA_GRAPHQL_ADMIN_SECRET,
-  },
-});
+export const graphqlClient = courseDataPlatformEnabled
+  ? new GraphQLClient(GRAPHQL_ENDPOINT!, {
+      headers: {
+        'x-hasura-admin-secret': HASURA_GRAPHQL_ADMIN_SECRET!,
+      },
+    })
+  : (undefined as never);
 
 const NODE_ENV = getEnv('NODE_ENV', ['development', 'production']);
 export const isDev = NODE_ENV === 'development';
@@ -126,7 +201,10 @@ export const SENTRY_ENVIRONMENT = getEnv('SENTRY_ENVIRONMENT');
 // Secret for session cookie signing.
 export const SESSION_SECRET = getEnv('SESSION_SECRET');
 // API key for interfacing with the yalies.io API
-export const YALIES_API_KEY = getEnv('YALIES_API_KEY');
+export const YALIES_API_KEY = getModuleEnv(
+  ['canny', 'legacy-auth'],
+  'YALIES_API_KEY',
+)!;
 
 export const NUM_CHALLENGE_COURSES = 3; // Number of courses to select for the challenge
 // Season to select the challenge from. Note that OCE removes old seasons so

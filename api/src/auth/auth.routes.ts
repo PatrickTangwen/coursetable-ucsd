@@ -11,6 +11,7 @@ import { toAppUserResponse } from './ucsdIdentity.js';
 export default (
   app: express.Express,
   options?: UcsdAuthRoutesOptions,
+  registerLegacyCas = false,
 ): void => {
   app.get('/api/auth/check', (req, res) => {
     const appUser = getAppSessionUser(req);
@@ -29,5 +30,5 @@ export default (
 
   if (options) registerUcsdAuthRoutes(app, options);
 
-  app.get('/api/auth/cas', casLogin);
+  if (registerLegacyCas) app.get('/api/auth/cas', casLogin);
 };

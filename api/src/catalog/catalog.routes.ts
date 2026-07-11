@@ -17,18 +17,20 @@ const staticJSON = (path: string) =>
     extensions: ['json'],
   });
 
-export default (app: express.Express): void => {
+export default (app: express.Express, registerLegacyCatalog = false): void => {
+  // Serve the Published Snapshot and its Supported Term metadata independently
+  // of Ferry, Hasura, evaluations, or any other legacy integration.
+  app.use('/api/catalog/public', staticJSON('/catalogs/public'));
+  app.use('/api/catalog/metadata', staticJSON('/metadata.json'));
+
+  if (!registerLegacyCatalog) return;
+
   // Enable static catalog refresh on demand.
   // After the crawler runs, we hit this route to refresh the static files.
   app.get('/api/catalog/refresh', verifyHeaders, asyncHandler(refreshCatalog));
 
   // Evals data require NetID authentication
   app.use('/api/catalog/evals', authWithEvals, staticJSON('/catalogs/evals'));
-
-  // Serve public catalog files without authentication
-  app.use('/api/catalog/public', staticJSON('/catalogs/public'));
-
-  app.use('/api/catalog/metadata', staticJSON('/metadata.json'));
 
   app.get(
     '/api/catalog/csv/:seasonCode(\\d{6}).csv',

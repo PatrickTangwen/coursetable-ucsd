@@ -44,6 +44,7 @@ import {
   VERIFICATION_ATTEMPT_EMAIL_WINDOW_MS,
   TRUSTED_PROXY_CIDRS,
   db,
+  isApiModuleEnabled,
 } from './config.js';
 import demand from './demand/demand.routes.js';
 import friends from './friends/friends.routes.js';
@@ -125,29 +126,31 @@ app.use(
 // message: 'Too many requests, please try again later',
 // });
 
-// Configuring passport
-passportConfig(passport);
+// The Core App Backend keeps Passport session middleware for compatibility,
+// but the inherited Yale CAS strategy is registered only when enabled.
+if (isApiModuleEnabled('legacy-auth')) passportConfig(passport);
 app.use(passport.initialize());
 app.use(passport.authenticate('session'));
 
 // Add the authentication header to the request
 // Proxy initial HTTP requests to Ferry
-app.use(
-  '/ferry',
-  (req, res, next) => {
-    const hasuraRole = req.isAuthenticated() ? 'student' : 'anonymous';
-    // Important: all headers must be lowercase; otherwise it will not override
-    // existing headers on the request.
-    req.headers['x-hasura-role'] = hasuraRole;
-    req.headers['x-hasura-admin-secret'] = HASURA_GRAPHQL_ADMIN_SECRET;
-    next();
-  },
-  createProxyMiddleware({
-    target: 'http://graphql-engine:8080',
-    pathRewrite: { '^/ferry/': '/' },
-    xfwd: true,
-  }),
-);
+if (isApiModuleEnabled('course-data-platform')) {
+  app.use(
+    '/ferry',
+    (req, res, next) => {
+      const hasuraRole = req.isAuthenticated() ? 'student' : 'anonymous';
+      // Headers must be lowercase so they override existing request headers.
+      req.headers['x-hasura-role'] = hasuraRole;
+      req.headers['x-hasura-admin-secret'] = HASURA_GRAPHQL_ADMIN_SECRET;
+      next();
+    },
+    createProxyMiddleware({
+      target: 'http://graphql-engine:8080',
+      pathRewrite: { '^/ferry/': '/' },
+      xfwd: true,
+    }),
+  );
+}
 
 // Enable request logging.
 app.use(morgan);
@@ -157,40 +160,46 @@ app.use(morgan);
 app.use(express.json());
 
 // Activate catalog, UCSD email auth, and dormant legacy CAS authentication.
-challenge(app);
-catalog(app);
-casAuth(app, {
-  store: createDatabaseUcsdAuthStore(db),
-  emailSender: resolveVerificationEmailSender(verificationEmailDelivery.sender),
-  exposeVerificationCode: verificationEmailDelivery.exposeVerificationCode,
-  requestCooldownMs: VERIFICATION_REQUEST_COOLDOWN_MS,
-  requestLimiter: createRedisVerificationRequestLimiter(
-    redisClient,
-    SESSION_SECRET,
-    {
-      sourceLimit: VERIFICATION_SOURCE_LIMIT,
-      sourceWindowMs: VERIFICATION_SOURCE_WINDOW_MS,
-      globalLimit: VERIFICATION_GLOBAL_LIMIT,
-      globalWindowMs: VERIFICATION_GLOBAL_WINDOW_MS,
-    },
-  ),
-  verificationAttemptLimiter: createRedisVerificationAttemptLimiter(
-    redisClient,
-    SESSION_SECRET,
-    {
-      sourceLimit: VERIFICATION_ATTEMPT_SOURCE_LIMIT,
-      sourceWindowMs: VERIFICATION_ATTEMPT_SOURCE_WINDOW_MS,
-      emailLimit: VERIFICATION_ATTEMPT_EMAIL_LIMIT,
-      emailWindowMs: VERIFICATION_ATTEMPT_EMAIL_WINDOW_MS,
-    },
-  ),
-});
-demand(app);
-friends(app);
-canny(app);
-user(app);
-profile(app);
-linkPreview(app);
+if (isApiModuleEnabled('challenge')) challenge(app);
+catalog(app, isApiModuleEnabled('legacy-catalog'));
+casAuth(
+  app,
+  {
+    store: createDatabaseUcsdAuthStore(db),
+    emailSender: resolveVerificationEmailSender(
+      verificationEmailDelivery.sender,
+    ),
+    exposeVerificationCode: verificationEmailDelivery.exposeVerificationCode,
+    requestCooldownMs: VERIFICATION_REQUEST_COOLDOWN_MS,
+    requestLimiter: createRedisVerificationRequestLimiter(
+      redisClient,
+      SESSION_SECRET,
+      {
+        sourceLimit: VERIFICATION_SOURCE_LIMIT,
+        sourceWindowMs: VERIFICATION_SOURCE_WINDOW_MS,
+        globalLimit: VERIFICATION_GLOBAL_LIMIT,
+        globalWindowMs: VERIFICATION_GLOBAL_WINDOW_MS,
+      },
+    ),
+    verificationAttemptLimiter: createRedisVerificationAttemptLimiter(
+      redisClient,
+      SESSION_SECRET,
+      {
+        sourceLimit: VERIFICATION_ATTEMPT_SOURCE_LIMIT,
+        sourceWindowMs: VERIFICATION_ATTEMPT_SOURCE_WINDOW_MS,
+        emailLimit: VERIFICATION_ATTEMPT_EMAIL_LIMIT,
+        emailWindowMs: VERIFICATION_ATTEMPT_EMAIL_WINDOW_MS,
+      },
+    ),
+  },
+  isApiModuleEnabled('legacy-auth'),
+);
+if (isApiModuleEnabled('demand')) demand(app);
+if (isApiModuleEnabled('friends')) friends(app);
+if (isApiModuleEnabled('canny')) canny(app);
+if (isApiModuleEnabled('user')) user(app);
+if (isApiModuleEnabled('profile')) profile(app);
+if (isApiModuleEnabled('link-preview')) linkPreview(app);
 savedSearches(app, createDatabaseSavedSearchStore());
 savedWorksheets(app, createDatabaseSavedWorksheetStore());
 
@@ -237,10 +246,11 @@ if (isDev) {
   });
 }
 
-// Generate the static catalog on start. We do this *after* starting listening
-winston.info('Updating static catalog');
-
-void fetchCatalog(OVERWRITE_CATALOG, NUM_SEASONS).catch((err: unknown) => {
-  winston.error('Error updating static catalog');
-  winston.error(err);
-});
+if (isApiModuleEnabled('legacy-catalog')) {
+  // Legacy GraphQL-to-static refresh is not part of the Core App Backend.
+  winston.info('Updating static catalog');
+  void fetchCatalog(OVERWRITE_CATALOG, NUM_SEASONS).catch((err: unknown) => {
+    winston.error('Error updating static catalog');
+    winston.error(err);
+  });
+}

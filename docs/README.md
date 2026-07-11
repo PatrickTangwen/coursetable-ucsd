@@ -7,6 +7,8 @@ Status: top-level navigation for stable project documentation.
 - `api.md`: API reference.
 - `app_db_migrations.md`: versioned App DB migration generation and shared
   staging/production rollout.
+- `core_app_backend.md`: Core App Backend composition boundary, optional legacy
+  modules, and disposable validation path.
 - `local_server.md`: local frontend/backend/auth startup and login smoke
   runbook.
 - `local_server_endpoints.md`: current local frontend/backend URLs, Docker
