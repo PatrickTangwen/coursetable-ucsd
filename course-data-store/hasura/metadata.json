@@ -39,6 +39,29 @@
                   "table": { "schema": "public", "name": "courses" }
                 }
               }
+            },
+            {
+              "name": "importRuns",
+              "using": {
+                "manual_configuration": {
+                  "remote_table": { "schema": "public", "name": "import_runs" },
+                  "column_mapping": { "term_code": "term_code" },
+                  "insertion_order": null
+                }
+              }
+            },
+            {
+              "name": "importManifestCells",
+              "using": {
+                "manual_configuration": {
+                  "remote_table": {
+                    "schema": "public",
+                    "name": "import_manifest_cells"
+                  },
+                  "column_mapping": { "term_code": "term_code" },
+                  "insertion_order": null
+                }
+              }
             }
           ],
           "select_permissions": [
@@ -46,6 +69,7 @@
               "role": "anonymous",
               "permission": {
                 "columns": [
+                  "artifact_fingerprint",
                   "term_code",
                   "term_label",
                   "date_start",
@@ -86,6 +110,22 @@
               "using": {
                 "manual_configuration": {
                   "remote_table": { "schema": "public", "name": "sections" },
+                  "column_mapping": {
+                    "term_code": "term_code",
+                    "course_id": "course_id"
+                  },
+                  "insertion_order": null
+                }
+              }
+            },
+            {
+              "name": "gradeArchiveRecords",
+              "using": {
+                "manual_configuration": {
+                  "remote_table": {
+                    "schema": "public",
+                    "name": "grade_archive_records"
+                  },
                   "column_mapping": {
                     "term_code": "term_code",
                     "course_id": "course_id"
@@ -141,6 +181,22 @@
                   "column_mapping": {
                     "term_code": "term_code",
                     "course_id": "course_id"
+                  },
+                  "insertion_order": null
+                }
+              }
+            },
+            {
+              "name": "snapshotAvailability",
+              "using": {
+                "manual_configuration": {
+                  "remote_table": {
+                    "schema": "public",
+                    "name": "snapshot_availability"
+                  },
+                  "column_mapping": {
+                    "term_code": "term_code",
+                    "section_id": "section_id"
                   },
                   "insertion_order": null
                 }
@@ -286,6 +342,179 @@
                 "columns": ["term_code", "section_id", "instructor_name"],
                 "filter": {},
                 "limit": 2000
+              }
+            }
+          ]
+        },
+        {
+          "table": {
+            "schema": "public",
+            "name": "grade_archive_records"
+          },
+          "configuration": {
+            "custom_root_fields": { "select": "gradeArchiveRecords" },
+            "custom_column_names": {
+              "term_code": "termCode",
+              "course_id": "courseId",
+              "record_index": "recordIndex",
+              "archive_subject": "subject",
+              "archive_course": "courseNumber",
+              "archive_year": "year",
+              "archive_quarter": "quarter",
+              "archive_title": "title",
+              "a_percent": "aPercent",
+              "b_percent": "bPercent",
+              "c_percent": "cPercent",
+              "d_percent": "dPercent",
+              "f_percent": "fPercent",
+              "w_percent": "wPercent",
+              "p_percent": "pPercent",
+              "np_percent": "npPercent",
+              "raw_record": "rawRecord"
+            }
+          },
+          "select_permissions": [
+            {
+              "role": "anonymous",
+              "permission": {
+                "columns": [
+                  "term_code",
+                  "course_id",
+                  "record_index",
+                  "archive_subject",
+                  "archive_course",
+                  "archive_year",
+                  "archive_quarter",
+                  "archive_title",
+                  "instructor",
+                  "gpa",
+                  "a_percent",
+                  "b_percent",
+                  "c_percent",
+                  "d_percent",
+                  "f_percent",
+                  "w_percent",
+                  "p_percent",
+                  "np_percent",
+                  "raw_record"
+                ],
+                "filter": {},
+                "limit": 2000
+              }
+            }
+          ]
+        },
+        {
+          "table": {
+            "schema": "public",
+            "name": "snapshot_availability"
+          },
+          "configuration": {
+            "custom_root_fields": { "select": "snapshotAvailability" },
+            "custom_column_names": {
+              "term_code": "termCode",
+              "section_id": "sectionId",
+              "waitlist_count": "waitlistCount",
+              "observed_at": "observedAt",
+              "term_state": "termState"
+            }
+          },
+          "select_permissions": [
+            {
+              "role": "anonymous",
+              "permission": {
+                "columns": [
+                  "term_code",
+                  "section_id",
+                  "enrolled",
+                  "capacity",
+                  "waitlist_count",
+                  "observed_at",
+                  "term_state"
+                ],
+                "filter": {},
+                "limit": 2000
+              }
+            }
+          ]
+        },
+        {
+          "table": { "schema": "public", "name": "import_runs" },
+          "configuration": {
+            "custom_root_fields": { "select": "courseDataImportRuns" },
+            "custom_column_names": {
+              "artifact_fingerprint": "artifactFingerprint",
+              "snapshot_run_id": "snapshotRunId",
+              "generated_at": "generatedAt",
+              "term_code": "termCode",
+              "imported_at": "importedAt",
+              "schedule_source_timestamp": "scheduleSourceTimestamp",
+              "catalog_source_timestamp": "catalogSourceTimestamp",
+              "grade_source_timestamp": "gradeSourceTimestamp",
+              "manifest_fingerprint": "manifestFingerprint",
+              "manifest_ok": "manifestOk",
+              "manifest_empty": "manifestEmpty",
+              "manifest_failed": "manifestFailed",
+              "manifest_partial": "manifestPartial"
+            }
+          },
+          "select_permissions": [
+            {
+              "role": "anonymous",
+              "permission": {
+                "columns": [
+                  "artifact_fingerprint",
+                  "snapshot_run_id",
+                  "generated_at",
+                  "term_code",
+                  "schedule_source_timestamp",
+                  "catalog_source_timestamp",
+                  "grade_source_timestamp",
+                  "manifest_fingerprint",
+                  "manifest_ok",
+                  "manifest_empty",
+                  "manifest_failed",
+                  "manifest_partial"
+                ],
+                "filter": {},
+                "limit": 100
+              }
+            }
+          ]
+        },
+        {
+          "table": {
+            "schema": "public",
+            "name": "import_manifest_cells"
+          },
+          "configuration": {
+            "custom_root_fields": { "select": "importManifestCells" },
+            "custom_column_names": {
+              "artifact_fingerprint": "artifactFingerprint",
+              "term_code": "termCode",
+              "row_counts": "rowCounts",
+              "raw_artifacts": "rawArtifacts",
+              "normalized_artifact": "normalizedArtifact"
+            }
+          },
+          "select_permissions": [
+            {
+              "role": "anonymous",
+              "permission": {
+                "columns": [
+                  "artifact_fingerprint",
+                  "term_code",
+                  "subject",
+                  "source",
+                  "status",
+                  "reason",
+                  "attempts",
+                  "row_counts",
+                  "raw_artifacts",
+                  "normalized_artifact"
+                ],
+                "filter": {},
+                "limit": 1000
               }
             }
           ]

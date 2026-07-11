@@ -17,7 +17,11 @@ describe('Course Data Store Snapshot Importer', () => {
     await writeFile(snapshotPath, JSON.stringify({ courses: [] }));
 
     await expect(
-      importSnapshot(snapshotPath, 'postgresql://invalid.invalid/database'),
+      importSnapshot(
+        snapshotPath,
+        'postgresql://invalid.invalid/database',
+        'unused-manifest.json',
+      ),
     ).rejects.toThrow('Published Snapshot is invalid');
   });
 
@@ -28,7 +32,11 @@ describe('Course Data Store Snapshot Importer', () => {
 
     const result = await execFileAsync(
       'bun',
-      ['tools/course-data-store/importSnapshot.mts', snapshotPath],
+      [
+        'tools/course-data-store/importSnapshot.mts',
+        snapshotPath,
+        'unused-manifest.json',
+      ],
       {
         cwd: path.resolve(import.meta.dirname, '../..'),
         env: {
