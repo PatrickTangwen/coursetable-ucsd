@@ -64,19 +64,19 @@ describe('App DB migration command', () => {
           'savedSearches',
           'savedWorksheets',
           'savedWorksheetSections',
-        ]) 
+        ])
           expect(tableNames).toContain(tableName);
-        
+
         for (const indexName of [
           'app_users_verified_email_unique_idx',
           'email_verification_lookup_idx',
           'saved_searches_user_id_idx',
           'saved_worksheets_user_id_idx',
           'saved_worksheet_sections_unique_idx',
-        ]) 
+        ])
           expect(indexNames).toContain(indexName);
-        
-        expect(journal?.count).toBe(1);
+
+        expect(journal?.count).toBe(2);
       } finally {
         await client.end();
       }

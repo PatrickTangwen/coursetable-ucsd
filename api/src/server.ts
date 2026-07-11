@@ -14,6 +14,7 @@ import './sentry-instrument.js';
 import { passportConfig } from './auth/auth.handlers.js';
 import casAuth from './auth/auth.routes.js';
 import { createDatabaseUcsdAuthStore } from './auth/ucsdAuth.database.js';
+import { createRedisVerificationRequestLimiter } from './auth/verificationRequest.limiter.js';
 import canny from './canny/canny.routes.js';
 import catalog from './catalog/catalog.routes.js';
 import { fetchCatalog } from './catalog/catalog.utils.js';
@@ -29,6 +30,13 @@ import {
   NUM_SEASONS,
   verificationEmailDelivery,
   VERIFICATION_REQUEST_COOLDOWN_MS,
+  VERIFICATION_PENDING_TIMEOUT_MS,
+  VERIFICATION_SOURCE_LIMIT,
+  VERIFICATION_SOURCE_WINDOW_MS,
+  VERIFICATION_GLOBAL_LIMIT,
+  VERIFICATION_GLOBAL_WINDOW_MS,
+  TRUST_PROXY_HOPS,
+  db,
 } from './config.js';
 import demand from './demand/demand.routes.js';
 import friends from './friends/friends.routes.js';
@@ -46,7 +54,7 @@ const app = express();
 
 // Trust the proxy.
 // See https://expressjs.com/en/guide/behind-proxies.html.
-app.set('trust proxy', true);
+app.set('trust proxy', TRUST_PROXY_HOPS);
 
 // Enable url-encoding
 app.use(express.urlencoded({ extended: true }));
@@ -144,10 +152,21 @@ app.use(express.json());
 challenge(app);
 catalog(app);
 casAuth(app, {
-  store: createDatabaseUcsdAuthStore(),
+  store: createDatabaseUcsdAuthStore(db),
   emailSender: verificationEmailDelivery.sender,
   exposeVerificationCode: verificationEmailDelivery.exposeVerificationCode,
   requestCooldownMs: VERIFICATION_REQUEST_COOLDOWN_MS,
+  pendingTimeoutMs: VERIFICATION_PENDING_TIMEOUT_MS,
+  requestLimiter: createRedisVerificationRequestLimiter(
+    redisClient,
+    SESSION_SECRET,
+    {
+      sourceLimit: VERIFICATION_SOURCE_LIMIT,
+      sourceWindowMs: VERIFICATION_SOURCE_WINDOW_MS,
+      globalLimit: VERIFICATION_GLOBAL_LIMIT,
+      globalWindowMs: VERIFICATION_GLOBAL_WINDOW_MS,
+    },
+  ),
 });
 demand(app);
 friends(app);

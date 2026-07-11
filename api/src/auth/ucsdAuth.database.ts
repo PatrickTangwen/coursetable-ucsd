@@ -1,43 +1,97 @@
-import { and, desc, eq, gt, isNull, sql } from 'drizzle-orm';
+import { and, desc, eq, gt, isNull, or, sql } from 'drizzle-orm';
+import type { drizzle } from 'drizzle-orm/postgres-js';
 
 import type { UcsdAuthStore } from './ucsdAuth.store.js';
-import { appUsers, emailVerificationCodes } from '../../drizzle/schema.js';
-import { db } from '../config.js';
+import * as schema from '../../drizzle/schema.js';
 
-export function createDatabaseUcsdAuthStore(): UcsdAuthStore {
+const { appUsers, emailVerificationCodes } = schema;
+type UcsdAuthDatabase = ReturnType<typeof drizzle<typeof schema>>;
+
+export function createDatabaseUcsdAuthStore(
+  db: UcsdAuthDatabase,
+): UcsdAuthStore {
   return {
-    reserveVerification(record, cooldownMs) {
+    reserveVerification(record, cooldownMs, pendingTimeoutMs) {
       return db.transaction(async (tx) => {
         await tx.execute(
           sql`select pg_advisory_xact_lock(hashtext(${record.normalizedEmail}))`,
         );
         const latest = await tx.query.emailVerificationCodes.findFirst({
-          where: eq(
-            emailVerificationCodes.normalizedEmail,
-            record.normalizedEmail,
+          where: and(
+            eq(emailVerificationCodes.normalizedEmail, record.normalizedEmail),
+            or(
+              and(
+                eq(emailVerificationCodes.deliveryStatus, 'sent'),
+                gt(
+                  emailVerificationCodes.createdAt,
+                  record.createdAt - cooldownMs,
+                ),
+              ),
+              and(
+                eq(emailVerificationCodes.deliveryStatus, 'pending'),
+                gt(
+                  emailVerificationCodes.createdAt,
+                  record.createdAt - pendingTimeoutMs,
+                ),
+              ),
+            ),
           ),
-          columns: { createdAt: true },
+          columns: { createdAt: true, deliveryStatus: true },
           orderBy: [desc(emailVerificationCodes.createdAt)],
         });
-        if (latest && latest.createdAt + cooldownMs > record.createdAt) {
+        if (latest) {
           return {
-            status: 'cooldown' as const,
-            retryAt: latest.createdAt + cooldownMs,
+            status: 'blocked' as const,
+            reason:
+              latest.deliveryStatus === 'pending'
+                ? ('pending' as const)
+                : ('cooldown' as const),
+            retryAt:
+              latest.createdAt +
+              (latest.deliveryStatus === 'pending'
+                ? pendingTimeoutMs
+                : cooldownMs),
           };
         }
         const [created] = await tx
           .insert(emailVerificationCodes)
-          .values(record)
+          .values({ ...record, deliveryStatus: 'pending' })
           .returning({ id: emailVerificationCodes.id });
         if (!created) throw new Error('Failed to reserve verification email');
         return { status: 'created' as const, verificationId: created.id };
       });
+    },
+    async markVerificationSent(verificationId) {
+      const updated = await db
+        .update(emailVerificationCodes)
+        .set({ deliveryStatus: 'sent' })
+        .where(
+          and(
+            eq(emailVerificationCodes.id, verificationId),
+            eq(emailVerificationCodes.deliveryStatus, 'pending'),
+          ),
+        )
+        .returning({ id: emailVerificationCodes.id });
+      if (!updated.length)
+        throw new Error('Verification reservation is not pending');
+    },
+    async markVerificationFailed(verificationId) {
+      await db
+        .update(emailVerificationCodes)
+        .set({ deliveryStatus: 'failed' })
+        .where(
+          and(
+            eq(emailVerificationCodes.id, verificationId),
+            eq(emailVerificationCodes.deliveryStatus, 'pending'),
+          ),
+        );
     },
     async consumeVerification(normalizedEmail, codeHash, now) {
       const verification = await db.query.emailVerificationCodes.findFirst({
         where: and(
           eq(emailVerificationCodes.normalizedEmail, normalizedEmail),
           eq(emailVerificationCodes.codeHash, codeHash),
+          eq(emailVerificationCodes.deliveryStatus, 'sent'),
           isNull(emailVerificationCodes.consumedAt),
           gt(emailVerificationCodes.expiresAt, now),
         ),
@@ -51,6 +105,7 @@ export function createDatabaseUcsdAuthStore(): UcsdAuthStore {
           where: and(
             eq(emailVerificationCodes.normalizedEmail, normalizedEmail),
             eq(emailVerificationCodes.codeHash, codeHash),
+            eq(emailVerificationCodes.deliveryStatus, 'sent'),
           ),
           columns: { id: true },
         });

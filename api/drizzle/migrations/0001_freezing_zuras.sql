@@ -1,0 +1,1 @@
+ALTER TABLE "emailVerificationCodes" ADD COLUMN "deliveryStatus" varchar(16) DEFAULT 'sent' NOT NULL;

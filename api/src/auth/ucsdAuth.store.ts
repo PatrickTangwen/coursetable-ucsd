@@ -4,10 +4,13 @@ export interface UcsdAuthStore {
   reserveVerification: (
     record: VerificationRecord,
     cooldownMs: number,
+    pendingTimeoutMs: number,
   ) => Promise<
     | { status: 'created'; verificationId: number }
-    | { status: 'cooldown'; retryAt: number }
+    | { status: 'blocked'; reason: 'cooldown' | 'pending'; retryAt: number }
   >;
+  markVerificationSent: (verificationId: number) => Promise<void>;
+  markVerificationFailed: (verificationId: number) => Promise<void>;
   consumeVerification: (
     normalizedEmail: string,
     codeHash: string,

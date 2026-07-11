@@ -7,8 +7,11 @@ import {
 
 describe('UCSD auth user-facing error mapping', () => {
   it('distinguishes cooldown and delivery failures', () => {
-    expect(requestVerificationErrorMessage('VERIFICATION_COOLDOWN')).toContain(
-      'just sent',
+    expect(requestVerificationErrorMessage('VERIFICATION_COOLDOWN', 42)).toBe(
+      'A code was just sent. Request another in 42 seconds.',
+    );
+    expect(requestVerificationErrorMessage('VERIFICATION_RATE_LIMIT', 61)).toBe(
+      'Too many verification requests. Try again in 2 minutes.',
     );
     expect(
       requestVerificationErrorMessage('VERIFICATION_DELIVERY_FAILED'),

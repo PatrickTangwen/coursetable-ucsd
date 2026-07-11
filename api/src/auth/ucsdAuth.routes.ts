@@ -15,6 +15,10 @@ import {
   createVerificationEmailMessage,
   type VerificationEmailSender,
 } from './verificationEmail.sender.js';
+import {
+  createUnlimitedVerificationRequestLimiter,
+  type VerificationRequestLimiter,
+} from './verificationRequest.limiter.js';
 
 const RequestVerificationSchema = z.object({
   email: z.string().min(1).max(256),
@@ -32,6 +36,9 @@ export interface UcsdAuthRoutesOptions {
   codeGenerator?: () => string;
   now?: () => number;
   requestCooldownMs?: number;
+  pendingTimeoutMs?: number;
+  requestLimiter?: VerificationRequestLimiter;
+  requestSource?: (req: express.Request) => string;
 }
 
 function appUserPayload(req: express.Request) {
@@ -68,6 +75,9 @@ export function registerUcsdAuthRoutes(
     codeGenerator = createVerificationCode,
     now = Date.now,
     requestCooldownMs = 60_000,
+    pendingTimeoutMs = 30_000,
+    requestLimiter = createUnlimitedVerificationRequestLimiter(),
+    requestSource = (req) => req.ip ?? req.socket.remoteAddress ?? 'unknown',
   }: UcsdAuthRoutesOptions,
 ): void {
   app.get('/api/auth/current-user', (req, res) => {
@@ -100,16 +110,49 @@ export function registerUcsdAuthRoutes(
           expiresAt,
         },
         requestCooldownMs,
+        pendingTimeoutMs,
       );
-      if (reservation.status === 'cooldown') {
+      if (reservation.status === 'blocked') {
         const retryAfterSeconds = Math.max(
           1,
           Math.ceil((reservation.retryAt - createdAt) / 1000),
         );
         res.set('Retry-After', String(retryAfterSeconds));
         res.status(429).json({
-          error: 'VERIFICATION_COOLDOWN',
-          message: 'Wait before requesting another verification code.',
+          error:
+            reservation.reason === 'pending'
+              ? 'VERIFICATION_REQUEST_PENDING'
+              : 'VERIFICATION_COOLDOWN',
+          message:
+            reservation.reason === 'pending'
+              ? 'A verification request is already being processed.'
+              : 'Wait before requesting another verification code.',
+          retryAfterSeconds,
+        });
+        return;
+      }
+
+      const requestLimit = await requestLimiter
+        .attempt(requestSource(req))
+        .catch(() => null);
+      if (!requestLimit) {
+        await store.markVerificationFailed(reservation.verificationId);
+        res.status(503).json({
+          error: 'VERIFICATION_REQUEST_UNAVAILABLE',
+          message: 'Verification requests are temporarily unavailable.',
+        });
+        return;
+      }
+      if (!requestLimit.allowed) {
+        await store.markVerificationFailed(reservation.verificationId);
+        const retryAfterSeconds = Math.max(
+          1,
+          Math.ceil(requestLimit.retryAfterMs / 1000),
+        );
+        res.set('Retry-After', String(retryAfterSeconds));
+        res.status(429).json({
+          error: 'VERIFICATION_RATE_LIMIT',
+          message: 'Too many verification requests. Try again later.',
           retryAfterSeconds,
         });
         return;
@@ -125,7 +168,9 @@ export function registerUcsdAuthRoutes(
             expiresAt,
           }),
         );
+        await store.markVerificationSent(reservation.verificationId);
       } catch {
+        await store.markVerificationFailed(reservation.verificationId);
         res.status(503).json({
           error: 'VERIFICATION_DELIVERY_FAILED',
           message: 'Verification email could not be sent. Try again shortly.',

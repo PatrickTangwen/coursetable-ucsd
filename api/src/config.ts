@@ -89,6 +89,19 @@ export const verificationEmailDelivery = createVerificationEmailDelivery({
 });
 export const VERIFICATION_REQUEST_COOLDOWN_MS =
   getPositiveIntegerEnv('VERIFICATION_REQUEST_COOLDOWN_SECONDS') * 1000;
+export const VERIFICATION_PENDING_TIMEOUT_MS =
+  getPositiveIntegerEnv('VERIFICATION_PENDING_TIMEOUT_SECONDS') * 1000;
+export const VERIFICATION_SOURCE_LIMIT = getPositiveIntegerEnv(
+  'VERIFICATION_SOURCE_LIMIT',
+);
+export const VERIFICATION_SOURCE_WINDOW_MS =
+  getPositiveIntegerEnv('VERIFICATION_SOURCE_WINDOW_SECONDS') * 1000;
+export const VERIFICATION_GLOBAL_LIMIT = getPositiveIntegerEnv(
+  'VERIFICATION_GLOBAL_LIMIT',
+);
+export const VERIFICATION_GLOBAL_WINDOW_MS =
+  getPositiveIntegerEnv('VERIFICATION_GLOBAL_WINDOW_SECONDS') * 1000;
+export const TRUST_PROXY_HOPS = getPositiveIntegerEnv('TRUST_PROXY_HOPS');
 
 export const OVERWRITE_CATALOG = getEnv('OVERWRITE_CATALOG', 'boolean');
 export const redisClient = createClient({

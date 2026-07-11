@@ -6,6 +6,7 @@ export function createMemoryUcsdAuthStore(): UcsdAuthStore & {
 } {
   const verifications: (VerificationRecord & {
     id: number;
+    deliveryStatus: 'pending' | 'sent' | 'failed';
     consumedAt?: number;
   })[] = [];
   const usersByEmail = new Map<string, AppUserIdentity>();
@@ -14,22 +15,57 @@ export function createMemoryUcsdAuthStore(): UcsdAuthStore & {
 
   return {
     usersByEmail,
-    reserveVerification(record, cooldownMs) {
+    reserveVerification(record, cooldownMs, pendingTimeoutMs) {
       const [latest] = verifications
-        .filter((item) => item.normalizedEmail === record.normalizedEmail)
+        .filter(
+          (item) =>
+            item.normalizedEmail === record.normalizedEmail &&
+            ((item.deliveryStatus === 'sent' &&
+              item.createdAt + cooldownMs > record.createdAt) ||
+              (item.deliveryStatus === 'pending' &&
+                item.createdAt + pendingTimeoutMs > record.createdAt)),
+        )
         .sort((a, b) => b.createdAt - a.createdAt);
-      if (latest && latest.createdAt + cooldownMs > record.createdAt) {
+      if (latest) {
         return Promise.resolve({
-          status: 'cooldown' as const,
-          retryAt: latest.createdAt + cooldownMs,
+          status: 'blocked' as const,
+          reason:
+            latest.deliveryStatus === 'pending'
+              ? ('pending' as const)
+              : ('cooldown' as const),
+          retryAt:
+            latest.createdAt +
+            (latest.deliveryStatus === 'pending'
+              ? pendingTimeoutMs
+              : cooldownMs),
         });
       }
       const id = nextVerificationId++;
-      verifications.push({ ...record, id });
+      verifications.push({ ...record, id, deliveryStatus: 'pending' });
       return Promise.resolve({
         status: 'created' as const,
         verificationId: id,
       });
+    },
+    markVerificationSent(verificationId) {
+      const verification = verifications.find(
+        (item) => item.id === verificationId,
+      );
+      if (!verification || verification.deliveryStatus !== 'pending') {
+        return Promise.reject(
+          new Error('Verification reservation is not pending'),
+        );
+      }
+      verification.deliveryStatus = 'sent';
+      return Promise.resolve();
+    },
+    markVerificationFailed(verificationId) {
+      const verification = verifications.find(
+        (item) => item.id === verificationId,
+      );
+      if (verification?.deliveryStatus === 'pending')
+        verification.deliveryStatus = 'failed';
+      return Promise.resolve();
     },
     consumeVerification(normalizedEmail, codeHash, now) {
       const verification = [...verifications]
@@ -38,6 +74,7 @@ export function createMemoryUcsdAuthStore(): UcsdAuthStore & {
           (item) =>
             item.normalizedEmail === normalizedEmail &&
             item.codeHash === codeHash &&
+            item.deliveryStatus === 'sent' &&
             !item.consumedAt &&
             item.expiresAt > now,
         );
@@ -45,7 +82,8 @@ export function createMemoryUcsdAuthStore(): UcsdAuthStore & {
         const hasPriorCode = verifications.some(
           (item) =>
             item.normalizedEmail === normalizedEmail &&
-            item.codeHash === codeHash,
+            item.codeHash === codeHash &&
+            item.deliveryStatus === 'sent',
         );
         return Promise.resolve(
           hasPriorCode ? 'expired_or_consumed' : 'invalid',

@@ -43,7 +43,7 @@ type BaseFetchOptions = {
    * Receives the parsed error code. If it returns true, the error is considered
    * handled and no further reporting is done. Only HTTP errors can be handled.
    */
-  handleErrorCode?: (errCode: string) => boolean;
+  handleErrorCode?: (errCode: string, payload: unknown) => boolean;
   /**
    * When the API returns a JSON `{ error: "<code>" }` body, map that code to a
    * return value instead of using default toasts / throws. Used e.g. for 404
@@ -166,10 +166,11 @@ async function fetchAPI(
     );
     if (!res.ok) {
       let errorCode = '';
+      let errorPayload: unknown = null;
       // First: try to parse out a structured error code
       try {
-        const parsedError = ((await res.json()) as { error?: unknown } | null)
-          ?.error;
+        errorPayload = await res.json();
+        const parsedError = (errorPayload as { error?: unknown } | null)?.error;
         errorCode = typeof parsedError === 'string' ? parsedError : '';
       } catch {}
       // Fall back to status text
@@ -188,7 +189,7 @@ async function fetchAPI(
           return noResExpected ? false : undefined;
         default:
           // Let the handler handle it first
-          if (handleErrorCode?.(errorCode))
+          if (handleErrorCode?.(errorCode, errorPayload))
             return noResExpected ? false : undefined;
           throw new Error(errorCode);
       }
@@ -1147,8 +1148,14 @@ export async function requestUcsdVerification(
       category: 'auth',
       message: 'Requesting UCSD email verification',
     },
-    handleErrorCode(err) {
-      const message = requestVerificationErrorMessage(err);
+    handleErrorCode(err, payload) {
+      const parsedRetry = z
+        .object({ retryAfterSeconds: z.number() })
+        .safeParse(payload);
+      const retryAfterSeconds = parsedRetry.success
+        ? parsedRetry.data.retryAfterSeconds
+        : undefined;
+      const message = requestVerificationErrorMessage(err, retryAfterSeconds);
       if (message) {
         rejectedMessage = message;
         return true;

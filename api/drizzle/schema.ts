@@ -200,6 +200,9 @@ export const emailVerificationCodes = pgTable(
     createdAt: bigint('createdAt', { mode: 'number' }).notNull(),
     expiresAt: bigint('expiresAt', { mode: 'number' }).notNull(),
     consumedAt: bigint('consumedAt', { mode: 'number' }),
+    deliveryStatus: varchar('deliveryStatus', { length: 16 })
+      .default('sent')
+      .notNull(),
   },
   (table) => ({
     emailVerificationEmailIdx: index('email_verification_email_idx').on(
