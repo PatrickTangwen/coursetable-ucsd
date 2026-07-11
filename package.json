@@ -25,7 +25,8 @@
     "snapshot:tracer": "bun tools/catalog-snapshot/generate-tracer-snapshot.mts --config config/catalog-snapshot.ucsd.yaml",
     "snapshot:schedule": "bun tools/catalog-snapshot/generate-schedule-snapshot.mts --config config/catalog-snapshot.ucsd.yaml",
     "test:snapshot": "vitest run tools/**/*.test.ts",
-    "validate:real-backend-auth": "bun tools/real-backend-auth-validation/validateRealBackendAuth.mts"
+    "validate:real-backend-auth": "bun tools/real-backend-auth-validation/validateRealBackendAuth.mts",
+    "validate:core-backend": "bun tools/real-backend-auth-validation/validateRealBackendAuth.mts"
   },
   "trustedDependencies": [
     "api",

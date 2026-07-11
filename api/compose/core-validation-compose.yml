@@ -1,0 +1,81 @@
+services:
+  api:
+    build:
+      context: ../../
+      dockerfile: ./api/Dockerfile
+    entrypoint: ['bun', 'src/server.hostedValidation.ts']
+    working_dir: /usr/src/app/api
+    ports:
+      - ${API_PORT?API_PORT}:${API_PORT?API_PORT}
+    environment:
+      API_PORT: ${API_PORT?API_PORT}
+      DB_URL: postgresql://${DB_USER?DB_USER}:${DB_ROOT_PASSWORD?DB_ROOT_PASSWORD}@db:5432/${DB_NAME?DB_NAME}
+      ENABLED_API_MODULES: ''
+      FRONTEND_ENDPOINT: ${FRONTEND_ENDPOINT?FRONTEND_ENDPOINT}
+      HOT_RELOAD: 'false'
+      NODE_ENV: production
+      OVERWRITE_CATALOG: 'false'
+      REDIS_HOST: redis
+      RESEND_API_KEY: core-validation-no-network-key
+      SENTRY_DSN: ''
+      SENTRY_ENVIRONMENT: core-validation
+      SESSION_SECRET: ${SESSION_SECRET?SESSION_SECRET}
+      TRUSTED_PROXY_CIDRS: ${TRUSTED_PROXY_CIDRS:-}
+      VERIFICATION_ATTEMPT_EMAIL_LIMIT: '5'
+      VERIFICATION_ATTEMPT_EMAIL_WINDOW_SECONDS: '900'
+      VERIFICATION_ATTEMPT_SOURCE_LIMIT: '20'
+      VERIFICATION_ATTEMPT_SOURCE_WINDOW_SECONDS: '900'
+      VERIFICATION_EMAIL_FROM_ADDRESS: login@validation.invalid
+      VERIFICATION_EMAIL_SENDER_DOMAIN: validation.invalid
+      VERIFICATION_GLOBAL_LIMIT: '100'
+      VERIFICATION_GLOBAL_WINDOW_SECONDS: '900'
+      VERIFICATION_REQUEST_COOLDOWN_SECONDS: '1'
+      VERIFICATION_SOURCE_LIMIT: '5'
+      VERIFICATION_SOURCE_WINDOW_SECONDS: '900'
+    volumes:
+      - ../static:/usr/src/app/api/static:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'bun',
+          '-e',
+          'const response = await fetch(`http://localhost:$${process.env.API_PORT}/api/ping`); if (!response.ok) process.exit(1)',
+        ]
+      interval: 1s
+      timeout: 5s
+      retries: 60
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: ${DB_NAME?DB_NAME}
+      POSTGRES_PASSWORD: ${DB_ROOT_PASSWORD?DB_ROOT_PASSWORD}
+      POSTGRES_USER: ${DB_USER?DB_USER}
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'pg_isready -U ${DB_USER?DB_USER} -d ${DB_NAME?DB_NAME}']
+      interval: 1s
+      timeout: 10s
+      retries: 60
+    volumes:
+      - core-validation-postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 1s
+      timeout: 10s
+      retries: 60
+    volumes:
+      - core-validation-redis-data:/data
+
+volumes:
+  core-validation-postgres-data:
+  core-validation-redis-data:

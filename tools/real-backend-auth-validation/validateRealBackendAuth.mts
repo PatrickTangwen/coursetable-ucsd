@@ -214,7 +214,7 @@ export function createRunConfig(
     composeEnvFile:
       args.composeEnvFile ??
       env.COURSETABLE_AUTH_ENV_FILE ??
-      'api/compose/local-validation.env.example',
+      'api/compose/core-validation.env.example',
     composeProject:
       args.composeProject ??
       env.COURSETABLE_AUTH_PROJECT ??
@@ -302,13 +302,7 @@ export function buildComposeArgs(config: RunConfig, command: string[]) {
     '--env-file',
     composeEnvFileForComposeDir(config),
     '-f',
-    'docker-compose.yml',
-    '-f',
-    'dev-compose.yml',
-    '-f',
-    'local-validation-compose.yml',
-    '-f',
-    'hosted-validation-compose.yml',
+    'core-validation-compose.yml',
     '-p',
     config.composeProject,
     ...command,
@@ -394,6 +388,34 @@ export async function runValidation(config: RunConfig) {
     if (ping.body !== 'pong')
       throw new Error('GET /api/ping did not return pong');
     httpEvidence.apiPingStatus = ping.status;
+
+    const metadata = await api.get('/api/catalog/metadata');
+    expectStatus(metadata, 200, 'GET /api/catalog/metadata');
+    httpEvidence.catalogMetadataStatus = metadata.status;
+    const publishedSnapshot = await api.get('/api/catalog/public/SP26');
+    expectStatus(publishedSnapshot, 200, 'GET /api/catalog/public/SP26');
+    httpEvidence.catalogSnapshotStatus = publishedSnapshot.status;
+
+    for (const pathname of [
+      '/ferry/v1/graphql',
+      '/api/auth/cas',
+      '/api/canny/token',
+      '/api/challenge/request',
+      '/api/catalog/csv/202601.csv',
+      '/api/catalog/evals/202601',
+      '/api/friends/names',
+      '/api/demand/worksheet',
+      '/api/link-preview',
+      '/api/profile/me',
+      '/api/profile/search',
+      '/api/sitemaps/index.xml',
+      '/api/user/wishlist',
+      '/api/catalog/refresh',
+    ]) {
+      const disabledRoute = await api.get(pathname);
+      expectStatus(disabledRoute, 404, `GET ${pathname}`);
+    }
+    httpEvidence.disabledLegacyRoutesStatus = 404;
 
     const schemaEvidence = await collectSchemaEvidence(config);
     const expectedTablesPresent = allPresent(
@@ -1202,7 +1224,7 @@ function helpText() {
 Options:
   --api-origin <url>          Host API origin, default http://localhost:$API_PORT or http://localhost:3000
   --artifact-dir <path>       Evidence output directory
-  --compose-env-file <path>   Compose env file, default api/compose/local-validation.env.example
+  --compose-env-file <path>   Compose env file, default api/compose/core-validation.env.example
   --compose-project <name>    Compose project, default coursetable-auth-validation
   --email <email>             Unique @ucsd.edu test email
   --saved-search-name <name>  Unique Saved Search name
