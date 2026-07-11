@@ -22,22 +22,40 @@ describe('public login availability', () => {
 
   it('allows anonymous catalog and worksheet routes in both states', () => {
     for (const enabled of [false, true]) {
-      expect(resolvePublicLoginRoute('/catalog', false, enabled)).toBe('allow');
-      expect(resolvePublicLoginRoute('/worksheet', false, enabled)).toBe(
-        'allow',
-      );
+      expect(resolvePublicLoginRoute('/catalog', false, enabled)).toEqual({
+        type: 'allow',
+      });
+      expect(resolvePublicLoginRoute('/worksheet', false, enabled)).toEqual({
+        type: 'allow',
+      });
     }
   });
 
   it('gates the public login route and unauthenticated protected routes', () => {
-    expect(resolvePublicLoginRoute('/login', false, true)).toBe('allow');
-    expect(resolvePublicLoginRoute('/login', false, false)).toBe('catalog');
-    expect(resolvePublicLoginRoute('/profile', false, true)).toBe('login');
-    expect(resolvePublicLoginRoute('/profile', false, false)).toBe('catalog');
+    expect(resolvePublicLoginRoute('/login', false, true)).toEqual({
+      type: 'allow',
+    });
+    expect(resolvePublicLoginRoute('/login', false, false)).toEqual({
+      type: 'redirect',
+      to: '/catalog',
+    });
+    expect(resolvePublicLoginRoute('/profile', false, true)).toEqual({
+      type: 'redirect',
+      to: '/login',
+    });
+    expect(resolvePublicLoginRoute('/profile', false, false)).toEqual({
+      type: 'redirect',
+      to: '/catalog',
+    });
   });
 
   it('keeps authenticated protected routes available when public login is off', () => {
-    expect(resolvePublicLoginRoute('/profile', true, false)).toBe('allow');
-    expect(resolvePublicLoginRoute('/login', true, false)).toBe('catalog');
+    expect(resolvePublicLoginRoute('/profile', true, false)).toEqual({
+      type: 'allow',
+    });
+    expect(resolvePublicLoginRoute('/login', true, false)).toEqual({
+      type: 'redirect',
+      to: '/catalog',
+    });
   });
 });

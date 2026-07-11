@@ -4,7 +4,10 @@ import { FcBusinessman } from 'react-icons/fc';
 
 import { isLegacyUserInfo, logout } from '../../queries/api';
 import { useStore } from '../../store';
-import { PUBLIC_LOGIN_ENABLED } from '../../utilities/publicLogin';
+import {
+  PUBLIC_LOGIN_ENABLED,
+  shouldShowPublicLoginEntry,
+} from '../../utilities/publicLogin';
 import styles from './MeDropdown.module.css';
 
 function PersonIcon() {
@@ -66,7 +69,11 @@ function SignInIcon() {
   );
 }
 
-function MeDropdown() {
+function MeDropdown({
+  publicLoginEnabled = PUBLIC_LOGIN_ENABLED,
+}: {
+  readonly publicLoginEnabled?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const authStatus = useStore((state) => state.authStatus);
@@ -90,7 +97,13 @@ function MeDropdown() {
       : ((!isLegacyUserInfo(user) ? user?.verifiedEmail : undefined) ??
         'Your profile');
 
-  if (authStatus !== 'authenticated' && !PUBLIC_LOGIN_ENABLED) return null;
+  if (
+    !shouldShowPublicLoginEntry(
+      authStatus === 'authenticated',
+      publicLoginEnabled,
+    )
+  )
+    return null;
 
   return (
     <div ref={rootRef} className={styles.root}>
@@ -130,7 +143,7 @@ function MeDropdown() {
               <SignOutIcon />
               Sign out
             </button>
-          ) : PUBLIC_LOGIN_ENABLED ? (
+          ) : publicLoginEnabled ? (
             <a
               href="/login"
               className={styles.menuItem}

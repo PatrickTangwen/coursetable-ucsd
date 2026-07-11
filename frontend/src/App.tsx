@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
-import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import * as Sentry from '@sentry/react';
 import PullToRefresh from 'pulltorefreshjs';
 import { Helmet } from 'react-helmet';
 
-import { useShallow } from 'zustand/react/shallow';
+import AuthRouteGate from './components/AuthRouteGate';
 import CourseModal from './components/CourseModal/CourseModal';
 import Footer from './components/Footer';
 import ModalHistoryBridge from './components/ModalHistoryBridge';
@@ -12,7 +12,6 @@ import TopNav from './components/Navbar/TopNav';
 import Notice from './components/Notice';
 import ProfModal from './components/ProfModal/ProfModal';
 import SeoMeta from './components/SeoMeta';
-import Spinner from './components/Spinner';
 import Tutorial from './components/Tutorial';
 
 // Popular pages are eagerly fetched
@@ -23,7 +22,6 @@ import { useStore, useInitStore } from './store';
 
 import { suspended } from './utilities/display';
 import { createCatalogLink } from './utilities/navigation';
-import { resolvePublicLoginRoute } from './utilities/publicLogin';
 import styles from './App.module.css';
 
 const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
@@ -34,7 +32,6 @@ const FAQ = suspended(() => import('./pages/FAQ'));
 const Privacy = suspended(() => import('./pages/Privacy.mdx'));
 const NotFound = suspended(() => import('./pages/NotFound'));
 const Challenge = suspended(() => import('./pages/Challenge'));
-const NeedsLogin = suspended(() => import('./pages/NeedsLogin'));
 const Graphiql = suspended(() => import('./pages/Graphiql'));
 const Join = suspended(() => import('./pages/Join'));
 const Profile = suspended(() => import('./pages/Profile'));
@@ -64,50 +61,6 @@ function Modal() {
       return <ProfModal professorId={currentModal.data} />;
     default:
       return null;
-  }
-}
-
-function AuthenticatedRoutes() {
-  const { authStatus, user } = useStore(
-    useShallow((state) => ({
-      user: state.user,
-      authStatus: state.authStatus,
-    })),
-  );
-
-  const location = useLocation();
-
-  if (authStatus === 'loading') return <Spinner message="Authenticating..." />;
-  if (authStatus === 'initializing')
-    return <Spinner message="Fetching user info..." />;
-
-  if (location.pathname === '/graphiql') {
-    if (user?.hasEvals) return <Outlet />;
-    return (
-      <NeedsLogin
-        redirect={location.pathname}
-        message="the GraphQL interface"
-      />
-    );
-  }
-
-  const routeDecision = resolvePublicLoginRoute(
-    location.pathname,
-    authStatus === 'authenticated',
-  );
-
-  if (routeDecision === 'catalog')
-    return <Navigate to={createCatalogLink()} replace />;
-  if (routeDecision === 'login') return <Navigate to="/login" replace />;
-
-  switch (location.pathname) {
-    case '/catalog':
-    case '/worksheet':
-    case '/login':
-      return <Outlet />;
-
-    default:
-      return <Outlet />;
   }
 }
 
@@ -162,7 +115,7 @@ function App() {
         {/* Public landing page; renders instantly without waiting on auth */}
         <Route path="/" element={<Home />} />
 
-        <Route element={<AuthenticatedRoutes />}>
+        <Route element={<AuthRouteGate />}>
           {/* Authenticated routes */}
           {/* Catalog and worksheet can be viewed by anyone; we put them under
           authenticated routes because we want loading auth to show a loading

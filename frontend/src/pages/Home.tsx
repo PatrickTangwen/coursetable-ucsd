@@ -516,8 +516,12 @@ const SIGNED_IN_STEP = {
   desc: 'Verify a UCSD email to keep everything synced and ready for your enrollment appointment.',
 };
 
-function HowSection() {
-  const steps = PUBLIC_LOGIN_ENABLED
+function HowSection({
+  publicLoginEnabled,
+}: {
+  readonly publicLoginEnabled: boolean;
+}) {
+  const steps = publicLoginEnabled
     ? [...ANONYMOUS_STEPS, SIGNED_IN_STEP]
     : ANONYMOUS_STEPS;
   return (
@@ -546,7 +550,11 @@ function HowSection() {
   );
 }
 
-function CtaSection() {
+function CtaSection({
+  publicLoginEnabled,
+}: {
+  readonly publicLoginEnabled: boolean;
+}) {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   return (
@@ -561,12 +569,12 @@ function CtaSection() {
             in one place
           </h2>
           <p className={styles.ctaLead}>
-            {PUBLIC_LOGIN_ENABLED
+            {publicLoginEnabled
               ? 'Start searching in seconds — no account required. Sign in with a UCSD email whenever you want to save your work.'
               : 'Start searching and build a worksheet in seconds — no account required.'}
           </p>
           <div className={styles.ctaRowWrap}>
-            {PUBLIC_LOGIN_ENABLED && (
+            {publicLoginEnabled && (
               <form
                 className={styles.ctaPill}
                 onSubmit={(event) => {
@@ -599,7 +607,11 @@ function CtaSection() {
 
 // The public landing page shown at "/". It carries its own header and footer,
 // so the global TopNav/Footer are hidden on this route (see App.tsx).
-export default function Home() {
+export default function Home({
+  publicLoginEnabled = PUBLIC_LOGIN_ENABLED,
+}: {
+  readonly publicLoginEnabled?: boolean;
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
   const authStatus = useStore((state) => state.authStatus);
@@ -656,7 +668,7 @@ export default function Home() {
             >
               Sign out
             </button>
-          ) : PUBLIC_LOGIN_ENABLED ? (
+          ) : publicLoginEnabled ? (
             <Link to="/login" className={clsx(styles.navLink, styles.authBtn)}>
               Sign in
             </Link>
@@ -713,9 +725,9 @@ export default function Home() {
       <WorksheetSection />
       <ExamsSection />
       <CourseSection />
-      {PUBLIC_LOGIN_ENABLED && <SyncSection />}
-      <HowSection />
-      <CtaSection />
+      {publicLoginEnabled && <SyncSection />}
+      <HowSection publicLoginEnabled={publicLoginEnabled} />
+      <CtaSection publicLoginEnabled={publicLoginEnabled} />
 
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
@@ -732,7 +744,7 @@ export default function Home() {
             <a href="#how" className={styles.footerLink}>
               How it works
             </a>
-            {PUBLIC_LOGIN_ENABLED && (
+            {publicLoginEnabled && (
               <Link to="/login" className={styles.footerLink}>
                 Sign in
               </Link>
