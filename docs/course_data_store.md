@@ -13,7 +13,8 @@ Store and Hasura projection are a shadow validation path.
 
 ## Tracer boundary
 
-The first tracer imports one validated real Supported Term and its Courses:
+The tracer imports one validated real Supported Term and its scheduled Course
+relationships:
 
 ```text
 Published Snapshot
@@ -37,6 +38,12 @@ artifact for an already accepted Supported Term fails closed. This prevents a
 projection from mixing generations or recording provenance for data that was
 not promoted.
 
+Sections use the existing term-scoped Section ID. Meetings retain source order,
+nullable times and locations, raw source values, and explicit TBA semantics.
+Instructors use the exact normalized Snapshot name available at this stage and
+are connected to Sections through a many-to-many join, so team teaching is not
+flattened. A Section may own zero, one, or many Meetings.
+
 Committed Hasura metadata lives in `course-data-store/hasura`. Hasura connects
 only to the Course Data Store and grants the unauthenticated `anonymous` role
 select access to Supported Terms and Courses. The metadata exposes UCSD/SunGrid
@@ -59,5 +66,9 @@ bun run validate:course-data-tracer
 The disposable tracer starts an isolated Postgres and Hasura stack, applies the
 Course Data Store migration, rejects invalid input before mutation, imports the
 real S326 Published Snapshot twice, applies metadata, queries as anonymous,
-proves App DB tables are unavailable, checks stable counts, and removes its
-containers and volumes on success or failure.
+proves App DB tables are unavailable, and checks stable relationship counts.
+S326 supplies real one/many-Meeting, TBA, and team-taught evidence. Because no
+current Published Snapshot contains a zero-Meeting Section, the validator also
+imports an explicitly labelled boundary fixture to prove that cardinality. It
+then proves a failed relationship import leaves the accepted projection
+readable and removes containers and volumes on success or failure.
