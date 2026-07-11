@@ -69,11 +69,7 @@ function SignInIcon() {
   );
 }
 
-function MeDropdown({
-  publicLoginEnabled = PUBLIC_LOGIN_ENABLED,
-}: {
-  readonly publicLoginEnabled?: boolean;
-}) {
+function MeDropdown() {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const authStatus = useStore((state) => state.authStatus);
@@ -100,7 +96,7 @@ function MeDropdown({
   if (
     !shouldShowPublicLoginEntry(
       authStatus === 'authenticated',
-      publicLoginEnabled,
+      PUBLIC_LOGIN_ENABLED,
     )
   )
     return null;
@@ -143,7 +139,7 @@ function MeDropdown({
               <SignOutIcon />
               Sign out
             </button>
-          ) : publicLoginEnabled ? (
+          ) : PUBLIC_LOGIN_ENABLED ? (
             <a
               href="/login"
               className={styles.menuItem}
