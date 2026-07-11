@@ -1,0 +1,7 @@
+services:
+  api:
+    environment:
+      HOSTED_AUTH_VALIDATION: 'true'
+      NODE_ENV: production
+      VERIFICATION_EMAIL_CAPTURE_DIR: ${VERIFICATION_EMAIL_CAPTURE_DIR:-/tmp/coursetable-verification-capture}
+      VERIFICATION_EMAIL_PROVIDER: capture

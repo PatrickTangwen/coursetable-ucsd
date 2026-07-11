@@ -41,7 +41,7 @@ describe('real backend auth validation CLI', () => {
       new Date('2026-06-21T04:05:06Z'),
     );
 
-    expect(config.apiOrigin).toBe('https://localhost:3010');
+    expect(config.apiOrigin).toBe('http://localhost:3010');
     expect(config.email).toMatch(
       /^auth-validation\+20260621t040506z-[a-f\d]{8}@ucsd\.edu$/u,
     );
@@ -66,6 +66,8 @@ describe('real backend auth validation CLI', () => {
       'dev-compose.yml',
       '-f',
       'local-validation-compose.yml',
+      '-f',
+      'hosted-validation-compose.yml',
       '-p',
       'coursetable-auth-validation-test',
       'exec',
@@ -114,8 +116,8 @@ describe('real backend auth validation CLI', () => {
       apiOrigin: 'https://localhost:3010',
       email: 'auth-validation+20260621t040506z-12345678@ucsd.edu',
       savedSearchName: 'Auth Validation 20260621T040506Z',
-      userId: 42,
-      verificationCodeSource: 'development-only devCode response field',
+      appUserIdFingerprint: '73475cb40a56',
+      verificationCodeSource: 'explicit hosted-validation capture sender',
       http: {
         requestVerificationStatus: 200,
         verifyStatus: 200,
@@ -127,6 +129,7 @@ describe('real backend auth validation CLI', () => {
         anonymousCurrentUserStatus: 200,
       },
       postgres: {
+        accountOwnedDataIsolated: true,
         expectedTablesPresent: true,
         expectedIndexesPresent: true,
         userRowFound: true,

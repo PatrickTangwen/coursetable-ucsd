@@ -12,5 +12,15 @@ docker compose \
   -f docker-compose.yml \
   -f dev-compose.yml \
   -f local-validation-compose.yml \
+  -f hosted-validation-compose.yml \
+  -p "$PROJECT_NAME" \
+  up -d --build --remove-orphans "$@"
+
+docker compose \
+  --env-file "$ENV_FILE" \
+  -f docker-compose.yml \
+  -f dev-compose.yml \
+  -f local-validation-compose.yml \
+  -f hosted-validation-compose.yml \
   -p "$PROJECT_NAME" \
   exec -T api sh -lc 'cd api && bun run db:migrate'

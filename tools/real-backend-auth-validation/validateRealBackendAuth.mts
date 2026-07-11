@@ -8,6 +8,7 @@ import { promisify } from 'node:util';
 
 import { shouldExposeVerificationCode } from '../../api/src/auth/ucsdAuth.exposure.js';
 import { appUserIdToLegacyNetId } from '../../api/src/auth/ucsdIdentity.js';
+import { captureFilename } from '../../api/src/auth/verificationEmail.capture.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -70,6 +71,7 @@ interface EvidenceSummaryInput {
     expectedTablesPresent: boolean;
     savedSearchDeleted: boolean;
     savedSearchOwnedByUserId: boolean;
+    accountOwnedDataIsolated: boolean;
     userRowFound: boolean;
     verificationRowConsumed: boolean;
     worksheetCourseRowsAfter: number;
@@ -84,7 +86,7 @@ interface EvidenceSummaryInput {
   };
   runId: string;
   savedSearchName: string;
-  userId: number;
+  appUserIdFingerprint: string;
   verificationCodeSource: string;
 }
 
@@ -108,6 +110,8 @@ class ApiClient {
     const target = new URL(pathname, this.#origin);
     const bodyText = body === undefined ? undefined : JSON.stringify(body);
     const headers: { [key: string]: string } = {};
+    if (this.#origin.protocol === 'http:')
+      headers['x-forwarded-proto'] = 'https';
     const cookieHeader = formatCookieHeader(this.cookies);
     if (cookieHeader) headers.cookie = cookieHeader;
     if (bodyText !== undefined) {
@@ -195,7 +199,7 @@ export function createRunConfig(
   const apiPort = env.API_PORT ?? '3000';
   return {
     apiOrigin:
-      args.apiOrigin ?? env.API_ORIGIN ?? `https://localhost:${apiPort}`,
+      args.apiOrigin ?? env.API_ORIGIN ?? `http://localhost:${apiPort}`,
     artifactDir:
       args.artifactDir ??
       path.join('artifacts/real-backend-auth-validation', runId),
@@ -295,6 +299,8 @@ export function buildComposeArgs(config: RunConfig, command: string[]) {
     'dev-compose.yml',
     '-f',
     'local-validation-compose.yml',
+    '-f',
+    'hosted-validation-compose.yml',
     '-p',
     config.composeProject,
     ...command,
@@ -352,6 +358,8 @@ export function buildEvidenceSummary(input: EvidenceSummaryInput) {
       'verification code value',
       'connect.sid cookie value',
       'full Redis session key',
+      'API keys',
+      'raw database rows and identifiers',
     ],
   };
 }
@@ -361,16 +369,11 @@ export async function runValidation(config: RunConfig) {
 
   const api = new ApiClient(config.apiOrigin);
   const httpEvidence: { [key: string]: number } = {};
-  const rawArtifacts: { [key: string]: unknown } = {};
   let cleanup = {
     attempted: false,
     savedSearchRowsDeleted: 0,
     verificationRowsDeleted: 0,
   };
-  let userId = 0;
-  let savedSearchId = 0;
-  let legacyNetId = '';
-
   try {
     await writeTextArtifact(
       config,
@@ -385,7 +388,6 @@ export async function runValidation(config: RunConfig) {
     httpEvidence.apiPingStatus = ping.status;
 
     const schemaEvidence = await collectSchemaEvidence(config);
-    rawArtifacts.schemaEvidence = schemaEvidence;
     const expectedTablesPresent = allPresent(
       schemaEvidence.tables,
       expectedTables,
@@ -405,28 +407,8 @@ export async function runValidation(config: RunConfig) {
       );
     }
 
-    const requestVerification = await api.post(
-      '/api/auth/ucsd/request-verification',
-      { email: config.email },
-    );
-    httpEvidence.requestVerificationStatus = requestVerification.status;
-    expectStatus(
-      requestVerification,
-      200,
-      'POST /api/auth/ucsd/request-verification',
-    );
-    const requestBody = expectRecord(requestVerification.body);
-    const { devCode } = requestBody;
-    if (typeof devCode !== 'string' || !/^\d{6}$/u.test(devCode)) {
-      throw new Error(
-        'Verification request did not expose a development devCode',
-      );
-    }
-
-    const verify = await api.post('/api/auth/ucsd/verify', {
-      code: devCode,
-      email: config.email,
-    });
+    const verify = await requestAndVerify(config, api, config.email);
+    httpEvidence.requestVerificationStatus = 200;
     httpEvidence.verifyStatus = verify.status;
     expectStatus(verify, 200, 'POST /api/auth/ucsd/verify');
     const verifyBody = expectRecord(verify.body);
@@ -437,8 +419,8 @@ export async function runValidation(config: RunConfig) {
       throw new Error('Verification response did not include numeric user_id');
     if (user.verified_email !== config.email)
       throw new Error('Verification response returned the wrong email');
-    userId = user.user_id;
-    legacyNetId = appUserIdToLegacyNetId(userId);
+    const userId = user.user_id;
+    const legacyNetId = appUserIdToLegacyNetId(userId);
 
     const sessionId = decodeConnectSessionId(api.cookies.get('connect.sid'));
     if (!sessionId) throw new Error('Verification did not set connect.sid');
@@ -452,6 +434,9 @@ export async function runValidation(config: RunConfig) {
     const currentUserBody = expectRecord(currentUser.body);
     if (currentUserBody.authenticated !== true)
       throw new Error('Current-user did not restore the verified session');
+    const restoredUser = expectRecord(currentUserBody.user);
+    if (restoredUser.user_id !== userId)
+      throw new Error('Current-user restored a different App User ID');
 
     const worksheetCountsBefore = await collectWorksheetCounts(
       config,
@@ -475,10 +460,9 @@ export async function runValidation(config: RunConfig) {
     const createdSavedSearch = expectRecord(createSavedSearch.body);
     if (typeof createdSavedSearch.id !== 'number')
       throw new Error('Saved Search create response did not include an id');
-    savedSearchId = createdSavedSearch.id;
+    const savedSearchId = createdSavedSearch.id;
 
     const savedSearchRow = await collectSavedSearchRow(config, savedSearchId);
-    rawArtifacts.savedSearchRow = savedSearchRow;
     if (!savedSearchRow)
       throw new Error('Saved Search row was not found in Postgres');
     if (savedSearchRow.userId !== userId)
@@ -488,6 +472,50 @@ export async function runValidation(config: RunConfig) {
         'Saved Search legacy netId adapter did not match user_id',
       );
     }
+
+    const boundaryEmail = `auth-boundary+${config.runId.toLowerCase()}@ucsd.edu`;
+    const boundaryApi = new ApiClient(config.apiOrigin);
+    const boundaryVerify = await requestAndVerify(
+      config,
+      boundaryApi,
+      boundaryEmail,
+    );
+    httpEvidence.boundaryRequestVerificationStatus = 200;
+    httpEvidence.boundaryVerifyStatus = boundaryVerify.status;
+    const boundaryUser = expectRecord(expectRecord(boundaryVerify.body).user);
+    if (
+      typeof boundaryUser.user_id !== 'number' ||
+      boundaryUser.user_id === userId
+    ) {
+      throw new Error(
+        'Boundary account did not receive a distinct App User ID',
+      );
+    }
+
+    const boundaryList = await boundaryApi.get('/api/savedSearches');
+    httpEvidence.boundaryListSavedSearchesStatus = boundaryList.status;
+    expectStatus(boundaryList, 200, 'GET /api/savedSearches as other account');
+    const boundaryListBody = expectRecord(boundaryList.body);
+    const boundarySearches = Array.isArray(boundaryListBody.data)
+      ? boundaryListBody.data
+      : [];
+    if (
+      boundarySearches.some((item) => expectRecord(item).id === savedSearchId)
+    ) {
+      throw new Error('Another App User could list account-owned data');
+    }
+
+    const boundaryDelete = await boundaryApi.post('/api/savedSearches/delete', {
+      id: savedSearchId,
+    });
+    httpEvidence.boundaryDeleteSavedSearchStatus = boundaryDelete.status;
+    expectStatus(
+      boundaryDelete,
+      404,
+      'POST /api/savedSearches/delete as other account',
+    );
+    if (!(await collectSavedSearchRow(config, savedSearchId)))
+      throw new Error('Another App User deleted account-owned data');
 
     const listSavedSearches = await api.get('/api/savedSearches');
     httpEvidence.listSavedSearchesStatus = listSavedSearches.status;
@@ -511,8 +539,6 @@ export async function runValidation(config: RunConfig) {
 
     const userRow = await collectAppUserRow(config, config.email);
     const verificationRow = await collectVerificationRow(config, config.email);
-    rawArtifacts.userRow = userRow;
-    rawArtifacts.verificationRow = verificationRow;
     if (!userRow) throw new Error('Created App User row was not found');
     if (!verificationRow?.consumed)
       throw new Error('Verification row was not marked consumed');
@@ -560,6 +586,7 @@ export async function runValidation(config: RunConfig) {
         config.email,
         config.savedSearchName,
       );
+      await cleanupVerificationRows(config, boundaryEmail);
     }
 
     const summary = buildEvidenceSummary({
@@ -569,6 +596,7 @@ export async function runValidation(config: RunConfig) {
       http: httpEvidence,
       nonDevelopmentSafety,
       postgres: {
+        accountOwnedDataIsolated: true,
         expectedIndexesPresent,
         expectedTablesPresent,
         savedSearchDeleted: true,
@@ -587,20 +615,13 @@ export async function runValidation(config: RunConfig) {
       },
       runId: config.runId,
       savedSearchName: config.savedSearchName,
-      userId,
-      verificationCodeSource: 'development-only devCode response field',
+      appUserIdFingerprint: fingerprint(String(userId)),
+      verificationCodeSource: 'explicit hosted-validation capture sender',
     });
 
     await writeJsonArtifact(config, 'summary.json', summary);
     await writeTextArtifact(config, 'summary.md', renderSummary(summary));
-    await writeJsonArtifact(config, 'postgres-evidence.json', {
-      schemaEvidence,
-      savedSearchRow,
-      userRow,
-      verificationRow,
-      worksheetCountsAfter,
-      worksheetCountsBefore,
-    });
+    await writeJsonArtifact(config, 'postgres-evidence.json', summary.postgres);
     await writeJsonArtifact(config, 'http-evidence.json', httpEvidence);
     await writeJsonArtifact(config, 'redis-evidence.json', summary.redis);
 
@@ -611,13 +632,61 @@ export async function runValidation(config: RunConfig) {
       error: error instanceof Error ? error.message : String(error),
       failedStatePreserved: true,
       http: httpEvidence,
-      rawArtifacts,
-      savedSearchId,
-      userId,
-      legacyNetId,
+      sensitiveValuesOmitted: true,
     });
     throw error;
   }
+}
+
+async function requestAndVerify(
+  config: RunConfig,
+  api: ApiClient,
+  email: string,
+) {
+  const requestVerification = await api.post(
+    '/api/auth/ucsd/request-verification',
+    { email },
+  );
+  expectStatus(
+    requestVerification,
+    200,
+    'POST /api/auth/ucsd/request-verification',
+  );
+  const requestBody = expectRecord(requestVerification.body);
+  if (Object.hasOwn(requestBody, 'devCode')) {
+    throw new Error('Hosted-like verification response exposed devCode');
+  }
+  if (requestBody.status !== 'verification_sent') {
+    throw new Error('Verification request did not confirm sender delivery');
+  }
+
+  const code = await consumeCapturedVerification(config, email);
+  return api.post('/api/auth/ucsd/verify', { code, email });
+}
+
+async function consumeCapturedVerification(config: RunConfig, email: string) {
+  const env = await readValidationEnv(config);
+  const directory =
+    env.VERIFICATION_EMAIL_CAPTURE_DIR ??
+    '/tmp/coursetable-verification-capture';
+  const filename = path.posix.join(directory, captureFilename(email));
+  const output = await runCompose(config, [
+    'exec',
+    '-T',
+    'api',
+    'cat',
+    filename,
+  ]).finally(async () => {
+    await runCompose(config, ['exec', '-T', 'api', 'rm', '-f', filename]).catch(
+      () => {},
+    );
+  });
+  const captured = expectRecord(JSON.parse(output.trim()) as unknown);
+  if (captured.recipient !== email || typeof captured.deliveryId !== 'string')
+    throw new Error('Capture sender returned a mismatched delivery');
+  if (typeof captured.code !== 'string' || !/^\d{6}$/u.test(captured.code))
+    throw new Error('Capture sender did not provide a verification code');
+  return captured.code;
 }
 
 async function runCompose(config: RunConfig, command: string[]) {
@@ -812,6 +881,20 @@ select json_build_object(
   };
 }
 
+async function cleanupVerificationRows(config: RunConfig, email: string) {
+  await queryPostgresJson(
+    config,
+    `
+with deleted as (
+  delete from "emailVerificationCodes"
+  where "normalizedEmail" = ${sqlString(email)}
+  returning id
+)
+select json_build_object('deleted', count(*)::int) from deleted;
+    `,
+  );
+}
+
 async function redisSessionEvidence(config: RunConfig, sessionId: string) {
   const key = `myapp:${sessionId}`;
   const output = await runCompose(config, [
@@ -935,11 +1018,12 @@ function renderSummary(summary: ReturnType<typeof buildEvidenceSummary>) {
 - Run ID: ${summary.runId}
 - API origin: ${summary.apiOrigin}
 - Test email: ${summary.email}
-- App User ID: ${summary.userId}
+- App User ID fingerprint: ${summary.appUserIdFingerprint}
 - Verification code source: ${summary.verificationCodeSource}
 - Saved Search name: ${summary.savedSearchName}
 - Postgres tables/indexes present: ${String(summary.postgres.expectedTablesPresent)}/${String(summary.postgres.expectedIndexesPresent)}
 - Saved Search owned by internal user_id: ${String(summary.postgres.savedSearchOwnedByUserId)}
+- Account-owned data isolated from another App User: ${String(summary.postgres.accountOwnedDataIsolated)}
 - Verification row consumed: ${String(summary.postgres.verificationRowConsumed)}
 - Worksheet rows before/after: ${summary.postgres.worksheetRowsBefore}/${summary.postgres.worksheetRowsAfter}
 - Worksheet course rows before/after: ${summary.postgres.worksheetCourseRowsBefore}/${summary.postgres.worksheetCourseRowsAfter}
@@ -955,7 +1039,7 @@ function helpText() {
   return `Usage: bun tools/real-backend-auth-validation/validateRealBackendAuth.mts [options]
 
 Options:
-  --api-origin <url>          Host API origin, default https://localhost:$API_PORT or https://localhost:3000
+  --api-origin <url>          Host API origin, default http://localhost:$API_PORT or http://localhost:3000
   --artifact-dir <path>       Evidence output directory
   --compose-env-file <path>   Compose env file, default api/compose/local-validation.env.example
   --compose-project <name>    Compose project, default coursetable-auth-validation

@@ -16,6 +16,8 @@ Status: top-level navigation for stable project documentation.
   containers, HTTPS certificates, and `mkcert` notes.
 - `hosted-auth-security-2026-07-10.md`: hosted verification proxy trust,
   abuse-control budgets, and ambiguous-delivery behavior.
+- `hosted-like-auth-validation-2026-07-10.md`: fake-sender, production-mode
+  acceptance path for hosted login.
 - `locations.md`: location data notes.
 - `maintenance.md`: maintenance notes.
 - `snapshot_pipe.md`: catalog snapshot pipeline notes, including General Catalog
