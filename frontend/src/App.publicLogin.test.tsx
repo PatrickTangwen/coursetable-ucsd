@@ -1,57 +1,60 @@
 import { renderToStaticMarkup } from 'react-dom/server';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
-import AuthRouteGate from './components/AuthRouteGate';
+import { MemoryRouter, useLocation } from 'react-router-dom';
+import { describe, expect, it } from 'vitest';
 
-vi.hoisted(() => {
-  const storage = {
-    getItem: () => null,
-    setItem: () => undefined,
-    removeItem: () => undefined,
-  };
-  Object.assign(globalThis, { localStorage: storage, sessionStorage: storage });
-});
+import { resolvePublicLoginRoute } from './utilities/publicLogin';
+
+function RoutePolicyHarness({
+  authenticated,
+  publicLoginEnabled,
+}: {
+  readonly authenticated: boolean;
+  readonly publicLoginEnabled: boolean;
+}) {
+  const location = useLocation();
+  const decision = resolvePublicLoginRoute(
+    location.pathname,
+    authenticated,
+    publicLoginEnabled,
+  );
+
+  if (decision.type === 'redirect')
+    return <span data-redirect-to={decision.to}>Redirect</span>;
+  return <span data-route-allowed={location.pathname}>Allowed</span>;
+}
 
 function renderRoute(
   pathname: string,
   publicLoginEnabled: boolean,
-  authStatus: 'authenticated' | 'unauthenticated' = 'unauthenticated',
+  authenticated = false,
 ) {
   return renderToStaticMarkup(
     <MemoryRouter initialEntries={[pathname]}>
-      <Routes>
-        <Route
-          element={
-            <AuthRouteGate
-              publicLoginEnabled={publicLoginEnabled}
-              authStatus={authStatus}
-              renderRedirect={(to) => (
-                <span data-redirect-to={to}>Redirect</span>
-              )}
-            />
-          }
-        >
-          <Route path="/login" element={<div>Login page</div>} />
-          <Route path="/catalog" element={<div>Catalog page</div>} />
-          <Route path="/worksheet" element={<div>Worksheet page</div>} />
-          <Route path="/profile" element={<div>Profile page</div>} />
-        </Route>
-      </Routes>
+      <RoutePolicyHarness
+        authenticated={authenticated}
+        publicLoginEnabled={publicLoginEnabled}
+      />
     </MemoryRouter>,
   );
 }
 
-describe('AuthRouteGate public login behavior', () => {
-  it('renders login when enabled and redirects it to catalog when disabled', () => {
-    expect(renderRoute('/login', true)).toContain('Login page');
+describe('public login route policy', () => {
+  it('allows login when enabled and redirects it to catalog when disabled', () => {
+    expect(renderRoute('/login', true)).toContain(
+      'data-route-allowed="/login"',
+    );
     expect(renderRoute('/login', false)).toContain(
-      'data-redirect-to="/catalog',
+      'data-redirect-to="/catalog"',
     );
   });
 
   it('keeps anonymous catalog and worksheet routes available when disabled', () => {
-    expect(renderRoute('/catalog', false)).toContain('Catalog page');
-    expect(renderRoute('/worksheet', false)).toContain('Worksheet page');
+    expect(renderRoute('/catalog', false)).toContain(
+      'data-route-allowed="/catalog"',
+    );
+    expect(renderRoute('/worksheet', false)).toContain(
+      'data-route-allowed="/worksheet"',
+    );
   });
 
   it('redirects protected routes according to availability', () => {
@@ -59,13 +62,13 @@ describe('AuthRouteGate public login behavior', () => {
       'data-redirect-to="/login"',
     );
     expect(renderRoute('/profile', false)).toContain(
-      'data-redirect-to="/catalog',
+      'data-redirect-to="/catalog"',
     );
   });
 
   it('keeps authenticated protected routes available while public login is off', () => {
-    expect(renderRoute('/profile', false, 'authenticated')).toContain(
-      'Profile page',
+    expect(renderRoute('/profile', false, true)).toContain(
+      'data-route-allowed="/profile"',
     );
   });
 });

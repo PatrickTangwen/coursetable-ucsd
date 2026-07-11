@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -11,30 +10,13 @@ import {
   resolvePublicLoginRoute,
 } from '../utilities/publicLogin';
 
-function renderNavigate(to: string) {
-  return <Navigate to={to} replace />;
-}
-
-export default function AuthRouteGate({
-  publicLoginEnabled = PUBLIC_LOGIN_ENABLED,
-  renderRedirect = renderNavigate,
-  authStatus: authStatusOverride,
-}: {
-  readonly publicLoginEnabled?: boolean;
-  readonly renderRedirect?: (to: string) => ReactNode;
-  readonly authStatus?:
-    | 'loading'
-    | 'initializing'
-    | 'authenticated'
-    | 'unauthenticated';
-}) {
-  const { authStatus: storeAuthStatus, user } = useStore(
+export default function AuthRouteGate() {
+  const { authStatus, user } = useStore(
     useShallow((state) => ({
       user: state.user,
       authStatus: state.authStatus,
     })),
   );
-  const authStatus = authStatusOverride ?? storeAuthStatus;
   const location = useLocation();
 
   if (authStatus === 'loading') return <Spinner message="Authenticating..." />;
@@ -54,13 +36,13 @@ export default function AuthRouteGate({
   const routeDecision = resolvePublicLoginRoute(
     location.pathname,
     authStatus === 'authenticated',
-    publicLoginEnabled,
+    PUBLIC_LOGIN_ENABLED,
   );
 
   if (routeDecision.type === 'redirect') {
     const destination =
       routeDecision.to === '/catalog' ? createCatalogLink() : routeDecision.to;
-    return renderRedirect(destination);
+    return <Navigate to={destination} replace />;
   }
 
   return <Outlet />;

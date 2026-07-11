@@ -9,7 +9,10 @@ import { logout } from '../../queries/api';
 import { useStore } from '../../store';
 import { scrollToTop } from '../../utilities/display';
 import { createCatalogLink } from '../../utilities/navigation';
-import { PUBLIC_LOGIN_ENABLED } from '../../utilities/publicLogin';
+import {
+  PUBLIC_LOGIN_ENABLED,
+  shouldShowPublicLoginEntry,
+} from '../../utilities/publicLogin';
 import CatalogNavSearch, {
   CatalogResultCount,
 } from '../Catalog/CatalogNavSearch';
@@ -152,7 +155,10 @@ export default function TopNav() {
               Worksheet
             </NavLink>
             {isMobile ? (
-              (authStatus === 'authenticated' || PUBLIC_LOGIN_ENABLED) && (
+              shouldShowPublicLoginEntry(
+                authStatus === 'authenticated',
+                PUBLIC_LOGIN_ENABLED,
+              ) && (
                 <button
                   type="button"
                   className={styles.navTab}
