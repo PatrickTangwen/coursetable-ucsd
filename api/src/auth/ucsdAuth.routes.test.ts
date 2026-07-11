@@ -7,7 +7,9 @@ import { createMemoryUcsdAuthStore } from './ucsdAuth.memory.js';
 import { registerUcsdAuthRoutes } from './ucsdAuth.routes.js';
 import {
   appUserIdToLegacyNetId,
+  hashVerificationCode,
   normalizeVerifiedUcsdEmail,
+  type VerificationRecord,
 } from './ucsdIdentity.js';
 import type { VerificationEmailSender } from './verificationEmail.sender.js';
 import { createMemorySavedSearchStore } from '../savedSearches/savedSearches.memory.js';
@@ -53,7 +55,15 @@ function createTestApp(
   exposeVerificationCode = true,
 ) {
   const app = express();
-  const authStore = createMemoryUcsdAuthStore();
+  const memoryAuthStore = createMemoryUcsdAuthStore();
+  const verificationRecords: VerificationRecord[] = [];
+  const authStore = {
+    ...memoryAuthStore,
+    async createVerification(record: VerificationRecord) {
+      verificationRecords.push(record);
+      await memoryAuthStore.createVerification(record);
+    },
+  };
   const savedSearchStore = createMemorySavedSearchStore();
 
   app.use(express.json());
@@ -77,7 +87,7 @@ function createTestApp(
   });
   registerSavedSearchRoutes(app, savedSearchStore);
 
-  return { app, authStore, savedSearchStore };
+  return { app, authStore, savedSearchStore, verificationRecords };
 }
 
 describe('UCSD auth identity', () => {
@@ -197,7 +207,7 @@ describe('UCSD auth routes', () => {
 
   it('passes the generated verification to the configured sender', async () => {
     const sent: unknown[] = [];
-    const { app } = createTestApp(() => 1_000_000, {
+    const { app, verificationRecords } = createTestApp(() => 1_000_000, {
       sendVerificationEmail(verification) {
         sent.push(verification);
         return Promise.resolve();
@@ -223,6 +233,15 @@ describe('UCSD auth routes', () => {
           expiresAt: 1_900_000,
         },
       ]);
+      expect(verificationRecords).toEqual([
+        {
+          normalizedEmail: 'student@ucsd.edu',
+          codeHash: hashVerificationCode('student@ucsd.edu', '123456'),
+          createdAt: 1_000_000,
+          expiresAt: 1_900_000,
+        },
+      ]);
+      expect(JSON.stringify(verificationRecords)).not.toContain('123456');
     } finally {
       await new Promise<void>((resolve) => {
         isolatedServer.close(() => resolve());

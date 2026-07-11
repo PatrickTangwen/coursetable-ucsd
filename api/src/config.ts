@@ -2,6 +2,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import { GraphQLClient } from 'graphql-request';
 import postgres from 'postgres';
 import { createClient } from 'redis';
+import { createResendVerificationEmailSender } from './auth/verificationEmail.resend.js';
 import { createVerificationEmailDelivery } from './auth/verificationEmail.sender.js';
 import * as schema from '../drizzle/schema.js';
 
@@ -36,6 +37,12 @@ function getEnv(
   return val;
 }
 
+function getNonEmptyEnv(name: string) {
+  const value = getEnv(name).trim();
+  if (!value) throw new Error(`env config missing: ${name}`);
+  return value;
+}
+
 // Read all env vars and validate them. No other code should read process.env
 // directly. You can make sure that this corresponds 1:1 with the env passed
 // from the docker compose files.
@@ -64,6 +71,14 @@ const NODE_ENV = getEnv('NODE_ENV', ['development', 'production']);
 export const isDev = NODE_ENV === 'development';
 export const verificationEmailDelivery = createVerificationEmailDelivery({
   nodeEnv: NODE_ENV,
+  hostedSender:
+    NODE_ENV === 'production'
+      ? createResendVerificationEmailSender({
+          apiKey: getNonEmptyEnv('RESEND_API_KEY'),
+          senderDomain: getNonEmptyEnv('VERIFICATION_EMAIL_SENDER_DOMAIN'),
+          fromAddress: getNonEmptyEnv('VERIFICATION_EMAIL_FROM_ADDRESS'),
+        })
+      : undefined,
 });
 
 export const OVERWRITE_CATALOG = getEnv('OVERWRITE_CATALOG', 'boolean');
