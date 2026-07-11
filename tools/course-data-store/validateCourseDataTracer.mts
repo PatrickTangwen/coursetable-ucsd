@@ -1,4 +1,4 @@
-import { execFile } from 'node:child_process';
+import { execFile, spawn, type ChildProcess } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
@@ -24,6 +24,7 @@ const tracer = {
   project: process.env.COURSE_DATA_TRACER_PROJECT ?? 'course-data-tracer',
   databasePort: tracerPort('COURSE_DATA_STORE_PORT', 55_489),
   hasuraPort: tracerPort('COURSE_DATA_HASURA_PORT', 18_089),
+  publicGraphqlPort: tracerPort('COURSE_DATA_PUBLIC_GRAPHQL_PORT', 18_090),
   password: randomBytes(24).toString('hex'),
   adminSecret: randomBytes(24).toString('hex'),
   term: 'S326',
@@ -44,6 +45,7 @@ const tracer = {
 };
 const databaseUrl = `postgresql://course_data:${tracer.password}@localhost:${tracer.databasePort}/course_data`;
 const hasuraEndpoint = `http://localhost:${tracer.hasuraPort}`;
+const publicGraphqlEndpoint = `http://127.0.0.1:${tracer.publicGraphqlPort}`;
 
 function composeArgs(args: string[]) {
   return [
@@ -69,16 +71,48 @@ function compose(args: string[]) {
   });
 }
 
-async function queryAnonymous(query: string) {
+async function queryAnonymous(
+  query: string,
+  browserHeaders: { [header: string]: string } = {},
+) {
   const response = await fetch(`${hasuraEndpoint}/v1/graphql`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', ...browserHeaders },
     body: JSON.stringify({ query }),
   });
   return (await response.json()) as {
     data?: { [key: string]: unknown };
     errors?: unknown[];
   };
+}
+
+async function queryPublic(
+  query: string,
+  variables: { [name: string]: unknown } = {},
+  browserHeaders: { [header: string]: string } = {},
+) {
+  const response = await fetch(`${publicGraphqlEndpoint}/v1/graphql`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', ...browserHeaders },
+    body: JSON.stringify({ query, variables }),
+  });
+  return (await response.json()) as {
+    data?: { [key: string]: unknown };
+    errors?: unknown[];
+  };
+}
+
+async function waitForPublicGateway() {
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    const healthy = await fetch(`${publicGraphqlEndpoint}/healthz`)
+      .then((response) => response.ok)
+      .catch(() => false);
+    if (healthy) return;
+    await new Promise((resolve) => {
+      setTimeout(resolve, 100);
+    });
+  }
+  throw new Error('Public GraphQL gateway did not become healthy');
 }
 
 async function publicArchiveProjection() {
@@ -144,10 +178,21 @@ async function acceptedTermCounts() {
 
 export async function validateCourseDataTracer() {
   let succeeded = false;
+  let gatewayProcess: ChildProcess | undefined = undefined;
   try {
     await compose(['up', '-d', '--wait', '--remove-orphans']);
     await migrateCourseDataStore(databaseUrl);
     await applyHasuraMetadata(hasuraEndpoint, tracer.adminSecret);
+    gatewayProcess = spawn('bun', ['api/src/graphql/publicGraphqlGateway.ts'], {
+      cwd: path.resolve(import.meta.dirname, '../..'),
+      env: {
+        ...process.env,
+        COURSE_DATA_HASURA_ENDPOINT: hasuraEndpoint,
+        COURSE_DATA_PUBLIC_GRAPHQL_PORT: String(tracer.publicGraphqlPort),
+      },
+      stdio: 'ignore',
+    });
+    await waitForPublicGateway();
 
     const temporaryDirectory = await mkdtemp(
       path.join(os.tmpdir(), 'course-data-tracer-'),
@@ -521,8 +566,31 @@ export async function validateCourseDataTracer() {
       terms[0]?.termCode !== tracer.term
     )
       throw new Error('Anonymous Supported Term query failed');
-    if (terms[0].courses.length !== tracer.expectedCourses)
-      throw new Error('Anonymous Course query returned the wrong count');
+    if (terms[0].courses.length !== 100)
+      throw new Error('Anonymous Course query exceeded its public row limit');
+
+    const paginated = await queryPublic(
+      `query PaginatedTermCourses($term: String!, $limit: Int!, $offset: Int!) {
+        courses(
+          where: {termCode: {_eq: $term}},
+          order_by: {courseId: asc},
+          limit: $limit,
+          offset: $offset
+        ) { termCode courseId }
+      }`,
+      { term: tracer.term, limit: 2, offset: 1 },
+    );
+    const paginatedCourses = paginated.data?.courses as
+      | { termCode: string; courseId: string }[]
+      | undefined;
+    if (
+      paginated.errors ||
+      paginatedCourses?.length !== 2 ||
+      paginatedCourses.some(({ termCode }) => termCode !== tracer.term) ||
+      paginatedCourses[0]?.courseId !== 'AIP:197EX' ||
+      paginatedCourses[1]?.courseId !== 'AIP:197P'
+    )
+      throw new Error('Term-scoped Course pagination failed');
 
     const relationships = await queryAnonymous(`
       query RelationshipTracer {
@@ -773,6 +841,153 @@ export async function validateCourseDataTracer() {
     if (!mutation.errors)
       throw new Error('Anonymous Course Data Store mutation was allowed');
 
+    const approvedBoundary = await queryPublic(`
+      query ApprovedPublicBoundary {
+        supportedTerms(where: {termCode: {_eq: "${tracer.term}"}}, limit: 1) {
+          termCode termLabel snapshotLifecycle snapshotGeneratedAt
+          courses(limit: 2) {
+            termCode courseId title
+            sections(limit: 2) {
+              termCode sectionId
+              meetings(limit: 2) { sectionId meetingIndex isTba }
+              instructorLinks(limit: 2) {
+                sectionId instructor { instructorName }
+              }
+              snapshotAvailability { sectionId observedAt termState }
+            }
+            gradeArchiveRecords(limit: 2) { courseId recordIndex gpa }
+          }
+          importRuns(limit: 2) { termCode generatedAt snapshotLifecycle }
+          importManifestCells(limit: 2) { termCode subject source status }
+        }
+      }
+    `);
+    if (approvedBoundary.errors)
+      throw new Error('Approved public GraphQL boundary query failed');
+
+    for (const rejectedQuery of [
+      '{ courses(limit: 1) { courseId } }',
+      `{ courses(where: {termCode: {_eq: "${tracer.term}"}}) { courseId } }`,
+      `{ supportedTerms(where: {termCode: {_eq: "${tracer.term}"}}, limit: 1) {
+          courses { courseId }
+        } }`,
+      `{ first: courses(where: {termCode: {_eq: "${tracer.term}"}}, limit: 1) { courseId }
+         second: sections(where: {termCode: {_eq: "${tracer.term}"}}, limit: 1) { sectionId } }`,
+    ]) {
+      const rejected = await queryPublic(rejectedQuery);
+      if (!rejected.errors)
+        throw new Error('Unbounded public GraphQL query was accepted');
+    }
+    const aliasedRelationships = Array.from(
+      { length: 13 },
+      (_, index) => `courses${index}: courses(limit: 1) { courseId }`,
+    ).join('\n');
+    const aliasFanout = await queryPublic(`
+      query AliasFanout {
+        supportedTerms(where: {termCode: {_eq: "${tracer.term}"}}, limit: 1) {
+          ${aliasedRelationships}
+        }
+      }
+    `);
+    if (!aliasFanout.errors)
+      throw new Error('Aliased relationship fan-out exceeded query budget');
+
+    for (const privateRoot of [
+      'appUsers',
+      'emailVerificationCodes',
+      'savedSearches',
+      'savedWorksheets',
+      'savedWorksheetSections',
+    ]) {
+      const privateResult = await queryAnonymous(
+        `{ ${privateRoot} { __typename } }`,
+      );
+      if (!privateResult.errors)
+        throw new Error('Account-owned App DB root appeared in public GraphQL');
+    }
+
+    const roleSpoof = await queryPublic(
+      `mutation SpoofedAdmin {
+        insert_courses_one(object: {
+          termCode: "${tracer.term}", courseId: "INVALID:ROLE",
+          subject: "INVALID", courseNumber: "ROLE", title: "Invalid"
+        }) { courseId }
+      }`,
+      {},
+      { 'x-hasura-role': 'admin' },
+    );
+    if (!roleSpoof.errors)
+      throw new Error('Browser-controlled Hasura role escalated privileges');
+
+    const adminHeaderSpoof = await queryPublic(
+      `{ supportedTerms(where: {termCode: {_eq: "${tracer.term}"}}, limit: 1) { termCode } }`,
+      {},
+      { 'x-hasura-admin-secret': 'browser-controlled-invalid-secret' },
+    );
+    const adminSpoofTerms = adminHeaderSpoof.data?.supportedTerms as
+      | { termCode: string }[]
+      | undefined;
+    if (
+      adminHeaderSpoof.errors ||
+      adminSpoofTerms?.[0]?.termCode !== tracer.term
+    )
+      throw new Error('Browser admin header was not sanitized to anonymous');
+
+    const metadataResponse = await fetch(`${hasuraEndpoint}/v1/metadata`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ type: 'export_metadata', args: {} }),
+    });
+    if (metadataResponse.ok)
+      throw new Error('Anonymous metadata API access was allowed');
+
+    const introspection = await queryPublic(`
+      query PublicSchemaContract {
+        __schema {
+          mutationType { name }
+          queryType { fields { name } }
+        }
+      }
+    `);
+    const publicSchema = introspection.data?.__schema as
+      | {
+          mutationType: { name: string } | null;
+          queryType: { fields: { name: string }[] };
+        }
+      | undefined;
+    const publicRootNames = new Set(
+      publicSchema?.queryType.fields.map(({ name }) => name) ?? [],
+    );
+    if (
+      introspection.errors ||
+      publicSchema?.mutationType !== null ||
+      [
+        'appUsers',
+        'emailVerificationCodes',
+        'savedSearches',
+        'savedWorksheets',
+        'listings',
+        'seasons',
+        'evaluations',
+        'friends',
+      ].some((name) => publicRootNames.has(name))
+    )
+      throw new Error('Public introspection exposed an unapproved contract');
+
+    const recursiveExpansion = await queryPublic(`
+      query RecursiveExpansion {
+        supportedTerms(where: {termCode: {_eq: "${tracer.term}"}}, limit: 1) {
+          courses(limit: 1) {
+            sections(limit: 1) {
+              course { supportedTerm { courses { courseId } } }
+            }
+          }
+        }
+      }
+    `);
+    if (!recursiveExpansion.errors)
+      throw new Error('Recursive public relationship expansion was allowed');
+
     const replacementSnapshotPath = path.join(
       temporaryDirectory,
       'newer-snapshot.json',
@@ -881,10 +1096,7 @@ export async function validateCourseDataTracer() {
     const visibleCourses = (
       duringReplacement.data?.supportedTerms as { courses: unknown[] }[]
     )[0]?.courses;
-    if (
-      duringReplacement.errors ||
-      visibleCourses?.length !== tracer.expectedCourses
-    )
+    if (duringReplacement.errors || visibleCourses?.length !== 100)
       throw new Error('Concurrent reader observed a mixed replacement');
     releaseReplacement(undefined);
     const replacement = await replacementPromise;
@@ -943,10 +1155,7 @@ export async function validateCourseDataTracer() {
     const preservedReplacementCourses = (
       afterFailure.data?.supportedTerms as { courses: unknown[] }[]
     )[0]?.courses;
-    if (
-      afterFailure.errors ||
-      preservedReplacementCourses?.length !== tracer.expectedCourses - 1
-    ) {
+    if (afterFailure.errors || preservedReplacementCourses?.length !== 100) {
       throw new Error(
         'Failed replacement damaged the accepted GraphQL projection',
       );
@@ -1031,9 +1240,17 @@ export async function validateCourseDataTracer() {
       anonymousRead: true,
       anonymousWriteDenied: true,
       appDbExcluded: true,
+      termScopedPagination: true,
+      serverRowLimits: true,
+      metadataDenied: true,
+      publicIntrospectionBounded: true,
+      browserRoleEscalationDenied: true,
+      browserAdminHeaderDenied: true,
+      recursiveExpansionDenied: true,
       idempotent: true,
     };
   } finally {
+    gatewayProcess?.kill('SIGTERM');
     await compose(['down', '--volumes', '--remove-orphans']).catch(() => {
       if (succeeded) throw new Error('Course Data tracer cleanup failed');
     });

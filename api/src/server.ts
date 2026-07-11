@@ -5,7 +5,6 @@ import * as Sentry from '@sentry/node';
 import RedisStore from 'connect-redis';
 import cors from 'cors';
 import session from 'express-session';
-import { createProxyMiddleware } from 'http-proxy-middleware';
 import passport from 'passport';
 
 // Import this at the top before any user modules
@@ -29,7 +28,7 @@ import {
   SESSION_SECRET,
   redisClient,
   OVERWRITE_CATALOG,
-  HASURA_GRAPHQL_ADMIN_SECRET,
+  GRAPHQL_ENDPOINT,
   COURSETABLE_ORIGINS,
   NUM_SEASONS,
   verificationEmailDelivery,
@@ -48,6 +47,7 @@ import {
 } from './config.js';
 import demand from './demand/demand.routes.js';
 import friends from './friends/friends.routes.js';
+import { createPublicGraphqlProxy } from './graphql/publicGraphqlProxy.js';
 import linkPreview from './link-preview/link-preview.routes.js';
 import morgan from './logging/morgan.js';
 import winston from './logging/winston.js';
@@ -132,23 +132,13 @@ if (isApiModuleEnabled('legacy-auth')) passportConfig(passport);
 app.use(passport.initialize());
 app.use(passport.authenticate('session'));
 
-// Add the authentication header to the request
-// Proxy initial HTTP requests to Ferry
+// The browser-facing legacy GraphQL proxy is always anonymous. Privileged
+// GraphQL clients remain server-side and never share their admin secret with
+// this route.
 if (isApiModuleEnabled('course-data-platform')) {
   app.use(
     '/ferry',
-    (req, res, next) => {
-      const hasuraRole = req.isAuthenticated() ? 'student' : 'anonymous';
-      // Headers must be lowercase so they override existing request headers.
-      req.headers['x-hasura-role'] = hasuraRole;
-      req.headers['x-hasura-admin-secret'] = HASURA_GRAPHQL_ADMIN_SECRET;
-      next();
-    },
-    createProxyMiddleware({
-      target: 'http://graphql-engine:8080',
-      pathRewrite: { '^/ferry/': '/' },
-      xfwd: true,
-    }),
+    ...createPublicGraphqlProxy(new URL(GRAPHQL_ENDPOINT!).origin),
   );
 }
 

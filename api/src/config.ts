@@ -135,7 +135,7 @@ export const FERRY_RELOAD_SECRET = getModuleEnv(
 // Frontend server endpoint (used for redirects)
 export const FRONTEND_ENDPOINT = getEnv('FRONTEND_ENDPOINT');
 const courseDataPlatformEnabled = isApiModuleEnabled('course-data-platform');
-const GRAPHQL_ENDPOINT = courseDataPlatformEnabled
+export const GRAPHQL_ENDPOINT = courseDataPlatformEnabled
   ? getNonEmptyEnv('GRAPHQL_ENDPOINT')
   : undefined;
 export const HASURA_GRAPHQL_ADMIN_SECRET = courseDataPlatformEnabled
