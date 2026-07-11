@@ -1,5 +1,14 @@
 # Using GraphQL
 
+> [!IMPORTANT]
+> **Status: inherited CourseTable Ferry/Hasura reference.** The body below
+> describes Yale-oriented Ferry data, its schema, and the old CourseTable
+> GraphQL workflow; it is not the current UCSD Catalog data contract. Catalog
+> currently reads published snapshot JSON. GitHub issue #87 defines a UCSD
+> Course Data Platform whose Hasura projection is initially a shadow data path;
+> issues #89-#95 cover its model, security, and parity acceptance. Switching the
+> frontend to GraphQL requires a later explicit product/architecture decision.
+
 CourseTable heavily relies on GraphQL to interact with course data. Here are some tricks to integrate your GraphQL queries with the TypeScript code.
 
 ## Writing queries

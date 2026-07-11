@@ -1,5 +1,16 @@
 # Deployment setup
 
+> [!WARNING]
+> **Status: inherited CourseTable deployment reference.** The body below
+> describes the upstream `master` branch, `coursetable.com`, Doppler,
+> self-hosted runners, and the separate CourseTable infrastructure repository.
+> Do not use it as a SunGrid deployment runbook. Hosted-auth work from issue #84
+> is intentionally paused; issue #96 will produce the staging-ready handoff for
+> `sungridplanner.com` after the backend and course-data slices are complete.
+> For the currently supported local environment, use
+> [`local_server.md`](./local_server.md) and
+> [`local_server_endpoints.md`](./local_server_endpoints.md).
+
 All CI/CD pipelines are implemented as GitHub workflow actions in `.github/workflows`. Details regarding the deployed infrastructure is available at [coursetable/infra](https://github.com/coursetable/infra).
 
 Available Environments:
