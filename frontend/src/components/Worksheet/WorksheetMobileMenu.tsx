@@ -12,6 +12,7 @@ import WorksheetNumDropdown from './WorksheetNumberDropdown';
 import { isLegacyUserInfo } from '../../queries/api';
 import { useStore } from '../../store';
 import { toSeasonString } from '../../utilities/course';
+import { PUBLIC_LOGIN_ENABLED } from '../../utilities/publicLogin';
 import DarkModeButton from '../Navbar/DarkModeButton';
 import MeDropdown from '../Navbar/MeDropdown';
 import styles from './WorksheetMobileMenu.module.css';
@@ -129,7 +130,7 @@ export default function WorksheetMobileMenu({
           </div>
         ) : hasLegacyWorksheetAccount ? (
           <WorksheetNumDropdown mobile />
-        ) : (
+        ) : PUBLIC_LOGIN_ENABLED ? (
           <a href="/login" className={styles.signInButton}>
             <svg
               width="17"
@@ -148,7 +149,7 @@ export default function WorksheetMobileMenu({
             </svg>
             Sign in
           </a>
-        )}
+        ) : null}
         <div className={styles.spacer} />
         <DarkModeButton className={styles.settingsBtn} />
         <MeDropdown />

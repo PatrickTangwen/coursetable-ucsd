@@ -16,6 +16,7 @@ import {
   type RequestChallengeResBody,
 } from '../queries/api';
 import { useStore } from '../store';
+import { PUBLIC_LOGIN_ENABLED } from '../utilities/publicLogin';
 import styles from './Challenge.module.css';
 
 function renderRequestError(requestError: string, navigate: NavigateFunction) {
@@ -27,9 +28,13 @@ function renderRequestError(requestError: string, navigate: NavigateFunction) {
           You need to be logged in with a verified UCSD email to enable your
           account.
           <br />
-          <a href="/login" className="btn btn-primary mt-3">
-            Log in
-          </a>
+          {PUBLIC_LOGIN_ENABLED ? (
+            <a href="/login" className="btn btn-primary mt-3">
+              Log in
+            </a>
+          ) : (
+            'Public sign-in is currently unavailable.'
+          )}
         </div>
       ),
     };

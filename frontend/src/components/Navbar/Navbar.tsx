@@ -10,6 +10,7 @@ import { logout } from '../../queries/api';
 import { useStore } from '../../store';
 import { scrollToTop } from '../../utilities/display';
 import { createCatalogLink } from '../../utilities/navigation';
+import { PUBLIC_LOGIN_ENABLED } from '../../utilities/publicLogin';
 import LastUpdated from '../Search/LastUpdated';
 import { NavbarCatalogSearch } from '../Search/NavbarCatalogSearch';
 import { SurfaceComponent } from '../Typography';
@@ -137,25 +138,27 @@ export default function AppNavbar() {
                       Install as app
                     </button>
                   )}
-                  <button
-                    type="button"
-                    className={styles.navLink}
-                    onClick={
-                      authStatus !== 'authenticated'
-                        ? () => {
-                            window.location.href = '/login';
-                          }
-                        : async () => {
-                            await logout();
-                            await refreshAuth();
-                            window.location.href = '/';
-                          }
-                    }
-                  >
-                    {authStatus !== 'authenticated'
-                      ? 'Sign in (beta)'
-                      : 'Sign out'}
-                  </button>
+                  {(authStatus === 'authenticated' || PUBLIC_LOGIN_ENABLED) && (
+                    <button
+                      type="button"
+                      className={styles.navLink}
+                      onClick={
+                        authStatus !== 'authenticated'
+                          ? () => {
+                              window.location.href = '/login';
+                            }
+                          : async () => {
+                              await logout();
+                              await refreshAuth();
+                              window.location.href = '/';
+                            }
+                      }
+                    >
+                      {authStatus !== 'authenticated'
+                        ? 'Sign in (beta)'
+                        : 'Sign out'}
+                    </button>
+                  )}
                 </>
               ) : (
                 <MeDropdown />

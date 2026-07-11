@@ -23,6 +23,7 @@ import { useStore, useInitStore } from './store';
 
 import { suspended } from './utilities/display';
 import { createCatalogLink } from './utilities/navigation';
+import { resolvePublicLoginRoute } from './utilities/publicLogin';
 import styles from './App.module.css';
 
 const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
@@ -80,28 +81,33 @@ function AuthenticatedRoutes() {
   if (authStatus === 'initializing')
     return <Spinner message="Fetching user info..." />;
 
+  if (location.pathname === '/graphiql') {
+    if (user?.hasEvals) return <Outlet />;
+    return (
+      <NeedsLogin
+        redirect={location.pathname}
+        message="the GraphQL interface"
+      />
+    );
+  }
+
+  const routeDecision = resolvePublicLoginRoute(
+    location.pathname,
+    authStatus === 'authenticated',
+  );
+
+  if (routeDecision === 'catalog')
+    return <Navigate to={createCatalogLink()} replace />;
+  if (routeDecision === 'login') return <Navigate to="/login" replace />;
+
   switch (location.pathname) {
     case '/catalog':
     case '/worksheet':
-      return <Outlet />;
-
     case '/login':
-      if (authStatus === 'authenticated')
-        return <Navigate to={createCatalogLink()} replace />;
       return <Outlet />;
-
-    case '/graphiql':
-      if (user?.hasEvals) return <Outlet />;
-      return (
-        <NeedsLogin
-          redirect={location.pathname}
-          message="the GraphQL interface"
-        />
-      );
 
     default:
-      if (authStatus === 'authenticated') return <Outlet />;
-      return <Navigate to="/login" replace />;
+      return <Outlet />;
   }
 }
 

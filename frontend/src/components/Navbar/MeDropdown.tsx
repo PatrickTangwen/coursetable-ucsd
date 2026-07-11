@@ -4,6 +4,7 @@ import { FcBusinessman } from 'react-icons/fc';
 
 import { isLegacyUserInfo, logout } from '../../queries/api';
 import { useStore } from '../../store';
+import { PUBLIC_LOGIN_ENABLED } from '../../utilities/publicLogin';
 import styles from './MeDropdown.module.css';
 
 function PersonIcon() {
@@ -89,6 +90,8 @@ function MeDropdown() {
       : ((!isLegacyUserInfo(user) ? user?.verifiedEmail : undefined) ??
         'Your profile');
 
+  if (authStatus !== 'authenticated' && !PUBLIC_LOGIN_ENABLED) return null;
+
   return (
     <div ref={rootRef} className={styles.root}>
       <button
@@ -127,7 +130,7 @@ function MeDropdown() {
               <SignOutIcon />
               Sign out
             </button>
-          ) : (
+          ) : PUBLIC_LOGIN_ENABLED ? (
             <a
               href="/login"
               className={styles.menuItem}
@@ -136,7 +139,7 @@ function MeDropdown() {
               <SignInIcon />
               Sign in
             </a>
-          )}
+          ) : null}
         </div>
       )}
     </div>

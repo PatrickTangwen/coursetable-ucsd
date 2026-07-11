@@ -20,6 +20,7 @@ import {
   buildSavedSearchQueryString,
   sanitizeSavedSearchQueryString,
 } from '../../utilities/params';
+import { PUBLIC_LOGIN_ENABLED } from '../../utilities/publicLogin';
 import Spinner from '../Spinner';
 import { Input } from '../Typography';
 import styles from './SavedSearchesDropdown.module.css';
@@ -232,9 +233,11 @@ export default function SavedSearchesDropdown({
                 Search and filtering still work without an account; saving a
                 search is a signed-in feature.
               </p>
-              <a className={styles.signInButton} href="/login">
-                Sign in to save searches
-              </a>
+              {PUBLIC_LOGIN_ENABLED && (
+                <a className={styles.signInButton} href="/login">
+                  Sign in to save searches
+                </a>
+              )}
             </div>
           ) : (
             <>

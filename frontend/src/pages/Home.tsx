@@ -15,6 +15,7 @@ import WorksheetDemo from '../components/landing/WorksheetDemo';
 import { logout } from '../queries/api';
 import { useStore } from '../store';
 import { createCatalogLink } from '../utilities/navigation';
+import { PUBLIC_LOGIN_ENABLED } from '../utilities/publicLogin';
 import styles from './Home.module.css';
 
 const DEPARTMENTS = [
@@ -496,7 +497,7 @@ function SyncSection() {
   );
 }
 
-const STEPS = [
+const ANONYMOUS_STEPS = [
   {
     num: '1',
     title: 'Search the catalog',
@@ -507,25 +508,29 @@ const STEPS = [
     title: 'Build your worksheet',
     desc: 'Add sections to a weekly grid and watch your schedule — and any conflicts — appear in real time.',
   },
-  {
-    num: '3',
-    title: 'Sign in to save',
-    desc: 'Verify a UCSD email to keep everything synced and ready for your enrollment appointment.',
-  },
 ];
 
+const SIGNED_IN_STEP = {
+  num: '3',
+  title: 'Sign in to save',
+  desc: 'Verify a UCSD email to keep everything synced and ready for your enrollment appointment.',
+};
+
 function HowSection() {
+  const steps = PUBLIC_LOGIN_ENABLED
+    ? [...ANONYMOUS_STEPS, SIGNED_IN_STEP]
+    : ANONYMOUS_STEPS;
   return (
     <section id="how" className={styles.howSection}>
       <div className={styles.howInner}>
         <div className={styles.howHeader}>
           <span className={styles.eyebrow}>HOW IT WORKS</span>
           <h2 className={clsx(styles.h2, styles.howH2)}>
-            Three steps to a full quarter
+            {steps.length} steps to a full quarter
           </h2>
         </div>
         <div className={styles.howGrid}>
-          {STEPS.map((step) => (
+          {steps.map((step) => (
             <div key={step.num} className={styles.step}>
               <div className={styles.stepTop}>
                 <span className={styles.stepNum}>{step.num}</span>
@@ -556,29 +561,32 @@ function CtaSection() {
             in one place
           </h2>
           <p className={styles.ctaLead}>
-            Start searching in seconds — no account required. Sign in with a
-            UCSD email whenever you want to save your work.
+            {PUBLIC_LOGIN_ENABLED
+              ? 'Start searching in seconds — no account required. Sign in with a UCSD email whenever you want to save your work.'
+              : 'Start searching and build a worksheet in seconds — no account required.'}
           </p>
           <div className={styles.ctaRowWrap}>
-            <form
-              className={styles.ctaPill}
-              onSubmit={(event) => {
-                event.preventDefault();
-                void navigate('/login', { state: { email } });
-              }}
-            >
-              <input
-                type="email"
-                aria-label="UCSD email"
-                placeholder="student@ucsd.edu"
-                className={styles.ctaInput}
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-              />
-              <button type="submit" className={styles.ctaSubmit}>
-                Get started
-              </button>
-            </form>
+            {PUBLIC_LOGIN_ENABLED && (
+              <form
+                className={styles.ctaPill}
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void navigate('/login', { state: { email } });
+                }}
+              >
+                <input
+                  type="email"
+                  aria-label="UCSD email"
+                  placeholder="student@ucsd.edu"
+                  className={styles.ctaInput}
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                />
+                <button type="submit" className={styles.ctaSubmit}>
+                  Get started
+                </button>
+              </form>
+            )}
             <Link to={createCatalogLink()} className={styles.ctaBrowse}>
               Browse without an account →
             </Link>
@@ -648,11 +656,11 @@ export default function Home() {
             >
               Sign out
             </button>
-          ) : (
+          ) : PUBLIC_LOGIN_ENABLED ? (
             <Link to="/login" className={clsx(styles.navLink, styles.authBtn)}>
               Sign in
             </Link>
-          )}
+          ) : null}
           <button
             type="button"
             className={styles.menuBtn}
@@ -705,7 +713,7 @@ export default function Home() {
       <WorksheetSection />
       <ExamsSection />
       <CourseSection />
-      <SyncSection />
+      {PUBLIC_LOGIN_ENABLED && <SyncSection />}
       <HowSection />
       <CtaSection />
 
@@ -724,9 +732,11 @@ export default function Home() {
             <a href="#how" className={styles.footerLink}>
               How it works
             </a>
-            <Link to="/login" className={styles.footerLink}>
-              Sign in
-            </Link>
+            {PUBLIC_LOGIN_ENABLED && (
+              <Link to="/login" className={styles.footerLink}>
+                Sign in
+              </Link>
+            )}
           </nav>
           <div className={styles.spacer} />
         </div>

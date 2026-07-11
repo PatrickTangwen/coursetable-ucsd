@@ -13,6 +13,7 @@ Run the full local auth stack unless the task is explicitly catalog-only.
 Backend/auth API: https://localhost:3000
 Frontend:         https://localhost:3001
 Frontend env:     VITE_API_ENDPOINT=https://localhost:3000
+Login flag:       VITE_PUBLIC_LOGIN_ENABLED=true
 Backend env:      FRONTEND_ENDPOINT=https://localhost:3001
 ```
 
@@ -61,6 +62,7 @@ In a second terminal, from the repo root:
 ```bash
 FRONTEND_ENDPOINT=https://localhost:3001 \
 VITE_API_ENDPOINT=https://localhost:3000 \
+VITE_PUBLIC_LOGIN_ENABLED=true \
 bun run --cwd frontend start -- --host 127.0.0.1
 ```
 
@@ -73,6 +75,11 @@ https://localhost:3001/login
 
 The frontend dev server uses Vite basic SSL. Browser certificate warnings are
 expected on a fresh machine.
+
+`VITE_PUBLIC_LOGIN_ENABLED` is fail-closed: only the exact value `true` exposes
+public sign-in links and `/login`. Set it in the staging frontend build and
+leave it unset or set it to `false` for production until hosted acceptance is
+complete. This availability flag does not relax backend email configuration.
 
 ## Login Smoke
 

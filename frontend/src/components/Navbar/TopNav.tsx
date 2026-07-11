@@ -9,6 +9,7 @@ import { logout } from '../../queries/api';
 import { useStore } from '../../store';
 import { scrollToTop } from '../../utilities/display';
 import { createCatalogLink } from '../../utilities/navigation';
+import { PUBLIC_LOGIN_ENABLED } from '../../utilities/publicLogin';
 import CatalogNavSearch, {
   CatalogResultCount,
 } from '../Catalog/CatalogNavSearch';
@@ -151,23 +152,25 @@ export default function TopNav() {
               Worksheet
             </NavLink>
             {isMobile ? (
-              <button
-                type="button"
-                className={styles.navTab}
-                onClick={
-                  authStatus !== 'authenticated'
-                    ? () => {
-                        window.location.href = '/login';
-                      }
-                    : async () => {
-                        await logout();
-                        await refreshAuth();
-                        window.location.href = '/';
-                      }
-                }
-              >
-                {authStatus !== 'authenticated' ? 'Sign in' : 'Sign out'}
-              </button>
+              (authStatus === 'authenticated' || PUBLIC_LOGIN_ENABLED) && (
+                <button
+                  type="button"
+                  className={styles.navTab}
+                  onClick={
+                    authStatus !== 'authenticated'
+                      ? () => {
+                          window.location.href = '/login';
+                        }
+                      : async () => {
+                          await logout();
+                          await refreshAuth();
+                          window.location.href = '/';
+                        }
+                  }
+                >
+                  {authStatus !== 'authenticated' ? 'Sign in' : 'Sign out'}
+                </button>
+              )
             ) : (
               <MeDropdown />
             )}

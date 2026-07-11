@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/react/shallow';
 import Authentication from '../images/authentication.svg';
 import { isLegacyUserInfo } from '../queries/api';
 import { useStore } from '../store';
+import { PUBLIC_LOGIN_ENABLED } from '../utilities/publicLogin';
 
 function NeedsLogin({
   redirect,
@@ -28,10 +29,12 @@ function NeedsLogin({
         ) : (
           <>
             To access {message}, you need to be a fully verified user. Please{' '}
-            {authStatus === 'unauthenticated' ? (
+            {authStatus === 'unauthenticated' && PUBLIC_LOGIN_ENABLED ? (
               <Link to={`/login?redirect=${encodeURIComponent(redirect)}`}>
                 log in
               </Link>
+            ) : authStatus === 'unauthenticated' ? (
+              <>public sign-in is currently unavailable</>
             ) : needsEvaluationChallenge ? (
               <Link to="/challenge">complete the challenge</Link>
             ) : (
