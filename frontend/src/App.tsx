@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import * as Sentry from '@sentry/react';
 import PullToRefresh from 'pulltorefreshjs';
 import { Helmet } from 'react-helmet';
@@ -51,6 +51,27 @@ const Spring26Release = suspended(
   () => import('./pages/releases/spring26.mdx'),
 );
 
+// Wraps every real route with the shared footer; the 404 catch-all stays
+// outside so unknown URLs render without it.
+function FooterLayout() {
+  const location = useLocation();
+  const worksheetView = useStore((state) => state.worksheetView);
+  // The landing and sign-in pages bring their own footer; the worksheet
+  // calendar view fills the viewport with no page scroll, so the footer would
+  // force a scrollbar; the list view still shows it.
+  const hideFooter =
+    location.pathname === '/' ||
+    location.pathname === '/login' ||
+    location.pathname === '/catalog' ||
+    (location.pathname === '/worksheet' && worksheetView !== 'list');
+  return (
+    <>
+      <Outlet />
+      {!hideFooter && <Footer />}
+    </>
+  );
+}
+
 function Modal() {
   const currentModal = useStore((state) => state.currentModal);
   if (!currentModal) return null;
@@ -66,7 +87,6 @@ function Modal() {
 
 function App() {
   const location = useLocation();
-  const worksheetView = useStore((state) => state.worksheetView);
 
   useInitStore();
 
@@ -112,51 +132,49 @@ function App() {
         <TopNav />
       )}
       <SentryRoutes>
-        {/* Public landing page; renders instantly without waiting on auth */}
-        <Route path="/" element={<Home />} />
+        <Route element={<FooterLayout />}>
+          {/* Public landing page; renders instantly without waiting on auth */}
+          <Route path="/" element={<Home />} />
 
-        <Route element={<AuthRouteGate />}>
-          {/* Authenticated routes */}
-          {/* Catalog and worksheet can be viewed by anyone; we put them under
-          authenticated routes because we want loading auth to show a loading
-          screen */}
-          <Route path="/catalog" element={<CatalogListView />} />
-          <Route path="/worksheet" element={<Worksheet />} />
-          <Route path="/graphiql" element={<Graphiql />} />
-          <Route path="/login" element={<SignIn />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route element={<AuthRouteGate />}>
+            {/* Authenticated routes */}
+            {/* Catalog and worksheet can be viewed by anyone; we put them
+            under authenticated routes because we want loading auth to show a
+            loading screen */}
+            <Route path="/catalog" element={<CatalogListView />} />
+            <Route path="/worksheet" element={<Worksheet />} />
+            <Route path="/graphiql" element={<Graphiql />} />
+            <Route path="/login" element={<SignIn />} />
+            <Route path="/profile" element={<Profile />} />
+          </Route>
+
+          {/* Challenge handles its own auth */}
+          <Route path="/challenge" element={<Challenge />} />
+
+          {/* Static pages that don't need login */}
+          <Route path="/about" element={<About />} />
+          <Route path="/joinus" element={<Join />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/privacypolicy" element={<Privacy />} />
+          <Route path="/u/:netId" element={<UserProfile />} />
+
+          <Route
+            path="/Table"
+            element={<Navigate to={createCatalogLink()} />}
+          />
+
+          <Route path="/releases/fall23" element={<Fall23Release />} />
+          <Route path="/releases/quist" element={<QuistRelease />} />
+          <Route path="/releases/link-preview" element={<LinkPreview />} />
+          <Route path="/releases/spring24" element={<Spring24Release />} />
+          <Route path="/releases/fall24" element={<Fall24Release />} />
+          <Route path="/releases/spring26" element={<Spring26Release />} />
+          <Route path="/releases" element={<ReleaseNotes />} />
         </Route>
-
-        {/* Challenge handles its own auth */}
-        <Route path="/challenge" element={<Challenge />} />
-
-        {/* Static pages that don't need login */}
-        <Route path="/about" element={<About />} />
-        <Route path="/joinus" element={<Join />} />
-        <Route path="/faq" element={<FAQ />} />
-        <Route path="/privacypolicy" element={<Privacy />} />
-        <Route path="/u/:netId" element={<UserProfile />} />
-
-        <Route path="/Table" element={<Navigate to={createCatalogLink()} />} />
-
-        <Route path="/releases/fall23" element={<Fall23Release />} />
-        <Route path="/releases/quist" element={<QuistRelease />} />
-        <Route path="/releases/link-preview" element={<LinkPreview />} />
-        <Route path="/releases/spring24" element={<Spring24Release />} />
-        <Route path="/releases/fall24" element={<Fall24Release />} />
-        <Route path="/releases/spring26" element={<Spring26Release />} />
-        <Route path="/releases" element={<ReleaseNotes />} />
-        {/* Catch-all route to NotFound page */}
+        {/* Catch-all route to NotFound page; outside FooterLayout so the 404
+        page renders without the footer */}
         <Route path="/*" element={<NotFound />} />
       </SentryRoutes>
-      {/* The worksheet calendar view fills the viewport with no page scroll,
-      so the footer would force a scrollbar; the list view still shows it. */}
-      {location.pathname !== '/' &&
-        location.pathname !== '/login' &&
-        location.pathname !== '/catalog' &&
-        !(location.pathname === '/worksheet' && worksheetView !== 'list') && (
-          <Footer />
-        )}
       {/* Globally overlaid components */}
       <Tutorial />
       <ModalHistoryBridge />

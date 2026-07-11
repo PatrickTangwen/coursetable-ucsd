@@ -1,0 +1,27 @@
+.container {
+  text-align: center;
+  padding: 40px 16px 96px;
+  background: var(--color-bg);
+}
+
+/* The illustration has a transparent background so it sits directly on
+   var(--color-bg) in both themes. */
+.illustration {
+  width: min(400px, 82vw);
+  height: auto;
+  margin: 16px 0 24px;
+}
+
+.title {
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.message {
+  margin: 0 auto;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
