@@ -1,0 +1,20 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "sungrid-staging",
+  "main": "src/catalogWorker.ts",
+  "compatibility_date": "2026-05-01",
+  "workers_dev": false,
+  "preview_urls": false,
+  "assets": {
+    "directory": "../frontend/build",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api", "/api/*", "/ferry", "/ferry/*"],
+  },
+  "r2_buckets": [
+    {
+      "binding": "CATALOG_BUCKET",
+      "bucket_name": "sungrid-staging-catalog",
+    },
+  ],
+}

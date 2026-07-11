@@ -14,5 +14,5 @@
   },
   "include": ["./**/*", "./eslint.config.mjs"],
   // These have their own tsconfig
-  "exclude": ["./api", "./frontend"],
+  "exclude": ["./api", "./frontend", "./worker"],
 }

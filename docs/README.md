@@ -23,6 +23,8 @@ Status: top-level navigation for stable project documentation.
   acceptance path for hosted login.
 - `cloudflare_hosted_staging.md`: proposed Cloudflare Worker staging boundary,
   external state services, security and cost policies, and acceptance gate.
+- `worker_catalog.md`: local single-origin Worker Catalog, private R2
+  publication integrity, and disposable acceptance workflow.
 - `locations.md`: location data notes.
 - `maintenance.md`: maintenance notes.
 - `snapshot_pipe.md`: catalog snapshot pipeline notes, including General Catalog

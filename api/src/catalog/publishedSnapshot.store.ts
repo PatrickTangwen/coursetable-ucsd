@@ -1,6 +1,8 @@
 export interface PublishedSnapshotAsset {
-  body: AsyncIterable<Uint8Array>;
+  body: ReadableStream<Uint8Array>;
+  cacheControl?: string;
   contentLength: number;
+  contentType?: string;
   etag?: string;
   lastModified?: Date;
 }

@@ -1,42 +1,32 @@
 import type express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import type {
-  PublishedSnapshotAsset,
-  PublishedSnapshotStore,
-} from './publishedSnapshot.store.js';
+import { createPublishedSnapshotResponse } from './publishedSnapshot.response.js';
+import type { PublishedSnapshotStore } from './publishedSnapshot.store.js';
 
-const publishedTermPattern = /^[\w-]+$/u;
-
-async function sendAsset(
+async function sendResponse(
   req: express.Request,
   res: express.Response,
-  asset: PublishedSnapshotAsset | null,
+  response: Response | null,
   next: express.NextFunction,
 ) {
-  if (!asset) {
+  if (!response) {
     next();
     return;
   }
-
-  res.set('Cache-Control', 'public, max-age=3600');
-  res.type('json');
-  res.set('Content-Length', String(asset.contentLength));
-  if (asset.etag) res.set('ETag', asset.etag);
-  if (asset.lastModified)
-    res.set('Last-Modified', asset.lastModified.toUTCString());
-
-  if (req.fresh) {
-    res.status(304).end();
-    return;
-  }
-  if (req.method === 'HEAD') {
+  res.status(response.status);
+  response.headers.forEach((value, name) => res.set(name, value));
+  if (!response.body) {
     res.end();
     return;
   }
 
-  for await (const chunk of asset.body) {
-    if (!res.write(chunk)) {
+  const reader =
+    response.body.getReader() as ReadableStreamDefaultReader<Uint8Array>;
+  for (;;) {
+    const result = await reader.read();
+    if (result.done) break;
+    if (!res.write(result.value)) {
       await new Promise<void>((resolve) => {
         res.once('drain', resolve);
       });
@@ -52,18 +42,23 @@ export function registerPublishedSnapshotRoutes(
   app.get(
     '/api/catalog/metadata',
     asyncHandler(async (req, res, next) => {
-      await sendAsset(req, res, await store.openMetadata(), next);
+      await sendResponse(req, res, await responseFor(req, store), next);
     }),
   );
   app.get(
     '/api/catalog/public/:term',
     asyncHandler(async (req, res, next) => {
-      const { term } = req.params;
-      if (!term || !publishedTermPattern.test(term)) {
-        next();
-        return;
-      }
-      await sendAsset(req, res, await store.openSnapshot(term), next);
+      await sendResponse(req, res, await responseFor(req, store), next);
     }),
   );
+}
+
+function responseFor(req: express.Request, store: PublishedSnapshotStore) {
+  const headers = new Headers();
+  for (const [name, value] of Object.entries(req.headers)) {
+    if (Array.isArray(value))
+      for (const item of value) headers.append(name, item);
+    else if (value !== undefined) headers.set(name, value);
+  }
+  return createPublishedSnapshotResponse(req.method, req.path, headers, store);
 }

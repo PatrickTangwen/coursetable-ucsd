@@ -8,9 +8,9 @@
     "frontend"
   ],
   "scripts": {
-    "checks": "bun run depcheck && bun run format:check && bun run lint:check && bun run lint:css:check && bun run resize-image:check && bun run typecheck && bun run test:snapshot && bun run --cwd api test && bun run --cwd frontend test",
+    "checks": "bun run depcheck && bun run format:check && bun run lint:check && bun run lint:css:check && bun run resize-image:check && bun run typecheck && bun run test:snapshot && bun run test:worker && bun run validate:worker-catalog && bun run --cwd api test && bun run --cwd frontend test",
     "checks:fix": "bun run format && bun run lint && bun run lint:css && bun run resize-image",
-    "typecheck": "tsc && tsc -p frontend && tsc -p api",
+    "typecheck": "tsc && tsc -p frontend && tsc -p api && tsc -p worker",
     "depcheck": "bunx depcheck . --ignore-patterns=api,frontend && bunx depcheck api && bunx depcheck frontend",
     "format": "prettier --write .",
     "format:check": "prettier -l .",
@@ -25,6 +25,9 @@
     "snapshot:tracer": "bun tools/catalog-snapshot/generate-tracer-snapshot.mts --config config/catalog-snapshot.ucsd.yaml",
     "snapshot:schedule": "bun tools/catalog-snapshot/generate-schedule-snapshot.mts --config config/catalog-snapshot.ucsd.yaml",
     "test:snapshot": "vitest run tools/**/*.test.ts",
+    "test:worker": "vitest run worker",
+    "build:worker": "bun run --cwd frontend build && wrangler deploy --dry-run --config worker/wrangler.jsonc",
+    "validate:worker-catalog": "VITE_API_ENDPOINT= bun run --cwd frontend build && bun worker/scripts/validateCatalogWorker.mts",
     "validate:real-backend-auth": "bun tools/real-backend-auth-validation/validateRealBackendAuth.mts",
     "validate:core-backend": "bun tools/real-backend-auth-validation/validateRealBackendAuth.mts",
     "validate:local-platform": "bun tools/local-platform/validateLocalPlatform.mts",
@@ -38,6 +41,7 @@
     "sharp"
   ],
   "devDependencies": {
+    "@cloudflare/workers-types": "4.20260424.1",
     "@graphql-codegen/cli": "^5.0.3",
     "@graphql-codegen/import-types-preset": "^3.0.0",
     "@graphql-codegen/introspection": "^4.0.3",
