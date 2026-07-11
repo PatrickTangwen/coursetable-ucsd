@@ -178,11 +178,13 @@ function CourseConflictIcon({
   listing,
   inWorksheet,
   modal,
+  mobile,
   worksheetNumber,
 }: {
   readonly listing: ListingWithHistoricalInfo;
   readonly inWorksheet: boolean;
   readonly modal: boolean;
+  readonly mobile?: boolean;
   readonly worksheetNumber: number;
 }) {
   const warning = useWorksheetConflictWarning({
@@ -198,11 +200,17 @@ function CourseConflictIcon({
         className={clsx(
           styles.courseConflictIcon,
           modal && styles.modalCourseConflictIcon,
+          mobile && styles.mobileCourseConflictIcon,
         )}
       >
         {warning && (
           <OverlayTrigger
             placement="top"
+            popperConfig={{
+              modifiers: [
+                { name: 'preventOverflow', options: { padding: 12 } },
+              ],
+            }}
             overlay={(props) => (
               <Tooltip
                 {...props}
@@ -212,9 +220,20 @@ function CourseConflictIcon({
               </Tooltip>
             )}
           >
-            <span>
-              <MdErrorOutline color="#fc4103" size={modal ? 16 : 13} />
-            </span>
+            <button
+              type="button"
+              className={styles.conflictIconButton}
+              aria-label={warning}
+              // On touch devices the tap's synthetic mouseover shows the
+              // tooltip; block the click from opening the course modal
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MdErrorOutline
+                color="#fc4103"
+                size={modal ? 16 : 13}
+                aria-hidden="true"
+              />
+            </button>
           </OverlayTrigger>
         )}
       </div>
@@ -622,6 +641,7 @@ function WorksheetToggleButton({
             listing={listing}
             inWorksheet={inWorksheet}
             modal={modal}
+            mobile={appearance === 'mobile'}
             worksheetNumber={selectedWorksheet}
           />
         )}
