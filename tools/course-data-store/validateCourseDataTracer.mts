@@ -1,6 +1,6 @@
 import { execFile, spawn, type ChildProcess } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
@@ -8,6 +8,14 @@ import { promisify } from 'node:util';
 import postgres from 'postgres';
 
 import { applyHasuraMetadata } from './applyHasuraMetadata.mjs';
+import {
+  projectPublishedSnapshot,
+  queryPublicCourseDataProjection,
+} from './courseDataParity.js';
+import {
+  compareCourseDataParity,
+  type DomainProjection,
+} from './courseDataParityComparator.js';
 import { importSnapshot } from './importSnapshot.mjs';
 import { migrateCourseDataStore } from './migrateCourseDataStore.mjs';
 
@@ -25,6 +33,7 @@ const tracer = {
   databasePort: tracerPort('COURSE_DATA_STORE_PORT', 55_489),
   hasuraPort: tracerPort('COURSE_DATA_HASURA_PORT', 18_089),
   publicGraphqlPort: tracerPort('COURSE_DATA_PUBLIC_GRAPHQL_PORT', 18_090),
+  staticCatalogPort: tracerPort('STATIC_CATALOG_SMOKE_PORT', 18_091),
   password: randomBytes(24).toString('hex'),
   adminSecret: randomBytes(24).toString('hex'),
   term: 'S326',
@@ -91,7 +100,7 @@ async function queryPublic(
   variables: { [name: string]: unknown } = {},
   browserHeaders: { [header: string]: string } = {},
 ) {
-  const response = await fetch(`${publicGraphqlEndpoint}/v1/graphql`, {
+  const response = await fetch(`${publicGraphqlEndpoint}/ferry/v1/graphql`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', ...browserHeaders },
     body: JSON.stringify({ query, variables }),
@@ -113,6 +122,30 @@ async function waitForPublicGateway() {
     });
   }
   throw new Error('Public GraphQL gateway did not become healthy');
+}
+
+async function smokeStaticCatalogEndpoints() {
+  const endpoint = `http://127.0.0.1:${tracer.staticCatalogPort}`;
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    const healthy = await fetch(`${endpoint}/healthz`)
+      .then((response) => response.ok)
+      .catch(() => false);
+    if (healthy) break;
+    if (attempt === 99)
+      throw new Error('Static Catalog smoke server did not become healthy');
+    await new Promise((resolve) => {
+      setTimeout(resolve, 100);
+    });
+  }
+  const metadata = await fetch(`${endpoint}/api/catalog/metadata`);
+  const snapshot = await fetch(`${endpoint}/api/catalog/public/${tracer.term}`);
+  if (!metadata.ok || !snapshot.ok)
+    throw new Error('Existing static Catalog endpoint smoke failed');
+  const snapshotBody = (await snapshot.json()) as {
+    active_planning_term?: string;
+  };
+  if (snapshotBody.active_planning_term !== tracer.term)
+    throw new Error('Static Catalog endpoint served the wrong Supported Term');
 }
 
 async function publicArchiveProjection() {
@@ -179,6 +212,8 @@ async function acceptedTermCounts() {
 export async function validateCourseDataTracer() {
   let succeeded = false;
   let gatewayProcess: ChildProcess | undefined = undefined;
+  let staticCatalogProcess: ChildProcess | undefined = undefined;
+  let temporaryDirectory: string | undefined = undefined;
   try {
     await compose(['up', '-d', '--wait', '--remove-orphans']);
     await migrateCourseDataStore(databaseUrl);
@@ -193,8 +228,21 @@ export async function validateCourseDataTracer() {
       stdio: 'ignore',
     });
     await waitForPublicGateway();
+    staticCatalogProcess = spawn(
+      'bun',
+      ['api/src/catalog/staticCatalogSmokeServer.ts'],
+      {
+        cwd: path.resolve(import.meta.dirname, '../..'),
+        env: {
+          ...process.env,
+          STATIC_CATALOG_SMOKE_PORT: String(tracer.staticCatalogPort),
+        },
+        stdio: 'ignore',
+      },
+    );
+    await smokeStaticCatalogEndpoints();
 
-    const temporaryDirectory = await mkdtemp(
+    temporaryDirectory = await mkdtemp(
       path.join(os.tmpdir(), 'course-data-tracer-'),
     );
     const acceptedManifestPath = path.join(
@@ -204,17 +252,40 @@ export async function validateCourseDataTracer() {
     const acceptedManifest = JSON.parse(
       await readFile(tracer.manifestPath, 'utf8'),
     ) as {
-      cells: { source: string; status: string; reason: string | null }[];
+      cells: {
+        subject: string;
+        source: string;
+        status: string;
+        reason: string | null;
+      }[];
       summary: { empty: number; failed: number };
     };
+    const expectedIncompleteScheduleSubjects = new Set([
+      'AIP',
+      'CAT',
+      'MATH',
+      'PSYC',
+    ]);
+    const acceptedScheduleSubjects = new Set<string>();
     for (const cell of acceptedManifest.cells) {
       if (cell.source !== 'schedule_of_classes' || cell.status !== 'failed')
         continue;
+      if (!expectedIncompleteScheduleSubjects.has(cell.subject)) {
+        throw new Error(
+          `Unexpected failed Schedule cell in S326 acceptance fixture: ${cell.subject}`,
+        );
+      }
+      acceptedScheduleSubjects.add(cell.subject);
       cell.status = 'empty';
       cell.reason = 'Issue #92 validated mutable-term fixture';
       acceptedManifest.summary.failed -= 1;
       acceptedManifest.summary.empty += 1;
     }
+    if (
+      acceptedScheduleSubjects.size !== expectedIncompleteScheduleSubjects.size
+    )
+      throw new Error('S326 acceptance fixture did not contain expected cells');
+
     await writeFile(acceptedManifestPath, JSON.stringify(acceptedManifest));
     const invalidSnapshot = path.join(temporaryDirectory, 'invalid.json');
     await writeFile(invalidSnapshot, JSON.stringify({ courses: [] }));
@@ -273,6 +344,60 @@ export async function validateCourseDataTracer() {
       secondImport.importRun !== 'unchanged'
     )
       throw new Error('Tracer import was not idempotent');
+
+    const sourceProjection = await projectPublishedSnapshot(
+      tracer.snapshotPath,
+      acceptedManifestPath,
+    );
+    const graphqlProjection = await queryPublicCourseDataProjection(
+      queryPublic,
+      tracer.term,
+    );
+    const parity = compareCourseDataParity(sourceProjection, graphqlProjection);
+    if (!parity.matches) {
+      throw new Error(
+        `Published Snapshot parity failed: ${JSON.stringify(parity)}`,
+      );
+    }
+
+    const cloneProjection = (projection: DomainProjection) =>
+      Object.fromEntries(
+        Object.entries(projection).map(([category, records]) => [
+          category,
+          new Map(
+            [...records].map(([identity, record]) => [identity, { ...record }]),
+          ),
+        ]),
+      );
+    const missingProbe = cloneProjection(graphqlProjection);
+    missingProbe.courses?.delete(
+      String(sourceProjection.courses?.keys().next().value),
+    );
+    const extraProbe = cloneProjection(graphqlProjection);
+    extraProbe.sectionInstructors?.set('probe:extra-relationship', {
+      sectionId: 'probe',
+      instructorName: 'probe',
+    });
+    const changedProbe = cloneProjection(graphqlProjection);
+    const firstCourseIdentity = String(
+      changedProbe.courses?.keys().next().value,
+    );
+    const parityFirstCourse = changedProbe.courses?.get(firstCourseIdentity);
+    if (!parityFirstCourse) throw new Error('Parity probe requires one Course');
+    parityFirstCourse.title = 'material parity probe';
+    for (const [name, probe] of [
+      ['missing', missingProbe],
+      ['extra', extraProbe],
+      ['changed', changedProbe],
+    ] as const) {
+      const probeResult = compareCourseDataParity(sourceProjection, probe);
+      if (
+        probeResult.matches ||
+        probeResult.mismatchCount < 1 ||
+        probeResult.mismatches.length > 40
+      )
+        throw new Error(`Parity comparator missed ${name} probe`);
+    }
 
     const conflictingSnapshotPath = path.join(
       temporaryDirectory,
@@ -383,6 +508,25 @@ export async function validateCourseDataTracer() {
       afterFreezeTerm.importRuns[0]?.snapshotLifecycle !== 'frozen'
     )
       throw new Error('Frozen transition changed original provenance');
+
+    const frozenSourceProjection = await projectPublishedSnapshot(
+      tracer.zeroMeetingFixture,
+      tracer.partialManifestFixture,
+      'frozen',
+    );
+    const frozenGraphqlProjection = await queryPublicCourseDataProjection(
+      queryPublic,
+      'RELATIONSHIP-EDGE',
+    );
+    const frozenParity = compareCourseDataParity(
+      frozenSourceProjection,
+      frozenGraphqlProjection,
+    );
+    if (!frozenParity.matches) {
+      throw new Error(
+        `Frozen Snapshot parity failed: ${JSON.stringify(frozenParity)}`,
+      );
+    }
 
     const frozenOverwritePath = path.join(
       temporaryDirectory,
@@ -1248,9 +1392,16 @@ export async function validateCourseDataTracer() {
       browserAdminHeaderDenied: true,
       recursiveExpansionDenied: true,
       idempotent: true,
+      publishedSnapshotSemanticParity: true,
+      paritySensitivityProbes: true,
+      frozenSnapshotSemanticParity: true,
+      staticCatalogEndpointsUnchanged: true,
     };
   } finally {
+    staticCatalogProcess?.kill('SIGTERM');
     gatewayProcess?.kill('SIGTERM');
+    if (temporaryDirectory)
+      await rm(temporaryDirectory, { force: true, recursive: true });
     await compose(['down', '--volumes', '--remove-orphans']).catch(() => {
       if (succeeded) throw new Error('Course Data tracer cleanup failed');
     });

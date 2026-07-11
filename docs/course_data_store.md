@@ -198,3 +198,38 @@ role with `anonymous` and removes any browser-supplied admin-secret header.
 Hasura administration and privileged GraphQL clients remain server-side paths;
 the frontend receives no Hasura admin credential. The current Catalog frontend
 continues to read Published Snapshot JSON and does not use this shadow API.
+
+## Published Snapshot semantic parity acceptance — 2026-07-11
+
+Issue #95 extends `bun run validate:course-data-tracer` into the primary
+end-to-end semantic acceptance seam. The command validates and imports the real
+S326 Published Snapshot and its accepted Import Manifest, then reads the entire
+term projection back through the anonymous browser-facing
+`/ferry/v1/graphql` gateway using bounded `limit`/`offset` pages.
+
+The published S326 Manifest contains four historical Schedule parser failures
+already handled by the issue #92 tracer fixture. Before import, the acceptance
+flow verifies that the failed-cell set is exactly AIP, CAT, MATH, and PSYC,
+converts only those known fixture cells to the previously approved empty-cell
+state, and rejects any unexpected or missing failure. The resulting acceptance
+Manifest bytes—not importer mapper logic—are the oracle for persisted Manifest
+status, reason, summary, and fingerprint comparison.
+
+The source artifacts and GraphQL transport are normalized independently into
+the Catalog Snapshot domain projection. The comparison covers Supported Term
+metadata and lifecycle, Course and Section identities and fields, Meeting
+cardinality and TBA values, Section/instructor relationships, raw Grade Archive
+Records, timestamped Snapshot Availability Data, import provenance, and every
+Import Manifest cell. Ordering, database surrogate keys, JSON object key order,
+and GraphQL-only transport shape are intentionally excluded.
+The same projection comparison runs after the zero-Meeting boundary term is
+transitioned to Frozen, including historical availability state, original
+observation timestamp and values, and lifecycle provenance.
+
+Mismatch evidence contains only a bounded list of category, stable identity,
+field, and missing/extra/changed classification. The acceptance also injects
+intentional missing identity, extra relationship, and changed field probes to
+prove the comparator fails materially different projections. The same command
+smokes the unchanged static Catalog metadata and Published Snapshot endpoints,
+and its existing `finally` cleanup removes the disposable containers, volumes,
+gateway processes, and generated secrets on success or failure.
