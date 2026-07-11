@@ -102,6 +102,30 @@ export function registerUcsdAuthRoutes(
         return;
       }
 
+      const sourceAdmission = await requestLimiter
+        .admitSource(requestSource(req))
+        .catch(() => null);
+      if (!sourceAdmission) {
+        res.status(503).json({
+          error: 'VERIFICATION_REQUEST_UNAVAILABLE',
+          message: 'Verification requests are temporarily unavailable.',
+        });
+        return;
+      }
+      if (!sourceAdmission.allowed) {
+        const retryAfterSeconds = Math.max(
+          1,
+          Math.ceil(sourceAdmission.retryAfterMs / 1000),
+        );
+        res.set('Retry-After', String(retryAfterSeconds));
+        res.status(429).json({
+          error: 'VERIFICATION_RATE_LIMIT',
+          message: 'Too many verification requests. Try again later.',
+          retryAfterSeconds,
+        });
+        return;
+      }
+
       const code = codeGenerator();
       const createdAt = now();
       const expiresAt = createdAt + verificationCodeTtlMs;
@@ -134,9 +158,7 @@ export function registerUcsdAuthRoutes(
         return;
       }
 
-      const requestLimit = await requestLimiter
-        .attempt(requestSource(req))
-        .catch(() => null);
+      const requestLimit = await requestLimiter.consumeSend().catch(() => null);
       if (!requestLimit) {
         await store.markVerificationFailed(reservation.verificationId);
         res.status(503).json({

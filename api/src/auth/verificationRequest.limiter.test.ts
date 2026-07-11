@@ -24,17 +24,21 @@ describe('verification request limiter', () => {
       },
     );
 
-    await expect(limiter.attempt('203.0.113.4')).resolves.toEqual({
+    await expect(limiter.admitSource('203.0.113.4')).resolves.toEqual({
       allowed: true,
     });
+    await expect(limiter.consumeSend()).resolves.toEqual({ allowed: true });
     expect(JSON.stringify(calls)).not.toContain('203.0.113.4');
     expect(calls).toEqual([
       {
         keys: [
           expect.stringMatching(/^verification-request:source:[a-f\d]{64}$/u),
-          'verification-request:global',
         ],
-        arguments: ['3', '60000', '20', '300000'],
+        arguments: ['3', '60000'],
+      },
+      {
+        keys: ['verification-request:global'],
+        arguments: ['20', '300000'],
       },
     ]);
   });
@@ -51,7 +55,7 @@ describe('verification request limiter', () => {
       },
     );
 
-    await expect(limiter.attempt('203.0.113.4')).resolves.toEqual({
+    await expect(limiter.admitSource('203.0.113.4')).resolves.toEqual({
       allowed: false,
       retryAfterMs: 42_500,
     });

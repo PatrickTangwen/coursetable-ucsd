@@ -32,6 +32,11 @@ Source and email identifiers are HMAC-digested before becoming Redis keys. A
 successful code consumption clears only that email's guessing budget; the
 source budget remains bounded for the rest of its window.
 
+The request-source budget is checked before code generation or any database
+reservation. The global provider budget is charged only after a reservation is
+created and immediately before the provider send, so cooldown and pending
+responses do not consume delivery capacity.
+
 ## Ambiguous delivery
 
 Verification reservations are durable and move through `pending`, `sent`, and

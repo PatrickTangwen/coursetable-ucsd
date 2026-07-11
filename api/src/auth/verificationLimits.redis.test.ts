@@ -28,19 +28,19 @@ describe.skipIf(!redisUrl)('Redis verification limits', () => {
       globalLimit: 3,
       globalWindowMs: 60_000,
     });
-    await expect(limiter.attempt('source-a')).resolves.toEqual({
+    await expect(limiter.admitSource('source-a')).resolves.toEqual({
       allowed: true,
     });
-    await expect(limiter.attempt('source-a')).resolves.toEqual({
+    await expect(limiter.admitSource('source-a')).resolves.toEqual({
       allowed: true,
     });
-    await expect(limiter.attempt('source-a')).resolves.toMatchObject({
+    await expect(limiter.admitSource('source-a')).resolves.toMatchObject({
       allowed: false,
     });
-    await expect(limiter.attempt('source-b')).resolves.toEqual({
-      allowed: true,
-    });
-    await expect(limiter.attempt('source-c')).resolves.toMatchObject({
+    await expect(limiter.consumeSend()).resolves.toEqual({ allowed: true });
+    await expect(limiter.consumeSend()).resolves.toEqual({ allowed: true });
+    await expect(limiter.consumeSend()).resolves.toEqual({ allowed: true });
+    await expect(limiter.consumeSend()).resolves.toMatchObject({
       allowed: false,
     });
   });

@@ -431,13 +431,30 @@ describe('UCSD auth routes', () => {
       releaseSend = resolve;
     });
     let sends = 0;
-    const { app } = createTestApp(() => 1_000_000, {
-      sendVerificationEmail() {
-        sends += 1;
-        senderStarted();
-        return heldSend;
+    let admissions = 0;
+    let sendBudget = 0;
+    const requestLimiter: VerificationRequestLimiter = {
+      admitSource() {
+        admissions += 1;
+        return Promise.resolve({ allowed: true });
       },
-    });
+      consumeSend() {
+        sendBudget += 1;
+        return Promise.resolve({ allowed: true });
+      },
+    };
+    const { app } = createTestApp(
+      () => 1_000_000,
+      {
+        sendVerificationEmail() {
+          sends += 1;
+          senderStarted();
+          return heldSend;
+        },
+      },
+      true,
+      requestLimiter,
+    );
     const isolatedClient = new TestClient();
     const isolatedServer = await isolatedClient.start(app);
 
@@ -457,6 +474,8 @@ describe('UCSD auth routes', () => {
         retryAfterSeconds: 900,
       });
       expect(sends).toBe(1);
+      expect(admissions).toBe(2);
+      expect(sendBudget).toBe(1);
       releaseSend();
       expect((await first).status).toBe(200);
     } finally {
@@ -471,7 +490,7 @@ describe('UCSD auth routes', () => {
     let attempts = 0;
     let sends = 0;
     const requestLimiter: VerificationRequestLimiter = {
-      attempt() {
+      admitSource() {
         attempts += 1;
         return Promise.resolve(
           attempts <= 2
@@ -479,8 +498,9 @@ describe('UCSD auth routes', () => {
             : { allowed: false as const, retryAfterMs: 75_000 },
         );
       },
+      consumeSend: () => Promise.resolve({ allowed: true }),
     };
-    const { app } = createTestApp(
+    const { app, verificationRecords } = createTestApp(
       () => 1_000_000,
       {
         sendVerificationEmail() {
@@ -511,6 +531,39 @@ describe('UCSD auth routes', () => {
         retryAfterSeconds: 75,
       });
       expect(sends).toBe(2);
+      expect(verificationRecords).toHaveLength(2);
+    } finally {
+      await new Promise<void>((resolve) => {
+        isolatedServer.close(() => resolve());
+      });
+    }
+  });
+
+  it('rejects an exhausted source before creating a reservation', async () => {
+    const requestLimiter: VerificationRequestLimiter = {
+      admitSource: () =>
+        Promise.resolve({ allowed: false, retryAfterMs: 60_000 }),
+      consumeSend: () => Promise.resolve({ allowed: true }),
+    };
+    const { app, verificationRecords } = createTestApp(
+      () => 1_000_000,
+      undefined,
+      true,
+      requestLimiter,
+    );
+    const isolatedClient = new TestClient();
+    const isolatedServer = await isolatedClient.start(app);
+
+    try {
+      const response = await isolatedClient.request(
+        '/api/auth/ucsd/request-verification',
+        {
+          method: 'POST',
+          body: JSON.stringify({ email: 'student@ucsd.edu' }),
+        },
+      );
+      expect(response.status).toBe(429);
+      expect(verificationRecords).toHaveLength(0);
     } finally {
       await new Promise<void>((resolve) => {
         isolatedServer.close(() => resolve());
@@ -521,12 +574,29 @@ describe('UCSD auth routes', () => {
   it('atomically limits repeat sends during the configured cooldown', async () => {
     let currentTime = 1_000_000;
     const sent: unknown[] = [];
-    const { app } = createTestApp(() => currentTime, {
-      sendVerificationEmail(message) {
-        sent.push(message);
-        return Promise.resolve();
+    let admissions = 0;
+    let sendBudget = 0;
+    const requestLimiter: VerificationRequestLimiter = {
+      admitSource() {
+        admissions += 1;
+        return Promise.resolve({ allowed: true });
       },
-    });
+      consumeSend() {
+        sendBudget += 1;
+        return Promise.resolve({ allowed: true });
+      },
+    };
+    const { app } = createTestApp(
+      () => currentTime,
+      {
+        sendVerificationEmail(message) {
+          sent.push(message);
+          return Promise.resolve();
+        },
+      },
+      true,
+      requestLimiter,
+    );
     const isolatedClient = new TestClient();
     const isolatedServer = await isolatedClient.start(app);
 
@@ -546,10 +616,13 @@ describe('UCSD auth routes', () => {
         retryAfterSeconds: 60,
       });
       expect(sent).toHaveLength(1);
+      expect(admissions).toBe(2);
+      expect(sendBudget).toBe(1);
 
       currentTime += 60_000;
       expect((await request()).status).toBe(200);
       expect(sent).toHaveLength(2);
+      expect(sendBudget).toBe(2);
     } finally {
       await new Promise<void>((resolve) => {
         isolatedServer.close(() => resolve());
