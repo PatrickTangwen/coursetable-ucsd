@@ -32,9 +32,15 @@ const tracer = {
   expectedMeetings: 353,
   expectedInstructors: 204,
   expectedInstructorLinks: 279,
+  expectedGradeRecords: 318,
+  expectedAvailabilityObservations: 275,
+  expectedManifestCells: 117,
   snapshotPath: 'api/static/catalogs/public/S326.json',
+  manifestPath: 'api/static/catalogs/import-manifests/S326.json',
   zeroMeetingFixture:
     'tools/course-data-store/fixtures/zero-meeting-snapshot.json',
+  partialManifestFixture:
+    'tools/course-data-store/fixtures/partial-import-manifest.json',
 };
 const databaseUrl = `postgresql://course_data:${tracer.password}@localhost:${tracer.databasePort}/course_data`;
 const hasuraEndpoint = `http://localhost:${tracer.hasuraPort}`;
@@ -103,7 +109,11 @@ export async function validateCourseDataTracer() {
     );
     const invalidSnapshot = path.join(temporaryDirectory, 'invalid.json');
     await writeFile(invalidSnapshot, JSON.stringify({ courses: [] }));
-    await importSnapshot(invalidSnapshot, databaseUrl).then(
+    await importSnapshot(
+      invalidSnapshot,
+      databaseUrl,
+      tracer.manifestPath,
+    ).then(
       () => {
         throw new Error('Invalid Snapshot was accepted');
       },
@@ -113,8 +123,16 @@ export async function validateCourseDataTracer() {
       },
     );
 
-    const firstImport = await importSnapshot(tracer.snapshotPath, databaseUrl);
-    const secondImport = await importSnapshot(tracer.snapshotPath, databaseUrl);
+    const firstImport = await importSnapshot(
+      tracer.snapshotPath,
+      databaseUrl,
+      tracer.manifestPath,
+    );
+    const secondImport = await importSnapshot(
+      tracer.snapshotPath,
+      databaseUrl,
+      tracer.manifestPath,
+    );
     if (firstImport.courses.created !== tracer.expectedCourses)
       throw new Error('Tracer did not create the expected Course count');
     if (
@@ -125,6 +143,13 @@ export async function validateCourseDataTracer() {
     )
       throw new Error('Tracer did not create the expected relationship counts');
     if (
+      firstImport.gradeRecords.created !== tracer.expectedGradeRecords ||
+      firstImport.availabilityObservations.created !==
+        tracer.expectedAvailabilityObservations ||
+      firstImport.manifestCells.created !== tracer.expectedManifestCells
+    )
+      throw new Error('Tracer did not create the expected context counts');
+    if (
       secondImport.courses.created !== 0 ||
       secondImport.courses.unchanged !== tracer.expectedCourses ||
       secondImport.sections.unchanged !== tracer.expectedSections ||
@@ -132,6 +157,10 @@ export async function validateCourseDataTracer() {
       secondImport.instructors.unchanged !== tracer.expectedInstructors ||
       secondImport.instructorLinks.unchanged !==
         tracer.expectedInstructorLinks ||
+      secondImport.gradeRecords.unchanged !== tracer.expectedGradeRecords ||
+      secondImport.availabilityObservations.unchanged !==
+        tracer.expectedAvailabilityObservations ||
+      secondImport.manifestCells.unchanged !== tracer.expectedManifestCells ||
       secondImport.importRun !== 'unchanged'
     )
       throw new Error('Tracer import was not idempotent');
@@ -151,7 +180,23 @@ export async function validateCourseDataTracer() {
       conflictingSnapshotPath,
       JSON.stringify(conflictingSnapshot),
     );
-    await importSnapshot(conflictingSnapshotPath, databaseUrl).then(
+    const conflictingManifestPath = path.join(
+      temporaryDirectory,
+      'conflicting-manifest.json',
+    );
+    const conflictingManifest = JSON.parse(
+      await readFile(tracer.manifestPath, 'utf8'),
+    ) as { run_id: string };
+    conflictingManifest.run_id = conflictingSnapshot.run_id;
+    await writeFile(
+      conflictingManifestPath,
+      JSON.stringify(conflictingManifest),
+    );
+    await importSnapshot(
+      conflictingSnapshotPath,
+      databaseUrl,
+      conflictingManifestPath,
+    ).then(
       () => {
         throw new Error('Conflicting Snapshot artifact was accepted');
       },
@@ -167,6 +212,7 @@ export async function validateCourseDataTracer() {
     const zeroMeetingImport = await importSnapshot(
       tracer.zeroMeetingFixture,
       databaseUrl,
+      tracer.partialManifestFixture,
     );
     if (
       zeroMeetingImport.sections.created !== 1 ||
@@ -195,7 +241,30 @@ export async function validateCourseDataTracer() {
     failedSection.section_id = 'FAILED-RELATIONSHIP:0';
     failedSection.course_id = 'MISSING:0';
     await writeFile(failedRelationshipPath, JSON.stringify(failedRelationship));
-    await importSnapshot(failedRelationshipPath, databaseUrl).then(
+    const failedManifestPath = path.join(
+      temporaryDirectory,
+      'failed-relationship-manifest.json',
+    );
+    const failedManifest = JSON.parse(
+      await readFile(tracer.partialManifestFixture, 'utf8'),
+    ) as {
+      run_id: string;
+      active_planning_term: string;
+      term_label: string;
+      cells: { term: string }[];
+    };
+    failedManifest.run_id = failedRelationship.run_id;
+    failedManifest.active_planning_term =
+      failedRelationship.active_planning_term;
+    failedManifest.term_label = failedRelationship.term_label;
+    for (const cell of failedManifest.cells)
+      cell.term = failedRelationship.active_planning_term;
+    await writeFile(failedManifestPath, JSON.stringify(failedManifest));
+    await importSnapshot(
+      failedRelationshipPath,
+      databaseUrl,
+      failedManifestPath,
+    ).then(
       () => {
         throw new Error('Invalid relationship import was accepted');
       },
@@ -374,6 +443,103 @@ export async function validateCourseDataTracer() {
     if (zeroMeeting?.[0]?.sections[0]?.meetings.length !== 0)
       throw new Error('Zero Meetings did not round-trip');
 
+    const context = await queryAnonymous(`
+      query HistoricalAndOperationalContext {
+        gradeCourse: courses(where: {
+          termCode: {_eq: "${tracer.term}"},
+          courseId: {_eq: "ANAR:135"}
+        }) {
+          gradeArchiveRecords(order_by: {recordIndex: asc}, limit: 1) {
+            year
+            quarter
+            instructor
+            gpa
+            aPercent
+            rawRecord
+          }
+        }
+        availabilitySection: sections(where: {
+          termCode: {_eq: "${tracer.term}"},
+          sectionId: {_eq: "S326:265969"}
+        }) {
+          snapshotAvailability {
+            enrolled
+            capacity
+            waitlistCount
+            observedAt
+            termState
+          }
+        }
+        importRun: courseDataImportRuns(where: {termCode: {_eq: "${tracer.term}"}}) {
+          snapshotRunId
+          generatedAt
+          scheduleSourceTimestamp
+          catalogSourceTimestamp
+          gradeSourceTimestamp
+          manifestOk
+          manifestEmpty
+          manifestFailed
+          manifestPartial
+        }
+        okCells: importManifestCells(where: {termCode: {_eq: "${tracer.term}"}, status: {_eq: "ok"}}, limit: 1) { status }
+        emptyCells: importManifestCells(where: {termCode: {_eq: "${tracer.term}"}, status: {_eq: "empty"}}, limit: 1) { status }
+        failedCells: importManifestCells(where: {termCode: {_eq: "${tracer.term}"}, status: {_eq: "failed"}}, limit: 1) { status reason }
+        partialCells: importManifestCells(where: {termCode: {_eq: "RELATIONSHIP-EDGE"}, status: {_eq: "partial"}}, limit: 1) { status reason rowCounts }
+      }
+    `);
+    if (context.errors) throw new Error('Anonymous context query failed');
+    const gradeCourse = context.data?.gradeCourse as
+      | { gradeArchiveRecords: { [key: string]: unknown }[] }[]
+      | undefined;
+    const grade = gradeCourse?.[0]?.gradeArchiveRecords[0];
+    if (
+      grade?.year !== '23' ||
+      grade.quarter !== 'WI' ||
+      grade.instructor !== 'Braswell, Geoffrey E.' ||
+      Number(grade.gpa) !== 3.988 ||
+      Number(grade.aPercent) !== 100 ||
+      typeof grade.rawRecord !== 'object'
+    )
+      throw new Error('Grade Archive Record did not round-trip');
+    const availabilitySections = context.data?.availabilitySection as
+      | { snapshotAvailability: { [key: string]: unknown } | null }[]
+      | undefined;
+    const availability = availabilitySections?.[0]?.snapshotAvailability;
+    if (
+      availability?.enrolled !== 39 ||
+      availability.capacity !== 50 ||
+      availability.waitlistCount !== 0 ||
+      availability.observedAt !== '2026-06-29T08:02:01.606+00:00' ||
+      availability.termState !== 'active'
+    )
+      throw new Error('Snapshot Availability Data did not round-trip');
+    const importRuns = context.data?.importRun as
+      | { [key: string]: unknown }[]
+      | undefined;
+    const [importRun] = importRuns ?? [];
+    if (
+      importRun?.generatedAt !== '2026-06-29T08:02:01.606+00:00' ||
+      importRun.scheduleSourceTimestamp !== '06/28/2026, 02:05:00' ||
+      importRun.manifestOk !== 99 ||
+      importRun.manifestEmpty !== 11 ||
+      importRun.manifestFailed !== 7 ||
+      importRun.manifestPartial !== 0
+    )
+      throw new Error('Import provenance did not round-trip');
+    for (const [field, status] of [
+      ['okCells', 'ok'],
+      ['emptyCells', 'empty'],
+      ['failedCells', 'failed'],
+      ['partialCells', 'partial'],
+    ] as const) {
+      const cells = context.data?.[field] as { status: string }[] | undefined;
+      if (cells?.[0]?.status !== status)
+        throw new Error(`Import Manifest ${status} cell was not queryable`);
+    }
+    const averageGpa = await queryAnonymous('{ courses { averageGpa } }');
+    if (!averageGpa.errors)
+      throw new Error('A single course-level Average GPA was exposed');
+
     const privateQuery = await queryAnonymous('{ appUsers { id } }');
     if (!privateQuery.errors)
       throw new Error('App DB data appeared in Course Data Store GraphQL');
@@ -402,6 +568,9 @@ export async function validateCourseDataTracer() {
           meetings: number;
           instructors: number;
           instructorLinks: number;
+          gradeRecords: number;
+          availability: number;
+          manifestCells: number;
         }[]
       >`
         select
@@ -411,7 +580,10 @@ export async function validateCourseDataTracer() {
           (select count(*)::int from sections) as sections,
           (select count(*)::int from meetings) as meetings,
           (select count(*)::int from instructors) as instructors,
-          (select count(*)::int from section_instructors) as "instructorLinks"
+          (select count(*)::int from section_instructors) as "instructorLinks",
+          (select count(*)::int from grade_archive_records) as "gradeRecords",
+          (select count(*)::int from snapshot_availability) as availability,
+          (select count(*)::int from import_manifest_cells) as "manifestCells"
       `;
       if (
         counts?.courses !== tracer.expectedCourses + 1 ||
@@ -420,7 +592,10 @@ export async function validateCourseDataTracer() {
         counts.sections !== tracer.expectedSections + 1 ||
         counts.meetings !== tracer.expectedMeetings ||
         counts.instructors !== tracer.expectedInstructors ||
-        counts.instructorLinks !== tracer.expectedInstructorLinks
+        counts.instructorLinks !== tracer.expectedInstructorLinks ||
+        counts.gradeRecords !== tracer.expectedGradeRecords ||
+        counts.availability !== tracer.expectedAvailabilityObservations + 1 ||
+        counts.manifestCells !== tracer.expectedManifestCells + 3
       )
         throw new Error('Course Data Store counts were not idempotent');
     } finally {
@@ -436,6 +611,9 @@ export async function validateCourseDataTracer() {
       meetings: tracer.expectedMeetings,
       instructors: tracer.expectedInstructors,
       instructorLinks: tracer.expectedInstructorLinks,
+      gradeRecords: tracer.expectedGradeRecords,
+      availabilityObservations: tracer.expectedAvailabilityObservations,
+      manifestCells: tracer.expectedManifestCells,
       importRuns: 2,
       zeroMeetingRoundTrip: true,
       oneMeetingRoundTrip: true,
@@ -443,6 +621,11 @@ export async function validateCourseDataTracer() {
       tbaRoundTrip: true,
       teamTaughtRoundTrip: true,
       failedRelationshipPreservedProjection: true,
+      rawGradeRecords: true,
+      noAverageGpa: true,
+      timestampedSnapshotAvailability: true,
+      manifestStatusesQueryable: true,
+      importProvenanceQueryable: true,
       anonymousRead: true,
       anonymousWriteDenied: true,
       appDbExcluded: true,

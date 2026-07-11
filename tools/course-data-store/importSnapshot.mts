@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 
 import postgres from 'postgres';
+import { z } from 'zod';
 
 import { catalogSnapshotSchema } from '../catalog-snapshot/catalogSnapshot.js';
 
@@ -12,8 +13,49 @@ export type SnapshotImportSummary = {
   meetings: { created: number; unchanged: number };
   instructors: { created: number; unchanged: number };
   instructorLinks: { created: number; unchanged: number };
+  gradeRecords: { created: number; unchanged: number };
+  availabilityObservations: { created: number; unchanged: number };
+  manifestCells: { created: number; unchanged: number };
   importRun: 'created' | 'unchanged';
 };
+
+const manifestSchema = z
+  .object({
+    run_id: z.string().min(1),
+    generated_at: z.string().min(1),
+    active_planning_term: z.string().min(1),
+    term_label: z.string().min(1),
+    configured_subjects: z.array(z.string()),
+    systemic_parser_failure_threshold: z.number(),
+    cells: z.array(
+      z
+        .object({
+          term: z.string(),
+          subject: z.string(),
+          source: z.enum([
+            'schedule_of_classes',
+            'general_catalog',
+            'instructor_grade_archive',
+          ]),
+          status: z.enum(['ok', 'empty', 'failed', 'partial']),
+          reason: z.string().nullable(),
+          attempts: z.number().int().nonnegative(),
+          row_counts: z.record(z.number()),
+          raw_artifacts: z.array(z.string()),
+          normalized_artifact: z.string().nullable(),
+        })
+        .strict(),
+    ),
+    summary: z
+      .object({
+        ok: z.number().int().nonnegative(),
+        empty: z.number().int().nonnegative(),
+        failed: z.number().int().nonnegative(),
+        partial: z.number().int().nonnegative(),
+      })
+      .strict(),
+  })
+  .strict();
 
 function parseSnapshotJson(contents: string): unknown {
   try {
@@ -26,6 +68,7 @@ function parseSnapshotJson(contents: string): unknown {
 export async function importSnapshot(
   snapshotPath: string,
   databaseUrl: string,
+  manifestPath: string,
 ): Promise<SnapshotImportSummary> {
   const contents = await readFile(snapshotPath, 'utf8');
   const parsed = catalogSnapshotSchema.safeParse(parseSnapshotJson(contents));
@@ -36,6 +79,49 @@ export async function importSnapshot(
   }
 
   const snapshot = parsed.data;
+  const manifestContents = await readFile(manifestPath, 'utf8');
+  const manifest = manifestSchema.parse(parseSnapshotJson(manifestContents));
+  if (
+    manifest.run_id !== snapshot.run_id ||
+    manifest.generated_at !== snapshot.generated_at ||
+    manifest.active_planning_term !== snapshot.active_planning_term
+  )
+    throw new Error('Import Manifest does not match Published Snapshot');
+  if (
+    JSON.stringify(manifest.configured_subjects) !==
+    JSON.stringify(snapshot.configured_subjects)
+  )
+    throw new Error('Import Manifest subjects do not match Published Snapshot');
+  const manifestStatusCounts = {
+    ok: manifest.cells.filter(({ status }) => status === 'ok').length,
+    empty: manifest.cells.filter(({ status }) => status === 'empty').length,
+    failed: manifest.cells.filter(({ status }) => status === 'failed').length,
+    partial: manifest.cells.filter(({ status }) => status === 'partial').length,
+  };
+  if (JSON.stringify(manifest.summary) !== JSON.stringify(manifestStatusCounts))
+    throw new Error('Import Manifest summary does not match its cells');
+  const manifestCellKeys = new Set<string>();
+  const expectedManifestCellKeys = new Set(
+    manifest.configured_subjects.flatMap((subject) =>
+      [
+        'schedule_of_classes',
+        'general_catalog',
+        'instructor_grade_archive',
+      ].map((source) => `${subject}:${source}`),
+    ),
+  );
+  for (const cell of manifest.cells) {
+    if (cell.term !== manifest.active_planning_term)
+      throw new Error('Import Manifest cell belongs to a different term');
+    const key = `${cell.subject}:${cell.source}`;
+    if (!expectedManifestCellKeys.has(key))
+      throw new Error('Import Manifest cell is outside configured coverage');
+    if (manifestCellKeys.has(key))
+      throw new Error('Import Manifest contains duplicate cells');
+    manifestCellKeys.add(key);
+  }
+  if (manifestCellKeys.size !== expectedManifestCellKeys.size)
+    throw new Error('Import Manifest is missing configured cells');
   const sections = snapshot.courses.flatMap((course) => course.sections);
   const meetings = sections.flatMap((section) =>
     section.meetings.map((meeting, meetingIndex) => ({
@@ -53,7 +139,33 @@ export async function importSnapshot(
       instructorName,
     })),
   );
+  const gradeRecords = snapshot.courses.flatMap((course) =>
+    course.grade_archive_records.map((record, recordIndex) => ({
+      courseId: course.course_id,
+      recordIndex,
+      record,
+    })),
+  );
+  const availabilityObservations = sections.map((section) => ({
+    sectionId: section.section_id,
+    enrolled: section.enrolled,
+    capacity: section.capacity,
+    waitlistCount: section.waitlist_count,
+  }));
   const fingerprint = createHash('sha256').update(contents).digest('hex');
+  const manifestFingerprint = createHash('sha256')
+    .update(manifestContents)
+    .digest('hex');
+  const generatedDate = new Date(snapshot.generated_at)
+    .toISOString()
+    .slice(0, 10);
+  const termState = !snapshot.term_date_range
+    ? 'undated'
+    : generatedDate < snapshot.term_date_range.start
+      ? 'upcoming'
+      : generatedDate > snapshot.term_date_range.end
+        ? 'historical'
+        : 'active';
   const sql = postgres(databaseUrl, { max: 1 });
 
   try {
@@ -98,13 +210,30 @@ export async function importSnapshot(
             where instructor_name in ${tx(instructorNames)}
           `
         : [{ count: 0 }];
+      const [existingContext] = await tx<
+        { availability: number; gradeRecords: number; manifestCells: number }[]
+      >`
+        select
+          (select count(*)::int from grade_archive_records where term_code = ${snapshot.active_planning_term}) as "gradeRecords",
+          (select count(*)::int from snapshot_availability where term_code = ${snapshot.active_planning_term}) as availability,
+          (select count(*)::int from import_manifest_cells where artifact_fingerprint = ${fingerprint}) as "manifestCells"
+      `;
 
       await tx`
         insert into import_runs (
-          artifact_fingerprint, snapshot_run_id, generated_at, term_code
+          artifact_fingerprint, snapshot_run_id, generated_at, term_code,
+          schedule_source_timestamp, catalog_source_timestamp,
+          grade_source_timestamp, manifest_fingerprint,
+          manifest_ok, manifest_empty, manifest_failed, manifest_partial
         ) values (
           ${fingerprint}, ${snapshot.run_id}, ${snapshot.generated_at},
-          ${snapshot.active_planning_term}
+          ${snapshot.active_planning_term},
+          ${snapshot.source_timestamps.schedule_of_classes},
+          ${snapshot.source_timestamps.general_catalog},
+          ${snapshot.source_timestamps.instructor_grade_archive},
+          ${manifestFingerprint}, ${manifestStatusCounts.ok},
+          ${manifestStatusCounts.empty}, ${manifestStatusCounts.failed},
+          ${manifestStatusCounts.partial}
         ) on conflict (artifact_fingerprint) do nothing
       `;
       await tx`
@@ -197,6 +326,69 @@ export async function importSnapshot(
           on conflict (term_code, section_id, instructor_name) do nothing
         `;
       }
+      if (gradeRecords.length > 0) {
+        await tx`
+          insert into grade_archive_records ${tx(
+            gradeRecords.map(({ courseId, record, recordIndex }) => ({
+              term_code: snapshot.active_planning_term,
+              course_id: courseId,
+              record_index: recordIndex,
+              archive_subject: record.subject,
+              archive_course: record.course,
+              archive_year: record.year,
+              archive_quarter: record.quarter,
+              archive_title: record.title,
+              instructor: record.instructor,
+              gpa: record.gpa,
+              a_percent: record.a,
+              b_percent: record.b,
+              c_percent: record.c,
+              d_percent: record.d,
+              f_percent: record.f,
+              w_percent: record.w,
+              p_percent: record.p,
+              np_percent: record.np,
+              raw_record: tx.json(record.raw),
+            })),
+          )}
+          on conflict (term_code, course_id, record_index) do nothing
+        `;
+      }
+      if (availabilityObservations.length > 0) {
+        await tx`
+          insert into snapshot_availability ${tx(
+            availabilityObservations.map((observation) => ({
+              term_code: snapshot.active_planning_term,
+              section_id: observation.sectionId,
+              enrolled: observation.enrolled,
+              capacity: observation.capacity,
+              waitlist_count: observation.waitlistCount,
+              observed_at: snapshot.generated_at,
+              term_state: termState,
+            })),
+          )}
+          on conflict (term_code, section_id) do nothing
+        `;
+      }
+      if (manifest.cells.length > 0) {
+        await tx`
+          insert into import_manifest_cells ${tx(
+            manifest.cells.map((cell) => ({
+              artifact_fingerprint: fingerprint,
+              term_code: cell.term,
+              subject: cell.subject,
+              source: cell.source,
+              status: cell.status,
+              reason: cell.reason,
+              attempts: cell.attempts,
+              row_counts: tx.json(cell.row_counts),
+              raw_artifacts: tx.json(cell.raw_artifacts),
+              normalized_artifact: cell.normalized_artifact,
+            })),
+          )}
+          on conflict (artifact_fingerprint, subject, source) do nothing
+        `;
+      }
 
       return {
         term: snapshot.active_planning_term,
@@ -223,6 +415,21 @@ export async function importSnapshot(
             (existingRelationships?.instructorLinks ?? 0),
           unchanged: existingRelationships?.instructorLinks ?? 0,
         },
+        gradeRecords: {
+          created: gradeRecords.length - (existingContext?.gradeRecords ?? 0),
+          unchanged: existingContext?.gradeRecords ?? 0,
+        },
+        availabilityObservations: {
+          created:
+            availabilityObservations.length -
+            (existingContext?.availability ?? 0),
+          unchanged: existingContext?.availability ?? 0,
+        },
+        manifestCells: {
+          created:
+            manifest.cells.length - (existingContext?.manifestCells ?? 0),
+          unchanged: existingContext?.manifestCells ?? 0,
+        },
         importRun: existingRun?.exists ? 'unchanged' : 'created',
       };
     });
@@ -232,12 +439,17 @@ export async function importSnapshot(
 }
 
 async function main() {
-  const [, , snapshotPath] = process.argv;
+  const [, , snapshotPath, manifestPath] = process.argv;
   const databaseUrl = process.env.COURSE_DATA_STORE_DATABASE_URL;
-  if (!snapshotPath) throw new Error('usage: importSnapshot.mts <snapshot>');
+  if (!snapshotPath || !manifestPath)
+    throw new Error('usage: importSnapshot.mts <snapshot> <manifest>');
   if (!databaseUrl)
     throw new Error('env config missing: COURSE_DATA_STORE_DATABASE_URL');
-  console.log(JSON.stringify(await importSnapshot(snapshotPath, databaseUrl)));
+  console.log(
+    JSON.stringify(
+      await importSnapshot(snapshotPath, databaseUrl, manifestPath),
+    ),
+  );
 }
 
 if (import.meta.main) {

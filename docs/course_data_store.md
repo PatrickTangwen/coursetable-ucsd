@@ -44,6 +44,24 @@ Instructors use the exact normalized Snapshot name available at this stage and
 are connected to Sections through a many-to-many join, so team teaching is not
 flattened. A Section may own zero, one, or many Meetings.
 
+Grade Archive Records remain individual historical rows with their source term,
+instructor, GPA, grade buckets, and raw record. The Course Data Store does not
+compute or expose a single course-level Average GPA.
+
+Snapshot Availability Data is one observation per imported Section. Enrolled,
+capacity, and waitlist values are stored with the Snapshot generation timestamp
+and the Supported Term state at that timestamp (`upcoming`, `active`,
+`historical`, or `undated`). Names and documentation deliberately describe
+Snapshot observations rather than live seats, tracking, or WebReg data.
+
+Every accepted import includes its matching Import Manifest. Matching is checked against
+run ID, generation time, and Supported Term before database mutation. Import
+runs retain the Snapshot and Manifest fingerprints, source timestamps, and
+grouped Manifest status counts. Individual Manifest cells retain
+ok/empty/failed/partial status, reason, attempts, row counts, and artifact
+references so incomplete enrichment remains visible. Declared status summaries
+are verified against the cells, and cross-term or duplicate cells are rejected.
+
 Committed Hasura metadata lives in `course-data-store/hasura`. Hasura connects
 only to the Course Data Store and grants the unauthenticated `anonymous` role
 select access to Supported Terms and Courses. The metadata exposes UCSD/SunGrid
@@ -58,7 +76,9 @@ COURSE_DATA_STORE_DATABASE_URL=<course-data-postgres-url> \
   bun run course-data:migrate
 
 COURSE_DATA_STORE_DATABASE_URL=<course-data-postgres-url> \
-  bun run course-data:import -- api/static/catalogs/public/S326.json
+  bun run course-data:import -- \
+    api/static/catalogs/public/S326.json \
+    api/static/catalogs/import-manifests/S326.json
 
 bun run validate:course-data-tracer
 ```
@@ -71,4 +91,8 @@ S326 supplies real one/many-Meeting, TBA, and team-taught evidence. Because no
 current Published Snapshot contains a zero-Meeting Section, the validator also
 imports an explicitly labelled boundary fixture to prove that cardinality. It
 then proves a failed relationship import leaves the accepted projection
-readable and removes containers and volumes on success or failure.
+readable. The same tracer queries raw Grade Archive Records, timestamped
+Snapshot Availability Data, source/import provenance, and real
+ok/empty/failed Manifest cells; an explicitly labelled Manifest fixture covers
+the partial status absent from S326. It removes containers and volumes on
+success or failure.
