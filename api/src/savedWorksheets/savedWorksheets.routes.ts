@@ -3,12 +3,18 @@ import asyncHandler from 'express-async-handler';
 
 import { createSavedWorksheetHandlers } from './savedWorksheets.handlers.js';
 import type { SavedWorksheetStore } from './savedWorksheets.store.js';
-import { authAppUser } from '../auth/ucsdAuth.session.js';
+import type { AppSession } from '../auth/appSession.js';
+import { createAuthAppUser } from '../auth/ucsdAuth.session.js';
+
+interface SavedWorksheetRoutesOptions {
+  now?: () => number;
+  session: AppSession;
+}
 
 export function registerSavedWorksheetRoutes(
-  app: express.Express,
+  app: express.IRouter,
   store: SavedWorksheetStore,
-  now = () => Date.now(),
+  { now = () => Date.now(), session }: SavedWorksheetRoutesOptions,
 ): void {
   const {
     listSavedWorksheets,
@@ -19,7 +25,8 @@ export function registerSavedWorksheetRoutes(
     renameSavedWorksheet,
     deleteSavedWorksheet,
     updateSavedWorksheetSections,
-  } = createSavedWorksheetHandlers(store, now);
+  } = createSavedWorksheetHandlers(store, now, session.getUser);
+  const authAppUser = createAuthAppUser(session);
 
   app.get(
     '/api/savedWorksheets',
@@ -62,7 +69,3 @@ export function registerSavedWorksheetRoutes(
     asyncHandler(saveAnonymousWorksheet),
   );
 }
-
-export default (app: express.Express, store: SavedWorksheetStore): void => {
-  registerSavedWorksheetRoutes(app, store);
-};

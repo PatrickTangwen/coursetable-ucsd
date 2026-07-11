@@ -32,6 +32,24 @@ The Published Snapshot remains the Catalog source of truth. The public
 `/api/catalog/public` and `/api/catalog/metadata` routes are Core routes and do
 not activate legacy GraphQL refresh behavior.
 
+## Runtime-neutral composition seam (2026-07-11)
+
+Issue #110 moved Core route assembly behind `createCoreAppBackend`. Its
+interface receives explicit adapters for App DB-backed Auth, Saved Searches,
+Saved Worksheets, App Sessions, verification limits and email delivery, and
+Published Snapshot storage. It returns an Express router and does not read
+environment variables, open database or Redis connections, access the local
+filesystem, or start an HTTP listener.
+
+The Node/Docker composition remains in `api/src/server.ts`. It validates Node
+configuration, creates the Postgres, Redis, email, local-filesystem, and
+Express Session adapters, mounts the Core router, registers optional legacy
+modules separately, and then owns the HTTP or HTTPS lifecycle. The external
+Core HTTP contract in `api/src/core/coreAppBackend.contract.test.ts` runs the
+same product assertions against both memory and Node-filesystem composition
+roots; future runtime roots should join that contract without copying its
+assertions.
+
 ## Disposable validation
 
 The isolated acceptance stack contains only the API, App DB Postgres, and

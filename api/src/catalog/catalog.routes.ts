@@ -5,20 +5,11 @@ import {
   generateCSVCatalog,
   refreshCatalog,
 } from './catalog.handlers.js';
-import {
-  registerStaticCatalogRoutes,
-  staticJSON,
-} from './staticCatalogRoutes.js';
+import { staticJSON } from './staticCatalogRoutes.js';
 import { authWithEvals } from '../auth/auth.handlers.js';
 import { STATIC_FILE_DIR } from '../config.js';
 
-export default (app: express.Express, registerLegacyCatalog = false): void => {
-  // Serve the Published Snapshot and its Supported Term metadata independently
-  // of Ferry, Hasura, evaluations, or any other legacy integration.
-  registerStaticCatalogRoutes(app, STATIC_FILE_DIR);
-
-  if (!registerLegacyCatalog) return;
-
+export function registerLegacyCatalogRoutes(app: express.Express): void {
   // Enable static catalog refresh on demand.
   // After the crawler runs, we hit this route to refresh the static files.
   app.get('/api/catalog/refresh', verifyHeaders, asyncHandler(refreshCatalog));
@@ -45,4 +36,6 @@ export default (app: express.Express, registerLegacyCatalog = false): void => {
       etag: true,
     }),
   );
-};
+}
+
+export default registerLegacyCatalogRoutes;

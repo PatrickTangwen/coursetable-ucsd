@@ -1,12 +1,15 @@
 import { and, desc, eq } from 'drizzle-orm';
+import type { drizzle } from 'drizzle-orm/postgres-js';
 
 import type {
   SavedSearchRecord,
   SavedSearchStore,
 } from './savedSearches.store.js';
 import { savedSearches } from '../../drizzle/schema.js';
+import type * as schema from '../../drizzle/schema.js';
 import { appUserIdToLegacyNetId } from '../auth/ucsdIdentity.js';
-import { db } from '../config.js';
+
+type SavedSearchDatabase = ReturnType<typeof drizzle<typeof schema>>;
 
 const savedSearchColumns = {
   id: savedSearches.id,
@@ -15,7 +18,9 @@ const savedSearchColumns = {
   createdAt: savedSearches.createdAt,
 };
 
-export function createDatabaseSavedSearchStore(): SavedSearchStore {
+export function createDatabaseSavedSearchStore(
+  db: SavedSearchDatabase,
+): SavedSearchStore {
   return {
     async listByUserId(userId) {
       return await db.query.savedSearches.findMany({
