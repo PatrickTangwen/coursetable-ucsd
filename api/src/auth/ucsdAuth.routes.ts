@@ -11,7 +11,10 @@ import {
   toAppUserResponse,
   verificationCodeTtlMs,
 } from './ucsdIdentity.js';
-import type { VerificationEmailSender } from './verificationEmail.sender.js';
+import {
+  createVerificationEmailMessage,
+  type VerificationEmailSender,
+} from './verificationEmail.sender.js';
 
 const RequestVerificationSchema = z.object({
   email: z.string().min(1).max(256),
@@ -93,11 +96,14 @@ export function registerUcsdAuthRoutes(
         createdAt,
         expiresAt,
       });
-      await emailSender.sendVerificationEmail({
-        email: normalizedEmail,
-        code,
-        expiresAt,
-      });
+      await emailSender.sendVerificationEmail(
+        createVerificationEmailMessage({
+          email: normalizedEmail,
+          code,
+          createdAt,
+          expiresAt,
+        }),
+      );
 
       res.json({
         status: 'verification_sent',

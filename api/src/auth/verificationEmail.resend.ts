@@ -1,9 +1,6 @@
 import { Resend } from 'resend';
 
-import type {
-  VerificationEmail,
-  VerificationEmailSender,
-} from './verificationEmail.sender.js';
+import type { VerificationEmailSender } from './verificationEmail.sender.js';
 
 interface ResendEmailRequest {
   from: string;
@@ -41,14 +38,6 @@ function validateSenderConfig(senderDomain: string, fromAddress: string) {
   }
 }
 
-function verificationEmailContent({ code }: VerificationEmail) {
-  return {
-    subject: 'Your SunGrid verification code',
-    text: `Your SunGrid verification code is ${code}. It expires in 15 minutes. If you did not request this code, you can ignore this email.`,
-    html: `<p>Your SunGrid verification code is:</p><p><strong>${code}</strong></p><p>This code expires in 15 minutes. If you did not request this code, you can ignore this email.</p>`,
-  };
-}
-
 export function createResendVerificationEmailSender({
   apiKey,
   senderDomain,
@@ -68,11 +57,13 @@ export function createResendVerificationEmailSender({
     })();
 
   return {
-    async sendVerificationEmail(verification) {
+    async sendVerificationEmail(message) {
       const response = await emailClient.send({
         from: `SunGrid <${fromAddress}>`,
-        to: verification.email,
-        ...verificationEmailContent(verification),
+        to: message.recipient,
+        subject: message.subject,
+        text: message.text,
+        html: message.html,
       });
 
       if (response.error) {

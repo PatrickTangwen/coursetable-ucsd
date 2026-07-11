@@ -8,8 +8,15 @@ const config = {
   fromAddress: 'login@mail.sungridplanner.com',
 };
 
+const message = {
+  recipient: 'student@ucsd.edu',
+  subject: 'Verification subject',
+  text: 'Verification text',
+  html: '<p>Verification HTML</p>',
+};
+
 describe('Resend verification email sender', () => {
-  it('awaits provider acceptance with verification-code-only content', async () => {
+  it('awaits provider acceptance and transports the supplied message', async () => {
     const requests: unknown[] = [];
     const sender = createResendVerificationEmailSender({
       ...config,
@@ -21,22 +28,17 @@ describe('Resend verification email sender', () => {
       },
     });
 
-    await sender.sendVerificationEmail({
-      email: 'student@ucsd.edu',
-      code: '123456',
-      expiresAt: 1_900_000,
-    });
+    await sender.sendVerificationEmail(message);
 
     expect(requests).toEqual([
       {
         from: 'SunGrid <login@mail.sungridplanner.com>',
         to: 'student@ucsd.edu',
-        subject: 'Your SunGrid verification code',
-        text: 'Your SunGrid verification code is 123456. It expires in 15 minutes. If you did not request this code, you can ignore this email.',
-        html: '<p>Your SunGrid verification code is:</p><p><strong>123456</strong></p><p>This code expires in 15 minutes. If you did not request this code, you can ignore this email.</p>',
+        subject: 'Verification subject',
+        text: 'Verification text',
+        html: '<p>Verification HTML</p>',
       },
     ]);
-    expect(JSON.stringify(requests)).not.toMatch(/https?:\/\//u);
   });
 
   it('propagates a provider rejection instead of reporting success', async () => {
@@ -51,13 +53,7 @@ describe('Resend verification email sender', () => {
       },
     });
 
-    await expect(
-      sender.sendVerificationEmail({
-        email: 'student@ucsd.edu',
-        code: '123456',
-        expiresAt: 1_900_000,
-      }),
-    ).rejects.toThrow(
+    await expect(sender.sendVerificationEmail(message)).rejects.toThrow(
       'Resend rejected verification email: sender domain is not verified',
     );
   });
@@ -70,13 +66,9 @@ describe('Resend verification email sender', () => {
       },
     });
 
-    await expect(
-      sender.sendVerificationEmail({
-        email: 'student@ucsd.edu',
-        code: '123456',
-        expiresAt: 1_900_000,
-      }),
-    ).rejects.toThrow('network unavailable');
+    await expect(sender.sendVerificationEmail(message)).rejects.toThrow(
+      'network unavailable',
+    );
   });
 
   it('fails closed for missing or inconsistent sender configuration', () => {

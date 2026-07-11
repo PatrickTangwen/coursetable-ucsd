@@ -228,9 +228,10 @@ describe('UCSD auth routes', () => {
       expect(response.status).toBe(200);
       expect(sent).toEqual([
         {
-          email: 'student@ucsd.edu',
-          code: '123456',
-          expiresAt: 1_900_000,
+          recipient: 'student@ucsd.edu',
+          subject: 'Your SunGrid verification code',
+          text: 'Your SunGrid verification code is 123456. This code expires in 15 minutes. If you did not request this code, you can ignore this email.',
+          html: '<p>Your SunGrid verification code is:</p><p><strong>123456</strong></p><p>This code expires in 15 minutes. If you did not request this code, you can ignore this email.</p>',
         },
       ]);
       expect(verificationRecords).toEqual([

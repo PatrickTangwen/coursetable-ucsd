@@ -1,11 +1,42 @@
 export interface VerificationEmail {
   email: string;
   code: string;
+  createdAt: number;
   expiresAt: number;
 }
 
+export interface VerificationEmailMessage {
+  recipient: string;
+  subject: string;
+  text: string;
+  html: string;
+}
+
 export interface VerificationEmailSender {
-  sendVerificationEmail: (verification: VerificationEmail) => Promise<void>;
+  sendVerificationEmail: (message: VerificationEmailMessage) => Promise<void>;
+}
+
+export function createVerificationEmailMessage({
+  email,
+  code,
+  createdAt,
+  expiresAt,
+}: VerificationEmail): VerificationEmailMessage {
+  const lifetimeMinutes = Math.ceil((expiresAt - createdAt) / 60_000);
+  if (lifetimeMinutes <= 0)
+    throw new Error('Verification email expiry must be after creation');
+
+  const minuteLabel = lifetimeMinutes === 1 ? 'minute' : 'minutes';
+  const expiryCopy = `This code expires in ${lifetimeMinutes} ${minuteLabel}.`;
+  const ignoreCopy =
+    'If you did not request this code, you can ignore this email.';
+
+  return {
+    recipient: email,
+    subject: 'Your SunGrid verification code',
+    text: `Your SunGrid verification code is ${code}. ${expiryCopy} ${ignoreCopy}`,
+    html: `<p>Your SunGrid verification code is:</p><p><strong>${code}</strong></p><p>${expiryCopy} ${ignoreCopy}</p>`,
+  };
 }
 
 export function createDevelopmentVerificationEmailSender(): VerificationEmailSender {
