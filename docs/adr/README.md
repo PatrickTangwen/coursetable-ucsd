@@ -88,6 +88,9 @@ logs, or transient setup notes directly in ADRs.
   deploy login backend support before public availability, but user-visible
   login entry points and public route behavior stay behind an environment flag
   until hosted acceptance passes.
+- `0024-use-hasura-for-shadow-course-data-projection.md`: select Hasura for the
+  separately owned Course Data Store shadow projection without changing the
+  Published Snapshot frontend path.
 
 ## Editing Rule
 

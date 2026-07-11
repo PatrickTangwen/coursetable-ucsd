@@ -9,6 +9,8 @@ Status: top-level navigation for stable project documentation.
   staging/production rollout.
 - `core_app_backend.md`: Core App Backend composition boundary, optional legacy
   modules, and disposable validation path.
+- `course_data_store.md`: shadow Course Data Store ownership, migrations,
+  importer, Hasura metadata, and tracer validation.
 - `local_server.md`: local frontend/backend/auth startup and login smoke
   runbook.
 - `local_server_endpoints.md`: current local frontend/backend URLs, Docker
