@@ -23,3 +23,15 @@
     --height-navbar: 72px;
   }
 }
+
+/* Mobile (must stay in sync with the 900px view-mode breakpoint in
+   CatalogTable): the card list scrolls with the page itself, so the
+   browser's own scrollbar is used instead of an inner-container one.
+   The sticky top nav keeps the search bar available while scrolling. */
+@media (max-width: calc(900px - 0.5px)) {
+  .catalogLayout {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+}

@@ -91,6 +91,12 @@ logs, or transient setup notes directly in ADRs.
 - `0024-use-hasura-for-shadow-course-data-projection.md`: select Hasura for the
   separately owned Course Data Store shadow projection without changing the
   Published Snapshot frontend path.
+- `0025-defer-hosted-shadow-course-data-platform.md`: keep the first hosted
+  staging environment focused on the user-facing App path while Course Data
+  Store and Hasura remain a locally validated shadow path.
+- `0026-use-upstash-redis-for-first-worker-hosting.md`: preserve Redis session
+  and verification-limit semantics through Upstash REST for the first Worker
+  deployment instead of redesigning them around Durable Objects.
 
 ## Editing Rule
 

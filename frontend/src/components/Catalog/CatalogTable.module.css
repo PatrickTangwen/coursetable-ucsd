@@ -71,6 +71,10 @@
 }
 
 .rowsContainerMobile {
+  /* Mobile scrolls with the page (browser scrollbar) rather than inside
+     this container; .catalogLayout unlocks the page height accordingly. */
+  flex: none;
+  overflow: visible;
   background: #f9f8f6;
   padding: 12px 12px 44px;
 }
