@@ -155,3 +155,46 @@ Anonymous Hasura queries expose `termCode` and `snapshotLifecycle` on Supported
 Terms and retain the original import generation timestamps. This is a
 forward-accumulating archive only; it does not claim unavailable pre-Term-Window
 backfill.
+
+## Bounded public GraphQL contract — 2026-07-11
+
+Issue #94 defines the browser-facing `/ferry/v1/graphql` gateway to the
+anonymous Hasura role as a deliberately bounded, read-only shadow API. A public
+request must contain one query operation and one approved root field. Every
+list requires a positive `limit`; term-owned roots also require
+`where: {termCode: {_eq: ...}}`. Root limits cannot exceed 100, relationship
+limits cannot exceed 20, selection depth cannot exceed six, and request bodies
+cannot exceed 64 KiB. A request may select at most 80 fields and 12 relationship
+lists across aliases and fragment expansions; fragment cycles are rejected.
+Public consumers paginate with GraphQL `limit` and `offset`.
+
+Anonymous Hasura select permissions remain defense-in-depth and apply
+server-side maximum row counts even if a caller bypasses or misconfigures the
+gateway:
+
+- Supported Terms: 10; Courses and instructors: 100.
+- Sections, instructor links, Grade Archive Records, Snapshot Availability,
+  and Import Manifest cells: 200.
+- Meetings: 250; import runs: 20.
+
+Approved relationships form a finite outward tree: Supported Term to Courses,
+import runs, and Manifest cells; Course to Sections and Grade Archive Records;
+Section to Meetings, Snapshot Availability, and instructor links; instructor
+links to instructors. Reverse Course-to-Term and Section-to-Course
+relationships are intentionally absent, preventing recursive relationship
+expansion without relying on Hasura Cloud/Enterprise query-depth features.
+
+Anonymous schema introspection is the sole exception to list argument rules so
+consumers can discover the shadow contract, but Hasura applies it to the
+anonymous role: there is no mutation root and no App DB or inherited Yale
+roots. The metadata API and direct Hasura endpoint remain administrative paths
+protected by the admin secret. The Course Data Store source connects only to
+its own database, so App Users, verification records, Saved Searches, Saved
+Worksheets, and Saved Worksheet Sections are absent rather than merely
+row-filtered.
+
+The browser-facing Express `/ferry` compatibility proxy always overwrites the
+role with `anonymous` and removes any browser-supplied admin-secret header.
+Hasura administration and privileged GraphQL clients remain server-side paths;
+the frontend receives no Hasura admin credential. The current Catalog frontend
+continues to read Published Snapshot JSON and does not use this shadow API.

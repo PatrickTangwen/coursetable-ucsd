@@ -79,7 +79,7 @@
                   "snapshot_lifecycle"
                 ],
                 "filter": {},
-                "limit": 100
+                "limit": 10
               }
             }
           ]
@@ -100,12 +100,6 @@
               "catalog_url": "catalogUrl"
             }
           },
-          "object_relationships": [
-            {
-              "name": "supportedTerm",
-              "using": { "foreign_key_constraint_on": "term_code" }
-            }
-          ],
           "array_relationships": [
             {
               "name": "sections",
@@ -154,7 +148,7 @@
                   "catalog_url"
                 ],
                 "filter": {},
-                "limit": 500
+                "limit": 100
               }
             }
           ]
@@ -175,19 +169,6 @@
             }
           },
           "object_relationships": [
-            {
-              "name": "course",
-              "using": {
-                "manual_configuration": {
-                  "remote_table": { "schema": "public", "name": "courses" },
-                  "column_mapping": {
-                    "term_code": "term_code",
-                    "course_id": "course_id"
-                  },
-                  "insertion_order": null
-                }
-              }
-            },
             {
               "name": "snapshotAvailability",
               "using": {
@@ -248,7 +229,7 @@
                   "meeting_type"
                 ],
                 "filter": {},
-                "limit": 1000
+                "limit": 200
               }
             }
           ]
@@ -292,7 +273,7 @@
                   "raw_location"
                 ],
                 "filter": {},
-                "limit": 2000
+                "limit": 250
               }
             }
           ]
@@ -311,7 +292,7 @@
               "permission": {
                 "columns": ["instructor_name"],
                 "filter": {},
-                "limit": 1000
+                "limit": 100
               }
             }
           ]
@@ -343,7 +324,7 @@
               "permission": {
                 "columns": ["term_code", "section_id", "instructor_name"],
                 "filter": {},
-                "limit": 2000
+                "limit": 200
               }
             }
           ]
@@ -401,7 +382,7 @@
                   "raw_record"
                 ],
                 "filter": {},
-                "limit": 2000
+                "limit": 200
               }
             }
           ]
@@ -435,7 +416,7 @@
                   "term_state"
                 ],
                 "filter": {},
-                "limit": 2000
+                "limit": 200
               }
             }
           ]
@@ -481,7 +462,7 @@
                   "snapshot_lifecycle"
                 ],
                 "filter": {},
-                "limit": 100
+                "limit": 20
               }
             }
           ]
@@ -518,7 +499,7 @@
                   "normalized_artifact"
                 ],
                 "filter": {},
-                "limit": 1000
+                "limit": 100
               }
             }
           ]

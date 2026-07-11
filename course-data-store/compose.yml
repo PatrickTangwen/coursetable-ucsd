@@ -18,7 +18,7 @@ services:
   hasura:
     image: hasura/graphql-engine:v2.48.5
     ports:
-      - ${COURSE_DATA_HASURA_PORT:-18089}:8080
+      - 127.0.0.1:${COURSE_DATA_HASURA_PORT:-18089}:8080
     depends_on:
       course-data-db:
         condition: service_healthy
