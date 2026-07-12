@@ -6,6 +6,12 @@
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": false,
   "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "staging.sungridplanner.com",
+      "custom_domain": true,
+    },
+  ],
   "triggers": { "crons": ["0 8 * * *"] },
   "assets": {
     "directory": "../frontend/build",
@@ -29,6 +35,12 @@
     "binding": "CF_VERSION_METADATA",
   },
   "vars": {
+    "CLOUDFLARE_PLAN_IDENTITY": "Workers Free",
+    "WORKERS_FREE_REQUESTS_PER_DAY": "100000",
+    "WORKERS_FREE_CPU_MS_PER_INVOCATION": "10",
+    "WORKERS_FREE_EXTERNAL_SUBREQUESTS_PER_INVOCATION": "50",
+    "WORKERS_FREE_CRON_TRIGGERS_PER_ACCOUNT": "5",
+    "WORKERS_FREE_STATIC_ASSETS_PER_VERSION": "20000",
     "VERIFICATION_REQUEST_COOLDOWN_SECONDS": "60",
     "VERIFICATION_SOURCE_LIMIT": "5",
     "VERIFICATION_SOURCE_WINDOW_SECONDS": "900",
@@ -42,7 +54,7 @@
     "APPLICATION_SAFETY_SEND_WINDOW_SECONDS": "2592000",
     "APPLICATION_SAFETY_ACCOUNT_WRITE_LIMIT": "50000",
     "APPLICATION_SAFETY_ACCOUNT_WRITE_WINDOW_SECONDS": "2592000",
-    "USAGE_ALLOWANCE_WORKER_REQUESTS": "10000000",
+    "USAGE_ALLOWANCE_WORKER_REQUESTS": "3100000",
     "USAGE_ALLOWANCE_R2_READS": "10000000",
     "USAGE_ALLOWANCE_NEON_ACCOUNT_REQUESTS": "200000",
     "USAGE_ALLOWANCE_UPSTASH_COMMANDS": "500000",

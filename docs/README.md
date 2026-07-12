@@ -30,6 +30,8 @@ Status: top-level navigation for stable project documentation.
   thresholds, and failure/rollback evidence.
 - `cloudflare_hosted_staging.md`: proposed Cloudflare Worker staging boundary,
   external state services, security and cost policies, and acceptance gate.
+- `cloudflare_staging_deployment-2026-07-12.md`: manual, protected staging
+  deployment workflow, rollback behavior, and non-sensitive evidence contract.
 - `worker_catalog.md`: local single-origin Worker Catalog, private R2
   publication integrity, and disposable acceptance workflow.
 - `worker_login.md`: Hyperdrive, Upstash REST, fixed hosted sessions, and

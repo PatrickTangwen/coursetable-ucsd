@@ -16,6 +16,10 @@ artifacts/real-backend-auth-validation/*
 !artifacts/real-backend-auth-validation/.gitkeep
 artifacts/saved-worksheet-acceptance/*
 !artifacts/saved-worksheet-acceptance/.gitkeep
+artifacts/staging-deployment/*
+!artifacts/staging-deployment/.gitkeep
+
+worker/wrangler.staging.generated.jsonc
 
 frontend/build
 frontend/dev-dist
