@@ -25,3 +25,7 @@ PORT=$(docker port "$CONTAINER_NAME" 5432/tcp | sed 's/.*://')
 cd "$SCRIPT_DIR/.."
 APP_DB_MIGRATION_TEST_URL="postgresql://postgres:test@127.0.0.1:${PORT}/app" \
   bun run test:db:migrate
+
+cd "$SCRIPT_DIR/../.."
+APP_DB_WORKER_COMPATIBILITY_TEST_URL="postgresql://postgres:test@127.0.0.1:${PORT}/app" \
+  bunx vitest run worker/src/appDatabaseSchemaCompatibility.test.ts
