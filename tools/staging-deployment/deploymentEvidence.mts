@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto';
 import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parse } from 'yaml';
@@ -7,20 +6,29 @@ import {
   assertDeploymentEvidenceSafe,
   composeDeploymentEvidence,
 } from './deploymentEvidence.js';
+import {
+  captureLastAccepted,
+  putAndVerify,
+  restoreCapturedLastAccepted,
+} from './lastAccepted.js';
 import { createR2CatalogStore } from './r2CatalogStore.js';
+import { stagingContract } from './stagingContract.js';
 
 const [, , command] = process.argv;
-if (command !== 'accept' && command !== 'report')
-  throw new Error('Usage: deploymentEvidence.mts accept|report');
+if (command !== 'capture' && command !== 'accept' && command !== 'report')
+  throw new Error('Usage: deploymentEvidence.mts capture|accept|report');
 const root = path.resolve(import.meta.dirname, '../..');
 const artifactDirectory = path.join(root, 'artifacts/staging-deployment');
 await mkdir(artifactDirectory, { recursive: true });
 const store = createR2CatalogStore();
 const lastAcceptedKey = process.env.LAST_ACCEPTED_KEY;
-if (lastAcceptedKey !== 'deployment-evidence/last-accepted.json')
+if (lastAcceptedKey !== stagingContract.lastAcceptedKey)
   throw new Error('Unexpected last accepted deployment key');
 
-if (command === 'accept') {
+if (command === 'capture') {
+  const prior = await captureLastAccepted(store, artifactDirectory);
+  console.log(JSON.stringify({ result: 'captured', exists: Boolean(prior) }));
+} else if (command === 'accept') {
   const config = parse(
     await readFile(
       path.join(root, 'config/catalog-snapshot.ucsd.yaml'),
@@ -45,12 +53,21 @@ if (command === 'accept') {
   const body = new TextEncoder().encode(`${JSON.stringify(evidence)}\n`);
   const timestampKey = evidence.timestamp.replaceAll(':', '-');
   const evidenceKey = `deployment-evidence/${timestampKey}-${evidence.gitCommit}.json`;
-  await putAndVerify(evidenceKey, body);
-  await putAndVerify(lastAcceptedKey, body);
   await writeFile(
     path.join(artifactDirectory, 'accepted-deployment.json'),
     body,
   );
+  await putAndVerify(store, evidenceKey, body);
+  await writeFile(
+    path.join(artifactDirectory, 'last-accepted-update-attempted'),
+    'attempted\n',
+  );
+  try {
+    await putAndVerify(store, lastAcceptedKey, body);
+  } catch (error) {
+    await restoreCapturedLastAccepted(store, artifactDirectory);
+    throw error;
+  }
   console.log(JSON.stringify(evidence));
 } else {
   const lastAccepted = await store.get(lastAcceptedKey);
@@ -86,23 +103,6 @@ async function jsonArtifact<T>(filename: string): Promise<T> {
   return JSON.parse(
     await readFile(path.join(artifactDirectory, filename), 'utf8'),
   ) as T;
-}
-
-async function putAndVerify(key: string, body: Uint8Array) {
-  const expected = digest(body);
-  await store.put(key, body, {
-    cacheControl: 'private, no-store',
-    contentType: 'application/json; charset=utf-8',
-    metadata: { sha256: expected },
-    storageClass: 'STANDARD',
-  });
-  const remote = await store.get(key);
-  if (!remote || digest(remote) !== expected)
-    throw new Error('Deployment evidence remote digest mismatch');
-}
-
-function digest(body: Uint8Array) {
-  return createHash('sha256').update(body).digest('hex');
 }
 
 function required(name: string) {

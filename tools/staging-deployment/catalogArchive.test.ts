@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildCatalogArchive } from './catalogArchive.js';
+import { buildTermArchive } from './catalogArchive.js';
 
-describe('staging Catalog archive', () => {
+describe('staging Term Archive', () => {
   it('builds a complete content-addressed registry from accepted repository artifacts', async () => {
-    const archive = await buildCatalogArchive();
+    const archive = await buildTermArchive();
 
     expect(archive.registry.last_update).toBe('2026-07-02T01:57:13.859Z');
     expect(archive.terms).toHaveLength(14);

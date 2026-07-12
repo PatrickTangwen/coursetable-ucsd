@@ -1,10 +1,10 @@
-import { createHash } from 'node:crypto';
-import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-import { buildCatalogArchive } from './catalogArchive.js';
-import { publishCatalogArchive } from './catalogPublisher.js';
+import { buildTermArchive } from './catalogArchive.js';
+import { publishTermArchive } from './catalogPublisher.js';
 import { createR2CatalogStore } from './r2CatalogStore.js';
+import { digest, exists } from './stagingContract.js';
 
 const [, , command] = process.argv;
 const root = path.resolve(import.meta.dirname, '../..');
@@ -18,6 +18,10 @@ const backupMarkerPath = path.join(
   artifactDirectory,
   'catalog-metadata-before.exists',
 );
+const publicationAttemptedPath = path.join(
+  artifactDirectory,
+  'term-archive-publication-attempted',
+);
 const store = createR2CatalogStore();
 await mkdir(artifactDirectory, { recursive: true });
 
@@ -30,8 +34,9 @@ if (command === 'publish') {
     await rm(backupPath, { force: true });
     await rm(backupMarkerPath, { force: true });
   }
-  const archive = await buildCatalogArchive(root);
-  const evidence = await publishCatalogArchive(archive, store);
+  await writeFile(publicationAttemptedPath, 'attempted\n');
+  const archive = await buildTermArchive(root);
+  const evidence = await publishTermArchive(archive, store);
   const result = {
     result: 'published-and-verified',
     storageClass: 'STANDARD',
@@ -41,8 +46,7 @@ if (command === 'publish') {
   await writeFile(publicationPath, `${JSON.stringify(result)}\n`);
   console.log(JSON.stringify(result));
 } else if (command === 'restore') {
-  const publicationExists = await exists(publicationPath);
-  if (!publicationExists) {
+  if (!(await exists(publicationAttemptedPath))) {
     console.log(JSON.stringify({ result: 'not-required' }));
     process.exit(0);
   }
@@ -65,17 +69,4 @@ if (command === 'publish') {
   console.log(JSON.stringify({ result: 'restored-last-accepted-metadata' }));
 } else {
   throw new Error('Usage: catalogR2.mts publish|restore');
-}
-
-function digest(body: Uint8Array) {
-  return createHash('sha256').update(body).digest('hex');
-}
-
-async function exists(filename: string) {
-  try {
-    await access(filename);
-    return true;
-  } catch {
-    return false;
-  }
 }

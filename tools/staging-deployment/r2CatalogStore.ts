@@ -5,14 +5,15 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 
-import type { CatalogArchiveStore } from './catalogPublisher.js';
+import type { TermArchiveStore } from './catalogPublisher.js';
+import { stagingContract } from './stagingContract.js';
 
 export function createR2CatalogStore(
   environment: { [key: string]: string | undefined } = process.env,
 ) {
   const accountId = required(environment, 'CLOUDFLARE_ACCOUNT_ID');
   const bucket = required(environment, 'R2_CATALOG_BUCKET');
-  if (bucket !== 'sungrid-staging-catalog')
+  if (bucket !== stagingContract.bucket)
     throw new Error('Unexpected staging Catalog bucket');
   const client = new S3Client({
     credentials: {
@@ -23,7 +24,7 @@ export function createR2CatalogStore(
     region: 'auto',
   });
 
-  const store: CatalogArchiveStore = {
+  const store: TermArchiveStore = {
     async get(key) {
       try {
         const result = await client.send(

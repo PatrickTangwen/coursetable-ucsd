@@ -1,3 +1,11 @@
+import { isObject } from './stagingContract.js';
+
+export type WorkerDeploymentIdentity = {
+  exists: boolean;
+  createdAt?: string;
+  versionId?: string;
+};
+
 export function deploymentIdentity(value: unknown) {
   if (!isObject(value) || !Array.isArray(value.versions))
     throw new Error('Worker deployment status is invalid');
@@ -17,6 +25,18 @@ export function deploymentIdentity(value: unknown) {
   };
 }
 
-function isObject(value: unknown): value is { [key: string]: unknown } {
-  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+export function assertActiveMatchesLastAccepted(
+  active: WorkerDeploymentIdentity,
+  acceptedVersion: string | null,
+) {
+  if (!acceptedVersion && active.exists)
+    throw new Error('Unaccepted staging Worker drift exists before deployment');
+  if (
+    acceptedVersion &&
+    (!active.exists || active.versionId !== acceptedVersion)
+  ) {
+    throw new Error(
+      'Active Worker differs from durable last-accepted deployment',
+    );
+  }
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { publishCatalogArchive } from './catalogPublisher.js';
+import { publishTermArchive } from './catalogPublisher.js';
 
 class MemoryStore {
   readonly objects = new Map<string, Uint8Array>();
@@ -26,7 +26,7 @@ class MemoryStore {
 
 const encoder = new TextEncoder();
 
-describe('staging Catalog publisher', () => {
+describe('staging Term Archive publisher', () => {
   it('preserves the accepted metadata pointer when object verification fails', async () => {
     const store = new MemoryStore();
     const previous = encoder.encode('{"deployment":"accepted"}\n');
@@ -35,7 +35,7 @@ describe('staging Catalog publisher', () => {
       'published-snapshots/FA26/b1b367dc6a7d077581f77f16169a6696bac3d68ffd5c93189ac60fac027e57a3.json';
 
     await expect(
-      publishCatalogArchive(
+      publishTermArchive(
         {
           registry: {
             last_update: '2026-07-12T00:00:00.000Z',

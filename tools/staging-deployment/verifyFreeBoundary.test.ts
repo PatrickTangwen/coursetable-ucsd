@@ -8,6 +8,7 @@ const config = {
   bucket: 'sungrid-staging-catalog',
   hostname: 'staging.sungridplanner.com',
   hyperdriveId: '1234567890abcdef1234567890abcdef',
+  publishedObjectReadbacks: 29,
   worker: 'sungrid-staging',
 };
 
@@ -19,8 +20,64 @@ function freeFetcher(input: string | URL | Request) {
   const { pathname } = new URL(
     typeof input === 'string' || input instanceof URL ? input : input.url,
   );
+  if (pathname.endsWith('/graphql')) {
+    return Promise.resolve(
+      Response.json({
+        data: {
+          viewer: {
+            accounts: [
+              {
+                workersInvocationsAdaptive: [
+                  { sum: { requests: 25 }, quantiles: { cpuTimeP99: 5 } },
+                ],
+                r2OperationsAdaptiveGroups: [
+                  {
+                    sum: { requests: 40 },
+                    dimensions: { actionType: 'PutObject' },
+                  },
+                  {
+                    sum: { requests: 60 },
+                    dimensions: { actionType: 'GetObject' },
+                  },
+                ],
+                r2StorageAdaptiveGroups: [
+                  {
+                    max: { payloadSize: 1000, metadataSize: 100 },
+                    dimensions: {
+                      bucketName: 'sungrid-staging-catalog',
+                      datetime: '2026-07-12T10:00:00Z',
+                    },
+                  },
+                ],
+                hyperdriveQueriesAdaptiveGroups: [{ count: 12 }],
+              },
+            ],
+          },
+        },
+      }),
+    );
+  }
+  if (pathname.endsWith('/subscriptions')) {
+    return response([
+      {
+        state: 'Provisioned',
+        price: 0,
+        rate_plan: {
+          id: 'free',
+          scope: 'workers',
+          sets: ['workers'],
+        },
+      },
+    ]);
+  }
   if (pathname.endsWith('/workers/account-settings'))
     return response({ default_usage_model: 'bundled' });
+  if (pathname.endsWith('/workers/scripts/sungrid-staging/settings')) {
+    return response({
+      usage_model: 'bundled',
+      limits: { cpu_ms: 10, subrequests: 50 },
+    });
+  }
   if (pathname.endsWith('/workers/scripts/sungrid-staging/subdomain'))
     return response({ enabled: false, previews_enabled: false });
   if (pathname.endsWith('/workers/scripts'))
@@ -39,6 +96,18 @@ function freeFetcher(input: string | URL | Request) {
     return response({
       name: 'sungrid-staging-catalog',
       storage_class: 'Standard',
+    });
+  }
+  if (pathname.endsWith('/r2/metrics')) {
+    return response({
+      standard: {
+        published: { metadataSize: 100, objects: 30, payloadSize: 1000 },
+        uploaded: { metadataSize: 100, objects: 30, payloadSize: 1000 },
+      },
+      infrequentAccess: {
+        published: { metadataSize: 0, objects: 0, payloadSize: 0 },
+        uploaded: { metadataSize: 0, objects: 0, payloadSize: 0 },
+      },
     });
   }
   if (pathname.endsWith('/domains/managed'))
@@ -62,14 +131,33 @@ describe('Cloudflare Workers Free boundary', () => {
       result: 'passed',
       plan: 'Workers Free',
       workerUsageModel: 'bundled',
+      subscriptionReadback: true,
+      workerSubscriptionRatePlan: 'free',
+      workerSubscriptionState: 'Provisioned',
+      workersPaidSubscriptionPresent: false,
+      deployedCpuMsPerInvocation: 10,
+      deployedExternalSubrequestsPerInvocation: 50,
       workersDevEnabled: false,
       previewUrlsEnabled: false,
       accountCronTriggers: 1,
       r2StorageClass: 'Standard',
       r2DevEnabled: false,
       r2CustomDomains: 0,
+      r2ObservedStandardObjects: 30,
+      r2ObservedInfrequentAccessObjects: 0,
+      r2PublishedObjectReadbacks: 29,
       hyperdriveCachingDisabled: true,
       hyperdriveOriginConnectionLimit: 20,
+      observedDailyUsage: {
+        workerRequests: 25,
+        workerCpuTimeP99Ms: 5,
+        r2ClassAOperations: 40,
+        r2ClassBOperations: 60,
+        r2FreeOperations: 0,
+        r2CurrentStoredBytes: 1100,
+        r2StorageGbMonth: 1100 / 1_000_000_000 / 30,
+        hyperdriveQueries: 12,
+      },
     });
   });
 
@@ -85,6 +173,32 @@ describe('Cloudflare Workers Free boundary', () => {
 
     await expect(verifyFreeBoundary(config, paidFetcher)).rejects.toThrow(
       'Workers Paid Standard usage model is enabled',
+    );
+  });
+
+  it('blocks a legacy Bundled Worker when a paid subscription exists', async () => {
+    const paidFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/subscriptions')) {
+        return response([
+          {
+            state: 'Paid',
+            price: 5,
+            rate_plan: {
+              id: 'pro',
+              scope: 'workers',
+              sets: ['workers'],
+            },
+          },
+        ]);
+      }
+      return freeFetcher(input);
+    };
+
+    await expect(verifyFreeBoundary(config, paidFetcher)).rejects.toThrow(
+      'Workers Paid subscription is enabled',
     );
   });
 });

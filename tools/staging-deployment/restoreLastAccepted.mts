@@ -1,8 +1,16 @@
 import { execFile } from 'node:child_process';
-import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 
+import {
+  acceptedWorkerVersion,
+  lastAcceptedExistsFilename,
+  lastAcceptedFilename,
+  restoreCapturedLastAccepted,
+} from './lastAccepted.js';
+import { createR2CatalogStore } from './r2CatalogStore.js';
+import { exists, isMissingWorker, stagingContract } from './stagingContract.js';
 import { deploymentIdentity } from './workerDeployment.js';
 
 const execFileAsync = promisify(execFile);
@@ -11,7 +19,7 @@ const artifactDirectory = path.join(root, 'artifacts/staging-deployment');
 await mkdir(artifactDirectory, { recursive: true });
 const wrangler = path.join(root, 'node_modules/.bin/wrangler');
 const worker = process.env.CLOUDFLARE_WORKER_NAME;
-if (worker !== 'sungrid-staging')
+if (worker !== stagingContract.worker)
   throw new Error('Unexpected staging Worker name');
 
 await execFileAsync(
@@ -22,16 +30,18 @@ await execFileAsync(
 
 let workerResult = 'not-required';
 if (await exists(path.join(artifactDirectory, 'worker-deploy-attempted'))) {
-  const before = JSON.parse(
-    await readFile(path.join(artifactDirectory, 'worker-before.json'), 'utf8'),
-  ) as { exists?: boolean; versionId?: string };
-  if (before.exists) {
-    if (!before.versionId) throw new Error('Last Worker version is missing');
+  const acceptedExists = await exists(
+    path.join(artifactDirectory, lastAcceptedExistsFilename),
+  );
+  if (acceptedExists) {
+    const acceptedVersion = acceptedWorkerVersion(
+      await readFile(path.join(artifactDirectory, lastAcceptedFilename)),
+    );
     await execFileAsync(
       wrangler,
       [
         'rollback',
-        before.versionId,
+        acceptedVersion,
         '--yes',
         '--name',
         worker,
@@ -46,34 +56,40 @@ if (await exists(path.join(artifactDirectory, 'worker-deploy-attempted'))) {
       { cwd: root, env: process.env },
     );
     const restored = deploymentIdentity(JSON.parse(stdout));
-    if (restored.versionId !== before.versionId)
+    if (restored.versionId !== acceptedVersion)
       throw new Error('Worker rollback verification failed');
     workerResult = 'rolled-back';
   } else {
-    await execFileAsync(wrangler, ['delete', worker, '--force'], {
-      cwd: root,
-      env: process.env,
-    });
+    try {
+      await execFileAsync(wrangler, ['delete', worker, '--force'], {
+        cwd: root,
+        env: process.env,
+      });
+    } catch (error) {
+      if (!isMissingWorker(error)) throw error;
+    }
     workerResult = 'removed-first-failed-deployment';
   }
+}
+
+let evidenceResult = 'not-required';
+if (
+  await exists(path.join(artifactDirectory, 'last-accepted-update-attempted'))
+) {
+  evidenceResult = await restoreCapturedLastAccepted(
+    createR2CatalogStore(),
+    artifactDirectory,
+  );
 }
 
 const evidence = {
   result: 'restored-last-accepted',
   catalogMetadata: 'restored',
   worker: workerResult,
+  deploymentEvidence: evidenceResult,
 };
 await writeFile(
   path.join(artifactDirectory, 'restoration.json'),
   `${JSON.stringify(evidence)}\n`,
 );
 console.log(JSON.stringify(evidence));
-
-async function exists(filename: string) {
-  try {
-    await access(filename);
-    return true;
-  } catch {
-    return false;
-  }
-}

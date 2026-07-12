@@ -1,3 +1,5 @@
+import { stagingContract } from './stagingContract.js';
+
 type EvidenceInput = {
   commit: string;
   worker: { exists: boolean; createdAt?: string; versionId?: string };
@@ -42,7 +44,7 @@ export function composeDeploymentEvidence(
     timestamp,
     gitCommit: input.commit,
     worker: {
-      name: 'sungrid-staging',
+      name: stagingContract.worker,
       versionId: input.worker.versionId,
       createdAt: input.worker.createdAt,
     },
@@ -78,7 +80,7 @@ function visit(value: unknown, path: string[]) {
       value.includes('@') ||
       /authorization|bearer|set-cookie|cookie=/iu.test(value) ||
       (/https?:\/\//iu.test(value) &&
-        value !== 'https://staging.sungridplanner.com')
+        value !== `https://${stagingContract.hostname}`)
     ) {
       throw new Error(
         `Sensitive deployment evidence value at ${path.join('.')}`,

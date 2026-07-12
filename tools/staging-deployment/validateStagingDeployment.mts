@@ -2,20 +2,21 @@ import { access, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parse } from 'yaml';
 
-import { buildCatalogArchive } from './catalogArchive.js';
+import { buildTermArchive } from './catalogArchive.js';
 import { buildWorkerConfig } from './prepareWorkerDeployment.js';
+import { stagingContract } from './stagingContract.js';
 
 const root = path.resolve(import.meta.dirname, '../..');
-const archive = await buildCatalogArchive(root);
+const archive = await buildTermArchive(root);
 const workerSource = await readFile(
   path.join(root, 'worker/wrangler.jsonc'),
   'utf8',
 );
 const worker = buildWorkerConfig(workerSource, {
-  CLOUDFLARE_STAGING_HOSTNAME: 'staging.sungridplanner.com',
-  CLOUDFLARE_WORKER_NAME: 'sungrid-staging',
+  CLOUDFLARE_STAGING_HOSTNAME: stagingContract.hostname,
+  CLOUDFLARE_WORKER_NAME: stagingContract.worker,
   HYPERDRIVE_CONFIG_ID: '00000000000000000000000000000000',
-  R2_CATALOG_BUCKET: 'sungrid-staging-catalog',
+  R2_CATALOG_BUCKET: stagingContract.bucket,
   VERIFICATION_EMAIL_FROM_ADDRESS: 'login@mail.sungridplanner.com',
   VERIFICATION_EMAIL_SENDER_DOMAIN: 'mail.sungridplanner.com',
 });
@@ -46,7 +47,7 @@ const evidence = {
   surface: 'manual Cloudflare staging deployment contract',
   target: 'staging',
   worker: worker.name,
-  publicOrigin: 'https://staging.sungridplanner.com',
+  publicOrigin: `https://${stagingContract.hostname}`,
   catalogTerms: archive.terms.length,
   catalogMetadataDigestAlgorithm: 'sha256',
   workersDevEnabled: worker.workers_dev,

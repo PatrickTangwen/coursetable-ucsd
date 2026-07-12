@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { digest } from './stagingContract.js';
 
 type StoreOptions = {
   cacheControl: string;
@@ -7,7 +7,7 @@ type StoreOptions = {
   storageClass: 'STANDARD';
 };
 
-export interface CatalogArchiveStore {
+export interface TermArchiveStore {
   get: (key: string) => Promise<Uint8Array | null>;
   put: (key: string, body: Uint8Array, options: StoreOptions) => Promise<void>;
   delete: (key: string) => Promise<void>;
@@ -24,9 +24,9 @@ type Archive = {
 
 const encoder = new TextEncoder();
 
-export async function publishCatalogArchive(
+export async function publishTermArchive(
   archive: Archive,
-  store: CatalogArchiveStore,
+  store: TermArchiveStore,
 ) {
   const previousMetadata = await store.get('metadata.json');
 
@@ -96,7 +96,7 @@ export async function publishCatalogArchive(
 }
 
 async function putAndVerify(
-  store: CatalogArchiveStore,
+  store: TermArchiveStore,
   label: string,
   key: string,
   artifact: { body: Uint8Array; sha256: string },
@@ -108,8 +108,4 @@ async function putAndVerify(
   const remote = await store.get(key);
   if (!remote || digest(remote) !== artifact.sha256)
     throw new Error(`${label} remote digest mismatch`);
-}
-
-function digest(body: Uint8Array) {
-  return createHash('sha256').update(body).digest('hex');
 }

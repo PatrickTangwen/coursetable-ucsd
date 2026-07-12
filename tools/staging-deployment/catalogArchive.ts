@@ -2,6 +2,8 @@ import { createHash } from 'node:crypto';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import { isObject } from './stagingContract.js';
+
 type Artifact = {
   body: Uint8Array;
   path: string;
@@ -22,7 +24,7 @@ type RegistryEntry = {
 const defaultRoot = path.resolve(process.cwd());
 const decoder = new TextDecoder();
 
-export async function buildCatalogArchive(root = defaultRoot) {
+export async function buildTermArchive(root = defaultRoot) {
   const staticDirectory = path.join(root, 'api/static');
   const snapshotDirectory = path.join(staticDirectory, 'catalogs/public');
   const manifestDirectory = path.join(
@@ -183,8 +185,4 @@ function parseDateRange(value: unknown, term: string) {
   )
     throw new Error(`Published Snapshot date range is invalid for ${term}`);
   return { start: value.start, end: value.end };
-}
-
-function isObject(value: unknown): value is { [key: string]: unknown } {
-  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }

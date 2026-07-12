@@ -86,7 +86,6 @@
     "@types/react-window": "^1.8.8",
     "@types/reactour": "^1.18.5",
     "@types/uuid": "^10.0.0",
-    "@vitejs/plugin-basic-ssl": "^1.2.0",
     "@vitejs/plugin-react": "^4.3.4",
     "dotenv": "^16.4.7",
     "mdast-util-to-string": "^4.0.0",

@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { deploymentIdentity } from './workerDeployment.js';
+import {
+  assertActiveMatchesLastAccepted,
+  deploymentIdentity,
+} from './workerDeployment.js';
 
 describe('Worker deployment identity', () => {
   it('records the active version without provider actor identity', () => {
@@ -20,5 +23,23 @@ describe('Worker deployment identity', () => {
       versionId: 'active-version',
     });
     expect(JSON.stringify(identity)).not.toContain('private@example.com');
+  });
+
+  it('rejects an active version that differs from durable last accepted', () => {
+    expect(() =>
+      assertActiveMatchesLastAccepted(
+        { exists: true, versionId: 'manual-drift' },
+        'accepted-version',
+      ),
+    ).toThrow('differs from durable last-accepted');
+  });
+
+  it('accepts the exact durable last accepted version', () => {
+    expect(() =>
+      assertActiveMatchesLastAccepted(
+        { exists: true, versionId: 'accepted-version' },
+        'accepted-version',
+      ),
+    ).not.toThrow();
   });
 });

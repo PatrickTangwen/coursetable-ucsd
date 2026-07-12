@@ -10,7 +10,10 @@ document does not report a hosted deployment or authorize production changes.
 `workflow_dispatch`. The maintainer must select the `staging` target and a full
 commit SHA. A credential-free preflight checks out that commit, fetches
 `origin/main`, proves the selected commit is reachable from `main`, runs the
-repository checks, and validates the deployment contract.
+repository checks, the failure-safety and Worker Catalog validators, and the
+disposable App DB migration compatibility proof. A failed preflight enters a
+separate protected reporting job so the summary still identifies the durable
+last accepted deployment without exposing R2 credentials to preflight.
 
 The deployment job runs only when the workflow itself was dispatched from
 `main`. It targets the protected GitHub `Staging` Environment, so its provider
@@ -21,12 +24,15 @@ has completed. Pull-request jobs never receive these secrets.
 
 The protected job performs these stages in order:
 
-1. Capture the current 100-percent-traffic Worker version, or record that this
-   is the first deployment.
+1. Read the durable last-accepted record from private R2, capture the current
+   100-percent-traffic Worker version, and refuse to mutate staging if those
+   versions differ. Before the first accepted deployment, an already-existing
+   Worker is likewise treated as unaccepted drift.
 2. Apply forward-only Drizzle migrations through the dedicated
    `NEON_MIGRATION_DATABASE_URL`. App DB backup continues to use the separate
    `NEON_DIRECT_DATABASE_URL`.
-3. Rebuild the Supported Term registry from every paired, validated repository
+3. Rebuild the Term Archive Supported Term registry from every paired,
+   validated repository
    Published Snapshot and Import Manifest. Upload content-addressed objects to
    private Standard R2, read each object back, verify its SHA-256 digest, and
    switch `metadata.json` only after all objects pass.
@@ -41,14 +47,23 @@ The protected job performs these stages in order:
    at least three times. The smoke fails on unexpected status, provider-default
    URLs, or Cloudflare CPU/resource-limit responses and never creates or
    bypasses a Verified UCSD Email identity.
-7. Read Cloudflare state back through the minimally scoped deployment token.
-   The workflow blocks the Paid `standard` Worker usage model and combines the
-   non-Standard account setting with #84's accepted human Free-plan evidence;
-   it also proves Worker development and preview URLs are off, account Cron
-   Triggers remain within five, R2 is private Standard storage, and Hyperdrive
-   caching is disabled within the Free connection limit. The more direct
-   subscriptions endpoint is intentionally not used because it would require
-   expanding the deployment token with Billing Read.
+7. Read Cloudflare state back through the protected deployment token. The
+   workflow fails closed unless that token can read account subscriptions and
+   Analytics; this requires the minimal additional `Billing Read` and
+   `Account Analytics Read` permissions, never Billing Write. It rejects an
+   active Workers Paid subscription even when a paid account retains the
+   legacy Bundled usage model. It also reads the deployed script settings back
+   and requires the exact 10 ms CPU and 50-subrequest limits, records the UTC
+   day's real Worker request/CPU and Hyperdrive query metrics, and reads
+   account-wide R2 month-to-date storage and operations. Storage samples are
+   reduced to each bucket's daily peak and integrated using Cloudflare's
+   decimal-GB, 30-day GB-month definition. R2 actions are classified exactly
+   as documented into Class A, Class B, and free operations; unknown actions
+   fail closed. The gate also rejects Infrequent
+   Access objects, proves Worker development and preview URLs are off, keeps
+   account Cron Triggers within five, and proves Hyperdrive caching is disabled
+   with an explicitly reported Free connection limit. Missing provider fields
+   are verification failures rather than synthesized zero/default evidence.
 8. Persist a non-sensitive, digest-verified deployment record containing the
    Git commit, Worker version, frontend build identity, App DB schema version,
    active Published Snapshot and archive digests, timestamp, Workers Free
@@ -62,12 +77,16 @@ R2 objects may remain after an interrupted publication, but they are not
 current until the metadata pointer changes. A later failure restores the prior
 metadata pointer and verifies it by digest.
 
-If a prior Worker version existed, failure after a deployment attempt rolls
-traffic back to that exact version and verifies it is again receiving 100
-percent. If the first Worker deployment fails, the workflow deletes that first
-Worker so no unaccepted Custom Domain or provider-default surface remains. The
-final job summary reports the last accepted deployment, or `none` before the
-first acceptance.
+If a durable prior accepted Worker version existed, failure after a deployment
+attempt rolls traffic back to that exact version and verifies it is again
+receiving 100 percent. It never treats arbitrary pre-run drift as accepted. If
+the first Worker deployment fails, the workflow deletes that first Worker so
+no unaccepted Custom Domain or provider-default surface remains. Term Archive
+metadata and the deployment-evidence pointer are restored independently when
+their updates were attempted. The new evidence object is written locally and
+to its immutable timestamped key first; `last-accepted.json` is the final
+digest-verified acceptance step. The final job summary reports the last
+accepted deployment, or `none` before the first acceptance.
 
 ## Remaining human acceptance
 
@@ -79,5 +98,28 @@ that evidence.
 
 `APP_DB_BACKUP_ENABLED=false` remains required until migration, the first
 accepted deployment, and the restore verification are all accepted. The #117
-workflow neither changes that variable nor creates or mutates production
+workflow asserts the protected repository variable is exactly `false` before
+migration; it neither changes that variable nor creates or mutates production
 resources.
+
+The human-provisioning handoff confirmed the original deployment token but did
+not record Billing Read or Account Analytics Read. A maintainer must confirm or
+add only those two read permissions before the first dispatch; otherwise the
+Free-plan gate stops safely and reports the prior accepted deployment. This
+document does not authorize Codex or the workflow to change the token.
+
+## Historical documentation boundaries
+
+This dated implementation supersedes two operational statements but preserves
+their source documents as historical records:
+
+- `docs/worker_login.md` lines 41-45 describe hosted deployment migrations with
+  `NEON_DIRECT_DATABASE_URL`. That statement is outdated for #117; the current
+  deployment-only secret is `NEON_MIGRATION_DATABASE_URL`, while backup and
+  recovery retain `NEON_DIRECT_DATABASE_URL`. The older document requires a
+  separate review before any broader cleanup.
+- `docs/hosted_failure_cost_safety-2026-07-12.md` lines 75-78 record a Workers
+  Paid allowance of 10,000,000 monthly requests. That is historical #116
+  context and is superseded for staging by issue #84's human-provisioned
+  Workers Free boundary and this workflow's 100,000-request daily contract.
+  The #116 document requires separate review rather than silent rewriting.

@@ -17,6 +17,7 @@ describe('Cloudflare staging deployment assets', () => {
       concurrency: { group: string; 'cancel-in-progress': boolean };
       jobs: {
         [key: string]: {
+          env?: { [key: string]: string };
           environment?: string;
           if?: string;
           steps: { name?: string; run?: string }[];
@@ -37,8 +38,11 @@ describe('Cloudflare staging deployment assets', () => {
 
     const preflight = workflow.jobs.preflight!;
     const deploy = workflow.jobs.deploy!;
+    const preflightReport = workflow.jobs['report-preflight-failure']!;
     expect(preflight.environment).toBeUndefined();
     expect(deploy.environment).toBe('Staging');
+    expect(preflightReport.environment).toBe('Staging');
+    expect(preflightReport.if).toContain("needs.preflight.result == 'failure'");
     expect(deploy.if).toContain("github.ref == 'refs/heads/main'");
     expect(source).toContain(
       'git merge-base --is-ancestor "$SELECTED_COMMIT" origin/main',
@@ -54,12 +58,17 @@ describe('Cloudflare staging deployment assets', () => {
     expect(source).not.toContain(
       `NEON_MIGRATION_DATABASE_URL: ${expressionPrefix}{{ secrets.NEON_DIRECT_DATABASE_URL }}`,
     );
+    expect(deploy.env).not.toHaveProperty('CLOUDFLARE_API_TOKEN');
+    expect(deploy.env).not.toHaveProperty('SESSION_SECRET');
+    expect(source).toContain('test "$APP_DB_BACKUP_ENABLED" = false');
 
     const orderedStages = deploy.steps.map(({ name }) => name).filter(Boolean);
     expect(orderedStages).toEqual(
       expect.arrayContaining([
         'Apply App DB migrations',
-        'Publish and verify Catalog archive',
+        'Capture durable last accepted deployment',
+        'Prove active Worker matches last accepted deployment',
+        'Publish and verify Term Archive',
         'Build Worker and static assets',
         'Deploy Worker and secrets',
         'Run hosted staging smoke',
@@ -70,15 +79,18 @@ describe('Cloudflare staging deployment assets', () => {
       ]),
     );
     expect(orderedStages.indexOf('Apply App DB migrations')).toBeLessThan(
-      orderedStages.indexOf('Publish and verify Catalog archive'),
+      orderedStages.indexOf('Publish and verify Term Archive'),
     );
     expect(
-      orderedStages.indexOf('Publish and verify Catalog archive'),
+      orderedStages.indexOf('Publish and verify Term Archive'),
     ).toBeLessThan(orderedStages.indexOf('Deploy Worker and secrets'));
     expect(orderedStages.indexOf('Deploy Worker and secrets')).toBeLessThan(
       orderedStages.indexOf('Run hosted staging smoke'),
     );
     expect(source).toContain('if: failure()');
     expect(source).toContain('last-accepted.json');
+    expect(source).toContain('workerDeployment.mts verify-accepted');
+    expect(source).toContain('validate:failure-safety');
+    expect(source).toContain('api/drizzle/test-migrate.sh');
   });
 });
