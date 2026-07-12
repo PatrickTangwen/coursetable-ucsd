@@ -25,6 +25,8 @@ Status: top-level navigation for stable project documentation.
   external state services, security and cost policies, and acceptance gate.
 - `worker_catalog.md`: local single-origin Worker Catalog, private R2
   publication integrity, and disposable acceptance workflow.
+- `worker_login.md`: Hyperdrive, Upstash REST, fixed hosted sessions, and
+  direct Neon migration separation.
 - `locations.md`: location data notes.
 - `maintenance.md`: maintenance notes.
 - `snapshot_pipe.md`: catalog snapshot pipeline notes, including General Catalog

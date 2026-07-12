@@ -9,6 +9,7 @@
     "test": "vitest run",
     "db:generate": "DB_URL=postgresql://migration-generation.invalid/app drizzle-kit generate:pg",
     "db:migrate": "tsx drizzle/migrate.ts",
+    "db:migrate:hosted": "tsx drizzle/migrate.hosted.ts",
     "db:push": "drizzle-kit push:pg",
     "db:seed:friends": "tsx drizzle/seed-friends.ts",
     "test:db:migrate": "vitest run drizzle/migrate.command.test.ts",

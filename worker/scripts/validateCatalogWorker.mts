@@ -144,7 +144,15 @@ try {
       'error',
       '--show-interactive-dev-session=false',
     ],
-    { cwd: rootDirectory, stdio: ['ignore', 'pipe', 'pipe'] },
+    {
+      cwd: rootDirectory,
+      env: {
+        ...process.env,
+        CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_APP_DB_HYPERDRIVE_NO_CACHE:
+          'postgresql://user:password@catalog-validation.invalid:5432/app',
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    },
   );
   const output: string[] = [];
   worker.stdout?.on('data', (chunk: Uint8Array) =>
