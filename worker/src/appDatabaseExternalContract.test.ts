@@ -8,7 +8,6 @@ import {
 } from './appWorker.js';
 import { createHyperdriveAppDatabase } from './hyperdriveAppDatabase.js';
 import type { UpstashRedisCommands } from './upstashRedis.js';
-import { createMemoryEmailDeliveryAuditStore } from '../../api/src/auth/emailDeliveryAudit.memory.js';
 import { HostedLoginCookieClient } from '../../api/src/auth/hostedLogin.contract.js';
 import { exerciseHostedPlanningDataContract } from '../../api/src/planningData/hostedPlanningData.contract.js';
 
@@ -37,7 +36,7 @@ class MemoryRedis implements UpstashRedisCommands {
 }
 
 describe.skipIf(!databaseUrl)(
-  'previous and next Worker external contracts on the expanded App DB schema',
+  'Worker external contract on the expanded App DB schema',
   () => {
     beforeEach(async () => {
       const client = postgres(databaseUrl!, { max: 1 });
@@ -57,61 +56,48 @@ describe.skipIf(!databaseUrl)(
       }
     });
 
-    it.each([
-      ['previous Worker', true],
-      ['next Worker', false],
-    ] as const)(
-      '%s preserves login and account-owned planning behavior',
-      async (_label, previousWorker) => {
-        const codes = new Map<string, string[]>();
-        const redis = new MemoryRedis();
-        let currentTime = 1_000_000;
-        const providers: HostedAppProviders = {
-          createAppDatabase(hyperdrive) {
-            const database = createHyperdriveAppDatabase(hyperdrive);
-            if (!previousWorker) return database;
-            return {
-              ...database,
-              emailDeliveryAudits: createMemoryEmailDeliveryAuditStore(),
-            };
+    it('preserves login and account-owned planning behavior', async () => {
+      const codes = new Map<string, string[]>();
+      const redis = new MemoryRedis();
+      let currentTime = 1_000_000;
+      const providers: HostedAppProviders = {
+        createAppDatabase: createHyperdriveAppDatabase,
+        createEmailSender: () => ({
+          sendVerificationEmail(message) {
+            const code = /code is (?<code>\d{6})/u.exec(message.text)?.groups
+              ?.code;
+            if (!code)
+              throw new Error('Verification code missing from message');
+            codes.set(message.recipient, [
+              ...(codes.get(message.recipient) ?? []),
+              code,
+            ]);
+            return Promise.resolve();
           },
-          createEmailSender: () => ({
-            sendVerificationEmail(message) {
-              const code = /code is (?<code>\d{6})/u.exec(message.text)?.groups
-                ?.code;
-              if (!code)
-                throw new Error('Verification code missing from message');
-              codes.set(message.recipient, [
-                ...(codes.get(message.recipient) ?? []),
-                code,
-              ]);
-              return Promise.resolve();
-            },
-          }),
-          createRedis: () => redis,
-          now() {
-            currentTime += 1;
-            return currentTime;
-          },
-        };
-        const worker = createAppWorker(providers);
-        const environment = createEnvironment(databaseUrl!);
-        const context = {
-          waitUntil(promise: Promise<unknown>) {
-            void promise;
-          },
-        } as ExecutionContext;
-        const client = new HostedLoginCookieClient((request) =>
-          worker.fetch(request, environment, context),
-        );
+        }),
+        createRedis: () => redis,
+        now() {
+          currentTime += 1;
+          return currentTime;
+        },
+      };
+      const worker = createAppWorker(providers);
+      const environment = createEnvironment(databaseUrl!);
+      const context = {
+        waitUntil(promise: Promise<unknown>) {
+          void promise;
+        },
+      } as ExecutionContext;
+      const client = new HostedLoginCookieClient((request) =>
+        worker.fetch(request, environment, context),
+      );
 
-        await exerciseHostedPlanningDataContract(client, (email) => {
-          const code = codes.get(email)?.shift();
-          if (!code) throw new Error(`No captured code for ${email}`);
-          return Promise.resolve(code);
-        });
-      },
-    );
+      await exerciseHostedPlanningDataContract(client, (email) => {
+        const code = codes.get(email)?.shift();
+        if (!code) throw new Error(`No captured code for ${email}`);
+        return Promise.resolve(code);
+      });
+    });
   },
 );
 

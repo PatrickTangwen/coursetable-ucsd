@@ -19,11 +19,17 @@ describe('App DB backup operational assets', () => {
     expect(workflow).toContain('app-db:backup');
     expect(workflow).toContain('app-db:restore:verify');
     expect(workflow).toContain('R2_BACKUP_BUCKET');
+    expect(workflow).toContain('R2_CATALOG_BUCKET: sungrid-staging-catalog');
+    expect(workflow).toContain('R2_BACKUP_PRIVATE_ACCESS_VERIFIED_AT');
     expect(workflow).toContain('R2_BACKUP_ACCESS_KEY_ID');
     expect(workflow).toContain('R2_BACKUP_SECRET_ACCESS_KEY');
     expect(workflow).toContain('NEON_DIRECT_DATABASE_URL');
     expect(workflow).toContain('if: always()');
-    expect(workflow).not.toContain('CATALOG_BUCKET');
+    expect(
+      workflow
+        .split(/\r?\n/u)
+        .some((line) => line.trimStart().startsWith('CATALOG_BUCKET:')),
+    ).toBe(false);
     expect(workflow).not.toContain('r2.dev');
     expect(workflow).not.toContain('production');
   });

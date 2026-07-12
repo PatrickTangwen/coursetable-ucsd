@@ -1,12 +1,12 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
-import os from 'node:os';
+import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { metadataForManifest } from './backup.js';
 import type { AppDatabaseBackupStore } from './backupStore.js';
 import type { AppDatabaseBackupManifest } from './manifest.js';
 import { restoreAndVerifyAppDatabaseBackup } from './restore.js';
+import { useTemporaryDirectory } from './temporaryDirectory.testSupport.js';
 import { assertGeneralTelemetrySafe } from '../telemetry/privacy.js';
 
 const dump =
@@ -22,14 +22,7 @@ const manifest: AppDatabaseBackupManifest = {
   taskVersion: '1',
 };
 
-const temporaryDirectories: string[] = [];
-afterEach(async () => {
-  await Promise.all(
-    temporaryDirectories
-      .splice(0)
-      .map((directory) => rm(directory, { recursive: true, force: true })),
-  );
-});
+const temporaryDirectory = useTemporaryDirectory('app-db-restore-');
 
 describe('App DB backup restore verification', () => {
   it('checks the downloaded dump before restore and reports schema and key-table evidence', async () => {
@@ -44,28 +37,32 @@ describe('App DB backup restore verification', () => {
       };
     });
 
-    const evidence = await restoreAndVerifyAppDatabaseBackup({
-      destination,
-      manifest,
-      store,
-      targetDatabaseUrl: 'postgresql://restore:secret@local.invalid/app',
-      restoreDump(dumpPath, databaseUrl) {
-        calls.push(`restore:${dumpPath}:${databaseUrl}`);
-        return Promise.resolve();
+    const evidence = await restoreAndVerifyAppDatabaseBackup(
+      {
+        destination,
+        manifest,
+        targetDatabaseUrl: 'postgresql://restore:secret@local.invalid/app',
       },
-      verifyDatabase(databaseUrl, schemaVersion) {
-        calls.push(`verify:${databaseUrl}:${schemaVersion}`);
-        return Promise.resolve({
-          keyTables: [
-            'appUsers',
-            'emailDeliveryAudits',
-            'savedSearches',
-            'savedWorksheets',
-          ],
-          schemaVersion,
-        });
+      {
+        store,
+        restoreDump(dumpPath, databaseUrl) {
+          calls.push(`restore:${dumpPath}:${databaseUrl}`);
+          return Promise.resolve();
+        },
+        verifyDatabase(databaseUrl, schemaVersion) {
+          calls.push(`verify:${databaseUrl}:${schemaVersion}`);
+          return Promise.resolve({
+            keyTables: [
+              'appUsers',
+              'emailDeliveryAudits',
+              'savedSearches',
+              'savedWorksheets',
+            ],
+            schemaVersion,
+          });
+        },
       },
-    });
+    );
 
     expect(calls).toEqual([
       `restore:${destination}:postgresql://restore:secret@local.invalid/app`,
@@ -101,18 +98,22 @@ describe('App DB backup restore verification', () => {
     });
 
     await expect(
-      restoreAndVerifyAppDatabaseBackup({
-        destination: path.join(directory, 'download.dump'),
-        manifest,
-        store,
-        targetDatabaseUrl: 'postgresql://local.invalid/app',
-        restoreDump() {
-          restoreCalls += 1;
-          return Promise.resolve();
+      restoreAndVerifyAppDatabaseBackup(
+        {
+          destination: path.join(directory, 'download.dump'),
+          manifest,
+          targetDatabaseUrl: 'postgresql://local.invalid/app',
         },
-        verifyDatabase: () =>
-          Promise.resolve({ keyTables: [], schemaVersion: '' }),
-      }),
+        {
+          store,
+          restoreDump() {
+            restoreCalls += 1;
+            return Promise.resolve();
+          },
+          verifyDatabase: () =>
+            Promise.resolve({ keyTables: [], schemaVersion: '' }),
+        },
+      ),
     ).rejects.toThrow('Downloaded App DB backup verification failed');
     expect(restoreCalls).toBe(0);
   });
@@ -130,10 +131,4 @@ function downloadStore(
     downloadDump: download,
     removeBackups: () => Promise.resolve(),
   };
-}
-
-async function temporaryDirectory() {
-  const directory = await mkdtemp(path.join(os.tmpdir(), 'app-db-restore-'));
-  temporaryDirectories.push(directory);
-  return directory;
 }

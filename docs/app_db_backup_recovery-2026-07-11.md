@@ -29,6 +29,13 @@ adapter receives `CLOUDFLARE_ACCOUNT_ID`, `R2_BACKUP_ACCESS_KEY_ID`, and
 `R2_BACKUP_SECRET_ACCESS_KEY` only from the protected Staging environment. The
 bucket remains private and no `r2.dev` URL is used.
 
+The hosted command refuses to start if `R2_BACKUP_BUCKET` equals the configured
+Catalog bucket. It also requires the protected Staging variable
+`R2_BACKUP_PRIVATE_ACCESS_VERIFIED_AT` to contain the UTC timestamp at which the
+human provisioning checklist confirmed that `r2.dev` and custom-domain public
+access were disabled. Issue #84 supplies that evidence; this implementation
+does not create it.
+
 Every accepted staging bundle has two objects under the exact
 `staging/app-db/` namespace:
 
@@ -41,6 +48,10 @@ stored object back with `HeadObject`; the manifest is written only when size
 and every metadata field match. Backup evidence encodes the same SHA-256 as a
 non-sensitive base64url content digest and never prints the dump, row data, a
 database URL, or a credential.
+
+The task reads the migration version before and after `pg_dump` and rejects the
+artifact if the version changed, preventing a concurrently migrated schema from
+receiving stale backup metadata.
 
 ## Retention
 
@@ -84,11 +95,12 @@ without applying another migration. Migration failures replace driver details
 with a bounded error so database URLs and credentials are not printed.
 
 The expanded schema is exercised through the same external Worker login and
-account-owned planning contract in two modes: the previous Worker mode does not
-depend on Email Delivery Audit persistence, while the next Worker mode uses the
-expanded audit store. Neither application rollback nor backup/restore asset
-contains a down-migration, `dropdb`, `pg_restore --clean`, or equivalent
-destructive schema rollback.
+account-owned planning contract twice. The first run uses the current Worker;
+the second creates a temporary detached worktree at pre-#114 revision
+`51d655dc6b0915a6f9bed7dfa1e76db0f9dc97a2` and runs that revision's actual
+Worker and database adapters against the already expanded database. Neither
+application rollback nor backup/restore asset contains a down-migration,
+`dropdb`, `pg_restore --clean`, or equivalent destructive schema rollback.
 
 ## Local validation
 

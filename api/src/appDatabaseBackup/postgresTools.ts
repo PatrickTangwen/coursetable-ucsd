@@ -4,9 +4,30 @@ import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 
-import { scrubGeneralTelemetry } from '../telemetry/privacy.js';
+import { readAppDatabaseSchemaVersionAtUrl } from '../../drizzle/migrationRunner.js';
 
 const execFileAsync = promisify(execFile);
+
+export interface SchemaConsistentDumpSource {
+  schemaDatabaseUrl: string;
+  dumpDatabaseUrl: string;
+}
+
+export async function createSchemaConsistentDump(
+  source: SchemaConsistentDumpSource,
+  destination: string,
+) {
+  const schemaVersionBeforeDump = await readAppDatabaseSchemaVersionAtUrl(
+    source.schemaDatabaseUrl,
+  );
+  await createPostgresCustomDump(source.dumpDatabaseUrl, destination);
+  const schemaVersion = await readAppDatabaseSchemaVersionAtUrl(
+    source.schemaDatabaseUrl,
+  );
+  if (schemaVersion !== schemaVersionBeforeDump)
+    throw new Error('App DB schema changed while its backup was created');
+  return schemaVersion;
+}
 
 export async function createPostgresCustomDump(
   databaseUrl: string,
@@ -27,13 +48,10 @@ export async function createPostgresCustomDump(
         service,
         destination,
       );
-    } catch (error) {
-      throw new Error(
-        `PostgreSQL custom dump failed: ${safeToolError(error)}`,
-        {
-          cause: error,
-        },
-      );
+    } catch {
+      throw new Error('PostgreSQL custom dump failed', {
+        cause: new Error('PostgreSQL tool exited unsuccessfully'),
+      });
     }
   });
 }
@@ -56,11 +74,10 @@ export async function restorePostgresCustomDump(
         service,
         dumpPath,
       );
-    } catch (error) {
-      throw new Error(
-        `PostgreSQL custom restore failed: ${safeToolError(error)}`,
-        { cause: error },
-      );
+    } catch {
+      throw new Error('PostgreSQL custom restore failed', {
+        cause: new Error('PostgreSQL tool exited unsuccessfully'),
+      });
     }
   });
 }
@@ -171,12 +188,4 @@ async function runPostgresTool(
     ...args,
   ];
   await execFileAsync('docker', dockerArgs, { env: service.environment });
-}
-
-function safeToolError(error: unknown) {
-  const { stderr } = error as { stderr?: unknown };
-  const message = typeof stderr === 'string' ? stderr.trim() : '';
-  return message
-    ? scrubGeneralTelemetry(message).slice(0, 500)
-    : 'tool exited unsuccessfully';
 }

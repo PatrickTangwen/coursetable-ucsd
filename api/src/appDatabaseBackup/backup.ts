@@ -10,61 +10,78 @@ import {
 import { selectBackupRetention } from './retention.js';
 import { assertGeneralTelemetrySafe } from '../telemetry/privacy.js';
 
-export async function publishAppDatabaseBackup(input: {
+export interface AppDatabaseBackupArtifact {
   backupTime: Date;
   dumpPath: string;
   environment: 'staging' | 'production';
   namespace: string;
   schemaVersion: string;
-  store: AppDatabaseBackupStore;
   taskVersion: string;
-  retention?: { daily: number; weekly: number };
-}) {
-  const backupTime = input.backupTime.toISOString();
-  const { size } = await stat(input.dumpPath);
-  const sha256 = await digestBackupFile(input.dumpPath);
-  const dumpKey = `${input.namespace}${backupTime.replaceAll(/[:.]/gu, '-')}.dump`;
+}
+
+export async function publishAppDatabaseBackup(
+  artifact: AppDatabaseBackupArtifact,
+  store: AppDatabaseBackupStore,
+  retentionLimits = { daily: 7, weekly: 4 },
+) {
+  const backupTime = artifact.backupTime.toISOString();
+  const { size } = await stat(artifact.dumpPath);
+  const sha256 = await digestBackupFile(artifact.dumpPath);
+  const dumpKey = `${artifact.namespace}${backupTime.replaceAll(/[:.]/gu, '-')}.dump`;
   const manifest = appDatabaseBackupManifestSchema.parse({
     formatVersion: 1,
     backupTime,
     dumpKey,
-    environment: input.environment,
-    schemaVersion: input.schemaVersion,
+    environment: artifact.environment,
+    schemaVersion: artifact.schemaVersion,
     sha256,
     size,
-    taskVersion: input.taskVersion,
+    taskVersion: artifact.taskVersion,
   });
   const metadata = metadataForManifest(manifest);
 
-  const stored = await input.store.putDump({
-    key: dumpKey,
-    path: input.dumpPath,
-    metadata,
-  });
-  if (stored.size !== size || !sameStringRecord(stored.metadata, metadata))
-    throw new Error('R2 backup verification failed');
+  try {
+    const stored = await store.putDump({
+      key: dumpKey,
+      path: artifact.dumpPath,
+      metadata,
+    });
+    if (stored.size !== size || !sameStringRecord(stored.metadata, metadata))
+      throw new Error('R2 backup verification failed');
 
-  await input.store.putManifest(manifest);
-  const manifests = await input.store.listManifests();
+    await store.putManifest(manifest);
+  } catch (error) {
+    try {
+      await store.removeBackups([manifest]);
+    } catch (cleanupError) {
+      throw new AggregateError(
+        [error, cleanupError],
+        'R2 backup publication and cleanup failed',
+        { cause: cleanupError },
+      );
+    }
+    throw error;
+  }
+  const manifests = await store.listManifests();
   if (!manifests.some((candidate) => candidate.dumpKey === dumpKey))
     throw new Error('R2 backup manifest verification failed');
   const retention = selectBackupRetention(
     manifests,
-    input.namespace,
-    input.retention,
+    artifact.namespace,
+    retentionLimits,
   );
-  await input.store.removeBackups(retention.remove);
+  await store.removeBackups(retention.remove);
 
   const evidence = {
     backupDigest: `sha256-${Buffer.from(sha256, 'hex').toString('base64url')}`,
     backupTime,
     dumpKey,
-    environment: input.environment,
+    environment: artifact.environment,
     removedBackups: retention.remove.length,
     retainedBackups: retention.retain.length,
-    schemaVersion: input.schemaVersion,
+    schemaVersion: artifact.schemaVersion,
     size,
-    taskVersion: input.taskVersion,
+    taskVersion: artifact.taskVersion,
   };
   assertGeneralTelemetrySafe(evidence);
   return evidence;

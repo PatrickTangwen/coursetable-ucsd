@@ -1,5 +1,4 @@
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import os from 'node:os';
+import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 import {
@@ -9,10 +8,11 @@ import {
   ListObjectsV2Command,
   PutObjectCommand,
 } from '@aws-sdk/client-s3';
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import type { AppDatabaseBackupManifest } from './manifest.js';
 import { createR2AppDatabaseBackupStore } from './r2BackupStore.js';
+import { useTemporaryDirectory } from './temporaryDirectory.testSupport.js';
 
 const namespace = 'staging/app-db/';
 const dumpKey = `${namespace}2026-07-11T08-00-00-000Z.dump`;
@@ -35,14 +35,7 @@ const metadata = {
   'task-version': manifest.taskVersion,
 };
 
-const temporaryDirectories: string[] = [];
-afterEach(async () => {
-  await Promise.all(
-    temporaryDirectories
-      .splice(0)
-      .map((directory) => rm(directory, { recursive: true, force: true })),
-  );
-});
+const temporaryDirectory = useTemporaryDirectory('app-db-backup-');
 
 describe('private R2 App DB backup store', () => {
   it('uploads a dump with required private object metadata and verifies it', async () => {
@@ -157,9 +150,3 @@ describe('private R2 App DB backup store', () => {
     expect(commands).toHaveLength(1);
   });
 });
-
-async function temporaryDirectory() {
-  const directory = await mkdtemp(path.join(os.tmpdir(), 'app-db-backup-'));
-  temporaryDirectories.push(directory);
-  return directory;
-}

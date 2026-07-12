@@ -1,7 +1,6 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
-import os from 'node:os';
+import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { publishAppDatabaseBackup } from './backup.js';
 import type {
@@ -9,16 +8,10 @@ import type {
   StoredBackupDump,
 } from './backupStore.js';
 import type { AppDatabaseBackupManifest } from './manifest.js';
+import { useTemporaryDirectory } from './temporaryDirectory.testSupport.js';
 import { assertGeneralTelemetrySafe } from '../telemetry/privacy.js';
 
-const temporaryDirectories: string[] = [];
-afterEach(async () => {
-  await Promise.all(
-    temporaryDirectories
-      .splice(0)
-      .map((directory) => rm(directory, { recursive: true, force: true })),
-  );
-});
+const temporaryDirectory = useTemporaryDirectory('app-db-backup-');
 
 describe('App DB backup publication', () => {
   it('publishes an accepted manifest, applies retention, and emits only non-sensitive evidence', async () => {
@@ -54,16 +47,18 @@ describe('App DB backup publication', () => {
       },
     };
 
-    const evidence = await publishAppDatabaseBackup({
-      backupTime: new Date('2026-07-11T08:00:00.000Z'),
-      dumpPath,
-      environment: 'staging',
-      namespace: 'staging/app-db/',
-      schemaVersion: '0002_wild_skaar',
+    const evidence = await publishAppDatabaseBackup(
+      {
+        backupTime: new Date('2026-07-11T08:00:00.000Z'),
+        dumpPath,
+        environment: 'staging',
+        namespace: 'staging/app-db/',
+        schemaVersion: '0002_wild_skaar',
+        taskVersion: '1',
+      },
       store,
-      taskVersion: '1',
-      retention: { daily: 1, weekly: 0 },
-    });
+      { daily: 1, weekly: 0 },
+    );
 
     expect(uploaded).toMatchObject({
       key: 'staging/app-db/2026-07-11T08-00-00-000Z.dump',
@@ -101,22 +96,59 @@ describe('App DB backup publication', () => {
     const dumpPath = path.join(directory, 'database.dump');
     await writeFile(dumpPath, 'dump');
     let manifestWrites = 0;
-    const store = failingStore({ size: 3, metadata: {} }, () => {
-      manifestWrites += 1;
-    });
+    let cleanupCalls = 0;
+    const store = failingStore(
+      { size: 3, metadata: {} },
+      () => {
+        manifestWrites += 1;
+      },
+      () => {
+        cleanupCalls += 1;
+      },
+    );
 
     await expect(
-      publishAppDatabaseBackup({
-        backupTime: new Date('2026-07-11T08:00:00.000Z'),
-        dumpPath,
-        environment: 'staging',
-        namespace: 'staging/app-db/',
-        schemaVersion: '0002_wild_skaar',
+      publishAppDatabaseBackup(
+        {
+          backupTime: new Date('2026-07-11T08:00:00.000Z'),
+          dumpPath,
+          environment: 'staging',
+          namespace: 'staging/app-db/',
+          schemaVersion: '0002_wild_skaar',
+          taskVersion: '1',
+        },
         store,
-        taskVersion: '1',
-      }),
+      ),
     ).rejects.toThrow('R2 backup verification failed');
     expect(manifestWrites).toBe(0);
+    expect(cleanupCalls).toBe(1);
+  });
+
+  it('reports both publication and partial-object cleanup failures', async () => {
+    const directory = await temporaryDirectory();
+    const dumpPath = path.join(directory, 'database.dump');
+    await writeFile(dumpPath, 'dump');
+    const store = failingStore(
+      { size: 3, metadata: {} },
+      () => {},
+      () => {
+        throw new Error('cleanup failed');
+      },
+    );
+
+    await expect(
+      publishAppDatabaseBackup(
+        {
+          backupTime: new Date('2026-07-11T08:00:00.000Z'),
+          dumpPath,
+          environment: 'staging',
+          namespace: 'staging/app-db/',
+          schemaVersion: '0002_wild_skaar',
+          taskVersion: '1',
+        },
+        store,
+      ),
+    ).rejects.toThrow('R2 backup publication and cleanup failed');
   });
 });
 
@@ -136,6 +168,7 @@ function manifest(backupTime: string): AppDatabaseBackupManifest {
 function failingStore(
   stored: StoredBackupDump,
   manifestWritten: () => void,
+  cleanup: () => void,
 ): AppDatabaseBackupStore {
   return {
     putDump: () => Promise.resolve(stored),
@@ -145,12 +178,9 @@ function failingStore(
     },
     listManifests: () => Promise.resolve([]),
     downloadDump: () => Promise.resolve(stored),
-    removeBackups: () => Promise.resolve(),
+    removeBackups() {
+      cleanup();
+      return Promise.resolve();
+    },
   };
-}
-
-async function temporaryDirectory() {
-  const directory = await mkdtemp(path.join(os.tmpdir(), 'app-db-backup-'));
-  temporaryDirectories.push(directory);
-  return directory;
 }

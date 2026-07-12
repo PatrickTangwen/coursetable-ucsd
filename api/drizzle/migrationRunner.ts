@@ -41,3 +41,12 @@ export async function readAppDatabaseSchemaVersion(client: postgres.Sql) {
     throw new Error('App DB migration version is not in the local journal');
   return entry.tag;
 }
+
+export async function readAppDatabaseSchemaVersionAtUrl(databaseUrl: string) {
+  const client = postgres(databaseUrl, { max: 1, onnotice() {} });
+  try {
+    return await readAppDatabaseSchemaVersion(client);
+  } finally {
+    await client.end();
+  }
+}
