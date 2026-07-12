@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  classifyUsageLevel,
-  createRedisUsageSignals,
-  type UsageSignal,
-} from './usageSignals.js';
+import { createRedisUsageSignals, type UsageSignal } from './usageSignals.js';
+import { classifyUsageLevel } from '../../api/src/core/usageLevels.js';
 
 const allowances = {
   workers: 10_000_000,
@@ -19,15 +16,16 @@ function createRedis(counters = new Map<string, number>()) {
   return {
     counters,
     evalCalls,
-    del: () => Promise.resolve(1),
-    setex: () => Promise.resolve('OK' as const),
     get: <T>(key: string) =>
       Promise.resolve((counters.get(key) ?? null) as T | null),
     eval(_script: string, keys: string[], args: string[]) {
       evalCalls.push({ keys, args });
-      const next = (counters.get(keys[0]!) ?? 0) + Number(args[0]);
-      counters.set(keys[0]!, next);
-      return Promise.resolve(next);
+      const counts = keys.map((key, index) => {
+        const next = (counters.get(key) ?? 0) + Number(args[index]);
+        counters.set(key, next);
+        return next;
+      });
+      return Promise.resolve(counts);
     },
   };
 }
@@ -46,7 +44,7 @@ describe('usage signal levels', () => {
 });
 
 describe('Redis usage signals', () => {
-  it('counts provider usage in a UTC month key with a bounded expiry', async () => {
+  it('counts a request in one Upstash command covering every provider', async () => {
     const redis = createRedis();
     const signals = createRedisUsageSignals(redis, {
       allowances,
@@ -54,14 +52,21 @@ describe('Redis usage signals', () => {
       emit() {},
     });
 
-    await signals.record({ workers: 1, r2: 2 });
+    await signals.record({ workers: 1, r2: 2, upstash: 1 });
 
     expect(redis.evalCalls).toEqual([
-      { keys: ['usage:workers:2026-07'], args: ['1', '3456000000'] },
-      { keys: ['usage:r2:2026-07'], args: ['2', '3456000000'] },
+      {
+        keys: [
+          'usage:workers:2026-07',
+          'usage:r2:2026-07',
+          'usage:upstash:2026-07',
+        ],
+        args: ['1', '2', '1', '3456000000'],
+      },
     ]);
     expect(redis.counters.get('usage:workers:2026-07')).toBe(1);
     expect(redis.counters.get('usage:r2:2026-07')).toBe(2);
+    expect(redis.counters.get('usage:upstash:2026-07')).toBe(1);
   });
 
   it('emits a maintainer signal exactly when usage crosses 70 or 90 percent', async () => {

@@ -55,7 +55,7 @@ export interface AppWorkerEnv extends CatalogWorkerEnv {
   USAGE_ALLOWANCE_WORKER_REQUESTS: string;
   USAGE_ALLOWANCE_R2_READS: string;
   USAGE_ALLOWANCE_NEON_ACCOUNT_REQUESTS: string;
-  USAGE_ALLOWANCE_UPSTASH_ACCOUNT_REQUESTS: string;
+  USAGE_ALLOWANCE_UPSTASH_COMMANDS: string;
   USAGE_ALLOWANCE_RESEND_SENDS: string;
   CF_VERSION_METADATA?: { id: string; tag: string; timestamp: string };
 }
@@ -171,11 +171,14 @@ export async function handleAppWorkerRequest(
         r2Reads += 1;
       },
     });
-    recordUsage({ workers: 1, r2: r2Reads });
+    // The single batched usage-recording command is itself the request's
+    // only Upstash spend on this path, so it is counted as one command.
+    recordUsage({ workers: 1, r2: r2Reads, upstash: 1 });
     return response;
   }
 
   let resendCalls = 0;
+  let upstashCommands = 0;
   const countingProviders: HostedAppProviders = {
     ...providers,
     createEmailSender(senderEnvironment) {
@@ -187,15 +190,43 @@ export async function handleAppWorkerRequest(
         },
       };
     },
+    createRedis(url, token) {
+      const redis = providers.createRedis(url, token);
+      return {
+        get<T>(key: string) {
+          upstashCommands += 1;
+          return redis.get<T>(key);
+        },
+        setex(key: string, seconds: number, value: string) {
+          upstashCommands += 1;
+          return redis.setex(key, seconds, value);
+        },
+        del(key: string) {
+          upstashCommands += 1;
+          return redis.del(key);
+        },
+        eval(script: string, keys: string[], args: string[]) {
+          upstashCommands += 1;
+          return redis.eval(script, keys, args);
+        },
+      };
+    },
   };
   try {
     const runtime = createHostedAppRuntime(environment, countingProviders);
     const response = await runtime.fetch(request);
     context.waitUntil(runtime.close());
-    recordUsage({ workers: 1, neon: 1, upstash: 1, resend: resendCalls });
+    recordUsage({
+      workers: 1,
+      neon: 1,
+      // Every store command issued during the request plus the one batched
+      // usage-recording command below.
+      upstash: upstashCommands + 1,
+      resend: resendCalls,
+    });
     return response;
   } catch {
-    recordUsage({ workers: 1 });
+    recordUsage({ workers: 1, upstash: upstashCommands + 1 });
     return unavailableResponse(pathname);
   }
 }
@@ -234,14 +265,19 @@ export function createHostedAppRuntime(
       emailWindowMs: seconds('VERIFICATION_ATTEMPT_EMAIL_WINDOW_SECONDS'),
     },
   );
-  const safetyBudget = createRedisApplicationSafetyBudget(redisEval, {
-    sendLimit: integer('APPLICATION_SAFETY_SEND_LIMIT'),
-    sendWindowMs: seconds('APPLICATION_SAFETY_SEND_WINDOW_SECONDS'),
-    accountWriteLimit: integer('APPLICATION_SAFETY_ACCOUNT_WRITE_LIMIT'),
-    accountWriteWindowMs: seconds(
-      'APPLICATION_SAFETY_ACCOUNT_WRITE_WINDOW_SECONDS',
-    ),
-  });
+  const deployment = deploymentIdentity(environment);
+  const safetyBudget = createRedisApplicationSafetyBudget(
+    redisEval,
+    {
+      sendLimit: integer('APPLICATION_SAFETY_SEND_LIMIT'),
+      sendWindowMs: seconds('APPLICATION_SAFETY_SEND_WINDOW_SECONDS'),
+      accountWriteLimit: integer('APPLICATION_SAFETY_ACCOUNT_WRITE_LIMIT'),
+      accountWriteWindowMs: seconds(
+        'APPLICATION_SAFETY_ACCOUNT_WRITE_WINDOW_SECONDS',
+      ),
+    },
+    deployment ? { deployment } : {},
+  );
   const session = createUpstashAppSession(redis, environment.SESSION_SECRET);
   const requestCooldownMs = seconds('VERIFICATION_REQUEST_COOLDOWN_SECONDS');
   const providerEmailSender = providers.createEmailSender(environment);
@@ -300,7 +336,7 @@ function createEnvironmentUsageSignals(
     workers: Number(environment.USAGE_ALLOWANCE_WORKER_REQUESTS),
     r2: Number(environment.USAGE_ALLOWANCE_R2_READS),
     neon: Number(environment.USAGE_ALLOWANCE_NEON_ACCOUNT_REQUESTS),
-    upstash: Number(environment.USAGE_ALLOWANCE_UPSTASH_ACCOUNT_REQUESTS),
+    upstash: Number(environment.USAGE_ALLOWANCE_UPSTASH_COMMANDS),
     resend: Number(environment.USAGE_ALLOWANCE_RESEND_SENDS),
   };
   for (const allowance of Object.values(allowances))

@@ -1,5 +1,10 @@
 import { createHmac } from 'node:crypto';
 
+import {
+  consumeSingleBudget,
+  type RedisEvalClient,
+} from '../core/redisBudget.js';
+
 export interface VerificationRequestLimitPolicy {
   sourceLimit: number;
   sourceWindowMs: number;
@@ -31,12 +36,7 @@ export interface VerificationAttemptLimiter {
   resetEmail: (email: string) => Promise<void>;
 }
 
-export interface RedisEvalClient {
-  eval: (
-    script: string,
-    options: { keys: string[]; arguments: string[] },
-  ) => Promise<unknown>;
-}
+export type { BudgetAdmission, RedisEvalClient } from '../core/redisBudget.js';
 
 const attemptScript = `
 local sourceCount = tonumber(redis.call('GET', KEYS[1]) or '0')
@@ -58,41 +58,6 @@ if globalCount == 1 then redis.call('PEXPIRE', KEYS[2], ARGV[4]) end
 return {1, 0}
 `;
 
-const singleBudgetScript = `
-local count = tonumber(redis.call('GET', KEYS[1]) or '0')
-if count >= tonumber(ARGV[1]) then
-  return {0, math.max(redis.call('PTTL', KEYS[1]), 1)}
-end
-count = redis.call('INCR', KEYS[1])
-if count == 1 then redis.call('PEXPIRE', KEYS[1], ARGV[2]) end
-return {1, 0}
-`;
-
-export type BudgetAdmission =
-  | { allowed: true }
-  | { allowed: false; retryAfterMs: number };
-
-export async function consumeSingleBudget(
-  redis: RedisEvalClient,
-  key: string,
-  limit: number,
-  windowMs: number,
-  invalidResponseMessage: string,
-): Promise<BudgetAdmission> {
-  const result = await redis.eval(singleBudgetScript, {
-    keys: [key],
-    arguments: [String(limit), String(windowMs)],
-  });
-  if (!Array.isArray(result) || result.length !== 2)
-    throw new Error(invalidResponseMessage);
-  const allowed = Number(result[0]);
-  const retryAfterMs = Number(result[1]);
-  if (allowed === 1) return { allowed: true };
-  if (allowed === 0 && Number.isFinite(retryAfterMs))
-    return { allowed: false, retryAfterMs: Math.max(1, retryAfterMs) };
-  throw new Error(invalidResponseMessage);
-}
-
 const resetKeyScript = `return redis.call('DEL', KEYS[1])`;
 
 function validatePolicy(policy: object) {
@@ -112,26 +77,28 @@ export function createRedisVerificationRequestLimiter(
   validatePolicy(policy);
 
   return {
-    admitSource(source) {
+    async admitSource(source) {
       const sourceDigest = createHmac('sha256', secret)
         .update(source)
         .digest('hex');
-      return consumeSingleBudget(
+      const { admission } = await consumeSingleBudget(
         redis,
         `verification-request:source:${sourceDigest}`,
         policy.sourceLimit,
         policy.sourceWindowMs,
         'Invalid verification request limiter response',
       );
+      return admission;
     },
-    consumeSend() {
-      return consumeSingleBudget(
+    async consumeSend() {
+      const { admission } = await consumeSingleBudget(
         redis,
         'verification-request:global',
         policy.globalLimit,
         policy.globalWindowMs,
         'Invalid verification send budget response',
       );
+      return admission;
     },
   };
 }

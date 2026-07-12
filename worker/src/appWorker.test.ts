@@ -9,6 +9,7 @@ import {
 } from './appWorker.js';
 import type { R2CatalogBucket, R2CatalogObject } from './r2CatalogStore.js';
 import type { UpstashRedisCommands } from './upstashRedis.js';
+import { createMemoryUpstashRedis } from './upstashRedis.memory.js';
 import { createMemoryEmailDeliveryAuditStore } from '../../api/src/auth/emailDeliveryAudit.memory.js';
 import { HostedLoginCookieClient } from '../../api/src/auth/hostedLogin.contract.js';
 import { createMemoryUcsdAuthStore } from '../../api/src/auth/ucsdAuth.memory.js';
@@ -94,7 +95,7 @@ function configuredEnvironment() {
     USAGE_ALLOWANCE_WORKER_REQUESTS: '10000000',
     USAGE_ALLOWANCE_R2_READS: '10000000',
     USAGE_ALLOWANCE_NEON_ACCOUNT_REQUESTS: '200000',
-    USAGE_ALLOWANCE_UPSTASH_ACCOUNT_REQUESTS: '80000',
+    USAGE_ALLOWANCE_UPSTASH_COMMANDS: '500000',
     USAGE_ALLOWANCE_RESEND_SENDS: '3000',
   } as unknown as AppWorkerEnv;
 }
@@ -102,54 +103,6 @@ function configuredEnvironment() {
 const context = {
   waitUntil() {},
 } as unknown as ExecutionContext;
-
-class EmulatedRedis implements UpstashRedisCommands {
-  readonly values = new Map<string, string>();
-  readonly counters = new Map<string, number>();
-
-  get<T>(key: string) {
-    if (this.counters.has(key))
-      return Promise.resolve(this.counters.get(key) as T);
-    const value = this.values.get(key);
-    return Promise.resolve(value ? (JSON.parse(value) as T) : null);
-  }
-
-  setex(key: string, _seconds: number, value: string) {
-    this.values.set(key, value);
-    return Promise.resolve('OK' as const);
-  }
-
-  del(key: string) {
-    return Promise.resolve(this.values.delete(key) ? 1 : 0);
-  }
-
-  // A budget-faithful stand-in for the three Lua scripts plus the usage
-  // counter, so composition tests exercise real exhaustion semantics.
-  eval(script: string, keys: string[], args: string[]) {
-    if (script.includes('INCRBY')) {
-      const next = (this.counters.get(keys[0]!) ?? 0) + Number(args[0]);
-      this.counters.set(keys[0]!, next);
-      return Promise.resolve(next);
-    }
-    if (script.includes('DEL')) {
-      this.counters.delete(keys[0]!);
-      return Promise.resolve(1);
-    }
-    if (keys.length === 2) {
-      const source = this.counters.get(keys[0]!) ?? 0;
-      const email = this.counters.get(keys[1]!) ?? 0;
-      if (source >= Number(args[0]) || email >= Number(args[2]))
-        return Promise.resolve([0, 60_000]);
-      this.counters.set(keys[0]!, source + 1);
-      this.counters.set(keys[1]!, email + 1);
-      return Promise.resolve([1, 0]);
-    }
-    const count = this.counters.get(keys[0]!) ?? 0;
-    if (count >= Number(args[0])) return Promise.resolve([0, 60_000]);
-    this.counters.set(keys[0]!, count + 1);
-    return Promise.resolve([1, 0]);
-  }
-}
 
 function memoryHostedProviders(redis: UpstashRedisCommands) {
   const codes = new Map<string, string[]>();
@@ -311,7 +264,7 @@ describe('hosted App Worker composition', () => {
       'USAGE_ALLOWANCE_WORKER_REQUESTS',
       'USAGE_ALLOWANCE_R2_READS',
       'USAGE_ALLOWANCE_NEON_ACCOUNT_REQUESTS',
-      'USAGE_ALLOWANCE_UPSTASH_ACCOUNT_REQUESTS',
+      'USAGE_ALLOWANCE_UPSTASH_COMMANDS',
       'USAGE_ALLOWANCE_RESEND_SENDS',
     ])
       expect(config).toContain(`"${name}"`);
@@ -362,7 +315,7 @@ describe('hosted App Worker composition', () => {
   });
 
   it('fails abuse-prone writes closed at the application safety budget while Catalog, Sessions, and safe reads continue', async () => {
-    const redis = new EmulatedRedis();
+    const redis = createMemoryUpstashRedis();
     const { providers, codes } = memoryHostedProviders(redis);
     const environment = {
       ...configuredEnvironment(),
@@ -452,7 +405,7 @@ describe('hosted App Worker composition', () => {
   });
 
   it('enforces source, global send, and guessing budgets through the Worker runtime', async () => {
-    const redis = new EmulatedRedis();
+    const redis = createMemoryUpstashRedis();
     const { providers, codes } = memoryHostedProviders(redis);
     const environment = {
       ...configuredEnvironment(),
@@ -516,7 +469,7 @@ describe('hosted App Worker composition', () => {
   });
 
   it('records provider usage signals for catalog and account traffic', async () => {
-    const redis = new EmulatedRedis();
+    const redis = createMemoryUpstashRedis();
     const { providers } = memoryHostedProviders(redis);
     const environment = configuredEnvironment();
     const { client, requestVerification, settle } = createWorkerClient(
@@ -533,13 +486,16 @@ describe('hosted App Worker composition', () => {
     expect(redis.counters.get('usage:workers:1970-01')).toBe(2);
     expect(redis.counters.get('usage:r2:1970-01')).toBe(1);
     expect(redis.counters.get('usage:neon:1970-01')).toBe(1);
-    expect(redis.counters.get('usage:upstash:1970-01')).toBe(1);
+    // Catalog request: its one usage-recording command. Account request:
+    // three store commands (source budget, global budget, safety budget)
+    // plus its one usage-recording command.
+    expect(redis.counters.get('usage:upstash:1970-01')).toBe(5);
     expect(redis.counters.get('usage:resend:1970-01')).toBe(1);
   });
 
   it('reports usage levels for every provider from the scheduled handler', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const redis = new EmulatedRedis();
+    const redis = createMemoryUpstashRedis();
     redis.counters.set('usage:resend:1970-01', 2_800);
     const { providers } = memoryHostedProviders(redis);
     const pending: Promise<unknown>[] = [];

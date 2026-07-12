@@ -25,55 +25,10 @@ import {
   type CatalogPublicationStore,
 } from '../src/catalogPublication.js';
 import type { UpstashRedisCommands } from '../src/upstashRedis.js';
+import { createMemoryUpstashRedis } from '../src/upstashRedis.memory.js';
 
 const origin = 'https://staging.sungridplanner.com';
 const encoder = new TextEncoder();
-
-class BudgetRedis implements UpstashRedisCommands {
-  readonly values = new Map<string, string>();
-  readonly counters = new Map<string, number>();
-
-  get<T>(key: string) {
-    if (this.counters.has(key))
-      return Promise.resolve(this.counters.get(key) as T);
-    const value = this.values.get(key);
-    return Promise.resolve(value ? (JSON.parse(value) as T) : null);
-  }
-
-  setex(key: string, _seconds: number, value: string) {
-    this.values.set(key, value);
-    return Promise.resolve('OK' as const);
-  }
-
-  del(key: string) {
-    return Promise.resolve(this.values.delete(key) ? 1 : 0);
-  }
-
-  eval(script: string, keys: string[], args: string[]) {
-    if (script.includes('INCRBY')) {
-      const next = (this.counters.get(keys[0]!) ?? 0) + Number(args[0]);
-      this.counters.set(keys[0]!, next);
-      return Promise.resolve(next);
-    }
-    if (script.includes('DEL')) {
-      this.counters.delete(keys[0]!);
-      return Promise.resolve(1);
-    }
-    if (keys.length === 2) {
-      const source = this.counters.get(keys[0]!) ?? 0;
-      const email = this.counters.get(keys[1]!) ?? 0;
-      if (source >= Number(args[0]) || email >= Number(args[2]))
-        return Promise.resolve([0, 60_000]);
-      this.counters.set(keys[0]!, source + 1);
-      this.counters.set(keys[1]!, email + 1);
-      return Promise.resolve([1, 0]);
-    }
-    const count = this.counters.get(keys[0]!) ?? 0;
-    if (count >= Number(args[0])) return Promise.resolve([0, 60_000]);
-    this.counters.set(keys[0]!, count + 1);
-    return Promise.resolve([1, 0]);
-  }
-}
 
 function rejectingRedis(): UpstashRedisCommands {
   const down = () => Promise.reject(new Error('session store unavailable'));
@@ -154,7 +109,7 @@ function environment(
     USAGE_ALLOWANCE_WORKER_REQUESTS: '10000000',
     USAGE_ALLOWANCE_R2_READS: '10000000',
     USAGE_ALLOWANCE_NEON_ACCOUNT_REQUESTS: '200000',
-    USAGE_ALLOWANCE_UPSTASH_ACCOUNT_REQUESTS: '80000',
+    USAGE_ALLOWANCE_UPSTASH_COMMANDS: '500000',
     USAGE_ALLOWANCE_RESEND_SENDS: '3000',
     ...overrides,
   } as unknown as AppWorkerEnv;
@@ -187,7 +142,7 @@ function providers(overrides: ProviderOverrides = {}) {
     savedSearches: { ...database.savedSearches, listByUserId: unavailable },
   };
   let currentTime = 1_000_000;
-  const redis = overrides.redis ?? new BudgetRedis();
+  const redis = overrides.redis ?? createMemoryUpstashRedis();
   const hosted: HostedAppProviders = {
     createAppDatabase: () =>
       overrides.failDatabase ? failingDatabase : database,
@@ -339,7 +294,7 @@ async function upstashUnavailableCheck() {
 }
 
 async function neonUnavailableCheck() {
-  const redis = new BudgetRedis();
+  const redis = createMemoryUpstashRedis();
   redis.values.set(
     `session:${'f'.repeat(64)}`,
     JSON.stringify({ user_id: 1, verified_email: 'student@ucsd.edu' }),

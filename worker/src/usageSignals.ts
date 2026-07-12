@@ -1,7 +1,11 @@
 import type { UpstashRedisCommands } from './upstashRedis.js';
+import {
+  classifyUsageLevel,
+  type UsageLevel,
+} from '../../api/src/core/usageLevels.js';
+import { scrubGeneralTelemetry } from '../../api/src/telemetry/privacy.js';
 
 export type UsageProvider = 'workers' | 'r2' | 'neon' | 'upstash' | 'resend';
-export type UsageLevel = 'ok' | 'attention' | 'urgent';
 
 export type UsageAllowances = { [provider in UsageProvider]: number };
 
@@ -52,20 +56,20 @@ const usageProviders: readonly UsageProvider[] = [
 // review the previous month, then expire on their own.
 const usageCounterExpiryMs = 40 * 24 * 60 * 60 * 1000;
 
+// One request records every touched provider in a single Upstash command,
+// so usage recording itself costs exactly the one command the caller
+// accounts for in the upstash counter.
 const usageCounterScript = `
-local count = redis.call('INCRBY', KEYS[1], ARGV[1])
-if count == tonumber(ARGV[1]) then redis.call('PEXPIRE', KEYS[1], ARGV[2]) end
-return count
+local counts = {}
+for index = 1, #KEYS do
+  local count = redis.call('INCRBY', KEYS[index], ARGV[index])
+  if count == tonumber(ARGV[index]) then
+    redis.call('PEXPIRE', KEYS[index], ARGV[#ARGV])
+  end
+  counts[index] = count
+end
+return counts
 `;
-
-export function classifyUsageLevel(
-  used: number,
-  allowance: number,
-): UsageLevel {
-  if (used >= allowance * 0.9) return 'urgent';
-  if (used >= allowance * 0.7) return 'attention';
-  return 'ok';
-}
 
 export function createRedisUsageSignals(
   redis: Pick<UpstashRedisCommands, 'eval' | 'get'>,
@@ -75,7 +79,8 @@ export function createRedisUsageSignals(
   const now = options.now ?? Date.now;
   const emit =
     options.emit ??
-    ((signal: UsageSignal) => console.warn(JSON.stringify(signal)));
+    ((signal: UsageSignal) =>
+      console.warn(JSON.stringify(scrubGeneralTelemetry(signal))));
   for (const provider of usageProviders) {
     const allowance = allowances[provider];
     if (!Number.isSafeInteger(allowance) || allowance <= 0)
@@ -90,18 +95,24 @@ export function createRedisUsageSignals(
     // request behavior, so recording swallows its own failures.
     async record(counts) {
       const currentMonth = month(now());
-      for (const provider of usageProviders) {
-        const increment = counts[provider];
-        if (!increment) continue;
-        try {
-          const used = Number(
-            await redis.eval(
-              usageCounterScript,
-              [`usage:${provider}:${currentMonth}`],
-              [String(increment), String(usageCounterExpiryMs)],
-            ),
-          );
-          if (!Number.isFinite(used)) continue;
+      const recorded = usageProviders.filter(
+        (provider) => (counts[provider] ?? 0) > 0,
+      );
+      if (!recorded.length) return;
+      try {
+        const result = await redis.eval(
+          usageCounterScript,
+          recorded.map((provider) => `usage:${provider}:${currentMonth}`),
+          [
+            ...recorded.map((provider) => String(counts[provider])),
+            String(usageCounterExpiryMs),
+          ],
+        );
+        if (!Array.isArray(result)) return;
+        recorded.forEach((provider, index) => {
+          const used = Number(result[index]);
+          if (!Number.isFinite(used)) return;
+          const increment = counts[provider]!;
           const allowance = allowances[provider];
           const level = classifyUsageLevel(used, allowance);
           const previousLevel = classifyUsageLevel(used - increment, allowance);
@@ -116,9 +127,9 @@ export function createRedisUsageSignals(
               ...(deployment ? { deployment } : {}),
             });
           }
-        } catch {
-          // Signal loss is acceptable; failing a request for it is not.
-        }
+        });
+      } catch {
+        // Signal loss is acceptable; failing a request for it is not.
       }
     },
     async evaluate() {

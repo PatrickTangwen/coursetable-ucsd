@@ -60,6 +60,11 @@ code, never deletes Sessions or user data (verify of an already-sent code,
 current-user reads, GET planning reads, and logout keep working), and never
 takes down the public Catalog. There is no automatic plan upgrade path.
 
+Both safety budgets emit their own maintainer signals before failing closed:
+a structured `safety-budget-signal` warning log when consumption crosses 70
+percent (attention) or 90 percent (urgent) of the configured limit, carrying
+the deployment identity when deployed.
+
 ## Usage signals
 
 The Worker keeps application-side monthly usage counters in Upstash
@@ -67,29 +72,33 @@ The Worker keeps application-side monthly usage counters in Upstash
 against configured allowances: maintainer **attention at 70 percent** and
 **urgent review at 90 percent** of each allowance or budget.
 
-| Provider | Unit counted                                     | Allowance variable                         | Default and basis                                                                                                                                |
-| -------- | ------------------------------------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Workers  | Worker requests served                           | `USAGE_ALLOWANCE_WORKER_REQUESTS`          | 10,000,000 (Workers Paid included requests per month)                                                                                            |
-| R2       | R2 `get` operations on the Catalog path          | `USAGE_ALLOWANCE_R2_READS`                 | 10,000,000 (R2 free Class B operations per month)                                                                                                |
-| Neon     | Account requests opening an App DB client        | `USAGE_ALLOWANCE_NEON_ACCOUNT_REQUESTS`    | 200,000 (application budget; Neon's 100 CU-hour free compute allowance is not application-observable, so an account-request budget stands proxy) |
-| Upstash  | Account requests using the Session/limiter store | `USAGE_ALLOWANCE_UPSTASH_ACCOUNT_REQUESTS` | 80,000 (application budget; each account request issues a small bounded number of the 500,000 free monthly commands)                             |
-| Resend   | Verification email send attempts                 | `USAGE_ALLOWANCE_RESEND_SENDS`             | 3,000 (Resend free monthly email quota)                                                                                                          |
+| Provider | Unit counted                                                                                                                                     | Allowance variable                      | Default and basis                                                                                                                                |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Workers  | Worker requests served                                                                                                                           | `USAGE_ALLOWANCE_WORKER_REQUESTS`       | 10,000,000 (Workers Paid included requests per month)                                                                                            |
+| R2       | R2 `get` operations on the Catalog path                                                                                                          | `USAGE_ALLOWANCE_R2_READS`              | 10,000,000 (R2 free Class B operations per month)                                                                                                |
+| Neon     | Account requests opening an App DB client                                                                                                        | `USAGE_ALLOWANCE_NEON_ACCOUNT_REQUESTS` | 200,000 (application budget; Neon's 100 CU-hour free compute allowance is not application-observable, so an account-request budget stands proxy) |
+| Upstash  | Upstash commands the application issues (store commands counted exactly per account request, plus each request's single usage-recording command) | `USAGE_ALLOWANCE_UPSTASH_COMMANDS`      | 500,000 (Upstash free monthly command quota)                                                                                                     |
+| Resend   | Verification email send attempts                                                                                                                 | `USAGE_ALLOWANCE_RESEND_SENDS`          | 3,000 (Resend free monthly email quota)                                                                                                          |
 
 Signals surface in two non-sensitive maintainer channels:
 
-- a structured `usage-signal` warning log the moment a counter crosses the 70
-  or 90 percent threshold, including the deployment identity from the
-  `CF_VERSION_METADATA` binding when deployed; and
+- a structured `usage-signal` warning log when the recording that crosses the
+  70 or 90 percent threshold succeeds, including the deployment identity from
+  the `CF_VERSION_METADATA` binding when deployed; and
 - a daily `usage-report` warning log from the existing `0 8 * * *` Cron
   Trigger listing every provider's used count, allowance, and level (or
-  `usage-report-unavailable` when the signal store cannot be read).
+  `usage-report-unavailable` when the signal store cannot be read). The daily
+  report is the backstop for a crossing signal lost to a swallowed recording
+  failure.
 
 Usage signals are advisory. Recording failures are swallowed, an unconfigured
 signal store disables recording, and signal-store writes never change request
-behavior or take down the Catalog. Counting adds one Upstash command per
-request; that overhead is included in the Upstash budget above. Provider-side
-billing alerts (issue #84) complement these application signals and do not
-replace the application controls.
+behavior or take down the Catalog. Every request records all of its touched
+providers in one batched Upstash command — Catalog and static requests
+included — and that command is itself counted in the Upstash usage above, so
+public traffic cannot silently spend the Upstash quota. Provider-side billing
+alerts (issue #84) complement these application signals and do not replace
+the application controls.
 
 ## Failure and rollback evidence
 
@@ -104,6 +113,12 @@ replace the application controls.
   the schema version.
 - Both evidence lines pass `assertGeneralTelemetrySafe` before printing, so
   they contain no PII, verification code, Cookie, Session, or secret.
+
+Executing an actual staging rollback (redeploying a recorded prior Worker
+version) belongs to the auditable deployment workflow in issue #117; this
+slice proves and records that the previous application revision still
+operates against the forward-compatible schema, so that rollback is safe
+when #117 performs it.
 
 ## Local verification
 
