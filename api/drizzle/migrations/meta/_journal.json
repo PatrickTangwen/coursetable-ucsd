@@ -15,6 +15,13 @@
       "when": 1783736368692,
       "tag": "0001_freezing_zuras",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1783823384227,
+      "tag": "0002_wild_skaar",
+      "breakpoints": true
     }
   ]
 }

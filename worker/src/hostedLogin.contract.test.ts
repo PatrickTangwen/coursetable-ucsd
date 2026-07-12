@@ -6,6 +6,7 @@ import {
   type HostedAppProviders,
 } from './appWorker.js';
 import type { UpstashRedisCommands } from './upstashRedis.js';
+import { createMemoryEmailDeliveryAuditStore } from '../../api/src/auth/emailDeliveryAudit.memory.js';
 import {
   exerciseHostedLoginContract,
   HostedLoginCookieClient,
@@ -71,6 +72,7 @@ describe('hosted login external HTTP contract on Worker', () => {
     const providers: HostedAppProviders = {
       createAppDatabase: () => ({
         auth: authStore,
+        emailDeliveryAudits: createMemoryEmailDeliveryAuditStore(),
         savedSearches: createMemorySavedSearchStore(),
         savedWorksheets: createMemorySavedWorksheetStore(),
         close: () => Promise.resolve(),
@@ -114,6 +116,7 @@ describe('hosted login external HTTP contract on Worker', () => {
     const providers: HostedAppProviders = {
       createAppDatabase: () => ({
         auth: authStore,
+        emailDeliveryAudits: createMemoryEmailDeliveryAuditStore(),
         savedSearches,
         savedWorksheets,
         close: () => Promise.resolve(),

@@ -1,5 +1,6 @@
 import winston from 'winston';
 import { isDev } from '../config.js';
+import { scrubGeneralTelemetry } from '../telemetry/privacy.js';
 
 const levels = {
   error: 0,
@@ -22,12 +23,12 @@ winston.addColors(colors);
 // global format
 const format = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
+  winston.format.splat(),
+  winston.format((info) => scrubGeneralTelemetry(info))(),
   winston.format.printf(
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     (info) => `${info.timestamp} ${info.level}: ${info.message}`,
   ),
-  // Support object logging
-  winston.format.splat(),
   winston.format.json(),
 );
 

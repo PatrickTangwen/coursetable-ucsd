@@ -1,6 +1,12 @@
+import { readFile } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
 
-import { handleAppWorkerRequest, type AppWorkerEnv } from './appWorker.js';
+import {
+  createAppWorker,
+  handleAppWorkerRequest,
+  type AppWorkerEnv,
+  type HostedAppProviders,
+} from './appWorker.js';
 import type { R2CatalogBucket, R2CatalogObject } from './r2CatalogStore.js';
 
 const encoder = new TextEncoder();
@@ -83,6 +89,81 @@ const context = {
 } as unknown as ExecutionContext;
 
 describe('hosted App Worker composition', () => {
+  it('does not expose Email Delivery Audit through a browser route', async () => {
+    for (const pathname of [
+      '/api/email-delivery-audits',
+      '/api/maintainer/email-delivery-audits',
+    ]) {
+      const response = await handleAppWorkerRequest(
+        new Request(`https://staging.sungridplanner.com${pathname}`),
+        incompleteEnvironment(),
+        context,
+      );
+
+      expect(response.status).toBe(404);
+      expect(response.headers.get('cache-control')).toBe('no-store');
+    }
+  });
+
+  it('runs idempotent audit cleanup at the scheduled time and closes App DB', async () => {
+    const cleanedAt: number[] = [];
+    let closeCalls = 0;
+    const providers = {
+      createAppDatabase: () => ({
+        auth: {},
+        savedSearches: {},
+        savedWorksheets: {},
+        emailDeliveryAudits: {
+          deleteExpired(now: number) {
+            cleanedAt.push(now);
+            return Promise.resolve(0);
+          },
+        },
+        close() {
+          closeCalls += 1;
+          return Promise.resolve();
+        },
+      }),
+      createEmailSender: () => ({
+        sendVerificationEmail: () => Promise.resolve(),
+      }),
+      createRedis: () => ({}),
+      now: Date.now,
+    } as unknown as HostedAppProviders;
+    const pending: Promise<unknown>[] = [];
+    const { scheduled } = createAppWorker(providers) as unknown as {
+      scheduled: (
+        controller: ScheduledController,
+        environment: AppWorkerEnv,
+        executionContext: ExecutionContext,
+      ) => void;
+    };
+    const scheduledTime = Date.parse('2026-07-12T08:00:00.000Z');
+
+    scheduled(
+      { scheduledTime, cron: '0 8 * * *', noRetry() {} },
+      configuredEnvironment(),
+      {
+        waitUntil(promise) {
+          pending.push(promise);
+        },
+      } as ExecutionContext,
+    );
+    await Promise.all(pending);
+
+    expect(cleanedAt).toEqual([scheduledTime]);
+    expect(closeCalls).toBe(1);
+  });
+
+  it('declares the daily audit cleanup schedule in Wrangler config', async () => {
+    const config = await readFile(
+      new URL('../wrangler.jsonc', import.meta.url),
+      'utf8',
+    );
+
+    expect(config).toContain('"crons": ["0 8 * * *"]');
+  });
+
   it('fails auth closed when hosted bindings are absent', async () => {
     const response = await handleAppWorkerRequest(
       new Request('https://staging.sungridplanner.com/api/auth/current-user'),

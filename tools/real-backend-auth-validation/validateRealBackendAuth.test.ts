@@ -120,11 +120,14 @@ describe('real backend auth validation CLI', () => {
     ).toBe(false);
   });
 
-  it('summarizes evidence without persisting dev codes or full session keys', () => {
-    const summary = validation.buildEvidenceSummary({
+  it('rejects sensitive acceptance evidence and keeps only a safe recipient reference', () => {
+    const input = {
       runId: '20260621T040506Z',
       apiOrigin: 'https://localhost:3010',
-      email: 'auth-validation+20260621t040506z-12345678@ucsd.edu',
+      recipient: {
+        maskedEmail: 'a***@ucsd.edu',
+        recipientRef: 'recipient_abcdef1234567890',
+      },
       savedSearchName: 'Auth Validation 20260621T040506Z',
       appUserIdFingerprint: '73475cb40a56',
       verificationCodeSource: 'explicit hosted-validation capture sender',
@@ -167,11 +170,25 @@ describe('real backend auth validation CLI', () => {
         verificationRowsDeleted: 1,
         savedSearchRowsDeleted: 0,
       },
-    });
+    };
+    const summary = validation.buildEvidenceSummary(input);
 
     const serialized = JSON.stringify(summary);
+    expect(serialized).not.toContain(
+      'auth-validation+20260621t040506z-12345678@ucsd.edu',
+    );
     expect(serialized).not.toContain('123456.');
     expect(serialized).not.toContain('devCode":"123456');
     expect(summary.redis.sessionKeyFingerprint).toBe('abcdef123456');
+    expect(summary.recipient).toEqual(input.recipient);
+    expect(() =>
+      validation.buildEvidenceSummary({
+        ...input,
+        recipient: { email: 'student@ucsd.edu' } as unknown as {
+          maskedEmail: string;
+          recipientRef: string;
+        },
+      }),
+    ).toThrow('Unsafe general telemetry payload');
   });
 });

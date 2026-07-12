@@ -27,6 +27,7 @@ describe('verification email capture sender', () => {
     await sender.sendVerificationEmail({
       deliveryId: 'verification/1/2',
       recipient: 'student@ucsd.edu',
+      requestedAt: 1_000_000,
       subject: 'subject',
       text: 'Your verification code is 123456.',
       html: '<p>123456</p>',
@@ -61,6 +62,7 @@ describe('verification email capture sender', () => {
       sender.sendVerificationEmail({
         deliveryId: 'verification/1/2',
         recipient: 'student@ucsd.edu',
+        requestedAt: 1_000_000,
         subject: 'subject',
         text: 'message without a verification value',
         html: '<p>missing</p>',

@@ -254,6 +254,7 @@ describe('UCSD auth routes', () => {
         {
           deliveryId: 'verification/1000000/1',
           recipient: 'student@ucsd.edu',
+          requestedAt: 1_000_000,
           subject: 'Your SunGrid verification code',
           text: 'Your SunGrid verification code is 123456. This code expires in 15 minutes. If you did not request this code, you can ignore this email.',
           html: '<p>Your SunGrid verification code is:</p><p><strong>123456</strong></p><p>This code expires in 15 minutes. If you did not request this code, you can ignore this email.</p>',

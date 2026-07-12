@@ -9,13 +9,21 @@ export interface VerificationEmail {
 export interface VerificationEmailMessage {
   deliveryId: string;
   recipient: string;
+  requestedAt: number;
   subject: string;
   text: string;
   html: string;
 }
 
+export interface VerificationEmailDeliveryReceipt {
+  providerMessageId: string | null;
+}
+
 export interface VerificationEmailSender {
-  sendVerificationEmail: (message: VerificationEmailMessage) => Promise<void>;
+  sendVerificationEmail: (
+    message: VerificationEmailMessage,
+  ) => // eslint-disable-next-line @typescript-eslint/no-invalid-void-type -- legacy test/development adapters have no provider receipt.
+  Promise<VerificationEmailDeliveryReceipt | void>;
 }
 
 export class VerificationEmailDeliveryError extends Error {
@@ -51,6 +59,7 @@ export function createVerificationEmailMessage({
   return {
     deliveryId,
     recipient: email,
+    requestedAt: createdAt,
     subject: 'Your SunGrid verification code',
     text: `Your SunGrid verification code is ${code}. ${expiryCopy} ${ignoreCopy}`,
     html: `<p>Your SunGrid verification code is:</p><p><strong>${code}</strong></p><p>${expiryCopy} ${ignoreCopy}</p>`,
@@ -59,7 +68,7 @@ export function createVerificationEmailMessage({
 
 export function createDevelopmentVerificationEmailSender(): VerificationEmailSender {
   return {
-    sendVerificationEmail: () => Promise.resolve(),
+    sendVerificationEmail: () => Promise.resolve({ providerMessageId: null }),
   };
 }
 

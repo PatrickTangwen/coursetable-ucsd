@@ -215,6 +215,27 @@ export const emailVerificationCodes = pgTable(
   }),
 );
 
+export const emailDeliveryAudits = pgTable(
+  'emailDeliveryAudits',
+  {
+    normalizedRecipientEmail: varchar('normalizedRecipientEmail', {
+      length: 256,
+    }).notNull(),
+    requestId: varchar('requestId', { length: 256 }).primaryKey().notNull(),
+    providerMessageId: varchar('providerMessageId', { length: 256 }),
+    requestTime: bigint('requestTime', { mode: 'number' }).notNull(),
+    deliveryOutcome: varchar('deliveryOutcome', { length: 32 }).notNull(),
+    expiresAt: bigint('expiresAt', { mode: 'number' }).notNull(),
+  },
+  (table) => ({
+    recipientTimeIdx: index('email_delivery_audit_recipient_time_idx').on(
+      table.normalizedRecipientEmail,
+      table.requestTime,
+    ),
+    expiryIdx: index('email_delivery_audit_expiry_idx').on(table.expiresAt),
+  }),
+);
+
 export const savedSearches = pgTable(
   'savedSearches',
   {
