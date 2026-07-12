@@ -84,6 +84,8 @@
     "eslint-plugin-css-modules@2.12.0": "patches/eslint-plugin-css-modules@2.12.0.patch"
   },
   "dependencies": {
+    "@upstash/redis": "^1.38.0",
+    "drizzle-orm": "0.30.10",
     "postgres": "^3.4.5"
   }
 }

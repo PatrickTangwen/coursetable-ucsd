@@ -22,12 +22,42 @@ const runMigrationCommand = async (databaseUrl?: string) => {
   }
 };
 
+const runHostedMigrationCommand = async (directDatabaseUrl?: string) => {
+  const environment: NodeJS.ProcessEnv = {
+    ...process.env,
+    DB_URL: 'postgresql://runtime.invalid/app',
+  };
+  if (directDatabaseUrl)
+    environment.NEON_DIRECT_DATABASE_URL = directDatabaseUrl;
+  else delete environment.NEON_DIRECT_DATABASE_URL;
+
+  try {
+    await execFileAsync('bun', ['run', 'db:migrate:hosted'], {
+      cwd: new URL('..', import.meta.url).pathname,
+      env: environment,
+    });
+    return { exitCode: 0, stderr: '' };
+  } catch (error) {
+    const result = error as { code: number; stderr: string };
+    return { exitCode: result.code, stderr: result.stderr };
+  }
+};
+
 describe('App DB migration command', () => {
   it('resolves the real runner and fails before connecting without DB_URL', async () => {
     const result = await runMigrationCommand();
 
     expect(result.exitCode).not.toBe(0);
     expect(result.stderr).toContain('env config missing: DB_URL');
+  });
+
+  it('keeps hosted migrations on the direct Neon connection contract', async () => {
+    const result = await runHostedMigrationCommand();
+
+    expect(result.exitCode).not.toBe(0);
+    expect(result.stderr).toContain(
+      'env config missing: NEON_DIRECT_DATABASE_URL',
+    );
   });
 
   it.skipIf(!process.env.APP_DB_MIGRATION_TEST_URL)(

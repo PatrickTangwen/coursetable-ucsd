@@ -31,7 +31,7 @@ export interface VerificationAttemptLimiter {
   resetEmail: (email: string) => Promise<void>;
 }
 
-interface RedisEvalClient {
+export interface RedisEvalClient {
   eval: (
     script: string,
     options: { keys: string[]; arguments: string[] },
