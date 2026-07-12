@@ -137,3 +137,26 @@ Current provider references used for the documented allowances: Cloudflare
 Workers Paid plan limits and version metadata binding, Cloudflare R2 free
 tier operations, Neon free plan compute allowance, Upstash Redis free tier
 command quota, and Resend free tier quotas and `429` quota error semantics.
+
+## Post-review amendments (2026-07-12)
+
+The independent implementation review identified three gaps in the first local
+revision. This revision closes them while preserving the original boundaries:
+
+- Global-send and Application Safety Budget read-only preflights now run after
+  the per-source admission but before creating a Neon verification reservation.
+  Once either cap is already exhausted, a distributed request therefore cannot
+  create or fail a verification row. The atomic budget consumptions remain
+  after the cooldown reservation, so cooldown-blocked requests still do not
+  consume send capacity. A request that races with another in-flight request
+  can still lose the later atomic consumption and have its own reservation
+  marked failed; that bounded race does not permit continuing writes after the
+  stored cap is visible.
+- The daily scheduled event records its Worker invocation, Neon audit-cleanup
+  access, the actual number of Upstash report reads attempted, and the one
+  batched usage-recording command. A partial report failure records only the
+  reads that were actually attempted before failure.
+- The shared memory Redis recognizes the exact exported Lua script constants.
+  Unknown or changed scripts fail explicitly instead of selecting behavior by
+  `includes(...)` checks or key-count heuristics, so test-model drift cannot
+  silently produce acceptance evidence.

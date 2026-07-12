@@ -126,6 +126,43 @@ export async function createUcsdAuthResponse(
       );
     }
 
+    const sendPreflight = await requestLimiter
+      .preflightSend()
+      .catch(() => null);
+    if (!sendPreflight) {
+      return unavailableResponse(
+        'VERIFICATION_REQUEST_UNAVAILABLE',
+        'Verification requests are temporarily unavailable.',
+        responseHeaders,
+      );
+    }
+    if (!sendPreflight.allowed) {
+      return limitedResponse(
+        'VERIFICATION_RATE_LIMIT',
+        'Too many verification requests. Try again later.',
+        sendPreflight.retryAfterMs,
+        responseHeaders,
+      );
+    }
+
+    const safetyPreflight = await safetyBudget
+      .preflightVerificationSend()
+      .catch(() => null);
+    if (!safetyPreflight) {
+      return unavailableResponse(
+        'VERIFICATION_REQUEST_UNAVAILABLE',
+        'Verification requests are temporarily unavailable.',
+        responseHeaders,
+      );
+    }
+    if (!safetyPreflight.allowed) {
+      return unavailableResponse(
+        'VERIFICATION_SENDS_PAUSED',
+        'New verification emails are temporarily paused.',
+        responseHeaders,
+      );
+    }
+
     const code = codeGenerator();
     const createdAt = now();
     const expiresAt = createdAt + verificationCodeTtlMs;

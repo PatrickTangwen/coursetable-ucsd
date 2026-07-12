@@ -62,7 +62,7 @@ export interface PlanningDataHttpOptions {
     getUser: (context: unknown) => Promise<AppUserIdentity | null>;
   };
   now?: () => number;
-  safetyBudget?: ApplicationSafetyBudget;
+  safetyBudget?: Pick<ApplicationSafetyBudget, 'consumeAccountWrite'>;
 }
 
 export async function createPlanningDataResponse(

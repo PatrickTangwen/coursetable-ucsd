@@ -404,6 +404,57 @@ describe('hosted App Worker composition', () => {
     }
   });
 
+  it('does not write verification state after the send safety budget is exhausted', async () => {
+    const redis = createMemoryUpstashRedis();
+    const { providers: baseProviders } = memoryHostedProviders(redis);
+    const { createAppDatabase } = baseProviders;
+    let verificationStateWrites = 0;
+    const providers: HostedAppProviders = {
+      ...baseProviders,
+      createAppDatabase(binding) {
+        const database = createAppDatabase(binding);
+        const { auth } = database;
+        return {
+          ...database,
+          auth: {
+            ...auth,
+            reserveVerification(record, cooldownMs) {
+              verificationStateWrites += 1;
+              return auth.reserveVerification(record, cooldownMs);
+            },
+            markVerificationFailed(verificationId) {
+              verificationStateWrites += 1;
+              return auth.markVerificationFailed(verificationId);
+            },
+          },
+        };
+      },
+    };
+    const environment = {
+      ...configuredEnvironment(),
+      APPLICATION_SAFETY_SEND_LIMIT: '1',
+    } as AppWorkerEnv;
+    const { requestVerification } = createWorkerClient(providers, environment);
+
+    const first = await requestVerification(
+      'student@ucsd.edu',
+      '198.51.100.10',
+    );
+    expect(first.status).toBe(200);
+    const writesAtCap = verificationStateWrites;
+
+    const paused = await requestVerification(
+      'second@ucsd.edu',
+      '198.51.100.11',
+    );
+
+    expect(paused.status).toBe(503);
+    expect(await paused.json()).toMatchObject({
+      error: 'VERIFICATION_SENDS_PAUSED',
+    });
+    expect(verificationStateWrites).toBe(writesAtCap);
+  });
+
   it('enforces source, global send, and guessing budgets through the Worker runtime', async () => {
     const redis = createMemoryUpstashRedis();
     const { providers, codes } = memoryHostedProviders(redis);
@@ -487,9 +538,9 @@ describe('hosted App Worker composition', () => {
     expect(redis.counters.get('usage:r2:1970-01')).toBe(1);
     expect(redis.counters.get('usage:neon:1970-01')).toBe(1);
     // Catalog request: its one usage-recording command. Account request:
-    // three store commands (source budget, global budget, safety budget)
-    // plus its one usage-recording command.
-    expect(redis.counters.get('usage:upstash:1970-01')).toBe(5);
+    // source admission, global and safety preflights, both budget
+    // consumptions, plus its one usage-recording command.
+    expect(redis.counters.get('usage:upstash:1970-01')).toBe(7);
     expect(redis.counters.get('usage:resend:1970-01')).toBe(1);
   });
 
@@ -535,6 +586,10 @@ describe('hosted App Worker composition', () => {
       used: 2_800,
       allowance: 3_000,
     });
+    expect(redis.counters.get('usage:workers:1970-01')).toBe(1);
+    expect(redis.counters.get('usage:neon:1970-01')).toBe(1);
+    // Five report reads plus the one batched usage-recording command.
+    expect(redis.counters.get('usage:upstash:1970-01')).toBe(6);
   });
 
   it.each([

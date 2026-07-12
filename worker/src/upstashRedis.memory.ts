@@ -1,4 +1,13 @@
 import type { UpstashRedisCommands } from './upstashRedis.js';
+import { usageCounterScript } from './usageSignals.js';
+import {
+  attemptScript,
+  resetKeyScript,
+} from '../../api/src/auth/verificationRequest.limiter.js';
+import {
+  inspectSingleBudgetScript,
+  singleBudgetScript,
+} from '../../api/src/core/redisBudget.js';
 
 export interface MemoryUpstashRedis extends UpstashRedisCommands {
   values: Map<string, string>;
@@ -29,7 +38,7 @@ export function createMemoryUpstashRedis(): MemoryUpstashRedis {
       return Promise.resolve(values.delete(key) ? 1 : 0);
     },
     eval(script: string, keys: string[], args: string[]) {
-      if (script.includes('INCRBY')) {
+      if (script === usageCounterScript) {
         return Promise.resolve(
           keys.map((key, index) => {
             const next = (counters.get(key) ?? 0) + Number(args[index]);
@@ -38,11 +47,11 @@ export function createMemoryUpstashRedis(): MemoryUpstashRedis {
           }),
         );
       }
-      if (script.includes('DEL')) {
+      if (script === resetKeyScript) {
         counters.delete(keys[0]!);
         return Promise.resolve(1);
       }
-      if (keys.length === 2) {
+      if (script === attemptScript) {
         const source = counters.get(keys[0]!) ?? 0;
         const email = counters.get(keys[1]!) ?? 0;
         if (source >= Number(args[0]) || email >= Number(args[2]))
@@ -51,10 +60,19 @@ export function createMemoryUpstashRedis(): MemoryUpstashRedis {
         counters.set(keys[1]!, email + 1);
         return Promise.resolve([1, 0]);
       }
-      const count = counters.get(keys[0]!) ?? 0;
-      if (count >= Number(args[0])) return Promise.resolve([0, 60_000, count]);
-      counters.set(keys[0]!, count + 1);
-      return Promise.resolve([1, 0, count + 1]);
+      if (
+        script === singleBudgetScript ||
+        script === inspectSingleBudgetScript
+      ) {
+        const count = counters.get(keys[0]!) ?? 0;
+        if (count >= Number(args[0]))
+          return Promise.resolve([0, 60_000, count]);
+        if (script === inspectSingleBudgetScript)
+          return Promise.resolve([1, 0, count]);
+        counters.set(keys[0]!, count + 1);
+        return Promise.resolve([1, 0, count + 1]);
+      }
+      return Promise.reject(new Error('Unknown Redis script'));
     },
   };
 }

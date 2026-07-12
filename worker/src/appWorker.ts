@@ -115,7 +115,26 @@ export async function reportUsageLevels(
   environment: AppWorkerEnv,
   providers: HostedAppProviders = hostedAppProviders,
 ) {
-  const usage = createEnvironmentUsageSignals(environment, providers);
+  let upstashCommands = 0;
+  const countingProviders: HostedAppProviders = {
+    ...providers,
+    createRedis(url, token) {
+      const redis = providers.createRedis(url, token);
+      return {
+        get<T>(key: string) {
+          upstashCommands += 1;
+          return redis.get<T>(key);
+        },
+        setex: (key, seconds, value) => redis.setex(key, seconds, value),
+        del: (key) => redis.del(key),
+        eval(script, keys, args) {
+          upstashCommands += 1;
+          return redis.eval(script, keys, args);
+        },
+      };
+    },
+  };
+  const usage = createEnvironmentUsageSignals(environment, countingProviders);
   if (!usage) {
     console.warn(JSON.stringify({ signal: 'usage-report-unavailable' }));
     return;
@@ -133,6 +152,13 @@ export async function reportUsageLevels(
   } catch {
     console.warn(JSON.stringify({ signal: 'usage-report-unavailable' }));
   }
+  // Count the scheduled Worker event, its App DB cleanup, every report read,
+  // and the batched usage-recording command itself.
+  await usage.record({
+    workers: 1,
+    neon: 1,
+    upstash: upstashCommands + 1,
+  });
 }
 
 export async function cleanupExpiredEmailDeliveryAudits(
@@ -205,7 +231,7 @@ export async function handleAppWorkerRequest(
           upstashCommands += 1;
           return redis.del(key);
         },
-        eval(script: string, keys: string[], args: string[]) {
+        eval(script, keys: string[], args: string[]) {
           upstashCommands += 1;
           return redis.eval(script, keys, args);
         },

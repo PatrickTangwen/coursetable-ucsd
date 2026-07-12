@@ -123,8 +123,22 @@ interface ProviderOverrides {
 
 function providers(overrides: ProviderOverrides = {}) {
   const codes = new Map<string, string[]>();
+  let verificationStateWrites = 0;
+  const auth = createMemoryUcsdAuthStore();
   const database = {
-    auth: createMemoryUcsdAuthStore(),
+    auth: {
+      ...auth,
+      reserveVerification(
+        ...args: Parameters<typeof auth.reserveVerification>
+      ) {
+        verificationStateWrites += 1;
+        return auth.reserveVerification(...args);
+      },
+      markVerificationFailed(verificationId: number) {
+        verificationStateWrites += 1;
+        return auth.markVerificationFailed(verificationId);
+      },
+    },
     emailDeliveryAudits: createMemoryEmailDeliveryAuditStore(),
     savedSearches: createMemorySavedSearchStore(),
     savedWorksheets: createMemorySavedWorksheetStore(),
@@ -165,7 +179,11 @@ function providers(overrides: ProviderOverrides = {}) {
       return currentTime;
     },
   };
-  return { hosted, codes };
+  return {
+    hosted,
+    codes,
+    verificationStateWrites: () => verificationStateWrites,
+  };
 }
 
 class WorkerClient {
@@ -422,7 +440,7 @@ async function r2PublicationFailureCheck() {
 }
 
 async function safetyBudgetCheck() {
-  const { hosted, codes } = providers();
+  const { hosted, codes, verificationStateWrites } = providers();
   const client = new WorkerClient(
     hosted,
     environment({
@@ -436,6 +454,7 @@ async function safetyBudgetCheck() {
     '198.51.100.1',
   );
   assert.equal(firstSend.status, 200, 'First verification send failed');
+  const writesAtSendCap = verificationStateWrites();
   const verificationCode = codes.get('student@ucsd.edu')?.shift();
   assert.ok(verificationCode, 'No captured verification code');
   const login = await client.request(
@@ -473,6 +492,12 @@ async function safetyBudgetCheck() {
     'Verification send at safety budget',
   );
   assert.ok(!codes.has('second@ucsd.edu'), 'Paused send reached the provider');
+  const writesAfterPausedSend = verificationStateWrites();
+  if (writesAfterPausedSend !== writesAtSendCap) {
+    throw new Error(
+      'Paused send wrote verification state after the safety cap',
+    );
+  }
 
   const safeRead = await client.request('/api/savedSearches');
   assert.equal(safeRead.status, 200, 'Safe account read failed');
@@ -488,7 +513,7 @@ async function safetyBudgetCheck() {
   );
   const catalog = await client.request('/api/catalog/metadata');
   assert.equal(catalog.status, 200, 'Catalog failed at the safety budget');
-  return 'VERIFICATION_SENDS_PAUSED+ACCOUNT_WRITES_PAUSED';
+  return 'VERIFICATION_SENDS_PAUSED+ACCOUNT_WRITES_PAUSED+NO_POST_CAP_VERIFICATION_WRITES';
 }
 
 async function routeNegativeCheck() {

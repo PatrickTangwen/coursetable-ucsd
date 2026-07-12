@@ -55,6 +55,7 @@ describe('Worker auth failure contract', () => {
       requestLimiter: {
         admitSource: () =>
           Promise.resolve({ allowed: false as const, retryAfterMs: 5_500 }),
+        preflightSend: () => Promise.resolve({ allowed: true as const }),
         consumeSend: () => Promise.resolve({ allowed: true as const }),
       },
     });
@@ -106,8 +107,10 @@ describe('Worker auth failure contract', () => {
           },
         },
         safetyBudget: {
-          consumeVerificationSend: () =>
+          preflightVerificationSend: () =>
             Promise.resolve({ allowed: false as const, retryAfterMs: 60_000 }),
+          consumeVerificationSend: () =>
+            Promise.reject(new Error('send budget must not be consumed')),
           consumeAccountWrite: () =>
             Promise.resolve({ allowed: true as const }),
         },
@@ -132,6 +135,7 @@ describe('Worker auth failure contract', () => {
         ...options,
         requestLimiter: {
           admitSource: () => Promise.reject(new Error('upstash down')),
+          preflightSend: () => Promise.resolve({ allowed: true as const }),
           consumeSend: () => Promise.resolve({ allowed: true as const }),
         },
       }),

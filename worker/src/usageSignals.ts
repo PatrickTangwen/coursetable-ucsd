@@ -59,7 +59,7 @@ const usageCounterExpiryMs = 40 * 24 * 60 * 60 * 1000;
 // One request records every touched provider in a single Upstash command,
 // so usage recording itself costs exactly the one command the caller
 // accounts for in the upstash counter.
-const usageCounterScript = `
+export const usageCounterScript = `
 local counts = {}
 for index = 1, #KEYS do
   local count = redis.call('INCRBY', KEYS[index], ARGV[index])

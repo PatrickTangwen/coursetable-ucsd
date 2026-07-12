@@ -1,5 +1,6 @@
 import {
   consumeSingleBudget,
+  inspectSingleBudget,
   type BudgetAdmission,
   type RedisEvalClient,
 } from './redisBudget.js';
@@ -33,6 +34,7 @@ export interface ApplicationSafetyBudgetOptions {
 }
 
 export interface ApplicationSafetyBudget {
+  preflightVerificationSend: () => Promise<BudgetAdmission>;
   consumeVerificationSend: () => Promise<BudgetAdmission>;
   consumeAccountWrite: () => Promise<BudgetAdmission>;
 }
@@ -88,6 +90,15 @@ export function createRedisApplicationSafetyBudget(
   };
 
   return {
+    async preflightVerificationSend() {
+      const { admission } = await inspectSingleBudget(
+        redis,
+        'application-safety:verification-send',
+        policy.sendLimit,
+        'Invalid application safety budget response',
+      );
+      return admission;
+    },
     consumeVerificationSend: () =>
       consume(
         'verification-send',
@@ -107,6 +118,7 @@ export function createRedisApplicationSafetyBudget(
 
 export function createUnlimitedApplicationSafetyBudget(): ApplicationSafetyBudget {
   return {
+    preflightVerificationSend: () => Promise.resolve({ allowed: true }),
     consumeVerificationSend: () => Promise.resolve({ allowed: true }),
     consumeAccountWrite: () => Promise.resolve({ allowed: true }),
   };
