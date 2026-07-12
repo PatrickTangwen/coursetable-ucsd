@@ -25,6 +25,9 @@ Status: top-level navigation for stable project documentation.
   seven-day cleanup, and hosted telemetry/evidence privacy rules.
 - `hosted-like-auth-validation-2026-07-10.md`: fake-sender, production-mode
   acceptance path for hosted login.
+- `hosted_failure_cost_safety-2026-07-12.md`: hosted provider-failure
+  boundary, Application Safety Budget, usage signals with 70/90 percent
+  thresholds, and failure/rollback evidence.
 - `cloudflare_hosted_staging.md`: proposed Cloudflare Worker staging boundary,
   external state services, security and cost policies, and acceptance gate.
 - `worker_catalog.md`: local single-origin Worker Catalog, private R2

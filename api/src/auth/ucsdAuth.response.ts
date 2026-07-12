@@ -20,6 +20,10 @@ import {
   type VerificationAttemptLimiter,
   type VerificationRequestLimiter,
 } from './verificationRequest.limiter.js';
+import {
+  createUnlimitedApplicationSafetyBudget,
+  type ApplicationSafetyBudget,
+} from '../core/applicationSafetyBudget.js';
 
 const RequestVerificationSchema = z.object({
   email: z.string().min(1).max(256),
@@ -58,6 +62,7 @@ export interface UcsdAuthHttpOptions {
   requestCooldownMs?: number;
   requestLimiter?: VerificationRequestLimiter;
   verificationAttemptLimiter?: VerificationAttemptLimiter;
+  safetyBudget?: ApplicationSafetyBudget;
 }
 
 export async function createUcsdAuthResponse(
@@ -72,6 +77,7 @@ export async function createUcsdAuthResponse(
     requestCooldownMs = 60_000,
     requestLimiter = createUnlimitedVerificationRequestLimiter(),
     verificationAttemptLimiter = createUnlimitedVerificationAttemptLimiter(),
+    safetyBudget = createUnlimitedApplicationSafetyBudget(),
   }: UcsdAuthHttpOptions,
 ): Promise<Response | null> {
   const responseHeaders = new Headers({ 'cache-control': 'no-store' });
@@ -160,6 +166,26 @@ export async function createUcsdAuthResponse(
         'VERIFICATION_RATE_LIMIT',
         'Too many verification requests. Try again later.',
         requestLimit.retryAfterMs,
+        responseHeaders,
+      );
+    }
+
+    const safetyAdmission = await safetyBudget
+      .consumeVerificationSend()
+      .catch(() => null);
+    if (!safetyAdmission) {
+      await store.markVerificationFailed(reservation.verificationId);
+      return unavailableResponse(
+        'VERIFICATION_REQUEST_UNAVAILABLE',
+        'Verification requests are temporarily unavailable.',
+        responseHeaders,
+      );
+    }
+    if (!safetyAdmission.allowed) {
+      await store.markVerificationFailed(reservation.verificationId);
+      return unavailableResponse(
+        'VERIFICATION_SENDS_PAUSED',
+        'New verification emails are temporarily paused.',
         responseHeaders,
       );
     }

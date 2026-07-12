@@ -93,6 +93,108 @@ describe('Worker auth failure contract', () => {
     });
   });
 
+  it('pauses new verification sends at the application safety budget', async () => {
+    const options = createOptions();
+    let sends = 0;
+    const response = await post(
+      createWorkerAuthHandler({
+        ...options,
+        emailSender: {
+          sendVerificationEmail() {
+            sends += 1;
+            return Promise.resolve();
+          },
+        },
+        safetyBudget: {
+          consumeVerificationSend: () =>
+            Promise.resolve({ allowed: false as const, retryAfterMs: 60_000 }),
+          consumeAccountWrite: () =>
+            Promise.resolve({ allowed: true as const }),
+        },
+      }),
+      { email: 'student@ucsd.edu' },
+    );
+
+    expect(response.status).toBe(503);
+    const body = await response.json();
+    expect(body).toEqual({
+      error: 'VERIFICATION_SENDS_PAUSED',
+      message: 'New verification emails are temporarily paused.',
+    });
+    expect(JSON.stringify(body)).not.toContain('devCode');
+    expect(sends).toBe(0);
+  });
+
+  it('reports an unavailable request limiter as a bounded outage', async () => {
+    const options = createOptions();
+    const response = await post(
+      createWorkerAuthHandler({
+        ...options,
+        requestLimiter: {
+          admitSource: () => Promise.reject(new Error('upstash down')),
+          consumeSend: () => Promise.resolve({ allowed: true as const }),
+        },
+      }),
+      { email: 'student@ucsd.edu' },
+    );
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({
+      error: 'VERIFICATION_REQUEST_UNAVAILABLE',
+      message: 'Verification requests are temporarily unavailable.',
+    });
+  });
+
+  it('reports an unavailable attempt limiter as a bounded verify outage', async () => {
+    const options = createOptions();
+    const handler = createWorkerAuthHandler({
+      ...options,
+      verificationAttemptLimiter: {
+        attempt: () => Promise.reject(new Error('upstash down')),
+        resetEmail: () => Promise.resolve(),
+      },
+    });
+    const response = await handler(
+      new Request('https://staging.sungridplanner.com/api/auth/ucsd/verify', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email: 'student@ucsd.edu', code: '123456' }),
+      }),
+    );
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({
+      error: 'VERIFICATION_REQUEST_UNAVAILABLE',
+      message: 'Verification is temporarily unavailable.',
+    });
+  });
+
+  it('reports ambiguous delivery without false success', async () => {
+    const options = createOptions();
+    const response = await post(
+      createWorkerAuthHandler({
+        ...options,
+        emailSender: {
+          sendVerificationEmail: () =>
+            Promise.reject(
+              new VerificationEmailDeliveryError(
+                'provider timeout',
+                'ambiguous',
+              ),
+            ),
+        },
+      }),
+      { email: 'student@ucsd.edu' },
+    );
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({
+      error: 'VERIFICATION_DELIVERY_UNCERTAIN',
+      message:
+        'Email delivery is still being confirmed. Use the first code if it arrives.',
+    });
+  });
+
   it('bounds unexpected dependency failures behind a generic response', async () => {
     const options = createOptions();
     const response = await post(

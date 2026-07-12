@@ -49,3 +49,6 @@ cd "$PREVIOUS_WORKTREE"
 APP_DB_WORKER_COMPATIBILITY_TEST_URL="postgresql://postgres:test@127.0.0.1:${PORT}/app" \
   "$REPO_ROOT/node_modules/.bin/vitest" run \
   worker/src/appDatabaseExternalContract.test.ts
+
+cd "$REPO_ROOT"
+bun api/drizzle/reportRollbackEvidence.mts "$PREVIOUS_WORKER_REF"

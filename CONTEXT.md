@@ -290,6 +290,21 @@ path exists.
 _Avoid_: Initial save slice, automatic sync, Local Worksheet import prompt,
 worksheet sharing, wishlist
 
+**Application Safety Budget**:
+The application-enforced usage cap at which abuse-prone writes (new
+verification-email sends and authenticated account mutations) fail closed with
+bounded 503 responses while the public Catalog, safe account reads, existing
+Sessions, and logout continue. Enforced by the hosted Worker runtime; separate
+from provider billing alerts and short-window rate limits.
+_Avoid_: Provider billing alert, rate limit, plan upgrade, quota error
+
+**Usage Signal**:
+An advisory application-side monthly counter for one hosted provider
+(Workers, R2, Neon, Upstash, Resend) classified against a documented
+allowance, with maintainer attention at 70 percent and urgent review at 90
+percent. Signal loss never changes request behavior.
+_Avoid_: Billing meter, provider analytics, enforcement switch
+
 **Saved Search**:
 A signed-in user's persisted catalog search text and filter state that can be restored as catalog URL/filter state.
 _Avoid_: Anonymous search, availability alert, enrollment alert

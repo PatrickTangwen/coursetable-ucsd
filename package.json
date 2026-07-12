@@ -28,6 +28,7 @@
     "test:worker": "vitest run worker",
     "build:worker": "bun run --cwd frontend build && wrangler deploy --dry-run --config worker/wrangler.jsonc",
     "validate:worker-catalog": "VITE_API_ENDPOINT= bun run --cwd frontend build && bun worker/scripts/validateCatalogWorker.mts",
+    "validate:failure-safety": "bun worker/scripts/validateFailureSafety.mts",
     "validate:real-backend-auth": "API_PORT=3010 bun tools/real-backend-auth-validation/validateRealBackendAuth.mts",
     "validate:core-backend": "API_PORT=3010 bun tools/real-backend-auth-validation/validateRealBackendAuth.mts",
     "validate:local-platform": "bun tools/local-platform/validateLocalPlatform.mts",

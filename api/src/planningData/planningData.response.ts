@@ -2,6 +2,10 @@ import z from 'zod';
 
 import { matchPlanningOperation } from './planningData.routing.js';
 import type { AppUserIdentity } from '../auth/ucsdIdentity.js';
+import {
+  createUnlimitedApplicationSafetyBudget,
+  type ApplicationSafetyBudget,
+} from '../core/applicationSafetyBudget.js';
 import type { SavedSearchStore } from '../savedSearches/savedSearches.store.js';
 import {
   BLANK_SAVED_WORKSHEET_NAME,
@@ -58,6 +62,7 @@ export interface PlanningDataHttpOptions {
     getUser: (context: unknown) => Promise<AppUserIdentity | null>;
   };
   now?: () => number;
+  safetyBudget?: ApplicationSafetyBudget;
 }
 
 export async function createPlanningDataResponse(
@@ -67,6 +72,7 @@ export async function createPlanningDataResponse(
     savedWorksheets,
     session,
     now = Date.now,
+    safetyBudget = createUnlimitedApplicationSafetyBudget(),
   }: PlanningDataHttpOptions,
 ): Promise<Response | null> {
   const operation = matchPlanningOperation(request.method, request.pathname);
@@ -75,6 +81,20 @@ export async function createPlanningDataResponse(
   const headers = new Headers({ 'cache-control': 'no-store' });
   const user = await session.getUser(request.context);
   if (!user) return jsonResponse({ error: 'USER_NOT_FOUND' }, 401, headers);
+
+  if (request.method !== 'GET') {
+    const admission = await safetyBudget.consumeAccountWrite();
+    if (!admission.allowed) {
+      return jsonResponse(
+        {
+          error: 'ACCOUNT_WRITES_PAUSED',
+          message: 'Account changes are temporarily paused.',
+        },
+        503,
+        headers,
+      );
+    }
+  }
 
   if (operation.name === 'list-searches') {
     return jsonResponse(
