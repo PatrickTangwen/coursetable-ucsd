@@ -7,6 +7,8 @@ Status: top-level navigation for stable project documentation.
 - `api.md`: API reference.
 - `app_db_migrations.md`: versioned App DB migration generation and shared
   staging/production rollout.
+- `app_db_backup_recovery-2026-07-11.md`: forward migration, private App DB
+  backup retention, and disposable restore proof for hosted staging.
 - `core_app_backend.md`: Core App Backend composition boundary, optional legacy
   modules, and disposable validation path.
 - `course_data_store.md`: shadow Course Data Store ownership, migrations,

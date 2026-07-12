@@ -10,6 +10,9 @@
     "db:generate": "DB_URL=postgresql://migration-generation.invalid/app drizzle-kit generate:pg",
     "db:migrate": "tsx drizzle/migrate.ts",
     "db:migrate:hosted": "tsx drizzle/migrate.hosted.ts",
+    "app-db:backup": "tsx src/appDatabaseBackup/backup.command.ts",
+    "app-db:restore:verify": "tsx src/appDatabaseBackup/restore.command.ts",
+    "app-db:recovery:test": "tsx src/appDatabaseBackup/localRecovery.command.ts",
     "email-delivery-audit:lookup": "tsx src/auth/emailDeliveryAudit.lookup.ts",
     "db:push": "drizzle-kit push:pg",
     "db:seed:friends": "tsx drizzle/seed-friends.ts",
@@ -18,6 +21,7 @@
     "codegen:format": "prettier -w src/**/*.queries.ts src/graphql-types.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1085.0",
     "@coursetable/passport-cas": "^0.1.4",
     "@sentry/node": "^8.48.0",
     "chroma-js": "^3.1.2",

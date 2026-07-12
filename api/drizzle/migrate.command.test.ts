@@ -11,14 +11,18 @@ const runMigrationCommand = async (databaseUrl?: string) => {
   else delete environment.DB_URL;
 
   try {
-    await execFileAsync('bun', ['run', 'db:migrate'], {
+    const { stdout } = await execFileAsync('bun', ['run', 'db:migrate'], {
       cwd: new URL('..', import.meta.url).pathname,
       env: environment,
     });
-    return { exitCode: 0, stderr: '' };
+    return { exitCode: 0, stderr: '', stdout };
   } catch (error) {
-    const result = error as { code: number; stderr: string };
-    return { exitCode: result.code, stderr: result.stderr };
+    const result = error as { code: number; stderr: string; stdout: string };
+    return {
+      exitCode: result.code,
+      stderr: result.stderr,
+      stdout: result.stdout,
+    };
   }
 };
 
@@ -32,14 +36,22 @@ const runHostedMigrationCommand = async (directDatabaseUrl?: string) => {
   else delete environment.NEON_DIRECT_DATABASE_URL;
 
   try {
-    await execFileAsync('bun', ['run', 'db:migrate:hosted'], {
-      cwd: new URL('..', import.meta.url).pathname,
-      env: environment,
-    });
-    return { exitCode: 0, stderr: '' };
+    const { stdout } = await execFileAsync(
+      'bun',
+      ['run', 'db:migrate:hosted'],
+      {
+        cwd: new URL('..', import.meta.url).pathname,
+        env: environment,
+      },
+    );
+    return { exitCode: 0, stderr: '', stdout };
   } catch (error) {
-    const result = error as { code: number; stderr: string };
-    return { exitCode: result.code, stderr: result.stderr };
+    const result = error as { code: number; stderr: string; stdout: string };
+    return {
+      exitCode: result.code,
+      stderr: result.stderr,
+      stdout: result.stdout,
+    };
   }
 };
 
@@ -60,13 +72,43 @@ describe('App DB migration command', () => {
     );
   });
 
+  it('does not expose a database URL or credential when migration fails', async () => {
+    const databaseUrl =
+      'postgresql://private-user:private-password@127.0.0.1:1/app';
+
+    const result = await runMigrationCommand(databaseUrl);
+
+    expect(result.exitCode).not.toBe(0);
+    expect(result.stderr).toContain('App DB migration failed');
+    expect(result.stderr).not.toContain(databaseUrl);
+    expect(result.stderr).not.toContain('private-user');
+    expect(result.stderr).not.toContain('private-password');
+  });
+
   it.skipIf(!process.env.APP_DB_MIGRATION_TEST_URL)(
     'applies the real migration command and safely reruns it',
     async () => {
       const databaseUrl = process.env.APP_DB_MIGRATION_TEST_URL!;
 
-      expect((await runMigrationCommand(databaseUrl)).exitCode).toBe(0);
-      expect((await runMigrationCommand(databaseUrl)).exitCode).toBe(0);
+      const first = await runMigrationCommand(databaseUrl);
+      const repeated = await runMigrationCommand(databaseUrl);
+      const hostedRepeated = await runHostedMigrationCommand(databaseUrl);
+
+      expect(first.exitCode).toBe(0);
+      expect(repeated.exitCode).toBe(0);
+      expect(hostedRepeated.exitCode).toBe(0);
+      expect(JSON.parse(first.stdout)).toEqual({
+        schemaVersion: '0002_wild_skaar',
+      });
+      expect(JSON.parse(repeated.stdout)).toEqual({
+        schemaVersion: '0002_wild_skaar',
+      });
+      expect(JSON.parse(hostedRepeated.stdout)).toEqual({
+        schemaVersion: '0002_wild_skaar',
+      });
+      expect(first.stdout).not.toContain(databaseUrl);
+      expect(repeated.stdout).not.toContain(databaseUrl);
+      expect(hostedRepeated.stdout).not.toContain(databaseUrl);
 
       const postgres = (await import('postgres')).default;
       const client = postgres(databaseUrl, { max: 1 });
@@ -106,7 +148,7 @@ describe('App DB migration command', () => {
         ])
           expect(indexNames).toContain(indexName);
 
-        expect(journal?.count).toBe(2);
+        expect(journal?.count).toBe(3);
       } finally {
         await client.end();
       }
