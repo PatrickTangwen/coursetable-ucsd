@@ -27,6 +27,8 @@ Status: top-level navigation for stable project documentation.
   publication integrity, and disposable acceptance workflow.
 - `worker_login.md`: Hyperdrive, Upstash REST, fixed hosted sessions, and
   direct Neon migration separation.
+- `worker_planning_data.md`: Worker Saved Search and Saved Worksheet ownership,
+  shared HTTP contract, and account-service failure isolation.
 - `locations.md`: location data notes.
 - `maintenance.md`: maintenance notes.
 - `snapshot_pipe.md`: catalog snapshot pipeline notes, including General Catalog

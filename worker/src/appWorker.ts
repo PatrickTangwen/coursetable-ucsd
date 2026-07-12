@@ -2,14 +2,17 @@ import {
   handleCatalogWorkerRequest,
   type CatalogWorkerEnv,
 } from './catalogWorker.js';
-import { createHyperdriveAuthStore } from './hyperdriveAuthStore.js';
+import { createHyperdriveAppDatabase } from './hyperdriveAppDatabase.js';
 import {
   createUpstashRedisCommands,
   createUpstashRedisEvalClient,
   type UpstashRedisCommands,
 } from './upstashRedis.js';
 import { createUpstashAppSession } from './upstashSession.js';
-import { createWorkerAuthHandler } from './workerAuth.js';
+import {
+  createWorkerAppBackendHandler,
+  unavailableResponse,
+} from './workerAppBackend.js';
 import type { UcsdAuthStore } from '../../api/src/auth/ucsdAuth.store.js';
 import { createResendVerificationEmailSender } from '../../api/src/auth/verificationEmail.resend.js';
 import type { VerificationEmailSender } from '../../api/src/auth/verificationEmail.sender.js';
@@ -17,6 +20,8 @@ import {
   createRedisVerificationAttemptLimiter,
   createRedisVerificationRequestLimiter,
 } from '../../api/src/auth/verificationRequest.limiter.js';
+import type { SavedSearchStore } from '../../api/src/savedSearches/savedSearches.store.js';
+import type { SavedWorksheetStore } from '../../api/src/savedWorksheets/savedWorksheets.store.js';
 
 export interface AppWorkerEnv extends CatalogWorkerEnv {
   APP_DB_HYPERDRIVE_NO_CACHE: Hyperdrive;
@@ -37,9 +42,11 @@ export interface AppWorkerEnv extends CatalogWorkerEnv {
   VERIFICATION_ATTEMPT_EMAIL_WINDOW_SECONDS: string;
 }
 
-export interface HostedAuthProviders {
-  createAuthStore: (hyperdrive: Hyperdrive) => {
-    store: UcsdAuthStore;
+export interface HostedAppProviders {
+  createAppDatabase: (hyperdrive: Hyperdrive) => {
+    auth: UcsdAuthStore;
+    savedSearches: SavedSearchStore;
+    savedWorksheets: SavedWorksheetStore;
     close: () => Promise<void>;
   };
   createEmailSender: (environment: AppWorkerEnv) => VerificationEmailSender;
@@ -47,8 +54,8 @@ export interface HostedAuthProviders {
   now: () => number;
 }
 
-const hostedAuthProviders: HostedAuthProviders = {
-  createAuthStore: createHyperdriveAuthStore,
+const hostedAppProviders: HostedAppProviders = {
+  createAppDatabase: createHyperdriveAppDatabase,
   createEmailSender: (environment) =>
     createResendVerificationEmailSender({
       apiKey: environment.RESEND_API_KEY,
@@ -60,7 +67,7 @@ const hostedAuthProviders: HostedAuthProviders = {
 };
 
 export function createAppWorker(
-  providers: HostedAuthProviders = hostedAuthProviders,
+  providers: HostedAppProviders = hostedAppProviders,
 ) {
   return {
     fetch: (
@@ -75,31 +82,25 @@ export async function handleAppWorkerRequest(
   request: Request,
   environment: AppWorkerEnv,
   context: ExecutionContext,
-  providers: HostedAuthProviders = hostedAuthProviders,
+  providers: HostedAppProviders = hostedAppProviders,
 ) {
   const { pathname } = new URL(request.url);
-  if (!isAuthPath(pathname))
+  if (!isAccountPath(pathname))
     return handleCatalogWorkerRequest(request, environment);
 
   try {
-    const runtime = createHostedAuthRuntime(environment, providers);
+    const runtime = createHostedAppRuntime(environment, providers);
     const response = await runtime.fetch(request);
     context.waitUntil(runtime.close());
     return response;
   } catch {
-    return Response.json(
-      {
-        error: 'AUTH_UNAVAILABLE',
-        message: 'Authentication is temporarily unavailable.',
-      },
-      { status: 503, headers: { 'cache-control': 'no-store' } },
-    );
+    return unavailableResponse(pathname);
   }
 }
 
-export function createHostedAuthRuntime(
+export function createHostedAppRuntime(
   environment: AppWorkerEnv,
-  providers: HostedAuthProviders = hostedAuthProviders,
+  providers: HostedAppProviders = hostedAppProviders,
 ) {
   validateHostedAuthEnvironment(environment);
   const seconds = (name: keyof AppWorkerEnv) =>
@@ -134,20 +135,28 @@ export function createHostedAuthRuntime(
   );
   const session = createUpstashAppSession(redis, environment.SESSION_SECRET);
   const requestCooldownMs = seconds('VERIFICATION_REQUEST_COOLDOWN_SECONDS');
-  const database = providers.createAuthStore(
+  const database = providers.createAppDatabase(
     environment.APP_DB_HYPERDRIVE_NO_CACHE,
   );
 
   return {
-    fetch: createWorkerAuthHandler({
-      store: database.store,
-      emailSender,
-      exposeVerificationCode: false,
-      now: providers.now,
-      requestCooldownMs,
-      requestLimiter,
-      verificationAttemptLimiter,
-      session,
+    fetch: createWorkerAppBackendHandler({
+      auth: {
+        store: database.auth,
+        emailSender,
+        exposeVerificationCode: false,
+        now: providers.now,
+        requestCooldownMs,
+        requestLimiter,
+        verificationAttemptLimiter,
+        session,
+      },
+      planningData: {
+        savedSearches: database.savedSearches,
+        savedWorksheets: database.savedWorksheets,
+        session,
+        now: providers.now,
+      },
     }),
     close: database.close,
   };
@@ -176,8 +185,15 @@ function positiveInteger(value: unknown, name: string) {
   return parsed;
 }
 
-function isAuthPath(pathname: string) {
-  return pathname === '/api/auth' || pathname.startsWith('/api/auth/');
+function isAccountPath(pathname: string) {
+  return (
+    pathname === '/api/auth' ||
+    pathname.startsWith('/api/auth/') ||
+    pathname === '/api/savedSearches' ||
+    pathname.startsWith('/api/savedSearches/') ||
+    pathname === '/api/savedWorksheets' ||
+    pathname.startsWith('/api/savedWorksheets/')
+  );
 }
 
 export default createAppWorker() satisfies ExportedHandler<AppWorkerEnv>;

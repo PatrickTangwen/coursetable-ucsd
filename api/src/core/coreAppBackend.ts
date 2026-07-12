@@ -8,9 +8,8 @@ import {
 } from '../auth/ucsdAuth.routes.js';
 import { registerPublishedSnapshotRoutes } from '../catalog/publishedSnapshot.routes.js';
 import type { PublishedSnapshotStore } from '../catalog/publishedSnapshot.store.js';
-import { registerSavedSearchRoutes } from '../savedSearches/savedSearches.routes.js';
+import { registerPlanningDataRoutes } from '../planningData/planningData.routes.js';
 import type { SavedSearchStore } from '../savedSearches/savedSearches.store.js';
-import { registerSavedWorksheetRoutes } from '../savedWorksheets/savedWorksheets.routes.js';
 import type { SavedWorksheetStore } from '../savedWorksheets/savedWorksheets.store.js';
 
 type CoreAuthDependencies = Omit<
@@ -47,8 +46,11 @@ export function createCoreAppBackend({
   registerPublishedSnapshotRoutes(router, publishedSnapshots);
   registerAuthCheckRoute(router, session);
   registerUcsdAuthRoutes(router, { ...auth, session });
-  registerSavedSearchRoutes(router, savedSearches, session);
-  registerSavedWorksheetRoutes(router, savedWorksheets, { session });
+  registerPlanningDataRoutes(router, {
+    savedSearches,
+    savedWorksheets,
+    session,
+  });
   router.get('/api/ping', (_req, res) => res.json('pong'));
   return router;
 }

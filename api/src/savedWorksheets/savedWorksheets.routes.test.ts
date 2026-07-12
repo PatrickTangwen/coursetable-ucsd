@@ -4,10 +4,11 @@ import session from 'express-session';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { createMemorySavedWorksheetStore } from './savedWorksheets.memory.js';
-import { registerSavedWorksheetRoutes } from './savedWorksheets.routes.js';
 import { createMemoryUcsdAuthStore } from '../auth/ucsdAuth.memory.js';
 import { registerUcsdAuthRoutes } from '../auth/ucsdAuth.routes.js';
 import { expressAppSession } from '../auth/ucsdAuth.session.js';
+import { registerPlanningDataRoutes } from '../planningData/planningData.routes.js';
+import { createMemorySavedSearchStore } from '../savedSearches/savedSearches.memory.js';
 
 class TestClient {
   #origin = '';
@@ -68,8 +69,10 @@ function createTestApp(now = () => 1_000_000) {
     now,
     session: expressAppSession,
   });
-  registerSavedWorksheetRoutes(app, savedWorksheetStore, {
+  registerPlanningDataRoutes(app, {
     now,
+    savedSearches: createMemorySavedSearchStore(),
+    savedWorksheets: savedWorksheetStore,
     session: expressAppSession,
   });
 

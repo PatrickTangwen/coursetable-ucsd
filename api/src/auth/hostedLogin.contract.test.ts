@@ -17,6 +17,7 @@ import {
 } from './verificationRequest.limiter.js';
 import { createMemoryPublishedSnapshotStore } from '../catalog/publishedSnapshot.memory.js';
 import { createCoreAppBackend } from '../core/coreAppBackend.js';
+import { exerciseHostedPlanningDataContract } from '../planningData/hostedPlanningData.contract.js';
 import { createMemorySavedSearchStore } from '../savedSearches/savedSearches.memory.js';
 import { createMemorySavedWorksheetStore } from '../savedWorksheets/savedWorksheets.memory.js';
 
@@ -91,5 +92,13 @@ describe('hosted login external HTTP contract on Node', () => {
     const server = await startNodeComposition();
     cleanup.push(server.close);
     await exerciseHostedLoginContract(server.client);
+  });
+
+  it('runs the account planning-data contract against the Node composition', async () => {
+    const server = await startNodeComposition();
+    cleanup.push(server.close);
+    await exerciseHostedPlanningDataContract(server.client, () =>
+      Promise.resolve('123456'),
+    );
   });
 });
