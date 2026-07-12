@@ -11,10 +11,15 @@ interface MemoryPublishedSnapshotInput {
 function createAsset(content: string): PublishedSnapshotAsset {
   const bytes = new TextEncoder().encode(content);
   return {
+    body: new ReadableStream({
+      start(controller) {
+        controller.enqueue(bytes);
+        controller.close();
+      },
+    }),
+    cacheControl: 'public, max-age=3600',
     contentLength: bytes.byteLength,
-    body: (async function* memoryBody() {
-      yield bytes;
-    })(),
+    contentType: 'application/json; charset=utf-8',
   };
 }
 

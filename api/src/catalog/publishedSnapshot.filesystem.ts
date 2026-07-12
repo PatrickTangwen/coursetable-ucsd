@@ -1,6 +1,7 @@
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import path from 'node:path';
+import { Readable } from 'node:stream';
 
 import type {
   PublishedSnapshotAsset,
@@ -14,8 +15,12 @@ async function openFile(
   if (!file || !file.isFile()) return null;
 
   return {
-    body: createReadStream(filename),
+    body: Readable.toWeb(
+      createReadStream(filename),
+    ) as ReadableStream<Uint8Array>,
+    cacheControl: 'public, max-age=3600',
     contentLength: file.size,
+    contentType: 'application/json; charset=utf-8',
     etag: `W/"${file.size.toString(16)}-${Math.trunc(file.mtimeMs).toString(16)}"`,
     lastModified: file.mtime,
   };
