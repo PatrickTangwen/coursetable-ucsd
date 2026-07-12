@@ -6,7 +6,7 @@ import {
 } from './upstashRedis.js';
 
 describe('Upstash Redis REST adapter', () => {
-  it('maps the existing limiter eval contract to Upstash keys and args', async () => {
+  it('maps the limiter eval contract to Upstash keys and args', async () => {
     const calls: unknown[] = [];
     const redis = {
       eval(script, keys, args) {

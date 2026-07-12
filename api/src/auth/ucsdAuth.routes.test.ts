@@ -446,6 +446,7 @@ describe('UCSD auth routes', () => {
         admissions += 1;
         return Promise.resolve({ allowed: true });
       },
+      preflightSend: () => Promise.resolve({ allowed: true }),
       consumeSend() {
         sendBudget += 1;
         return Promise.resolve({ allowed: true });
@@ -506,6 +507,7 @@ describe('UCSD auth routes', () => {
             : { allowed: false as const, retryAfterMs: 75_000 },
         );
       },
+      preflightSend: () => Promise.resolve({ allowed: true }),
       consumeSend: () => Promise.resolve({ allowed: true }),
     };
     const { app, verificationRecords } = createTestApp(
@@ -551,6 +553,7 @@ describe('UCSD auth routes', () => {
     const requestLimiter: VerificationRequestLimiter = {
       admitSource: () =>
         Promise.resolve({ allowed: false, retryAfterMs: 60_000 }),
+      preflightSend: () => Promise.resolve({ allowed: true }),
       consumeSend: () => Promise.resolve({ allowed: true }),
     };
     const { app, verificationRecords } = createTestApp(
@@ -589,6 +592,7 @@ describe('UCSD auth routes', () => {
         admissions += 1;
         return Promise.resolve({ allowed: true });
       },
+      preflightSend: () => Promise.resolve({ allowed: true }),
       consumeSend() {
         sendBudget += 1;
         return Promise.resolve({ allowed: true });

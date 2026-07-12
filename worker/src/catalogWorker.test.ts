@@ -130,4 +130,43 @@ describe('single-origin Catalog Worker', () => {
       expect(await response.text()).not.toContain('r2.dev');
     }
   });
+
+  it('bounds an R2 read failure without leaking provider detail', async () => {
+    const environment = createEnvironment();
+    environment.CATALOG_BUCKET = {
+      get: () =>
+        Promise.reject(new Error('r2 outage at sungrid.r2.dev secret')),
+      put: () => Promise.resolve(),
+    } as unknown as R2Bucket;
+
+    for (const pathname of [
+      '/api/catalog/metadata',
+      '/api/catalog/public/FA26',
+    ]) {
+      const response = await handleCatalogWorkerRequest(
+        new Request(`https://staging.sungridplanner.com${pathname}`),
+        environment,
+      );
+      expect(response.status).toBe(503);
+      expect(response.headers.get('cache-control')).toBe('no-store');
+      const body = await response.text();
+      expect(JSON.parse(body)).toEqual({
+        error: 'CATALOG_UNAVAILABLE',
+        message: 'Catalog data is temporarily unavailable.',
+      });
+      expect(body).not.toContain('r2.dev');
+    }
+
+    const assets = await handleCatalogWorkerRequest(
+      new Request('https://staging.sungridplanner.com/worksheet'),
+      environment,
+    );
+    expect(assets.status).toBe(200);
+
+    const legacy = await handleCatalogWorkerRequest(
+      new Request('https://staging.sungridplanner.com/ferry/v1/graphql'),
+      environment,
+    );
+    expect(legacy.status).toBe(404);
+  });
 });

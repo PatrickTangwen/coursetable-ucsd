@@ -1,5 +1,11 @@
 import { createHmac } from 'node:crypto';
 
+import {
+  consumeSingleBudget,
+  inspectSingleBudget,
+  type RedisEvalClient,
+} from '../core/redisBudget.js';
+
 export interface VerificationRequestLimitPolicy {
   sourceLimit: number;
   sourceWindowMs: number;
@@ -11,6 +17,9 @@ export interface VerificationRequestLimiter {
   admitSource: (
     source: string,
   ) => Promise<{ allowed: true } | { allowed: false; retryAfterMs: number }>;
+  preflightSend: () => Promise<
+    { allowed: true } | { allowed: false; retryAfterMs: number }
+  >;
   consumeSend: () => Promise<
     { allowed: true } | { allowed: false; retryAfterMs: number }
   >;
@@ -31,14 +40,9 @@ export interface VerificationAttemptLimiter {
   resetEmail: (email: string) => Promise<void>;
 }
 
-export interface RedisEvalClient {
-  eval: (
-    script: string,
-    options: { keys: string[]; arguments: string[] },
-  ) => Promise<unknown>;
-}
+export type { BudgetAdmission, RedisEvalClient } from '../core/redisBudget.js';
 
-const attemptScript = `
+export const attemptScript = `
 local sourceCount = tonumber(redis.call('GET', KEYS[1]) or '0')
 local globalCount = tonumber(redis.call('GET', KEYS[2]) or '0')
 if sourceCount >= tonumber(ARGV[1]) or globalCount >= tonumber(ARGV[3]) then
@@ -58,17 +62,7 @@ if globalCount == 1 then redis.call('PEXPIRE', KEYS[2], ARGV[4]) end
 return {1, 0}
 `;
 
-const singleBudgetScript = `
-local count = tonumber(redis.call('GET', KEYS[1]) or '0')
-if count >= tonumber(ARGV[1]) then
-  return {0, math.max(redis.call('PTTL', KEYS[1]), 1)}
-end
-count = redis.call('INCR', KEYS[1])
-if count == 1 then redis.call('PEXPIRE', KEYS[1], ARGV[2]) end
-return {1, 0}
-`;
-
-const resetKeyScript = `return redis.call('DEL', KEYS[1])`;
+export const resetKeyScript = `return redis.call('DEL', KEYS[1])`;
 
 function validatePolicy(policy: object) {
   for (const [name, value] of Object.entries(policy)) {
@@ -91,32 +85,33 @@ export function createRedisVerificationRequestLimiter(
       const sourceDigest = createHmac('sha256', secret)
         .update(source)
         .digest('hex');
-      const result = await redis.eval(singleBudgetScript, {
-        keys: [`verification-request:source:${sourceDigest}`],
-        arguments: [String(policy.sourceLimit), String(policy.sourceWindowMs)],
-      });
-      if (!Array.isArray(result) || result.length !== 2)
-        throw new Error('Invalid verification request limiter response');
-      const allowed = Number(result[0]);
-      const retryAfterMs = Number(result[1]);
-      if (allowed === 1) return { allowed: true };
-      if (allowed === 0 && Number.isFinite(retryAfterMs))
-        return { allowed: false, retryAfterMs: Math.max(1, retryAfterMs) };
-      throw new Error('Invalid verification request limiter response');
+      const { admission } = await consumeSingleBudget(
+        redis,
+        `verification-request:source:${sourceDigest}`,
+        policy.sourceLimit,
+        policy.sourceWindowMs,
+        'Invalid verification request limiter response',
+      );
+      return admission;
     },
     async consumeSend() {
-      const result = await redis.eval(singleBudgetScript, {
-        keys: ['verification-request:global'],
-        arguments: [String(policy.globalLimit), String(policy.globalWindowMs)],
-      });
-      if (!Array.isArray(result) || result.length !== 2)
-        throw new Error('Invalid verification send budget response');
-      const allowed = Number(result[0]);
-      const retryAfterMs = Number(result[1]);
-      if (allowed === 1) return { allowed: true };
-      if (allowed === 0 && Number.isFinite(retryAfterMs))
-        return { allowed: false, retryAfterMs: Math.max(1, retryAfterMs) };
-      throw new Error('Invalid verification send budget response');
+      const { admission } = await consumeSingleBudget(
+        redis,
+        'verification-request:global',
+        policy.globalLimit,
+        policy.globalWindowMs,
+        'Invalid verification send budget response',
+      );
+      return admission;
+    },
+    async preflightSend() {
+      const { admission } = await inspectSingleBudget(
+        redis,
+        'verification-request:global',
+        policy.globalLimit,
+        'Invalid verification send budget response',
+      );
+      return admission;
     },
   };
 }
@@ -124,6 +119,7 @@ export function createRedisVerificationRequestLimiter(
 export function createUnlimitedVerificationRequestLimiter(): VerificationRequestLimiter {
   return {
     admitSource: () => Promise.resolve({ allowed: true }),
+    preflightSend: () => Promise.resolve({ allowed: true }),
     consumeSend: () => Promise.resolve({ allowed: true }),
   };
 }

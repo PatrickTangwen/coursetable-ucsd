@@ -55,6 +55,7 @@ describe('Worker auth failure contract', () => {
       requestLimiter: {
         admitSource: () =>
           Promise.resolve({ allowed: false as const, retryAfterMs: 5_500 }),
+        preflightSend: () => Promise.resolve({ allowed: true as const }),
         consumeSend: () => Promise.resolve({ allowed: true as const }),
       },
     });
@@ -90,6 +91,111 @@ describe('Worker auth failure contract', () => {
     expect(await response.json()).toEqual({
       error: 'VERIFICATION_DELIVERY_FAILED',
       message: 'Verification email could not be sent. Try again shortly.',
+    });
+  });
+
+  it('pauses new verification sends at the application safety budget', async () => {
+    const options = createOptions();
+    let sends = 0;
+    const response = await post(
+      createWorkerAuthHandler({
+        ...options,
+        emailSender: {
+          sendVerificationEmail() {
+            sends += 1;
+            return Promise.resolve();
+          },
+        },
+        safetyBudget: {
+          preflightVerificationSend: () =>
+            Promise.resolve({ allowed: false as const, retryAfterMs: 60_000 }),
+          consumeVerificationSend: () =>
+            Promise.reject(new Error('send budget must not be consumed')),
+          consumeAccountWrite: () =>
+            Promise.resolve({ allowed: true as const }),
+        },
+      }),
+      { email: 'student@ucsd.edu' },
+    );
+
+    expect(response.status).toBe(503);
+    const body = await response.json();
+    expect(body).toEqual({
+      error: 'VERIFICATION_SENDS_PAUSED',
+      message: 'New verification emails are temporarily paused.',
+    });
+    expect(JSON.stringify(body)).not.toContain('devCode');
+    expect(sends).toBe(0);
+  });
+
+  it('reports an unavailable request limiter as a bounded outage', async () => {
+    const options = createOptions();
+    const response = await post(
+      createWorkerAuthHandler({
+        ...options,
+        requestLimiter: {
+          admitSource: () => Promise.reject(new Error('upstash down')),
+          preflightSend: () => Promise.resolve({ allowed: true as const }),
+          consumeSend: () => Promise.resolve({ allowed: true as const }),
+        },
+      }),
+      { email: 'student@ucsd.edu' },
+    );
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({
+      error: 'VERIFICATION_REQUEST_UNAVAILABLE',
+      message: 'Verification requests are temporarily unavailable.',
+    });
+  });
+
+  it('reports an unavailable attempt limiter as a bounded verify outage', async () => {
+    const options = createOptions();
+    const handler = createWorkerAuthHandler({
+      ...options,
+      verificationAttemptLimiter: {
+        attempt: () => Promise.reject(new Error('upstash down')),
+        resetEmail: () => Promise.resolve(),
+      },
+    });
+    const response = await handler(
+      new Request('https://staging.sungridplanner.com/api/auth/ucsd/verify', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email: 'student@ucsd.edu', code: '123456' }),
+      }),
+    );
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({
+      error: 'VERIFICATION_REQUEST_UNAVAILABLE',
+      message: 'Verification is temporarily unavailable.',
+    });
+  });
+
+  it('reports ambiguous delivery without false success', async () => {
+    const options = createOptions();
+    const response = await post(
+      createWorkerAuthHandler({
+        ...options,
+        emailSender: {
+          sendVerificationEmail: () =>
+            Promise.reject(
+              new VerificationEmailDeliveryError(
+                'provider timeout',
+                'ambiguous',
+              ),
+            ),
+        },
+      }),
+      { email: 'student@ucsd.edu' },
+    );
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({
+      error: 'VERIFICATION_DELIVERY_UNCERTAIN',
+      message:
+        'Email delivery is still being confirmed. Use the first code if it arrives.',
     });
   });
 
