@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/node';
 
 import { isDev, SENTRY_DSN, SENTRY_ENVIRONMENT } from './config.js';
+import { scrubGeneralTelemetry } from './telemetry/privacy.js';
 
 Sentry.init({
   dsn: SENTRY_DSN,
@@ -13,4 +14,6 @@ Sentry.init({
   tracesSampleRate: 0.15, //  Capture 15% of the transactions
   enabled: !isDev,
   environment: SENTRY_ENVIRONMENT,
+  beforeSend: scrubGeneralTelemetry,
+  beforeSendTransaction: scrubGeneralTelemetry,
 });

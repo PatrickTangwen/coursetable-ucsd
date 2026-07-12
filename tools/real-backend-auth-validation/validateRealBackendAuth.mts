@@ -12,11 +12,16 @@ import {
   captureFilename,
   hostedValidationCaptureDirectory,
 } from '../../api/src/auth/verificationEmail.capture.js';
+import {
+  assertGeneralTelemetrySafe,
+  createRecipientTelemetryReference,
+} from '../../api/src/telemetry/privacy.js';
 
 const execFileAsync = promisify(execFile);
 
 const expectedTables = [
   'appUsers',
+  'emailDeliveryAudits',
   'emailVerificationCodes',
   'savedSearches',
   'worksheets',
@@ -25,6 +30,8 @@ const expectedTables = [
 
 const expectedIndexes = [
   'app_users_verified_email_unique_idx',
+  'email_delivery_audit_expiry_idx',
+  'email_delivery_audit_recipient_time_idx',
   'email_verification_email_idx',
   'email_verification_lookup_idx',
   'saved_searches_user_id_idx',
@@ -67,7 +74,10 @@ interface EvidenceSummaryInput {
     savedSearchRowsDeleted: number;
     verificationRowsDeleted: number;
   };
-  email: string;
+  recipient: {
+    maskedEmail: string;
+    recipientRef: string;
+  };
   http: { [key: string]: number };
   nonDevelopmentSafety: {
     productionExposesDevCode: boolean;
@@ -367,7 +377,7 @@ export function shouldCleanupMutableData(state: CleanupState) {
 }
 
 export function buildEvidenceSummary(input: EvidenceSummaryInput) {
-  return {
+  const summary = {
     ...input,
     result: 'passed',
     sensitiveValuesOmitted: [
@@ -378,6 +388,8 @@ export function buildEvidenceSummary(input: EvidenceSummaryInput) {
       'raw database rows and identifiers',
     ],
   };
+  assertGeneralTelemetrySafe(summary);
+  return summary;
 }
 
 export async function runValidation(config: RunConfig) {
@@ -720,10 +732,17 @@ export async function runValidation(config: RunConfig) {
       await cleanupVerificationRows(config, boundaryEmail);
     }
 
+    const validationEnvironment = await readValidationEnv(config);
+    const telemetryHmacKey = validationEnvironment.TELEMETRY_HMAC_KEY;
+    if (!telemetryHmacKey)
+      throw new Error('Validation environment missing TELEMETRY_HMAC_KEY');
     const summary = buildEvidenceSummary({
       apiOrigin: config.apiOrigin,
       cleanup,
-      email: config.email,
+      recipient: createRecipientTelemetryReference(
+        config.email,
+        telemetryHmacKey,
+      ),
       http: httpEvidence,
       nonDevelopmentSafety,
       postgres: {
@@ -791,6 +810,7 @@ async function requestAndVerify(
   if (Object.hasOwn(requestBody, 'devCode')) {
     throw new Error('Hosted-like verification response exposed devCode');
   }
+
   if (requestBody.status !== 'verification_sent') {
     throw new Error('Verification request did not confirm sender delivery');
   }
@@ -1063,11 +1083,9 @@ async function cleanupCapturedFiles(config: RunConfig) {
     'exec',
     '-T',
     'api',
-    'find',
+    'rm',
+    '-rf',
     hostedValidationCaptureDirectory,
-    '-type',
-    'f',
-    '-delete',
   ]).catch(() => {
     throw new Error('Sensitive capture cleanup failed');
   });
@@ -1199,6 +1217,7 @@ async function writeTextArtifact(
   name: string,
   value: string,
 ) {
+  assertGeneralTelemetrySafe(value);
   await writeFile(
     path.join(resolveRootPath(config, config.artifactDir), name),
     value,
@@ -1211,7 +1230,7 @@ function renderSummary(summary: ReturnType<typeof buildEvidenceSummary>) {
 - Result: ${summary.result}
 - Run ID: ${summary.runId}
 - API origin: ${summary.apiOrigin}
-- Test email: ${summary.email}
+- Test recipient: ${summary.recipient.maskedEmail} (${summary.recipient.recipientRef})
 - App User ID fingerprint: ${summary.appUserIdFingerprint}
 - Verification code source: ${summary.verificationCodeSource}
 - Saved Search name: ${summary.savedSearchName}

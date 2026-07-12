@@ -101,6 +101,7 @@ export function createResendVerificationEmailSender({
           'ambiguous',
         );
       }
+      return { providerMessageId: response.data.id };
     },
   };
 }

@@ -19,6 +19,8 @@ Status: top-level navigation for stable project documentation.
   Platform operator workflow and staging-readiness contract.
 - `hosted-auth-security-2026-07-10.md`: hosted verification proxy trust,
   abuse-control budgets, and ambiguous-delivery behavior.
+- `email_delivery_audit_privacy-2026-07-11.md`: maintainer-only delivery audit,
+  seven-day cleanup, and hosted telemetry/evidence privacy rules.
 - `hosted-like-auth-validation-2026-07-10.md`: fake-sender, production-mode
   acceptance path for hosted login.
 - `cloudflare_hosted_staging.md`: proposed Cloudflare Worker staging boundary,

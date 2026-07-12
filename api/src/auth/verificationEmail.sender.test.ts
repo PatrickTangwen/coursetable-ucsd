@@ -9,6 +9,7 @@ import {
 const message = {
   deliveryId: 'verification/42',
   recipient: 'student@ucsd.edu',
+  requestedAt: 1_000_000,
   subject: 'Verification subject',
   text: 'Verification text',
   html: '<p>Verification HTML</p>',
@@ -23,7 +24,7 @@ describe('verification email delivery configuration', () => {
     expect(delivery.exposeVerificationCode).toBe(true);
     await expect(
       delivery.sender.sendVerificationEmail(message),
-    ).resolves.toBeUndefined();
+    ).resolves.toEqual({ providerMessageId: null });
   });
 
   it('fails closed when hosted sender configuration is missing', () => {
@@ -62,6 +63,7 @@ describe('verification email delivery configuration', () => {
     expect(verificationMessage).toEqual({
       deliveryId: 'verification/42',
       recipient: 'student@ucsd.edu',
+      requestedAt: 1_000_000,
       subject: 'Your SunGrid verification code',
       text: 'Your SunGrid verification code is 123456. This code expires in 2 minutes. If you did not request this code, you can ignore this email.',
       html: '<p>Your SunGrid verification code is:</p><p><strong>123456</strong></p><p>This code expires in 2 minutes. If you did not request this code, you can ignore this email.</p>',

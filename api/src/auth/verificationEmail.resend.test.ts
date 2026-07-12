@@ -11,6 +11,7 @@ const config = {
 const message = {
   deliveryId: 'verification/42',
   recipient: 'student@ucsd.edu',
+  requestedAt: 1_000_000,
   subject: 'Verification subject',
   text: 'Verification text',
   html: '<p>Verification HTML</p>',
@@ -29,7 +30,9 @@ describe('Resend verification email sender', () => {
       },
     });
 
-    await sender.sendVerificationEmail(message);
+    await expect(sender.sendVerificationEmail(message)).resolves.toEqual({
+      providerMessageId: 'email_123',
+    });
 
     expect(requests).toEqual([
       {

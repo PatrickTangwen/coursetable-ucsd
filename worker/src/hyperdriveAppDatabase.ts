@@ -2,6 +2,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
 import * as schema from '../../api/drizzle/schema.js';
+import { createDatabaseEmailDeliveryAuditStore } from '../../api/src/auth/emailDeliveryAudit.database.js';
 import { createDatabaseUcsdAuthStore } from '../../api/src/auth/ucsdAuth.database.js';
 import { createDatabaseSavedSearchStore } from '../../api/src/savedSearches/savedSearches.database.js';
 import { createDatabaseSavedWorksheetStore } from '../../api/src/savedWorksheets/savedWorksheets.database.js';
@@ -23,6 +24,7 @@ export function createHyperdriveAppDatabase(
   const database = drizzle(client, { schema });
   return {
     auth: createDatabaseUcsdAuthStore(database),
+    emailDeliveryAudits: createDatabaseEmailDeliveryAuditStore(database),
     savedSearches: createDatabaseSavedSearchStore(database),
     savedWorksheets: createDatabaseSavedWorksheetStore(database),
     close: () => client.end({ timeout: 0 }),

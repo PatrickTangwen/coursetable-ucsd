@@ -34,6 +34,7 @@ export function createCaptureVerificationEmailSender(
           { mode: 0o600 },
         );
         await rename(temporary, target);
+        return { providerMessageId: null };
       } catch (error) {
         await Promise.all([
           rm(temporary, { force: true }),

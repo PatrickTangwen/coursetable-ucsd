@@ -13,6 +13,8 @@ import {
   createWorkerAppBackendHandler,
   unavailableResponse,
 } from './workerAppBackend.js';
+import { createAuditedVerificationEmailSender } from '../../api/src/auth/emailDeliveryAudit.sender.js';
+import type { EmailDeliveryAuditStore } from '../../api/src/auth/emailDeliveryAudit.store.js';
 import type { UcsdAuthStore } from '../../api/src/auth/ucsdAuth.store.js';
 import { createResendVerificationEmailSender } from '../../api/src/auth/verificationEmail.resend.js';
 import type { VerificationEmailSender } from '../../api/src/auth/verificationEmail.sender.js';
@@ -45,6 +47,7 @@ export interface AppWorkerEnv extends CatalogWorkerEnv {
 export interface HostedAppProviders {
   createAppDatabase: (hyperdrive: Hyperdrive) => {
     auth: UcsdAuthStore;
+    emailDeliveryAudits: EmailDeliveryAuditStore;
     savedSearches: SavedSearchStore;
     savedWorksheets: SavedWorksheetStore;
     close: () => Promise<void>;
@@ -75,7 +78,37 @@ export function createAppWorker(
       environment: AppWorkerEnv,
       context: ExecutionContext,
     ) => handleAppWorkerRequest(request, environment, context, providers),
+    scheduled(
+      controller: ScheduledController,
+      environment: AppWorkerEnv,
+      context: ExecutionContext,
+    ) {
+      context.waitUntil(
+        cleanupExpiredEmailDeliveryAudits(
+          environment,
+          controller.scheduledTime,
+          providers,
+        ),
+      );
+    },
   };
+}
+
+export async function cleanupExpiredEmailDeliveryAudits(
+  environment: AppWorkerEnv,
+  scheduledTime: number,
+  providers: HostedAppProviders = hostedAppProviders,
+) {
+  const hyperdrive = (environment as Partial<AppWorkerEnv>)
+    .APP_DB_HYPERDRIVE_NO_CACHE;
+  if (!hyperdrive)
+    throw new Error('No-cache App DB Hyperdrive binding is required');
+  const database = providers.createAppDatabase(hyperdrive);
+  try {
+    return await database.emailDeliveryAudits.deleteExpired(scheduledTime);
+  } finally {
+    await database.close();
+  }
 }
 
 export async function handleAppWorkerRequest(
@@ -112,7 +145,6 @@ export function createHostedAppRuntime(
     environment.UPSTASH_REDIS_REST_TOKEN,
   );
   const redisEval = createUpstashRedisEvalClient(redis);
-  const emailSender = providers.createEmailSender(environment);
   const requestLimiter = createRedisVerificationRequestLimiter(
     redisEval,
     environment.SESSION_SECRET,
@@ -135,8 +167,13 @@ export function createHostedAppRuntime(
   );
   const session = createUpstashAppSession(redis, environment.SESSION_SECRET);
   const requestCooldownMs = seconds('VERIFICATION_REQUEST_COOLDOWN_SECONDS');
+  const providerEmailSender = providers.createEmailSender(environment);
   const database = providers.createAppDatabase(
     environment.APP_DB_HYPERDRIVE_NO_CACHE,
+  );
+  const emailSender = createAuditedVerificationEmailSender(
+    providerEmailSender,
+    database.emailDeliveryAudits,
   );
 
   return {
