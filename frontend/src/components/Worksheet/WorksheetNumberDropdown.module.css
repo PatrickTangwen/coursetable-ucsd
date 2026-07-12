@@ -119,12 +119,12 @@
 }
 
 .keepButton {
-  background-color: #5aae61; /* SC Color */
+  background-color: var(--ct-green-icon); /* SC Color */
   color: white;
 }
 
 .deleteButton {
-  background-color: #c31; /* QR Color */
+  background-color: var(--ct-danger); /* QR Color */
   color: white;
 }
 

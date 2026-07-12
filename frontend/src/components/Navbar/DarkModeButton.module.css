@@ -3,5 +3,5 @@
 .button {
   margin-top: auto;
   margin-bottom: auto;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
 }

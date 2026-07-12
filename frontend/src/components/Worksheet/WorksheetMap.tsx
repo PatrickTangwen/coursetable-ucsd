@@ -141,8 +141,8 @@ function ResetViewControl({
       button.style.display = 'grid';
       button.style.placeItems = 'center';
       button.style.textDecoration = 'none';
-      button.style.color = '#2c3e50';
-      button.style.background = '#fff';
+      button.style.color = 'var(--ct-slate)';
+      button.style.background = 'var(--ct-surface)';
       button.style.cursor = 'pointer';
 
       L.DomEvent.disableClickPropagation(container);

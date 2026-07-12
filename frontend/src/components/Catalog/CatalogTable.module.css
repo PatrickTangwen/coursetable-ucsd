@@ -21,8 +21,8 @@
   align-items: center;
   padding: 12px calc(var(--ct-side-pad) + var(--ct-scrollbar-w, 0px)) 12px
     var(--ct-side-pad);
-  background: #f9f8f6;
-  border-top: 1px solid rgb(11 11 11 / 8%);
+  background: var(--ct-surface-tint);
+  border-top: 1px solid rgb(var(--ct-line-rgb) / 8%);
 }
 
 .headerCell {
@@ -34,7 +34,7 @@
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   user-select: none;
 }
 
@@ -49,17 +49,17 @@
 }
 
 .sortHeader:hover {
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
 }
 
 .sortHeader:focus-visible {
-  outline: 2px solid #2871be;
+  outline: 2px solid var(--ct-accent);
   outline-offset: 2px;
   border-radius: 3px;
 }
 
 .sortIcon {
-  color: #185fa5;
+  color: var(--ct-accent-text);
 }
 
 /* ── Rows container: the only scrolling area ── */
@@ -67,7 +67,7 @@
   flex: 1;
   min-height: 0;
   overflow: auto;
-  background: #fff;
+  background: var(--ct-surface);
 }
 
 .rowsContainerMobile {
@@ -75,7 +75,7 @@
      this container; .catalogLayout unlocks the page height accordingly. */
   flex: none;
   overflow: visible;
-  background: #f9f8f6;
+  background: var(--ct-surface-tint);
   padding: 12px 12px 44px;
 }
 
@@ -94,22 +94,22 @@
   /* Height must stay in sync with baseRowHeight in CatalogTable.tsx. */
   height: 55px;
   padding: 0 var(--ct-side-pad);
-  border-bottom: 1px solid rgb(11 11 11 / 8%);
+  border-bottom: 1px solid rgb(var(--ct-line-rgb) / 8%);
   cursor: pointer;
   transition: background 0.1s;
 }
 
 .row:hover {
-  background: rgb(11 11 11 / 4%);
+  background: rgb(var(--ct-line-rgb) / 4%);
 }
 
 .row:focus-visible {
-  outline: 2px solid #2871be;
+  outline: 2px solid var(--ct-accent);
   outline-offset: -2px;
 }
 
 .rowAdded {
-  background: #e9e9e6;
+  background: var(--ct-surface-soft);
 }
 
 .cell {
@@ -129,22 +129,22 @@
 .courseCode {
   font-size: 14px;
   font-weight: 700;
-  color: #0b0b0b;
+  color: var(--ct-ink);
 }
 
 .sectionText {
   font-size: 12px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
 }
 
 .titleCell {
   font-size: 14px;
-  color: #0b0b0b;
+  color: var(--ct-ink);
 }
 
 .instructorCell {
   font-size: 12px;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
 }
 
 .meetsCell {
@@ -158,7 +158,7 @@
 
 .meetTime {
   font-size: 12px;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -166,12 +166,12 @@
 
 .meetTba {
   font-size: 12px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
 }
 
 .locationCell {
   font-size: 12px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
 }
 
 .seatsCell {
@@ -180,7 +180,7 @@
 
 .summaryText {
   font-size: 11px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
 }
 
 /* ── Badges ── */
@@ -189,31 +189,31 @@
   align-items: center;
   padding: 3px 11px;
   border-radius: 9999px;
-  background: #f9f8f6;
-  color: #6f6d67;
+  background: var(--ct-surface-tint);
+  color: var(--ct-text-secondary);
   font-size: 11px;
   font-weight: 700;
   white-space: nowrap;
 }
 
 .termBadgeFall {
-  background: #f5e9cf;
-  color: #8a6410;
+  background: var(--ct-amber-tint);
+  color: var(--ct-amber-text);
 }
 
 .termBadgeWinter {
-  background: #e0ecfb;
-  color: #2a6fbe;
+  background: var(--ct-accent-tint);
+  color: var(--ct-accent-text);
 }
 
 .termBadgeSpring {
-  background: #dceedd;
-  color: #3e8e5b;
+  background: var(--ct-green-tint);
+  color: var(--ct-green-text);
 }
 
 .termBadgeSummer {
-  background: #fbe7df;
-  color: #c0492b;
+  background: var(--ct-danger-tint);
+  color: var(--ct-danger-accent);
 }
 
 .sectionBadge {
@@ -222,9 +222,9 @@
   gap: 4px;
   padding: 2px 9px;
   border-radius: 9999px;
-  background: #e6f1fb;
-  border: 1px solid #85b7eb;
-  color: #185fa5;
+  background: var(--ct-accent-tint);
+  border: 1px solid var(--ct-accent-border);
+  color: var(--ct-accent-text);
   font-size: 11px;
   font-weight: 600;
   white-space: nowrap;
@@ -251,9 +251,9 @@
   margin-bottom: 1px;
   border-radius: 10px;
   overflow: hidden;
-  background: #fff;
+  background: var(--ct-surface);
   box-shadow:
-    0 0 0 1px rgb(11 11 11 / 14%),
+    0 0 0 1px rgb(var(--ct-line-rgb) / 14%),
     0 12px 28px -6px rgb(11 11 11 / 28%),
     0 4px 10px rgb(11 11 11 / 12%);
 }
@@ -262,10 +262,10 @@
   /* Max height must stay in sync with subRowsMaxHeight in CatalogTable.tsx. */
   max-height: 190px;
   overflow: hidden auto;
-  border-top: 1px solid rgb(11 11 11 / 8%);
+  border-top: 1px solid rgb(var(--ct-line-rgb) / 8%);
   margin-right: 10px;
   scrollbar-width: thin;
-  scrollbar-color: rgb(11 11 11 / 14%) transparent;
+  scrollbar-color: rgb(var(--ct-line-rgb) / 14%) transparent;
 }
 
 .subRowContainer::-webkit-scrollbar {
@@ -277,12 +277,12 @@
 }
 
 .subRowContainer::-webkit-scrollbar-thumb {
-  background: rgb(11 11 11 / 14%);
+  background: rgb(var(--ct-line-rgb) / 14%);
   border-radius: 3px;
 }
 
 .subRowContainer::-webkit-scrollbar-thumb:hover {
-  background: rgb(11 11 11 / 22%);
+  background: rgb(var(--ct-line-rgb) / 22%);
 }
 
 .subRow {
@@ -295,18 +295,18 @@
   /* Height must stay in sync with subRowHeight in CatalogTable.tsx. */
   height: 42px;
   padding: 0 var(--ct-side-pad);
-  border-bottom: 1px solid rgb(11 11 11 / 8%);
+  border-bottom: 1px solid rgb(var(--ct-line-rgb) / 8%);
   font-size: 13px;
   cursor: pointer;
   transition: background 0.1s;
 }
 
 .subRow:hover {
-  background: rgb(11 11 11 / 4%);
+  background: rgb(var(--ct-line-rgb) / 4%);
 }
 
 .subRow:focus-visible {
-  outline: 2px solid #2871be;
+  outline: 2px solid var(--ct-accent);
   outline-offset: -2px;
 }
 
@@ -316,8 +316,8 @@
   justify-content: center;
   padding: 2px 8px;
   border-radius: 4px;
-  background: #e6f1fb;
-  color: #185fa5;
+  background: var(--ct-accent-tint);
+  color: var(--ct-accent-text);
   font-size: 10.5px;
   font-weight: 700;
   width: max-content;
@@ -326,8 +326,8 @@
 .typeBadge {
   padding: 2px 7px;
   border-radius: 4px;
-  background: #f9f8f6;
-  color: #9f9d97;
+  background: var(--ct-surface-tint);
+  color: var(--ct-text-muted);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.03em;
@@ -343,19 +343,19 @@
 
 .subInstructorCell {
   font-size: 12.5px;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
 }
 
 .subLocationCell {
   font-size: 12.5px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
 }
 
 /* ── Empty / loading state ── */
 .empty {
   text-align: center;
   padding: 64px 24px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 15px;
 }
 
@@ -368,20 +368,20 @@
   gap: 12px;
   padding: 15px 16px;
   margin-bottom: 10px;
-  border: 1px solid rgb(11 11 11 / 8%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 12px;
-  background: #fff;
+  background: var(--ct-surface);
   box-shadow: 0 1px 3px rgb(11 11 11 / 8%);
   cursor: pointer;
 }
 
 .mobileCard:focus-visible {
-  outline: 2px solid #2871be;
+  outline: 2px solid var(--ct-accent);
   outline-offset: -2px;
 }
 
 .mobileCardAdded {
-  background: #e9e9e6;
+  background: var(--ct-surface-soft);
 }
 
 .mobileCardTop {
@@ -408,15 +408,15 @@
 .mobileCode {
   font-size: 15.5px;
   font-weight: 700;
-  color: #0b0b0b;
+  color: var(--ct-ink);
   letter-spacing: -0.01em;
 }
 
 .mobileSectionBadge {
   padding: 1px 7px;
   border-radius: 5px;
-  background: #f9f8f6;
-  color: #6f6d67;
+  background: var(--ct-surface-tint);
+  color: var(--ct-text-secondary);
   font-size: 11px;
   font-weight: 600;
 }
@@ -424,7 +424,7 @@
 .mobileTitle {
   font-size: 15px;
   font-weight: 600;
-  color: #0b0b0b;
+  color: var(--ct-ink);
   line-height: 1.3;
 }
 
@@ -432,7 +432,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   font-size: 12.5px;
 }
 
@@ -461,7 +461,7 @@
   display: flex;
   flex-direction: column;
   gap: 9px;
-  border-top: 1px solid rgb(11 11 11 / 8%);
+  border-top: 1px solid rgb(var(--ct-line-rgb) / 8%);
   padding-top: 11px;
 }
 
@@ -469,7 +469,7 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
 }
 
 .mobileMeets {
@@ -483,7 +483,7 @@
 .mobileTime {
   font-size: 12.5px;
   font-weight: 500;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -491,7 +491,7 @@
 
 .mobileTba {
   font-size: 12.5px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
 }
 
 .mobileMetaSplit {
@@ -506,7 +506,7 @@
   align-items: center;
   gap: 9px;
   min-width: 0;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 12.5px;
 }
 
@@ -515,10 +515,10 @@
   content-visibility: auto;
   contain-intrinsic-size: auto 140px;
   margin-bottom: 10px;
-  border: 1px solid rgb(11 11 11 / 8%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 10px;
   overflow: hidden;
-  background: #fff;
+  background: var(--ct-surface);
   box-shadow: 0 1px 3px rgb(11 11 11 / 8%);
   transition: box-shadow 0.25s ease;
 }
@@ -527,7 +527,7 @@
   position: relative;
   z-index: 2;
   box-shadow:
-    0 0 0 1px rgb(11 11 11 / 14%),
+    0 0 0 1px rgb(var(--ct-line-rgb) / 14%),
     0 12px 28px -6px rgb(11 11 11 / 28%),
     0 4px 10px rgb(11 11 11 / 12%);
 }
@@ -544,14 +544,14 @@
 }
 
 .mobileGroupHeader:focus-visible {
-  outline: 2px solid #2871be;
+  outline: 2px solid var(--ct-accent);
   outline-offset: -2px;
 }
 
 .mobileGroupTitle {
   font-size: 14px;
   font-weight: 500;
-  color: #0b0b0b;
+  color: var(--ct-ink);
   line-height: 1.35;
 }
 
@@ -560,7 +560,7 @@
   align-items: center;
   gap: 14px;
   flex-wrap: wrap;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 11.5px;
 }
 
@@ -577,8 +577,8 @@
 }
 
 .mobileSubList {
-  border-top: 1px solid rgb(11 11 11 / 8%);
-  background: #fff;
+  border-top: 1px solid rgb(var(--ct-line-rgb) / 8%);
+  background: var(--ct-surface);
 }
 
 .mobileSubRow {
@@ -586,7 +586,7 @@
   flex-direction: column;
   gap: 7px;
   padding: 12px 15px;
-  border-bottom: 1px solid rgb(11 11 11 / 8%);
+  border-bottom: 1px solid rgb(var(--ct-line-rgb) / 8%);
   cursor: pointer;
   transition: background 0.1s;
 }
@@ -596,11 +596,11 @@
 }
 
 .mobileSubRow:hover {
-  background: rgb(11 11 11 / 4%);
+  background: rgb(var(--ct-line-rgb) / 4%);
 }
 
 .mobileSubRow:focus-visible {
-  outline: 2px solid #2871be;
+  outline: 2px solid var(--ct-accent);
   outline-offset: -2px;
 }
 
@@ -618,7 +618,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   font-size: 12px;
 }
 
@@ -635,7 +635,7 @@
 }
 
 .mobileSubLocation {
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 12px;
   max-width: 40%;
 }

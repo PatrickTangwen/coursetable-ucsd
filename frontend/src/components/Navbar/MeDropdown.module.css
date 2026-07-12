@@ -9,19 +9,19 @@
   width: 32px;
   height: 32px;
   border-radius: 9999px;
-  background: #fdfcfb;
+  background: var(--ct-surface-hover);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   border: 0;
   padding: 0;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   transition: background 0.15s ease;
 }
 
 .avatarButton:hover {
-  background: rgb(11 11 11 / 8%);
+  background: rgb(var(--ct-line-rgb) / 8%);
 }
 
 .menu {
@@ -29,8 +29,8 @@
   top: calc(100% + 8px);
   right: 0;
   z-index: 30;
-  background: #fff;
-  border: 1px solid rgb(11 11 11 / 8%);
+  background: var(--ct-surface-raised);
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 8px;
   box-shadow: 0 8px 24px rgb(11 11 11 / 14%);
   padding: 6px;
@@ -51,20 +51,20 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #0b0b0b;
+  color: var(--ct-ink);
   transition: background 0.12s ease;
   text-decoration: none;
   white-space: nowrap;
 }
 
 .menuItem:hover {
-  background: rgb(11 11 11 / 4%);
-  color: #0b0b0b;
+  background: rgb(var(--ct-line-rgb) / 4%);
+  color: var(--ct-ink);
   text-decoration: none;
 }
 
 .menuItemDanger:hover {
-  background: #fcebeb;
+  background: var(--ct-danger-tint);
 }
 
 .itemIcon {

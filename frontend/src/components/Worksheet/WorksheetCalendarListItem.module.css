@@ -2,7 +2,7 @@
   display: block;
   overflow: hidden;
   padding: 0;
-  background: #fff;
+  background: var(--ct-surface);
   border: 0;
   border-radius: 8px !important;
   box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
@@ -30,7 +30,7 @@
 }
 
 .cardHeader:hover {
-  background: #f7f7f9;
+  background: var(--ct-surface-soft);
 }
 
 .headerToggle {
@@ -62,9 +62,9 @@
   height: 28px;
   padding: 0;
   background: transparent;
-  border: 1px solid #e4e4e9;
+  border: 1px solid var(--ct-line);
   border-radius: 6px;
-  color: #888;
+  color: var(--ct-text-muted);
   transition:
     background-color 0.15s ease,
     border-color 0.15s ease;
@@ -72,8 +72,8 @@
 
 .chevronButton:hover,
 .chevronButton:focus-visible {
-  background: #f3f3f7;
-  border-color: #d4d4da;
+  background: var(--ct-surface-soft);
+  border-color: var(--ct-line);
 }
 
 .chevronIcon {
@@ -116,7 +116,7 @@
   display: block;
   width: 100%;
   margin-top: 1px;
-  color: #777;
+  color: var(--ct-text-muted);
   font-size: 12px;
   white-space: nowrap;
   overflow: hidden;
@@ -147,7 +147,7 @@
   text-align: left;
   overflow: hidden;
   transition: color var(--trans-dur);
-  color: #1a1a1a;
+  color: var(--ct-ink);
   text-decoration: none;
 }
 
@@ -165,13 +165,13 @@
 }
 
 .sectionCode {
-  color: #999;
+  color: var(--ct-text-muted);
   font-size: 13px;
   font-weight: 400;
 }
 
 .courseCode:hover {
-  color: #1a1a1a;
+  color: var(--ct-ink);
   text-decoration: none;
 }
 
@@ -185,7 +185,7 @@
 
 .tbaIcon {
   margin-left: 0.2rem;
-  color: #ff9d43;
+  color: var(--ct-amber-icon);
 }
 
 .tbaIconWrapper {
@@ -195,7 +195,7 @@
 
 .examPanel {
   padding: 4px 14px 10px 28px;
-  border-top: 1px solid #f0f0f3;
+  border-top: 1px solid var(--ct-surface-soft);
 }
 
 .examRow {
@@ -229,7 +229,7 @@
 }
 
 .examKind {
-  color: #222;
+  color: var(--ct-ink);
   font-size: 13px;
   font-weight: 600;
   line-height: 1.25;
@@ -247,46 +247,46 @@
 }
 
 .countdownPast {
-  background: #f0f0f0;
-  color: #888;
+  background: var(--ct-surface-soft);
+  color: var(--ct-text-muted);
 }
 
 .countdownSoon {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--ct-danger-tint);
+  color: var(--ct-danger-text);
 }
 
 .countdownUpcoming {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--ct-amber-tint);
+  color: var(--ct-amber-text);
 }
 
 .countdownLater {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--ct-green-tint);
+  color: var(--ct-green-text);
 }
 
 .examDate {
   margin-top: 2px;
-  color: #555;
+  color: var(--ct-text-secondary);
   font-size: 12px;
   line-height: 1.25;
 }
 
 .examMeta {
-  color: #888;
+  color: var(--ct-text-muted);
   font-size: 11px;
   line-height: 1.3;
 }
 
 .examDivider {
   margin-left: 18px;
-  border-top: 1px dashed #e8e8ec;
+  border-top: 1px dashed var(--ct-line);
 }
 
 .noExamDetails {
   padding: 12px 0 10px 18px;
-  color: #aaa;
+  color: var(--ct-text-muted);
   font-size: 12px;
 }
 
@@ -295,26 +295,26 @@
   justify-content: flex-end;
   margin-top: 4px;
   padding-top: 8px;
-  border-top: 1px solid #f0f0f3;
+  border-top: 1px solid var(--ct-surface-soft);
 }
 
 @keyframes highlight-flash {
   0% {
-    background-color: #eaf0ff;
+    background-color: var(--ct-accent-tint);
     box-shadow:
       0 1px 2px rgb(0 0 0 / 4%),
       0 0 0 2px rgb(74 108 247 / 35%);
   }
 
   60% {
-    background-color: #f5f7ff;
+    background-color: var(--ct-accent-tint);
     box-shadow:
       0 1px 2px rgb(0 0 0 / 4%),
       0 0 0 1px rgb(74 108 247 / 12%);
   }
 
   100% {
-    background-color: #fff;
+    background-color: var(--ct-surface);
     box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
   }
 }

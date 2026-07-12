@@ -11,7 +11,7 @@
 
 .labelBubble {
   font-weight: 550;
-  color: rgb(136 136 136);
+  color: var(--ct-text-muted);
 }
 
 .toggleBubble {

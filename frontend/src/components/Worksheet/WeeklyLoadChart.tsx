@@ -60,7 +60,11 @@ export default function WeeklyLoadChart({
               : 3;
           let hoursLabel = day.minutes > 0 ? formatHours(day.minutes) : '–';
           let labelColor =
-            day.minutes > 0 ? (isBusiest ? '#0b0b0b' : '#6f6d67') : '#d0cec8';
+            day.minutes > 0
+              ? isBusiest
+                ? 'var(--ct-ink)'
+                : 'var(--ct-text-secondary)'
+              : 'var(--ct-text-faint)';
           let labelWeight = isBusiest ? 700 : 500;
           if (hoveredCrn) {
             const courseMinutes = day.segments
@@ -68,11 +72,11 @@ export default function WeeklyLoadChart({
               .reduce((sum, segment) => sum + segment.minutes, 0);
             if (courseMinutes > 0) {
               hoursLabel = formatHours(courseMinutes);
-              labelColor = hoveredColor ?? '#0b0b0b';
+              labelColor = hoveredColor ?? 'var(--ct-ink)';
               labelWeight = 700;
             } else {
               hoursLabel = '–';
-              labelColor = '#d0cec8';
+              labelColor = 'var(--ct-text-faint)';
               labelWeight = 500;
             }
           }
@@ -105,7 +109,9 @@ export default function WeeklyLoadChart({
               <span
                 className={styles.chartDayLabel}
                 style={
-                  isBusiest ? { color: '#0b0b0b', fontWeight: 700 } : undefined
+                  isBusiest
+                    ? { color: 'var(--ct-ink)', fontWeight: 700 }
+                    : undefined
                 }
               >
                 {day.label}

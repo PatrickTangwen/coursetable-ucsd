@@ -27,7 +27,7 @@
   flex-direction: column;
   overflow: hidden;
   border: 0;
-  background: #fff;
+  background: var(--ct-surface-raised);
   border-radius: 14px;
   color: inherit;
   box-shadow:
@@ -40,8 +40,8 @@
 .modal :focus-visible {
   outline: none;
   box-shadow:
-    0 0 0 1px #2871be,
-    0 0 0 4px #e6f1fb;
+    0 0 0 1px var(--ct-accent),
+    0 0 0 4px var(--ct-accent-tint);
 }
 
 .backdropButton {
@@ -70,7 +70,7 @@
 }
 
 .title {
-  color: #0b0b0b;
+  color: var(--ct-ink);
   font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -84,12 +84,12 @@
   align-items: center;
   gap: 8px;
   margin-top: 8px;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   font-size: 13px;
 }
 
 .courseCode {
-  color: #185fa5;
+  color: var(--ct-accent-text);
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 12.5px;
   font-weight: 600;
@@ -100,7 +100,7 @@
   width: 3px;
   height: 3px;
   border-radius: 50%;
-  background: #c9c7c1;
+  background: var(--ct-text-faint);
 }
 
 .closeButton,
@@ -110,7 +110,7 @@
   justify-content: center;
   border: 0;
   background: transparent;
-  color: #185fa5;
+  color: var(--ct-accent-text);
   cursor: pointer;
   transition:
     background 0.15s ease,
@@ -122,13 +122,13 @@
   height: 36px;
   flex-shrink: 0;
   border-radius: 8px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
 }
 
 .closeButton:hover,
 .closeButton:focus-visible {
-  background: #f3f2ef;
-  color: #6f6d67;
+  background: var(--ct-surface-soft);
+  color: var(--ct-text-secondary);
 }
 
 .controls {
@@ -158,7 +158,7 @@
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: #3d3b37;
+  color: var(--ct-text-strong);
   cursor: pointer;
   font: inherit;
   font-size: 13px;
@@ -168,18 +168,18 @@
 
 .tab:hover,
 .tab:focus-visible {
-  background: #f3f2ef;
+  background: var(--ct-surface-soft);
 }
 
 .tabActive {
-  background: #e6f1fb;
-  color: #185fa5;
+  background: var(--ct-accent-tint);
+  color: var(--ct-accent-text);
   font-weight: 600;
 }
 
 .tabActive:hover,
 .tabActive:focus-visible {
-  background: #e6f1fb;
+  background: var(--ct-accent-tint);
 }
 
 .iconButton {
@@ -190,11 +190,11 @@
 
 .iconButton:hover,
 .iconButton:focus-visible {
-  background: #e6f1fb;
+  background: var(--ct-accent-tint);
 }
 
 .iconButton:disabled {
-  color: #b8b6b0;
+  color: var(--ct-text-faint);
   cursor: not-allowed;
 }
 
@@ -209,10 +209,10 @@
   gap: 7px;
   max-width: 100%;
   padding: 6px 10px 6px 12px;
-  border: 1px solid rgb(11 11 11 / 12%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 12%);
   border-radius: 8px;
-  background: #fff;
-  color: #0b0b0b;
+  background: var(--ct-surface);
+  color: var(--ct-ink);
   cursor: pointer;
   font: inherit;
   font-size: 12.5px;
@@ -225,8 +225,12 @@
   border-color: rgb(40 113 190 / 40%);
 }
 
+:global([data-theme='dark']) .sectionSelectButtonOpen {
+  border-color: var(--ct-accent-border);
+}
+
 .selectChevron {
-  color: #9f9d97;
+  color: var(--ct-text-muted);
 }
 
 .sectionMenuBackdrop {
@@ -247,9 +251,9 @@
   max-height: min(320px, 48vh);
   padding: 5px;
   overflow-y: auto;
-  border: 1px solid rgb(11 11 11 / 10%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 10%);
   border-radius: 10px;
-  background: #fff;
+  background: var(--ct-surface-raised);
   box-shadow:
     0 4px 12px rgb(11 11 11 / 8%),
     0 12px 32px rgb(11 11 11 / 12%);
@@ -273,13 +277,13 @@
 
 .sectionMenuItem:hover,
 .sectionMenuItem:focus-visible {
-  background: #f3f2ef;
+  background: var(--ct-surface-soft);
 }
 
 .sectionMenuItemActive,
 .sectionMenuItemActive:hover,
 .sectionMenuItemActive:focus-visible {
-  background: #e6f1fb;
+  background: var(--ct-accent-tint);
 }
 
 .sectionMenuText {
@@ -290,21 +294,21 @@
 }
 
 .sectionMenuTitle {
-  color: #0b0b0b;
+  color: var(--ct-ink);
   font-size: 12.5px;
   font-weight: 700;
   line-height: 1.3;
 }
 
 .sectionMenuItemActive .sectionMenuTitle {
-  color: #185fa5;
+  color: var(--ct-accent-text);
 }
 
 .sectionMenuInstructor {
   margin-top: 1px;
   max-width: 200px;
   overflow: hidden;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   font-size: 11px;
   font-weight: 500;
   text-overflow: ellipsis;
@@ -313,13 +317,13 @@
 
 .sectionMenuCheck {
   flex-shrink: 0;
-  color: #185fa5;
+  color: var(--ct-accent-text);
 }
 
 .separator {
   height: 1px;
   margin-top: 12px;
-  background: rgb(11 11 11 / 8%);
+  background: rgb(var(--ct-line-rgb) / 8%);
 }
 
 .body {
@@ -331,7 +335,7 @@
 
 .description {
   margin: 0 0 14px;
-  color: #3d3b37;
+  color: var(--ct-text-strong);
   font-size: 14.5px;
   line-height: 1.65;
   text-wrap: pretty;
@@ -360,21 +364,21 @@
 }
 
 .unitsChip {
-  background: #e1f5ee;
-  color: #0f6e56;
+  background: var(--ct-teal-tint);
+  color: var(--ct-teal-text);
   font-weight: 600;
 }
 
 .levelChip,
 .restrictionChip {
-  background: #fcebeb;
-  color: #a32d2d;
+  background: var(--ct-danger-tint);
+  color: var(--ct-danger-text);
   font-weight: 500;
 }
 
 .chipButton {
-  background: #eeedfe;
-  color: #534ab7;
+  background: var(--ct-purple-tint);
+  color: var(--ct-purple-text);
   cursor: pointer;
   font-weight: 500;
   transition: background 0.15s ease;
@@ -384,7 +388,7 @@
 .chipButton:hover,
 .chipButton:focus-visible,
 .chipButtonExpanded {
-  background: #cecbf6;
+  background: var(--ct-purple-border);
 }
 
 .chevron {
@@ -396,8 +400,8 @@
 }
 
 .chipLink {
-  background: #e6f1fb;
-  color: #185fa5;
+  background: var(--ct-accent-tint);
+  color: var(--ct-accent-text);
   font-weight: 500;
   transition: background 0.15s ease;
 }
@@ -407,12 +411,17 @@
   background: #d3e7f8;
 }
 
+:global([data-theme='dark']) .chipLink:hover,
+:global([data-theme='dark']) .chipLink:focus-visible {
+  background: var(--ct-accent-border);
+}
+
 .prereqPanel {
   margin-bottom: 8px;
   padding: 11px 14px;
-  border: 1px solid #cecbf6;
+  border: 1px solid var(--ct-purple-border);
   border-radius: 8px;
-  background: #eeedfe;
+  background: var(--ct-purple-tint);
 }
 
 .prereqPanelInner {
@@ -423,7 +432,7 @@
 }
 
 .prereqText {
-  color: #0b0b0b;
+  color: var(--ct-ink);
   font-size: 13px;
   line-height: 1.55;
   text-wrap: pretty;
@@ -431,7 +440,7 @@
 
 .prereqLabel {
   margin-right: 6px;
-  color: #534ab7;
+  color: var(--ct-purple-text);
   font-weight: 600;
 }
 
@@ -444,14 +453,14 @@
   border: 0;
   border-radius: 4px;
   background: transparent;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   cursor: pointer;
   transition: color 0.15s ease;
 }
 
 .prereqClose:hover,
 .prereqClose:focus-visible {
-  color: #534ab7;
+  color: var(--ct-purple-text);
 }
 
 .scheduleHeader {
@@ -464,25 +473,25 @@
 }
 
 .scheduleTitle {
-  color: #0b0b0b;
+  color: var(--ct-ink);
   font-size: 15px;
   font-weight: 700;
 }
 
 .scheduleCount {
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 12.5px;
 }
 
 .card {
-  --row-highlight: rgb(11 11 11 / 4%);
+  --row-highlight: rgb(var(--ct-line-rgb) / 4%);
 
   container-type: inline-size;
   margin-bottom: 16px;
   overflow: hidden;
-  border: 1px solid rgb(11 11 11 / 8%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 12px;
-  background: #fff;
+  background: var(--ct-surface);
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
@@ -490,12 +499,16 @@
 }
 
 .cardActive {
-  --row-highlight: rgb(11 11 11 / 6%);
+  --row-highlight: rgb(var(--ct-line-rgb) / 6%);
 
   border-color: rgb(40 113 190 / 25%);
   box-shadow:
     0 2px 6px rgb(11 11 11 / 6%),
     0 10px 28px rgb(11 11 11 / 10%);
+}
+
+:global([data-theme='dark']) .cardActive {
+  border-color: var(--ct-accent-border);
 }
 
 .cardHeader {
@@ -504,11 +517,11 @@
   justify-content: space-between;
   gap: 12px;
   padding: 18px;
-  border-bottom: 1px solid rgb(11 11 11 / 8%);
+  border-bottom: 1px solid rgb(var(--ct-line-rgb) / 8%);
 }
 
 .cardTitle {
-  color: #0b0b0b;
+  color: var(--ct-ink);
   font-size: 14px;
   font-weight: 700;
   line-height: 1.35;
@@ -516,14 +529,14 @@
 
 .cardSubTitle {
   margin-top: 2px;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   font-size: 13px;
   font-weight: 600;
   line-height: 1.35;
 }
 
 .cardInstructor {
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   font-size: 13px;
   font-weight: 500;
   line-height: 1.35;
@@ -532,8 +545,8 @@
 
 .rowSeparator {
   padding: 10px 18px 5px 54px;
-  border-top: 1px solid rgb(11 11 11 / 8%);
-  color: #9f9d97;
+  border-top: 1px solid rgb(var(--ct-line-rgb) / 8%);
+  color: var(--ct-text-muted);
   font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 0.07em;
@@ -548,7 +561,7 @@
   align-items: center;
   gap: 4px 8px;
   padding: 9px 18px;
-  border-bottom: 1px solid rgb(11 11 11 / 6%);
+  border-bottom: 1px solid rgb(var(--ct-line-rgb) / 6%);
   border-left: 3px solid transparent;
   background: transparent;
   transition:
@@ -568,7 +581,7 @@
 .selectedRow,
 .selectedRow:hover,
 .selectedRow:focus-within {
-  border-left-color: #2871be;
+  border-left-color: var(--ct-accent);
   background: var(--row-highlight);
 }
 
@@ -590,7 +603,7 @@
   aspect-ratio: 1;
   flex: 0 0 16px;
   margin: 0;
-  accent-color: #2871be;
+  accent-color: var(--ct-accent);
   cursor: pointer;
   min-width: 16px;
 }
@@ -613,55 +626,55 @@
 }
 
 .typeActivity {
-  background: #e7e5e1;
-  color: #4a4843;
+  background: var(--ct-line);
+  color: var(--ct-text-strong);
 }
 
 .typeInstruction {
-  background: #e6f1fb;
-  color: #185fa5;
+  background: var(--ct-accent-tint);
+  color: var(--ct-accent-text);
 }
 
 .typeLE {
-  background: #e1f5ee;
-  color: #085041;
+  background: var(--ct-teal-tint);
+  color: var(--ct-teal-text);
 }
 
 .typeDI {
-  background: #eaf3de;
-  color: #27500a;
+  background: var(--ct-green-tint);
+  color: var(--ct-green-text);
 }
 
 .typeLA {
-  background: #eeedfe;
-  color: #3c3489;
+  background: var(--ct-purple-tint);
+  color: var(--ct-purple-text);
 }
 
 .typeFI {
-  background: #fcebeb;
-  color: #791f1f;
+  background: var(--ct-danger-tint);
+  color: var(--ct-danger-text);
 }
 
 .typeMI {
-  background: #faeeda;
-  color: #633806;
+  background: var(--ct-amber-tint);
+  color: var(--ct-amber-text);
 }
 
 .typeRE,
 .typeInfo {
-  background: #f3f2ef;
-  color: #56544f;
+  background: var(--ct-surface-soft);
+  color: var(--ct-text-strong);
 }
 
 .typeLabel {
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 12px;
   font-weight: 500;
 }
 
 .sectionCode {
   grid-column: 3;
-  color: #0b0b0b;
+  color: var(--ct-ink);
   font-size: 13px;
   font-weight: 600;
 }
@@ -695,17 +708,17 @@
 }
 
 .dayDotActive {
-  background: #333b4d;
-  color: #fff;
+  background: var(--ct-slate);
+  color: var(--ct-surface);
 }
 
 .dayDotInactive {
-  background: #e7e5e1;
-  color: #9f9d97;
+  background: var(--ct-line);
+  color: var(--ct-text-muted);
 }
 
 .timeText {
-  color: #0b0b0b;
+  color: var(--ct-ink);
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
@@ -714,7 +727,7 @@
 .location {
   grid-column: 5;
   min-width: 0;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   font-size: 12.5px;
   overflow-wrap: anywhere;
 }
@@ -723,7 +736,7 @@
   grid-column: 6;
   justify-self: end;
   min-width: 70px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 11.5px;
   font-weight: 600;
   text-align: right;
@@ -732,29 +745,29 @@
 
 .availabilityCritical,
 .availabilityFull {
-  color: #e24b4a;
+  color: var(--ct-danger-accent);
 }
 
 .availabilityLow {
-  color: #ba7517;
+  color: var(--ct-amber-text);
 }
 
 .availabilityMedium {
-  color: #ef9f27;
+  color: var(--ct-amber-icon);
 }
 
 .availabilityHigh {
-  color: #1d9e75;
+  color: var(--ct-teal-icon);
 }
 
 .availabilityAvailable {
-  color: #639922;
+  color: var(--ct-green-icon);
 }
 
 .availabilityDetail {
   display: block;
   margin-top: 1px;
-  color: #b8b6b0;
+  color: var(--ct-text-faint);
   font-size: 10.5px;
   font-weight: 500;
 }
@@ -762,20 +775,20 @@
 .updatedLabel {
   display: block;
   margin-top: 1px;
-  color: #b8b6b0;
+  color: var(--ct-text-faint);
   font-size: 10px;
   font-weight: 500;
   line-height: 1.3;
 }
 
 .examDate {
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
 }
 
 .cardAction {
   padding: 14px 18px;
-  border-top: 1px solid rgb(11 11 11 / 8%);
-  background: #fff;
+  border-top: 1px solid rgb(var(--ct-line-rgb) / 8%);
+  background: var(--ct-surface);
 }
 
 .addButton {
@@ -787,7 +800,7 @@
   padding: 11px 16px;
   border: 0;
   border-radius: 6px;
-  background: #2871be;
+  background: var(--ct-accent);
   color: #fff;
   cursor: pointer;
   font: inherit;
@@ -803,17 +816,17 @@
 
 .noSelection {
   padding: 12px 18px;
-  border-top: 1px solid rgb(11 11 11 / 8%);
-  color: #9f9d97;
+  border-top: 1px solid rgb(var(--ct-line-rgb) / 8%);
+  color: var(--ct-text-muted);
   font-size: 12.5px;
   text-align: center;
 }
 
 .emptyState {
   padding: 18px;
-  border: 1px solid rgb(11 11 11 / 8%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 12px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 13px;
   text-align: center;
 }

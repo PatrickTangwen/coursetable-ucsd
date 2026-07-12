@@ -13,11 +13,11 @@
   max-width: 100%;
   white-space: nowrap;
   padding: 9px 16px;
-  border: 1px solid rgb(11 11 11 / 8%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   background: transparent;
   cursor: pointer;
   box-shadow:
@@ -29,7 +29,7 @@
 }
 
 .dropdown:hover {
-  background: #fdfcfb;
+  background: var(--ct-surface-hover);
   box-shadow: 0 2px 5px rgb(11 11 11 / 14%);
 }
 
@@ -48,7 +48,7 @@
   width: 12px;
   height: 12px;
   flex-shrink: 0;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   transition: transform 0.15s;
 }
 
@@ -67,8 +67,8 @@
   top: calc(100% + 6px);
   left: 0;
   z-index: 20;
-  background: #fff;
-  border: 1px solid rgb(11 11 11 / 8%);
+  background: var(--ct-surface-raised);
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 8px;
   box-shadow: 0 8px 24px rgb(11 11 11 / 14%);
   padding: 6px;
@@ -87,22 +87,22 @@
   min-width: 220px;
   height: 38px;
   padding: 0 12px;
-  border: 1px solid rgb(11 11 11 / 8%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 8px;
-  color: #0b0b0b;
-  background: #fff;
+  color: var(--ct-ink);
+  background: var(--ct-surface);
   font: inherit;
   font-size: 14px;
   outline: none;
 }
 
 .searchInput:focus {
-  border-color: #2871be;
-  box-shadow: 0 0 0 2px rgb(40 113 190 / 14%);
+  border-color: var(--ct-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ct-accent) 14%, transparent);
 }
 
 .searchInput::placeholder {
-  color: #9f9d97;
+  color: var(--ct-text-muted);
 }
 
 .dropdownItem {
@@ -110,7 +110,7 @@
   text-align: left;
   padding: 8px 10px;
   font-size: 14px;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   border-radius: 6px;
   cursor: pointer;
   display: flex;
@@ -120,13 +120,13 @@
 }
 
 .dropdownItem:hover {
-  background: rgb(11 11 11 / 4%);
+  background: rgb(var(--ct-line-rgb) / 4%);
 }
 
 .dropdownItemActive {
   font-weight: 600;
-  color: #185fa5;
-  background: #e6f1fb;
+  color: var(--ct-accent-text);
+  background: var(--ct-accent-tint);
 }
 
 .dropdownItemLabel {
@@ -137,17 +137,17 @@
 
 .emptyState {
   padding: 12px 10px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 14px;
 }
 
 .checkbox {
   width: 14px;
   height: 14px;
-  border: 1px solid rgb(11 11 11 / 14%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 14%);
   border-radius: 3px;
   color: #fff;
-  background: #fff;
+  background: var(--ct-surface);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -160,8 +160,8 @@
 }
 
 .checkboxActive {
-  border-color: #2871be;
-  background: #2871be;
+  border-color: var(--ct-accent);
+  background: var(--ct-accent);
 }
 
 @keyframes popover-fade-in {

@@ -47,6 +47,10 @@
   color: rgb(38 131 185);
 }
 
+[data-theme='dark'] .courseCodes {
+  color: var(--color-primary);
+}
+
 .professors {
   font-weight: 550;
 }

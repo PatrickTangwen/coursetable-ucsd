@@ -20,7 +20,7 @@
 
 .pageTitle {
   margin: 0;
-  color: #0b0b0b;
+  color: var(--ct-ink);
   font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.4px;
@@ -28,7 +28,7 @@
 
 .pageSubtitle {
   margin: 3px 0 0;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 12px;
 }
 
@@ -48,20 +48,20 @@
 
 .dashTile {
   padding: 10px 14px;
-  border: 1px solid rgb(11 11 11 / 10%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 10%);
   border-radius: 8px;
-  background: #fff;
+  background: var(--ct-surface);
 }
 
 .dashLabel {
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 11px;
   font-weight: 500;
 }
 
 .dashValue {
   margin-top: 2px;
-  color: #0b0b0b;
+  color: var(--ct-ink);
   font-size: 20px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -70,7 +70,7 @@
 
 .dashSub {
   margin-top: 3px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 11px;
   font-weight: 500;
 }
@@ -96,7 +96,7 @@
   display: flex;
   align-items: center;
   gap: 3px;
-  color: #3b6d11;
+  color: var(--ct-green-text);
   font-size: 11px;
   font-weight: 600;
 }
@@ -104,9 +104,9 @@
 .conflictTile {
   position: relative;
   padding: 10px 14px;
-  border: 1px solid rgb(11 11 11 / 10%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 10%);
   border-radius: 8px;
-  background: #fff;
+  background: var(--ct-surface);
   text-align: left;
   font-family: inherit;
   cursor: pointer;
@@ -132,7 +132,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #e24b4a;
+  background: var(--ct-danger-accent);
   animation: list-dot-pulse 1.6s ease-in-out infinite;
 }
 
@@ -154,7 +154,7 @@
   display: flex;
   align-items: center;
   gap: 3px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 11px;
   font-weight: 500;
 }
@@ -169,9 +169,9 @@
 .infoTile {
   position: relative;
   padding: 9px 12px;
-  border: 1px solid rgb(11 11 11 / 10%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 10%);
   border-radius: 8px;
-  background: #fff;
+  background: var(--ct-surface);
 }
 
 .examTileButton {
@@ -180,9 +180,9 @@
   font-family: inherit;
   cursor: pointer;
   padding: 9px 12px;
-  border: 1px solid rgb(11 11 11 / 10%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 10%);
   border-radius: 8px;
-  background: #fff;
+  background: var(--ct-surface);
   transition:
     box-shadow 0.12s ease,
     transform 0.12s ease;
@@ -198,7 +198,7 @@
   display: flex;
   align-items: center;
   gap: 3px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 10.5px;
 }
 
@@ -206,14 +206,14 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 10px;
   font-weight: 700;
 }
 
 .infoValue {
   margin-top: 3px;
-  color: #0b0b0b;
+  color: var(--ct-ink);
   font-size: 17px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -221,7 +221,7 @@
 
 .infoSub {
   margin-top: 1px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 10.5px;
 }
 
@@ -239,10 +239,10 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  border: 1px solid rgb(11 11 11 / 14%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 14%);
   border-radius: 8px;
-  background: #fff;
-  color: #0b0b0b;
+  background: var(--ct-surface);
+  color: var(--ct-ink);
   cursor: pointer;
   transition:
     background-color 0.2s,
@@ -252,7 +252,7 @@
 
 .controlButton:hover,
 .controlButton:focus-visible {
-  background: rgb(11 11 11 / 4%);
+  background: rgb(var(--ct-line-rgb) / 4%);
   box-shadow: 0 2px 5px rgb(11 11 11 / 14%);
 }
 
@@ -273,9 +273,9 @@
   max-width: 80vw;
   z-index: 30;
   padding: 6px;
-  border: 1px solid rgb(11 11 11 / 8%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 8px;
-  background: #fff;
+  background: var(--ct-surface-raised);
   box-shadow: 0 8px 24px rgb(11 11 11 / 14%);
 }
 
@@ -290,7 +290,7 @@
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: #0b0b0b;
+  color: var(--ct-ink);
   cursor: pointer;
   font: inherit;
   font-size: 12.5px;
@@ -300,21 +300,21 @@
 }
 
 .settingsMenuRow:focus-visible {
-  background: rgb(11 11 11 / 4%);
+  background: rgb(var(--ct-line-rgb) / 4%);
 }
 
 .settingsMenuRow:disabled {
-  color: #d0cec8;
+  color: var(--ct-text-faint);
   cursor: not-allowed;
 }
 
 .settingsMenuRow:hover:not(:disabled) {
-  background: rgb(11 11 11 / 4%);
+  background: rgb(var(--ct-line-rgb) / 4%);
 }
 
 .settingsMenuDivider {
   height: 1px;
-  background: rgb(11 11 11 / 8%);
+  background: rgb(var(--ct-line-rgb) / 8%);
   margin: 6px 4px;
 }
 
@@ -328,7 +328,7 @@
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: #0b0b0b;
+  color: var(--ct-ink);
   cursor: pointer;
   font: inherit;
   font-size: 12.5px;
@@ -340,13 +340,13 @@
 }
 
 .settingsMenuDanger:hover {
-  background: #fcebeb;
-  color: #a32d2d;
+  background: var(--ct-danger-tint);
+  color: var(--ct-danger-text);
 }
 
 .settingsMenuRestore:hover {
-  background: rgb(11 11 11 / 4%);
-  color: #0b0b0b;
+  background: rgb(var(--ct-line-rgb) / 4%);
+  color: var(--ct-ink);
 }
 
 .confirmBlock {
@@ -355,7 +355,7 @@
 
 .confirmText {
   font-size: 11px;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   margin-bottom: 7px;
   text-wrap: pretty;
 }
@@ -368,8 +368,8 @@
 .confirmClearButton {
   flex: 1;
   padding: 6px;
-  background: #e24b4a;
-  border: 1px solid #e24b4a;
+  background: var(--ct-danger-accent);
+  border: 1px solid var(--ct-danger-accent);
   border-radius: 6px;
   color: #fff;
   font-size: 11px;
@@ -382,17 +382,17 @@
 }
 
 .confirmClearButton:hover:not(:disabled) {
-  background: #a32d2d;
-  border-color: #a32d2d;
+  background: var(--ct-danger);
+  border-color: var(--ct-danger);
 }
 
 .confirmCancelButton {
   flex: 1;
   padding: 6px;
   background: transparent;
-  border: 1px solid rgb(11 11 11 / 14%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 14%);
   border-radius: 6px;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   font-size: 11px;
   font-weight: 600;
   font-family: inherit;
@@ -401,8 +401,8 @@
 }
 
 .confirmCancelButton:hover {
-  background: rgb(11 11 11 / 4%);
-  color: #0b0b0b;
+  background: rgb(var(--ct-line-rgb) / 4%);
+  color: var(--ct-ink);
 }
 
 .menuBackdrop {
@@ -421,9 +421,9 @@
   z-index: 30;
   min-width: 190px;
   padding: 4px;
-  border: 1px solid rgb(11 11 11 / 8%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 8px;
-  background: #fff;
+  background: var(--ct-surface-raised);
   box-shadow:
     0 2px 8px rgb(11 11 11 / 6%),
     0 4px 18px rgb(11 11 11 / 6%);
@@ -438,7 +438,7 @@
   border: 0;
   border-radius: 5px;
   background: transparent;
-  color: #0b0b0b;
+  color: var(--ct-ink);
   cursor: pointer;
   font: inherit;
   font-size: 12.5px;
@@ -449,8 +449,8 @@
 
 .exportMenuItem:hover,
 .exportMenuItem:focus-visible {
-  background: rgb(11 11 11 / 4%);
-  color: #0b0b0b;
+  background: rgb(var(--ct-line-rgb) / 4%);
+  color: var(--ct-ink);
 }
 
 .warnings {
@@ -458,7 +458,7 @@
 }
 
 .warning {
-  color: #a32d2d;
+  color: var(--ct-danger-text);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -471,7 +471,7 @@
 }
 
 .importLabel {
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   font-size: 12.5px;
   font-weight: 500;
 }
@@ -497,7 +497,7 @@
 
 .emptyTermText {
   margin-bottom: 8px;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   font-size: 13px;
 }
 
@@ -510,10 +510,10 @@
 
 .emptyTermChip {
   padding: 5px 12px;
-  border: 1px solid rgb(11 11 11 / 12%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 12%);
   border-radius: 8px;
-  background: #fff;
-  color: #185fa5;
+  background: var(--ct-surface);
+  color: var(--ct-accent-text);
   cursor: pointer;
   font-size: 12.5px;
   font-weight: 600;
@@ -524,7 +524,7 @@
 
 .emptyTermChip:hover,
 .emptyTermChip:focus-visible {
-  background: #e6f1fb;
+  background: var(--ct-accent-tint);
   border-color: rgb(40 113 190 / 40%);
 }
 

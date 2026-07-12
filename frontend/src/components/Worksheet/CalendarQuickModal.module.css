@@ -25,8 +25,8 @@
   max-width: 460px;
   max-height: 84vh;
   overflow-y: auto;
-  background: #fff;
-  border: 1px solid rgb(11 11 11 / 8%);
+  background: var(--ct-surface-raised);
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 8px;
   box-shadow: 0 24px 64px rgb(11 11 11 / 22%);
   animation: popover-fade-in 0.16s ease-out;
@@ -38,7 +38,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 20px 22px 16px;
-  border-bottom: 1px solid rgb(11 11 11 / 8%);
+  border-bottom: 1px solid rgb(var(--ct-line-rgb) / 8%);
 }
 
 .headerInfo {
@@ -61,18 +61,18 @@
 .code {
   font-size: 16px;
   font-weight: 700;
-  color: #0b0b0b;
+  color: var(--ct-ink);
 }
 
 .section {
   font-size: 12px;
   font-weight: 500;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
 }
 
 .courseTitle {
   margin-top: 5px;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   font-size: 14px;
   line-height: 1.35;
   text-wrap: pretty;
@@ -99,7 +99,7 @@
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   cursor: pointer;
   transition:
     background 0.15s ease,
@@ -107,8 +107,8 @@
 }
 
 .closeButton:hover {
-  background: rgb(11 11 11 / 4%);
-  color: #0b0b0b;
+  background: rgb(var(--ct-line-rgb) / 4%);
+  color: var(--ct-ink);
 }
 
 .sectionBlock {
@@ -123,23 +123,23 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-weight: 600;
   margin-bottom: 8px;
 }
 
 .listCard {
-  border: 1px solid rgb(11 11 11 / 8%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 8px;
   overflow: hidden;
-  background: #fff;
+  background: var(--ct-surface);
 }
 
 .conflictCard {
-  border: 1px solid #f3d6d6;
+  border: 1px solid var(--ct-danger-border);
   border-radius: 8px;
   overflow: hidden;
-  background: #fef7f7;
+  background: var(--ct-danger-tint);
 }
 
 .conflictRow {
@@ -147,8 +147,8 @@
   align-items: flex-start;
   gap: 8px;
   padding: 9px 12px;
-  border-bottom: 1px solid #f3d6d6;
-  color: #a32d2d;
+  border-bottom: 1px solid var(--ct-danger-border);
+  color: var(--ct-danger-text);
 }
 
 .conflictRow[data-last] {
@@ -171,7 +171,7 @@
 
 .emptyRow {
   padding: 16px 12px;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 12px;
   text-align: center;
 }
@@ -181,7 +181,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  border-bottom: 1px solid rgb(11 11 11 / 8%);
+  border-bottom: 1px solid rgb(var(--ct-line-rgb) / 8%);
 }
 
 .meetingRow[data-last] {
@@ -201,8 +201,8 @@
   width: 8px;
   height: 8px;
   border-radius: 9999px;
-  background: #e24b4a;
-  border: 1.5px solid #fff;
+  background: var(--ct-danger-accent);
+  border: 1.5px solid var(--ct-surface);
   box-sizing: border-box;
 }
 
@@ -219,39 +219,39 @@
 }
 
 .typeLecture {
-  background: #e6f1fb;
-  color: #0c447c;
+  background: var(--ct-accent-tint);
+  color: var(--ct-accent-text);
 }
 
 .typeDiscussion {
-  background: #e1f5ee;
-  color: #085041;
+  background: var(--ct-teal-tint);
+  color: var(--ct-teal-text);
 }
 
 .typeLab {
-  background: #eeedfe;
-  color: #3c3489;
+  background: var(--ct-purple-tint);
+  color: var(--ct-purple-text);
 }
 
 .typeFinal {
-  background: #fcebeb;
-  color: #a32d2d;
+  background: var(--ct-danger-tint);
+  color: var(--ct-danger-text);
 }
 
 .typeMidterm {
-  background: #faeeda;
-  color: #633806;
+  background: var(--ct-amber-tint);
+  color: var(--ct-amber-text);
 }
 
 .typeOther {
-  background: #fdfcfb;
-  color: #6f6d67;
+  background: var(--ct-surface-hover);
+  color: var(--ct-text-secondary);
 }
 
 .meetingDays {
   flex: 0 0 auto;
   width: 74px;
-  color: #0b0b0b;
+  color: var(--ct-ink);
   font-size: 12px;
   font-weight: 600;
 }
@@ -259,7 +259,7 @@
 .meetingTime {
   flex: 1;
   min-width: 0;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   font-size: 12px;
   white-space: nowrap;
   overflow: hidden;
@@ -268,13 +268,13 @@
 
 .meetingLocation {
   flex: 0 0 auto;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 12px;
 }
 
 .examRow {
   padding: 10px 12px;
-  border-bottom: 1px solid rgb(11 11 11 / 8%);
+  border-bottom: 1px solid rgb(var(--ct-line-rgb) / 8%);
 }
 
 .examRow[data-last] {
@@ -288,13 +288,13 @@
 }
 
 .examKindFinal {
-  color: #a32d2d;
+  color: var(--ct-danger-text);
   font-size: 12px;
   font-weight: 600;
 }
 
 .examKindMidterm {
-  color: #854f0b;
+  color: var(--ct-amber-text);
   font-size: 12px;
   font-weight: 600;
 }
@@ -308,33 +308,33 @@
 }
 
 .badgePast {
-  background: #fdfcfb;
-  color: #9f9d97;
+  background: var(--ct-surface-hover);
+  color: var(--ct-text-muted);
 }
 
 .badgeSoon {
-  background: #fcebeb;
-  color: #a32d2d;
+  background: var(--ct-danger-tint);
+  color: var(--ct-danger-text);
 }
 
 .badgeUpcoming {
-  background: #faeeda;
-  color: #854f0b;
+  background: var(--ct-amber-tint);
+  color: var(--ct-amber-text);
 }
 
 .badgeLater {
-  background: #eaf3de;
-  color: #3b6d11;
+  background: var(--ct-green-tint);
+  color: var(--ct-green-text);
 }
 
 .examDate {
   margin-top: 3px;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   font-size: 12px;
 }
 
 .examMeta {
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 11px;
 }
 

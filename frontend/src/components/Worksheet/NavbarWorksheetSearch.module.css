@@ -145,11 +145,11 @@
 }
 
 .keepSavedWorksheetButton {
-  background-color: #5aae61;
+  background-color: var(--ct-green-icon);
 }
 
 .confirmDeleteSavedWorksheetButton {
-  background-color: #c31;
+  background-color: var(--ct-danger);
 }
 
 .createSavedWorksheetButton {
@@ -192,8 +192,8 @@
 
 /* Mobile dropdown styles - mimics the toggle button appearance */
 .viewDropdownToggle {
-  --bs-btn-active-bg: #fff;
-  --bs-btn-active-border-color: rgb(11 11 11 / 14%);
+  --bs-btn-active-bg: var(--ct-surface);
+  --bs-btn-active-border-color: rgb(var(--ct-line-rgb) / 14%);
 
   display: flex;
   align-items: center;
@@ -333,7 +333,7 @@
   margin-left: 6px;
   padding: 0 4px;
   border-radius: 9999px;
-  background: #2871be;
+  background: var(--ct-accent);
   color: #fff;
   font-size: 10px;
   font-weight: 700;

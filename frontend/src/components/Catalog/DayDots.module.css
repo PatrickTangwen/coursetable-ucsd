@@ -17,11 +17,11 @@
 }
 
 .active {
-  background: #333b4d;
-  color: #fff;
+  background: var(--ct-slate);
+  color: var(--ct-surface);
 }
 
 .inactive {
-  background: rgb(11 11 11 / 8%);
-  color: #9f9d97;
+  background: rgb(var(--ct-line-rgb) / 8%);
+  color: var(--ct-text-muted);
 }

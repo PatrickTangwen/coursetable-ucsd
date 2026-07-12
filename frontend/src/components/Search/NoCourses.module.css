@@ -20,14 +20,14 @@
   margin: 0 0 6px;
   font-size: 18px;
   font-weight: 600;
-  color: #0b0b0b;
+  color: var(--ct-ink);
 }
 
 .hint {
   margin: 0 0 20px;
   font-size: 14px;
   line-height: 1.5;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
 }
 
 .catalogButton {
@@ -36,9 +36,9 @@
   padding: 9px 18px;
   font-size: 14px;
   font-weight: 500;
-  color: #0b0b0b;
-  background: #fff;
-  border: 1px solid rgb(11 11 11 / 14%);
+  color: var(--ct-ink);
+  background: var(--ct-surface);
+  border: 1px solid rgb(var(--ct-line-rgb) / 14%);
   border-radius: 8px;
   text-decoration: none;
   box-shadow: 0 1px 2px rgb(11 11 11 / 5%);
@@ -48,8 +48,8 @@
 }
 
 .catalogButton:hover {
-  background: #fdfcfb;
-  color: #0b0b0b;
+  background: var(--ct-surface-hover);
+  color: var(--ct-ink);
   text-decoration: none;
   box-shadow: 0 2px 5px rgb(11 11 11 / 12%);
 }

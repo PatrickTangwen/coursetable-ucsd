@@ -147,7 +147,7 @@
 .walkWarningIconChip {
   margin-left: 2px;
   margin-right: 4px;
-  color: #ff9d43;
+  color: var(--ct-amber-icon);
   vertical-align: text-bottom;
 }
 
@@ -155,7 +155,7 @@
   width: 1em;
   height: 1em;
   margin-right: 0.22em;
-  color: #ff9d43;
+  color: var(--ct-amber-icon);
   vertical-align: -0.08em;
 }
 
@@ -334,7 +334,7 @@
 }
 
 .walkModalRouteLine {
-  --walk-route-color: #2fc77f;
+  --walk-route-color: var(--ct-teal-icon);
 
   width: 8px;
   place-self: stretch stretch;

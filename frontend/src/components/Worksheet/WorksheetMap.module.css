@@ -251,3 +251,12 @@
   color: var(--color-text-secondary);
   margin: 0.35rem 0;
 }
+
+:global([data-theme='dark']) .mapEmptyState {
+  background: linear-gradient(
+      180deg,
+      rgb(29 28 26 / 80%) 0%,
+      rgb(29 28 26 / 60%) 100%
+    )
+    var(--color-surface);
+}

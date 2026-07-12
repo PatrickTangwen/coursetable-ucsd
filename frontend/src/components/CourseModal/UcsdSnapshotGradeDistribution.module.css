@@ -4,9 +4,9 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgb(11 11 11 / 8%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 12px;
-  background: #fff;
+  background: var(--ct-surface);
 }
 
 .cardHeader {
@@ -15,24 +15,24 @@
   justify-content: space-between;
   gap: 12px;
   padding: 14px 18px;
-  border-bottom: 1px solid rgb(11 11 11 / 8%);
+  border-bottom: 1px solid rgb(var(--ct-line-rgb) / 8%);
 }
 
 .cardTitle {
-  color: #0b0b0b;
+  color: var(--ct-ink);
   font-size: 14px;
   font-weight: 700;
 }
 
 .cardSubtitle {
   margin-top: 2px;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   font-size: 12.5px;
   font-weight: 500;
 }
 
 .cardNote {
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-size: 11.5px;
   font-weight: 500;
 }
@@ -72,9 +72,9 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  background: #fff;
-  border-bottom: 1px solid rgb(11 11 11 / 10%);
-  color: #9f9d97;
+  background: var(--ct-surface);
+  border-bottom: 1px solid rgb(var(--ct-line-rgb) / 10%);
+  color: var(--ct-text-muted);
   font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -100,12 +100,12 @@
 }
 
 .table tbody tr:hover {
-  background: rgb(11 11 11 / 6%);
+  background: rgb(var(--ct-line-rgb) / 6%);
 }
 
 .table td {
   padding: 8px 6px;
-  border-bottom: 1px solid rgb(11 11 11 / 6%);
+  border-bottom: 1px solid rgb(var(--ct-line-rgb) / 6%);
 }
 
 .termCell {
@@ -117,9 +117,9 @@
 .termBadge {
   display: inline-block;
   padding: 3px 9px;
-  border: 1px solid rgb(11 11 11 / 14%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 14%);
   border-radius: 5px;
-  color: #3d3b37;
+  color: var(--ct-text-strong);
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px;
   font-weight: 600;
@@ -127,7 +127,7 @@
 }
 
 .instructorCell {
-  color: #3d3b37;
+  color: var(--ct-text-strong);
   font-size: 12px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -147,38 +147,38 @@
 }
 
 .gpaHigh {
-  background: #e1f5ee;
-  color: #0f6e56;
+  background: var(--ct-teal-tint);
+  color: var(--ct-teal-text);
 }
 
 .gpaGood {
-  background: #eaf3de;
-  color: #27500a;
+  background: var(--ct-green-tint);
+  color: var(--ct-green-text);
 }
 
 .gpaMid {
-  background: #faeeda;
-  color: #633806;
+  background: var(--ct-amber-tint);
+  color: var(--ct-amber-text);
 }
 
 .gpaLow {
-  background: #fcebeb;
-  color: #a32d2d;
+  background: var(--ct-danger-tint);
+  color: var(--ct-danger-text);
 }
 
 .gpaMissing {
-  background: #f3f2ef;
-  color: #9f9d97;
+  background: var(--ct-surface-soft);
+  color: var(--ct-text-muted);
 }
 
 .percentCell {
-  color: #3d3b37;
+  color: var(--ct-text-strong);
   font-size: 12px;
   text-align: center;
 }
 
 .percentMissing {
-  color: #c9c7c1;
+  color: var(--ct-text-faint);
 }
 
 .lastCell {
@@ -192,10 +192,10 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  border: 1px solid rgb(11 11 11 / 8%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 12px;
-  background: #fff;
-  color: #9f9d97;
+  background: var(--ct-surface);
+  color: var(--ct-text-muted);
   font-size: 13px;
   text-align: center;
   text-wrap: pretty;

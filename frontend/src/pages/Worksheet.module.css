@@ -6,7 +6,7 @@
 
   display: flex;
   position: relative;
-  background: #fff;
+  background: var(--ct-surface);
   height: calc(100vh - var(--height-navbar));
   overflow: hidden;
 }
@@ -33,7 +33,7 @@
 .sidebar {
   width: 300px;
   flex-shrink: 0;
-  border-left: 1px solid rgb(11 11 11 / 8%);
+  border-left: 1px solid rgb(var(--ct-line-rgb) / 8%);
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -68,7 +68,7 @@
   width: 100%;
   flex: 0 0 auto;
   border-left: 0;
-  border-top: 1px solid rgb(11 11 11 / 8%);
+  border-top: 1px solid rgb(var(--ct-line-rgb) / 8%);
   overflow-y: visible;
 }
 
@@ -88,9 +88,9 @@
   align-items: center;
   justify-content: center;
   border-radius: 6px;
-  background-color: #fdfcfb;
-  color: #6f6d67;
-  border: 1px solid rgb(11 11 11 / 14%);
+  background-color: var(--ct-surface-hover);
+  color: var(--ct-text-secondary);
+  border: 1px solid rgb(var(--ct-line-rgb) / 14%);
   cursor: pointer;
   padding: 0;
   appearance: none;
@@ -111,7 +111,7 @@
   right: -3px;
   width: 6px;
   height: 6px;
-  background-color: #2871be;
+  background-color: var(--ct-accent);
   border-radius: 50%;
   animation: pulse 2s ease-in-out infinite;
 }
@@ -130,7 +130,7 @@
 }
 
 .controlsTrigger:hover {
-  background-color: rgb(11 11 11 / 8%);
+  background-color: rgb(var(--ct-line-rgb) / 8%);
 }
 
 .calendarControls:hover .controlsTrigger,
@@ -168,9 +168,9 @@
   align-items: center;
   justify-content: center;
   border-radius: 6px;
-  background-color: #fdfcfb;
-  color: #6f6d67;
-  border: 1px solid rgb(11 11 11 / 14%);
+  background-color: var(--ct-surface-hover);
+  color: var(--ct-text-secondary);
+  border: 1px solid rgb(var(--ct-line-rgb) / 14%);
   cursor: pointer;
   padding: 0;
   appearance: none;
@@ -183,5 +183,5 @@
 
 .controlBtn:hover {
   transform: scale(1.1);
-  background-color: rgb(11 11 11 / 8%);
+  background-color: rgb(var(--ct-line-rgb) / 8%);
 }

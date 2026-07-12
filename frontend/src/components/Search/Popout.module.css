@@ -62,7 +62,7 @@
   background-color: var(--color-select);
   border-radius: 4px;
   box-shadow:
-    0 0 0 1px hsl(218deg 50% 10% / 10%),
+    0 0 0 1px rgb(var(--ct-line-rgb) / 10%),
     0 4px 11px hsl(218deg 50% 10% / 10%);
   margin-top: 8px;
   position: absolute;

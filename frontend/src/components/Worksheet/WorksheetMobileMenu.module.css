@@ -8,7 +8,7 @@
   gap: 4px;
   padding-bottom: 12px;
   margin-bottom: 14px;
-  border-bottom: 1px solid rgb(11 11 11 / 8%);
+  border-bottom: 1px solid rgb(var(--ct-line-rgb) / 8%);
 }
 
 .worksheetRoot {
@@ -29,11 +29,11 @@
 }
 
 .worksheetToggle:hover {
-  background: rgb(11 11 11 / 4%);
+  background: rgb(var(--ct-line-rgb) / 4%);
 }
 
 .worksheetStar {
-  color: #ef9f27;
+  color: var(--ct-amber-icon);
   font-size: 15px;
   flex-shrink: 0;
 }
@@ -41,12 +41,12 @@
 .worksheetName {
   font-size: 16px;
   font-weight: 600;
-  color: #0b0b0b;
+  color: var(--ct-ink);
   white-space: nowrap;
 }
 
 .worksheetChevron {
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   flex-shrink: 0;
   transition: transform 0.2s ease;
 }
@@ -60,8 +60,8 @@
   top: calc(100% + 5px);
   left: 0;
   z-index: 30;
-  background: #fff;
-  border: 1px solid rgb(11 11 11 / 8%);
+  background: var(--ct-surface-raised);
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 8px;
   box-shadow: 0 8px 24px rgb(11 11 11 / 14%);
   padding: 6px;
@@ -74,18 +74,18 @@
   align-items: center;
   gap: 7px;
   padding: 8px 14px;
-  background: #e6f1fb;
-  border: 1px solid #85b7eb;
+  background: var(--ct-accent-tint);
+  border: 1px solid var(--ct-accent-border);
   border-radius: 6px;
-  color: #185fa5;
+  color: var(--ct-accent-text);
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
 }
 
 .signInButton:hover {
-  background: #b5d4f4;
-  color: #185fa5;
+  background: var(--ct-accent-border);
+  color: var(--ct-accent-text);
   text-decoration: none;
 }
 
@@ -100,12 +100,12 @@
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   transition: background 0.15s;
 }
 
 .settingsBtn:hover {
-  background: rgb(11 11 11 / 4%);
+  background: rgb(var(--ct-line-rgb) / 4%);
 }
 
 .section {
@@ -120,17 +120,17 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #9f9d97;
+  color: var(--ct-text-muted);
   font-weight: 600;
   padding: 0 12px;
   margin-bottom: 7px;
 }
 
 .sessionList {
-  border: 1px solid rgb(11 11 11 / 8%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 8px;
   overflow: hidden;
-  background: #fff;
+  background: var(--ct-surface);
   box-shadow: 0 1px 2px rgb(11 11 11 / 4%);
 }
 
@@ -144,7 +144,7 @@
   cursor: pointer;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid rgb(11 11 11 / 8%);
+  border-bottom: 1px solid rgb(var(--ct-line-rgb) / 8%);
   font-family: inherit;
   text-align: left;
   transition: background-color 0.12s ease;
@@ -155,12 +155,12 @@
 }
 
 .sessionRow:hover {
-  background: rgb(11 11 11 / 4%);
+  background: rgb(var(--ct-line-rgb) / 4%);
 }
 
 .sessionRowActive,
 .sessionRowActive:hover {
-  background: #e6f1fb;
+  background: var(--ct-accent-tint);
 }
 
 .sessionLabel {
@@ -171,12 +171,12 @@
   white-space: nowrap;
   font-size: 14px;
   font-weight: 400;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
 }
 
 .sessionRowActive .sessionLabel {
   font-weight: 600;
-  color: #185fa5;
+  color: var(--ct-accent-text);
 }
 
 .finalsBadge {
@@ -188,7 +188,7 @@
   margin-left: 6px;
   padding: 0 4px;
   border-radius: 9999px;
-  background: #2871be;
+  background: var(--ct-accent);
   color: #fff;
   font-size: 10px;
   font-weight: 700;

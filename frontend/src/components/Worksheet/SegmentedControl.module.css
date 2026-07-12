@@ -2,7 +2,7 @@
   position: relative;
   display: inline-flex;
   flex-shrink: 0;
-  background: #fdfcfb;
+  background: var(--ct-surface-hover);
   border-radius: 8px;
   padding: 3px;
   gap: 2px;
@@ -12,7 +12,7 @@
   display: flex;
   width: 100%;
   gap: 0;
-  border: 1px solid rgb(11 11 11 / 8%);
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   box-shadow: inset 0 1px 2px rgb(11 11 11 / 4%);
 }
 
@@ -22,7 +22,7 @@
   bottom: 3px;
   left: 3px;
   width: 84px;
-  background: #fff;
+  background: var(--ct-surface-raised);
   border-radius: 6px;
   box-shadow:
     0 2px 4px rgb(11 11 11 / 8%),
@@ -61,7 +61,7 @@
   font-weight: 500;
   font-family: inherit;
   background: transparent;
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
   border: none;
   padding: 4px 0;
   display: inline-flex;
@@ -86,16 +86,16 @@
 
 /* Hover never recolors the label — only the active segment darkens. */
 .button:hover {
-  color: #6f6d67;
+  color: var(--ct-text-secondary);
 }
 
 .buttonActive {
-  color: #0b0b0b;
+  color: var(--ct-ink);
   font-weight: 600;
 }
 
 .buttonActive:hover {
-  color: #0b0b0b;
+  color: var(--ct-ink);
 }
 
 @media (max-width: calc(1320px - 0.5px)) {

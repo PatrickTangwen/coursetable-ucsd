@@ -65,7 +65,7 @@
 }
 
 .recordTable tbody tr:nth-child(odd) {
-  background: rgb(0 0 0 / 4%);
+  background: rgb(var(--ct-line-rgb) / 4%);
 }
 
 .yearColumn {

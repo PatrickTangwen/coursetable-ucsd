@@ -219,7 +219,7 @@ export default function WorksheetMobileMenu({
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#185fa5"
+                  stroke="var(--ct-accent-text)"
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"

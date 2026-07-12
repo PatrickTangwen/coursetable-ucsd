@@ -11,10 +11,10 @@
 .sun {
   font-weight: 700;
   font-style: normal;
-  color: #0b0b0b;
+  color: var(--ct-ink);
 }
 
 .grid {
   font-weight: 700;
-  color: #0b0b0b;
+  color: var(--ct-ink);
 }

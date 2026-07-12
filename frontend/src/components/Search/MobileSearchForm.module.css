@@ -60,13 +60,13 @@
 }
 
 .resetFiltersBtn {
-  color: #e23e57;
+  color: var(--ct-danger-accent);
   font-weight: 500;
   font-size: 14px;
 }
 
 .resetFiltersBtn:hover {
-  color: #a82f41;
+  color: var(--ct-danger-accent);
 }
 
 .numResults {

@@ -25,7 +25,7 @@
   right: 0;
   bottom: 0;
   z-index: 1050;
-  background: #fff;
+  background: var(--ct-surface-raised);
   border-radius: 22px 22px 0 0;
   box-shadow: 0 -10px 30px rgb(15 23 42 / 20%);
   transform: translateY(110%);
@@ -39,7 +39,7 @@
 .handle {
   width: 36px;
   height: 4px;
-  background: rgb(11 11 11 / 8%);
+  background: rgb(var(--ct-line-rgb) / 8%);
   border-radius: 2px;
   margin: 10px auto 8px;
   flex-shrink: 0;

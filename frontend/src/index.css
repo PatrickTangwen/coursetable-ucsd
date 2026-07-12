@@ -97,6 +97,64 @@
   --sg-shadow-fab: 0 4px 16px rgb(26 86 219 / 35%);
   --sg-backdrop: rgb(0 0 0 / 42%);
 
+  /* ── CT UI palette — semantic tokens for the shipped SunGrid surfaces.
+     Light values match the previously hardcoded literals exactly; dark values
+     live in the :root[data-theme='dark'] block below. ── */
+
+  /* Neutral text */
+  --ct-ink: #0b0b0b;
+  --ct-text-strong: #3d3b37;
+  --ct-text-secondary: #6f6d67;
+  --ct-text-muted: #9f9d97;
+  --ct-text-faint: #b8b6b0;
+
+  /* Surfaces */
+  --ct-surface: #fff;
+  --ct-surface-raised: #fff;
+  --ct-surface-tint: #f9f8f6;
+  --ct-surface-hover: #fdfcfb;
+  --ct-surface-soft: #f3f2ef;
+
+  /* Lines: alpha borders/fills via rgb(var(--ct-line-rgb) / X%) */
+  --ct-line-rgb: 11 11 11;
+  --ct-line: #e7e5e1;
+
+  /* Accent (blue) */
+  --ct-accent: #2871be;
+  --ct-accent-text: #185fa5;
+  --ct-accent-tint: #e6f1fb;
+  --ct-accent-border: #85b7eb;
+
+  /* Danger (red) */
+  --ct-danger: #a32d2d;
+  --ct-danger-text: #791f1f;
+  --ct-danger-accent: #e24b4a;
+  --ct-danger-tint: #fcebeb;
+  --ct-danger-border: #f3d6d6;
+
+  /* Green */
+  --ct-green-tint: #eaf3de;
+  --ct-green-text: #3b6d11;
+  --ct-green-icon: #639922;
+
+  /* Teal */
+  --ct-teal-tint: #e1f5ee;
+  --ct-teal-text: #0f6e56;
+  --ct-teal-icon: #1d9e75;
+
+  /* Amber/orange */
+  --ct-amber-tint: #faeeda;
+  --ct-amber-text: #854f0b;
+  --ct-amber-icon: #ef9f27;
+
+  /* Purple */
+  --ct-purple-tint: #eeedfe;
+  --ct-purple-text: #534ab7;
+  --ct-purple-border: #cecbf6;
+
+  /* Slate */
+  --ct-slate: #333b4d;
+
   /* ── Typography ── */
   --font-family-sans-serif: 'Inter', system-ui, -apple-system, sans-serif;
   --font-family-logo: 'Cormorant Garamond', serif;
@@ -114,7 +172,7 @@
   --color-text: var(--color-text-light);
   --color-text-secondary: #dbdbdb;
   --color-text-tertiary: #bababa;
-  --color-bg: #121212;
+  --color-bg: #171614;
   --color-surface: #242424;
   --color-surface-elevated: #363636;
   --color-surface-contrast: #202020;
@@ -134,19 +192,75 @@
   --color-primary-subdued: #446491bf;
   --color-primary-subdued-2: #44649140;
 
-  /* TODO: dark-mode SunGrid tokens — update --sg-* values when dark mode is designed */
+  /* ── CT UI palette — dark values ── */
 
-  /* --sg-primary: TBD */
+  /* Neutral text */
+  --ct-ink: #f0efec;
+  --ct-text-strong: #dbd9d4;
+  --ct-text-secondary: #b3b0a9;
+  --ct-text-muted: #8b8983;
+  --ct-text-faint: #6e6c66;
 
-  /* --sg-text-primary: TBD */
+  /* Surfaces */
+  --ct-surface: #1d1c1a;
+  --ct-surface-raised: #262420;
+  --ct-surface-tint: #252420;
+  --ct-surface-hover: #232221;
+  --ct-surface-soft: #2d2b27;
 
-  /* --sg-bg-white: TBD */
+  /* Lines */
+  --ct-line-rgb: 255 255 255;
+  --ct-line: #3a3833;
 
-  /* --sg-border: TBD */
+  /* Accent (blue) */
+  --ct-accent: #4a8ccc;
+  --ct-accent-text: #8ec2f2;
+  --ct-accent-tint: #20344a;
+  --ct-accent-border: #3b5d85;
 
-  /* --sg-logo-sun: TBD */
+  /* Danger (red) */
+  --ct-danger: #ad4343;
+  --ct-danger-text: #e5a1a1;
+  --ct-danger-accent: #e06c6c;
+  --ct-danger-tint: #3a2323;
+  --ct-danger-border: #5a3030;
 
-  /* --sg-logo-grid: TBD */
+  /* Green */
+  --ct-green-tint: #24301b;
+  --ct-green-text: #a3cb7e;
+  --ct-green-icon: #85b654;
+
+  /* Teal */
+  --ct-teal-tint: #1d312a;
+  --ct-teal-text: #74c7ae;
+  --ct-teal-icon: #4fc29a;
+
+  /* Amber/orange */
+  --ct-amber-tint: #35291a;
+  --ct-amber-text: #d9a659;
+  --ct-amber-icon: #efae4e;
+
+  /* Purple */
+  --ct-purple-tint: #282343;
+  --ct-purple-text: #a89ef4;
+  --ct-purple-border: #4a4383;
+
+  /* Slate */
+  --ct-slate: #c3cad8;
+
+  /* SunGrid tokens consumed by the sonner/bootstrap mappings below */
+  --sg-danger-red: #c74d6b;
+  --sg-danger-red-hover: #b84360;
+  --sg-danger-text: #f0a2b4;
+  --sg-red-chip-bg: #3a2229;
+  --sg-green-text: #96d4a8;
+  --sg-green-bar: #2f9e57;
+  --sg-green-badge-bg: #1e3226;
+  --sg-blue-info-bg: #232c48;
+  --sg-blue-info-text: #a9b8ef;
+  --sg-blue-border: #3b5d85;
+  --sg-yellow-badge-bg: #363016;
+  --sg-yellow-badge-text: #d9bb59;
 }
 
 body {

@@ -37,7 +37,7 @@
   left: 50%;
   display: block;
   border-radius: 1.5px;
-  background: #2871be;
+  background: var(--ct-accent);
   transform: translate(-50%, -50%);
   transition:
     transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -63,16 +63,16 @@
 }
 
 .isAdded .toggleButtonBar {
-  background: #a32d2d;
+  background: var(--ct-danger);
 }
 
 .mobileButton {
   width: 42px;
   height: 42px;
   padding: 0 !important;
-  border: 1px solid rgb(11 11 11 / 8%) !important;
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%) !important;
   border-radius: 50%;
-  background: #fff !important;
+  background: var(--ct-surface) !important;
   box-shadow: 0 2px 6px rgb(11 11 11 / 8%);
   transition:
     transform 0.18s ease,
@@ -82,7 +82,7 @@
 }
 
 .mobileButton:hover {
-  background: #f3f2ef !important;
+  background: var(--ct-surface-soft) !important;
   box-shadow: 0 4px 10px rgb(11 11 11 / 12%);
   transform: translateY(-1px);
 }
@@ -95,8 +95,8 @@
 
 .mobileButton:focus-visible {
   box-shadow:
-    0 0 0 2px #fff,
-    0 0 0 4px #2871be !important;
+    0 0 0 2px var(--ct-surface),
+    0 0 0 4px var(--ct-accent) !important;
 }
 
 .mobileButton:active {
@@ -105,8 +105,8 @@
 }
 
 .mobileButton.isAdded {
-  border-color: #efb4b4 !important;
-  background: #fcebeb !important;
+  border-color: var(--ct-danger-border) !important;
+  background: var(--ct-danger-tint) !important;
   transform: none;
 }
 
@@ -115,8 +115,8 @@
 }
 
 .mobileButton.isAdded:hover {
-  border-color: #d96c6c !important;
-  background: #f9dddd !important;
+  border-color: var(--ct-danger-accent) !important;
+  background: var(--ct-danger-tint) !important;
   box-shadow: 0 4px 10px rgb(163 45 45 / 16%);
   transform: translateY(-1px);
 }
@@ -133,8 +133,8 @@
 }
 
 .mobileButton.disabledButton {
-  border-color: rgb(11 11 11 / 8%) !important;
-  background: #f9f8f6 !important;
+  border-color: rgb(var(--ct-line-rgb) / 8%) !important;
+  background: var(--ct-surface-tint) !important;
   box-shadow: none;
 }
 
@@ -163,7 +163,7 @@
   background: transparent !important;
   border: 0 !important;
   border-radius: 6px;
-  color: #aaa !important;
+  color: var(--ct-text-muted) !important;
   font-size: 12px;
   font-weight: 500;
   transition:
@@ -173,11 +173,11 @@
 
 .removeButton:hover,
 .removeButton:focus-visible {
-  background: #fef2f2 !important;
-  color: #c94040 !important;
+  background: var(--ct-danger-tint) !important;
+  color: var(--ct-danger-accent) !important;
 }
 
 .removeButton:disabled {
-  color: #c7c7c7 !important;
+  color: var(--ct-text-faint) !important;
   cursor: not-allowed;
 }

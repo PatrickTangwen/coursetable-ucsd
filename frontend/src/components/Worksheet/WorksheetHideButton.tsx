@@ -51,9 +51,9 @@ export function useToggleCourseHidden():
     }
     if (hasSavedWorksheetAccount) {
       const course = courses.find((c) => c.listing.crn === crn);
-      if (course) 
+      if (course)
         await setActiveSavedWorksheetListingHidden(course.listing, !hidden);
-      
+
       return;
     }
     await setCourseHidden({
