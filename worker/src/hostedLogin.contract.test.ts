@@ -3,7 +3,7 @@ import { describe, it } from 'vitest';
 import {
   createAppWorker,
   type AppWorkerEnv,
-  type HostedAuthProviders,
+  type HostedAppProviders,
 } from './appWorker.js';
 import type { UpstashRedisCommands } from './upstashRedis.js';
 import {
@@ -11,6 +11,9 @@ import {
   HostedLoginCookieClient,
 } from '../../api/src/auth/hostedLogin.contract.js';
 import { createMemoryUcsdAuthStore } from '../../api/src/auth/ucsdAuth.memory.js';
+import { exerciseHostedPlanningDataContract } from '../../api/src/planningData/hostedPlanningData.contract.js';
+import { createMemorySavedSearchStore } from '../../api/src/savedSearches/savedSearches.memory.js';
+import { createMemorySavedWorksheetStore } from '../../api/src/savedWorksheets/savedWorksheets.memory.js';
 
 class MemoryRedis implements UpstashRedisCommands {
   readonly values = new Map<string, string>();
@@ -65,9 +68,11 @@ describe('hosted login external HTTP contract on Worker', () => {
     const authStore = createMemoryUcsdAuthStore();
     const redis = new MemoryRedis();
     let currentTime = 1_000_000;
-    const providers: HostedAuthProviders = {
-      createAuthStore: () => ({
-        store: authStore,
+    const providers: HostedAppProviders = {
+      createAppDatabase: () => ({
+        auth: authStore,
+        savedSearches: createMemorySavedSearchStore(),
+        savedWorksheets: createMemorySavedWorksheetStore(),
         close: () => Promise.resolve(),
       }),
       createEmailSender: () => ({
@@ -95,6 +100,52 @@ describe('hosted login external HTTP contract on Worker', () => {
     await exerciseHostedLoginContract(client, () => {
       const code = codes.shift();
       if (!code) throw new Error('No captured verification code');
+      return Promise.resolve(code);
+    });
+  });
+
+  it('runs the account planning-data contract through the Worker composition root', async () => {
+    const codes = new Map<string, string[]>();
+    const authStore = createMemoryUcsdAuthStore();
+    const redis = new MemoryRedis();
+    let currentTime = 1_000_000;
+    const savedSearches = createMemorySavedSearchStore();
+    const savedWorksheets = createMemorySavedWorksheetStore();
+    const providers: HostedAppProviders = {
+      createAppDatabase: () => ({
+        auth: authStore,
+        savedSearches,
+        savedWorksheets,
+        close: () => Promise.resolve(),
+      }),
+      createEmailSender: () => ({
+        sendVerificationEmail(message) {
+          const code = /code is (?<code>\d{6})/u.exec(message.text)?.groups
+            ?.code;
+          if (!code) throw new Error('Verification code missing from message');
+          codes.set(message.recipient, [
+            ...(codes.get(message.recipient) ?? []),
+            code,
+          ]);
+          return Promise.resolve();
+        },
+      }),
+      createRedis: () => redis,
+      now() {
+        currentTime += 1;
+        return currentTime;
+      },
+    };
+    const worker = createAppWorker(providers);
+    const environment = createEnvironment();
+    const context = { waitUntil() {} } as unknown as ExecutionContext;
+    const client = new HostedLoginCookieClient((request) =>
+      worker.fetch(request, environment, context),
+    );
+
+    await exerciseHostedPlanningDataContract(client, (email) => {
+      const code = codes.get(email)?.shift();
+      if (!code) throw new Error(`No captured verification code for ${email}`);
       return Promise.resolve(code);
     });
   });

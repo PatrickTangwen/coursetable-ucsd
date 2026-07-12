@@ -20,8 +20,9 @@ import type {
   VerificationRequestLimiter,
   VerificationAttemptLimiter,
 } from './verificationRequest.limiter.js';
+import { registerPlanningDataRoutes } from '../planningData/planningData.routes.js';
 import { createMemorySavedSearchStore } from '../savedSearches/savedSearches.memory.js';
-import { registerSavedSearchRoutes } from '../savedSearches/savedSearches.routes.js';
+import { createMemorySavedWorksheetStore } from '../savedWorksheets/savedWorksheets.memory.js';
 
 class TestClient {
   #origin = '';
@@ -104,7 +105,11 @@ function createTestApp(
     verificationAttemptLimiter,
     session: expressAppSession,
   });
-  registerSavedSearchRoutes(app, savedSearchStore, expressAppSession);
+  registerPlanningDataRoutes(app, {
+    savedSearches: savedSearchStore,
+    savedWorksheets: createMemorySavedWorksheetStore(),
+    session: expressAppSession,
+  });
 
   return { app, authStore, savedSearchStore, verificationRecords };
 }

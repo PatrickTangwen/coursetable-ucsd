@@ -3,9 +3,16 @@ import assert from 'node:assert/strict';
 import { createMemoryUcsdAuthStore } from './ucsdAuth.memory.js';
 
 export interface HostedLoginContractClient {
+  fork: () => HostedLoginContractClient;
+  getCookie: () => string;
   get: (pathname: string) => Promise<Response>;
   getWithCookie: (pathname: string, cookie: string) => Promise<Response>;
   post: (pathname: string, body?: unknown) => Promise<Response>;
+  postWithCookie: (
+    pathname: string,
+    cookie: string,
+    body?: unknown,
+  ) => Promise<Response>;
 }
 
 export class HostedLoginCookieClient implements HostedLoginContractClient {
@@ -22,6 +29,10 @@ export class HostedLoginCookieClient implements HostedLoginContractClient {
     this.fetch = fetch;
     this.origin = origin;
     this.forwardedHttps = forwardedHttps;
+  }
+
+  getCookie() {
+    return this.#cookie;
   }
 
   request(pathname: string, init: RequestInit = {}) {
@@ -43,9 +54,7 @@ export class HostedLoginCookieClient implements HostedLoginContractClient {
   }
 
   getWithCookie(pathname: string, cookie: string) {
-    const headers = new Headers({ cookie });
-    if (this.forwardedHttps) headers.set('x-forwarded-proto', 'https');
-    return this.fetch(new Request(`${this.origin}${pathname}`, { headers }));
+    return this.requestWithCookie(pathname, cookie);
   }
 
   post(pathname: string, body?: unknown) {
@@ -53,6 +62,35 @@ export class HostedLoginCookieClient implements HostedLoginContractClient {
       method: 'POST',
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+  }
+
+  postWithCookie(pathname: string, cookie: string, body?: unknown) {
+    return this.requestWithCookie(pathname, cookie, {
+      method: 'POST',
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  }
+
+  fork() {
+    return new HostedLoginCookieClient(
+      this.fetch,
+      this.origin,
+      this.forwardedHttps,
+    );
+  }
+
+  private requestWithCookie(
+    pathname: string,
+    cookie: string,
+    init: RequestInit = {},
+  ) {
+    const headers = new Headers(init.headers);
+    headers.set('cookie', cookie);
+    if (init.body) headers.set('content-type', 'application/json');
+    if (this.forwardedHttps) headers.set('x-forwarded-proto', 'https');
+    return this.fetch(
+      new Request(`${this.origin}${pathname}`, { ...init, headers }),
+    );
   }
 }
 

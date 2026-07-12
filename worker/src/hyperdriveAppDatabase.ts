@@ -3,12 +3,14 @@ import postgres from 'postgres';
 
 import * as schema from '../../api/drizzle/schema.js';
 import { createDatabaseUcsdAuthStore } from '../../api/src/auth/ucsdAuth.database.js';
+import { createDatabaseSavedSearchStore } from '../../api/src/savedSearches/savedSearches.database.js';
+import { createDatabaseSavedWorksheetStore } from '../../api/src/savedWorksheets/savedWorksheets.database.js';
 
 export interface NoCacheHyperdriveBinding {
   connectionString: string;
 }
 
-export function createHyperdriveAuthStore(
+export function createHyperdriveAppDatabase(
   hyperdrive: NoCacheHyperdriveBinding,
 ) {
   if (!hyperdrive.connectionString)
@@ -18,8 +20,11 @@ export function createHyperdriveAuthStore(
     fetch_types: false,
     prepare: true,
   });
+  const database = drizzle(client, { schema });
   return {
-    store: createDatabaseUcsdAuthStore(drizzle(client, { schema })),
+    auth: createDatabaseUcsdAuthStore(database),
+    savedSearches: createDatabaseSavedSearchStore(database),
+    savedWorksheets: createDatabaseSavedWorksheetStore(database),
     close: () => client.end({ timeout: 0 }),
   };
 }
