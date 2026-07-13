@@ -191,6 +191,185 @@ describe('Cloudflare Workers Free boundary', () => {
     expect(subscriptionMethods).toEqual(['GET']);
   });
 
+  it('identifies the Workers subscription by rate plan id without scope or sets', async () => {
+    const idOnlyFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/subscriptions')) {
+        return response([
+          {
+            state: 'Provisioned',
+            price: 0,
+            rate_plan: {
+              id: 'unrelated-account-plan',
+              externally_managed: false,
+              is_contract: false,
+              scope: 'account',
+              sets: null,
+            },
+          },
+          {
+            state: 'Provisioned',
+            price: 0,
+            rate_plan: {
+              id: 'workers_free',
+              externally_managed: false,
+              is_contract: false,
+              scope: 'user',
+              sets: null,
+            },
+          },
+        ]);
+      }
+      return freeFetcher(input);
+    };
+
+    const evidence = await verifyFreeBoundary(config, idOnlyFetcher);
+
+    expect(evidence).toMatchObject({
+      result: 'passed',
+      plan: 'Workers Free',
+      workerSubscriptionRatePlan: 'workers_free',
+      workerSubscriptionState: 'Provisioned',
+      workersPaidSubscriptionPresent: false,
+    });
+  });
+
+  it('blocks a Workers Paid subscription identified only by rate plan id', async () => {
+    const paidIdFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/subscriptions')) {
+        return response([
+          {
+            state: 'Paid',
+            price: 5,
+            rate_plan: {
+              id: 'WORKERS_PAID',
+              externally_managed: false,
+              is_contract: false,
+              scope: 'user',
+              sets: null,
+            },
+          },
+        ]);
+      }
+      return freeFetcher(input);
+    };
+
+    await expect(verifyFreeBoundary(config, paidIdFetcher)).rejects.toThrow(
+      'Workers Paid subscription is enabled',
+    );
+  });
+
+  it('reports redacted classification when no Workers subscription matches', async () => {
+    const unrelatedOnlyFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/subscriptions')) {
+        return response([
+          {
+            id: 'subscription-record-id',
+            state: 'Provisioned',
+            price: 0,
+            rate_plan: {
+              id: 'unrelated-account-plan',
+              externally_managed: false,
+              is_contract: false,
+              scope: 'account',
+              sets: null,
+            },
+          },
+          {
+            id: 'other-subscription-record-id',
+            state: 'Paid',
+            price: 25,
+            rate_plan: {
+              id: 'business',
+              externally_managed: false,
+              is_contract: false,
+              scope: 'zone',
+              sets: ['zone'],
+            },
+          },
+          {
+            state: 'Provisioned',
+            price: 0,
+            rate_plan: {
+              id: 'workers_legacy',
+              externally_managed: false,
+              is_contract: false,
+              scope: 'user',
+            },
+          },
+        ]);
+      }
+      return freeFetcher(input);
+    };
+
+    const error = await verifyFreeBoundary(config, unrelatedOnlyFetcher).then(
+      () => null,
+      (thrown: unknown) => thrown,
+    );
+
+    if (!(error instanceof Error)) throw new Error('Expected a rejection');
+    expect(error.message).toBe(
+      'Workers subscription identity is missing or ambiguous (matched=0 total=3; ' +
+        'id=unrelated idMentionsWorkers=false scope=account sets=null state=unrelated zeroPrice=unrelated; ' +
+        'id=unrelated idMentionsWorkers=false scope=zone sets=array(1,workers=false) state=unrelated zeroPrice=unrelated; ' +
+        'id=unrelated idMentionsWorkers=true scope=user sets=absent state=unrelated zeroPrice=unrelated)',
+    );
+    expect(error.message).not.toContain('unrelated-account-plan');
+    expect(error.message).not.toContain('business');
+    expect(error.message).not.toContain('subscription-record-id');
+    expect(error.message).not.toContain('workers_legacy');
+    expect(error.message).not.toContain('other-account-plan');
+  });
+
+  it('reports redacted classification when the Workers subscription is ambiguous', async () => {
+    const ambiguousFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/subscriptions')) {
+        return response([
+          {
+            state: 'Provisioned',
+            price: 0,
+            rate_plan: {
+              id: 'workers_free',
+              externally_managed: false,
+              is_contract: false,
+              scope: 'user',
+              sets: null,
+            },
+          },
+          {
+            state: 'Paid',
+            price: 5,
+            rate_plan: {
+              id: 'workers_paid',
+              externally_managed: false,
+              is_contract: false,
+              scope: 'user',
+              sets: 'unexpected',
+            },
+          },
+        ]);
+      }
+      return freeFetcher(input);
+    };
+
+    await expect(verifyFreeBoundary(config, ambiguousFetcher)).rejects.toThrow(
+      'Workers subscription identity is missing or ambiguous (matched=2 total=2; ' +
+        'id=workers_free idMentionsWorkers=true scope=user sets=null state=Provisioned zeroPrice=true; ' +
+        'id=workers_paid idMentionsWorkers=true scope=user sets=string state=Paid zeroPrice=false)',
+    );
+  });
+
   it('blocks the Workers Paid Standard usage model', async () => {
     const paidFetcher = (input: string | URL | Request) => {
       const { pathname } = new URL(
