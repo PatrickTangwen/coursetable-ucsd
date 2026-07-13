@@ -20,43 +20,6 @@ function freeFetcher(input: string | URL | Request) {
   const { pathname } = new URL(
     typeof input === 'string' || input instanceof URL ? input : input.url,
   );
-  if (pathname.endsWith('/graphql')) {
-    return Promise.resolve(
-      Response.json({
-        data: {
-          viewer: {
-            accounts: [
-              {
-                workersInvocationsAdaptive: [
-                  { sum: { requests: 25 }, quantiles: { cpuTimeP99: 5 } },
-                ],
-                r2OperationsAdaptiveGroups: [
-                  {
-                    sum: { requests: 40 },
-                    dimensions: { actionType: 'PutObject' },
-                  },
-                  {
-                    sum: { requests: 60 },
-                    dimensions: { actionType: 'GetObject' },
-                  },
-                ],
-                r2StorageAdaptiveGroups: [
-                  {
-                    max: { payloadSize: 1000, metadataSize: 100 },
-                    dimensions: {
-                      bucketName: 'sungrid-staging-catalog',
-                      datetime: '2026-07-12T10:00:00Z',
-                    },
-                  },
-                ],
-                hyperdriveQueriesAdaptiveGroups: [{ count: 12 }],
-              },
-            ],
-          },
-        },
-      }),
-    );
-  }
   if (pathname.endsWith('/subscriptions')) {
     return response([
       {
@@ -84,13 +47,7 @@ function freeFetcher(input: string | URL | Request) {
     ]);
   }
   if (pathname.endsWith('/workers/account-settings'))
-    return response({ default_usage_model: 'bundled' });
-  if (pathname.endsWith('/workers/scripts/sungrid-staging/settings')) {
-    return response({
-      usage_model: 'bundled',
-      limits: { cpu_ms: 10, subrequests: 50 },
-    });
-  }
+    return response({ default_usage_model: 'standard' });
   if (pathname.endsWith('/workers/scripts/sungrid-staging/subdomain'))
     return response({ enabled: false, previews_enabled: false });
   if (pathname.endsWith('/workers/scripts'))
@@ -137,7 +94,7 @@ function freeFetcher(input: string | URL | Request) {
 }
 
 describe('Cloudflare Workers Free boundary', () => {
-  it('proves the non-Standard usage model and accepted provider settings', async () => {
+  it('proves the Workers Free identity and accepted provider settings', async () => {
     const subscriptionMethods: string[] = [];
     const recordingFetcher = (
       input: string | URL | Request,
@@ -155,7 +112,7 @@ describe('Cloudflare Workers Free boundary', () => {
     expect(evidence).toMatchObject({
       result: 'passed',
       plan: 'Workers Free',
-      workerUsageModel: 'bundled',
+      workerUsageModel: 'standard',
       subscriptionReadback: true,
       workerSubscriptionPresent: true,
       workerSubscriptionRatePlan: 'free',
@@ -163,8 +120,6 @@ describe('Cloudflare Workers Free boundary', () => {
       workerSubscriptionExternallyManaged: false,
       workerSubscriptionContract: false,
       workersPaidSubscriptionPresent: false,
-      deployedCpuMsPerInvocation: 10,
-      deployedExternalSubrequestsPerInvocation: 50,
       workersDevEnabled: false,
       previewUrlsEnabled: false,
       workerRoutes: [],
@@ -177,16 +132,6 @@ describe('Cloudflare Workers Free boundary', () => {
       r2PublishedObjectReadbacks: 29,
       hyperdriveCachingDisabled: true,
       hyperdriveOriginConnectionLimit: 20,
-      observedDailyUsage: {
-        workerRequests: 25,
-        workerCpuTimeP99Ms: 5,
-        r2ClassAOperations: 40,
-        r2ClassBOperations: 60,
-        r2FreeOperations: 0,
-        r2CurrentStoredBytes: 1100,
-        r2StorageGbMonth: 1100 / 1_000_000_000 / 30,
-        hyperdriveQueries: 12,
-      },
     });
     expect(evidence).not.toHaveProperty('automaticProviderUpgradeAuthorized');
     expect(subscriptionMethods).toEqual(['GET']);
@@ -531,18 +476,53 @@ describe('Cloudflare Workers Free boundary', () => {
     );
   });
 
-  it('blocks the Workers Paid Standard usage model', async () => {
-    const paidFetcher = (input: string | URL | Request) => {
+  it('accepts the legacy bundled account usage model', async () => {
+    const bundledFetcher = (input: string | URL | Request) => {
       const { pathname } = new URL(
         typeof input === 'string' || input instanceof URL ? input : input.url,
       );
       if (pathname.endsWith('/workers/account-settings'))
-        return response({ default_usage_model: 'standard' });
+        return response({ default_usage_model: 'bundled' });
       return freeFetcher(input);
     };
 
-    await expect(verifyFreeBoundary(config, paidFetcher)).rejects.toThrow(
-      'Workers Paid Standard usage model is enabled',
+    const evidence = await verifyFreeBoundary(config, bundledFetcher);
+
+    expect(evidence).toMatchObject({
+      result: 'passed',
+      workerUsageModel: 'bundled',
+    });
+  });
+
+  it('blocks the legacy Workers Unbound paid usage model', async () => {
+    const unboundFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/workers/account-settings'))
+        return response({ default_usage_model: 'unbound' });
+      return freeFetcher(input);
+    };
+
+    await expect(verifyFreeBoundary(config, unboundFetcher)).rejects.toThrow(
+      'Workers Unbound paid usage model is enabled',
+    );
+  });
+
+  it('fails closed on an unknown account usage model with the observed value', async () => {
+    const unknownModelFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/workers/account-settings'))
+        return response({ default_usage_model: 'quantum' });
+      return freeFetcher(input);
+    };
+
+    await expect(
+      verifyFreeBoundary(config, unknownModelFetcher),
+    ).rejects.toThrow(
+      'Unexpected Cloudflare Worker usage model (observed=quantum)',
     );
   });
 

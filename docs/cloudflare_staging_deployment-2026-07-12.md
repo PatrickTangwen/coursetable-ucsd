@@ -65,11 +65,12 @@ The protected job performs these stages in order:
    shorter abort timeout, and the retry delays count toward the total deadline;
    HTTP application failures are never retried or hidden.
 7. Read Cloudflare state back through the protected deployment token. The
-   workflow fails closed unless that token can read account subscriptions and
-   Analytics; this requires the minimal additional `Billing Read` and
-   `Account Analytics Read` permissions, never Billing Write. It rejects an
-   active Workers Paid subscription even when a paid account retains the
-   legacy Bundled usage model. A Workers subscription is identified by
+   workflow fails closed unless that token can read account subscriptions;
+   this requires the minimal additional `Billing Read` permission, never
+   Billing Write (the previously required `Account Analytics Read` is no
+   longer used by the gate and may be dropped from the token). It rejects an
+   active Workers Paid subscription regardless of the account's configured
+   usage model. A Workers subscription is identified by
    `rate_plan.scope=workers`, a documented Workers rate-plan id
    (`workers_free`, `workers_paid`, or `PARTNERS_WORKERS_*`,
    case-insensitive), or a `rate_plan.sets` entry of `workers`. Workers Free
@@ -85,20 +86,24 @@ The protected job performs these stages in order:
    match counts, scope, sets shape, a derived workers-like flag computed by
    the same guard predicate, and the rate-plan id/state/zero-price of
    entries the classifier itself identifies as Workers subscriptions — never
-   raw payloads, prices, or unclassified plan identities. Subscription readback uses GET only. These observed fields replace the earlier
-   unsupported hardcoded auto-upgrade assertion. It also reads the deployed
-   script settings back and requires the exact 10 ms CPU and 50-subrequest
-   limits, records the UTC day's real Worker request/CPU and Hyperdrive query
-   metrics, and reads account-wide R2 month-to-date storage and operations.
-   Storage samples are
-   reduced to each bucket's daily peak and integrated using Cloudflare's
-   decimal-GB, 30-day GB-month definition. R2 actions are classified exactly
-   as documented into Class A, Class B, and free operations; unknown actions
-   fail closed. The gate also rejects Infrequent
-   Access objects, proves Worker development and preview URLs are off, keeps
-   account Cron Triggers within five, and proves Hyperdrive caching is disabled
-   with an explicitly reported Free connection limit. Missing provider fields
-   are verification failures rather than synthesized zero/default evidence.
+   raw payloads, prices, or unclassified plan identities. Subscription
+   readback uses GET only. These observed fields replace the earlier
+   unsupported hardcoded auto-upgrade assertion. The account default usage
+   model must read back as `standard` (Cloudflare's current pricing model
+   for every plan, observed on the proven subscription-free account by run
+   29222442338, so not a paid signal by itself) or the legacy Free-era
+   `bundled`; the legacy paid `unbound` model, or an unknown value, fails
+   closed with the observed value in the error. The Workers Free
+   10 ms CPU / 50-subrequest / 100k-requests-per-day caps are enforced by
+   the plan itself and mirrored to the Worker as application budget
+   variables, so the gate no longer reads per-script settings or Analytics
+   usage back (the earlier per-script limits and GraphQL usage readbacks
+   assumed provider surfaces that do not exist for plan-enforced caps). The
+   gate also rejects R2 Infrequent Access objects, proves Worker development
+   and preview URLs are off, keeps account Cron Triggers within five, and
+   proves Hyperdrive caching is disabled with an explicitly reported Free
+   connection limit. Missing provider fields are verification failures
+   rather than synthesized zero/default evidence.
 8. Persist a non-sensitive, digest-verified deployment record containing the
    Git commit, Worker version, frontend build identity, App DB schema version,
    active Published Snapshot and archive digests, timestamp, Workers Free
