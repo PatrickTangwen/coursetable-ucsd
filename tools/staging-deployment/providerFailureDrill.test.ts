@@ -59,17 +59,25 @@ describe('hosted provider failure drill', () => {
   });
 
   it('waits for the temporary Upstash failure version without sending email', async () => {
-    const requests: string[] = [];
+    const requests: { method: string; pathname: string; body: unknown }[] = [];
     const delays: number[] = [];
     const responses = [
-      Response.json({ authenticated: false }, { status: 200 }),
-      Response.json({ error: 'AUTH_UNAVAILABLE' }, { status: 503 }),
+      Response.json({ error: 'INVALID_VERIFICATION_CODE' }, { status: 400 }),
+      Response.json(
+        { error: 'VERIFICATION_REQUEST_UNAVAILABLE' },
+        { status: 503 },
+      ),
     ];
 
     await waitForUpstashFailureDrillConvergence(
       'https://staging.sungridplanner.com',
-      (input) => {
-        requests.push(new URL(new Request(input).url).pathname);
+      async (input, init) => {
+        const request = new Request(input, init);
+        requests.push({
+          method: request.method,
+          pathname: new URL(request.url).pathname,
+          body: await request.json(),
+        });
         return Promise.resolve(responses.shift()!);
       },
       {
@@ -82,10 +90,25 @@ describe('hosted provider failure drill', () => {
       },
     );
 
-    expect(requests).toEqual([
-      '/api/auth/current-user',
-      '/api/auth/current-user',
-    ]);
+    expect(requests).toHaveLength(2);
+    expect(requests).toEqual(
+      requests.map(({ body }) => ({
+        method: 'POST',
+        pathname: '/api/auth/ucsd/verify',
+        body,
+      })),
+    );
+    expect(
+      requests.map(({ body }) => (body as { email: string }).email),
+    ).toHaveLength(
+      new Set(requests.map(({ body }) => (body as { email: string }).email))
+        .size,
+    );
+    expect(
+      requests.every(
+        ({ body }) => (body as { code: string }).code === '000000',
+      ),
+    ).toBe(true);
     expect(delays).toEqual([25]);
   });
 

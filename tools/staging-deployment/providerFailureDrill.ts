@@ -64,14 +64,27 @@ export async function waitForUpstashFailureDrillConvergence(
       }));
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
-    const response = await fetcher(`${origin}/api/auth/current-user`);
+    const response = await fetcher(`${origin}/api/auth/ucsd/verify`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        email: `failure-drill-convergence-${crypto.randomUUID()}@${[
+          'ucsd',
+          'edu',
+        ].join('.')}`,
+        code: '000000',
+      }),
+    });
     const body = (await response.json()) as {
-      authenticated?: unknown;
       error?: unknown;
     };
-    if (response.status === 503 && body.error === 'AUTH_UNAVAILABLE') return;
+    if (
+      response.status === 503 &&
+      body.error === 'VERIFICATION_REQUEST_UNAVAILABLE'
+    )
+      return;
     const stillAccepted =
-      response.status === 200 && body.authenticated === false;
+      response.status === 400 && body.error === 'INVALID_VERIFICATION_CODE';
     if (!stillAccepted)
       throw new Error('Unexpected Upstash failure-drill convergence response');
     if (attempt < attempts) await sleep(delayMs);
