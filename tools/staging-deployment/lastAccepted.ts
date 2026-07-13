@@ -57,6 +57,16 @@ export function acceptedWorkerVersion(body: Uint8Array) {
   return worker.versionId;
 }
 
+export function acceptedGitCommit(body: Uint8Array) {
+  const evidence = parseLastAccepted(body);
+  if (
+    typeof evidence.gitCommit !== 'string' ||
+    !/^[a-f\d]{40}$/u.test(evidence.gitCommit)
+  )
+    throw new Error('Last-accepted Git commit is missing');
+  return evidence.gitCommit;
+}
+
 export async function putAndVerify(
   store: TermArchiveStore,
   key: string,

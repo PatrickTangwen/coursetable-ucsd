@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 
+import type { AppDatabaseBackupStage } from './failureEvidence.js';
 import { readAppDatabaseSchemaVersionAtUrl } from '../../drizzle/migrationRunner.js';
 
 const execFileAsync = promisify(execFile);
@@ -11,16 +12,20 @@ const execFileAsync = promisify(execFile);
 export interface SchemaConsistentDumpSource {
   schemaDatabaseUrl: string;
   dumpDatabaseUrl: string;
+  recordStage?: (stage: AppDatabaseBackupStage) => void;
 }
 
 export async function createSchemaConsistentDump(
   source: SchemaConsistentDumpSource,
   destination: string,
 ) {
+  source.recordStage?.('read-schema-before-dump');
   const schemaVersionBeforeDump = await readAppDatabaseSchemaVersionAtUrl(
     source.schemaDatabaseUrl,
   );
+  source.recordStage?.('create-custom-dump');
   await createPostgresCustomDump(source.dumpDatabaseUrl, destination);
+  source.recordStage?.('read-schema-after-dump');
   const schemaVersion = await readAppDatabaseSchemaVersionAtUrl(
     source.schemaDatabaseUrl,
   );

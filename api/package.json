@@ -10,6 +10,7 @@
     "db:generate": "DB_URL=postgresql://migration-generation.invalid/app drizzle-kit generate:pg",
     "db:migrate": "tsx drizzle/migrate.ts",
     "db:migrate:hosted": "tsx drizzle/migrate.hosted.ts",
+    "app-db:backup:prepare-role": "tsx src/appDatabaseBackup/backupRole.command.ts",
     "app-db:backup": "tsx src/appDatabaseBackup/backup.command.ts",
     "app-db:restore:verify": "tsx src/appDatabaseBackup/restore.command.ts",
     "app-db:recovery:test": "tsx src/appDatabaseBackup/localRecovery.command.ts",

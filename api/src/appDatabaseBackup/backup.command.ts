@@ -24,9 +24,14 @@ try {
   runtime = createHostedR2BackupRuntime(process.env);
   directory = await mkdtemp(path.join(os.tmpdir(), 'sungrid-app-db-backup-'));
   const dumpPath = path.join(directory, 'app-db.dump');
-  stage = 'create-dump';
   const schemaVersion = await createSchemaConsistentDump(
-    { schemaDatabaseUrl: databaseUrl, dumpDatabaseUrl: databaseUrl },
+    {
+      schemaDatabaseUrl: databaseUrl,
+      dumpDatabaseUrl: databaseUrl,
+      recordStage(nextStage) {
+        stage = nextStage;
+      },
+    },
     dumpPath,
   );
   stage = 'publish-backup';

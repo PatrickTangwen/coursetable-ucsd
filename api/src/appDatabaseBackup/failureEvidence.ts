@@ -1,6 +1,8 @@
 export const appDatabaseBackupStages = [
   'initialize',
-  'create-dump',
+  'read-schema-before-dump',
+  'create-custom-dump',
+  'read-schema-after-dump',
   'publish-backup',
 ] as const;
 

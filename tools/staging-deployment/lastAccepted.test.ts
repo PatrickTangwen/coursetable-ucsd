@@ -4,6 +4,7 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import {
+  acceptedGitCommit,
   acceptedWorkerVersion,
   lastAcceptedExistsFilename,
   lastAcceptedFilename,
@@ -23,6 +24,17 @@ describe('last accepted deployment', () => {
     );
 
     expect(acceptedWorkerVersion(body)).toBe('accepted-version');
+  });
+
+  it('selects the durable accepted Git commit', () => {
+    const body = encoder.encode(
+      JSON.stringify({
+        result: 'accepted',
+        gitCommit: 'a'.repeat(40),
+      }),
+    );
+
+    expect(acceptedGitCommit(body)).toBe('a'.repeat(40));
   });
 
   it('verifies a remotely persisted evidence pointer by digest', async () => {

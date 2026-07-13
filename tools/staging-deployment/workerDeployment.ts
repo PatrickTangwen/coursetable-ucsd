@@ -1,4 +1,10 @@
+import { execFile } from 'node:child_process';
+import path from 'node:path';
+import { promisify } from 'node:util';
+
 import { isObject, stagingContract } from './stagingContract.js';
+
+const execFileAsync = promisify(execFile);
 
 type Fetcher = (
   input: string | URL | Request,
@@ -59,6 +65,54 @@ export function assertFirstDeploymentRecoveryAllowed(
   if (!active.exists) return;
   if (!active.versionId || active.versionId !== expectedVersion)
     throw new Error('Unaccepted Worker version changed before recovery');
+}
+
+export async function restoreWorkerVersion(config: {
+  acceptedVersion: string;
+  environment: NodeJS.ProcessEnv;
+  root: string;
+  worker: string;
+}) {
+  if (!config.acceptedVersion || config.worker !== stagingContract.worker)
+    throw new Error('Unexpected Worker restoration identity');
+  const wrangler = path.join(config.root, 'node_modules/.bin/wrangler');
+  const readActive = async () => {
+    const status = await execFileAsync(
+      wrangler,
+      ['deployments', 'status', '--json', '--name', config.worker],
+      {
+        cwd: config.root,
+        env: config.environment,
+        timeout: 30_000,
+      },
+    );
+    return deploymentIdentity(JSON.parse(status.stdout));
+  };
+  let current = await readActive();
+  const changed = current.versionId !== config.acceptedVersion;
+  if (changed) {
+    await execFileAsync(
+      wrangler,
+      [
+        'rollback',
+        config.acceptedVersion,
+        '--yes',
+        '--name',
+        config.worker,
+        '--message',
+        'restore accepted staging Worker',
+      ],
+      {
+        cwd: config.root,
+        env: config.environment,
+        timeout: 30_000,
+      },
+    );
+    current = await readActive();
+  }
+  if (current.versionId !== config.acceptedVersion)
+    throw new Error('Accepted Worker restoration verification failed');
+  return { changed };
 }
 
 export async function deleteWorkerScript(

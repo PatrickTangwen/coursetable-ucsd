@@ -160,3 +160,21 @@ revision. This revision closes them while preserving the original boundaries:
   Unknown or changed scripts fail explicitly instead of selecting behavior by
   `includes(...)` checks or key-count heuristics, so test-model drift cannot
   silently produce acceptance evidence.
+
+## Protected provider-failure drills (2026-07-13)
+
+Issue #85 adds a protected, manually dispatched Staging workflow for the two
+provider failures that can be exercised with reversible credentials: Resend
+and Upstash. The workflow proves the selected commit is reachable from
+`main`, captures the accepted Worker, deploys a temporary version with only
+the selected provider credential invalidated, checks the public failed-closed
+response and Catalog isolation, and restores the accepted Worker in an
+exit/signal trap before running the hosted smoke again. Deploy, exercise, and
+restore share the one approved Staging job; every network command has a shorter
+deadline than the step and job, so recovery does not wait behind a second
+environment approval. It never prints the synthetic address or any credential
+value. The rollback runs before any unrelated Catalog restoration, so an R2
+restoration failure cannot strand the temporary Worker. Neon and R2 remain
+required but incomplete: safely exercising them needs dedicated disposable
+provider resources rather than mutation of the shared Staging connection or
+bucket.
