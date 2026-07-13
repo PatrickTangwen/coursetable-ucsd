@@ -32,8 +32,9 @@ const runHostedMigrationCommand = async (directDatabaseUrl?: string) => {
     DB_URL: 'postgresql://runtime.invalid/app',
   };
   if (directDatabaseUrl)
-    environment.NEON_DIRECT_DATABASE_URL = directDatabaseUrl;
-  else delete environment.NEON_DIRECT_DATABASE_URL;
+    environment.NEON_MIGRATION_DATABASE_URL = directDatabaseUrl;
+  else delete environment.NEON_MIGRATION_DATABASE_URL;
+  delete environment.NEON_DIRECT_DATABASE_URL;
 
   try {
     const { stdout } = await execFileAsync(
@@ -68,7 +69,7 @@ describe('App DB migration command', () => {
 
     expect(result.exitCode).not.toBe(0);
     expect(result.stderr).toContain(
-      'env config missing: NEON_DIRECT_DATABASE_URL',
+      'env config missing: NEON_MIGRATION_DATABASE_URL',
     );
   });
 

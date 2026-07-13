@@ -1,0 +1,134 @@
+# Cloudflare staging deployment workflow (2026-07-12)
+
+Status: repository implementation for issue #117. The workflow is intentionally
+manual and cannot run until this file is reachable from the default branch. This
+document does not report a hosted deployment or authorize production changes.
+
+## Trigger and trust boundary
+
+`.github/workflows/cloudflare-staging-deploy.yml` exposes only
+`workflow_dispatch`. The maintainer must select the `staging` target and a full
+commit SHA. A credential-free preflight checks out that commit, fetches
+`origin/main`, proves the selected commit is reachable from `main`, runs the
+repository checks, the failure-safety and Worker Catalog validators, and the
+disposable App DB migration compatibility proof. A failed preflight enters a
+separate protected reporting job so the summary still identifies the durable
+last accepted deployment without exposing R2 credentials to preflight.
+
+The deployment job runs only when the workflow itself was dispatched from
+`main`. It targets the protected GitHub `Staging` Environment, so its provider
+and runtime secrets remain unavailable until the configured maintainer review
+has completed. Pull-request jobs never receive these secrets.
+
+## Ordered deployment
+
+The protected job performs these stages in order:
+
+1. Read the durable last-accepted record from private R2, capture the current
+   100-percent-traffic Worker version, and refuse to mutate staging if those
+   versions differ. Before the first accepted deployment, an already-existing
+   Worker is likewise treated as unaccepted drift.
+2. Apply forward-only Drizzle migrations through the dedicated
+   `NEON_MIGRATION_DATABASE_URL`. App DB backup continues to use the separate
+   `NEON_DIRECT_DATABASE_URL`.
+3. Merge the durable R2 Term Archive registry with every paired, validated
+   repository Published Snapshot and Import Manifest. R2-only terms remain in
+   the registry as Frozen Snapshots; already-frozen entries retain their exact
+   object paths and generation timestamps and are never regenerated. Upload
+   new content-addressed objects to private Standard R2, read every current and
+   preserved object back, verify its SHA-256 digest, and switch `metadata.json`
+   only after all objects pass.
+4. Generate the staging-only Wrangler configuration from protected
+   non-sensitive inputs, build the frontend, enforce the 20,000-static-asset
+   Free limit, and perform a strict dry run.
+5. Deploy the Worker, static assets, custom domain, bindings, and runtime
+   secrets in one Wrangler deployment. `workers.dev` and preview URLs remain
+   disabled; the only configured public ingress is
+   `staging.sungridplanner.com`. Acceptance reads both account Custom Domains
+   and the staging script's account-level route inventory, which aggregates
+   Workers Routes across zones, and rejects any route targeting the staging
+   Worker.
+6. Repeat public Catalog and unauthenticated auth/Session/account-route smokes
+   at least three times. The smoke fails on unexpected status, provider-default
+   URLs, or Cloudflare CPU/resource-limit responses and never creates or
+   bypasses a Verified UCSD Email identity.
+7. Read Cloudflare state back through the protected deployment token. The
+   workflow fails closed unless that token can read account subscriptions and
+   Analytics; this requires the minimal additional `Billing Read` and
+   `Account Analytics Read` permissions, never Billing Write. It rejects an
+   active Workers Paid subscription even when a paid account retains the
+   legacy Bundled usage model. The Free subscription must also report zero
+   price, `externally_managed=false`, and `is_contract=false`; subscription
+   readback uses GET only. These observed fields replace the earlier
+   unsupported hardcoded auto-upgrade assertion. It also reads the deployed
+   script settings back and requires the exact 10 ms CPU and 50-subrequest
+   limits, records the UTC day's real Worker request/CPU and Hyperdrive query
+   metrics, and reads account-wide R2 month-to-date storage and operations.
+   Storage samples are
+   reduced to each bucket's daily peak and integrated using Cloudflare's
+   decimal-GB, 30-day GB-month definition. R2 actions are classified exactly
+   as documented into Class A, Class B, and free operations; unknown actions
+   fail closed. The gate also rejects Infrequent
+   Access objects, proves Worker development and preview URLs are off, keeps
+   account Cron Triggers within five, and proves Hyperdrive caching is disabled
+   with an explicitly reported Free connection limit. Missing provider fields
+   are verification failures rather than synthesized zero/default evidence.
+8. Persist a non-sensitive, digest-verified deployment record containing the
+   Git commit, Worker version, frontend build identity, App DB schema version,
+   active Published Snapshot and archive digests, timestamp, Workers Free
+   identity, limit evidence, and smoke evidence. The accepted record becomes
+   `deployment-evidence/last-accepted.json` in private Catalog R2.
+
+## Safe failure and rollback
+
+Checks and migration failures stop before public deployment. Content-addressed
+R2 objects may remain after an interrupted publication, but they are not
+current until the metadata pointer changes. A later failure restores the prior
+metadata pointer and verifies it by digest.
+
+If a durable prior accepted Worker version existed, failure after a deployment
+attempt rolls traffic back to that exact version and verifies it is again
+receiving 100 percent. It never treats arbitrary pre-run drift as accepted. If
+the first Worker deployment fails, the workflow deletes that first Worker so
+no unaccepted Custom Domain or provider-default surface remains. Term Archive
+metadata and the deployment-evidence pointer are restored independently when
+their updates were attempted. The new evidence object is written locally and
+to its immutable timestamped key first; `last-accepted.json` is the final
+digest-verified acceptance step. The final job summary reports the last
+accepted deployment, or `none` before the first acceptance.
+
+## Remaining human acceptance
+
+Issue #85 owns real UCSD mailbox delivery, code verification, fixed Session
+restore/logout, Saved Search and Saved Worksheet ownership, provider failure
+drills, backup restore, and the forty-eight-hour observation window. The #117
+automated smoke deliberately does not manufacture a verified account to claim
+that evidence.
+
+`APP_DB_BACKUP_ENABLED=false` remains required until migration, the first
+accepted deployment, and the restore verification are all accepted. The #117
+workflow asserts the protected repository variable is exactly `false` before
+migration; it neither changes that variable nor creates or mutates production
+resources.
+
+The human-provisioning handoff did not originally record Billing Read or Account
+Analytics Read. Before this PR's merge, the maintainer confirmed both read-only
+permissions were added to the existing deployment token without Billing Edit.
+The Free-plan gate still fails closed if either readback is unavailable. This
+workflow cannot change token permissions or mutate a subscription.
+
+## Historical documentation boundaries
+
+This dated implementation supersedes two operational statements but preserves
+their source documents as historical records:
+
+- `docs/worker_login.md` lines 41-45 describe hosted deployment migrations with
+  `NEON_DIRECT_DATABASE_URL`. That statement is outdated for #117; the current
+  deployment-only secret is `NEON_MIGRATION_DATABASE_URL`, while backup and
+  recovery retain `NEON_DIRECT_DATABASE_URL`. The older document requires a
+  separate review before any broader cleanup.
+- `docs/hosted_failure_cost_safety-2026-07-12.md` lines 75-78 record a Workers
+  Paid allowance of 10,000,000 monthly requests. That is historical #116
+  context and is superseded for staging by issue #84's human-provisioned
+  Workers Free boundary and this workflow's 100,000-request daily contract.
+  The #116 document requires separate review rather than silent rewriting.

@@ -1,0 +1,323 @@
+import { describe, expect, it } from 'vitest';
+
+import { verifyFreeBoundary } from './verifyFreeBoundary.js';
+
+const config = {
+  accountId: 'account-id',
+  apiToken: 'redacted-token',
+  bucket: 'sungrid-staging-catalog',
+  hostname: 'staging.sungridplanner.com',
+  hyperdriveId: '1234567890abcdef1234567890abcdef',
+  publishedObjectReadbacks: 29,
+  worker: 'sungrid-staging',
+};
+
+function response(result: unknown) {
+  return Promise.resolve(Response.json({ success: true, result }));
+}
+
+function freeFetcher(input: string | URL | Request) {
+  const { pathname } = new URL(
+    typeof input === 'string' || input instanceof URL ? input : input.url,
+  );
+  if (pathname.endsWith('/graphql')) {
+    return Promise.resolve(
+      Response.json({
+        data: {
+          viewer: {
+            accounts: [
+              {
+                workersInvocationsAdaptive: [
+                  { sum: { requests: 25 }, quantiles: { cpuTimeP99: 5 } },
+                ],
+                r2OperationsAdaptiveGroups: [
+                  {
+                    sum: { requests: 40 },
+                    dimensions: { actionType: 'PutObject' },
+                  },
+                  {
+                    sum: { requests: 60 },
+                    dimensions: { actionType: 'GetObject' },
+                  },
+                ],
+                r2StorageAdaptiveGroups: [
+                  {
+                    max: { payloadSize: 1000, metadataSize: 100 },
+                    dimensions: {
+                      bucketName: 'sungrid-staging-catalog',
+                      datetime: '2026-07-12T10:00:00Z',
+                    },
+                  },
+                ],
+                hyperdriveQueriesAdaptiveGroups: [{ count: 12 }],
+              },
+            ],
+          },
+        },
+      }),
+    );
+  }
+  if (pathname.endsWith('/subscriptions')) {
+    return response([
+      {
+        state: 'Provisioned',
+        price: 0,
+        rate_plan: {
+          id: 'free',
+          externally_managed: false,
+          is_contract: false,
+          scope: 'workers',
+          sets: ['workers'],
+        },
+      },
+    ]);
+  }
+  if (pathname.endsWith('/workers/account-settings'))
+    return response({ default_usage_model: 'bundled' });
+  if (pathname.endsWith('/workers/scripts/sungrid-staging/settings')) {
+    return response({
+      usage_model: 'bundled',
+      limits: { cpu_ms: 10, subrequests: 50 },
+    });
+  }
+  if (pathname.endsWith('/workers/scripts/sungrid-staging/subdomain'))
+    return response({ enabled: false, previews_enabled: false });
+  if (pathname.endsWith('/workers/scripts'))
+    return response([{ id: 'sungrid-staging', routes: [] }]);
+  if (pathname.endsWith('/workers/scripts/sungrid-staging/schedules'))
+    return response([{ cron: '0 8 * * *' }]);
+  if (pathname.endsWith('/workers/domains')) {
+    return response([
+      {
+        hostname: 'staging.sungridplanner.com',
+        service: 'sungrid-staging',
+      },
+    ]);
+  }
+  if (pathname.endsWith('/r2/buckets/sungrid-staging-catalog')) {
+    return response({
+      name: 'sungrid-staging-catalog',
+      storage_class: 'Standard',
+    });
+  }
+  if (pathname.endsWith('/r2/metrics')) {
+    return response({
+      standard: {
+        published: { metadataSize: 100, objects: 30, payloadSize: 1000 },
+        uploaded: { metadataSize: 100, objects: 30, payloadSize: 1000 },
+      },
+      infrequentAccess: {
+        published: { metadataSize: 0, objects: 0, payloadSize: 0 },
+        uploaded: { metadataSize: 0, objects: 0, payloadSize: 0 },
+      },
+    });
+  }
+  if (pathname.endsWith('/domains/managed'))
+    return response({ enabled: false });
+  if (pathname.endsWith('/domains/custom')) return response({ domains: [] });
+  if (pathname.includes('/hyperdrive/configs/')) {
+    return response({
+      id: config.hyperdriveId,
+      caching: { disabled: true },
+      origin_connection_limit: 20,
+    });
+  }
+  throw new Error(`Unexpected Cloudflare API path: ${pathname}`);
+}
+
+describe('Cloudflare Workers Free boundary', () => {
+  it('proves the non-Standard usage model and accepted provider settings', async () => {
+    const subscriptionMethods: string[] = [];
+    const recordingFetcher = (
+      input: string | URL | Request,
+      init?: RequestInit,
+    ) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/subscriptions'))
+        subscriptionMethods.push(init?.method ?? 'GET');
+      return freeFetcher(input);
+    };
+    const evidence = await verifyFreeBoundary(config, recordingFetcher);
+
+    expect(evidence).toMatchObject({
+      result: 'passed',
+      plan: 'Workers Free',
+      workerUsageModel: 'bundled',
+      subscriptionReadback: true,
+      workerSubscriptionRatePlan: 'free',
+      workerSubscriptionState: 'Provisioned',
+      workerSubscriptionExternallyManaged: false,
+      workerSubscriptionContract: false,
+      workersPaidSubscriptionPresent: false,
+      deployedCpuMsPerInvocation: 10,
+      deployedExternalSubrequestsPerInvocation: 50,
+      workersDevEnabled: false,
+      previewUrlsEnabled: false,
+      workerRoutes: [],
+      accountCronTriggers: 1,
+      r2StorageClass: 'Standard',
+      r2DevEnabled: false,
+      r2CustomDomains: 0,
+      r2ObservedStandardObjects: 30,
+      r2ObservedInfrequentAccessObjects: 0,
+      r2PublishedObjectReadbacks: 29,
+      hyperdriveCachingDisabled: true,
+      hyperdriveOriginConnectionLimit: 20,
+      observedDailyUsage: {
+        workerRequests: 25,
+        workerCpuTimeP99Ms: 5,
+        r2ClassAOperations: 40,
+        r2ClassBOperations: 60,
+        r2FreeOperations: 0,
+        r2CurrentStoredBytes: 1100,
+        r2StorageGbMonth: 1100 / 1_000_000_000 / 30,
+        hyperdriveQueries: 12,
+      },
+    });
+    expect(evidence).not.toHaveProperty('automaticProviderUpgradeAuthorized');
+    expect(subscriptionMethods).toEqual(['GET']);
+  });
+
+  it('blocks the Workers Paid Standard usage model', async () => {
+    const paidFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/workers/account-settings'))
+        return response({ default_usage_model: 'standard' });
+      return freeFetcher(input);
+    };
+
+    await expect(verifyFreeBoundary(config, paidFetcher)).rejects.toThrow(
+      'Workers Paid Standard usage model is enabled',
+    );
+  });
+
+  it('blocks a legacy Bundled Worker when a paid subscription exists', async () => {
+    const paidFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/subscriptions')) {
+        return response([
+          {
+            state: 'Paid',
+            price: 5,
+            rate_plan: {
+              id: 'pro',
+              externally_managed: false,
+              is_contract: false,
+              scope: 'workers',
+              sets: ['workers'],
+            },
+          },
+        ]);
+      }
+      return freeFetcher(input);
+    };
+
+    await expect(verifyFreeBoundary(config, paidFetcher)).rejects.toThrow(
+      'Workers Paid subscription is enabled',
+    );
+  });
+
+  it('blocks a Workers plan managed by an external subscription authority', async () => {
+    const externallyManagedFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/subscriptions')) {
+        return response([
+          {
+            state: 'Provisioned',
+            price: 0,
+            rate_plan: {
+              id: 'free',
+              externally_managed: true,
+              is_contract: false,
+              scope: 'workers',
+              sets: ['workers'],
+            },
+          },
+        ]);
+      }
+      return freeFetcher(input);
+    };
+
+    await expect(
+      verifyFreeBoundary(config, externallyManagedFetcher),
+    ).rejects.toThrow('Workers plan has an external upgrade authority');
+  });
+
+  it('blocks a Workers plan governed by a contract', async () => {
+    const contractFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/subscriptions')) {
+        return response([
+          {
+            state: 'Provisioned',
+            price: 0,
+            rate_plan: {
+              id: 'free',
+              externally_managed: false,
+              is_contract: true,
+              scope: 'workers',
+              sets: ['workers'],
+            },
+          },
+        ]);
+      }
+      return freeFetcher(input);
+    };
+
+    await expect(verifyFreeBoundary(config, contractFetcher)).rejects.toThrow(
+      'Workers plan has a contract upgrade authority',
+    );
+  });
+
+  it('blocks an account-level Worker route from any zone', async () => {
+    const routedFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/workers/scripts')) {
+        return response([
+          {
+            id: 'sungrid-staging',
+            routes: [
+              {
+                id: 'route-in-another-zone',
+                pattern: 'other-zone.example/*',
+                script: 'sungrid-staging',
+              },
+            ],
+          },
+        ]);
+      }
+      return freeFetcher(input);
+    };
+
+    await expect(verifyFreeBoundary(config, routedFetcher)).rejects.toThrow(
+      'Unexpected public Worker route',
+    );
+  });
+
+  it('fails closed when the account route inventory is missing', async () => {
+    const missingRoutesFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/workers/scripts'))
+        return response([{ id: 'sungrid-staging' }]);
+      return freeFetcher(input);
+    };
+
+    await expect(
+      verifyFreeBoundary(config, missingRoutesFetcher),
+    ).rejects.toThrow('Worker route inventory is missing');
+  });
+});
