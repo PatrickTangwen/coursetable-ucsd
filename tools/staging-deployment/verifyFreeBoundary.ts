@@ -15,6 +15,18 @@ type Fetcher = (
   init?: RequestInit,
 ) => Promise<Response>;
 
+// Workers rate-plan identities documented by Cloudflare: the Tenant
+// "Available subscriptions" reference lists WORKERS_PAID and the
+// PARTNERS_WORKERS_* plans; workers_free is the zero-price Workers plan.
+const workerRatePlanIds = new Set([
+  'workers_free',
+  'workers_paid',
+  'partners_workers_basic',
+  'partners_workers_ent',
+  'partners_workers_ss',
+]);
+const freeWorkerRatePlanIds = new Set(['free', 'workers_free']);
+
 export async function verifyFreeBoundary(
   config: Config,
   fetcher: Fetcher = fetch,
@@ -34,12 +46,16 @@ export async function verifyFreeBoundary(
 
   const subscriptions = arrayResult(await api('/subscriptions'));
   const workerSubscriptions = subscriptions.filter(isWorkerSubscription);
-  if (workerSubscriptions.length !== 1)
-    throw new Error('Workers subscription identity is missing or ambiguous');
+  if (workerSubscriptions.length !== 1) {
+    throw new Error(
+      'Workers subscription identity is missing or ambiguous ' +
+        `(${classifySubscriptions(subscriptions, workerSubscriptions.length)})`,
+    );
+  }
   const [workerSubscription] = workerSubscriptions;
   const workerRatePlan = object(workerSubscription!.rate_plan);
   if (
-    workerRatePlan.id !== 'free' ||
+    !freeWorkerRatePlanIds.has(ratePlanId(workerRatePlan) ?? '') ||
     workerSubscription!.price !== 0 ||
     !['Provisioned', 'Paid'].includes(String(workerSubscription!.state))
   )
@@ -264,12 +280,54 @@ function observedObjects(value: unknown) {
   return Math.max(...counts);
 }
 
+function ratePlanId(plan: { [key: string]: unknown }) {
+  return typeof plan.id === 'string' ? plan.id.toLowerCase() : null;
+}
+
 function isWorkerSubscription(subscription: { [key: string]: unknown }) {
   const { rate_plan: ratePlan } = subscription;
   const plan = object(ratePlan);
   if (plan.scope === 'workers') return true;
+  if (workerRatePlanIds.has(ratePlanId(plan) ?? '')) return true;
   if (plan.sets === undefined || plan.sets === null) return false;
   return arrayValue(plan.sets).includes('workers');
+}
+
+// Redacted classification for the fail-closed identity error: only derived
+// shapes plus the rate-plan id/state/zero-price of entries the classifier
+// itself identifies as Workers subscriptions — the same entries whose
+// rate-plan id and state the deployment evidence contract publishes.
+// Unclassified plan ids, states, prices, and record ids are never echoed;
+// a near-miss id is reported only as the derived idMentionsWorkers flag.
+function classifySubscriptions(
+  subscriptions: { [key: string]: unknown }[],
+  matched: number,
+) {
+  const entries = subscriptions.map((subscription) => {
+    const plan = object(subscription.rate_plan);
+    const classified = isWorkerSubscription(subscription);
+    const id = ratePlanId(plan);
+    const { sets, scope } = plan;
+    const setsShape =
+      sets === undefined
+        ? 'absent'
+        : sets === null
+          ? 'null'
+          : Array.isArray(sets)
+            ? `array(${sets.length},workers=${String(sets.includes('workers'))})`
+            : typeof sets;
+    return [
+      `id=${classified ? String(id) : 'unrelated'}`,
+      `idMentionsWorkers=${String(id !== null && id.includes('workers'))}`,
+      `scope=${typeof scope === 'string' ? scope : typeof scope}`,
+      `sets=${setsShape}`,
+      `state=${classified ? String(subscription.state) : 'unrelated'}`,
+      `zeroPrice=${classified ? String(subscription.price === 0) : 'unrelated'}`,
+    ].join(' ');
+  });
+  return [`matched=${matched} total=${subscriptions.length}`, ...entries].join(
+    '; ',
+  );
 }
 
 async function observedDailyUsage(config: Config, fetcher: Fetcher) {
