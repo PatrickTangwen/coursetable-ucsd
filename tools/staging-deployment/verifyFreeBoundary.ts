@@ -44,26 +44,34 @@ export async function verifyFreeBoundary(
     throw new Error('Term Archive R2 readback evidence is missing');
   const api = (pathname: string) => cloudflareApi(config, pathname, fetcher);
 
+  // Workers Free is the account default, not an add-on subscription: a Free
+  // account has no Workers subscription record, while every paid Workers
+  // identity is billed through one. At most one record may classify as
+  // Workers; an identified record must still prove the Free identity, and an
+  // unclassified record whose rate-plan id mentions Workers fails closed
+  // rather than passing as Free.
   const subscriptions = arrayResult(await api('/subscriptions'));
   const workerSubscriptions = subscriptions.filter(isWorkerSubscription);
-  if (workerSubscriptions.length !== 1) {
+  if (workerSubscriptions.length > 1) {
     throw new Error(
-      'Workers subscription identity is missing or ambiguous ' +
+      'Workers subscription identity is ambiguous ' +
         `(${classifySubscriptions(subscriptions, workerSubscriptions.length)})`,
     );
   }
   const [workerSubscription] = workerSubscriptions;
-  const workerRatePlan = object(workerSubscription!.rate_plan);
   if (
-    !freeWorkerRatePlanIds.has(ratePlanId(workerRatePlan) ?? '') ||
-    workerSubscription!.price !== 0 ||
-    !['Provisioned', 'Paid'].includes(String(workerSubscription!.state))
-  )
-    throw new Error('Workers Paid subscription is enabled');
-  if (workerRatePlan.externally_managed !== false)
-    throw new Error('Workers plan has an external upgrade authority');
-  if (workerRatePlan.is_contract !== false)
-    throw new Error('Workers plan has a contract upgrade authority');
+    !workerSubscription &&
+    subscriptions.some((subscription) =>
+      (ratePlanId(object(subscription.rate_plan)) ?? '').includes('workers'),
+    )
+  ) {
+    throw new Error(
+      'Workers subscription identity is unrecognized ' +
+        `(${classifySubscriptions(subscriptions, workerSubscriptions.length)})`,
+    );
+  }
+  const workerSubscriptionEvidence =
+    proveWorkerSubscriptionIdentity(workerSubscription);
 
   const accountSettings = object(await api('/workers/account-settings'));
   const usageModel = accountSettings.default_usage_model;
@@ -185,15 +193,11 @@ export async function verifyFreeBoundary(
     result: 'passed',
     plan: 'Workers Free',
     subscriptionReadback: true,
-    workerSubscriptionRatePlan: workerRatePlan.id,
-    workerSubscriptionState: workerSubscription!.state,
-    workerSubscriptionExternallyManaged: workerRatePlan.externally_managed,
-    workerSubscriptionContract: workerRatePlan.is_contract,
+    ...workerSubscriptionEvidence,
     workersPaidSubscriptionPresent: false,
     workerUsageModel: usageModel,
     deployedCpuMsPerInvocation: deployedLimits.cpu_ms,
     deployedExternalSubrequestsPerInvocation: deployedLimits.subrequests,
-    planEvidence: 'Free, zero-price, non-contract subscription readback',
     workersDevEnabled: false,
     previewUrlsEnabled: false,
     workerRoutes,
@@ -282,6 +286,37 @@ function observedObjects(value: unknown) {
 
 function ratePlanId(plan: { [key: string]: unknown }) {
   return typeof plan.id === 'string' ? plan.id.toLowerCase() : null;
+}
+
+function proveWorkerSubscriptionIdentity(
+  workerSubscription: { [key: string]: unknown } | undefined,
+) {
+  if (!workerSubscription) {
+    return {
+      workerSubscriptionPresent: false,
+      planEvidence:
+        'no Workers subscription record; Workers Free needs no add-on subscription',
+    };
+  }
+  const workerRatePlan = object(workerSubscription.rate_plan);
+  if (
+    !freeWorkerRatePlanIds.has(ratePlanId(workerRatePlan) ?? '') ||
+    workerSubscription.price !== 0 ||
+    !['Provisioned', 'Paid'].includes(String(workerSubscription.state))
+  )
+    throw new Error('Workers Paid subscription is enabled');
+  if (workerRatePlan.externally_managed !== false)
+    throw new Error('Workers plan has an external upgrade authority');
+  if (workerRatePlan.is_contract !== false)
+    throw new Error('Workers plan has a contract upgrade authority');
+  return {
+    workerSubscriptionPresent: true,
+    workerSubscriptionRatePlan: workerRatePlan.id,
+    workerSubscriptionState: workerSubscription.state,
+    workerSubscriptionExternallyManaged: workerRatePlan.externally_managed,
+    workerSubscriptionContract: workerRatePlan.is_contract,
+    planEvidence: 'Free, zero-price, non-contract subscription readback',
+  };
 }
 
 function isWorkerSubscription(subscription: { [key: string]: unknown }) {

@@ -69,17 +69,22 @@ The protected job performs these stages in order:
    Analytics; this requires the minimal additional `Billing Read` and
    `Account Analytics Read` permissions, never Billing Write. It rejects an
    active Workers Paid subscription even when a paid account retains the
-   legacy Bundled usage model. The Workers subscription is identified by
+   legacy Bundled usage model. A Workers subscription is identified by
    `rate_plan.scope=workers`, a documented Workers rate-plan id
    (`workers_free`, `workers_paid`, or `PARTNERS_WORKERS_*`,
-   case-insensitive), or a `rate_plan.sets` entry of `workers`; exactly one
-   entry must match, its rate-plan id must be `free` or `workers_free`, and it
-   must report zero price, `externally_managed=false`, and `is_contract=false`.
-   When identification fails, the error carries only derived, redacted
-   classification fields: match counts, scope, sets shape, a derived
-   does-the-id-mention-workers flag, and the rate-plan id/state/zero-price of
-   entries the classifier itself identifies as Workers subscriptions — never
-   raw payloads, prices, or unclassified plan identities. Subscription readback uses GET only. These observed fields replace the earlier
+   case-insensitive), or a `rate_plan.sets` entry of `workers`. Workers Free
+   is the account default rather than an add-on subscription — the live Free
+   account holds no Workers subscription record (proven by run 29221583280) —
+   so at most one entry may match: zero matches are the accepted Free reality
+   provided no unmatched entry's rate-plan id mentions Workers (an
+   unrecognized Workers-like identity fails closed), and a single match must
+   carry a `free` or `workers_free` rate-plan id with zero price,
+   `externally_managed=false`, and `is_contract=false`. When identification
+   fails, the error carries only derived, redacted classification fields:
+   match counts, scope, sets shape, a derived does-the-id-mention-workers
+   flag, and the rate-plan id/state/zero-price of entries the classifier
+   itself identifies as Workers subscriptions — never raw payloads, prices,
+   or unclassified plan identities. Subscription readback uses GET only. These observed fields replace the earlier
    unsupported hardcoded auto-upgrade assertion. It also reads the deployed
    script settings back and requires the exact 10 ms CPU and 50-subrequest
    limits, records the UTC day's real Worker request/CPU and Hyperdrive query

@@ -157,6 +157,7 @@ describe('Cloudflare Workers Free boundary', () => {
       plan: 'Workers Free',
       workerUsageModel: 'bundled',
       subscriptionReadback: true,
+      workerSubscriptionPresent: true,
       workerSubscriptionRatePlan: 'free',
       workerSubscriptionState: 'Provisioned',
       workerSubscriptionExternallyManaged: false,
@@ -189,6 +190,82 @@ describe('Cloudflare Workers Free boundary', () => {
     });
     expect(evidence).not.toHaveProperty('automaticProviderUpgradeAuthorized');
     expect(subscriptionMethods).toEqual(['GET']);
+  });
+
+  it('accepts a Workers Free account whose only subscription record is unrelated', async () => {
+    // Redacted live shape from run 29221583280: one subscription record,
+    // scope=account, sets=null, id unrelated to Workers. Workers Free is not
+    // an add-on subscription, so no Workers record exists on the account.
+    const noWorkersFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/subscriptions')) {
+        return response([
+          {
+            state: 'Provisioned',
+            price: 0,
+            rate_plan: {
+              id: 'unrelated-account-plan',
+              externally_managed: false,
+              is_contract: false,
+              scope: 'account',
+              sets: null,
+            },
+          },
+        ]);
+      }
+      return freeFetcher(input);
+    };
+
+    const evidence = await verifyFreeBoundary(config, noWorkersFetcher);
+
+    expect(evidence).toMatchObject({
+      result: 'passed',
+      plan: 'Workers Free',
+      subscriptionReadback: true,
+      workerSubscriptionPresent: false,
+      workersPaidSubscriptionPresent: false,
+      planEvidence:
+        'no Workers subscription record; Workers Free needs no add-on subscription',
+    });
+    expect(evidence).not.toHaveProperty('workerSubscriptionRatePlan');
+    expect(evidence).not.toHaveProperty('workerSubscriptionState');
+  });
+
+  it('fails closed on an unrecognized Workers-like subscription identity', async () => {
+    const nearMissFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/subscriptions')) {
+        return response([
+          {
+            state: 'Paid',
+            price: 5,
+            rate_plan: {
+              id: 'workers_legacy',
+              externally_managed: false,
+              is_contract: false,
+              scope: 'user',
+            },
+          },
+        ]);
+      }
+      return freeFetcher(input);
+    };
+
+    const error = await verifyFreeBoundary(config, nearMissFetcher).then(
+      () => null,
+      (thrown: unknown) => thrown,
+    );
+
+    if (!(error instanceof Error)) throw new Error('Expected a rejection');
+    expect(error.message).toBe(
+      'Workers subscription identity is unrecognized (matched=0 total=1; ' +
+        'id=unrelated idMentionsWorkers=true scope=user sets=absent state=unrelated zeroPrice=unrelated)',
+    );
+    expect(error.message).not.toContain('workers_legacy');
   });
 
   it('identifies the Workers subscription by rate plan id without scope or sets', async () => {
@@ -317,7 +394,7 @@ describe('Cloudflare Workers Free boundary', () => {
 
     if (!(error instanceof Error)) throw new Error('Expected a rejection');
     expect(error.message).toBe(
-      'Workers subscription identity is missing or ambiguous (matched=0 total=3; ' +
+      'Workers subscription identity is unrecognized (matched=0 total=3; ' +
         'id=unrelated idMentionsWorkers=false scope=account sets=null state=unrelated zeroPrice=unrelated; ' +
         'id=unrelated idMentionsWorkers=false scope=zone sets=array(1,workers=false) state=unrelated zeroPrice=unrelated; ' +
         'id=unrelated idMentionsWorkers=true scope=user sets=absent state=unrelated zeroPrice=unrelated)',
@@ -364,7 +441,7 @@ describe('Cloudflare Workers Free boundary', () => {
     };
 
     await expect(verifyFreeBoundary(config, ambiguousFetcher)).rejects.toThrow(
-      'Workers subscription identity is missing or ambiguous (matched=2 total=2; ' +
+      'Workers subscription identity is ambiguous (matched=2 total=2; ' +
         'id=workers_free idMentionsWorkers=true scope=user sets=null state=Provisioned zeroPrice=true; ' +
         'id=workers_paid idMentionsWorkers=true scope=user sets=string state=Paid zeroPrice=false)',
     );
