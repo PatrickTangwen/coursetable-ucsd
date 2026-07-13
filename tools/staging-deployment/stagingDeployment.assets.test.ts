@@ -74,6 +74,13 @@ describe('Cloudflare staging deployment assets', () => {
     );
     expect(deploy.env).not.toHaveProperty('CLOUDFLARE_API_TOKEN');
     expect(deploy.env).not.toHaveProperty('SESSION_SECRET');
+    expect(deploy.env).not.toHaveProperty('VERIFICATION_EMAIL_FROM_ADDRESS');
+    expect(source).not.toContain(
+      `VERIFICATION_EMAIL_FROM_ADDRESS: ${expressionPrefix}{{ vars.VERIFICATION_EMAIL_FROM_ADDRESS }}`,
+    );
+    expect(source).toContain(
+      `VERIFICATION_EMAIL_FROM_ADDRESS: ${expressionPrefix}{{ secrets.VERIFICATION_EMAIL_FROM_ADDRESS }}`,
+    );
     expect(source).toContain('test "$APP_DB_BACKUP_ENABLED" = false');
 
     const build = deploy.steps.find(

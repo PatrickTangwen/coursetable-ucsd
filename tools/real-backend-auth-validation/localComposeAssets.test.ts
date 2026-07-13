@@ -6,6 +6,11 @@ import { describe, expect, it } from 'vitest';
 const rootDir = process.cwd();
 const composeDir = path.join(rootDir, 'api/compose');
 const envTemplatePath = path.join(composeDir, 'local-validation.env.example');
+const coreEnvTemplatePath = path.join(
+  composeDir,
+  'core-validation.env.example',
+);
+const coreComposePath = path.join(composeDir, 'core-validation-compose.yml');
 
 const readRepoFile = (relativePath: string) =>
   readFileSync(path.join(rootDir, relativePath), 'utf8');
@@ -54,6 +59,16 @@ describe('real backend auth validation local compose assets', () => {
       expect(script).toContain('local-validation.env.example');
       expect(script).not.toContain('doppler');
     }
+  });
+
+  it('trusts only the fixed Linux and Docker Desktop gateways', () => {
+    const coreEnv = readFileSync(coreEnvTemplatePath, 'utf8');
+    const coreCompose = readFileSync(coreComposePath, 'utf8');
+
+    expect(coreEnv).toContain(
+      'TRUSTED_PROXY_CIDRS=172.31.85.1/32,192.168.65.1/32',
+    );
+    expect(coreCompose).toContain('subnet: 172.31.85.0/24');
   });
 
   it('keeps per-run validation artifacts out of git by default', () => {

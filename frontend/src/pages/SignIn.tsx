@@ -273,7 +273,7 @@ function SignIn() {
                     Sign in with your school&nbsp;email
                   </h2>
                   <p className={styles.cardDesc}>
-                    Saved Searches use a verified email. Catalog and Worksheet
+                    Saved Worksheets use a verified email. Catalog and Worksheet
                     stay open without one.
                   </p>
                 </div>

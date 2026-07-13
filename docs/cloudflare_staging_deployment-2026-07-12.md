@@ -152,3 +152,39 @@ their source documents as historical records:
   context and is superseded for staging by issue #84's human-provisioned
   Workers Free boundary and this workflow's 100,000-request daily contract.
   The #116 document requires separate review rather than silent rewriting.
+
+## Issue #85 acceptance scope update (2026-07-13)
+
+The maintainer removed Saved Search from the product and issue #85 acceptance
+scope. Hosted acceptance now covers Saved Worksheet ownership only. References
+to Saved Search earlier in this dated record are preserved as historical #117
+context and must not be interpreted as a current launch requirement.
+
+The disposable Core App Backend validator also requires Express to trust the
+private Docker gateway that supplies its forwarded HTTPS signal. Its Compose
+network fixes the Linux gateway at `172.31.85.1`, and the example environment
+trusts only that address plus Docker Desktop's `192.168.65.1` gateway. This
+changes neither the staging nor production proxy trust boundary.
+
+## Issue #85 provider acceptance follow-up (2026-07-13)
+
+The Staging verification sender address moves from a repository Environment
+variable and generated plaintext Worker variable to a protected Environment
+secret installed as an encrypted Worker secret. The sender domain remains a
+non-sensitive variable. This prevents GitHub Actions from repeating the full
+sender address in every deployment step while preserving the runtime contract.
+
+Frontend Sentry reporting now disables default PII, keeps only the App User ID
+in user context, and scrubs events, transactions, and breadcrumbs before
+transmission. Complete email addresses, request bodies and headers,
+authentication material, connection strings, verification codes, and hashes
+are removed at the browser boundary.
+
+The first manually dispatched hosted backup run reached the protected Staging
+job and cleaned up its disposable PostgreSQL container, but failed before a
+backup could be accepted or restored. The command now reports only one fixed
+failure stage (`initialize`, `create-dump`, or `publish-backup`) before its
+existing generic error. Provider errors and connection details remain hidden.
+This diagnostic does not weaken the requirement that only a successfully
+uploaded, downloaded, restored, schema-checked, and cleaned-up run counts as
+acceptance.
