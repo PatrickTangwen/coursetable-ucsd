@@ -1,15 +1,21 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import {
+  deploymentArtifactDirectory,
+  deploymentContract,
+  generatedWranglerPath,
+} from './deploymentContext.js';
 import { buildWorkerConfig } from './prepareWorkerDeployment.js';
 
 const root = path.resolve(import.meta.dirname, '../..');
+const contract = deploymentContract();
 const source = await readFile(path.join(root, 'worker/wrangler.jsonc'), 'utf8');
-const config = buildWorkerConfig(source, process.env);
-const artifactDirectory = path.join(root, 'artifacts/staging-deployment');
+const config = buildWorkerConfig(source, process.env, contract);
+const artifactDirectory = deploymentArtifactDirectory(root, contract);
 await mkdir(artifactDirectory, { recursive: true });
 await writeFile(
-  path.join(root, 'worker/wrangler.staging.generated.jsonc'),
+  generatedWranglerPath(root, contract),
   `${JSON.stringify(config, null, 2)}\n`,
   { mode: 0o600 },
 );
@@ -22,6 +28,7 @@ await writeFile(
     routes: config.routes,
     r2_buckets: config.r2_buckets,
     hyperdrive_binding: 'APP_DB_HYPERDRIVE_NO_CACHE',
+    public_login_enabled: contract.publicLoginEnabled,
     plan: 'Workers Free',
   })}\n`,
 );
@@ -29,7 +36,8 @@ console.log(
   JSON.stringify({
     result: 'prepared',
     worker: config.name,
-    hostname: process.env.CLOUDFLARE_STAGING_HOSTNAME,
+    hostname: contract.hostname,
+    publicLoginEnabled: contract.publicLoginEnabled,
     plan: 'Workers Free',
   }),
 );

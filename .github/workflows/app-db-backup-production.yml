@@ -1,0 +1,83 @@
+name: Production App DB Backup
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '47 8 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-app-db-backup
+  cancel-in-progress: false
+
+jobs:
+  backup-and-restore:
+    if: github.event_name == 'workflow_dispatch' || vars.APP_DB_BACKUP_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: Production
+    timeout-minutes: 30
+    env:
+      APP_DB_BACKUP_ENVIRONMENT: production
+      APP_DB_POSTGRES_TOOLS_IMAGE: postgres:18
+      APP_DB_POSTGRES_DOCKER_NETWORK: sungrid-production-app-db-backup
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      R2_BACKUP_BUCKET: ${{ vars.R2_BACKUP_BUCKET }}
+      R2_CATALOG_BUCKET: ${{ vars.R2_CATALOG_BUCKET }}
+      R2_BACKUP_PRIVATE_ACCESS_VERIFIED_AT: ${{ vars.R2_BACKUP_PRIVATE_ACCESS_VERIFIED_AT }}
+      R2_BACKUP_ACCESS_KEY_ID: ${{ secrets.R2_BACKUP_ACCESS_KEY_ID }}
+      R2_BACKUP_SECRET_ACCESS_KEY: ${{ secrets.R2_BACKUP_SECRET_ACCESS_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.6
+
+      - name: Install locked dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Start disposable restore database
+        run: |
+          docker network create sungrid-production-app-db-backup
+          docker run --rm -d \
+            --name sungrid-production-app-db-restore \
+            --network sungrid-production-app-db-backup \
+            -e POSTGRES_PASSWORD=disposable \
+            -e POSTGRES_DB=app \
+            -p 127.0.0.1:54329:5432 \
+            postgres:18
+          until docker exec sungrid-production-app-db-restore pg_isready -U postgres -d app; do
+            sleep 1
+          done
+
+      - name: Prepare least-privilege App DB backup role
+        env:
+          NEON_DIRECT_DATABASE_URL: ${{ secrets.NEON_DIRECT_DATABASE_URL }}
+          NEON_MIGRATION_DATABASE_URL: ${{ secrets.NEON_MIGRATION_DATABASE_URL }}
+        run: bun run --cwd api app-db:backup:prepare-role
+
+      - name: Create, upload, and retain App DB backup
+        id: backup
+        env:
+          NEON_DIRECT_DATABASE_URL: ${{ secrets.NEON_DIRECT_DATABASE_URL }}
+        run: |
+          evidence=$(bun run --cwd api app-db:backup)
+          printf '%s\n' "$evidence"
+          backup_key=$(printf '%s\n' "$evidence" | jq -r '.dumpKey')
+          printf 'backup_key=%s\n' "$backup_key" >> "$GITHUB_OUTPUT"
+
+      - name: Restore and verify accepted backup
+        env:
+          APP_DB_BACKUP_KEY: ${{ steps.backup.outputs.backup_key }}
+          APP_DB_RESTORE_TEST_URL: postgresql://postgres:disposable@127.0.0.1:54329/app
+          APP_DB_RESTORE_PG_URL: postgresql://postgres:disposable@sungrid-production-app-db-restore:5432/app
+        run: bun run --cwd api app-db:restore:verify
+
+      - name: Remove disposable restore database
+        if: always()
+        run: |
+          docker rm -f sungrid-production-app-db-restore >/dev/null 2>&1 || true
+          docker network rm sungrid-production-app-db-backup >/dev/null 2>&1 || true

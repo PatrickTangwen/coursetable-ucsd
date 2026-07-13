@@ -2,9 +2,13 @@ import { createHash } from 'node:crypto';
 import { access } from 'node:fs/promises';
 
 export const stagingContract = {
+  target: 'staging',
+  artifactDirectory: 'staging-deployment',
   bucket: 'sungrid-staging-catalog',
   hostname: 'staging.sungridplanner.com',
   lastAcceptedKey: 'deployment-evidence/last-accepted.json',
+  publicLoginEnabled: true,
+  senderDomain: 'mail.sungridplanner.com',
   worker: 'sungrid-staging',
   freeLimits: {
     cpuMsPerInvocation: 10,

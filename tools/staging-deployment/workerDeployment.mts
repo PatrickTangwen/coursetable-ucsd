@@ -4,11 +4,15 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 
 import {
+  deploymentArtifactDirectory,
+  deploymentContract,
+} from './deploymentContext.js';
+import {
   acceptedWorkerVersion,
   lastAcceptedExistsFilename,
   lastAcceptedFilename,
 } from './lastAccepted.js';
-import { exists, isMissingWorker, stagingContract } from './stagingContract.js';
+import { exists, isMissingWorker } from './stagingContract.js';
 import {
   assertActiveMatchesLastAccepted,
   deploymentIdentity,
@@ -27,12 +31,13 @@ if (
   );
 }
 const command = commandArgument;
+const contract = deploymentContract();
 const workerArgument = process.env.CLOUDFLARE_WORKER_NAME;
-if (workerArgument !== stagingContract.worker)
-  throw new Error('Unexpected staging Worker name');
+if (workerArgument !== contract.worker)
+  throw new Error(`Unexpected ${contract.target} Worker name`);
 const worker = workerArgument;
 const root = path.resolve(import.meta.dirname, '../..');
-const artifactDirectory = path.join(root, 'artifacts/staging-deployment');
+const artifactDirectory = deploymentArtifactDirectory(root, contract);
 await mkdir(artifactDirectory, { recursive: true });
 if (command === 'verify-accepted') {
   const before = JSON.parse(
@@ -44,6 +49,7 @@ if (command === 'verify-accepted') {
   const acceptedVersion = acceptedExists
     ? acceptedWorkerVersion(
         await readFile(path.join(artifactDirectory, lastAcceptedFilename)),
+        contract,
       )
     : null;
   assertActiveMatchesLastAccepted(before, acceptedVersion);

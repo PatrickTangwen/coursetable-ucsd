@@ -1,0 +1,164 @@
+name: Toggle Cloudflare Production Public Login
+
+on:
+  workflow_dispatch:
+    inputs:
+      desired_state:
+        description: Desired public login state; disable is the rollback path
+        required: true
+        type: choice
+        options:
+          - disabled
+          - enabled
+        default: disabled
+      approval_record:
+        description: Fresh maintainer approval identifier, issue-86-comment-NNN
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  issues: read
+
+concurrency:
+  group: sungrid-production-deployment
+  cancel-in-progress: false
+
+jobs:
+  toggle:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: Production
+    env:
+      DEPLOYMENT_TARGET: production
+      DEPLOY_COMMIT: ${{ vars.STAGING_ACCEPTED_COMMIT }}
+      STAGING_ACCEPTED_COMMIT: ${{ vars.STAGING_ACCEPTED_COMMIT }}
+      PUBLIC_LOGIN_ENABLED: ${{ inputs.desired_state == 'enabled' && 'true' || 'false' }}
+      PRODUCTION_LOGIN_TOGGLE_AUTHORIZED: 'true'
+      PRODUCTION_LOGIN_APPROVAL_RECORD: ${{ inputs.approval_record }}
+      DESIRED_LOGIN_STATE: ${{ inputs.desired_state }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_PRODUCTION_HOSTNAME: ${{ vars.CLOUDFLARE_PRODUCTION_HOSTNAME }}
+      CLOUDFLARE_WORKER_NAME: ${{ vars.CLOUDFLARE_WORKER_NAME }}
+      HYPERDRIVE_CONFIG_ID: ${{ vars.HYPERDRIVE_CONFIG_ID }}
+      LAST_ACCEPTED_KEY: deployment-evidence/last-accepted.json
+      PRODUCTION_ISOLATION_VERIFIED_AT: ${{ vars.PRODUCTION_ISOLATION_VERIFIED_AT }}
+      R2_CATALOG_BUCKET: ${{ vars.R2_CATALOG_BUCKET }}
+      VERIFICATION_EMAIL_SENDER_DOMAIN: ${{ vars.VERIFICATION_EMAIL_SENDER_DOMAIN }}
+    steps:
+      - name: Check out the durable Staging-accepted commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ vars.STAGING_ACCEPTED_COMMIT }}
+          fetch-depth: 0
+
+      - name: Require the accepted commit and approval reference
+        run: |
+          set -eu
+          [[ "$STAGING_ACCEPTED_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$STAGING_ACCEPTED_COMMIT"
+          [[ "$PRODUCTION_LOGIN_APPROVAL_RECORD" =~ ^issue-86-comment-[0-9]+$ ]]
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.6
+
+      - name: Install locked dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run repository checks
+        run: bun run checks
+
+      - name: Capture durable last accepted deployment
+        env:
+          R2_CATALOG_ACCESS_KEY_ID: ${{ secrets.R2_CATALOG_ACCESS_KEY_ID }}
+          R2_CATALOG_SECRET_ACCESS_KEY: ${{ secrets.R2_CATALOG_SECRET_ACCESS_KEY }}
+        run: bun tools/staging-deployment/deploymentEvidence.mts capture
+
+      - name: Verify fresh issue 86 maintainer approval
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          comment_id=${PRODUCTION_LOGIN_APPROVAL_RECORD##*-}
+          endpoint="repos/$GITHUB_REPOSITORY/issues/comments/$comment_id"
+          issue_url="https://api.github.com/repos/$GITHUB_REPOSITORY/issues/86"
+          test "$(gh api "$endpoint" --jq .author_association)" = OWNER
+          test "$(gh api "$endpoint" --jq .issue_url)" = "$issue_url"
+          gh api "$endpoint" --jq .body \
+            | grep -Fx "APPROVE PRODUCTION LOGIN ${DESIRED_LOGIN_STATE^^}"
+          approved_at=$(gh api "$endpoint" --jq .created_at)
+          accepted_at=$(jq -r .timestamp artifacts/production-deployment/last-accepted-before.json)
+          test "$(date --date="$approved_at" +%s)" -gt "$(date --date="$accepted_at" +%s)"
+          printf 'PRODUCTION_LOGIN_APPROVED_AT=%s\n' "$approved_at" >> "$GITHUB_ENV"
+
+      - name: Capture active Worker identity
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: bun tools/staging-deployment/workerDeployment.mts capture
+
+      - name: Prove Worker and commit match the accepted deployment
+        run: |
+          bun tools/staging-deployment/workerDeployment.mts verify-accepted
+          bun tools/staging-deployment/verifyProviderFailureDrillCommit.mts
+
+      - name: Build the approved login state
+        env:
+          VITE_PUBLIC_LOGIN_ENABLED: ${{ inputs.desired_state == 'enabled' && 'true' || 'false' }}
+        run: |
+          bun tools/staging-deployment/prepareWorkerDeployment.mts
+          bun run --cwd frontend build
+          bun tools/staging-deployment/verifyStaticAssets.mts
+          bunx wrangler deploy --dry-run --strict --config worker/wrangler.production.generated.jsonc
+
+      - name: Deploy only the approved Worker login state
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          TELEMETRY_HMAC_KEY: ${{ secrets.TELEMETRY_HMAC_KEY }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          VERIFICATION_EMAIL_FROM_ADDRESS: ${{ secrets.VERIFICATION_EMAIL_FROM_ADDRESS }}
+        run: |
+          bun tools/staging-deployment/writeWorkerSecrets.mts
+          trap 'rm -f artifacts/production-deployment/worker-secrets.json' EXIT
+          touch artifacts/production-deployment/worker-deploy-attempted
+          bunx wrangler deploy \
+            --strict \
+            --config worker/wrangler.production.generated.jsonc \
+            --secrets-file artifacts/production-deployment/worker-secrets.json \
+            --tag "commit-${DEPLOY_COMMIT:0:12}" \
+            --message "approved Production login ${PUBLIC_LOGIN_ENABLED} ${DEPLOY_COMMIT}"
+
+      - name: Capture post-attempt Worker identity
+        if: always()
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: bun tools/staging-deployment/workerDeployment.mts record-current
+
+      - name: Run hosted Production login-state smoke
+        run: bun tools/staging-deployment/smokeHostedDeployment.mts
+
+      - name: Record accepted login state
+        env:
+          R2_CATALOG_ACCESS_KEY_ID: ${{ secrets.R2_CATALOG_ACCESS_KEY_ID }}
+          R2_CATALOG_SECRET_ACCESS_KEY: ${{ secrets.R2_CATALOG_SECRET_ACCESS_KEY }}
+        run: bun tools/staging-deployment/deploymentEvidence.mts accept-toggle
+
+      - name: Restore last accepted deployment on failure
+        if: failure()
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          R2_CATALOG_ACCESS_KEY_ID: ${{ secrets.R2_CATALOG_ACCESS_KEY_ID }}
+          R2_CATALOG_SECRET_ACCESS_KEY: ${{ secrets.R2_CATALOG_SECRET_ACCESS_KEY }}
+        run: bun tools/staging-deployment/restoreLastAccepted.mts
+
+      - name: Report login-toggle outcome
+        if: always()
+        env:
+          DEPLOYMENT_JOB_STATUS: ${{ job.status }}
+          R2_CATALOG_ACCESS_KEY_ID: ${{ secrets.R2_CATALOG_ACCESS_KEY_ID }}
+          R2_CATALOG_SECRET_ACCESS_KEY: ${{ secrets.R2_CATALOG_SECRET_ACCESS_KEY }}
+        run: bun tools/staging-deployment/deploymentEvidence.mts report

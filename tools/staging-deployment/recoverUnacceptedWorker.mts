@@ -1,8 +1,12 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import {
+  deploymentArtifactDirectory,
+  deploymentContract,
+} from './deploymentContext.js';
 import { lastAcceptedExistsFilename } from './lastAccepted.js';
-import { exists, isObject, stagingContract } from './stagingContract.js';
+import { exists, isObject } from './stagingContract.js';
 import {
   assertFirstDeploymentRecoveryAllowed,
   deleteWorkerScript,
@@ -11,12 +15,13 @@ import {
 
 if (process.env.RECOVER_UNACCEPTED_FIRST_DEPLOYMENT !== 'true')
   throw new Error('First-deployment recovery was not explicitly authorized');
+const contract = deploymentContract();
 const worker = required('CLOUDFLARE_WORKER_NAME');
-if (worker !== stagingContract.worker)
-  throw new Error('Unexpected staging Worker name');
+if (worker !== contract.worker)
+  throw new Error(`Unexpected ${contract.target} Worker name`);
 
 const root = path.resolve(import.meta.dirname, '../..');
-const artifactDirectory = path.join(root, 'artifacts/staging-deployment');
+const artifactDirectory = deploymentArtifactDirectory(root, contract);
 const beforePath = path.join(artifactDirectory, 'worker-before.json');
 const beforeValue: unknown = JSON.parse(await readFile(beforePath, 'utf8'));
 if (!isObject(beforeValue) || typeof beforeValue.exists !== 'boolean')
@@ -36,6 +41,8 @@ if (before.exists) {
       worker,
     },
     expectedVersion,
+    fetch,
+    contract,
   );
 }
 await writeFile(beforePath, '{"exists":false}\n');
@@ -43,7 +50,7 @@ const evidence = {
   result: before.exists
     ? 'removed-explicitly-authorized-unaccepted-first-deployment'
     : 'explicitly-authorized-unaccepted-first-deployment-already-absent',
-  worker: stagingContract.worker,
+  worker: contract.worker,
 };
 await writeFile(
   path.join(artifactDirectory, 'unaccepted-worker-recovery.json'),
@@ -53,6 +60,7 @@ console.log(JSON.stringify(evidence));
 
 function required(name: string) {
   const value = process.env[name];
-  if (!value) throw new Error(`Missing staging recovery input: ${name}`);
+  if (!value)
+    throw new Error(`Missing ${contract.target} recovery input: ${name}`);
   return value;
 }

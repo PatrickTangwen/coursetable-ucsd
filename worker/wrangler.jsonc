@@ -35,6 +35,7 @@
     "binding": "CF_VERSION_METADATA",
   },
   "vars": {
+    "PUBLIC_LOGIN_ENABLED": "true",
     "CLOUDFLARE_PLAN_IDENTITY": "Workers Free",
     "WORKERS_FREE_REQUESTS_PER_DAY": "100000",
     "WORKERS_FREE_CPU_MS_PER_INVOCATION": "10",

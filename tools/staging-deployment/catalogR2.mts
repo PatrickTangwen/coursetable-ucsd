@@ -1,6 +1,10 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import {
+  deploymentArtifactDirectory,
+  deploymentContract,
+} from './deploymentContext.js';
 import { createR2CatalogStore } from './r2CatalogStore.js';
 import { digest, exists } from './stagingContract.js';
 import { buildTermArchive } from './termArchive.js';
@@ -8,7 +12,8 @@ import { publishTermArchive } from './termArchivePublisher.js';
 
 const [, , command] = process.argv;
 const root = path.resolve(import.meta.dirname, '../..');
-const artifactDirectory = path.join(root, 'artifacts/staging-deployment');
+const contract = deploymentContract();
+const artifactDirectory = deploymentArtifactDirectory(root, contract);
 const publicationPath = path.join(
   artifactDirectory,
   'catalog-publication.json',
@@ -22,7 +27,7 @@ const publicationAttemptedPath = path.join(
   artifactDirectory,
   'term-archive-publication-attempted',
 );
-const store = createR2CatalogStore();
+const store = createR2CatalogStore(process.env, contract);
 await mkdir(artifactDirectory, { recursive: true });
 
 if (command === 'publish') {

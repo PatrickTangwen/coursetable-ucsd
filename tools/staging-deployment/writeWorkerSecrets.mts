@@ -1,11 +1,16 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import {
+  deploymentArtifactDirectory,
+  deploymentContract,
+} from './deploymentContext.js';
 import { workerSecrets } from './writeWorkerSecrets.js';
 
-const artifactDirectory = path.resolve(
-  import.meta.dirname,
-  '../../artifacts/staging-deployment',
+const root = path.resolve(import.meta.dirname, '../..');
+const artifactDirectory = deploymentArtifactDirectory(
+  root,
+  deploymentContract(),
 );
 await mkdir(artifactDirectory, { recursive: true });
 const secrets = workerSecrets(process.env);

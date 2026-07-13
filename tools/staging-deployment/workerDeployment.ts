@@ -2,6 +2,7 @@ import { execFile } from 'node:child_process';
 import path from 'node:path';
 import { promisify } from 'node:util';
 
+import type { HostedDeploymentContract } from './productionContract.js';
 import { isObject, stagingContract } from './stagingContract.js';
 
 const execFileAsync = promisify(execFile);
@@ -41,7 +42,7 @@ export function assertActiveMatchesLastAccepted(
   acceptedVersion: string | null,
 ) {
   if (!acceptedVersion && active.exists)
-    throw new Error('Unaccepted staging Worker drift exists before deployment');
+    throw new Error('Unaccepted Worker drift exists before deployment');
   if (
     acceptedVersion &&
     (!active.exists || active.versionId !== acceptedVersion)
@@ -72,8 +73,10 @@ export async function restoreWorkerVersion(config: {
   environment: NodeJS.ProcessEnv;
   root: string;
   worker: string;
+  contract?: HostedDeploymentContract;
 }) {
-  if (!config.acceptedVersion || config.worker !== stagingContract.worker)
+  const contract = config.contract ?? stagingContract;
+  if (!config.acceptedVersion || config.worker !== contract.worker)
     throw new Error('Unexpected Worker restoration identity');
   const wrangler = path.join(config.root, 'node_modules/.bin/wrangler');
   const readActive = async () => {
@@ -100,7 +103,7 @@ export async function restoreWorkerVersion(config: {
         '--name',
         config.worker,
         '--message',
-        'restore accepted staging Worker',
+        `restore accepted ${contract.target} Worker`,
       ],
       {
         cwd: config.root,
@@ -119,11 +122,12 @@ export async function deleteWorkerScript(
   config: { accountId: string; apiToken: string; worker: string },
   expectedVersion: string,
   fetcher: Fetcher = fetch,
+  contract: HostedDeploymentContract = stagingContract,
 ) {
   if (
     !config.accountId ||
     !config.apiToken ||
-    config.worker !== stagingContract.worker ||
+    config.worker !== contract.worker ||
     !expectedVersion
   )
     throw new Error('Unexpected Worker deletion identity');

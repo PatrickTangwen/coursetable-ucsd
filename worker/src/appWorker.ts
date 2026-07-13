@@ -39,6 +39,7 @@ export interface AppWorkerEnv extends CatalogWorkerEnv {
   RESEND_API_KEY: string;
   VERIFICATION_EMAIL_SENDER_DOMAIN: string;
   VERIFICATION_EMAIL_FROM_ADDRESS: string;
+  PUBLIC_LOGIN_ENABLED?: string;
   VERIFICATION_REQUEST_COOLDOWN_SECONDS: string;
   VERIFICATION_SOURCE_LIMIT: string;
   VERIFICATION_SOURCE_WINDOW_SECONDS: string;
@@ -201,6 +202,14 @@ export async function handleAppWorkerRequest(
     // only Upstash spend on this path, so it is counted as one command.
     recordUsage({ workers: 1, r2: r2Reads, upstash: 1 });
     return response;
+  }
+
+  if (environment.PUBLIC_LOGIN_ENABLED !== 'true' && isNewLoginPath(pathname)) {
+    recordUsage({ workers: 1, upstash: 1 });
+    return Response.json(
+      { error: 'NOT_FOUND' },
+      { status: 404, headers: { 'cache-control': 'no-store' } },
+    );
   }
 
   let resendCalls = 0;
@@ -411,6 +420,13 @@ function isAccountPath(pathname: string) {
     pathname.startsWith('/api/savedSearches/') ||
     pathname === '/api/savedWorksheets' ||
     pathname.startsWith('/api/savedWorksheets/')
+  );
+}
+
+function isNewLoginPath(pathname: string) {
+  return (
+    pathname === '/api/auth/ucsd/request-verification' ||
+    pathname === '/api/auth/ucsd/verify'
   );
 }
 

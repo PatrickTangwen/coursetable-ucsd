@@ -1,0 +1,259 @@
+name: Deploy Cloudflare Production With Login Disabled
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Deployment target
+        required: true
+        type: choice
+        options:
+          - production
+      commit:
+        description: Full Staging-accepted commit SHA already reachable from main
+        required: true
+        type: string
+      prove_rollback_after_smoke:
+        description: Deliberately fail after smoke so automatic rollback is exercised
+        required: true
+        type: boolean
+        default: false
+      recover_unaccepted_first_deployment:
+        description: Remove an unaccepted Worker left by a failed first deployment
+        required: true
+        type: boolean
+        default: false
+      recover_unaccepted_worker_version:
+        description: Exact Worker version stranded by the failed first deployment
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sungrid-production-deployment
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    outputs:
+      commit: ${{ steps.verify-commit.outputs.commit }}
+    steps:
+      - name: Check out selected commit without Production credentials
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit }}
+          fetch-depth: 0
+
+      - name: Prove selected commit is on main
+        id: verify-commit
+        env:
+          SELECTED_COMMIT: ${{ inputs.commit }}
+          TARGET: ${{ inputs.target }}
+        run: |
+          set -eu
+          test "$TARGET" = production
+          [[ "$SELECTED_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          git fetch --no-tags origin main
+          resolved_commit=$(git rev-parse "$SELECTED_COMMIT^{commit}")
+          test "$(git rev-parse HEAD)" = "$resolved_commit"
+          git merge-base --is-ancestor "$SELECTED_COMMIT" origin/main
+          printf 'commit=%s\n' "$resolved_commit" >> "$GITHUB_OUTPUT"
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.6
+
+      - name: Install locked dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run repository checks
+        run: bun run checks
+
+      - name: Validate Production deployment contract
+        run: |
+          bun run validate:production-deployment
+          bun run validate:failure-safety
+          bun run validate:worker-catalog
+          api/drizzle/test-migrate.sh
+
+  report-preflight-failure:
+    needs: preflight
+    if: ${{ always() && needs.preflight.result == 'failure' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: Production
+    env:
+      DEPLOYMENT_TARGET: production
+      CLOUDFLARE_PRODUCTION_HOSTNAME: ${{ vars.CLOUDFLARE_PRODUCTION_HOSTNAME }}
+      CLOUDFLARE_WORKER_NAME: ${{ vars.CLOUDFLARE_WORKER_NAME }}
+      PRODUCTION_ISOLATION_VERIFIED_AT: ${{ vars.PRODUCTION_ISOLATION_VERIFIED_AT }}
+      R2_CATALOG_BUCKET: ${{ vars.R2_CATALOG_BUCKET }}
+      VERIFICATION_EMAIL_SENDER_DOMAIN: ${{ vars.VERIFICATION_EMAIL_SENDER_DOMAIN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.6
+
+      - name: Install locked dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Report preflight failure and last accepted deployment
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          DEPLOYMENT_JOB_STATUS: failure
+          LAST_ACCEPTED_KEY: deployment-evidence/last-accepted.json
+          R2_CATALOG_ACCESS_KEY_ID: ${{ secrets.R2_CATALOG_ACCESS_KEY_ID }}
+          R2_CATALOG_SECRET_ACCESS_KEY: ${{ secrets.R2_CATALOG_SECRET_ACCESS_KEY }}
+        run: bun tools/staging-deployment/deploymentEvidence.mts report
+
+  deploy:
+    needs: preflight
+    if: ${{ github.ref == 'refs/heads/main' && inputs.target == 'production' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: Production
+    env:
+      DEPLOYMENT_TARGET: production
+      PUBLIC_LOGIN_ENABLED: 'false'
+      DEPLOY_COMMIT: ${{ needs.preflight.outputs.commit }}
+      STAGING_ACCEPTED_COMMIT: ${{ vars.STAGING_ACCEPTED_COMMIT }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_PRODUCTION_HOSTNAME: ${{ vars.CLOUDFLARE_PRODUCTION_HOSTNAME }}
+      CLOUDFLARE_WORKER_NAME: ${{ vars.CLOUDFLARE_WORKER_NAME }}
+      HYPERDRIVE_CONFIG_ID: ${{ vars.HYPERDRIVE_CONFIG_ID }}
+      LAST_ACCEPTED_KEY: deployment-evidence/last-accepted.json
+      PRODUCTION_ISOLATION_VERIFIED_AT: ${{ vars.PRODUCTION_ISOLATION_VERIFIED_AT }}
+      R2_CATALOG_BUCKET: ${{ vars.R2_CATALOG_BUCKET }}
+      VERIFICATION_EMAIL_SENDER_DOMAIN: ${{ vars.VERIFICATION_EMAIL_SENDER_DOMAIN }}
+    steps:
+      - name: Check out accepted commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.preflight.outputs.commit }}
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.6
+
+      - name: Install locked dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Require App DB backup automation to remain disabled
+        env:
+          APP_DB_BACKUP_ENABLED: ${{ vars.APP_DB_BACKUP_ENABLED }}
+        run: test "$APP_DB_BACKUP_ENABLED" = false
+
+      - name: Require the durable Staging-accepted commit
+        run: |
+          set -eu
+          [[ "$STAGING_ACCEPTED_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          test "$DEPLOY_COMMIT" = "$STAGING_ACCEPTED_COMMIT"
+
+      - name: Capture durable last accepted deployment
+        env:
+          R2_CATALOG_ACCESS_KEY_ID: ${{ secrets.R2_CATALOG_ACCESS_KEY_ID }}
+          R2_CATALOG_SECRET_ACCESS_KEY: ${{ secrets.R2_CATALOG_SECRET_ACCESS_KEY }}
+        run: bun tools/staging-deployment/deploymentEvidence.mts capture
+
+      - name: Capture active Worker identity
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: bun tools/staging-deployment/workerDeployment.mts capture
+
+      - name: Recover explicitly authorized unaccepted first deployment
+        if: ${{ inputs.recover_unaccepted_first_deployment }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          RECOVER_UNACCEPTED_FIRST_DEPLOYMENT: ${{ inputs.recover_unaccepted_first_deployment }}
+          RECOVER_UNACCEPTED_WORKER_VERSION: ${{ inputs.recover_unaccepted_worker_version }}
+        run: bun tools/staging-deployment/recoverUnacceptedWorker.mts
+
+      - name: Prove active Worker matches last accepted deployment
+        run: bun tools/staging-deployment/workerDeployment.mts verify-accepted
+
+      - name: Apply App DB migrations
+        env:
+          NEON_MIGRATION_DATABASE_URL: ${{ secrets.NEON_MIGRATION_DATABASE_URL }}
+        run: |
+          set -o pipefail
+          bun run --cwd api db:migrate:hosted | tee artifacts/production-deployment/migration.json
+
+      - name: Publish and verify Term Archive
+        env:
+          R2_CATALOG_ACCESS_KEY_ID: ${{ secrets.R2_CATALOG_ACCESS_KEY_ID }}
+          R2_CATALOG_SECRET_ACCESS_KEY: ${{ secrets.R2_CATALOG_SECRET_ACCESS_KEY }}
+        run: bun tools/staging-deployment/catalogR2.mts publish
+
+      - name: Build Worker and static assets with login disabled
+        env:
+          VITE_PUBLIC_LOGIN_ENABLED: 'false'
+        run: |
+          bun tools/staging-deployment/prepareWorkerDeployment.mts
+          bun run --cwd frontend build
+          bun tools/staging-deployment/verifyStaticAssets.mts
+          bunx wrangler deploy --dry-run --strict --config worker/wrangler.production.generated.jsonc
+
+      - name: Deploy Worker and secrets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          TELEMETRY_HMAC_KEY: ${{ secrets.TELEMETRY_HMAC_KEY }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          VERIFICATION_EMAIL_FROM_ADDRESS: ${{ secrets.VERIFICATION_EMAIL_FROM_ADDRESS }}
+        run: |
+          bun tools/staging-deployment/writeWorkerSecrets.mts
+          trap 'rm -f artifacts/production-deployment/worker-secrets.json' EXIT
+          touch artifacts/production-deployment/worker-deploy-attempted
+          bunx wrangler deploy \
+            --strict \
+            --config worker/wrangler.production.generated.jsonc \
+            --secrets-file artifacts/production-deployment/worker-secrets.json \
+            --tag "commit-${DEPLOY_COMMIT:0:12}" \
+            --message "audited Production deployment with login disabled ${DEPLOY_COMMIT}"
+
+      - name: Capture post-attempt Worker identity
+        if: always()
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: bun tools/staging-deployment/workerDeployment.mts record-current
+
+      - name: Run hosted Production disabled-login smoke
+        run: bun tools/staging-deployment/smokeHostedDeployment.mts
+
+      - name: Deliberately exercise application rollback
+        if: ${{ inputs.prove_rollback_after_smoke }}
+        run: |
+          echo "Successful smoke completed; triggering the audited rollback path"
+          exit 1
+
+      - name: Record accepted deployment
+        env:
+          R2_CATALOG_ACCESS_KEY_ID: ${{ secrets.R2_CATALOG_ACCESS_KEY_ID }}
+          R2_CATALOG_SECRET_ACCESS_KEY: ${{ secrets.R2_CATALOG_SECRET_ACCESS_KEY }}
+        run: bun tools/staging-deployment/deploymentEvidence.mts accept
+
+      - name: Restore last accepted deployment on failure
+        if: failure()
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          R2_CATALOG_ACCESS_KEY_ID: ${{ secrets.R2_CATALOG_ACCESS_KEY_ID }}
+          R2_CATALOG_SECRET_ACCESS_KEY: ${{ secrets.R2_CATALOG_SECRET_ACCESS_KEY }}
+        run: bun tools/staging-deployment/restoreLastAccepted.mts
+
+      - name: Report deployment outcome
+        if: always()
+        env:
+          DEPLOYMENT_JOB_STATUS: ${{ job.status }}
+          R2_CATALOG_ACCESS_KEY_ID: ${{ secrets.R2_CATALOG_ACCESS_KEY_ID }}
+          R2_CATALOG_SECRET_ACCESS_KEY: ${{ secrets.R2_CATALOG_SECRET_ACCESS_KEY }}
+        run: bun tools/staging-deployment/deploymentEvidence.mts report
