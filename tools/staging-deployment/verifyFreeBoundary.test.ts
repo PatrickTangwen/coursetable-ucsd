@@ -64,6 +64,8 @@ function freeFetcher(input: string | URL | Request) {
         price: 0,
         rate_plan: {
           id: 'free',
+          externally_managed: false,
+          is_contract: false,
           scope: 'workers',
           sets: ['workers'],
         },
@@ -81,7 +83,7 @@ function freeFetcher(input: string | URL | Request) {
   if (pathname.endsWith('/workers/scripts/sungrid-staging/subdomain'))
     return response({ enabled: false, previews_enabled: false });
   if (pathname.endsWith('/workers/scripts'))
-    return response([{ id: 'sungrid-staging' }]);
+    return response([{ id: 'sungrid-staging', routes: [] }]);
   if (pathname.endsWith('/workers/scripts/sungrid-staging/schedules'))
     return response([{ cron: '0 8 * * *' }]);
   if (pathname.endsWith('/workers/domains')) {
@@ -125,7 +127,19 @@ function freeFetcher(input: string | URL | Request) {
 
 describe('Cloudflare Workers Free boundary', () => {
   it('proves the non-Standard usage model and accepted provider settings', async () => {
-    const evidence = await verifyFreeBoundary(config, freeFetcher);
+    const subscriptionMethods: string[] = [];
+    const recordingFetcher = (
+      input: string | URL | Request,
+      init?: RequestInit,
+    ) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/subscriptions'))
+        subscriptionMethods.push(init?.method ?? 'GET');
+      return freeFetcher(input);
+    };
+    const evidence = await verifyFreeBoundary(config, recordingFetcher);
 
     expect(evidence).toMatchObject({
       result: 'passed',
@@ -134,11 +148,14 @@ describe('Cloudflare Workers Free boundary', () => {
       subscriptionReadback: true,
       workerSubscriptionRatePlan: 'free',
       workerSubscriptionState: 'Provisioned',
+      workerSubscriptionExternallyManaged: false,
+      workerSubscriptionContract: false,
       workersPaidSubscriptionPresent: false,
       deployedCpuMsPerInvocation: 10,
       deployedExternalSubrequestsPerInvocation: 50,
       workersDevEnabled: false,
       previewUrlsEnabled: false,
+      workerRoutes: [],
       accountCronTriggers: 1,
       r2StorageClass: 'Standard',
       r2DevEnabled: false,
@@ -159,6 +176,8 @@ describe('Cloudflare Workers Free boundary', () => {
         hyperdriveQueries: 12,
       },
     });
+    expect(evidence).not.toHaveProperty('automaticProviderUpgradeAuthorized');
+    expect(subscriptionMethods).toEqual(['GET']);
   });
 
   it('blocks the Workers Paid Standard usage model', async () => {
@@ -188,6 +207,8 @@ describe('Cloudflare Workers Free boundary', () => {
             price: 5,
             rate_plan: {
               id: 'pro',
+              externally_managed: false,
+              is_contract: false,
               scope: 'workers',
               sets: ['workers'],
             },
@@ -200,5 +221,103 @@ describe('Cloudflare Workers Free boundary', () => {
     await expect(verifyFreeBoundary(config, paidFetcher)).rejects.toThrow(
       'Workers Paid subscription is enabled',
     );
+  });
+
+  it('blocks a Workers plan managed by an external subscription authority', async () => {
+    const externallyManagedFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/subscriptions')) {
+        return response([
+          {
+            state: 'Provisioned',
+            price: 0,
+            rate_plan: {
+              id: 'free',
+              externally_managed: true,
+              is_contract: false,
+              scope: 'workers',
+              sets: ['workers'],
+            },
+          },
+        ]);
+      }
+      return freeFetcher(input);
+    };
+
+    await expect(
+      verifyFreeBoundary(config, externallyManagedFetcher),
+    ).rejects.toThrow('Workers plan has an external upgrade authority');
+  });
+
+  it('blocks a Workers plan governed by a contract', async () => {
+    const contractFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/subscriptions')) {
+        return response([
+          {
+            state: 'Provisioned',
+            price: 0,
+            rate_plan: {
+              id: 'free',
+              externally_managed: false,
+              is_contract: true,
+              scope: 'workers',
+              sets: ['workers'],
+            },
+          },
+        ]);
+      }
+      return freeFetcher(input);
+    };
+
+    await expect(verifyFreeBoundary(config, contractFetcher)).rejects.toThrow(
+      'Workers plan has a contract upgrade authority',
+    );
+  });
+
+  it('blocks an account-level Worker route from any zone', async () => {
+    const routedFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/workers/scripts')) {
+        return response([
+          {
+            id: 'sungrid-staging',
+            routes: [
+              {
+                id: 'route-in-another-zone',
+                pattern: 'other-zone.example/*',
+                script: 'sungrid-staging',
+              },
+            ],
+          },
+        ]);
+      }
+      return freeFetcher(input);
+    };
+
+    await expect(verifyFreeBoundary(config, routedFetcher)).rejects.toThrow(
+      'Unexpected public Worker route',
+    );
+  });
+
+  it('fails closed when the account route inventory is missing', async () => {
+    const missingRoutesFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/workers/scripts'))
+        return response([{ id: 'sungrid-staging' }]);
+      return freeFetcher(input);
+    };
+
+    await expect(
+      verifyFreeBoundary(config, missingRoutesFetcher),
+    ).rejects.toThrow('Worker route inventory is missing');
   });
 });

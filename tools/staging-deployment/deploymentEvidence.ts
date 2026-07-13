@@ -63,7 +63,6 @@ export function composeDeploymentEvidence(
     hostedSmoke: input.smoke,
     productionResourcesMutated: false,
     automaticDeploymentEnabled: false,
-    automaticProviderUpgradeAuthorized: false,
   };
   assertDeploymentEvidenceSafe(evidence);
   return evidence;

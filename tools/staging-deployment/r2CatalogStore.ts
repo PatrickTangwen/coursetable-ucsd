@@ -5,8 +5,8 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 
-import type { TermArchiveStore } from './catalogPublisher.js';
 import { stagingContract } from './stagingContract.js';
+import type { TermArchiveStore } from './termArchivePublisher.js';
 
 export function createR2CatalogStore(
   environment: { [key: string]: string | undefined } = process.env,

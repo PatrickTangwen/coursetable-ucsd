@@ -1,4 +1,5 @@
 import { digest } from './stagingContract.js';
+import type { TermArchiveRegistry } from './termArchive.js';
 
 type StoreOptions = {
   cacheControl: string;
@@ -14,7 +15,7 @@ export interface TermArchiveStore {
 }
 
 type Archive = {
-  registry: { last_update: string; terms: unknown[] };
+  registry: TermArchiveRegistry;
   terms: {
     term: string;
     snapshot: { body: Uint8Array; sha256: string };
@@ -57,6 +58,26 @@ export async function publishTermArchive(
     );
   }
 
+  const evidenceTerms = await Promise.all(
+    archive.registry.terms.map(async (entry) => {
+      const snapshotDigest = digestFromPath(entry.snapshot_path);
+      const manifestDigest = digestFromPath(entry.manifest_path);
+      await verifyExisting(
+        store,
+        'Published Snapshot',
+        entry.snapshot_path,
+        snapshotDigest,
+      );
+      await verifyExisting(
+        store,
+        'Import Manifest',
+        entry.manifest_path,
+        manifestDigest,
+      );
+      return { term: entry.term, snapshotDigest, manifestDigest };
+    }),
+  );
+
   const metadataBody = encoder.encode(`${JSON.stringify(archive.registry)}\n`);
   const metadataDigest = digest(metadataBody);
   try {
@@ -87,12 +108,27 @@ export async function publishTermArchive(
 
   return {
     metadataDigest,
-    terms: archive.terms.map(({ term, snapshot, manifest }) => ({
-      term,
-      snapshotDigest: snapshot.sha256,
-      manifestDigest: manifest.sha256,
-    })),
+    terms: evidenceTerms,
   };
+}
+
+async function verifyExisting(
+  store: TermArchiveStore,
+  label: string,
+  key: string,
+  expectedDigest: string,
+) {
+  const remote = await store.get(key);
+  if (!remote || digest(remote) !== expectedDigest)
+    throw new Error(`${label} durable digest mismatch`);
+}
+
+function digestFromPath(value: string) {
+  const filename = value.split('/').at(-1);
+  const result = filename?.replace(/\.json$/u, '');
+  if (!result || !/^[a-f\d]{64}$/u.test(result))
+    throw new Error('Term Archive object path has no digest');
+  return result;
 }
 
 async function putAndVerify(

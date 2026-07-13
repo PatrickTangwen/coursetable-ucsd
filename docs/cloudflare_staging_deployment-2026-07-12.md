@@ -31,18 +31,23 @@ The protected job performs these stages in order:
 2. Apply forward-only Drizzle migrations through the dedicated
    `NEON_MIGRATION_DATABASE_URL`. App DB backup continues to use the separate
    `NEON_DIRECT_DATABASE_URL`.
-3. Rebuild the Term Archive Supported Term registry from every paired,
-   validated repository
-   Published Snapshot and Import Manifest. Upload content-addressed objects to
-   private Standard R2, read each object back, verify its SHA-256 digest, and
-   switch `metadata.json` only after all objects pass.
+3. Merge the durable R2 Term Archive registry with every paired, validated
+   repository Published Snapshot and Import Manifest. R2-only terms remain in
+   the registry as Frozen Snapshots; already-frozen entries retain their exact
+   object paths and generation timestamps and are never regenerated. Upload
+   new content-addressed objects to private Standard R2, read every current and
+   preserved object back, verify its SHA-256 digest, and switch `metadata.json`
+   only after all objects pass.
 4. Generate the staging-only Wrangler configuration from protected
    non-sensitive inputs, build the frontend, enforce the 20,000-static-asset
    Free limit, and perform a strict dry run.
 5. Deploy the Worker, static assets, custom domain, bindings, and runtime
    secrets in one Wrangler deployment. `workers.dev` and preview URLs remain
    disabled; the only configured public ingress is
-   `staging.sungridplanner.com`.
+   `staging.sungridplanner.com`. Acceptance reads both account Custom Domains
+   and the staging script's account-level route inventory, which aggregates
+   Workers Routes across zones, and rejects any route targeting the staging
+   Worker.
 6. Repeat public Catalog and unauthenticated auth/Session/account-route smokes
    at least three times. The smoke fails on unexpected status, provider-default
    URLs, or Cloudflare CPU/resource-limit responses and never creates or
@@ -52,10 +57,14 @@ The protected job performs these stages in order:
    Analytics; this requires the minimal additional `Billing Read` and
    `Account Analytics Read` permissions, never Billing Write. It rejects an
    active Workers Paid subscription even when a paid account retains the
-   legacy Bundled usage model. It also reads the deployed script settings back
-   and requires the exact 10 ms CPU and 50-subrequest limits, records the UTC
-   day's real Worker request/CPU and Hyperdrive query metrics, and reads
-   account-wide R2 month-to-date storage and operations. Storage samples are
+   legacy Bundled usage model. The Free subscription must also report zero
+   price, `externally_managed=false`, and `is_contract=false`; subscription
+   readback uses GET only. These observed fields replace the earlier
+   unsupported hardcoded auto-upgrade assertion. It also reads the deployed
+   script settings back and requires the exact 10 ms CPU and 50-subrequest
+   limits, records the UTC day's real Worker request/CPU and Hyperdrive query
+   metrics, and reads account-wide R2 month-to-date storage and operations.
+   Storage samples are
    reduced to each bucket's daily peak and integrated using Cloudflare's
    decimal-GB, 30-day GB-month definition. R2 actions are classified exactly
    as documented into Class A, Class B, and free operations; unknown actions
@@ -102,11 +111,11 @@ workflow asserts the protected repository variable is exactly `false` before
 migration; it neither changes that variable nor creates or mutates production
 resources.
 
-The human-provisioning handoff confirmed the original deployment token but did
-not record Billing Read or Account Analytics Read. A maintainer must confirm or
-add only those two read permissions before the first dispatch; otherwise the
-Free-plan gate stops safely and reports the prior accepted deployment. This
-document does not authorize Codex or the workflow to change the token.
+The human-provisioning handoff did not originally record Billing Read or Account
+Analytics Read. Before this PR's merge, the maintainer confirmed both read-only
+permissions were added to the existing deployment token without Billing Edit.
+The Free-plan gate still fails closed if either readback is unavailable. This
+workflow cannot change token permissions or mutate a subscription.
 
 ## Historical documentation boundaries
 

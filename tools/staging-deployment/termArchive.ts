@@ -11,7 +11,7 @@ type Artifact = {
   size: number;
 };
 
-type RegistryEntry = {
+export type TermArchiveRegistryEntry = {
   term: string;
   label: string;
   date_range: { start: string; end: string } | null;
@@ -24,7 +24,15 @@ type RegistryEntry = {
 const defaultRoot = path.resolve(process.cwd());
 const decoder = new TextDecoder();
 
-export async function buildTermArchive(root = defaultRoot) {
+export type TermArchiveRegistry = {
+  last_update: string;
+  terms: TermArchiveRegistryEntry[];
+};
+
+export async function buildTermArchive(
+  root = defaultRoot,
+  priorRegistryValue: unknown = null,
+) {
   const staticDirectory = path.join(root, 'api/static');
   const snapshotDirectory = path.join(staticDirectory, 'catalogs/public');
   const manifestDirectory = path.join(
@@ -43,20 +51,14 @@ export async function buildTermArchive(root = defaultRoot) {
   if (snapshotTerms.join('\n') !== manifestTerms.join('\n'))
     throw new Error('Published Snapshot and Import Manifest terms differ');
 
-  const priorFrozen = new Map(
-    Array.isArray(metadata.terms)
-      ? metadata.terms.flatMap((entry) =>
-          isObject(entry) &&
-          typeof entry.term === 'string' &&
-          typeof entry.frozen === 'boolean'
-            ? [[entry.term, entry.frozen] as const]
-            : [],
-        )
-      : [],
+  const priorRegistry = parsePriorRegistry(priorRegistryValue);
+  const priorByTerm = new Map(
+    priorRegistry?.terms.map((entry) => [entry.term, entry] as const) ?? [],
   );
 
   const terms = await Promise.all(
     snapshotTerms.map(async (term) => {
+      if (priorByTerm.get(term)?.frozen) return null;
       const snapshot = await artifact(
         path.join(snapshotDirectory, `${term}.json`),
         root,
@@ -80,43 +82,108 @@ export async function buildTermArchive(root = defaultRoot) {
         term,
         label: snapshotJson.term_label,
         dateRange: parseDateRange(snapshotJson.term_date_range, term),
-        frozen: priorFrozen.get(term) ?? false,
+        frozen: false,
         generatedAt: snapshotJson.generated_at,
         snapshot,
         manifest,
       };
     }),
   );
-  terms.sort((left, right) =>
+  const currentTerms = terms.filter((term) => term !== null);
+  const snapshotTermSet = new Set(snapshotTerms);
+  const durableTerms =
+    priorRegistry?.terms
+      .filter((entry) => entry.frozen || !snapshotTermSet.has(entry.term))
+      .map((entry) => ({ ...entry, frozen: true })) ?? [];
+  currentTerms.sort((left, right) =>
     (left.dateRange?.start ?? left.term).localeCompare(
       right.dateRange?.start ?? right.term,
     ),
   );
 
-  const registry = {
+  const currentRegistryEntries = currentTerms.map(
+    ({ term, label, dateRange, frozen, generatedAt, snapshot, manifest }) => ({
+      term,
+      label,
+      date_range: dateRange,
+      frozen,
+      generated_at: generatedAt,
+      snapshot_path: `published-snapshots/${term}/${snapshot.sha256}.json`,
+      manifest_path: `published-manifests/${term}/${manifest.sha256}.json`,
+    }),
+  ) satisfies TermArchiveRegistryEntry[];
+  const registryTerms = [...currentRegistryEntries, ...durableTerms];
+  registryTerms.sort((left, right) =>
+    (left.date_range?.start ?? left.term).localeCompare(
+      right.date_range?.start ?? right.term,
+    ),
+  );
+  const registry: TermArchiveRegistry = {
     last_update: metadata.last_update,
-    terms: terms.map(
-      ({
-        term,
-        label,
-        dateRange,
-        frozen,
-        generatedAt,
-        snapshot,
-        manifest,
-      }) => ({
-        term,
-        label,
-        date_range: dateRange,
-        frozen,
-        generated_at: generatedAt,
-        snapshot_path: `published-snapshots/${term}/${snapshot.sha256}.json`,
-        manifest_path: `published-manifests/${term}/${manifest.sha256}.json`,
-      }),
-    ) satisfies RegistryEntry[],
+    terms: registryTerms,
   };
 
-  return { registry, terms };
+  return { registry, terms: currentTerms };
+}
+
+function parsePriorRegistry(value: unknown): TermArchiveRegistry | null {
+  if (value === null) return null;
+  if (
+    !isObject(value) ||
+    typeof value.last_update !== 'string' ||
+    !Array.isArray(value.terms)
+  )
+    throw new Error('Durable Term Archive registry is invalid');
+  const terms = value.terms.map(parsePriorEntry);
+  if (new Set(terms.map(({ term }) => term)).size !== terms.length)
+    throw new Error('Durable Term Archive has duplicate terms');
+  return { last_update: value.last_update, terms };
+}
+
+function parsePriorEntry(value: unknown): TermArchiveRegistryEntry {
+  if (
+    !isObject(value) ||
+    typeof value.term !== 'string' ||
+    typeof value.label !== 'string' ||
+    typeof value.frozen !== 'boolean' ||
+    typeof value.generated_at !== 'string' ||
+    typeof value.snapshot_path !== 'string' ||
+    typeof value.manifest_path !== 'string'
+  )
+    throw new Error('Durable Term Archive entry is invalid');
+  const dateRange = parseDateRange(value.date_range, value.term);
+  assertContentAddressedPath(
+    value.snapshot_path,
+    'published-snapshots',
+    value.term,
+  );
+  assertContentAddressedPath(
+    value.manifest_path,
+    'published-manifests',
+    value.term,
+  );
+  return {
+    term: value.term,
+    label: value.label,
+    date_range: dateRange,
+    frozen: value.frozen,
+    generated_at: value.generated_at,
+    snapshot_path: value.snapshot_path,
+    manifest_path: value.manifest_path,
+  };
+}
+
+function assertContentAddressedPath(
+  value: string,
+  prefix: string,
+  term: string,
+) {
+  const filename = value.split('/').at(-1);
+  if (!filename || value !== `${prefix}/${term}/${filename}`)
+    throw new Error('Durable Term Archive object path is invalid');
+  const digest = filename.replace(/\.json$/u, '');
+  if (!digest || !/^[a-f\d]{64}$/u.test(digest))
+    throw new Error('Durable Term Archive object digest is invalid');
 }
 
 async function jsonTerms(directory: string) {

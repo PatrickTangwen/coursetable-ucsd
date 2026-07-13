@@ -44,6 +44,10 @@ export async function verifyFreeBoundary(
     !['Provisioned', 'Paid'].includes(String(workerSubscription!.state))
   )
     throw new Error('Workers Paid subscription is enabled');
+  if (workerRatePlan.externally_managed !== false)
+    throw new Error('Workers plan has an external upgrade authority');
+  if (workerRatePlan.is_contract !== false)
+    throw new Error('Workers plan has a contract upgrade authority');
 
   const accountSettings = object(await api('/workers/account-settings'));
   const usageModel = accountSettings.default_usage_model;
@@ -79,9 +83,16 @@ export async function verifyFreeBoundary(
 
   const scripts = arrayResult(await api('/workers/scripts?per_page=100'));
   let accountCronTriggers = 0;
-  for (const script of scripts) {
-    const { id } = object(script);
+  let workerRoutes: string[] | null = null;
+  for (const scriptValue of scripts) {
+    const script = object(scriptValue);
+    const { id } = script;
     if (typeof id !== 'string') throw new Error('Worker identity is invalid');
+    if (id === config.worker) {
+      if (workerRoutes !== null)
+        throw new Error('Worker identity is ambiguous');
+      workerRoutes = routePatterns(script.routes, config.worker);
+    }
     const schedulesResult = await api(
       `/workers/scripts/${encodeURIComponent(id)}/schedules`,
     );
@@ -92,6 +103,9 @@ export async function verifyFreeBoundary(
   }
   if (accountCronTriggers > 5)
     throw new Error('Workers Free account Cron Trigger limit exceeded');
+  if (workerRoutes === null)
+    throw new Error('Worker identity is missing from account inventory');
+  if (workerRoutes.length) throw new Error('Unexpected public Worker route');
 
   const domains = arrayResult(await api('/workers/domains'))
     .filter(({ service }) => service === config.worker)
@@ -157,14 +171,16 @@ export async function verifyFreeBoundary(
     subscriptionReadback: true,
     workerSubscriptionRatePlan: workerRatePlan.id,
     workerSubscriptionState: workerSubscription!.state,
+    workerSubscriptionExternallyManaged: workerRatePlan.externally_managed,
+    workerSubscriptionContract: workerRatePlan.is_contract,
     workersPaidSubscriptionPresent: false,
     workerUsageModel: usageModel,
     deployedCpuMsPerInvocation: deployedLimits.cpu_ms,
     deployedExternalSubrequestsPerInvocation: deployedLimits.subrequests,
-    planEvidence:
-      'protected human provisioning plus non-Standard account usage model',
+    planEvidence: 'Free, zero-price, non-contract subscription readback',
     workersDevEnabled: false,
     previewUrlsEnabled: false,
+    workerRoutes,
     workerDomains: domains,
     accountCronTriggers,
     r2StorageClass: 'Standard',
@@ -177,19 +193,27 @@ export async function verifyFreeBoundary(
     hyperdriveOriginConnectionLimit: originConnectionLimit,
     observedDailyUsage: usage,
     acceptedLimits: stagingContract.freeLimits,
-    automaticProviderUpgradeAuthorized: false,
   };
 }
 
-async function cloudflareApi(
+function cloudflareApi(config: Config, pathname: string, fetcher: Fetcher) {
+  return cloudflareApiUrl(
+    config,
+    `https://api.cloudflare.com/client/v4/accounts/${config.accountId}${pathname}`,
+    pathname,
+    fetcher,
+  );
+}
+
+async function cloudflareApiUrl(
   config: Config,
+  url: string,
   pathname: string,
   fetcher: Fetcher,
 ) {
-  const response = await fetcher(
-    `https://api.cloudflare.com/client/v4/accounts/${config.accountId}${pathname}`,
-    { headers: { authorization: `Bearer ${config.apiToken}` } },
-  );
+  const response = await fetcher(url, {
+    headers: { authorization: `Bearer ${config.apiToken}` },
+  });
   const payload: unknown = await response.json();
   if (!response.ok || !isObject(payload) || payload.success !== true) {
     const [safePath] = pathname.split('?');
@@ -198,6 +222,20 @@ async function cloudflareApi(
     );
   }
   return payload.result;
+}
+
+function routePatterns(value: unknown, worker: string) {
+  if (!Array.isArray(value))
+    throw new Error('Worker route inventory is missing');
+  return value.map((routeValue) => {
+    const route = object(routeValue);
+    if (
+      typeof route.pattern !== 'string' ||
+      (route.script !== undefined && route.script !== worker)
+    )
+      throw new Error('Worker route identity is invalid');
+    return route.pattern;
+  });
 }
 
 function arrayResult(value: unknown) {

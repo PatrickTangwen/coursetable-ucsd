@@ -2,9 +2,9 @@ import { access, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parse } from 'yaml';
 
-import { buildTermArchive } from './catalogArchive.js';
 import { buildWorkerConfig } from './prepareWorkerDeployment.js';
 import { stagingContract } from './stagingContract.js';
+import { buildTermArchive } from './termArchive.js';
 
 const root = path.resolve(import.meta.dirname, '../..');
 const archive = await buildTermArchive(root);

@@ -1,7 +1,6 @@
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-import type { TermArchiveStore } from './catalogPublisher.js';
 import { assertDeploymentEvidenceSafe } from './deploymentEvidence.js';
 import {
   digest,
@@ -9,6 +8,7 @@ import {
   isObject,
   stagingContract,
 } from './stagingContract.js';
+import type { TermArchiveStore } from './termArchivePublisher.js';
 
 export const lastAcceptedFilename = 'last-accepted-before.json';
 export const lastAcceptedExistsFilename = 'last-accepted-before.exists';

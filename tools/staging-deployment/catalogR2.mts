@@ -1,10 +1,10 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-import { buildTermArchive } from './catalogArchive.js';
-import { publishTermArchive } from './catalogPublisher.js';
 import { createR2CatalogStore } from './r2CatalogStore.js';
 import { digest, exists } from './stagingContract.js';
+import { buildTermArchive } from './termArchive.js';
+import { publishTermArchive } from './termArchivePublisher.js';
 
 const [, , command] = process.argv;
 const root = path.resolve(import.meta.dirname, '../..');
@@ -35,7 +35,10 @@ if (command === 'publish') {
     await rm(backupMarkerPath, { force: true });
   }
   await writeFile(publicationAttemptedPath, 'attempted\n');
-  const archive = await buildTermArchive(root);
+  const priorRegistry: unknown = previous
+    ? JSON.parse(new TextDecoder().decode(previous))
+    : null;
+  const archive = await buildTermArchive(root, priorRegistry);
   const evidence = await publishTermArchive(archive, store);
   const result = {
     result: 'published-and-verified',

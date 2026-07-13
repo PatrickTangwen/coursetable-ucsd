@@ -56,6 +56,7 @@ describe('staging deployment evidence', () => {
       cloudflarePlan: 'Workers Free',
     });
     expect(() => assertDeploymentEvidenceSafe(evidence)).not.toThrow();
+    expect(evidence).not.toHaveProperty('automaticProviderUpgradeAuthorized');
   });
 
   it('rejects sensitive fields', () => {

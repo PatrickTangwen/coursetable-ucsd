@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { publishTermArchive } from './catalogPublisher.js';
+import { publishTermArchive } from './termArchivePublisher.js';
 
 class MemoryStore {
   readonly objects = new Map<string, Uint8Array>();
@@ -62,5 +62,48 @@ describe('staging Term Archive publisher', () => {
     ).rejects.toThrow('Published Snapshot remote digest mismatch');
 
     expect(store.objects.get('metadata.json')).toBe(previous);
+  });
+
+  it('verifies and reports durable Frozen Snapshot objects', async () => {
+    const store = new MemoryStore();
+    const snapshot = encoder.encode('{"frozen":true}\n');
+    const manifest = encoder.encode('{"manifest":true}\n');
+    const snapshotDigest =
+      'ff9f1f7bf5c634879f9ff3c4bd3bf42d40973c7846eb8734d5ae6ad47c744497';
+    const manifestDigest =
+      'b52ab259c8b9dab5683cbd68defa991ac03d5e92851ab811f23129fe4833d2b9';
+    store.objects.set(
+      `published-snapshots/FA24/${snapshotDigest}.json`,
+      snapshot,
+    );
+    store.objects.set(
+      `published-manifests/FA24/${manifestDigest}.json`,
+      manifest,
+    );
+
+    const evidence = await publishTermArchive(
+      {
+        registry: {
+          last_update: '2026-07-12T00:00:00.000Z',
+          terms: [
+            {
+              term: 'FA24',
+              label: 'Fall 2024',
+              date_range: null,
+              frozen: true,
+              generated_at: '2025-01-01T00:00:00.000Z',
+              snapshot_path: `published-snapshots/FA24/${snapshotDigest}.json`,
+              manifest_path: `published-manifests/FA24/${manifestDigest}.json`,
+            },
+          ],
+        },
+        terms: [],
+      },
+      store,
+    );
+
+    expect(evidence.terms).toEqual([
+      { term: 'FA24', snapshotDigest, manifestDigest },
+    ]);
   });
 });
