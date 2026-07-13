@@ -10,8 +10,8 @@ import {
   restoreCapturedLastAccepted,
 } from './lastAccepted.js';
 import { createR2CatalogStore } from './r2CatalogStore.js';
-import { exists, isMissingWorker, stagingContract } from './stagingContract.js';
-import { deploymentIdentity } from './workerDeployment.js';
+import { exists, isObject, stagingContract } from './stagingContract.js';
+import { deleteWorkerScript, deploymentIdentity } from './workerDeployment.js';
 
 const execFileAsync = promisify(execFile);
 const root = path.resolve(import.meta.dirname, '../..');
@@ -60,15 +60,29 @@ if (await exists(path.join(artifactDirectory, 'worker-deploy-attempted'))) {
       throw new Error('Worker rollback verification failed');
     workerResult = 'rolled-back';
   } else {
-    try {
-      await execFileAsync(wrangler, ['delete', worker, '--force'], {
-        cwd: root,
-        env: process.env,
-      });
-    } catch (error) {
-      if (!isMissingWorker(error)) throw error;
+    const currentValue: unknown = JSON.parse(
+      await readFile(
+        path.join(artifactDirectory, 'worker-current.json'),
+        'utf8',
+      ),
+    );
+    if (!isObject(currentValue) || typeof currentValue.exists !== 'boolean')
+      throw new Error('Failed deployment Worker version is missing');
+    if (currentValue.exists) {
+      if (typeof currentValue.versionId !== 'string')
+        throw new Error('Failed deployment Worker version is missing');
+      await deleteWorkerScript(
+        {
+          accountId: required('CLOUDFLARE_ACCOUNT_ID'),
+          apiToken: required('CLOUDFLARE_API_TOKEN'),
+          worker,
+        },
+        currentValue.versionId,
+      );
+      workerResult = 'removed-first-failed-deployment';
+    } else {
+      workerResult = 'no-first-deployment-created';
     }
-    workerResult = 'removed-first-failed-deployment';
   }
 }
 
@@ -93,3 +107,9 @@ await writeFile(
   `${JSON.stringify(evidence)}\n`,
 );
 console.log(JSON.stringify(evidence));
+
+function required(name: string) {
+  const value = process.env[name];
+  if (!value) throw new Error(`Missing staging recovery input: ${name}`);
+  return value;
+}

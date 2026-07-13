@@ -29,6 +29,16 @@ describe('Cloudflare staging deployment assets', () => {
     expect(workflow.on.workflow_dispatch.inputs).toMatchObject({
       target: { required: true, type: 'choice', options: ['staging'] },
       commit: { required: true, type: 'string' },
+      recover_unaccepted_first_deployment: {
+        required: true,
+        type: 'boolean',
+        default: false,
+      },
+      recover_unaccepted_worker_version: {
+        required: false,
+        type: 'string',
+        default: '',
+      },
     });
     expect(workflow.permissions).toEqual({ contents: 'read' });
     expect(workflow.concurrency).toEqual({
@@ -90,6 +100,13 @@ describe('Cloudflare staging deployment assets', () => {
     expect(source).toContain('if: failure()');
     expect(source).toContain('last-accepted.json');
     expect(source).toContain('workerDeployment.mts verify-accepted');
+    expect(source).toContain('recoverUnacceptedWorker.mts');
+    expect(source).toContain(
+      `if: ${expressionPrefix}{{ inputs.recover_unaccepted_first_deployment }}`,
+    );
+    expect(source).toContain(
+      `RECOVER_UNACCEPTED_WORKER_VERSION: ${expressionPrefix}{{ inputs.recover_unaccepted_worker_version }}`,
+    );
     expect(source).toContain('validate:failure-safety');
     expect(source).toContain('api/drizzle/test-migrate.sh');
   });

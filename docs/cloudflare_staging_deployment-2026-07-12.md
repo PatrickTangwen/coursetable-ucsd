@@ -1,14 +1,19 @@
 # Cloudflare staging deployment workflow (2026-07-12)
 
-Status: repository implementation for issue #117. The workflow is intentionally
-manual and cannot run until this file is reachable from the default branch. This
-document does not report a hosted deployment or authorize production changes.
+Status: issue #117 is merged. The first protected run on 2026-07-12 reached the
+Worker deployment stage but failed closed before acceptance; the outcome and
+recovery change are recorded below. This document does not authorize production
+changes.
 
 ## Trigger and trust boundary
 
 `.github/workflows/cloudflare-staging-deploy.yml` exposes only
 `workflow_dispatch`. The maintainer must select the `staging` target and a full
-commit SHA. A credential-free preflight checks out that commit, fetches
+commit SHA. The optional `recover_unaccepted_first_deployment` input defaults to
+`false` and requires a separate explicit human decision before the workflow may
+remove a Worker stranded by a failed first deployment. Recovery also requires
+the exact stranded Worker version from that failed run. A credential-free
+preflight checks out that commit, fetches
 `origin/main`, proves the selected commit is reachable from `main`, runs the
 repository checks, the failure-safety and Worker Catalog validators, and the
 disposable App DB migration compatibility proof. A failed preflight enters a
@@ -27,7 +32,10 @@ The protected job performs these stages in order:
 1. Read the durable last-accepted record from private R2, capture the current
    100-percent-traffic Worker version, and refuse to mutate staging if those
    versions differ. Before the first accepted deployment, an already-existing
-   Worker is likewise treated as unaccepted drift.
+   Worker is likewise treated as unaccepted drift. Only the explicit recovery
+   input may remove that Worker, and only while no accepted record exists and
+   the captured and immediately re-read Worker versions both match the
+   human-supplied stranded version.
 2. Apply forward-only Drizzle migrations through the dedicated
    `NEON_MIGRATION_DATABASE_URL`. App DB backup continues to use the separate
    `NEON_DIRECT_DATABASE_URL`.
@@ -51,7 +59,11 @@ The protected job performs these stages in order:
 6. Repeat public Catalog and unauthenticated auth/Session/account-route smokes
    at least three times. The smoke fails on unexpected status, provider-default
    URLs, or Cloudflare CPU/resource-limit responses and never creates or
-   bypasses a Verified UCSD Email identity.
+   bypasses a Verified UCSD Email identity. Before those checks, a bounded
+   five-minute total readiness deadline retries transport-level connection
+   failures from initial Custom Domain activation. Every request has its own
+   shorter abort timeout, and the retry delays count toward the total deadline;
+   HTTP application failures are never retried or hidden.
 7. Read Cloudflare state back through the protected deployment token. The
    workflow fails closed unless that token can read account subscriptions and
    Analytics; this requires the minimal additional `Billing Read` and
@@ -89,8 +101,10 @@ metadata pointer and verifies it by digest.
 If a durable prior accepted Worker version existed, failure after a deployment
 attempt rolls traffic back to that exact version and verifies it is again
 receiving 100 percent. It never treats arbitrary pre-run drift as accepted. If
-the first Worker deployment fails, the workflow deletes that first Worker so
-no unaccepted Custom Domain or provider-default surface remains. Term Archive
+the first Worker deployment fails, the workflow deletes that first Worker
+through the least-privilege Workers Scripts API and verifies it is absent; it
+does not invoke Wrangler's unrelated KV inventory path or require KV access. No
+unaccepted Custom Domain or provider-default surface may remain. Term Archive
 metadata and the deployment-evidence pointer are restored independently when
 their updates were attempted. The new evidence object is written locally and
 to its immutable timestamped key first; `last-accepted.json` is the final
@@ -116,6 +130,27 @@ Analytics Read. Before this PR's merge, the maintainer confirmed both read-only
 permissions were added to the existing deployment token without Billing Edit.
 The Free-plan gate still fails closed if either readback is unavailable. This
 workflow cannot change token permissions or mutate a subscription.
+
+## First hosted run outcome (2026-07-12)
+
+The first protected run was
+[GitHub Actions run 29217388935](https://github.com/PatrickTangwen/coursetable-ucsd/actions/runs/29217388935)
+for merge commit `005e9b5b626f1c116e92d1341050af63d1b2c416`.
+Credential-free preflight, migration, Term Archive publication, static build,
+and Worker deployment passed. The immediate first smoke request encountered a
+transport connection failure before the Custom Domain was reachable, so the
+Free-boundary gate and accepted-evidence write did not run.
+
+The attempted first-deployment rollback restored Catalog state but Wrangler's
+delete command then queried an unrelated KV namespace endpoint that the
+least-privilege deployment token correctly cannot access. The run therefore
+left an unaccepted Worker and reported no accepted deployment. The follow-up
+change adds the bounded transport-readiness probe, replaces Wrangler deletion
+with the official Workers Scripts DELETE API, and adds the default-off explicit
+recovery input plus exact-version match needed to remove only this unaccepted
+first Worker before a retry. The deletion path re-reads the active version
+immediately before DELETE and verifies the Worker is absent afterward. No
+production resource or production-login setting was changed.
 
 ## Historical documentation boundaries
 

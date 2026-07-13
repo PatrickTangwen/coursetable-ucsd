@@ -1,4 +1,9 @@
-import { isObject } from './stagingContract.js';
+import { isObject, stagingContract } from './stagingContract.js';
+
+type Fetcher = (
+  input: string | URL | Request,
+  init?: RequestInit,
+) => Promise<Response>;
 
 export type WorkerDeploymentIdentity = {
   exists: boolean;
@@ -39,4 +44,71 @@ export function assertActiveMatchesLastAccepted(
       'Active Worker differs from durable last-accepted deployment',
     );
   }
+}
+
+export function assertFirstDeploymentRecoveryAllowed(
+  active: WorkerDeploymentIdentity,
+  acceptedExists: boolean,
+  expectedVersion: string,
+) {
+  if (acceptedExists) {
+    throw new Error(
+      'First-deployment recovery cannot remove an accepted Worker',
+    );
+  }
+  if (!active.exists)
+    throw new Error('First-deployment recovery has no Worker to remove');
+  if (!active.versionId || active.versionId !== expectedVersion)
+    throw new Error('Unaccepted Worker version changed before recovery');
+}
+
+export async function deleteWorkerScript(
+  config: { accountId: string; apiToken: string; worker: string },
+  expectedVersion: string,
+  fetcher: Fetcher = fetch,
+) {
+  if (
+    !config.accountId ||
+    !config.apiToken ||
+    config.worker !== stagingContract.worker ||
+    !expectedVersion
+  )
+    throw new Error('Unexpected Worker deletion identity');
+  const endpoint = `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(config.accountId)}/workers/scripts/${encodeURIComponent(config.worker)}`;
+  const headers = { authorization: `Bearer ${config.apiToken}` };
+  const active = await readWorkerDeploymentIdentity(config, fetcher);
+  if (!active.exists) return;
+  if (active.versionId !== expectedVersion)
+    throw new Error('Unaccepted Worker version changed before deletion');
+  const deletion = await fetcher(endpoint, { method: 'DELETE', headers });
+  if (deletion.status !== 404) {
+    const payload: unknown = await deletion.json();
+    if (!deletion.ok || !isObject(payload) || payload.success !== true)
+      throw new Error('Worker deletion API failed');
+  }
+  const verification = await fetcher(endpoint, { headers });
+  if (verification.status !== 404)
+    throw new Error('Worker deletion verification failed');
+}
+
+async function readWorkerDeploymentIdentity(
+  config: { accountId: string; apiToken: string; worker: string },
+  fetcher: Fetcher,
+) {
+  const endpoint = `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(config.accountId)}/workers/scripts/${encodeURIComponent(config.worker)}/deployments`;
+  const response = await fetcher(endpoint, {
+    headers: { authorization: `Bearer ${config.apiToken}` },
+  });
+  if (response.status === 404) return { exists: false as const };
+  const payload: unknown = await response.json();
+  if (
+    !response.ok ||
+    !isObject(payload) ||
+    payload.success !== true ||
+    !isObject(payload.result) ||
+    !Array.isArray(payload.result.deployments) ||
+    payload.result.deployments.length === 0
+  )
+    throw new Error('Worker deployment readback failed');
+  return deploymentIdentity(payload.result.deployments[0]);
 }

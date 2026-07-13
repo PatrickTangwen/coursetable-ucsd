@@ -70,6 +70,77 @@ describe('hosted staging smoke', () => {
       runHostedStagingSmoke('https://staging.sungridplanner.com', fetcher, 3),
     ).rejects.toThrow('Workers Free CPU-limit incompatibility');
   });
+
+  it('waits through transient edge connection failures before running smoke', async () => {
+    const baseFetcher = smokeFetcher({ authenticated: false, user: null });
+    const delays: number[] = [];
+    let connectionAttempts = 0;
+    const fetcher = (input: string | URL | Request, init?: RequestInit) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname === '/api/catalog/metadata' && connectionAttempts++ < 2)
+        return Promise.reject(new Error('Unable to connect'));
+      return baseFetcher(input, init);
+    };
+
+    const evidence = await runHostedStagingSmoke(
+      'https://staging.sungridplanner.com',
+      fetcher,
+      3,
+      {
+        overallTimeoutMs: 1_000,
+        attemptTimeoutMs: 100,
+        delayMs: 25,
+        sleep(delayMs: number) {
+          delays.push(delayMs);
+          return Promise.resolve();
+        },
+      },
+    );
+
+    expect(evidence.result).toBe('passed');
+    expect(delays).toEqual([25, 25]);
+  });
+
+  it('does not retry an HTTP application failure', async () => {
+    let attempts = 0;
+    const fetcher = () => {
+      attempts += 1;
+      return Promise.resolve(
+        new Response('application failure', { status: 500 }),
+      );
+    };
+
+    await expect(
+      runHostedStagingSmoke('https://staging.sungridplanner.com', fetcher, 3, {
+        overallTimeoutMs: 1_000,
+        attemptTimeoutMs: 100,
+        delayMs: 0,
+        sleep: () => Promise.resolve(),
+      }),
+    ).rejects.toThrow('returned 500; expected 200');
+    expect(attempts).toBe(1);
+  });
+
+  it('enforces the overall readiness deadline when fetch never settles', async () => {
+    const fetcher = (_input: string | URL | Request, init?: RequestInit) =>
+      new Promise<Response>((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () => {
+          reject(new Error('request aborted'));
+        });
+      });
+    const startedAt = performance.now();
+
+    await expect(
+      runHostedStagingSmoke('https://staging.sungridplanner.com', fetcher, 3, {
+        overallTimeoutMs: 40,
+        attemptTimeoutMs: 10,
+        delayMs: 1,
+      }),
+    ).rejects.toThrow('readiness timed out');
+    expect(performance.now() - startedAt).toBeLessThan(250);
+  });
 });
 
 function smokeFetcher(currentUser: unknown, cpuFailure = false) {

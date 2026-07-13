@@ -69,7 +69,7 @@ async function readIdentity(): Promise<WorkerDeploymentIdentity> {
     );
     return deploymentIdentity(JSON.parse(stdout));
   } catch (error) {
-    if (command !== 'capture' || !isMissingWorker(error)) throw error;
+    if (!isMissingWorker(error)) throw error;
     return { exists: false };
   }
 }
