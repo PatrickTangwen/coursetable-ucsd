@@ -63,6 +63,17 @@ function freeFetcher(input: string | URL | Request) {
         state: 'Provisioned',
         price: 0,
         rate_plan: {
+          id: 'unrelated-account-plan',
+          externally_managed: false,
+          is_contract: false,
+          scope: 'account',
+          sets: null,
+        },
+      },
+      {
+        state: 'Provisioned',
+        price: 0,
+        rate_plan: {
           id: 'free',
           externally_managed: false,
           is_contract: false,
