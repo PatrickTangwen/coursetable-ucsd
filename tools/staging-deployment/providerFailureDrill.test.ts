@@ -4,6 +4,7 @@ import {
   expectedProviderFailureError,
   providerFailureDrillSecrets,
   providerFailureEvidence,
+  waitForUpstashFailureDrillConvergence,
 } from './providerFailureDrill.js';
 
 const environment = {
@@ -55,5 +56,52 @@ describe('hosted provider failure drill', () => {
         503,
       ),
     ).toThrow('Hosted provider failure drill affected the public Catalog');
+  });
+
+  it('waits for the temporary Upstash failure version without sending email', async () => {
+    const requests: string[] = [];
+    const delays: number[] = [];
+    const responses = [
+      Response.json({ authenticated: false }, { status: 200 }),
+      Response.json({ error: 'AUTH_UNAVAILABLE' }, { status: 503 }),
+    ];
+
+    await waitForUpstashFailureDrillConvergence(
+      'https://staging.sungridplanner.com',
+      (input) => {
+        requests.push(new URL(new Request(input).url).pathname);
+        return Promise.resolve(responses.shift()!);
+      },
+      {
+        attempts: 3,
+        delayMs: 25,
+        sleep(delayMs) {
+          delays.push(delayMs);
+          return Promise.resolve();
+        },
+      },
+    );
+
+    expect(requests).toEqual([
+      '/api/auth/current-user',
+      '/api/auth/current-user',
+    ]);
+    expect(delays).toEqual([25]);
+  });
+
+  it('rejects an Upstash convergence response outside the safe old/new states', async () => {
+    await expect(
+      waitForUpstashFailureDrillConvergence(
+        'https://staging.sungridplanner.com',
+        () =>
+          Promise.resolve(
+            Response.json(
+              { error: 'ACCOUNT_DATA_UNAVAILABLE' },
+              { status: 503 },
+            ),
+          ),
+        { attempts: 1, delayMs: 0, sleep: () => Promise.resolve() },
+      ),
+    ).rejects.toThrow('Unexpected Upstash failure-drill convergence response');
   });
 });

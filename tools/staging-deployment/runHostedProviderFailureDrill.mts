@@ -1,6 +1,7 @@
 import {
   parseHostedProviderFailureDrill,
   providerFailureEvidence,
+  waitForUpstashFailureDrillConvergence,
 } from './providerFailureDrill.js';
 import { stagingContract } from './stagingContract.js';
 
@@ -11,6 +12,7 @@ if (process.env.CLOUDFLARE_STAGING_HOSTNAME !== stagingContract.hostname)
   throw new Error('Unexpected hosted provider failure drill hostname');
 
 const origin = `https://${stagingContract.hostname}`;
+if (provider === 'upstash') await waitForUpstashFailureDrillConvergence(origin);
 const syntheticAddress = `failure-drill-${crypto.randomUUID()}@${[
   'ucsd',
   'edu',
