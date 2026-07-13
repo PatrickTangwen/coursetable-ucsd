@@ -20,7 +20,11 @@ describe('Cloudflare staging deployment assets', () => {
           env?: { [key: string]: string };
           environment?: string;
           if?: string;
-          steps: { name?: string; run?: string }[];
+          steps: {
+            env?: { [key: string]: string };
+            name?: string;
+            run?: string;
+          }[];
         };
       };
     };
@@ -71,6 +75,11 @@ describe('Cloudflare staging deployment assets', () => {
     expect(deploy.env).not.toHaveProperty('CLOUDFLARE_API_TOKEN');
     expect(deploy.env).not.toHaveProperty('SESSION_SECRET');
     expect(source).toContain('test "$APP_DB_BACKUP_ENABLED" = false');
+
+    const build = deploy.steps.find(
+      ({ name }) => name === 'Build Worker and static assets',
+    );
+    expect(build?.env).toEqual({ VITE_PUBLIC_LOGIN_ENABLED: 'true' });
 
     const orderedStages = deploy.steps.map(({ name }) => name).filter(Boolean);
     expect(orderedStages).toEqual(

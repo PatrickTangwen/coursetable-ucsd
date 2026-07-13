@@ -173,6 +173,8 @@ jobs:
         run: bun tools/staging-deployment/catalogR2.mts publish
 
       - name: Build Worker and static assets
+        env:
+          VITE_PUBLIC_LOGIN_ENABLED: 'true'
         run: |
           bun tools/staging-deployment/prepareWorkerDeployment.mts
           bun run --cwd frontend build
