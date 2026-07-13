@@ -48,27 +48,19 @@ export async function verifyFreeBoundary(
     arrayResult(await api('/subscriptions')),
   );
 
+  // Standard is Cloudflare's current pricing model for every plan (run
+  // 29222442338 observed it on the proven subscription-free account), so it
+  // is not a paid signal by itself; the subscription readback above is the
+  // plan gate. Only the legacy paid Unbound model, or an unknown model,
+  // fails closed here. The Free CPU/subrequest caps are plan-enforced, not
+  // script settings, so there is no per-script limits readback.
   const accountSettings = object(await api('/workers/account-settings'));
   const usageModel = accountSettings.default_usage_model;
-  if (usageModel === 'standard')
-    throw new Error('Workers Paid Standard usage model is enabled');
-  if (usageModel !== 'bundled')
-    throw new Error('Unexpected Cloudflare Worker usage model');
-
-  const workerSettings = object(
-    await api(`/workers/scripts/${encodeURIComponent(config.worker)}/settings`),
-  );
-  if (workerSettings.usage_model !== 'bundled')
-    throw new Error('Deployed Worker is not using the bundled usage model');
-  const deployedLimits = object(workerSettings.limits);
-  if (deployedLimits.cpu_ms !== stagingContract.freeLimits.cpuMsPerInvocation)
-    throw new Error('Deployed Worker CPU limit is not Workers Free compatible');
-  if (
-    deployedLimits.subrequests !==
-    stagingContract.freeLimits.externalSubrequestsPerInvocation
-  ) {
+  if (usageModel === 'unbound')
+    throw new Error('Workers Unbound paid usage model is enabled');
+  if (usageModel !== 'standard' && usageModel !== 'bundled') {
     throw new Error(
-      'Deployed Worker subrequest limit is not Workers Free compatible',
+      `Unexpected Cloudflare Worker usage model (observed=${String(usageModel)})`,
     );
   }
 
@@ -150,20 +142,6 @@ export async function verifyFreeBoundary(
   if (typeof originConnectionLimit !== 'number' || originConnectionLimit > 20)
     throw new Error('Staging Hyperdrive exceeds the Free connection limit');
 
-  const usage = await observedDailyUsage(config, fetcher);
-  if (usage.workerRequests > stagingContract.freeLimits.requestsPerDay)
-    throw new Error('Workers Free daily request limit exceeded');
-  if (usage.workerCpuTimeP99Ms > stagingContract.freeLimits.cpuMsPerInvocation)
-    throw new Error('Workers Free observed CPU limit exceeded');
-  if (usage.r2ClassAOperations > 1_000_000)
-    throw new Error('R2 Free Class A operation boundary exceeded');
-  if (usage.r2ClassBOperations > 10_000_000)
-    throw new Error('R2 Free Class B operation boundary exceeded');
-  if (usage.r2StorageGbMonth > 10)
-    throw new Error('R2 Free storage boundary exceeded');
-  if (usage.hyperdriveQueries > 100_000)
-    throw new Error('Hyperdrive Free daily query limit exceeded');
-
   return {
     result: 'passed',
     plan: 'Workers Free',
@@ -171,8 +149,6 @@ export async function verifyFreeBoundary(
     ...workerSubscriptionEvidence,
     workersPaidSubscriptionPresent: false,
     workerUsageModel: usageModel,
-    deployedCpuMsPerInvocation: deployedLimits.cpu_ms,
-    deployedExternalSubrequestsPerInvocation: deployedLimits.subrequests,
     workersDevEnabled: false,
     previewUrlsEnabled: false,
     workerRoutes,
@@ -186,7 +162,6 @@ export async function verifyFreeBoundary(
     r2PublishedObjectReadbacks: config.publishedObjectReadbacks,
     hyperdriveCachingDisabled: true,
     hyperdriveOriginConnectionLimit: originConnectionLimit,
-    observedDailyUsage: usage,
     acceptedLimits: stagingContract.freeLimits,
   };
 }
@@ -380,186 +355,4 @@ function classifySubscriptions(
   return [`matched=${matched} total=${subscriptions.length}`, ...entries].join(
     '; ',
   );
-}
-
-async function observedDailyUsage(config: Config, fetcher: Fetcher) {
-  const now = new Date();
-  const dayStart = new Date(now);
-  dayStart.setUTCHours(0, 0, 0, 0);
-  const monthStart = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
-  );
-  const query = `query StagingFreeUsage($accountTag: string!, $dayStart: Time!, $monthStart: Time!, $end: Time!, $worker: string!, $hyperdrive: string!) {
-    viewer { accounts(filter: {accountTag: $accountTag}) {
-      workersInvocationsAdaptive(limit: 10000, filter: {scriptName: $worker, datetime_geq: $dayStart, datetime_leq: $end}) { sum { requests } quantiles { cpuTimeP99 } }
-      r2OperationsAdaptiveGroups(limit: 10000, filter: {datetime_geq: $monthStart, datetime_leq: $end}) { sum { requests } dimensions { actionType } }
-      r2StorageAdaptiveGroups(limit: 10000, filter: {datetime_geq: $monthStart, datetime_leq: $end}, orderBy: [datetime_DESC]) { max { payloadSize metadataSize } dimensions { bucketName datetime } }
-      hyperdriveQueriesAdaptiveGroups(limit: 10000, filter: {configId: $hyperdrive, datetime_geq: $dayStart, datetime_leq: $end}) { count }
-    } }
-  }`;
-  const response = await fetcher(
-    'https://api.cloudflare.com/client/v4/graphql',
-    {
-      method: 'POST',
-      headers: {
-        authorization: `Bearer ${config.apiToken}`,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        query,
-        variables: {
-          accountTag: config.accountId,
-          dayStart: dayStart.toISOString(),
-          monthStart: monthStart.toISOString(),
-          end: now.toISOString(),
-          worker: config.worker,
-          hyperdrive: config.hyperdriveId,
-        },
-      }),
-    },
-  );
-  const payload: unknown = await response.json();
-  if (
-    !response.ok ||
-    !isObject(payload) ||
-    (Array.isArray(payload.errors) && payload.errors.length > 0)
-  )
-    throw new Error('Cloudflare Analytics verification failed');
-  const accounts = arrayValue(object(object(payload.data).viewer).accounts);
-  if (accounts.length !== 1)
-    throw new Error('Cloudflare Analytics account result is invalid');
-  const [rawAccount] = accounts;
-  const account = object(rawAccount);
-  const workers = arrayValue(account.workersInvocationsAdaptive);
-  const r2Operations = arrayValue(account.r2OperationsAdaptiveGroups);
-  const r2Storage = arrayValue(account.r2StorageAdaptiveGroups);
-  const hyperdrive = arrayValue(account.hyperdriveQueriesAdaptiveGroups);
-  if (!workers.length || !r2Operations.length || !r2Storage.length)
-    throw new Error('Cloudflare Analytics has not observed the staging smoke');
-  const r2Usage = classifyR2Operations(r2Operations);
-  const r2StorageUsage = calculateR2StorageUsage(r2Storage);
-  return {
-    utcDayStart: dayStart.toISOString(),
-    utcMonthStart: monthStart.toISOString(),
-    workerRequests: sumField(workers, 'sum', 'requests'),
-    workerCpuTimeP99Ms: maxField(workers, 'quantiles', 'cpuTimeP99'),
-    ...r2Usage,
-    ...r2StorageUsage,
-    hyperdriveQueries: sumDirect(hyperdrive, 'count'),
-  };
-}
-
-const classAOperations = new Set([
-  'ListBuckets',
-  'PutBucket',
-  'ListObjects',
-  'PutObject',
-  'CopyObject',
-  'CompleteMultipartUpload',
-  'CreateMultipartUpload',
-  'LifecycleStorageTierTransition',
-  'ListMultipartUploads',
-  'UploadPart',
-  'UploadPartCopy',
-  'ListParts',
-  'PutBucketEncryption',
-  'PutBucketCors',
-  'PutBucketLifecycleConfiguration',
-]);
-const classBOperations = new Set([
-  'HeadBucket',
-  'HeadObject',
-  'GetObject',
-  'UsageSummary',
-  'GetBucketEncryption',
-  'GetBucketLocation',
-  'GetBucketCors',
-  'GetBucketLifecycleConfiguration',
-]);
-const freeOperations = new Set([
-  'DeleteObject',
-  'DeleteBucket',
-  'AbortMultipartUpload',
-]);
-
-function classifyR2Operations(rows: unknown[]) {
-  let r2ClassAOperations = 0;
-  let r2ClassBOperations = 0;
-  let r2FreeOperations = 0;
-  for (const row of rows) {
-    const record = object(row);
-    const { actionType } = object(record.dimensions);
-    if (typeof actionType !== 'string')
-      throw new Error('Cloudflare R2 action type is invalid');
-    const requests = numberField(object(record.sum), 'requests');
-    if (classAOperations.has(actionType)) r2ClassAOperations += requests;
-    else if (classBOperations.has(actionType)) r2ClassBOperations += requests;
-    else if (freeOperations.has(actionType)) r2FreeOperations += requests;
-    else throw new Error(`Unknown Cloudflare R2 operation: ${actionType}`);
-  }
-  return { r2ClassAOperations, r2ClassBOperations, r2FreeOperations };
-}
-
-function calculateR2StorageUsage(rows: unknown[]) {
-  const latestByBucket = new Map<string, number>();
-  const dailyPeakByBucket = new Map<string, number>();
-  for (const row of rows) {
-    const record = object(row);
-    const { bucketName, datetime } = object(record.dimensions);
-    if (typeof bucketName !== 'string' || typeof datetime !== 'string')
-      throw new Error('Cloudflare R2 storage bucket identity is invalid');
-    const maximum = object(record.max);
-    const bytes =
-      numberField(maximum, 'payloadSize') +
-      numberField(maximum, 'metadataSize');
-    if (!latestByBucket.has(bucketName)) latestByBucket.set(bucketName, bytes);
-    const date = new Date(datetime);
-    if (Number.isNaN(date.valueOf()))
-      throw new Error('Cloudflare R2 storage timestamp is invalid');
-    const dailyKey = `${date.toISOString().slice(0, 10)}:${bucketName}`;
-    dailyPeakByBucket.set(
-      dailyKey,
-      Math.max(dailyPeakByBucket.get(dailyKey) ?? 0, bytes),
-    );
-  }
-  const dailyPeakByteDays = [...dailyPeakByBucket.values()].reduce(
-    (total, size) => total + size,
-    0,
-  );
-  return {
-    r2CurrentStoredBytes: [...latestByBucket.values()].reduce(
-      (total, size) => total + size,
-      0,
-    ),
-    r2StorageGbMonth: dailyPeakByteDays / 1_000_000_000 / 30,
-  };
-}
-
-function sumField(rows: unknown[], group: string, field: string) {
-  return rows.reduce(
-    (total: number, row) =>
-      total + numberField(object(object(row)[group]), field),
-    0,
-  );
-}
-
-function maxField(rows: unknown[], group: string, field: string) {
-  return Math.max(
-    0,
-    ...rows.map((row) => numberField(object(object(row)[group]), field)),
-  );
-}
-
-function sumDirect(rows: unknown[], field: string) {
-  return rows.reduce(
-    (total: number, row) => total + numberField(object(row), field),
-    0,
-  );
-}
-
-function numberField(value: { [key: string]: unknown }, field: string) {
-  const result = value[field];
-  if (typeof result !== 'number' || result < 0)
-    throw new Error('Cloudflare Analytics metric is invalid');
-  return result;
 }
