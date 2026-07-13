@@ -267,8 +267,9 @@ function observedObjects(value: unknown) {
 function isWorkerSubscription(subscription: { [key: string]: unknown }) {
   const { rate_plan: ratePlan } = subscription;
   const plan = object(ratePlan);
-  const sets = arrayValue(plan.sets);
-  return plan.scope === 'workers' || sets.includes('workers');
+  if (plan.scope === 'workers') return true;
+  if (plan.sets === undefined || plan.sets === null) return false;
+  return arrayValue(plan.sets).includes('workers');
 }
 
 async function observedDailyUsage(config: Config, fetcher: Fetcher) {
