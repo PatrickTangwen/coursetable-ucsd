@@ -4,6 +4,7 @@ const runtimeSecretNames = [
   'RESEND_API_KEY',
   'SESSION_SECRET',
   'TELEMETRY_HMAC_KEY',
+  'VERIFICATION_EMAIL_FROM_ADDRESS',
 ] as const;
 
 export function workerSecrets(environment: {

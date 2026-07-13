@@ -11,6 +11,7 @@ describe('staging Worker secret bundle', () => {
         'RESEND_API_KEY',
         'SESSION_SECRET',
         'TELEMETRY_HMAC_KEY',
+        'VERIFICATION_EMAIL_FROM_ADDRESS',
       ].map((name) => [name, `${name.toLowerCase()}-value`]),
     );
     const secrets = workerSecrets(environment);

@@ -14,6 +14,7 @@ import { enableMapSet, setAutoFreeze } from 'immer';
 import Globals from './Globals';
 import App from './App';
 import { isDev } from './config';
+import { scrubBrowserTelemetry } from './telemetry/sentryPrivacy';
 
 enableMapSet();
 setAutoFreeze(false);
@@ -21,6 +22,10 @@ setAutoFreeze(false);
 Sentry.init({
   enabled: !isDev,
   dsn: 'https://53e6511b51074b35a273d0d47d615927@o476134.ingest.sentry.io/5515218',
+  sendDefaultPii: false,
+  beforeSend: scrubBrowserTelemetry,
+  beforeSendTransaction: scrubBrowserTelemetry,
+  beforeBreadcrumb: scrubBrowserTelemetry,
   integrations: [
     // See https://docs.sentry.io/platforms/javascript/guides/react/features/react-router/v7/
     Sentry.reactRouterV7BrowserTracingIntegration({

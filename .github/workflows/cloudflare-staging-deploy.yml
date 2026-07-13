@@ -116,7 +116,6 @@ jobs:
       HYPERDRIVE_CONFIG_ID: ${{ vars.HYPERDRIVE_CONFIG_ID }}
       LAST_ACCEPTED_KEY: deployment-evidence/last-accepted.json
       R2_CATALOG_BUCKET: ${{ vars.R2_CATALOG_BUCKET }}
-      VERIFICATION_EMAIL_FROM_ADDRESS: ${{ vars.VERIFICATION_EMAIL_FROM_ADDRESS }}
       VERIFICATION_EMAIL_SENDER_DOMAIN: ${{ vars.VERIFICATION_EMAIL_SENDER_DOMAIN }}
     steps:
       - name: Check out accepted commit
@@ -189,6 +188,7 @@ jobs:
           TELEMETRY_HMAC_KEY: ${{ secrets.TELEMETRY_HMAC_KEY }}
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
           UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          VERIFICATION_EMAIL_FROM_ADDRESS: ${{ secrets.VERIFICATION_EMAIL_FROM_ADDRESS }}
         run: |
           bun tools/staging-deployment/writeWorkerSecrets.mts
           trap 'rm -f artifacts/staging-deployment/worker-secrets.json' EXIT

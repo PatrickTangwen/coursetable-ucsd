@@ -10,7 +10,6 @@ const environment = {
   CLOUDFLARE_WORKER_NAME: 'sungrid-staging',
   HYPERDRIVE_CONFIG_ID: '1234567890abcdef1234567890abcdef',
   R2_CATALOG_BUCKET: 'sungrid-staging-catalog',
-  VERIFICATION_EMAIL_FROM_ADDRESS: 'login@mail.sungridplanner.com',
   VERIFICATION_EMAIL_SENDER_DOMAIN: 'mail.sungridplanner.com',
 };
 
@@ -46,10 +45,10 @@ describe('staging Worker deployment configuration', () => {
         WORKERS_FREE_EXTERNAL_SUBREQUESTS_PER_INVOCATION: '50',
         WORKERS_FREE_CRON_TRIGGERS_PER_ACCOUNT: '5',
         WORKERS_FREE_STATIC_ASSETS_PER_VERSION: '20000',
-        VERIFICATION_EMAIL_FROM_ADDRESS: 'login@mail.sungridplanner.com',
         VERIFICATION_EMAIL_SENDER_DOMAIN: 'mail.sungridplanner.com',
       },
     });
+    expect(config.vars).not.toHaveProperty('VERIFICATION_EMAIL_FROM_ADDRESS');
   });
 
   it('rejects any non-staging public hostname', async () => {

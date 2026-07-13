@@ -29,9 +29,6 @@ export function buildWorkerConfig(
     environment.VERIFICATION_EMAIL_SENDER_DOMAIN,
     'mail.sungridplanner.com',
   );
-  const fromAddress = environment.VERIFICATION_EMAIL_FROM_ADDRESS;
-  if (!fromAddress?.endsWith('@mail.sungridplanner.com'))
-    throw new Error('Unexpected verification from address');
 
   const errors: { error: number; offset: number; length: number }[] = [];
   const config = parse(source, errors, {
@@ -70,7 +67,6 @@ export function buildWorkerConfig(
       stagingContract.freeLimits.staticAssetsPerVersion,
     ),
     USAGE_ALLOWANCE_WORKER_REQUESTS: '3100000',
-    VERIFICATION_EMAIL_FROM_ADDRESS: fromAddress,
     VERIFICATION_EMAIL_SENDER_DOMAIN: 'mail.sungridplanner.com',
   };
   return config;

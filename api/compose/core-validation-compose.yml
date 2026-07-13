@@ -96,3 +96,9 @@ services:
 volumes:
   core-validation-postgres-data:
   core-validation-redis-data:
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.31.85.0/24

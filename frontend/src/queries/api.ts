@@ -1118,7 +1118,6 @@ export async function fetchCurrentUser(): Promise<UserInfo | null | undefined> {
   const user = appUserResponseToUserInfo(res.user);
   Sentry.setUser({
     id: String(user.user_id),
-    email: user.verifiedEmail,
   });
   return user;
 }
@@ -1214,7 +1213,6 @@ export async function verifyUcsdEmail(
   const user = appUserResponseToUserInfo(res.user);
   Sentry.setUser({
     id: String(user.user_id),
-    email: user.verifiedEmail,
   });
   return { status: 'authenticated', user };
 }

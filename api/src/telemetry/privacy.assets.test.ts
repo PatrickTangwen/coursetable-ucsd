@@ -6,13 +6,20 @@ const root = path.resolve(import.meta.dirname, '../../..');
 
 describe('hosted telemetry privacy assets', () => {
   it('configures explicit Sentry and Winston scrubbing', async () => {
-    const [sentry, winston] = await Promise.all([
-      readFile(path.join(root, 'api/src/sentry-instrument.ts'), 'utf8'),
-      readFile(path.join(root, 'api/src/logging/winston.ts'), 'utf8'),
-    ]);
+    const [serverSentry, winston, browserSentry, browserApi] =
+      await Promise.all([
+        readFile(path.join(root, 'api/src/sentry-instrument.ts'), 'utf8'),
+        readFile(path.join(root, 'api/src/logging/winston.ts'), 'utf8'),
+        readFile(path.join(root, 'frontend/src/main.tsx'), 'utf8'),
+        readFile(path.join(root, 'frontend/src/queries/api.ts'), 'utf8'),
+      ]);
 
-    expect(sentry).toContain('beforeSend: scrubGeneralTelemetry');
+    expect(serverSentry).toContain('beforeSend: scrubGeneralTelemetry');
     expect(winston).toContain('scrubGeneralTelemetry');
+    expect(browserSentry).toContain('sendDefaultPii: false');
+    expect(browserSentry).toContain('beforeSend: scrubBrowserTelemetry');
+    expect(browserSentry).toContain('beforeBreadcrumb: scrubBrowserTelemetry');
+    expect(browserApi).not.toMatch(/Sentry\.setUser\(\{[^}]*email:/u);
   });
 
   it('keeps deployment workflows and shell scripts free of environment dumps and shell tracing', async () => {
