@@ -79,6 +79,7 @@ function configuredEnvironment() {
     RESEND_API_KEY: 'local-resend-key',
     VERIFICATION_EMAIL_SENDER_DOMAIN: 'validation.invalid',
     VERIFICATION_EMAIL_FROM_ADDRESS: 'login@validation.invalid',
+    PUBLIC_LOGIN_ENABLED: 'true',
     VERIFICATION_REQUEST_COOLDOWN_SECONDS: '1',
     VERIFICATION_SOURCE_LIMIT: '5',
     VERIFICATION_SOURCE_WINDOW_SECONDS: '900',
@@ -297,6 +298,46 @@ describe('hosted App Worker composition', () => {
 
     expect(response.status).toBe(200);
     expect(await response.text()).toBe('SunGrid');
+  });
+
+  it('keeps Catalog public but closes new login entry points when public login is disabled', async () => {
+    const redis = createMemoryUpstashRedis();
+    const { providers } = memoryHostedProviders(redis);
+    const environment = {
+      ...configuredEnvironment(),
+      PUBLIC_LOGIN_ENABLED: 'false',
+    } as AppWorkerEnv;
+
+    for (const pathname of [
+      '/api/auth/ucsd/request-verification',
+      '/api/auth/ucsd/verify',
+    ]) {
+      const response = await handleAppWorkerRequest(
+        new Request(`https://sungridplanner.com${pathname}`, {
+          method: 'POST',
+          body: JSON.stringify({
+            email: 'student@ucsd.edu',
+            code: '000000',
+          }),
+          headers: { 'content-type': 'application/json' },
+        }),
+        environment,
+        context,
+        providers,
+      );
+
+      expect(response.status).toBe(404);
+      expect(response.headers.get('cache-control')).toBe('no-store');
+      expect(await response.json()).toEqual({ error: 'NOT_FOUND' });
+    }
+
+    const metadata = await handleAppWorkerRequest(
+      new Request('https://sungridplanner.com/api/catalog/metadata'),
+      environment,
+      context,
+      providers,
+    );
+    expect(metadata.status).toBe(200);
   });
 
   it('fails planning data closed when account bindings are absent', async () => {

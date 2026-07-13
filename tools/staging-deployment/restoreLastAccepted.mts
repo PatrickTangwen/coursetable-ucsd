@@ -4,13 +4,17 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 
 import {
+  deploymentArtifactDirectory,
+  deploymentContract,
+} from './deploymentContext.js';
+import {
   acceptedWorkerVersion,
   lastAcceptedExistsFilename,
   lastAcceptedFilename,
   restoreCapturedLastAccepted,
 } from './lastAccepted.js';
 import { createR2CatalogStore } from './r2CatalogStore.js';
-import { exists, isObject, stagingContract } from './stagingContract.js';
+import { exists, isObject } from './stagingContract.js';
 import {
   deleteWorkerScript,
   restoreWorkerVersion,
@@ -18,11 +22,12 @@ import {
 
 const execFileAsync = promisify(execFile);
 const root = path.resolve(import.meta.dirname, '../..');
-const artifactDirectory = path.join(root, 'artifacts/staging-deployment');
+const contract = deploymentContract();
+const artifactDirectory = deploymentArtifactDirectory(root, contract);
 await mkdir(artifactDirectory, { recursive: true });
 const worker = process.env.CLOUDFLARE_WORKER_NAME;
-if (worker !== stagingContract.worker)
-  throw new Error('Unexpected staging Worker name');
+if (worker !== contract.worker)
+  throw new Error(`Unexpected ${contract.target} Worker name`);
 
 let workerResult = 'not-required';
 if (await exists(path.join(artifactDirectory, 'worker-deploy-attempted'))) {
@@ -32,12 +37,14 @@ if (await exists(path.join(artifactDirectory, 'worker-deploy-attempted'))) {
   if (acceptedExists) {
     const acceptedVersion = acceptedWorkerVersion(
       await readFile(path.join(artifactDirectory, lastAcceptedFilename)),
+      contract,
     );
     const restored = await restoreWorkerVersion({
       acceptedVersion,
       environment: process.env,
       root,
       worker,
+      contract,
     });
     workerResult = restored.changed ? 'rolled-back' : 'already-accepted';
   } else {
@@ -59,6 +66,8 @@ if (await exists(path.join(artifactDirectory, 'worker-deploy-attempted'))) {
           worker,
         },
         currentValue.versionId,
+        fetch,
+        contract,
       );
       workerResult = 'removed-first-failed-deployment';
     } else {
@@ -78,8 +87,9 @@ if (
   await exists(path.join(artifactDirectory, 'last-accepted-update-attempted'))
 ) {
   evidenceResult = await restoreCapturedLastAccepted(
-    createR2CatalogStore(),
+    createR2CatalogStore(process.env, contract),
     artifactDirectory,
+    contract,
   );
 }
 
@@ -97,6 +107,7 @@ console.log(JSON.stringify(evidence));
 
 function required(name: string) {
   const value = process.env[name];
-  if (!value) throw new Error(`Missing staging recovery input: ${name}`);
+  if (!value)
+    throw new Error(`Missing ${contract.target} recovery input: ${name}`);
   return value;
 }

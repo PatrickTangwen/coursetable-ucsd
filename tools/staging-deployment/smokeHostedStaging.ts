@@ -1,3 +1,4 @@
+import type { HostedDeploymentContract } from './productionContract.js';
 import { isObject, stagingContract } from './stagingContract.js';
 
 type Fetcher = (
@@ -21,7 +22,6 @@ type ReadinessOptions = {
   now: () => number;
 };
 
-const acceptedOrigin = `https://${stagingContract.hostname}`;
 const defaultReadiness: ReadinessOptions = {
   overallTimeoutMs: 300_000,
   attemptTimeoutMs: 10_000,
@@ -33,13 +33,30 @@ const defaultReadiness: ReadinessOptions = {
   now: () => performance.now(),
 };
 
-export async function runHostedStagingSmoke(
+export function runHostedStagingSmoke(
   origin: string,
   fetcher: Fetcher = fetch,
   repeats = 3,
   readinessOverrides: Partial<ReadinessOptions> = {},
 ) {
-  if (origin !== acceptedOrigin) throw new Error('Unexpected staging origin');
+  return runHostedDeploymentSmoke(
+    origin,
+    stagingContract,
+    fetcher,
+    repeats,
+    readinessOverrides,
+  );
+}
+
+export async function runHostedDeploymentSmoke(
+  origin: string,
+  contract: HostedDeploymentContract,
+  fetcher: Fetcher = fetch,
+  repeats = 3,
+  readinessOverrides: Partial<ReadinessOptions> = {},
+) {
+  if (origin !== `https://${contract.hostname}`)
+    throw new Error(`Unexpected ${contract.target} origin`);
   if (!Number.isInteger(repeats) || repeats < 3)
     throw new Error('Hosted smoke requires at least three repetitions');
   const readiness = { ...defaultReadiness, ...readinessOverrides };
@@ -70,12 +87,14 @@ export async function runHostedStagingSmoke(
       validate: assertUnauthenticatedSession,
     },
     { method: 'POST', pathname: '/api/auth/logout', status: 200 },
-    { method: 'GET', pathname: '/api/savedSearches', status: 401 },
+    ...(contract.target === 'staging'
+      ? [{ method: 'GET', pathname: '/api/savedSearches', status: 401 }]
+      : []),
     { method: 'GET', pathname: '/api/savedWorksheets', status: 401 },
     {
       method: 'POST',
       pathname: '/api/auth/ucsd/request-verification',
-      status: 400,
+      status: contract.publicLoginEnabled ? 400 : 404,
       body: { email: 'deployment-smoke@example.invalid' },
     },
   ];
@@ -94,6 +113,7 @@ export async function runHostedStagingSmoke(
       expectedStatus: status,
     })),
     authenticatedIdentityCreated: false,
+    publicLoginEnabled: contract.publicLoginEnabled,
     cpuLimitErrorsObserved: false,
   };
 }

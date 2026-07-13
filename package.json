@@ -30,6 +30,7 @@
     "validate:worker-catalog": "VITE_API_ENDPOINT= bun run --cwd frontend build && bun worker/scripts/validateCatalogWorker.mts",
     "validate:failure-safety": "bun worker/scripts/validateFailureSafety.mts",
     "validate:staging-deployment": "bun tools/staging-deployment/validateStagingDeployment.mts",
+    "validate:production-deployment": "bun tools/staging-deployment/validateProductionDeployment.mts",
     "validate:real-backend-auth": "API_PORT=3010 bun tools/real-backend-auth-validation/validateRealBackendAuth.mts",
     "validate:core-backend": "API_PORT=3010 bun tools/real-backend-auth-validation/validateRealBackendAuth.mts",
     "validate:local-platform": "bun tools/local-platform/validateLocalPlatform.mts",

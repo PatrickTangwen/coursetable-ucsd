@@ -51,6 +51,7 @@ function createEnvironment() {
     RESEND_API_KEY: 'local-resend-key',
     VERIFICATION_EMAIL_SENDER_DOMAIN: 'validation.invalid',
     VERIFICATION_EMAIL_FROM_ADDRESS: 'login@validation.invalid',
+    PUBLIC_LOGIN_ENABLED: 'true',
     VERIFICATION_REQUEST_COOLDOWN_SECONDS: '1',
     VERIFICATION_SOURCE_LIMIT: '5',
     VERIFICATION_SOURCE_WINDOW_SECONDS: '900',

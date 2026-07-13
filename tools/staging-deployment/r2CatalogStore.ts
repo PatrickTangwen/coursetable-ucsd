@@ -5,6 +5,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 
+import type { HostedDeploymentContract } from './productionContract.js';
 import { stagingContract } from './stagingContract.js';
 import type { TermArchiveStore } from './termArchivePublisher.js';
 
@@ -29,11 +30,12 @@ export async function withR2RequestTimeout<T>(
 
 export function createR2CatalogStore(
   environment: { [key: string]: string | undefined } = process.env,
+  contract: HostedDeploymentContract = stagingContract,
 ) {
   const accountId = required(environment, 'CLOUDFLARE_ACCOUNT_ID');
   const bucket = required(environment, 'R2_CATALOG_BUCKET');
-  if (bucket !== stagingContract.bucket)
-    throw new Error('Unexpected staging Catalog bucket');
+  if (bucket !== contract.bucket)
+    throw new Error(`Unexpected ${contract.target} Catalog bucket`);
   const client = new S3Client({
     credentials: {
       accessKeyId: required(environment, 'R2_CATALOG_ACCESS_KEY_ID'),
@@ -91,7 +93,7 @@ function required(
   name: string,
 ) {
   const value = environment[name];
-  if (!value) throw new Error(`Missing staging deployment input: ${name}`);
+  if (!value) throw new Error(`Missing hosted deployment input: ${name}`);
   return value;
 }
 

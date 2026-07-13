@@ -1,33 +1,42 @@
 import { parse } from 'jsonc-parser';
 
+import type { HostedDeploymentContract } from './productionContract.js';
 import { stagingContract } from './stagingContract.js';
 
 export function buildWorkerConfig(
   source: string,
   environment: { [key: string]: string | undefined },
+  contract: HostedDeploymentContract = stagingContract,
 ) {
   requireExact(
-    'staging hostname',
-    environment.CLOUDFLARE_STAGING_HOSTNAME,
-    stagingContract.hostname,
+    `${contract.target} hostname`,
+    environment[
+      contract.target === 'staging'
+        ? 'CLOUDFLARE_STAGING_HOSTNAME'
+        : 'CLOUDFLARE_PRODUCTION_HOSTNAME'
+    ],
+    contract.hostname,
   );
   requireExact(
-    'staging Worker name',
+    `${contract.target} Worker name`,
     environment.CLOUDFLARE_WORKER_NAME,
-    stagingContract.worker,
+    contract.worker,
   );
   requireExact(
-    'staging Catalog bucket',
+    `${contract.target} Catalog bucket`,
     environment.R2_CATALOG_BUCKET,
-    stagingContract.bucket,
+    contract.bucket,
   );
   const hyperdriveId = environment.HYPERDRIVE_CONFIG_ID;
-  if (!hyperdriveId || !/^[a-f\d]{32}$/u.test(hyperdriveId))
-    throw new Error('Unexpected staging Hyperdrive configuration ID');
+  if (!hyperdriveId || !/^[a-f\d]{32}$/u.test(hyperdriveId)) {
+    throw new Error(
+      `Unexpected ${contract.target} Hyperdrive configuration ID`,
+    );
+  }
   requireExact(
     'verification sender domain',
     environment.VERIFICATION_EMAIL_SENDER_DOMAIN,
-    'mail.sungridplanner.com',
+    contract.senderDomain,
   );
 
   const errors: { error: number; offset: number; length: number }[] = [];
@@ -40,10 +49,10 @@ export function buildWorkerConfig(
   if (config.workers_dev !== false || config.preview_urls !== false)
     throw new Error('Provider-default Worker URLs must stay disabled');
 
-  config.name = stagingContract.worker;
-  config.routes = [{ pattern: stagingContract.hostname, custom_domain: true }];
+  config.name = contract.worker;
+  config.routes = [{ pattern: contract.hostname, custom_domain: true }];
   config.r2_buckets = [
-    { binding: 'CATALOG_BUCKET', bucket_name: stagingContract.bucket },
+    { binding: 'CATALOG_BUCKET', bucket_name: contract.bucket },
   ];
   config.hyperdrive = [
     { binding: 'APP_DB_HYPERDRIVE_NO_CACHE', id: hyperdriveId },
@@ -51,23 +60,22 @@ export function buildWorkerConfig(
   config.vars = {
     ...(config.vars as { [key: string]: unknown }),
     CLOUDFLARE_PLAN_IDENTITY: 'Workers Free',
-    WORKERS_FREE_REQUESTS_PER_DAY: String(
-      stagingContract.freeLimits.requestsPerDay,
-    ),
+    WORKERS_FREE_REQUESTS_PER_DAY: String(contract.freeLimits.requestsPerDay),
     WORKERS_FREE_CPU_MS_PER_INVOCATION: String(
-      stagingContract.freeLimits.cpuMsPerInvocation,
+      contract.freeLimits.cpuMsPerInvocation,
     ),
     WORKERS_FREE_EXTERNAL_SUBREQUESTS_PER_INVOCATION: String(
-      stagingContract.freeLimits.externalSubrequestsPerInvocation,
+      contract.freeLimits.externalSubrequestsPerInvocation,
     ),
     WORKERS_FREE_CRON_TRIGGERS_PER_ACCOUNT: String(
-      stagingContract.freeLimits.cronTriggersPerAccount,
+      contract.freeLimits.cronTriggersPerAccount,
     ),
     WORKERS_FREE_STATIC_ASSETS_PER_VERSION: String(
-      stagingContract.freeLimits.staticAssetsPerVersion,
+      contract.freeLimits.staticAssetsPerVersion,
     ),
     USAGE_ALLOWANCE_WORKER_REQUESTS: '3100000',
-    VERIFICATION_EMAIL_SENDER_DOMAIN: 'mail.sungridplanner.com',
+    PUBLIC_LOGIN_ENABLED: String(contract.publicLoginEnabled),
+    VERIFICATION_EMAIL_SENDER_DOMAIN: contract.senderDomain,
   };
   return config;
 }

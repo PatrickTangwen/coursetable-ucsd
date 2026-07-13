@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { runHostedStagingSmoke } from './smokeHostedStaging.js';
+import { createProductionContract } from './productionContract.js';
+import {
+  runHostedDeploymentSmoke,
+  runHostedStagingSmoke,
+} from './smokeHostedStaging.js';
 
 describe('hosted staging smoke', () => {
   it('repeats public and unauthenticated seams without creating an identity', async () => {
@@ -143,7 +147,46 @@ describe('hosted staging smoke', () => {
   });
 });
 
-function smokeFetcher(currentUser: unknown, cpuFailure = false) {
+describe('hosted Production smoke', () => {
+  it('proves the deployed public login boundary remains disabled', async () => {
+    const contract = createProductionContract({
+      DEPLOYMENT_TARGET: 'production',
+      CLOUDFLARE_PRODUCTION_HOSTNAME: 'sungridplanner.com',
+      CLOUDFLARE_WORKER_NAME: 'sungrid-production',
+      R2_CATALOG_BUCKET: 'sungrid-production-catalog',
+      VERIFICATION_EMAIL_SENDER_DOMAIN: 'mail.sungridplanner.com',
+      PRODUCTION_ISOLATION_VERIFIED_AT: '2026-07-13T20:00:00.000Z',
+    });
+    const fetcher = smokeFetcher(
+      { authenticated: false, user: null },
+      false,
+      404,
+    );
+
+    const evidence = await runHostedDeploymentSmoke(
+      'https://sungridplanner.com',
+      contract,
+      fetcher,
+      3,
+    );
+
+    expect(evidence).toMatchObject({
+      result: 'passed',
+      origin: 'https://sungridplanner.com',
+      publicLoginEnabled: false,
+      authenticatedIdentityCreated: false,
+    });
+    expect(evidence.paths).not.toContainEqual(
+      expect.objectContaining({ pathname: '/api/savedSearches' }),
+    );
+  });
+});
+
+function smokeFetcher(
+  currentUser: unknown,
+  cpuFailure = false,
+  loginStatus = 400,
+) {
   return (input: string | URL | Request, init?: RequestInit) => {
     const request = new Request(input, init);
     const { pathname } = new URL(request.url);
@@ -160,7 +203,10 @@ function smokeFetcher(currentUser: unknown, cpuFailure = false) {
       return Promise.resolve(Response.json(currentUser));
     if (pathname === '/api/auth/ucsd/request-verification') {
       return Promise.resolve(
-        Response.json({ error: 'INVALID_EMAIL' }, { status: 400 }),
+        Response.json(
+          { error: loginStatus === 404 ? 'NOT_FOUND' : 'INVALID_EMAIL' },
+          { status: loginStatus },
+        ),
       );
     }
     if (
