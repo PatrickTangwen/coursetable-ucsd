@@ -124,3 +124,15 @@ Current provider references used for this implementation:
 - [PostgreSQL custom-format dumps](https://www.postgresql.org/docs/current/backup-dump.html)
 - [PostgreSQL `pg_restore`](https://www.postgresql.org/docs/current/app-pgrestore.html)
 - [Cloudflare R2 S3 API](https://developers.cloudflare.com/r2/api/s3/api/)
+
+## Hosted acceptance follow-up (2026-07-13)
+
+Issue #85 run `29276398861` reached the hosted backup command but failed safely
+in the original coarse `create-dump` stage. Restore was skipped, the disposable
+PostgreSQL container and network were removed, and no provider detail was
+printed. The follow-up workflow now prepares the dedicated backup role with
+current and default read-only grants for both the application `public` schema
+and the Drizzle migration schema before running the backup. Failure evidence
+also distinguishes the schema read before the dump, the custom-format dump,
+and the schema read after the dump without retaining connection or tool error
+text.

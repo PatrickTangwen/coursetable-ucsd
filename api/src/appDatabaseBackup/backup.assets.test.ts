@@ -16,6 +16,7 @@ describe('App DB backup operational assets', () => {
     expect(workflow).toContain("vars.APP_DB_BACKUP_ENABLED == 'true'");
     expect(workflow).toContain('environment: Staging');
     expect(workflow).toContain('APP_DB_POSTGRES_TOOLS_IMAGE: postgres:18');
+    expect(workflow).toContain('app-db:backup:prepare-role');
     expect(workflow).toContain('app-db:backup');
     expect(workflow).toContain('app-db:restore:verify');
     expect(workflow).toContain('R2_BACKUP_BUCKET');
@@ -24,6 +25,7 @@ describe('App DB backup operational assets', () => {
     expect(workflow).toContain('R2_BACKUP_ACCESS_KEY_ID');
     expect(workflow).toContain('R2_BACKUP_SECRET_ACCESS_KEY');
     expect(workflow).toContain('NEON_DIRECT_DATABASE_URL');
+    expect(workflow).toContain('NEON_MIGRATION_DATABASE_URL');
     expect(workflow).toContain('if: always()');
     expect(
       workflow

@@ -11,22 +11,18 @@ import {
 } from './lastAccepted.js';
 import { createR2CatalogStore } from './r2CatalogStore.js';
 import { exists, isObject, stagingContract } from './stagingContract.js';
-import { deleteWorkerScript, deploymentIdentity } from './workerDeployment.js';
+import {
+  deleteWorkerScript,
+  restoreWorkerVersion,
+} from './workerDeployment.js';
 
 const execFileAsync = promisify(execFile);
 const root = path.resolve(import.meta.dirname, '../..');
 const artifactDirectory = path.join(root, 'artifacts/staging-deployment');
 await mkdir(artifactDirectory, { recursive: true });
-const wrangler = path.join(root, 'node_modules/.bin/wrangler');
 const worker = process.env.CLOUDFLARE_WORKER_NAME;
 if (worker !== stagingContract.worker)
   throw new Error('Unexpected staging Worker name');
-
-await execFileAsync(
-  'bun',
-  [path.join(import.meta.dirname, 'catalogR2.mts'), 'restore'],
-  { cwd: root, env: process.env },
-);
 
 let workerResult = 'not-required';
 if (await exists(path.join(artifactDirectory, 'worker-deploy-attempted'))) {
@@ -37,28 +33,13 @@ if (await exists(path.join(artifactDirectory, 'worker-deploy-attempted'))) {
     const acceptedVersion = acceptedWorkerVersion(
       await readFile(path.join(artifactDirectory, lastAcceptedFilename)),
     );
-    await execFileAsync(
-      wrangler,
-      [
-        'rollback',
-        acceptedVersion,
-        '--yes',
-        '--name',
-        worker,
-        '--message',
-        'restore last accepted staging deployment',
-      ],
-      { cwd: root, env: process.env },
-    );
-    const { stdout } = await execFileAsync(
-      wrangler,
-      ['deployments', 'status', '--json', '--name', worker],
-      { cwd: root, env: process.env },
-    );
-    const restored = deploymentIdentity(JSON.parse(stdout));
-    if (restored.versionId !== acceptedVersion)
-      throw new Error('Worker rollback verification failed');
-    workerResult = 'rolled-back';
+    const restored = await restoreWorkerVersion({
+      acceptedVersion,
+      environment: process.env,
+      root,
+      worker,
+    });
+    workerResult = restored.changed ? 'rolled-back' : 'already-accepted';
   } else {
     const currentValue: unknown = JSON.parse(
       await readFile(
@@ -85,6 +66,12 @@ if (await exists(path.join(artifactDirectory, 'worker-deploy-attempted'))) {
     }
   }
 }
+
+await execFileAsync(
+  'bun',
+  [path.join(import.meta.dirname, 'catalogR2.mts'), 'restore'],
+  { cwd: root, env: process.env },
+);
 
 let evidenceResult = 'not-required';
 if (

@@ -1,0 +1,179 @@
+name: Hosted Provider Failure Drill
+
+on:
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: Provider credential to invalidate temporarily
+        required: true
+        type: choice
+        options:
+          - resend
+          - upstash
+      commit:
+        description: Full accepted commit SHA already reachable from main
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sungrid-staging-deployment
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEPLOY_COMMIT: ${{ inputs.commit }}
+      PROVIDER_FAILURE_DRILL: ${{ inputs.provider }}
+    steps:
+      - name: Check out selected commit without Staging credentials
+        timeout-minutes: 2
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit }}
+          fetch-depth: 0
+
+      - name: Prove selected commit is on main
+        timeout-minutes: 2
+        run: |
+          set -eu
+          [[ "$DEPLOY_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$DEPLOY_COMMIT"
+          git fetch --no-tags origin main
+          git merge-base --is-ancestor "$DEPLOY_COMMIT" origin/main
+
+      - uses: oven-sh/setup-bun@v2
+        timeout-minutes: 1
+        with:
+          bun-version: 1.3.6
+
+      - name: Install locked dependencies
+        timeout-minutes: 3
+        run: bun install --frozen-lockfile
+
+      - name: Validate failure and deployment contracts
+        timeout-minutes: 5
+        run: |
+          bun run validate:staging-deployment
+          bun run validate:failure-safety
+
+  drill-and-restore:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: Staging
+    env:
+      DEPLOY_COMMIT: ${{ inputs.commit }}
+      PROVIDER_FAILURE_DRILL: ${{ inputs.provider }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_STAGING_HOSTNAME: ${{ vars.CLOUDFLARE_STAGING_HOSTNAME }}
+      CLOUDFLARE_WORKER_NAME: ${{ vars.CLOUDFLARE_WORKER_NAME }}
+      HYPERDRIVE_CONFIG_ID: ${{ vars.HYPERDRIVE_CONFIG_ID }}
+      LAST_ACCEPTED_KEY: deployment-evidence/last-accepted.json
+      R2_CATALOG_BUCKET: ${{ vars.R2_CATALOG_BUCKET }}
+      VERIFICATION_EMAIL_SENDER_DOMAIN: ${{ vars.VERIFICATION_EMAIL_SENDER_DOMAIN }}
+    steps:
+      - name: Check out accepted commit
+        timeout-minutes: 2
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit }}
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+        timeout-minutes: 1
+        with:
+          bun-version: 1.3.6
+
+      - name: Install locked dependencies
+        timeout-minutes: 3
+        run: bun install --frozen-lockfile
+
+      - name: Capture durable last accepted deployment
+        timeout-minutes: 2
+        env:
+          R2_CATALOG_ACCESS_KEY_ID: ${{ secrets.R2_CATALOG_ACCESS_KEY_ID }}
+          R2_CATALOG_SECRET_ACCESS_KEY: ${{ secrets.R2_CATALOG_SECRET_ACCESS_KEY }}
+        run: bun tools/staging-deployment/deploymentEvidence.mts capture
+
+      - name: Capture active Worker identity
+        timeout-minutes: 2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: bun tools/staging-deployment/workerDeployment.mts capture
+
+      - name: Prove active Worker matches last accepted deployment
+        timeout-minutes: 2
+        run: |
+          bun tools/staging-deployment/workerDeployment.mts verify-accepted
+          bun tools/staging-deployment/verifyProviderFailureDrillCommit.mts
+
+      - name: Build temporary failure-drill Worker
+        timeout-minutes: 5
+        env:
+          VITE_PUBLIC_LOGIN_ENABLED: 'true'
+        run: |
+          bun tools/staging-deployment/prepareWorkerDeployment.mts
+          bun run --cwd frontend build
+          bun tools/staging-deployment/verifyStaticAssets.mts
+
+      - name: Prepare temporary failure-drill secrets
+        timeout-minutes: 1
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          TELEMETRY_HMAC_KEY: ${{ secrets.TELEMETRY_HMAC_KEY }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          VERIFICATION_EMAIL_FROM_ADDRESS: ${{ secrets.VERIFICATION_EMAIL_FROM_ADDRESS }}
+        run: bun tools/staging-deployment/writeProviderFailureDrillSecrets.mts
+
+      - name: Deploy, exercise, and restore
+        timeout-minutes: 9
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          R2_CATALOG_ACCESS_KEY_ID: ${{ secrets.R2_CATALOG_ACCESS_KEY_ID }}
+          R2_CATALOG_SECRET_ACCESS_KEY: ${{ secrets.R2_CATALOG_SECRET_ACCESS_KEY }}
+        run: |
+          set -eu
+          restored=false
+          restore_attempts=0
+          restore() {
+            if [ "$restored" = true ]; then return 0; fi
+            restore_attempts=$((restore_attempts + 1))
+            if [ "$restore_attempts" -gt 2 ]; then return 1; fi
+            if bun tools/staging-deployment/restoreActiveWorkerToLastAccepted.mts && \
+               timeout --signal=TERM 45s \
+                 bun tools/staging-deployment/smokeHostedStaging.mts; then
+              restored=true
+              return 0
+            fi
+            return 1
+          }
+          finish() {
+            original_status="$1"
+            set +e
+            while [ "$restored" != true ] && [ "$restore_attempts" -lt 2 ]; do
+              restore
+            done
+            rm -f artifacts/staging-deployment/worker-secrets.json
+            if [ "$restored" != true ]; then return 1; fi
+            return "$original_status"
+          }
+          trap 'finish $?' EXIT
+          trap 'exit 1' INT TERM
+          timeout --signal=TERM 120s bunx wrangler deploy \
+            --strict \
+            --config worker/wrangler.staging.generated.jsonc \
+            --secrets-file artifacts/staging-deployment/worker-secrets.json \
+            --tag "failure-drill-${PROVIDER_FAILURE_DRILL}" \
+            --message "temporary hosted provider failure drill"
+          timeout --signal=TERM 45s \
+            bun tools/staging-deployment/runHostedProviderFailureDrill.mts
+          restore
+          trap - EXIT INT TERM
+          rm -f artifacts/staging-deployment/worker-secrets.json

@@ -53,6 +53,12 @@ jobs:
             sleep 1
           done
 
+      - name: Prepare least-privilege App DB backup role
+        env:
+          NEON_DIRECT_DATABASE_URL: ${{ secrets.NEON_DIRECT_DATABASE_URL }}
+          NEON_MIGRATION_DATABASE_URL: ${{ secrets.NEON_MIGRATION_DATABASE_URL }}
+        run: bun run --cwd api app-db:backup:prepare-role
+
       - name: Create, upload, and retain App DB backup
         id: backup
         env:
