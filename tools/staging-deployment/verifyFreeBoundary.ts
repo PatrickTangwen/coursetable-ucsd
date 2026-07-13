@@ -44,34 +44,9 @@ export async function verifyFreeBoundary(
     throw new Error('Term Archive R2 readback evidence is missing');
   const api = (pathname: string) => cloudflareApi(config, pathname, fetcher);
 
-  // Workers Free is the account default, not an add-on subscription: a Free
-  // account has no Workers subscription record, while every paid Workers
-  // identity is billed through one. At most one record may classify as
-  // Workers; an identified record must still prove the Free identity, and an
-  // unclassified record whose rate-plan id mentions Workers fails closed
-  // rather than passing as Free.
-  const subscriptions = arrayResult(await api('/subscriptions'));
-  const workerSubscriptions = subscriptions.filter(isWorkerSubscription);
-  if (workerSubscriptions.length > 1) {
-    throw new Error(
-      'Workers subscription identity is ambiguous ' +
-        `(${classifySubscriptions(subscriptions, workerSubscriptions.length)})`,
-    );
-  }
-  const [workerSubscription] = workerSubscriptions;
-  if (
-    !workerSubscription &&
-    subscriptions.some((subscription) =>
-      (ratePlanId(object(subscription.rate_plan)) ?? '').includes('workers'),
-    )
-  ) {
-    throw new Error(
-      'Workers subscription identity is unrecognized ' +
-        `(${classifySubscriptions(subscriptions, workerSubscriptions.length)})`,
-    );
-  }
-  const workerSubscriptionEvidence =
-    proveWorkerSubscriptionIdentity(workerSubscription);
+  const workerSubscriptionEvidence = proveWorkerSubscriptionIdentity(
+    arrayResult(await api('/subscriptions')),
+  );
 
   const accountSettings = object(await api('/workers/account-settings'));
   const usageModel = accountSettings.default_usage_model;
@@ -288,9 +263,34 @@ function ratePlanId(plan: { [key: string]: unknown }) {
   return typeof plan.id === 'string' ? plan.id.toLowerCase() : null;
 }
 
+// Workers Free is the account default, not an add-on subscription: a Free
+// account has no Workers subscription record, while every paid Workers
+// identity is billed through one. At most one record may classify as
+// Workers; an identified record must still prove the Free identity, and any
+// unclassified record whose rate-plan id, scope, or sets mention Workers
+// fails closed rather than passing as Free.
 function proveWorkerSubscriptionIdentity(
-  workerSubscription: { [key: string]: unknown } | undefined,
+  subscriptions: { [key: string]: unknown }[],
 ) {
+  const workerSubscriptions = subscriptions.filter(isWorkerSubscription);
+  if (workerSubscriptions.length > 1) {
+    throw new Error(
+      'Workers subscription identity is ambiguous ' +
+        `(${classifySubscriptions(subscriptions, workerSubscriptions.length)})`,
+    );
+  }
+  if (
+    subscriptions.some(
+      (subscription) =>
+        !isWorkerSubscription(subscription) && isWorkersLike(subscription),
+    )
+  ) {
+    throw new Error(
+      'Workers subscription identity is unrecognized ' +
+        `(${classifySubscriptions(subscriptions, workerSubscriptions.length)})`,
+    );
+  }
+  const [workerSubscription] = workerSubscriptions;
   if (!workerSubscription) {
     return {
       workerSubscriptionPresent: false,
@@ -328,12 +328,29 @@ function isWorkerSubscription(subscription: { [key: string]: unknown }) {
   return arrayValue(plan.sets).includes('workers');
 }
 
+function mentionsWorkers(value: unknown) {
+  return typeof value === 'string' && value.toLowerCase().includes('workers');
+}
+
+// Deliberately broader than the classifier: any Workers-flavored signal on
+// an entry the classifier does not match must fail closed as unrecognized
+// instead of letting the account pass as Free.
+function isWorkersLike(subscription: { [key: string]: unknown }) {
+  const plan = object(subscription.rate_plan);
+  return (
+    mentionsWorkers(plan.id) ||
+    mentionsWorkers(plan.scope) ||
+    (Array.isArray(plan.sets) && plan.sets.some(mentionsWorkers))
+  );
+}
+
 // Redacted classification for the fail-closed identity error: only derived
 // shapes plus the rate-plan id/state/zero-price of entries the classifier
 // itself identifies as Workers subscriptions — the same entries whose
 // rate-plan id and state the deployment evidence contract publishes.
 // Unclassified plan ids, states, prices, and record ids are never echoed;
-// a near-miss id is reported only as the derived idMentionsWorkers flag.
+// a near-miss identity is reported only as the derived workersLike flag,
+// computed by the same predicate that drives the fail-closed guard.
 function classifySubscriptions(
   subscriptions: { [key: string]: unknown }[],
   matched: number,
@@ -353,7 +370,7 @@ function classifySubscriptions(
             : typeof sets;
     return [
       `id=${classified ? String(id) : 'unrelated'}`,
-      `idMentionsWorkers=${String(id !== null && id.includes('workers'))}`,
+      `workersLike=${String(isWorkersLike(subscription))}`,
       `scope=${typeof scope === 'string' ? scope : typeof scope}`,
       `sets=${setsShape}`,
       `state=${classified ? String(subscription.state) : 'unrelated'}`,

@@ -263,7 +263,91 @@ describe('Cloudflare Workers Free boundary', () => {
     if (!(error instanceof Error)) throw new Error('Expected a rejection');
     expect(error.message).toBe(
       'Workers subscription identity is unrecognized (matched=0 total=1; ' +
-        'id=unrelated idMentionsWorkers=true scope=user sets=absent state=unrelated zeroPrice=unrelated)',
+        'id=unrelated workersLike=true scope=user sets=absent state=unrelated zeroPrice=unrelated)',
+    );
+    expect(error.message).not.toContain('workers_legacy');
+  });
+
+  it('fails closed on a Workers-like sets element the classifier does not match', async () => {
+    const setsNearMissFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/subscriptions')) {
+        return response([
+          {
+            state: 'Paid',
+            price: 5,
+            rate_plan: {
+              id: 'paid_compute',
+              externally_managed: false,
+              is_contract: false,
+              scope: 'account',
+              sets: ['workers_paid'],
+            },
+          },
+        ]);
+      }
+      return freeFetcher(input);
+    };
+
+    const error = await verifyFreeBoundary(config, setsNearMissFetcher).then(
+      () => null,
+      (thrown: unknown) => thrown,
+    );
+
+    if (!(error instanceof Error)) throw new Error('Expected a rejection');
+    expect(error.message).toBe(
+      'Workers subscription identity is unrecognized (matched=0 total=1; ' +
+        'id=unrelated workersLike=true scope=account sets=array(1,workers=false) state=unrelated zeroPrice=unrelated)',
+    );
+    expect(error.message).not.toContain('paid_compute');
+    expect(error.message).not.toContain('workers_paid');
+  });
+
+  it('fails closed when a Workers-like entry coexists with the identified subscription', async () => {
+    const coexistenceFetcher = (input: string | URL | Request) => {
+      const { pathname } = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
+      if (pathname.endsWith('/subscriptions')) {
+        return response([
+          {
+            state: 'Provisioned',
+            price: 0,
+            rate_plan: {
+              id: 'free',
+              externally_managed: false,
+              is_contract: false,
+              scope: 'workers',
+              sets: ['workers'],
+            },
+          },
+          {
+            state: 'Paid',
+            price: 5,
+            rate_plan: {
+              id: 'workers_legacy',
+              externally_managed: false,
+              is_contract: false,
+              scope: 'user',
+            },
+          },
+        ]);
+      }
+      return freeFetcher(input);
+    };
+
+    const error = await verifyFreeBoundary(config, coexistenceFetcher).then(
+      () => null,
+      (thrown: unknown) => thrown,
+    );
+
+    if (!(error instanceof Error)) throw new Error('Expected a rejection');
+    expect(error.message).toBe(
+      'Workers subscription identity is unrecognized (matched=1 total=2; ' +
+        'id=free workersLike=true scope=workers sets=array(1,workers=true) state=Provisioned zeroPrice=true; ' +
+        'id=unrelated workersLike=true scope=user sets=absent state=unrelated zeroPrice=unrelated)',
     );
     expect(error.message).not.toContain('workers_legacy');
   });
@@ -395,9 +479,9 @@ describe('Cloudflare Workers Free boundary', () => {
     if (!(error instanceof Error)) throw new Error('Expected a rejection');
     expect(error.message).toBe(
       'Workers subscription identity is unrecognized (matched=0 total=3; ' +
-        'id=unrelated idMentionsWorkers=false scope=account sets=null state=unrelated zeroPrice=unrelated; ' +
-        'id=unrelated idMentionsWorkers=false scope=zone sets=array(1,workers=false) state=unrelated zeroPrice=unrelated; ' +
-        'id=unrelated idMentionsWorkers=true scope=user sets=absent state=unrelated zeroPrice=unrelated)',
+        'id=unrelated workersLike=false scope=account sets=null state=unrelated zeroPrice=unrelated; ' +
+        'id=unrelated workersLike=false scope=zone sets=array(1,workers=false) state=unrelated zeroPrice=unrelated; ' +
+        'id=unrelated workersLike=true scope=user sets=absent state=unrelated zeroPrice=unrelated)',
     );
     expect(error.message).not.toContain('unrelated-account-plan');
     expect(error.message).not.toContain('business');
@@ -442,8 +526,8 @@ describe('Cloudflare Workers Free boundary', () => {
 
     await expect(verifyFreeBoundary(config, ambiguousFetcher)).rejects.toThrow(
       'Workers subscription identity is ambiguous (matched=2 total=2; ' +
-        'id=workers_free idMentionsWorkers=true scope=user sets=null state=Provisioned zeroPrice=true; ' +
-        'id=workers_paid idMentionsWorkers=true scope=user sets=string state=Paid zeroPrice=false)',
+        'id=workers_free workersLike=true scope=user sets=null state=Provisioned zeroPrice=true; ' +
+        'id=workers_paid workersLike=true scope=user sets=string state=Paid zeroPrice=false)',
     );
   });
 
