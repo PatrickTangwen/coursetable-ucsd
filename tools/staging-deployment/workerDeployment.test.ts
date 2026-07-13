@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import {
   assertActiveMatchesLastAccepted,
+  assertFirstDeploymentRecoveryAllowed,
+  deleteWorkerScript,
   deploymentIdentity,
 } from './workerDeployment.js';
 
@@ -41,5 +43,112 @@ describe('Worker deployment identity', () => {
         'accepted-version',
       ),
     ).not.toThrow();
+  });
+
+  it('removes a first failed Worker through only the Workers Scripts API', async () => {
+    const requests: { method: string; pathname: string }[] = [];
+    const fetcher = (input: string | URL | Request, init?: RequestInit) => {
+      const request = new Request(input, init);
+      requests.push({
+        method: request.method,
+        pathname: new URL(request.url).pathname,
+      });
+      if (request.url.endsWith('/deployments')) {
+        return Promise.resolve(
+          Response.json({
+            success: true,
+            result: {
+              deployments: [
+                {
+                  created_on: '2026-07-13T01:32:07.000Z',
+                  versions: [{ version_id: 'failed-version', percentage: 100 }],
+                },
+              ],
+            },
+          }),
+        );
+      }
+      if (request.method === 'DELETE')
+        return Promise.resolve(Response.json({ success: true }));
+      return Promise.resolve(Response.json({}, { status: 404 }));
+    };
+
+    await deleteWorkerScript(
+      {
+        accountId: 'account-id',
+        apiToken: 'redacted-token',
+        worker: 'sungrid-staging',
+      },
+      'failed-version',
+      fetcher,
+    );
+
+    expect(requests).toEqual([
+      {
+        method: 'GET',
+        pathname:
+          '/client/v4/accounts/account-id/workers/scripts/sungrid-staging/deployments',
+      },
+      {
+        method: 'DELETE',
+        pathname:
+          '/client/v4/accounts/account-id/workers/scripts/sungrid-staging',
+      },
+      {
+        method: 'GET',
+        pathname:
+          '/client/v4/accounts/account-id/workers/scripts/sungrid-staging',
+      },
+    ]);
+  });
+
+  it('rejects a deployment-list response without an active deployment', async () => {
+    const fetcher = () =>
+      Promise.resolve(
+        Response.json({ success: true, result: { deployments: [] } }),
+      );
+
+    await expect(
+      deleteWorkerScript(
+        {
+          accountId: 'account-id',
+          apiToken: 'redacted-token',
+          worker: 'sungrid-staging',
+        },
+        'failed-version',
+        fetcher,
+      ),
+    ).rejects.toThrow('Worker deployment readback failed');
+  });
+
+  it('allows explicit recovery only when no accepted deployment exists', () => {
+    expect(() =>
+      assertFirstDeploymentRecoveryAllowed(
+        { exists: true, versionId: 'failed-version' },
+        false,
+        'failed-version',
+      ),
+    ).not.toThrow();
+    expect(() =>
+      assertFirstDeploymentRecoveryAllowed(
+        { exists: true, versionId: 'accepted-version' },
+        true,
+        'accepted-version',
+      ),
+    ).toThrow('cannot remove an accepted Worker');
+    expect(() =>
+      assertFirstDeploymentRecoveryAllowed(
+        { exists: false },
+        false,
+        'failed-version',
+      ),
+    ).toThrow('has no Worker to remove');
+    expect(() =>
+      assertFirstDeploymentRecoveryAllowed(
+        { exists: true, versionId: 'replacement-version' },
+        false,
+        'failed-version',
+      ),
+    ).toThrow('version changed');
   });
 });
