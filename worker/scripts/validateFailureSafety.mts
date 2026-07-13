@@ -91,6 +91,7 @@ function environment(
     UPSTASH_REDIS_REST_TOKEN: 'local-token',
     SESSION_SECRET: 'validation-session-secret',
     RESEND_API_KEY: 'local-resend-key',
+    PUBLIC_LOGIN_ENABLED: 'true',
     VERIFICATION_EMAIL_SENDER_DOMAIN: 'validation.invalid',
     VERIFICATION_EMAIL_FROM_ADDRESS: 'login@validation.invalid',
     VERIFICATION_REQUEST_COOLDOWN_SECONDS: '1',
