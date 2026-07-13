@@ -82,7 +82,6 @@ describe('Cloudflare staging deployment assets', () => {
         'Build Worker and static assets',
         'Deploy Worker and secrets',
         'Run hosted staging smoke',
-        'Verify Workers Free boundary',
         'Record accepted deployment',
         'Restore last accepted deployment on failure',
         'Report deployment outcome',

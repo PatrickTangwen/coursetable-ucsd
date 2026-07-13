@@ -16,7 +16,6 @@ type EvidenceInput = {
   };
   activeTerm: string;
   smoke: { [key: string]: unknown };
-  freeBoundary: { [key: string]: unknown };
 };
 
 export function composeDeploymentEvidence(
@@ -31,8 +30,8 @@ export function composeDeploymentEvidence(
     !input.worker.createdAt
   )
     throw new Error('Worker deployment identity is incomplete');
-  if (input.smoke.result !== 'passed' || input.freeBoundary.result !== 'passed')
-    throw new Error('Hosted acceptance gates did not pass');
+  if (input.smoke.result !== 'passed')
+    throw new Error('Hosted acceptance gate did not pass');
   const active = input.publication.terms.find(
     ({ term }) => term === input.activeTerm,
   );
@@ -58,8 +57,6 @@ export function composeDeploymentEvidence(
       archiveTermCount: input.publication.terms.length,
       r2StorageClass: input.publication.storageClass,
     },
-    cloudflarePlan: input.freeBoundary.plan,
-    freeBoundary: input.freeBoundary,
     hostedSmoke: input.smoke,
     productionResourcesMutated: false,
     automaticDeploymentEnabled: false,

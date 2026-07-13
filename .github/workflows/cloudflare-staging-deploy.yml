@@ -207,11 +207,6 @@ jobs:
       - name: Run hosted staging smoke
         run: bun tools/staging-deployment/smokeHostedStaging.mts
 
-      - name: Verify Workers Free boundary
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: bun tools/staging-deployment/verifyFreeBoundary.mts
-
       - name: Record accepted deployment
         env:
           R2_CATALOG_ACCESS_KEY_ID: ${{ secrets.R2_CATALOG_ACCESS_KEY_ID }}

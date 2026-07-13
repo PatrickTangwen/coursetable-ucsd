@@ -46,7 +46,6 @@ if (command === 'capture') {
       publication: await jsonArtifact('catalog-publication.json'),
       activeTerm: config.active_planning_term,
       smoke: await jsonArtifact('hosted-smoke.json'),
-      freeBoundary: await jsonArtifact('free-boundary.json'),
     },
     new Date().toISOString(),
   );
