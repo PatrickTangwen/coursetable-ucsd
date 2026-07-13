@@ -35,7 +35,6 @@ describe('staging deployment evidence', () => {
           cpuLimitErrorsObserved: false,
           authenticatedIdentityCreated: false,
         },
-        freeBoundary: { result: 'passed', plan: 'Workers Free' },
       },
       '2026-07-12T01:02:03.000Z',
     );
@@ -53,7 +52,6 @@ describe('staging deployment evidence', () => {
         digest: 'snapshot-digest',
         manifestDigest: 'manifest-digest',
       },
-      cloudflarePlan: 'Workers Free',
     });
     expect(() => assertDeploymentEvidenceSafe(evidence)).not.toThrow();
     expect(evidence).not.toHaveProperty('automaticProviderUpgradeAuthorized');

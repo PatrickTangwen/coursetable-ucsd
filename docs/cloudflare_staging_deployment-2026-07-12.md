@@ -52,10 +52,7 @@ The protected job performs these stages in order:
 5. Deploy the Worker, static assets, custom domain, bindings, and runtime
    secrets in one Wrangler deployment. `workers.dev` and preview URLs remain
    disabled; the only configured public ingress is
-   `staging.sungridplanner.com`. Acceptance reads both account Custom Domains
-   and the staging script's account-level route inventory, which aggregates
-   Workers Routes across zones, and rejects any route targeting the staging
-   Worker.
+   `staging.sungridplanner.com`.
 6. Repeat public Catalog and unauthenticated auth/Session/account-route smokes
    at least three times. The smoke fails on unexpected status, provider-default
    URLs, or Cloudflare CPU/resource-limit responses and never creates or
@@ -64,50 +61,19 @@ The protected job performs these stages in order:
    failures from initial Custom Domain activation. Every request has its own
    shorter abort timeout, and the retry delays count toward the total deadline;
    HTTP application failures are never retried or hidden.
-7. Read Cloudflare state back through the protected deployment token. The
-   workflow fails closed unless that token can read account subscriptions;
-   this requires the minimal additional `Billing Read` permission, never
-   Billing Write (the previously required `Account Analytics Read` is no
-   longer used by the gate and may be dropped from the token). It rejects an
-   active Workers Paid subscription regardless of the account's configured
-   usage model. A Workers subscription is identified by
-   `rate_plan.scope=workers`, a documented Workers rate-plan id
-   (`workers_free`, `workers_paid`, or `PARTNERS_WORKERS_*`,
-   case-insensitive), or a `rate_plan.sets` entry of `workers`. Workers Free
-   is the account default rather than an add-on subscription — the live Free
-   account holds no Workers subscription record (proven by run 29221583280) —
-   so at most one entry may match: zero matches are the accepted Free
-   reality, and a single match must carry a `free` or `workers_free`
-   rate-plan id with zero price, `externally_managed=false`, and
-   `is_contract=false`. Independently of the match count, any unclassified
-   entry whose rate-plan id, scope, or sets elements mention Workers fails
-   closed as an unrecognized Workers-like identity. When identification
-   fails, the error carries only derived, redacted classification fields:
-   match counts, scope, sets shape, a derived workers-like flag computed by
-   the same guard predicate, and the rate-plan id/state/zero-price of
-   entries the classifier itself identifies as Workers subscriptions — never
-   raw payloads, prices, or unclassified plan identities. Subscription
-   readback uses GET only. These observed fields replace the earlier
-   unsupported hardcoded auto-upgrade assertion. The account default usage
-   model must read back as `standard` (Cloudflare's current pricing model
-   for every plan, observed on the proven subscription-free account by run
-   29222442338, so not a paid signal by itself) or the legacy Free-era
-   `bundled`; the legacy paid `unbound` model, or an unknown value, fails
-   closed with the observed value in the error. The Workers Free
-   10 ms CPU / 50-subrequest / 100k-requests-per-day caps are enforced by
-   the plan itself and mirrored to the Worker as application budget
-   variables, so the gate no longer reads per-script settings or Analytics
-   usage back (the earlier per-script limits and GraphQL usage readbacks
-   assumed provider surfaces that do not exist for plan-enforced caps). The
-   gate also rejects R2 Infrequent Access objects, proves Worker development
-   and preview URLs are off, keeps account Cron Triggers within five, and
-   proves Hyperdrive caching is disabled with an explicitly reported Free
-   connection limit. Missing provider fields are verification failures
-   rather than synthesized zero/default evidence.
+7. The provider-readback `Verify Workers Free boundary` gate was removed by
+   explicit user decision on 2026-07-13. Live runs proved that its provider
+   surfaces diverged from the documented account reality in sequence: Workers
+   Free had no Workers subscription record (run 29221583280), its default usage
+   model was `standard` (run 29222442338), and the modern script-list response
+   omitted route inventory (run 29224156665). The plan's hard caps remain in
+   force, and the Worker still receives the mirrored `WORKERS_FREE_*`
+   application budget variables; these safeguards no longer depend on a
+   provider-readback acceptance gate.
 8. Persist a non-sensitive, digest-verified deployment record containing the
    Git commit, Worker version, frontend build identity, App DB schema version,
-   active Published Snapshot and archive digests, timestamp, Workers Free
-   identity, limit evidence, and smoke evidence. The accepted record becomes
+   active Published Snapshot and archive digests, timestamp, and smoke evidence.
+   The accepted record becomes
    `deployment-evidence/last-accepted.json` in private Catalog R2.
 
 ## Safe failure and rollback
@@ -145,10 +111,10 @@ migration; it neither changes that variable nor creates or mutates production
 resources.
 
 The human-provisioning handoff did not originally record Billing Read or Account
-Analytics Read. Before this PR's merge, the maintainer confirmed both read-only
-permissions were added to the existing deployment token without Billing Edit.
-The Free-plan gate still fails closed if either readback is unavailable. This
-workflow cannot change token permissions or mutate a subscription.
+Analytics Read. The maintainer later added both read-only permissions to the
+existing deployment token without Billing Edit. After removal of the
+provider-readback gate, neither extra permission is used by this workflow. This
+change does not modify the token, its permissions, or any subscription.
 
 ## First hosted run outcome (2026-07-12)
 

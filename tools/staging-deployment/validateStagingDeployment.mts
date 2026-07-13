@@ -35,7 +35,6 @@ for (const filename of [
   'prepareWorkerDeployment.mts',
   'restoreLastAccepted.mts',
   'smokeHostedStaging.mts',
-  'verifyFreeBoundary.mts',
   'verifyStaticAssets.mts',
   'workerDeployment.mts',
   'writeWorkerSecrets.mts',
