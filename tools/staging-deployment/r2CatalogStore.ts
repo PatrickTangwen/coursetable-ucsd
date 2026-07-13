@@ -8,6 +8,25 @@ import {
 import { stagingContract } from './stagingContract.js';
 import type { TermArchiveStore } from './termArchivePublisher.js';
 
+const r2RequestTimeoutMs = 20_000;
+
+export async function withR2RequestTimeout<T>(
+  operation: string,
+  request: (signal: AbortSignal) => Promise<T>,
+  timeoutMs = r2RequestTimeoutMs,
+) {
+  try {
+    return await request(AbortSignal.timeout(timeoutMs));
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.name === 'AbortError' || error.name === 'TimeoutError')
+    )
+      throw new Error(`R2 ${operation} timed out`, { cause: error });
+    throw error;
+  }
+}
+
 export function createR2CatalogStore(
   environment: { [key: string]: string | undefined } = process.env,
 ) {
@@ -27,31 +46,41 @@ export function createR2CatalogStore(
   const store: TermArchiveStore = {
     async get(key) {
       try {
-        const result = await client.send(
-          new GetObjectCommand({ Bucket: bucket, Key: key }),
-        );
-        const body = await result.Body?.transformToByteArray();
-        return body ? Uint8Array.from(body) : null;
+        return await withR2RequestTimeout(`GET ${key}`, async (abortSignal) => {
+          const result = await client.send(
+            new GetObjectCommand({ Bucket: bucket, Key: key }),
+            { abortSignal },
+          );
+          const body = await result.Body?.transformToByteArray();
+          return body ? Uint8Array.from(body) : null;
+        });
       } catch (error) {
         if (isNotFound(error)) return null;
         throw error;
       }
     },
     async put(key, body, options) {
-      await client.send(
-        new PutObjectCommand({
-          Bucket: bucket,
-          Key: key,
-          Body: body,
-          CacheControl: options.cacheControl,
-          ContentType: options.contentType,
-          Metadata: options.metadata,
-          StorageClass: options.storageClass,
-        }),
+      await withR2RequestTimeout(`PUT ${key}`, (abortSignal) =>
+        client.send(
+          new PutObjectCommand({
+            Bucket: bucket,
+            Key: key,
+            Body: body,
+            CacheControl: options.cacheControl,
+            ContentType: options.contentType,
+            Metadata: options.metadata,
+            StorageClass: options.storageClass,
+          }),
+          { abortSignal },
+        ),
       );
     },
     async delete(key) {
-      await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+      await withR2RequestTimeout(`DELETE ${key}`, (abortSignal) =>
+        client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }), {
+          abortSignal,
+        }),
+      );
     },
   };
   return store;
