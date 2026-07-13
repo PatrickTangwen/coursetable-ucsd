@@ -12,6 +12,11 @@ const providerFailureContracts = {
 } as const;
 
 export type HostedProviderFailureDrill = keyof typeof providerFailureContracts;
+type Fetcher = (
+  input: string | URL | Request,
+  init?: RequestInit,
+) => Promise<Response>;
+
 export const hostedProviderFailureDrills = Object.keys(
   providerFailureContracts,
 ) as HostedProviderFailureDrill[];
@@ -38,6 +43,41 @@ export function expectedProviderFailureError(
   provider: HostedProviderFailureDrill,
 ) {
   return providerFailureContracts[provider].error;
+}
+
+export async function waitForUpstashFailureDrillConvergence(
+  origin: string,
+  fetcher: Fetcher = fetch,
+  options: {
+    attempts?: number;
+    delayMs?: number;
+    sleep?: (milliseconds: number) => Promise<void>;
+  } = {},
+) {
+  const attempts = options.attempts ?? 10;
+  const delayMs = options.delayMs ?? 2_000;
+  const sleep =
+    options.sleep ??
+    ((durationMs: number) =>
+      new Promise<void>((resolve) => {
+        setTimeout(resolve, durationMs);
+      }));
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const response = await fetcher(`${origin}/api/auth/current-user`);
+    const body = (await response.json()) as {
+      authenticated?: unknown;
+      error?: unknown;
+    };
+    if (response.status === 503 && body.error === 'AUTH_UNAVAILABLE') return;
+    const stillAccepted =
+      response.status === 200 && body.authenticated === false;
+    if (!stillAccepted)
+      throw new Error('Unexpected Upstash failure-drill convergence response');
+    if (attempt < attempts) await sleep(delayMs);
+  }
+
+  throw new Error('Upstash failure-drill version did not converge');
 }
 
 export function providerFailureEvidence(
