@@ -56,8 +56,7 @@ export function assertFirstDeploymentRecoveryAllowed(
       'First-deployment recovery cannot remove an accepted Worker',
     );
   }
-  if (!active.exists)
-    throw new Error('First-deployment recovery has no Worker to remove');
+  if (!active.exists) return;
   if (!active.versionId || active.versionId !== expectedVersion)
     throw new Error('Unaccepted Worker version changed before recovery');
 }

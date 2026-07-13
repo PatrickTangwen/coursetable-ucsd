@@ -28,17 +28,21 @@ const acceptedExists = await exists(
 );
 assertFirstDeploymentRecoveryAllowed(before, acceptedExists, expectedVersion);
 
-await deleteWorkerScript(
-  {
-    accountId: required('CLOUDFLARE_ACCOUNT_ID'),
-    apiToken: required('CLOUDFLARE_API_TOKEN'),
-    worker,
-  },
-  expectedVersion,
-);
+if (before.exists) {
+  await deleteWorkerScript(
+    {
+      accountId: required('CLOUDFLARE_ACCOUNT_ID'),
+      apiToken: required('CLOUDFLARE_API_TOKEN'),
+      worker,
+    },
+    expectedVersion,
+  );
+}
 await writeFile(beforePath, '{"exists":false}\n');
 const evidence = {
-  result: 'removed-explicitly-authorized-unaccepted-first-deployment',
+  result: before.exists
+    ? 'removed-explicitly-authorized-unaccepted-first-deployment'
+    : 'explicitly-authorized-unaccepted-first-deployment-already-absent',
   worker: stagingContract.worker,
 };
 await writeFile(

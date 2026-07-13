@@ -142,7 +142,7 @@ describe('Worker deployment identity', () => {
         false,
         'failed-version',
       ),
-    ).toThrow('has no Worker to remove');
+    ).not.toThrow();
     expect(() =>
       assertFirstDeploymentRecoveryAllowed(
         { exists: true, versionId: 'replacement-version' },
