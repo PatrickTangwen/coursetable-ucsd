@@ -1,3 +1,5 @@
+import { validateVerificationEmailSenderConfig } from '../../shared/verificationEmailSenderConfig.js';
+
 const runtimeSecretNames = [
   'UPSTASH_REDIS_REST_URL',
   'UPSTASH_REDIS_REST_TOKEN',
@@ -10,11 +12,24 @@ const runtimeSecretNames = [
 export function workerSecrets(environment: {
   [key: string]: string | undefined;
 }) {
-  return Object.fromEntries(
-    runtimeSecretNames.map((name) => {
-      const value = environment[name];
-      if (!value) throw new Error(`Missing Worker runtime input: ${name}`);
-      return [name, value];
-    }),
+  validateVerificationEmailSenderConfig(
+    environment.VERIFICATION_EMAIL_SENDER_DOMAIN ?? '',
+    environment.VERIFICATION_EMAIL_FROM_ADDRESS ?? '',
   );
+  const secrets = Object.fromEntries(
+    runtimeSecretNames.map((name) => [
+      name,
+      requiredRuntimeInput(environment, name),
+    ]),
+  );
+  return secrets;
+}
+
+function requiredRuntimeInput(
+  environment: { [key: string]: string | undefined },
+  name: string,
+) {
+  const value = environment[name];
+  if (!value?.trim()) throw new Error(`Missing Worker runtime input: ${name}`);
+  return value;
 }

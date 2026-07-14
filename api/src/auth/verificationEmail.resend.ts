@@ -4,6 +4,7 @@ import {
   VerificationEmailDeliveryError,
   type VerificationEmailSender,
 } from './verificationEmail.sender.js';
+import { validateVerificationEmailSenderConfig } from '../../../shared/verificationEmailSenderConfig.js';
 
 interface ResendEmailRequest {
   from: string;
@@ -34,20 +35,6 @@ interface ResendVerificationEmailSenderOptions {
   client?: ResendEmailClient;
 }
 
-function validateSenderConfig(senderDomain: string, fromAddress: string) {
-  if (!senderDomain.trim())
-    throw new Error('Verification email sender domain is required');
-  if (!fromAddress.trim())
-    throw new Error('Verification email from address is required');
-
-  const addressDomain = fromAddress.split('@')[1]?.toLowerCase();
-  if (addressDomain !== senderDomain.toLowerCase()) {
-    throw new Error(
-      'Verification email from address must use the configured sender domain',
-    );
-  }
-}
-
 export function createResendVerificationEmailSender({
   apiKey,
   senderDomain,
@@ -55,7 +42,7 @@ export function createResendVerificationEmailSender({
   client,
 }: ResendVerificationEmailSenderOptions): VerificationEmailSender {
   if (!apiKey.trim()) throw new Error('Resend API key is required');
-  validateSenderConfig(senderDomain, fromAddress);
+  validateVerificationEmailSenderConfig(senderDomain, fromAddress);
 
   const emailClient =
     client ??

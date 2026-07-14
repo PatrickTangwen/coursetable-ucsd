@@ -13,7 +13,8 @@ const environment = {
   RESEND_API_KEY: 'real-resend-key',
   SESSION_SECRET: 'real-session-secret',
   TELEMETRY_HMAC_KEY: 'real-telemetry-key',
-  VERIFICATION_EMAIL_FROM_ADDRESS: 'sender-value',
+  VERIFICATION_EMAIL_FROM_ADDRESS: 'login@mail.example.invalid',
+  VERIFICATION_EMAIL_SENDER_DOMAIN: 'mail.example.invalid',
 };
 
 describe('hosted provider failure drill', () => {
@@ -26,8 +27,11 @@ describe('hosted provider failure drill', () => {
       const secrets = providerFailureDrillSecrets(provider, environment);
 
       expect(secrets[key]).toBe('invalid-hosted-failure-drill');
-      for (const [name, value] of Object.entries(environment))
-        if (name !== key) expect(secrets[name]).toBe(value);
+      for (const [name, value] of Object.entries(environment)) {
+        if (name !== key && name !== 'VERIFICATION_EMAIL_SENDER_DOMAIN')
+          expect(secrets[name]).toBe(value);
+      }
+      expect(secrets).not.toHaveProperty('VERIFICATION_EMAIL_SENDER_DOMAIN');
     },
   );
 
