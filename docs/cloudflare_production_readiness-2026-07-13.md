@@ -1,5 +1,13 @@
 # Cloudflare Production code readiness (2026-07-13)
 
+> Historical status note (2026-07-14): this document records the pre-launch
+> code and provisioning contract. Production has since been provisioned,
+> deployed, rollback-tested, backup/restore-tested, and opened for public login;
+> issue #86 is closed. Use
+> `cloudflare_production_operations-2026-07-14.md` for the current state and
+> operator workflow. The original readiness record below is preserved for
+> audit.
+
 Status: code-only implementation for issue #86. This document does not
 authorize or record a Production resource, GitHub Environment, DNS record,
 billing change, secret, deployment, backup schedule, or public-login change.

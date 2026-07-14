@@ -1,5 +1,12 @@
 # Cloudflare staging deployment workflow (2026-07-12)
 
+> Current-status note (2026-07-14): later Staging run
+> [29298271623](https://github.com/PatrickTangwen/coursetable-ucsd/actions/runs/29298271623)
+> accepted commit `415cf4197cfdc0063bca62dcdda6a09d933a6ab1`. The first-run
+> failure and recovery history below is preserved for audit. Current Production
+> state and operator procedures are recorded in
+> `cloudflare_production_operations-2026-07-14.md`.
+
 Status: issue #117 is merged. The first protected run on 2026-07-12 reached the
 Worker deployment stage but failed closed before acceptance; the outcome and
 recovery change are recorded below. This document does not authorize production

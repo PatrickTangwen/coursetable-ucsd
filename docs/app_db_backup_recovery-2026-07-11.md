@@ -136,3 +136,34 @@ and the Drizzle migration schema before running the backup. Failure evidence
 also distinguishes the schema read before the dump, the custom-format dump,
 and the schema read after the dump without retaining connection or tool error
 text.
+
+## Production acceptance and schedule state (2026-07-14)
+
+Production uses a separate Neon project, Hyperdrive configuration, migration
+role, runtime role, backup role, private R2 backup bucket, and bucket-scoped
+backup credential. It does not reuse the Staging App DB or backup objects.
+
+The manual Production workflow run
+[29303511779](https://github.com/PatrickTangwen/coursetable-ucsd/actions/runs/29303511779)
+created a real Production logical dump, uploaded and retained it in the private
+Production backup bucket, restored it into disposable PostgreSQL, verified the
+accepted schema and key tables, and removed the disposable resources. This
+proves backup/restore readiness; it does not replace the live Production
+database or authorize an in-place restore.
+
+`.github/workflows/app-db-backup-production.yml` declares a daily `08:47 UTC`
+schedule. Manual dispatch runs independently of the schedule flag. Scheduled
+events run the backup job only when the protected Production variable
+`APP_DB_BACKUP_ENABLED` is exactly `true`; it remains `false` as of this update.
+
+Do not enable the variable in isolation. The current
+`.github/workflows/cloudflare-production-deploy.yml` still requires
+`APP_DB_BACKUP_ENABLED=false` as a first-deployment safety guard, so flipping
+the variable now would block subsequent Production deployments. Revise and
+accept that deployment guard, assign failure-notification ownership, then
+enable the schedule and observe the first scheduled backup as a separate
+operations change.
+
+See `cloudflare_production_operations-2026-07-14.md` for the current Production
+workflow map, rollback boundary, accepted run evidence, and remaining
+operations work.

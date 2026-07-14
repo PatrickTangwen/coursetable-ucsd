@@ -8,7 +8,8 @@ Status: top-level navigation for stable project documentation.
 - `app_db_migrations.md`: versioned App DB migration generation and shared
   staging/production rollout.
 - `app_db_backup_recovery-2026-07-11.md`: forward migration, private App DB
-  backup retention, and disposable restore proof for hosted staging.
+  backup retention, disposable restore proof, and the current Production
+  backup-schedule constraint.
 - `core_app_backend.md`: Core App Backend composition boundary, optional legacy
   modules, and disposable validation path.
 - `course_data_store.md`: shadow Course Data Store ownership, migrations,
@@ -28,13 +29,16 @@ Status: top-level navigation for stable project documentation.
 - `hosted_failure_cost_safety-2026-07-12.md`: hosted provider-failure
   boundary, Application Safety Budget, usage signals with 70/90 percent
   thresholds, and failure/rollback evidence.
-- `cloudflare_hosted_staging.md`: proposed Cloudflare Worker staging boundary,
-  external state services, security and cost policies, and acceptance gate.
+- `cloudflare_hosted_staging.md`: historical accepted Cloudflare Worker staging
+  boundary, external state services, security and cost policies.
 - `cloudflare_staging_deployment-2026-07-12.md`: manual, protected staging
   deployment workflow, rollback behavior, and non-sensitive evidence contract.
-- `cloudflare_production_readiness-2026-07-13.md`: code-only Production
-  workflow, isolation inputs, login-disabled first deployment, and human-owned
-  provisioning gates.
+- `cloudflare_production_operations-2026-07-14.md`: current deployed Production
+  state, accepted evidence, release/login/backup workflows, rollback semantics,
+  and open operations work.
+- `cloudflare_production_readiness-2026-07-13.md`: historical code-only
+  Production contract and pre-launch provisioning gates; superseded for current
+  status by the Production operations document.
 - `worker_catalog.md`: local single-origin Worker Catalog, private R2
   publication integrity, and disposable acceptance workflow.
 - `worker_login.md`: Hyperdrive, Upstash REST, fixed hosted sessions, and
@@ -42,7 +46,6 @@ Status: top-level navigation for stable project documentation.
 - `worker_planning_data.md`: Worker Saved Search and Saved Worksheet ownership,
   shared HTTP contract, and account-service failure isolation.
 - `locations.md`: location data notes.
-- `maintenance.md`: maintenance notes.
 - `snapshot_pipe.md`: catalog snapshot pipeline notes, including General Catalog
   enrichment, Schedule parser edge cases, and raw HTML replay rules.
 - `styling.md`: styling conventions.
@@ -60,6 +63,8 @@ upstream CourseTable systems and are not current SunGrid operating runbooks.
   complete.
 - `deployment.md`: inherited `coursetable.com`, Doppler, and self-hosted runner
   deployment notes; do not use it to deploy SunGrid.
+- `maintenance.md`: inherited CourseTable/Ferry season-maintenance steps; do not
+  use it as the SunGrid Production runbook.
 - `challenge.md`: inherited CourseTable challenge/context notes.
 
 ## Planning And Decisions

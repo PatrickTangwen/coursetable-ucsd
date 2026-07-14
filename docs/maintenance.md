@@ -1,5 +1,11 @@
 # Maintenance
 
+> Historical boundary note (2026-07-14): this document describes inherited
+> CourseTable/Ferry maintenance and is not the SunGrid Production runbook. Use
+> `cloudflare_production_operations-2026-07-14.md` for current Production
+> deployment, login, backup, and rollback operations. The inherited steps below
+> are preserved for comparison and audit.
+
 ## New Season (Courses)
 
 This section outlines the process for retrieving a new season's course data. Follow the steps below to ensure a smooth update:

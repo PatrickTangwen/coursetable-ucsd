@@ -1,5 +1,12 @@
 # Cloudflare Hosted Staging
 
+> Historical status note (2026-07-14): the boundary described here was later
+> implemented and accepted in Staging, and the isolated Production deployment
+> is now live. Use `cloudflare_staging_deployment-2026-07-12.md` for the dated
+> Staging workflow record and
+> `cloudflare_production_operations-2026-07-14.md` for current Production
+> operations. The accepted design below remains the architectural history.
+
 Status: accepted design and issue map. This document records hosted boundaries;
 it is not yet an executable deployment runbook.
 
