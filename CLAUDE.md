@@ -35,7 +35,6 @@ The planning and context structure is:
 - GitHub Issues for current executable implementation slices.
 - `docs/planning/README.md` for the planning archive index.
 - `docs/planning/archive/` for historical planning inputs and completed PRDs.
-- `docs/planning/source-data/` for historical source planning/data sheets.
 
 Do not use `starter_plan_and_data/` as a current doc root; those files were
 moved under `docs/planning/`.

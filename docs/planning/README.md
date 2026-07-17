@@ -21,7 +21,12 @@ For new agent or human planning work, read in this order:
 
 - `archive/`: historical PRDs, roadmap notes, validation records, and milestone
   planning docs.
-- `source-data/`: historical source planning/data sheets.
+
+Cleanup note (2026-07-17): the unused `source-data/` CSV exports were removed.
+They were unreferenced starter inputs containing legacy form user identifiers;
+the current catalog and Historical GPA pipelines do not consume them. Their
+original contents remain available from Git history if an audit ever requires
+them.
 
 ## Current Planning Policy
 
