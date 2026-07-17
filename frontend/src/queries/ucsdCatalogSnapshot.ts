@@ -1,5 +1,13 @@
 import z from 'zod';
 
+import {
+  coursePlanningPastGradeSchema,
+  normalizePublishedSnapshot,
+  type CoursePlanningCatalog,
+  type CoursePlanningCourse,
+  type CoursePlanningMeeting,
+  type CoursePlanningSection,
+} from './coursePlanningViewModels';
 import type { Crn, Season } from './graphql-types';
 import type { CatalogBySeasonQuery } from '../generated/graphql-types';
 
@@ -18,45 +26,33 @@ type CourseMeetingWithLocation = CoursePublic['course_meetings'][number] & {
   raw_location?: string | null;
 };
 
+type LegacyUcsdMeeting = {
+  days: string[];
+  date: string | null;
+  start_time: string | null;
+  end_time: string | null;
+  building: string | null;
+  room: string | null;
+  is_tba: boolean;
+  meeting_type: string | null;
+  raw_days: string | null;
+  raw_time: string | null;
+  raw_location: string | null;
+};
+
 export type UcsdCalendarDetails = {
-  term_date_range: UcsdCatalogSnapshot['term_date_range'];
+  term_date_range: CoursePlanningCatalog['termDateRange'];
   section_id: string;
   section_code: string | null;
   meeting_type: string | null;
-  meetings: UcsdSection['meetings'];
+  meetings: LegacyUcsdMeeting[];
   enrolled: number | null;
   capacity: number | null;
   waitlist_count: number;
   source_note: string | null;
 };
 
-const sourceTimestampsSchema = z.object({
-  schedule_of_classes: z.string().nullable(),
-  general_catalog: z.string().nullable(),
-  instructor_grade_archive: z.string().nullable(),
-});
-
-const ucsdGradeArchiveRecordSchema = z.object({
-  subject: z.string(),
-  course: z.string(),
-  year: z.string(),
-  quarter: z.string(),
-  title: z.string().nullable(),
-  instructor: z.string().nullable(),
-  gpa: z.number().nullable(),
-  a: z.number().nullable(),
-  b: z.number().nullable(),
-  c: z.number().nullable(),
-  d: z.number().nullable(),
-  f: z.number().nullable(),
-  w: z.number().nullable(),
-  p: z.number().nullable(),
-  np: z.number().nullable(),
-  raw: z.record(z.string()),
-});
-
-const ucsdCourseArchiveWireSchema = z.object({
-  archive_avg_gpa: z.number().nullable(),
+const ucsdCourseArchiveSchema = z.object({
   archive_record_count: z.number(),
   source_timestamp: z.string().nullable(),
   catalog_source_timestamp: z.string().nullable(),
@@ -64,91 +60,9 @@ const ucsdCourseArchiveWireSchema = z.object({
   units: z.string().nullable(),
   prerequisites_text: z.string().nullable(),
   restrictions_text: z.string().nullable(),
-  grade_archive_records: z.array(ucsdGradeArchiveRecordSchema),
-});
-const ucsdCourseArchiveSchema = ucsdCourseArchiveWireSchema.omit({
-  archive_avg_gpa: true,
+  grade_archive_records: z.array(coursePlanningPastGradeSchema),
 });
 
-const ucsdMeetingSchema = z.object({
-  days: z.array(z.string()),
-  date: z
-    .string()
-    .nullable()
-    .optional()
-    .transform((value) => value ?? null),
-  start_time: z.string().nullable(),
-  end_time: z.string().nullable(),
-  building: z.string().nullable(),
-  room: z.string().nullable(),
-  is_tba: z.boolean(),
-  meeting_type: z.string().nullable().optional(),
-  raw_days: z.string().nullable(),
-  raw_time: z.string().nullable(),
-  raw_location: z.string().nullable(),
-});
-
-const ucsdSectionSchema = z.object({
-  section_id: z.string(),
-  course_id: z.string(),
-  section_code: z.string().nullable(),
-  meeting_type: z.string().nullable(),
-  instructors: z.array(z.string()),
-  meetings: z.array(ucsdMeetingSchema),
-  enrolled: z
-    .number()
-    .nullable()
-    .optional()
-    .transform((value) => value ?? null),
-  capacity: z
-    .number()
-    .nullable()
-    .optional()
-    .transform((value) => value ?? null),
-  waitlist_count: z
-    .number()
-    .nullable()
-    .optional()
-    .transform((value) => value ?? 0),
-  raw: z.record(z.unknown()),
-});
-
-const ucsdCourseSchema = z.object({
-  course_id: z.string(),
-  subject: z.string(),
-  course_number: z.string(),
-  title: z.string(),
-  units: z.string().nullable(),
-  description: z.string().nullable(),
-  prerequisites_text: z.string().nullable(),
-  restrictions_text: z.string().nullable(),
-  catalog_url: z.string().nullable(),
-  archive_avg_gpa: z.number().nullable(),
-  archive_record_count: z.number(),
-  grade_archive_records: z.array(ucsdGradeArchiveRecordSchema),
-  ge_matches: z.array(z.unknown()),
-  sections: z.array(ucsdSectionSchema),
-});
-
-const ucsdCatalogSnapshotSchema = z.object({
-  run_id: z.string(),
-  generated_at: z.string(),
-  active_planning_term: z.string(),
-  term_label: z.string(),
-  term_date_range: z
-    .object({
-      start: z.string(),
-      end: z.string(),
-    })
-    .nullable(),
-  configured_subjects: z.array(z.string()),
-  source_timestamps: sourceTimestampsSchema,
-  courses: z.array(ucsdCourseSchema),
-});
-
-type UcsdCatalogSnapshot = z.infer<typeof ucsdCatalogSnapshotSchema>;
-type UcsdCourse = UcsdCatalogSnapshot['courses'][number];
-type UcsdSection = UcsdCourse['sections'][number];
 export type UcsdCourseArchive = z.infer<typeof ucsdCourseArchiveSchema>;
 
 const dayValues: { [day: string]: number } = {
@@ -186,7 +100,7 @@ function stableCompatNumber(value: string): number {
   return hash >>> 0 || 1;
 }
 
-function parseUnits(units: string | null): number | null {
+function parseLegacyCredits(units: string | null): number | null {
   if (!units) return null;
   const match = /\d+(?:\.\d+)?/u.exec(units);
   return match ? Number(match[0]) : null;
@@ -199,42 +113,27 @@ function toDaysOfWeek(days: string[]): number {
   }, 0);
 }
 
-function toRequirements(course: UcsdCourse): string | null {
-  const parts = [course.prerequisites_text, course.restrictions_text].filter(
-    Boolean,
-  );
-  return parts.length > 0 ? parts.join('\n') : null;
+function toLegacyMeeting(meeting: CoursePlanningMeeting): LegacyUcsdMeeting {
+  return {
+    days: meeting.days,
+    date: meeting.date,
+    start_time: meeting.startTime,
+    end_time: meeting.endTime,
+    building: meeting.building,
+    room: meeting.room,
+    is_tba: meeting.isTba,
+    meeting_type: meeting.meetingType,
+    raw_days: meeting.rawDays,
+    raw_time: meeting.rawTime,
+    raw_location: meeting.rawLocation,
+  };
 }
 
-function meetingIdentityKey(meeting: UcsdSection['meetings'][number]): string {
-  return [
-    meeting.meeting_type ?? '',
-    meeting.date ?? '',
-    meeting.raw_days ?? meeting.days.join(','),
-    meeting.start_time ?? '',
-    meeting.end_time ?? '',
-    meeting.raw_location ?? '',
-    meeting.building ?? '',
-    meeting.room ?? '',
-    meeting.is_tba ? '1' : '0',
-  ].join('|');
-}
-
-function dedupeMeetings(
-  meetings: UcsdSection['meetings'],
-): UcsdSection['meetings'] {
-  const seen = new Set<string>();
-  return meetings.filter((meeting) => {
-    const key = meetingIdentityKey(meeting);
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-function toCourseMeetings(section: UcsdSection): CourseMeetingWithLocation[] {
-  return dedupeMeetings(section.meetings).flatMap((meeting) => {
-    if (meeting.is_tba || !meeting.start_time || !meeting.end_time) return [];
+function toCourseMeetings(
+  section: CoursePlanningSection,
+): CourseMeetingWithLocation[] {
+  return section.meetings.flatMap((meeting) => {
+    if (meeting.isTba || !meeting.startTime || !meeting.endTime) return [];
     const location =
       meeting.building || meeting.room
         ? {
@@ -248,70 +147,60 @@ function toCourseMeetings(section: UcsdSection): CourseMeetingWithLocation[] {
       {
         date: meeting.date,
         days_of_week: toDaysOfWeek(meeting.days),
-        start_time: meeting.start_time,
-        end_time: meeting.end_time,
+        start_time: meeting.startTime,
+        end_time: meeting.endTime,
         location,
         meeting_type:
-          meeting.meeting_type ??
-          (section.meetings.length === 1 ? section.meeting_type : null),
-        raw_location: meeting.raw_location,
+          meeting.meetingType ??
+          (section.meetings.length === 1 ? section.meetingType : null),
+        raw_location: meeting.rawLocation,
       },
     ];
   });
 }
 
-function sourceNote(raw: UcsdSection['raw']) {
-  const { source } = raw;
-  if (typeof source !== 'string' || !source) return null;
-  if (source === 'ucsd_schedule_of_classes') return 'UCSD Schedule of Classes';
-  return source;
-}
-
 function toCoursePublic(
-  snapshot: UcsdCatalogSnapshot,
-  course: UcsdCourse,
-  section: UcsdSection,
+  catalog: CoursePlanningCatalog,
+  course: CoursePlanningCourse,
+  section: CoursePlanningSection,
 ): CoursePublic {
-  const crn = stableCompatNumber(section.section_id) as Crn;
-  const sameCourseId = stableCompatNumber(course.course_id);
-  const courseCode = `${course.subject} ${course.course_number}`;
-  const meetings = dedupeMeetings(section.meetings);
+  const crn = stableCompatNumber(section.sectionId) as Crn;
+  const sameCourseId = stableCompatNumber(course.courseId);
   const courseMeetings = toCourseMeetings(section);
-  const instructors = section.instructors.map((name) => ({
+  const instructors = section.instructors.map(({ name }) => ({
     professor: {
       professor_id: stableCompatNumber(name),
       name,
     },
   }));
   const listing = {
-    course_code: courseCode,
+    course_code: course.courseCode,
     crn,
-    number: course.course_number,
+    number: course.courseNumber,
     school: 'UCSD',
-    section_id: section.section_id,
+    section_id: section.sectionId,
     subject: course.subject,
   };
   const ucsdArchive: UcsdCourseArchive = {
-    archive_record_count: course.archive_record_count,
-    source_timestamp: snapshot.source_timestamps.instructor_grade_archive,
-    catalog_source_timestamp: snapshot.source_timestamps.general_catalog,
-    catalog_url: course.catalog_url,
+    archive_record_count: course.archiveRecordCount,
+    source_timestamp: catalog.sourceTimestamps.instructorGradeArchive,
+    catalog_source_timestamp: catalog.sourceTimestamps.generalCatalog,
+    catalog_url: course.catalogUrl,
     units: course.units,
-    prerequisites_text: course.prerequisites_text,
-    restrictions_text: course.restrictions_text,
-    grade_archive_records: course.grade_archive_records,
+    prerequisites_text: course.prerequisites,
+    restrictions_text: course.restrictions,
+    grade_archive_records: course.pastGrades,
   };
-
   const ucsdCalendar: UcsdCalendarDetails = {
-    term_date_range: snapshot.term_date_range,
-    section_id: section.section_id,
-    section_code: section.section_code,
-    meeting_type: section.meeting_type,
-    meetings,
-    enrolled: section.enrolled,
-    capacity: section.capacity,
-    waitlist_count: section.waitlist_count,
-    source_note: sourceNote(section.raw),
+    term_date_range: catalog.termDateRange,
+    section_id: section.sectionId,
+    section_code: section.sectionCode,
+    meeting_type: section.meetingType,
+    meetings: section.meetings.map(toLegacyMeeting),
+    enrolled: section.availability.enrolled,
+    capacity: section.availability.capacity,
+    waitlist_count: section.availability.waitlistCount,
+    source_note: section.sourceNote,
   };
 
   const coursePublic: CoursePublic & {
@@ -320,27 +209,27 @@ function toCoursePublic(
   } = {
     areas: [],
     colsem: false,
-    course_id: stableCompatNumber(section.section_id),
-    credits: parseUnits(course.units),
+    course_id: stableCompatNumber(section.sectionId),
+    credits: parseLegacyCredits(course.units),
     description: course.description,
     extra_info: 'ACTIVE',
     final_exam: null,
     fysem: false,
     last_offered_course_id: null,
     primary_crn: crn,
-    requirements: toRequirements(course),
+    requirements: course.requirements,
     same_course_and_profs_id: stableCompatNumber(
-      `${course.course_id}:${section.instructors.join('|')}`,
+      `${course.courseId}:${section.instructors.map(({ name }) => name).join('|')}`,
     ),
     same_course_id: sameCourseId,
-    season_code: snapshot.active_planning_term as Season,
-    section: section.section_code ?? '',
+    season_code: catalog.supportedTerm as Season,
+    section: section.sectionCode ?? '',
     skills: [],
     sysem: false,
     title: course.title,
-    time_added: snapshot.generated_at,
+    time_added: catalog.generatedAt,
     last_updated:
-      snapshot.source_timestamps.schedule_of_classes ?? snapshot.generated_at,
+      catalog.sourceTimestamps.scheduleOfClasses ?? catalog.generatedAt,
     course_flags: [],
     course_professors: instructors,
     listings: [listing],
@@ -351,13 +240,18 @@ function toCoursePublic(
   return coursePublic;
 }
 
-export function adaptUcsdCatalogSnapshot(
-  snapshot: UcsdCatalogSnapshot,
+/**
+ * Temporary expand-contract boundary for active consumers that still expect
+ * the inherited catalog map. New UCSD code should consume
+ * CoursePlanningCatalog.
+ */
+export function adaptCoursePlanningCatalog(
+  catalog: CoursePlanningCatalog,
 ): CourseMap {
   const adapted = new Map<number, CoursePublic>();
-  for (const course of snapshot.courses) {
+  for (const course of catalog.courses) {
     for (const section of course.sections) {
-      const coursePublic = toCoursePublic(snapshot, course, section);
+      const coursePublic = toCoursePublic(catalog, course, section);
       adapted.set(coursePublic.course_id, coursePublic);
     }
   }
@@ -365,9 +259,8 @@ export function adaptUcsdCatalogSnapshot(
 }
 
 export function catalogResponseToCourseMap(response: unknown): CourseMap {
-  const parsedSnapshot = ucsdCatalogSnapshotSchema.safeParse(response);
-  if (parsedSnapshot.success)
-    return adaptUcsdCatalogSnapshot(parsedSnapshot.data);
+  const catalog = normalizePublishedSnapshot(response);
+  if (catalog) return adaptCoursePlanningCatalog(catalog);
 
   const data = response as CatalogBySeasonQuery['courses'];
   const info = new Map<number, CoursePublic>();
