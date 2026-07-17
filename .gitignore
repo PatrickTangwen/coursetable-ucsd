@@ -1,5 +1,7 @@
 node_modules
 .DS_Store
+# The root Bun workspace lockfile is authoritative.
+/frontend/pnpm-lock.yaml
 /deployment-url.txt
 /error.txt
 /data/

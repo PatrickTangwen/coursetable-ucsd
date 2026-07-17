@@ -9,8 +9,8 @@ const getEnv = (name: string) => process.env[name] ?? die(name);
 export default {
   schema: './drizzle/schema.ts',
   out: './drizzle/migrations',
-  driver: 'pg',
+  dialect: 'postgresql',
   dbCredentials: {
-    connectionString: getEnv('DB_URL'),
+    url: getEnv('DB_URL'),
   },
 } satisfies Config;
