@@ -36,6 +36,9 @@ Status: top-level navigation for stable project documentation.
 - `cloudflare_production_operations-2026-07-14.md`: current deployed Production
   state, accepted evidence, release/login/backup workflows, rollback semantics,
   and open operations work.
+- `dependency_security_operations-2026-07-17.md`: accepted dependency security,
+  Bun lockfile, CI, and Dependabot changes; audit-count interpretation,
+  validation evidence, and ongoing dependency review policy.
 - `cloudflare_production_readiness-2026-07-13.md`: historical code-only
   Production contract and pre-launch provisioning gates; superseded for current
   status by the Production operations document.
