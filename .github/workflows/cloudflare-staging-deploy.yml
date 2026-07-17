@@ -216,7 +216,7 @@ jobs:
         run: bun tools/staging-deployment/deploymentEvidence.mts accept
 
       - name: Restore last accepted deployment on failure
-        if: failure()
+        if: ${{ failure() || cancelled() }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           R2_CATALOG_ACCESS_KEY_ID: ${{ secrets.R2_CATALOG_ACCESS_KEY_ID }}

@@ -27,6 +27,54 @@ class MemoryStore {
 const encoder = new TextEncoder();
 
 describe('staging Term Archive publisher', () => {
+  it('reports privacy-safe term and metadata progress', async () => {
+    const store = new MemoryStore();
+    const progress: string[] = [];
+    const snapshot = encoder.encode('{"accepted":true}\n');
+    const manifest = encoder.encode('{"manifest":true}\n');
+
+    await publishTermArchive(
+      {
+        registry: {
+          last_update: '2026-07-17T00:00:00.000Z',
+          terms: [],
+        },
+        terms: [
+          {
+            term: 'FA26',
+            snapshot: {
+              body: snapshot,
+              sha256:
+                'b1b367dc6a7d077581f77f16169a6696bac3d68ffd5c93189ac60fac027e57a3',
+            },
+            manifest: {
+              body: manifest,
+              sha256:
+                'b52ab259c8b9dab5683cbd68defa991ac03d5e92851ab811f23129fe4833d2b9',
+            },
+          },
+        ],
+      },
+      store,
+      (event) => progress.push(event),
+    );
+
+    expect(progress.map((event) => JSON.parse(event) as unknown)).toEqual([
+      { operation: 'term-archive-publish', phase: 'term-start', term: 'FA26' },
+      {
+        operation: 'term-archive-publish',
+        phase: 'term-complete',
+        term: 'FA26',
+      },
+      { operation: 'term-archive-publish', phase: 'registry-verify-start' },
+      { operation: 'term-archive-publish', phase: 'registry-verify-complete' },
+      { operation: 'term-archive-publish', phase: 'metadata-start' },
+      { operation: 'term-archive-publish', phase: 'metadata-complete' },
+    ]);
+    expect(progress.join('\n')).not.toContain('accepted');
+    expect(progress.join('\n')).not.toContain('manifest');
+  });
+
   it('preserves the accepted metadata pointer when object verification fails', async () => {
     const store = new MemoryStore();
     const previous = encoder.encode('{"deployment":"accepted"}\n');

@@ -22,6 +22,7 @@ describe('Cloudflare staging deployment assets', () => {
           if?: string;
           steps: {
             env?: { [key: string]: string };
+            if?: string;
             name?: string;
             run?: string;
           }[];
@@ -112,7 +113,10 @@ describe('Cloudflare staging deployment assets', () => {
     expect(orderedStages.indexOf('Deploy Worker and secrets')).toBeLessThan(
       orderedStages.indexOf('Run hosted staging smoke'),
     );
-    expect(source).toContain('if: failure()');
+    const restore = deploy.steps.find(
+      (step) => step.name === 'Restore last accepted deployment on failure',
+    );
+    expect(restore?.if).toContain('failure() || cancelled()');
     expect(source).toContain('last-accepted.json');
     expect(source).toContain('workerDeployment.mts verify-accepted');
     expect(source).toContain('recoverUnacceptedWorker.mts');

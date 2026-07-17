@@ -16,15 +16,28 @@ export async function withR2RequestTimeout<T>(
   request: (signal: AbortSignal) => Promise<T>,
   timeoutMs = r2RequestTimeoutMs,
 ) {
+  const controller = new AbortController();
+  const timeoutError = new Error(`R2 ${operation} timed out`);
+  let timeout: ReturnType<typeof setTimeout> | undefined = undefined;
+  const deadline = new Promise<never>((_resolve, reject) => {
+    timeout = setTimeout(() => {
+      controller.abort();
+      reject(timeoutError);
+    }, timeoutMs);
+  });
+
   try {
-    return await request(AbortSignal.timeout(timeoutMs));
+    return await Promise.race([request(controller.signal), deadline]);
   } catch (error) {
     if (
-      error instanceof Error &&
-      (error.name === 'AbortError' || error.name === 'TimeoutError')
+      error === timeoutError ||
+      (error instanceof Error &&
+        (error.name === 'AbortError' || error.name === 'TimeoutError'))
     )
-      throw new Error(`R2 ${operation} timed out`, { cause: error });
+      throw timeoutError;
     throw error;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
