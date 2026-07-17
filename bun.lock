@@ -101,7 +101,7 @@
         "@graphiql/toolkit": "^0.11.1",
         "@mdx-js/react": "^3.1.0",
         "@popperjs/core": "^2.11.8",
-        "@react-oauth/google": "^0.12.1",
+        "@react-oauth/google": "^0.13.5",
         "@sentry/react": "^8.50.0",
         "@sentry/vite-plugin": "^3.1.1",
         "async-lock": "^1.4.1",
@@ -990,7 +990,7 @@
 
     "@react-leaflet/core": ["@react-leaflet/core@3.0.0", "", { "peerDependencies": { "leaflet": "^1.9.0", "react": "^19.0.0", "react-dom": "^19.0.0" } }, "sha512-3EWmekh4Nz+pGcr+xjf0KNyYfC3U2JjnkWsh0zcqaexYqmmB5ZhH37kz41JXGmKzpaMZCnPofBBm64i+YrEvGQ=="],
 
-    "@react-oauth/google": ["@react-oauth/google@0.12.2", "", { "peerDependencies": { "react": ">=16.8.0", "react-dom": ">=16.8.0" } }, "sha512-d1GVm2uD4E44EJft2RbKtp8Z1fp/gK8Lb6KHgs3pHlM0PxCXGLaq8LLYQYENnN4xPWO1gkL4apBtlPKzpLvZwg=="],
+    "@react-oauth/google": ["@react-oauth/google@0.13.5", "", { "peerDependencies": { "react": ">=16.8.0", "react-dom": ">=16.8.0" } }, "sha512-xQWri2s/3nNekZJ4uuov2aAfQYu83bN3864KcFqw2pK1nNbFurQIjPFDXhWaKH3IjYJ2r/9yyIIpsn5lMqrheQ=="],
 
     "@redis/bloom": ["@redis/bloom@1.2.0", "", { "peerDependencies": { "@redis/client": "^1.0.0" } }, "sha512-HG2DFjYKbpNmVXsa0keLHp/3leGJz1mjh09f2RLGGLQZzSHpkmZWuwJbAvo3QcRY8p80m5+ZdXZdYOSBLlp7Cg=="],
 
