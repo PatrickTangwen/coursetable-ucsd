@@ -6,6 +6,7 @@ services:
       - ../static:/usr/src/app/api/static
       - ../src:/usr/src/app/api/src
       - ../drizzle:/usr/src/app/api/drizzle
+      - ../../.local-certs:/usr/src/app/.local-certs:ro
     environment:
       NODE_ENV: development
       OVERWRITE_CATALOG: ${OVERWRITE_CATALOG:-false}

@@ -18,6 +18,7 @@
     "lint:check": "eslint .",
     "lint:css": "stylelint --fix \"**/*.css\"",
     "lint:css:check": "stylelint \"**/*.css\"",
+    "local:https:setup": "sh tools/local-https/setup.sh",
     "prepare": "husky || true",
     "resize-image": "bun tools/resize-image.mts",
     "resize-image:check": "bun tools/resize-image.mts --test",

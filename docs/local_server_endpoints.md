@@ -98,25 +98,24 @@ api/compose/local-validation-down.sh --volumes
 
 ## HTTPS Certificates
 
-Both the backend and frontend read the same local HTTPS certificate pair:
+Both the backend and frontend read the same ignored, machine-local HTTPS
+certificate pair:
 
 ```text
-api/src/keys/server.key
-api/src/keys/server.cert
+.local-certs/localhost-key.pem
+.local-certs/localhost-cert.pem
 ```
 
 The API server reads these paths from inside the API container:
 
 ```text
-/usr/src/app/api/src/keys/server.key
-/usr/src/app/api/src/keys/server.cert
+/usr/src/app/.local-certs/localhost-key.pem
+/usr/src/app/.local-certs/localhost-cert.pem
 ```
 
-The frontend Vite dev server reads the repository paths directly from
-`frontend/vite.config.ts`.
-
-The current checked-in certificate is a local `mkcert` development certificate
-for:
+The frontend Vite dev server reads the repository path directly from
+`frontend/vite.config.ts`. Each maintainer generates a local `mkcert`
+development certificate for:
 
 ```text
 DNS:localhost
@@ -124,8 +123,8 @@ IP:127.0.0.1
 IP:::1
 ```
 
-It is intended only for local development. Do not treat these files as
-production certificates.
+It is intended only for local development. The certificate and its private key
+must never be committed or treated as production credentials.
 
 ## mkcert Trust Setup
 
@@ -141,7 +140,12 @@ mkcert -install
 ```
 
 `mkcert -install` installs the local development CA into supported local trust
-stores. It does not regenerate this repository's certificate files by itself.
+stores. The repository setup command installs the CA and generates the
+certificate pair:
+
+```bash
+bun run local:https:setup
+```
 
 Node-based tools may need the mkcert CA explicitly:
 
@@ -161,65 +165,16 @@ curl -ksS \
 
 ## Regenerate Local Certificates
 
-Only regenerate certificates when the checked-in certificate is missing,
-expired, untrusted on this machine, or you intentionally want an untracked
-machine-local certificate.
-
-Preferred untracked local path:
+Regenerate certificates when they are missing, expired, or intentionally
+rotated. The supported command is:
 
 ```bash
-mkdir -p .local-certs
-mkcert -install
-mkcert \
-  -key-file .local-certs/localhost-key.pem \
-  -cert-file .local-certs/localhost-cert.pem \
-  localhost 127.0.0.1 ::1
+bun run local:https:setup
 ```
 
-Keep `.local-certs/` ignored. It may contain a private key.
-
-If you want the API container to use the untracked files without modifying the
-tracked `api/src/keys/*` files, create `.local-certs/local-validation-https.override.yml`:
-
-```yaml
-services:
-  api:
-    volumes:
-      - /absolute/path/to/coursetable-ucsd/.local-certs/localhost-key.pem:/usr/src/app/api/src/keys/server.key:ro
-      - /absolute/path/to/coursetable-ucsd/.local-certs/localhost-cert.pem:/usr/src/app/api/src/keys/server.cert:ro
-```
-
-Then start compose manually with the extra override file:
-
-```bash
-cd api/compose
-
-FRONTEND_ENDPOINT=https://localhost:3001 docker compose \
-  --env-file local-validation.env.example \
-  -f docker-compose.yml \
-  -f dev-compose.yml \
-  -f local-validation-compose.yml \
-  -f ../../.local-certs/local-validation-https.override.yml \
-  -p coursetable-auth-validation \
-  up -d --build --remove-orphans
-
-FRONTEND_ENDPOINT=https://localhost:3001 docker compose \
-  --env-file local-validation.env.example \
-  -f docker-compose.yml \
-  -f dev-compose.yml \
-  -f local-validation-compose.yml \
-  -f ../../.local-certs/local-validation-https.override.yml \
-  -p coursetable-auth-validation \
-  exec -T api sh -lc 'cd api && bun run db:push'
-```
-
-The checked-in wrapper scripts do not automatically include this local override
-file.
-
-For the frontend to use the untracked certificate too, either update
-`frontend/vite.config.ts` for your local experiment or copy the generated files
-into `api/src/keys/server.key` and `api/src/keys/server.cert`. Do not commit a
-machine-specific private key unless that is an intentional repo policy decision.
+Keep `.local-certs/` ignored. It contains a private key. The standard Compose
+development configuration mounts this directory read-only, so no override file
+or copy into `api/src/keys/` is required.
 
 ## Login Smoke
 

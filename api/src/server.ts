@@ -1,5 +1,5 @@
-import fs from 'node:fs';
 import https from 'node:https';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import * as Sentry from '@sentry/node';
 import RedisStore from 'connect-redis';
@@ -60,6 +60,7 @@ import profile from './profile/profile.routes.js';
 import { createDatabaseSavedSearchStore } from './savedSearches/savedSearches.database.js';
 import { createDatabaseSavedWorksheetStore } from './savedWorksheets/savedWorksheets.database.js';
 import user from './user/user.routes.js';
+import { readLocalHttpsCredentials } from '../../shared/localHttps.js';
 
 const app = express();
 
@@ -220,10 +221,9 @@ if (isDev) {
   // Serve dev with custom SSL.
   https
     .createServer(
-      {
-        key: fs.readFileSync('./src/keys/server.key'),
-        cert: fs.readFileSync('./src/keys/server.cert'),
-      },
+      readLocalHttpsCredentials(
+        fileURLToPath(new URL('../../.local-certs/', import.meta.url)),
+      ),
       app,
     )
     .listen(API_PORT, () => {

@@ -14,6 +14,7 @@ import { visit } from 'unist-util-visit';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig } from 'vitest/config';
+import { readLocalHttpsCredentials } from '../shared/localHttps.js';
 
 dns.setDefaultResultOrder('verbatim');
 
@@ -133,7 +134,7 @@ function staticCatalogPlugin(): import('vite').Plugin {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ command, mode }) => ({
   plugins: [
     staticCatalogPlugin(),
     {
@@ -242,17 +243,11 @@ export default defineConfig({
     sourcemap: process.env.NODE_ENV === 'production',
   },
   server: {
-    // Only used in dev
-    // Note: in the build-size action we build without doppler, so this must be
-    // runnable without env, but it's unused anyway
-    https: {
-      key: fs.readFileSync(
-        path.resolve(__dirname, '../api/src/keys/server.key'),
-      ),
-      cert: fs.readFileSync(
-        path.resolve(__dirname, '../api/src/keys/server.cert'),
-      ),
-    },
+    // CI builds and Vitest do not need local certificate material.
+    https:
+      command === 'serve' && mode !== 'test'
+        ? readLocalHttpsCredentials(path.resolve(__dirname, '../.local-certs'))
+        : undefined,
     port: process.env.FRONTEND_ENDPOINT
       ? Number(new URL(process.env.FRONTEND_ENDPOINT).port || 3000)
       : 3000,
@@ -267,4 +262,4 @@ export default defineConfig({
   test: {
     environment: 'node',
   },
-});
+}));

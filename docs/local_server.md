@@ -28,14 +28,24 @@ and redirects are configured around the frontend/backend localhost pair above.
 
 - Docker Desktop or an equivalent Docker Engine is running.
 - Project dependencies are installed with Bun.
-- The browser accepts the local self-signed certificates used by the API and
-  Vite dev server.
+- `mkcert` is installed for local HTTPS.
 
 If dependencies are missing:
 
 ```bash
 bun install
 ```
+
+Create the ignored, machine-local certificate pair before starting either
+server:
+
+```bash
+bun run local:https:setup
+```
+
+The command writes only to `.local-certs/`. Never copy or commit its private
+key. Both the API and Vite read this same certificate pair; Docker Compose
+mounts it read-only into the development API container.
 
 ## Start The Backend/Auth Stack
 
@@ -73,8 +83,9 @@ https://localhost:3001
 https://localhost:3001/login
 ```
 
-The frontend dev server uses Vite basic SSL. Browser certificate warnings are
-expected on a fresh machine.
+The frontend dev server uses the machine-local `mkcert` certificate. A browser
+warning means the local CA is not installed or trusted; rerun
+`bun run local:https:setup` before bypassing certificate errors.
 
 `VITE_PUBLIC_LOGIN_ENABLED` is fail-closed: only the exact value `true` exposes
 public sign-in links and `/login`. Set it in the staging frontend build and

@@ -4,6 +4,28 @@ node_modules
 /error.txt
 /data/
 
+# Machine-local HTTPS certificates and private keys.
+/.local-certs/
+/api/src/keys/
+
+# Local environment and Cloudflare development secrets. Keep documented
+# examples tracked.
+.env
+.env.*
+!.env.example
+!.env.*.example
+.dev.vars
+.dev.vars.*
+
+# Private keys, certificate bundles, and local databases.
+*.key
+*.pem
+*.p12
+*.pfx
+*.sqlite
+*.sqlite3
+*.db
+
 api/logs/*
 api/static/**/*.json
 api/static/**/*.xml
