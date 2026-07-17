@@ -28,10 +28,20 @@ const encoder = new TextEncoder();
 export async function publishTermArchive(
   archive: Archive,
   store: TermArchiveStore,
+  reportProgress = (event: string) => console.log(event),
 ) {
+  const report = (phase: string, term?: string) =>
+    reportProgress(
+      JSON.stringify({
+        operation: 'term-archive-publish',
+        phase,
+        ...(term ? { term } : {}),
+      }),
+    );
   const previousMetadata = await store.get('metadata.json');
 
   for (const { term, snapshot, manifest } of archive.terms) {
+    report('term-start', term);
     await putAndVerify(
       store,
       'Published Snapshot',
@@ -56,8 +66,10 @@ export async function publishTermArchive(
         storageClass: 'STANDARD',
       },
     );
+    report('term-complete', term);
   }
 
+  report('registry-verify-start');
   const evidenceTerms = await Promise.all(
     archive.registry.terms.map(async (entry) => {
       const snapshotDigest = digestFromPath(entry.snapshot_path);
@@ -77,9 +89,11 @@ export async function publishTermArchive(
       return { term: entry.term, snapshotDigest, manifestDigest };
     }),
   );
+  report('registry-verify-complete');
 
   const metadataBody = encoder.encode(`${JSON.stringify(archive.registry)}\n`);
   const metadataDigest = digest(metadataBody);
+  report('metadata-start');
   try {
     await putAndVerify(
       store,
@@ -105,6 +119,7 @@ export async function publishTermArchive(
     }
     throw error;
   }
+  report('metadata-complete');
 
   return {
     metadataDigest,

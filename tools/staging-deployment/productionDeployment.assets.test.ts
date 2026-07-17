@@ -22,6 +22,7 @@ describe('Cloudflare Production deployment assets', () => {
           if?: string;
           steps: {
             env?: { [key: string]: string };
+            if?: string;
             name?: string;
             run?: string;
           }[];
@@ -72,6 +73,11 @@ describe('Cloudflare Production deployment assets', () => {
     expect(source).not.toContain("VITE_PUBLIC_LOGIN_ENABLED: 'true'");
     expect(source).not.toContain('doppler');
 
+    const restore = deploy.steps.find(
+      (step) => step.name === 'Restore last accepted deployment on failure',
+    );
+    expect(restore?.if).toContain('failure() || cancelled()');
+
     const packageJson = JSON.parse(
       await readFile(path.join(root, 'package.json'), 'utf8'),
     ) as { scripts: { [key: string]: string } };
@@ -99,7 +105,7 @@ describe('Cloudflare Production deployment assets', () => {
         toggle: {
           environment: string;
           env: { [key: string]: string };
-          steps: { name?: string; run?: string }[];
+          steps: { if?: string; name?: string; run?: string }[];
         };
       };
     };
@@ -136,6 +142,10 @@ describe('Cloudflare Production deployment assets', () => {
     expect(source).toContain('restoreLastAccepted.mts');
     expect(source).not.toContain('db:migrate');
     expect(source).not.toContain('catalogR2.mts publish');
+    const restore = toggle.steps.find(
+      (step) => step.name === 'Restore last accepted deployment on failure',
+    );
+    expect(restore?.if).toContain('failure() || cancelled()');
   });
 
   it('declares an isolated default-off Production backup and restore proof', async () => {
