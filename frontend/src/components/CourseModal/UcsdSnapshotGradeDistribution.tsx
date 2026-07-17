@@ -1,10 +1,10 @@
 import clsx from 'clsx';
 
 import { sortArchiveRecordsByTermDescending } from './ucsdSnapshotModalData';
-import type { UcsdCourseArchive } from '../../queries/ucsdCatalogSnapshot';
+import type { CoursePlanningPastGrade } from '../../queries/coursePlanningViewModels';
 import styles from './UcsdSnapshotGradeDistribution.module.css';
 
-type GradeRecord = UcsdCourseArchive['grade_archive_records'][number];
+type GradeRecord = CoursePlanningPastGrade;
 
 const gradeColumns = [
   ['A', 'a'],
@@ -32,22 +32,11 @@ function gpaClass(gpa: number | null): string {
 }
 
 export default function UcsdSnapshotGradeDistribution({
-  archive,
+  records: unsortedRecords,
 }: {
-  readonly archive: UcsdCourseArchive | null;
+  readonly records: CoursePlanningPastGrade[];
 }) {
-  if (!archive) {
-    return (
-      <div className={styles.emptyCard}>
-        UCSD archive metadata is unavailable for this snapshot course.
-        Historical GPA Data has not been published in the snapshot yet.
-      </div>
-    );
-  }
-
-  const records = sortArchiveRecordsByTermDescending(
-    archive.grade_archive_records,
-  );
+  const records = sortArchiveRecordsByTermDescending(unsortedRecords);
   if (records.length === 0) {
     return (
       <div className={styles.emptyCard}>

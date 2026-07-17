@@ -1,8 +1,9 @@
 import { getListingId } from './course';
 import type { CourseModalPrefetchListingDataFragment } from '../generated/graphql-types';
+import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
 import type { Crn, Season } from '../queries/graphql-types';
 
-type CourseModalUrlVariables = {
+export type CourseModalUrlVariables = {
   seasonCode: Season;
   crn: Crn;
   listingId: number;
@@ -10,9 +11,33 @@ type CourseModalUrlVariables = {
 
 type StaticCatalogCourses = {
   readonly [seasonCode: string]: {
-    readonly data: Map<Crn, CourseModalPrefetchListingDataFragment>;
+    readonly data?: Map<Crn, CourseModalPrefetchListingDataFragment>;
+    readonly listingsByModalId?: Map<Crn, CoursePlanningListing>;
   };
 };
+
+function matchingSeasonCatalog(
+  courses: StaticCatalogCourses,
+  seasonCode: Season,
+) {
+  const exact = courses[seasonCode];
+  if (exact) return exact;
+  const normalizedSeasonCode = seasonCode.toLowerCase();
+  return Object.entries(courses).find(
+    ([candidate]) => candidate.toLowerCase() === normalizedSeasonCode,
+  )?.[1];
+}
+
+export function getCoursePlanningCourseFromModalUrl(
+  courses: StaticCatalogCourses,
+  variables: CourseModalUrlVariables | undefined,
+): CoursePlanningListing | undefined {
+  if (!variables) return undefined;
+  return matchingSeasonCatalog(
+    courses,
+    variables.seasonCode,
+  )?.listingsByModalId?.get(variables.crn);
+}
 
 /** Parses `course-modal` query value like `202501-12345` or `FA26-12345`. */
 export function parseCourseModalQuery(
@@ -32,22 +57,20 @@ export function parseCourseModalQuery(
   };
 }
 
+/** Numeric season codes belong to the inherited CourseTable/Yale boundary. */
+export function isLegacyCourseModalUrl(
+  variables: CourseModalUrlVariables | undefined,
+): variables is CourseModalUrlVariables {
+  return Boolean(variables && Number.isFinite(Number(variables.seasonCode)));
+}
+
 export function getStaticCourseFromModalUrl(
   courses: StaticCatalogCourses,
   variables: CourseModalUrlVariables | undefined,
 ): CourseModalPrefetchListingDataFragment | undefined {
   if (variables === undefined) return undefined;
 
-  const exactSeasonCatalog = courses[variables.seasonCode];
-  const exactListing = exactSeasonCatalog?.data.get(variables.crn);
-  if (exactListing) return exactListing;
-
-  const normalizedSeasonCode = variables.seasonCode.toLowerCase();
-  for (const [seasonCode, catalog] of Object.entries(courses)) {
-    if (seasonCode.toLowerCase() !== normalizedSeasonCode) continue;
-    const listing = catalog.data.get(variables.crn);
-    if (listing) return listing;
-  }
-
-  return undefined;
+  return matchingSeasonCatalog(courses, variables.seasonCode)?.data?.get(
+    variables.crn,
+  );
 }

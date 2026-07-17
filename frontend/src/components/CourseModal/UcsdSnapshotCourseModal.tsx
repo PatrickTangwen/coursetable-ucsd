@@ -26,9 +26,11 @@ import {
   type UcsdModalOfferingGroup,
   type UcsdModalSection,
 } from './ucsdSnapshotModalData';
+import { requireLegacyCatalogListing } from '../../ferry/ferryCatalogCache';
 import { useFerry } from '../../hooks/useFerry';
 import { useModalHistory } from '../../hooks/useModalHistory';
-import type { UcsdCourseArchive } from '../../queries/ucsdCatalogSnapshot';
+import type { CoursePlanningCourse } from '../../queries/coursePlanningViewModels';
+import type { Season } from '../../queries/graphql-types';
 import { useStore } from '../../store';
 import type { AnonymousWorksheetListing } from '../../utilities/anonymousWorksheet';
 import {
@@ -36,7 +38,11 @@ import {
   parseDays,
   type DayFlags,
 } from '../../utilities/catalogView';
-import { toSeasonString } from '../../utilities/course';
+import {
+  toSeasonDate,
+  toSeasonString,
+  truncatedText,
+} from '../../utilities/course';
 import styles from './UcsdSnapshotCourseModal.module.css';
 
 type UcsdModalView = 'overview' | 'evals' | 'past-grades';
@@ -276,8 +282,8 @@ function formatExamRowDate(date: string | null | undefined): string | null {
 }
 
 function locationText(meeting: UcsdModalSection['meetings'][number]): string {
-  if (meeting.raw_location) return meeting.raw_location;
-  if (meeting.is_tba) return 'TBA';
+  if (meeting.rawLocation) return meeting.rawLocation;
+  if (meeting.isTba) return 'TBA';
   const parts = [meeting.building, meeting.room].filter(Boolean);
   return parts.join(' ') || 'TBA';
 }
@@ -289,12 +295,16 @@ function sectionLabel(group: UcsdModalOfferingGroup): string {
 function anchorSectionCode(group: UcsdModalOfferingGroup): string {
   if (group.familyPrefix && /^[A-Z]$/u.test(group.familyPrefix))
     return `${group.familyPrefix}00`;
-  return group.sections[0]?.section_code ?? group.familyPrefix;
+  return group.sections[0]?.sectionCode ?? group.familyPrefix;
 }
 
 function groupInstructor(group: UcsdModalOfferingGroup): string {
   const names = [
-    ...new Set(group.sections.flatMap((section) => section.instructors)),
+    ...new Set(
+      group.sections.flatMap((section) =>
+        section.instructors.map(({ name }) => name),
+      ),
+    ),
   ].filter(Boolean);
   if (names.length === 0) return 'Staff';
   if (names.length === 1) return names[0]!;
@@ -303,8 +313,8 @@ function groupInstructor(group: UcsdModalOfferingGroup): string {
 
 function groupSubtitle(group: UcsdModalOfferingGroup): string {
   const meeting = group.sharedMeetings[0] ?? group.sections[0]?.meetings[0];
-  if (!meeting || meeting.is_tba) return 'Schedule TBA';
-  return formatTime(meeting.start_time, meeting.end_time);
+  if (!meeting || meeting.isTba) return 'Schedule TBA';
+  return formatTime(meeting.startTime, meeting.endTime);
 }
 
 function courseLevelLabel(number: string): string | null {
@@ -316,29 +326,11 @@ function courseLevelLabel(number: string): string | null {
   return 'Lower Division';
 }
 
-function unitsLabel(
-  archive: UcsdCourseArchive | null,
-  listing: UcsdModalListing,
-) {
-  const units =
-    archive?.units ?? (listing.course as { credits?: number | null }).credits;
-  if (units === null || units === undefined || units === '') return null;
+function unitsLabel(course: CoursePlanningCourse) {
+  const { units } = course;
+  if (units === null || units === '') return null;
   const text = String(units);
   return /unit/iu.test(text) ? text : `${text} Units`;
-}
-
-function listingCourseNumber(listing: UcsdModalListing): string {
-  const direct = (listing as { number?: string }).number;
-  if (direct) return direct;
-  return listing.course_code.split(/\s+/u)[1] ?? listing.course.section;
-}
-
-function snapshotGeneratedAt(listing: UcsdModalListing): string | null {
-  const course = listing.course as {
-    time_added?: string | null;
-    last_updated?: string | null;
-  };
-  return course.time_added ?? course.last_updated ?? null;
 }
 
 function selectedSectionForGroup(
@@ -347,7 +339,7 @@ function selectedSectionForGroup(
 ) {
   if (!selectedCode) return null;
   return (
-    group.sections.find((section) => section.section_code === selectedCode) ??
+    group.sections.find((section) => section.sectionCode === selectedCode) ??
     null
   );
 }
@@ -363,7 +355,7 @@ type MeetingRowData = {
 function buildMeetingRows(group: UcsdModalOfferingGroup): MeetingRowData[] {
   const rows: MeetingRowData[] = group.sharedMeetings.map((meeting, index) => ({
     key: `${group.familyPrefix}-shared-${index}`,
-    role: isUcsdInfoMeeting(meeting.meeting_type) ? 'info' : 'anchor',
+    role: isUcsdInfoMeeting(meeting.meetingType) ? 'info' : 'anchor',
     meeting,
     section: null,
     sectionCode: anchorSectionCode(group),
@@ -375,17 +367,17 @@ function buildMeetingRows(group: UcsdModalOfferingGroup): MeetingRowData[] {
         ? section.meetings
         : getSectionVaryingMeetings(section, group);
     for (const [index, meeting] of meetings.entries()) {
-      const role = isUcsdInfoMeeting(meeting.meeting_type)
+      const role = isUcsdInfoMeeting(meeting.meetingType)
         ? 'info'
         : group.sections.length > 1
           ? 'selectable'
           : 'anchor';
       rows.push({
-        key: `${section.section_id}-${index}`,
+        key: `${section.sectionId}-${index}`,
         role,
         meeting,
         section,
-        sectionCode: section.section_code ?? group.familyPrefix,
+        sectionCode: section.sectionCode ?? group.familyPrefix,
       });
     }
   }
@@ -394,7 +386,7 @@ function buildMeetingRows(group: UcsdModalOfferingGroup): MeetingRowData[] {
 }
 
 function separatorLabel(row: MeetingRowData): string {
-  return `Choose ${ucsdMeetingTypeLabel(row.meeting.meeting_type).toLowerCase()}`;
+  return `Choose ${ucsdMeetingTypeLabel(row.meeting.meetingType).toLowerCase()}`;
 }
 
 function shouldShowSeparator(rows: MeetingRowData[], index: number): boolean {
@@ -418,16 +410,16 @@ function MeetingRow({
   readonly updatedLabel: string | null;
   readonly onSelect: (section: UcsdModalSection) => void;
 }) {
-  const code = ucsdMeetingTypeCode(row.meeting.meeting_type);
+  const code = ucsdMeetingTypeCode(row.meeting.meetingType);
   const availability =
     row.role !== 'info' && row.section
       ? formatUcsdAvailability(
-          row.section.enrolled,
-          row.section.capacity,
-          row.section.waitlist_count,
+          row.section.availability.enrolled,
+          row.section.availability.capacity,
+          row.section.availability.waitlistCount,
         )
       : null;
-  const meetingTime = formatTime(row.meeting.start_time, row.meeting.end_time);
+  const meetingTime = formatTime(row.meeting.startTime, row.meeting.endTime);
   const rowClassName = clsx(
     styles.meetingRow,
     row.role === 'selectable' && styles.selectableRow,
@@ -460,14 +452,14 @@ function MeetingRow({
           {code}
         </span>
         <span className={styles.typeLabel}>
-          {ucsdMeetingTypeLabel(row.meeting.meeting_type)}
+          {ucsdMeetingTypeLabel(row.meeting.meetingType)}
         </span>
       </div>
       <div className={styles.sectionCode}>{row.sectionCode}</div>
       <div className={styles.meetingTime}>
-        {!row.meeting.is_tba && (
+        {!row.meeting.isTba && (
           <ModalDayDots
-            rawDays={row.meeting.raw_days}
+            rawDays={row.meeting.rawDays}
             allowWeekend={row.role === 'info'}
           />
         )}
@@ -557,8 +549,8 @@ function OfferingGroupCard({
             group={group}
             selected={
               row.role === 'selectable' &&
-              Boolean(row.section?.section_code) &&
-              row.section?.section_code === selectedCode
+              Boolean(row.section?.sectionCode) &&
+              row.section?.sectionCode === selectedCode
             }
             updatedLabel={updatedLabel}
             onSelect={(section) => onSelect(group, section)}
@@ -574,14 +566,14 @@ function OfferingGroupCard({
             onClick={() => onAdd(selectedForAdd.listing)}
           >
             <PlusIcon size={14} />
-            Add {selectedForAdd.section_code ?? group.familyPrefix} to Worksheet
+            Add {selectedForAdd.sectionCode ?? group.familyPrefix} to Worksheet
           </button>
         </div>
       ) : (
         <div className={styles.noSelection}>
           Select a{' '}
           {ucsdMeetingTypeLabel(
-            rows.find((row) => row.role === 'selectable')?.meeting.meeting_type,
+            rows.find((row) => row.role === 'selectable')?.meeting.meetingType,
           ).toLowerCase()}{' '}
           section to add this group
         </div>
@@ -592,21 +584,10 @@ function OfferingGroupCard({
 
 export default function UcsdSnapshotCourseModal({
   listing,
-  archive,
-  view,
-  setView,
-  title,
-  description,
-  structuredJSON,
 }: {
   readonly listing: UcsdModalListing;
-  readonly archive: UcsdCourseArchive | null;
-  readonly view: UcsdModalView;
-  readonly setView: (value: UcsdModalView) => void;
-  readonly title: string;
-  readonly description: string;
-  readonly structuredJSON: string;
 }) {
+  const [view, setView] = useState<UcsdModalView>('overview');
   const titleId = useId();
   const modalRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -622,9 +603,9 @@ export default function UcsdSnapshotCourseModal({
   } | null>(null);
   const { closeModal } = useModalHistory();
   const { courses } = useFerry();
-  const season = listing.course.season_code;
+  const season = listing.section.supportedTerm as Season;
   const allListings = useMemo(
-    () => [...(courses[season]?.data.values() ?? [])],
+    () => [...(courses[season]?.listings.values() ?? [])],
     [courses, season],
   );
   const modalCourse = useMemo(
@@ -668,8 +649,8 @@ export default function UcsdSnapshotCourseModal({
         : {},
     );
   }, [
-    listing.crn,
-    listing.course.season_code,
+    listing.section.sectionId,
+    listing.section.supportedTerm,
     modalCourse.activeFamily,
     modalCourse.selectedSectionCode,
     resetCourseModalUI,
@@ -726,10 +707,24 @@ export default function UcsdSnapshotCourseModal({
 
   const activeFamily = activeFamilyState ?? modalCourse.activeFamily;
   const currentView = view === 'past-grades' ? 'past-grades' : 'overview';
-  const updatedLabel = formatSnapshotUpdatedLabel(snapshotGeneratedAt(listing));
-  const units = unitsLabel(archive, listing);
-  const level = courseLevelLabel(listingCourseNumber(listing));
-  const hasRestrictions = Boolean(archive?.restrictions_text);
+  const updatedLabel = formatSnapshotUpdatedLabel(
+    listing.section.availability.snapshotTimestamp ?? listing.generatedAt,
+  );
+  const units = unitsLabel(listing.course);
+  const level = courseLevelLabel(listing.course.courseNumber);
+  const hasRestrictions = Boolean(listing.course.restrictions);
+  const title = `${listing.course.courseCode} ${listing.section.sectionCode ?? ''}: ${listing.course.title} - UCSD ${toSeasonString(season)} | UCSD Course Planner`;
+  const description = truncatedText(
+    listing.course.description,
+    300,
+    'No description available',
+  );
+  const structuredJSON = JSON.stringify({
+    '@context': 'https://schema.org/',
+    name: { title },
+    description: { description },
+    datePublished: toSeasonDate(season),
+  });
 
   useEffect(() => {
     if (!scrollTarget) return;
@@ -764,8 +759,8 @@ export default function UcsdSnapshotCourseModal({
     group: UcsdModalOfferingGroup,
     section: UcsdModalSection,
   ) => {
-    if (!section.section_code) return;
-    selectCourseModalSection(group.familyPrefix, section.section_code);
+    if (!section.sectionCode) return;
+    selectCourseModalSection(group.familyPrefix, section.sectionCode);
   };
 
   const handleAdd = useCallback(
@@ -779,8 +774,14 @@ export default function UcsdSnapshotCourseModal({
         '#E91E63',
       ];
       const color = colors[Math.floor(Math.random() * colors.length)]!;
-      const label = `${target.course_code} ${target.course.section}`.trim();
-      const worksheetListing = target as AnonymousWorksheetListing;
+      const label =
+        `${target.course.courseCode} ${target.section.sectionCode ?? ''}`.trim();
+      // Worksheet migration is a later slice. Keep its inherited input behind
+      // this explicit compatibility boundary while preserving Section ID.
+      const worksheetListing = requireLegacyCatalogListing(
+        target.section.supportedTerm as Season,
+        target.section.sectionId,
+      ) as AnonymousWorksheetListing;
       if (authStatus === 'authenticated') {
         void addActiveSavedWorksheetListing(worksheetListing, color).then(
           (savedAdded) => {
@@ -836,9 +837,11 @@ export default function UcsdSnapshotCourseModal({
                 {listing.course.title}
               </div>
               <div className={styles.subtitleRow}>
-                <span className={styles.courseCode}>{listing.course_code}</span>
+                <span className={styles.courseCode}>
+                  {listing.course.courseCode}
+                </span>
                 <span className={styles.subtitleDot} aria-hidden="true" />
-                <span>{toSeasonString(listing.course.season_code)}</span>
+                <span>{toSeasonString(season)}</span>
               </div>
             </div>
             <button
@@ -955,10 +958,15 @@ export default function UcsdSnapshotCourseModal({
                 <button
                   type="button"
                   className={styles.iconButton}
-                  disabled={!archive?.catalog_url}
+                  disabled={!listing.course.catalogUrl}
                   onClick={() => {
-                    if (archive?.catalog_url)
-                      window.open(archive.catalog_url, '_blank', 'noreferrer');
+                    if (listing.course.catalogUrl) {
+                      window.open(
+                        listing.course.catalogUrl,
+                        '_blank',
+                        'noreferrer',
+                      );
+                    }
                   }}
                   aria-label="Open UCSD catalog"
                 >
@@ -972,7 +980,9 @@ export default function UcsdSnapshotCourseModal({
 
         <div ref={bodyRef} className={styles.body}>
           {currentView === 'past-grades' ? (
-            <UcsdSnapshotGradeDistribution archive={archive} />
+            <UcsdSnapshotGradeDistribution
+              records={listing.course.pastGrades}
+            />
           ) : (
             <>
               <p className={styles.description}>
@@ -995,7 +1005,7 @@ export default function UcsdSnapshotCourseModal({
                     Restrictions
                   </span>
                 )}
-                {archive?.prerequisites_text && (
+                {listing.course.prerequisites && (
                   <button
                     type="button"
                     className={clsx(
@@ -1009,10 +1019,10 @@ export default function UcsdSnapshotCourseModal({
                     <ChevronIcon open={prereqExpanded} />
                   </button>
                 )}
-                {archive?.catalog_url && (
+                {listing.course.catalogUrl && (
                   <a
                     className={styles.chipLink}
-                    href={archive.catalog_url}
+                    href={listing.course.catalogUrl}
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -1022,12 +1032,12 @@ export default function UcsdSnapshotCourseModal({
                 )}
               </div>
 
-              {archive?.prerequisites_text && prereqExpanded && (
+              {listing.course.prerequisites && prereqExpanded && (
                 <div className={styles.prereqPanel}>
                   <div className={styles.prereqPanelInner}>
                     <div className={styles.prereqText}>
                       <span className={styles.prereqLabel}>Prereqs:</span>
-                      {archive.prerequisites_text}
+                      {listing.course.prerequisites}
                     </div>
                     <button
                       type="button"

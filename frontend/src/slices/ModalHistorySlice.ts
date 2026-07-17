@@ -1,16 +1,23 @@
 import type { SetURLSearchParams } from 'react-router-dom';
 import type { StateCreator } from 'zustand';
-import type { CourseModalPrefetchListingDataFragment } from '../generated/graphql-types';
+import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
 import type { Store } from '../store';
+import type { LegacyCourseDetailListing } from '../types/legacyCourseDetail';
 import {
   createCourseModalLink,
+  createCoursePlanningModalLink,
   createProfModalLink,
 } from '../utilities/display';
 
 type HistoryEntry =
   | {
-      type: 'course';
-      data: CourseModalPrefetchListingDataFragment;
+      type: 'course-planning';
+      data: CoursePlanningListing;
+    }
+  | {
+      /** Inherited CourseTable/Yale Course Detail boundary. */
+      type: 'legacy-course';
+      data: LegacyCourseDetailListing;
     }
   | {
       type: 'professor';
@@ -53,7 +60,9 @@ function createHistoryEntryLink(
   searchParams: URLSearchParams,
 ) {
   switch (entry.type) {
-    case 'course':
+    case 'course-planning':
+      return createCoursePlanningModalLink(entry.data, searchParams);
+    case 'legacy-course':
       return createCourseModalLink(entry.data, searchParams);
     case 'professor':
       return createProfModalLink(entry.data, searchParams);

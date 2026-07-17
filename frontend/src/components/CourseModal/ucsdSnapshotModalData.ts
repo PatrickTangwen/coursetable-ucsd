@@ -1,28 +1,25 @@
-import type { CourseModalPrefetchListingDataFragment } from '../../generated/graphql-types';
-import type { CatalogListing } from '../../queries/api';
 import type {
-  UcsdCalendarDetails,
-  UcsdCourseArchive,
-} from '../../queries/ucsdCatalogSnapshot';
-import {
-  buildOfferingGroups,
-  seatsColor,
-  type OfferingGroup,
-  type SeatsStatus,
-} from '../../utilities/catalogView';
+  CoursePlanningListing,
+  CoursePlanningMeeting,
+  CoursePlanningPastGrade,
+  CoursePlanningSection,
+} from '../../queries/coursePlanningViewModels';
+import { seatsColor, type SeatsStatus } from '../../utilities/catalogView';
 
 export { formatSnapshotStalenessLabel } from '../../utilities/catalogFreshness';
 
-export type UcsdModalListing =
-  | CatalogListing
-  | CourseModalPrefetchListingDataFragment;
+export type UcsdModalListing = CoursePlanningListing;
 
-export type UcsdModalSection = OfferingGroup['sections'][number] & {
+export type UcsdModalSection = CoursePlanningSection & {
   listing: UcsdModalListing;
 };
 
-export type UcsdModalOfferingGroup = Omit<OfferingGroup, 'sections'> & {
+export type UcsdModalOfferingGroup = {
+  familyPrefix: string;
   sections: UcsdModalSection[];
+  sharedMeetings: CoursePlanningMeeting[];
+  totalEnrolled: number;
+  totalCapacity: number;
 };
 
 export type UcsdSnapshotModalCourse = {
@@ -40,34 +37,6 @@ export type UcsdAvailabilityDisplay = {
   status: UcsdAvailabilityStatus;
 };
 
-type CalendarLike = Omit<UcsdCalendarDetails, 'waitlist_count'> & {
-  waitlist_count: number | null;
-};
-
-type UcsdModalMeeting = UcsdModalSection['meetings'][number];
-
-function isRecord(value: unknown): value is { [key: string]: unknown } {
-  return typeof value === 'object' && value !== null;
-}
-
-function getCalendar(listing: UcsdModalListing): CalendarLike | undefined {
-  const course = listing.course as { [key: string]: unknown };
-  return isRecord(course.ucsd_calendar)
-    ? (course.ucsd_calendar as CalendarLike)
-    : undefined;
-}
-
-function getListingSectionId(listing: UcsdModalListing): string {
-  const direct = (listing as { section_id?: unknown }).section_id;
-  if (typeof direct === 'string' && direct) return direct;
-  const match = listing.course.listings.find((l) => l.crn === listing.crn);
-  const fromCourseListing = (match as { section_id?: unknown } | undefined)
-    ?.section_id;
-  if (typeof fromCourseListing === 'string' && fromCourseListing)
-    return fromCourseListing;
-  return String(listing.crn);
-}
-
 export function getUcsdModalSectionFamily(
   sectionCode: string | null | undefined,
 ): string {
@@ -77,62 +46,74 @@ export function getUcsdModalSectionFamily(
   return sectionCode;
 }
 
-function normalizeWaitlist(value: number | null | undefined): number {
-  return typeof value === 'number' && Number.isFinite(value) ? value : 0;
-}
-
 function toModalSection(listing: UcsdModalListing): UcsdModalSection {
-  const calendar = getCalendar(listing);
-  const fallbackMeetings = listing.course.course_meetings.map((meeting) => ({
-    days: [] as string[],
-    date: null,
-    start_time: meeting.start_time,
-    end_time: meeting.end_time,
-    building:
-      (
-        meeting as {
-          location?: { building?: { code?: string | null } | null } | null;
-        }
-      ).location?.building?.code ?? null,
-    room:
-      (meeting as { location?: { room?: string | null } | null }).location
-        ?.room ?? null,
-    is_tba: false,
-    meeting_type: (meeting as { meeting_type?: string | null }).meeting_type,
-    raw_days: null,
-    raw_time: null,
-    raw_location: (meeting as { raw_location?: string | null }).raw_location,
-  }));
-
   return {
-    section_id: String(calendar?.section_id ?? getListingSectionId(listing)),
-    course_id: String(listing.course.same_course_id),
-    section_code: calendar?.section_code ?? listing.course.section,
-    meeting_type: calendar?.meeting_type ?? null,
-    instructors: listing.course.course_professors
-      .map(
-        ({ professor }) => (professor as { name?: string | null }).name ?? null,
-      )
-      .filter((name): name is string => Boolean(name)),
-    meetings: calendar?.meetings ?? fallbackMeetings,
-    enrolled: calendar?.enrolled ?? null,
-    capacity: calendar?.capacity ?? null,
-    waitlist_count: normalizeWaitlist(calendar?.waitlist_count),
+    ...listing.section,
     listing,
   };
 }
 
 function sameCourse(a: UcsdModalListing, b: UcsdModalListing): boolean {
   return (
-    a.course.season_code === b.course.season_code &&
-    a.course.same_course_id === b.course.same_course_id &&
-    a.course_code === b.course_code
+    a.section.supportedTerm === b.section.supportedTerm &&
+    a.course.courseId === b.course.courseId
   );
 }
 
 function sectionSortValue(listing: UcsdModalListing): string {
-  const calendar = getCalendar(listing);
-  return calendar?.section_code ?? listing.course.section;
+  return listing.section.sectionCode ?? '';
+}
+
+function meetingKey(meeting: CoursePlanningMeeting): string {
+  return [
+    meeting.meetingType ?? '',
+    meeting.date ?? '',
+    meeting.rawDays ?? meeting.days.join(','),
+    meeting.startTime ?? '',
+    meeting.endTime ?? '',
+    meeting.rawLocation ?? '',
+    meeting.building ?? '',
+    meeting.room ?? '',
+  ].join('|');
+}
+
+function findSharedMeetings(
+  sections: UcsdModalSection[],
+): CoursePlanningMeeting[] {
+  if (sections.length <= 1) return [];
+  return sections[0]!.meetings.filter((meeting) => {
+    const key = meetingKey(meeting);
+    return sections
+      .slice(1)
+      .every((section) =>
+        section.meetings.some((candidate) => meetingKey(candidate) === key),
+      );
+  });
+}
+
+function buildOfferingGroups(
+  sections: UcsdModalSection[],
+): UcsdModalOfferingGroup[] {
+  const families = new Map<string, UcsdModalSection[]>();
+  for (const section of sections) {
+    const family = getUcsdModalSectionFamily(section.sectionCode);
+    const familySections = families.get(family);
+    if (familySections) familySections.push(section);
+    else families.set(family, [section]);
+  }
+  return [...families].map(([familyPrefix, familySections]) => ({
+    familyPrefix,
+    sections: familySections,
+    sharedMeetings: findSharedMeetings(familySections),
+    totalEnrolled: familySections.reduce(
+      (total, section) => total + (section.availability.enrolled ?? 0),
+      0,
+    ),
+    totalCapacity: familySections.reduce(
+      (total, section) => total + (section.availability.capacity ?? 0),
+      0,
+    ),
+  }));
 }
 
 export function buildUcsdSnapshotModalCourse(
@@ -142,7 +123,7 @@ export function buildUcsdSnapshotModalCourse(
   const bySection = new Map<string, UcsdModalListing>();
   for (const listing of [currentListing, ...allListings]) {
     if (!sameCourse(currentListing, listing)) continue;
-    bySection.set(getListingSectionId(listing), listing);
+    bySection.set(listing.section.sectionId, listing);
   }
 
   const listings = [...bySection.values()].sort((a, b) =>
@@ -152,9 +133,10 @@ export function buildUcsdSnapshotModalCourse(
     }),
   );
   const sections = listings.map(toModalSection);
-  const groups = buildOfferingGroups(sections) as UcsdModalOfferingGroup[];
-  const selectedSectionCode =
-    getCalendar(currentListing)?.section_code ?? currentListing.course.section;
+  const groups = buildOfferingGroups(sections).sort((a, b) =>
+    a.familyPrefix.localeCompare(b.familyPrefix),
+  );
+  const selectedSectionCode = currentListing.section.sectionCode;
   const activeFamily =
     getUcsdModalSectionFamily(selectedSectionCode) ||
     groups[0]?.familyPrefix ||
@@ -166,19 +148,6 @@ export function buildUcsdSnapshotModalCourse(
     activeFamily,
     selectedSectionCode,
   };
-}
-
-function meetingKey(meeting: UcsdModalMeeting): string {
-  return [
-    meeting.meeting_type ?? '',
-    meeting.date ?? '',
-    meeting.raw_days ?? meeting.days.join(','),
-    meeting.start_time ?? '',
-    meeting.end_time ?? '',
-    meeting.raw_location ?? '',
-    meeting.building ?? '',
-    meeting.room ?? '',
-  ].join('|');
 }
 
 export function getSectionVaryingMeetings(
@@ -221,8 +190,7 @@ export function formatUcsdAvailability(
   };
 }
 
-type UcsdGradeArchiveRecord =
-  UcsdCourseArchive['grade_archive_records'][number];
+type UcsdGradeArchiveRecord = CoursePlanningPastGrade;
 
 const archiveQuarterRank: { [quarter: string]: number } = {
   WI: 1,
@@ -277,8 +245,8 @@ function compareArchiveTerm(
 }
 
 export function sortArchiveRecordsByTermDescending(
-  records: UcsdCourseArchive['grade_archive_records'],
-): UcsdCourseArchive['grade_archive_records'] {
+  records: CoursePlanningPastGrade[],
+): CoursePlanningPastGrade[] {
   return [...records].sort((a, b) => compareArchiveTerm(b, a));
 }
 

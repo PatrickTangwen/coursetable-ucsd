@@ -9,19 +9,20 @@ import {
   getSectionVaryingMeetings,
   type UcsdModalListing,
 } from './ucsdSnapshotModalData';
+import type { CoursePlanningListing } from '../../queries/coursePlanningViewModels';
 
 type MeetingFixture = {
   days: string[];
   date: string | null;
-  start_time: string | null;
-  end_time: string | null;
+  startTime: string | null;
+  endTime: string | null;
   building: string | null;
   room: string | null;
-  is_tba: boolean;
-  meeting_type: string | null;
-  raw_days: string | null;
-  raw_time: string | null;
-  raw_location: string | null;
+  isTba: boolean;
+  meetingType: string | null;
+  rawDays: string | null;
+  rawTime: string | null;
+  rawLocation: string | null;
 };
 
 function meeting(
@@ -35,15 +36,15 @@ function meeting(
   return {
     days: raw_days === 'TuTh' ? ['Tuesday', 'Thursday'] : [raw_days],
     date: null,
-    start_time,
-    end_time,
+    startTime: start_time,
+    endTime: end_time,
     building,
     room,
-    is_tba: false,
-    meeting_type,
-    raw_days,
-    raw_time: `${start_time}-${end_time}`,
-    raw_location: `${building} ${room}`,
+    isTba: false,
+    meetingType: meeting_type,
+    rawDays: raw_days,
+    rawTime: `${start_time}-${end_time}`,
+    rawLocation: `${building} ${room}`,
   };
 }
 
@@ -51,20 +52,19 @@ function tbaMeeting(meeting_type: string): MeetingFixture {
   return {
     days: [],
     date: null,
-    start_time: null,
-    end_time: null,
+    startTime: null,
+    endTime: null,
     building: null,
     room: null,
-    is_tba: true,
-    meeting_type,
-    raw_days: 'TBA',
-    raw_time: 'TBA',
-    raw_location: 'TBA',
+    isTba: true,
+    meetingType: meeting_type,
+    rawDays: 'TBA',
+    rawTime: 'TBA',
+    rawLocation: 'TBA',
   };
 }
 
 function listing({
-  crn,
   sectionCode,
   meetings,
   enrolled,
@@ -79,65 +79,47 @@ function listing({
   waitlist?: number;
 }): UcsdModalListing {
   return {
-    crn,
-    course_code: 'CSE 8A',
-    number: '8A',
-    school: 'UCSD',
-    section_id: `SP26:CSE-8A-${sectionCode}`,
-    subject: 'CSE',
     course: {
-      course_id: crn,
-      same_course_id: 8001,
-      season_code: 'SP26',
-      section: sectionCode,
+      courseId: 'CSE:8A',
+      subject: 'CSE',
+      courseNumber: '8A',
+      courseCode: 'CSE 8A',
       title: 'Introduction to Programming',
       description: 'Course description',
-      credits: 4,
-      time_added: '2026-06-20T00:00:00.000Z',
-      last_updated: '2026-06-20T00:00:00.000Z',
-      listings: [
-        {
-          crn,
-          course_code: 'CSE 8A',
-          section_id: `SP26:CSE-8A-${sectionCode}`,
-        },
-      ],
-      course_professors: [
-        {
-          professor: {
-            professor_id: 1,
-            name: 'Ada Lovelace',
-          },
-        },
-      ],
-      course_meetings: [],
-      ucsd_calendar: {
-        term_date_range: {
-          start: '2026-03-30',
-          end: '2026-06-12',
-        },
-        section_id: `SP26:CSE-8A-${sectionCode}`,
-        section_code: sectionCode,
-        meeting_type: 'Laboratory',
-        meetings,
+      units: '4',
+      prerequisites: null,
+      restrictions: null,
+      requirements: null,
+      catalogUrl: null,
+      archiveRecordCount: 0,
+      pastGrades: [],
+      sections: [],
+    },
+    section: {
+      sectionId: `SP26:CSE-8A-${sectionCode}`,
+      courseId: 'CSE:8A',
+      supportedTerm: 'SP26',
+      sectionCode,
+      meetingType: 'Laboratory',
+      instructors: [{ name: 'Ada Lovelace' }],
+      meetings,
+      availability: {
         enrolled,
         capacity,
-        waitlist_count: waitlist,
-        source_note: 'fixture',
+        waitlistCount: waitlist,
+        snapshotTimestamp: '2026-06-20T00:00:00.000Z',
       },
-      ucsd_archive: {
-        archive_avg_gpa: null,
-        archive_record_count: 0,
-        source_timestamp: null,
-        catalog_source_timestamp: null,
-        catalog_url: null,
-        units: '4',
-        prerequisites_text: null,
-        restrictions_text: null,
-        grade_archive_records: [],
-      },
+      sourceNote: 'fixture',
     },
-  } as unknown as UcsdModalListing;
+    generatedAt: '2026-06-20T00:00:00.000Z',
+    evaluation: {
+      overallRating: null,
+      workload: null,
+      professorRating: null,
+      gutRating: null,
+      enrollment: null,
+    },
+  } satisfies CoursePlanningListing;
 }
 
 describe('UCSD snapshot modal data', () => {
@@ -187,13 +169,13 @@ describe('UCSD snapshot modal data', () => {
     ]);
 
     const [groupA] = modalCourse.groups;
-    expect(groupA!.sharedMeetings.map((m) => m.meeting_type)).toEqual([
+    expect(groupA!.sharedMeetings.map((m) => m.meetingType)).toEqual([
       'Lecture',
       'Discussion',
     ]);
     expect(
       getSectionVaryingMeetings(groupA!.sections[0]!, groupA!).map(
-        (m) => m.meeting_type,
+        (m) => m.meetingType,
       ),
     ).toEqual(['Laboratory']);
   });
@@ -231,12 +213,12 @@ describe('UCSD snapshot modal data', () => {
     const modalCourse = buildUcsdSnapshotModalCourse(a01, [a01, a02]);
 
     const [groupA] = modalCourse.groups;
-    expect(groupA!.sharedMeetings.map((m) => m.meeting_type)).toEqual([
+    expect(groupA!.sharedMeetings.map((m) => m.meetingType)).toEqual([
       'Lecture',
     ]);
     expect(
       getSectionVaryingMeetings(groupA!.sections[0]!, groupA!).map(
-        (m) => m.meeting_type,
+        (m) => m.meetingType,
       ),
     ).toEqual(['Laboratory']);
     expect(
@@ -273,17 +255,17 @@ describe('UCSD snapshot modal data', () => {
     const modalCourse = buildUcsdSnapshotModalCourse(a01, [a01, a02]);
 
     const [groupA] = modalCourse.groups;
-    expect(groupA!.sharedMeetings.map((m) => m.meeting_type)).toEqual([
+    expect(groupA!.sharedMeetings.map((m) => m.meetingType)).toEqual([
       'Lecture',
     ]);
     expect(
       getSectionVaryingMeetings(groupA!.sections[0]!, groupA!).map(
-        (m) => m.meeting_type,
+        (m) => m.meetingType,
       ),
     ).toEqual(['Discussion']);
     expect(
       getSectionVaryingMeetings(groupA!.sections[1]!, groupA!).map(
-        (m) => m.raw_time,
+        (m) => m.rawTime,
       ),
     ).toEqual(['11:00-12:50']);
   });

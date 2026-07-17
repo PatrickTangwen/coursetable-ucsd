@@ -8,6 +8,10 @@ import React, {
 import { useSearchParams } from 'react-router-dom';
 import { createSessionStorageSlot } from './browserStorage';
 import Spinner from '../components/Spinner';
+import {
+  coursePlanningSectionModalId,
+  type CoursePlanningListing,
+} from '../queries/coursePlanningViewModels';
 import type { Crn, Season } from '../queries/graphql-types';
 
 const hasAutoReloaded = createSessionStorageSlot<boolean>('autoReloaded');
@@ -147,6 +151,20 @@ export function createCourseModalLink(
   const newSearch = new URLSearchParams(searchParams);
   if (!listing) return `?${searchParams.toString()}`;
   newSearch.set('course-modal', `${listing.course.season_code}-${listing.crn}`);
+  newSearch.delete('prof-modal');
+  return `?${newSearch.toString()}`;
+}
+
+export function createCoursePlanningModalLink(
+  listing: CoursePlanningListing | undefined,
+  searchParams: URLSearchParams,
+) {
+  const newSearch = new URLSearchParams(searchParams);
+  if (!listing) return `?${searchParams.toString()}`;
+  newSearch.set(
+    'course-modal',
+    `${listing.section.supportedTerm}-${coursePlanningSectionModalId(listing.section.sectionId)}`,
+  );
   newSearch.delete('prof-modal');
   return `?${newSearch.toString()}`;
 }

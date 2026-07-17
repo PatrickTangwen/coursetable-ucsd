@@ -3,7 +3,6 @@ import { MdWarning } from 'react-icons/md';
 
 import OverviewInfo from './OverviewInfo';
 import OverviewRatings from './OverviewRatings';
-import UcsdSnapshotOverview from './UcsdSnapshotOverview';
 
 import type { CourseModalPrefetchListingDataFragment } from '../../../generated/graphql-types';
 import { useCourseModalOverviewDataQuery } from '../../../queries/graphql-queries';
@@ -11,7 +10,6 @@ import { useStore } from '../../../store';
 import { getListingId } from '../../../utilities/course';
 import Spinner from '../../Spinner';
 import type { ModalNavigationFunction } from '../CourseModal';
-import { getUcsdSnapshotCourseDetails } from '../ucsdSnapshotCourse';
 
 function OverviewPanel({
   onNavigation,
@@ -21,20 +19,13 @@ function OverviewPanel({
   readonly prefetched: CourseModalPrefetchListingDataFragment;
 }) {
   const user = useStore((state) => state.user);
-  const { archive, isUcsdSnapshotCourse } =
-    getUcsdSnapshotCourseDetails(prefetched);
-
   const { data, loading, error } = useCourseModalOverviewDataQuery({
     variables: {
       listingId: getListingId(prefetched.course.season_code, prefetched.crn),
       hasEvals: Boolean(user?.hasEvals),
       sameCourseId: prefetched.course.same_course_id,
     },
-    skip: isUcsdSnapshotCourse,
   });
-
-  if (isUcsdSnapshotCourse)
-    return <UcsdSnapshotOverview listing={prefetched} archive={archive} />;
 
   // Wait until data is fetched
   if (loading) return <Spinner message="Loading course details..." />;

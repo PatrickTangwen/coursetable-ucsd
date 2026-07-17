@@ -23,7 +23,6 @@ import { PopoutSelect } from '../../Search/PopoutSelect';
 import SkillBadge from '../../SkillBadge';
 import { TextComponent } from '../../Typography';
 import type { ModalNavigationFunction } from '../CourseModal';
-import { getUcsdSnapshotCourseDetails } from '../ucsdSnapshotCourse';
 import styles from './InfoRow.module.css';
 
 function SectionLink({
@@ -152,14 +151,12 @@ export default function ModalHeaderInfo({
   const user = useStore((state) => state.user);
   const [searchParams] = useSearchParams();
   const backTarget = useStore((state) => state.backTarget);
-  const { isUcsdSnapshotCourse } = getUcsdSnapshotCourseDetails(listing);
   const { data, loading, error } = useCourseSectionsQuery({
     variables: {
       courseCode: listing.course_code,
       seasonCode: listing.course.season_code,
       hasEvals: Boolean(user?.hasEvals),
     },
-    skip: isUcsdSnapshotCourse,
   });
   const sections =
     loading || error || !data?.listings

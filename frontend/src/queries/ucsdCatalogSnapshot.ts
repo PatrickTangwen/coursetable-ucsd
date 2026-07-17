@@ -2,6 +2,7 @@ import z from 'zod';
 
 import {
   coursePlanningPastGradeSchema,
+  coursePlanningSectionModalId,
   normalizePublishedSnapshot,
   type CoursePlanningCatalog,
   type CoursePlanningCourse,
@@ -176,7 +177,7 @@ function toCoursePublic(
   course: CoursePlanningCourse,
   section: CoursePlanningSection,
 ): CoursePublic {
-  const crn = stableCompatNumber(section.sectionId) as Crn;
+  const crn = coursePlanningSectionModalId(section.sectionId) as Crn;
   const sameCourseId = stableCompatNumber(course.courseId);
   const courseMeetings = toCourseMeetings(section);
   const instructors = section.instructors.map(({ name }) => ({

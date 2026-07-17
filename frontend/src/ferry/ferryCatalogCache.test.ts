@@ -5,7 +5,10 @@ import {
   loadCatalogSeason,
   resetCatalogCache,
 } from './ferryCatalogCache';
-import type { CoursePlanningCatalog } from '../queries/coursePlanningViewModels';
+import {
+  type CoursePlanningCatalog,
+  coursePlanningSectionModalId,
+} from '../queries/coursePlanningViewModels';
 import type { Season } from '../queries/graphql-types';
 import { adaptCoursePlanningCatalog } from '../queries/ucsdCatalogSnapshot';
 
@@ -101,6 +104,11 @@ describe('Catalog cache', () => {
       ],
     ]);
     expect([...cached.data.values()]).toHaveLength(1);
+    expect(
+      cached.listingsByModalId.get(
+        coursePlanningSectionModalId('FA26:123456') as never,
+      ),
+    ).toBe(cached.listings.get('FA26:123456'));
     expect([...cached.data.values()][0]).toMatchObject({
       section_id: 'FA26:123456',
       course: {

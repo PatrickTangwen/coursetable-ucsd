@@ -8,8 +8,6 @@ import ModalHeaderControls, {
 } from './Header/ControlsRow';
 import ModalHeaderInfo from './Header/InfoRow';
 import OverviewPanel from './OverviewPanel/OverviewPanel';
-import { getUcsdSnapshotCourseDetails } from './ucsdSnapshotCourse';
-import UcsdSnapshotCourseModal from './UcsdSnapshotCourseModal';
 import type { CourseModalPrefetchListingDataFragment } from '../../generated/graphql-types';
 import { useModalHistory } from '../../hooks/useModalHistory';
 import {
@@ -34,6 +32,7 @@ export type ModalNavigationFunction = ((
   ((mode: 'pop', l: undefined, target: 'evals' | 'overview') => void) &
   ((mode: 'change-view', l: undefined, target: 'evals' | 'overview') => void);
 
+/** Inherited CourseTable/Yale Course Detail. UCSD renders its owned modal. */
 function CourseModal({
   listing,
 }: {
@@ -42,19 +41,9 @@ function CourseModal({
   const [view, setView] = useState<CourseModalView>('overview');
   const [searchParams] = useSearchParams();
   const { closeModal, navigate } = useModalHistory();
-  const { archive, isUcsdSnapshotCourse } =
-    getUcsdSnapshotCourseDetails(listing);
-  const visibleView = isUcsdSnapshotCourse
-    ? view === 'evals'
-      ? 'overview'
-      : view
-    : view === 'past-grades'
-      ? 'overview'
-      : view;
-  const institution = isUcsdSnapshotCourse ? 'UCSD' : 'Yale';
-  const productName = isUcsdSnapshotCourse
-    ? 'UCSD Course Planner'
-    : 'CourseTable';
+  const visibleView = view;
+  const institution = 'Yale';
+  const productName = 'CourseTable';
   const title = `${listing.course_code} ${listing.course.section.padStart(2, '0')}: ${listing.course.title} - ${institution} ${toSeasonString(listing.course.season_code)} | ${productName}`;
   const description = truncatedText(
     listing.course.description,
@@ -68,20 +57,6 @@ function CourseModal({
     datePublished: toSeasonDate(listing.course.season_code),
   });
 
-  if (isUcsdSnapshotCourse) {
-    return (
-      <UcsdSnapshotCourseModal
-        listing={listing}
-        archive={archive}
-        view={visibleView}
-        setView={setView}
-        title={title}
-        description={description}
-        structuredJSON={structuredJSON}
-      />
-    );
-  }
-
   const onNavigation: ModalNavigationFunction = (mode, l, target) => {
     if (mode === 'pop') {
       setView('overview');
@@ -89,12 +64,9 @@ function CourseModal({
     } else if (mode === 'change-view') {
       setView(target);
     } else {
-      const nextCourse = getUcsdSnapshotCourseDetails(l!);
       const nextView =
         // Only actually navigate to evals if the course has evals
-        target === 'evals' &&
-        !nextCourse.isUcsdSnapshotCourse &&
-        l!.course.evaluation_statistic
+        target === 'evals' && l!.course.evaluation_statistic
           ? 'evals'
           : 'overview';
       setView(nextView);
@@ -103,7 +75,7 @@ function CourseModal({
         l!.course.season_code === listing.course.season_code
       )
         return;
-      navigate(mode, { type: 'course', data: l! }, searchParams);
+      navigate(mode, { type: 'legacy-course', data: l! }, searchParams);
     }
   };
 

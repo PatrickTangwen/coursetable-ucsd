@@ -6,6 +6,7 @@ import { Helmet } from 'react-helmet';
 
 import AuthRouteGate from './components/AuthRouteGate';
 import CourseModal from './components/CourseModal/CourseModal';
+import UcsdSnapshotCourseModal from './components/CourseModal/UcsdSnapshotCourseModal';
 import Footer from './components/Footer';
 import ModalHistoryBridge from './components/ModalHistoryBridge';
 import TopNav from './components/Navbar/TopNav';
@@ -74,7 +75,9 @@ function Modal() {
   const currentModal = useStore((state) => state.currentModal);
   if (!currentModal) return null;
   switch (currentModal.type) {
-    case 'course':
+    case 'course-planning':
+      return <UcsdSnapshotCourseModal listing={currentModal.data} />;
+    case 'legacy-course':
       return <CourseModal listing={currentModal.data} />;
     case 'professor':
       return <ProfModal professorId={currentModal.data} />;

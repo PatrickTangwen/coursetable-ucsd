@@ -8,6 +8,7 @@ import {
   type CatalogListing,
 } from '../queries/api';
 import {
+  coursePlanningSectionModalId,
   flattenCoursePlanningCatalog,
   type CoursePlanningCatalog,
   type CoursePlanningListing,
@@ -27,6 +28,7 @@ type CourseData = {
     metadata: CatalogMetadata;
     catalog: CoursePlanningCatalog | null;
     listings: Map<string, CoursePlanningListing>;
+    listingsByModalId: Map<Crn, CoursePlanningListing>;
     data: Map<Crn, CatalogListing>;
     legacyBySectionId: Map<string, CatalogListing>;
   };
@@ -93,16 +95,23 @@ const loadCatalog = (season: Season, includeEvals: boolean): Promise<void> =>
           }
         }
         const listings = new Map<string, CoursePlanningListing>();
+        const listingsByModalId = new Map<Crn, CoursePlanningListing>();
         if (data.coursePlanningCatalog) {
           for (const listing of flattenCoursePlanningCatalog(
             data.coursePlanningCatalog,
-          ))
+          )) {
             listings.set(listing.section.sectionId, listing);
+            listingsByModalId.set(
+              coursePlanningSectionModalId(listing.section.sectionId) as Crn,
+              listing,
+            );
+          }
         }
         return {
           metadata,
           catalog: data.coursePlanningCatalog,
           listings,
+          listingsByModalId,
           data: catalogOldFormat,
           legacyBySectionId,
         };

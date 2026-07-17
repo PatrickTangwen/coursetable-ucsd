@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { normalizePublishedSnapshot } from './coursePlanningViewModels';
+import {
+  coursePlanningSectionModalId,
+  normalizePublishedSnapshot,
+} from './coursePlanningViewModels';
 import { adaptCoursePlanningCatalog } from './ucsdCatalogSnapshot';
 
 describe('Published Snapshot Course Planning view-model seam', () => {
@@ -237,6 +240,8 @@ describe('Published Snapshot Course Planning view-model seam', () => {
 
     const [course] = [...catalog.values()];
     const [listing] = course!.listings;
+
+    expect(coursePlanningSectionModalId('FA26:123456')).toBe(listing!.crn);
 
     expect(course).toMatchObject({
       title: 'Tracer Course',

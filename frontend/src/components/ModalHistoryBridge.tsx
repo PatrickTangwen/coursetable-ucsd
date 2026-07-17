@@ -1,41 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import type { CourseModalPrefetchListingDataFragment } from '../generated/graphql-types';
+import LegacyCourseModalUrlHydrator from './LegacyCourseModalUrlHydrator';
 import { useFerry } from '../hooks/useFerry';
-import { useCourseModalFromUrlQuery } from '../queries/graphql-queries';
+import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
 import { useStore } from '../store';
 import {
-  getStaticCourseFromModalUrl,
+  getCoursePlanningCourseFromModalUrl,
+  isLegacyCourseModalUrl,
   parseCourseModalQuery,
 } from '../utilities/modalHistoryUrl';
-
-function useCourseInfoFromURL(
-  isInitial: boolean,
-): CourseModalPrefetchListingDataFragment | undefined {
-  const user = useStore((s) => s.user);
-  const [searchParams] = useSearchParams();
-  const courseModal = searchParams.get('course-modal');
-  const variables = parseCourseModalQuery(courseModal);
-  const { courses } = useFerry();
-  const staticCourse = getStaticCourseFromModalUrl(courses, variables);
-  const isStaticOnlyCourse =
-    variables !== undefined && !Number.isFinite(Number(variables.seasonCode));
-  const { data } = useCourseModalFromUrlQuery({
-    variables: {
-      listingId: variables?.listingId ?? 0,
-      hasEvals: Boolean(user?.hasEvals),
-    },
-    skip:
-      !variables ||
-      !isInitial ||
-      staticCourse !== undefined ||
-      isStaticOnlyCourse,
-  });
-  if (variables === undefined) return undefined;
-  if (staticCourse) return staticCourse;
-  return data?.listings_by_pk ?? undefined;
-}
 
 function useProfInfoFromURL(): number | undefined {
   const [searchParams] = useSearchParams();
@@ -57,7 +31,12 @@ export default function ModalHistoryBridge() {
   const clearUrlSuppression = useStore((s) => s.clearUrlSuppression);
 
   const isInitial = historyLen === 0;
-  const courseFromURL = useCourseInfoFromURL(isInitial);
+  const courseVariables = parseCourseModalQuery(
+    searchParams.get('course-modal'),
+  );
+  const { courses, loading } = useFerry();
+  const courseFromURL: CoursePlanningListing | undefined =
+    getCoursePlanningCourseFromModalUrl(courses, courseVariables);
   const profFromURL = useProfInfoFromURL();
 
   const searchKey = searchParams.toString();
@@ -102,7 +81,11 @@ export default function ModalHistoryBridge() {
     if (historyLen > 0) return;
     const params = new URLSearchParams(searchKey);
     if (courseFromURL) {
-      navigate('replace', { type: 'course', data: courseFromURL }, params);
+      navigate(
+        'replace',
+        { type: 'course-planning', data: courseFromURL },
+        params,
+      );
       return;
     }
     if (profFromURL !== undefined)
@@ -116,5 +99,17 @@ export default function ModalHistoryBridge() {
     suppressInitialFromUrl,
   ]);
 
-  return null;
+  const shouldHydrateLegacyCourse =
+    isInitial &&
+    !suppressInitialFromUrl &&
+    !loading &&
+    courseFromURL === undefined &&
+    isLegacyCourseModalUrl(courseVariables);
+
+  return shouldHydrateLegacyCourse ? (
+    <LegacyCourseModalUrlHydrator
+      variables={courseVariables}
+      searchKey={searchKey}
+    />
+  ) : null;
 }

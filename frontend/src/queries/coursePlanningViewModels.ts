@@ -112,6 +112,19 @@ export type CoursePlanningEvaluation = {
   enrollment: number | null;
 };
 
+/**
+ * Preserves the generated numeric identity used by existing Course modal links
+ * while the owned model keeps Section ID as its canonical identity.
+ */
+export function coursePlanningSectionModalId(sectionId: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < sectionId.length; i += 1) {
+    hash ^= sectionId.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0 || 1;
+}
+
 export function flattenCoursePlanningCatalog(
   catalog: CoursePlanningCatalog,
 ): CoursePlanningListing[] {

@@ -15,7 +15,6 @@ import type { CourseModalPrefetchListingDataFragment } from '../../../generated/
 import { useModalHistory } from '../../../hooks/useModalHistory';
 import WishlistToggleButton from '../../Wishlist/WishlistToggleButton';
 import WorksheetToggleButton from '../../Worksheet/WorksheetToggleButton';
-import { getUcsdSnapshotCourseDetails } from '../ucsdSnapshotCourse';
 import styles from './ControlsRow.module.css';
 
 function copyToClipboard(text: string, successMessage: string) {
@@ -73,8 +72,6 @@ function MoreButton({
   readonly listing: CourseModalPrefetchListingDataFragment;
 }) {
   const { closeModal } = useModalHistory();
-  const { archive, isUcsdSnapshotCourse } =
-    getUcsdSnapshotCourseDetails(listing);
   return (
     <DropdownButton
       as="div"
@@ -90,43 +87,29 @@ function MoreButton({
       >
         Report an error
       </Dropdown.Item>
-      {archive?.catalog_url && (
+      <Dropdown.Item
+        href={`https://courses.yale.edu/?details&srcdb=${listing.course.season_code}&crn=${listing.crn}`}
+        target="_blank"
+        rel="noreferrer"
+      >
+        Open in Yale Course Search
+      </Dropdown.Item>
+      <Dropdown.Item
+        href={`https://ivy.yale.edu/course-stats/course/courseDetail?termCode=${listing.course.season_code}&courseNumber=${listing.course_code.split(' ')[1]!}&subjectCode=${encodeURIComponent(listing.course_code.split(' ')[0]!)}`}
+        target="_blank"
+        rel="noreferrer"
+      >
+        Open Course Demand Statistics
+      </Dropdown.Item>
+      {!CUR_YEAR.includes(listing.course.season_code) && (
         <Dropdown.Item
-          href={archive.catalog_url}
+          href={`https://oce.app.yale.edu/ocedashboard/studentViewer/courseSummary?termCode=${listing.course.season_code}&crn=${listing.crn}`}
           target="_blank"
           rel="noreferrer"
         >
-          Open UCSD Catalog
+          Open in OCE
         </Dropdown.Item>
       )}
-      {!isUcsdSnapshotCourse && (
-        <>
-          <Dropdown.Item
-            href={`https://courses.yale.edu/?details&srcdb=${listing.course.season_code}&crn=${listing.crn}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Open in Yale Course Search
-          </Dropdown.Item>
-          <Dropdown.Item
-            href={`https://ivy.yale.edu/course-stats/course/courseDetail?termCode=${listing.course.season_code}&courseNumber=${listing.course_code.split(' ')[1]!}&subjectCode=${encodeURIComponent(listing.course_code.split(' ')[0]!)}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Open Course Demand Statistics
-          </Dropdown.Item>
-        </>
-      )}
-      {!isUcsdSnapshotCourse &&
-        !CUR_YEAR.includes(listing.course.season_code) && (
-          <Dropdown.Item
-            href={`https://oce.app.yale.edu/ocedashboard/studentViewer/courseSummary?termCode=${listing.course.season_code}&crn=${listing.crn}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Open in OCE
-          </Dropdown.Item>
-        )}
     </DropdownButton>
   );
 }
@@ -137,7 +120,7 @@ type Tab = {
   readonly disabled?: boolean;
 };
 
-export type CourseModalView = 'overview' | 'evals' | 'past-grades';
+export type CourseModalView = 'overview' | 'evals';
 
 function ViewTabs({
   currentTab,
@@ -196,21 +179,15 @@ export default function ModalHeaderControls({
   readonly view: CourseModalView;
   readonly setView: (value: CourseModalView) => void;
 }) {
-  const { isUcsdSnapshotCourse } = getUcsdSnapshotCourseDetails(listing);
-  const tabs: Tab[] = isUcsdSnapshotCourse
-    ? [
-        { label: 'Overview', value: 'overview' },
-        { label: 'Past Grades', value: 'past-grades' },
-      ]
-    : [
-        { label: 'Overview', value: 'overview' },
-        {
-          label: 'Evaluations',
-          value: 'evals',
-          // Don't show eval tab if there are no responses to show
-          disabled: !listing.course.evaluation_statistic,
-        },
-      ];
+  const tabs: Tab[] = [
+    { label: 'Overview', value: 'overview' },
+    {
+      label: 'Evaluations',
+      value: 'evals',
+      // Don't show eval tab if there are no responses to show
+      disabled: !listing.course.evaluation_statistic,
+    },
+  ];
 
   return (
     <div className={styles.modalControls}>

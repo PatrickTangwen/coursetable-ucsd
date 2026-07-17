@@ -238,7 +238,7 @@ function CourseLink({
           } else {
             navigate(
               'push',
-              { type: 'course', data: targetListingDefinite },
+              { type: 'legacy-course', data: targetListingDefinite },
               searchParams,
             );
           }
@@ -284,9 +284,15 @@ function CourseLink({
                 className={styles.courseLink}
                 to={createCourseModalLink(l, searchParams)}
                 onClick={() => {
-                  if (onNavigation) onNavigation('push', l, 'evals');
-                  else
-                    navigate('push', { type: 'course', data: l }, searchParams);
+                  if (onNavigation) {
+                    onNavigation('push', l, 'evals');
+                  } else {
+                    navigate(
+                      'push',
+                      { type: 'legacy-course', data: l },
+                      searchParams,
+                    );
+                  }
                 }}
               >
                 {l.course_code}
