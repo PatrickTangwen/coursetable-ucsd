@@ -53,15 +53,16 @@ import {
 import { createLocalStorageSlot } from '../utilities/browserStorage';
 import { worksheetColors } from '../utilities/constants';
 import { toSeasonString } from '../utilities/course';
-import { resolveLegacyWorksheet } from '../utilities/legacyAnonymousWorksheet';
 import {
   buildRestoredAnonymousWorksheet,
+  resolveSavedWorksheetCourses,
   type SavedWorksheetRestoreSource,
 } from '../utilities/savedWorksheet';
 
 const lastViewedSavedWorksheetTermSlot = createLocalStorageSlot<string>(
   'sungrid_saved_worksheet_last_viewed_term',
 );
+const emptyWorksheetCourses: WorksheetCourse[] = [];
 
 export function getInitialSavedWorksheetTerm(): Season {
   const stored = lastViewedSavedWorksheetTermSlot.get();
@@ -1121,22 +1122,15 @@ export const useWorksheetEffects = () => {
       ),
     [anonymousWorksheet, catalogCourses, viewedSeason],
   );
-  const activeSavedWorksheetState = useMemo(
-    () =>
-      activeSavedWorksheet
-        ? buildRestoredAnonymousWorksheet(activeSavedWorksheet)
-        : null,
-    [activeSavedWorksheet],
-  );
   const activeSavedWorksheetResolved = useMemo(
     () =>
-      activeSavedWorksheetState
-        ? resolveLegacyWorksheet(
-            activeSavedWorksheetState,
-            catalogCourses[activeSavedWorksheetState.term]?.data,
+      activeSavedWorksheet
+        ? resolveSavedWorksheetCourses(
+            activeSavedWorksheet,
+            catalogCourses[activeSavedWorksheet.term]?.listings,
           )
         : null,
-    [activeSavedWorksheetState, catalogCourses],
+    [activeSavedWorksheet, catalogCourses],
   );
   const displayedMissingSectionIds = useMemo(
     () =>
@@ -1188,8 +1182,7 @@ export const useWorksheetEffects = () => {
     isAnonymousWorksheet
       ? undefined
       : (exoticWorksheet?.worksheets ??
-          activeSavedWorksheetResolved?.worksheets ??
-          curWorksheet),
+          (activeSavedWorksheet ? undefined : curWorksheet)),
     exoticWorksheet?.data.season ??
       (isAnonymousWorksheet
         ? viewedSeason
@@ -1198,13 +1191,17 @@ export const useWorksheetEffects = () => {
       ? 0
       : viewedWorksheetNumber,
   );
+  const usesCoursePlanningWorksheet =
+    isAnonymousWorksheet || Boolean(activeSavedWorksheet);
   const courses = isAnonymousWorksheet
     ? anonymousResolved.courses
-    : inheritedCourses;
-  const worksheetLoading = isAnonymousWorksheet
+    : activeSavedWorksheet
+      ? (activeSavedWorksheetResolved?.courses ?? emptyWorksheetCourses)
+      : inheritedCourses;
+  const worksheetLoading = usesCoursePlanningWorksheet
     ? coursePlanningLoading
     : inheritedWorksheetLoading;
-  const worksheetError = isAnonymousWorksheet
+  const worksheetError = usesCoursePlanningWorksheet
     ? coursePlanningError
     : inheritedWorksheetError;
 

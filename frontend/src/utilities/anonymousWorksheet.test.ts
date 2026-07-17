@@ -17,8 +17,8 @@ import {
 } from './anonymousWorksheet';
 import { checkConflict } from './course';
 import type { CatalogListing } from '../queries/api';
-import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
 import type { Crn, Season } from '../queries/graphql-types';
+import { createCoursePlanningListingFixture } from '../testFixtures/coursePlanningListing';
 import { legacyCatalogListingToWorksheetViewModel } from '../types/legacyWorksheetCourse';
 
 type Meeting = {
@@ -68,62 +68,16 @@ function createListing({
   } as unknown as CatalogListing;
 }
 
-function createPlanningListing(
-  sectionId: string,
-  courseCode: string,
-): CoursePlanningListing {
-  const [subject = 'CSE', courseNumber = '3'] = courseCode.split(' ');
-  return {
-    generatedAt: '2026-07-17T12:00:00.000Z',
-    evaluation: {
-      overallRating: null,
-      workload: null,
-      professorRating: null,
-      gutRating: null,
-      enrollment: null,
-    },
-    course: {
-      courseId: `${subject}:${courseNumber}`,
-      subject,
-      courseNumber,
-      courseCode,
-      title: `${courseCode} title`,
-      units: '4',
-      description: null,
-      prerequisites: null,
-      restrictions: null,
-      requirements: null,
-      catalogUrl: null,
-      archiveRecordCount: 0,
-      pastGrades: [],
-      sections: [],
-    },
-    section: {
-      sectionId,
-      courseId: `${subject}:${courseNumber}`,
-      supportedTerm: 'FA26',
-      sectionCode: 'A01',
-      meetingType: 'Lecture',
-      instructors: [],
-      meetings: [],
-      availability: {
-        enrolled: null,
-        capacity: null,
-        waitlistCount: 0,
-        snapshotTimestamp: null,
-      },
-      sourceNote: null,
-    },
-  };
-}
-
 afterEach(() => {
   vi.unstubAllGlobals();
 });
 
 describe('anonymous worksheet behavior', () => {
   it('adds and removes Sections by Published Snapshot Section ID', () => {
-    const listing = createPlanningListing('FA26:CSE-TRACER-3', 'CSE 3');
+    const listing = createCoursePlanningListingFixture(
+      'FA26:CSE-TRACER-3',
+      'CSE 3',
+    );
     const empty: AnonymousWorksheetState = {
       term: 'FA26' as Season,
       coursesByTerm: {},
@@ -308,8 +262,14 @@ describe('anonymous worksheet behavior', () => {
   });
 
   it('restores matching Sections from the Published Snapshot and reports missing IDs', () => {
-    const cse = createPlanningListing('FA26:CSE-TRACER-3', 'CSE 3');
-    const math = createPlanningListing('FA26:MATH-TRACER-2', 'MATH 20A');
+    const cse = createCoursePlanningListingFixture(
+      'FA26:CSE-TRACER-3',
+      'CSE 3',
+    );
+    const math = createCoursePlanningListingFixture(
+      'FA26:MATH-TRACER-2',
+      'MATH 20A',
+    );
     const catalog = new Map([
       [cse.section.sectionId, cse],
       [math.section.sectionId, math],

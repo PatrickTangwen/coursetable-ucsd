@@ -1,8 +1,10 @@
 import {
   getAnonymousWorksheetCourses,
   normalizeAnonymousWorksheet,
+  resolveAnonymousWorksheetCourses,
   type AnonymousWorksheetState,
 } from './anonymousWorksheet';
+import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
 import type { Season } from '../queries/graphql-types';
 
 export type SavedWorksheetAuthStatus =
@@ -70,5 +72,17 @@ export function buildRestoredAnonymousWorksheet(
       })),
     },
     term,
+  );
+}
+
+export function resolveSavedWorksheetCourses(
+  worksheet: SavedWorksheetRestoreSource,
+  listingsBySectionId: Map<string, CoursePlanningListing> | undefined,
+) {
+  const restoredWorksheet = buildRestoredAnonymousWorksheet(worksheet);
+  return resolveAnonymousWorksheetCourses(
+    restoredWorksheet,
+    listingsBySectionId,
+    restoredWorksheet.term,
   );
 }

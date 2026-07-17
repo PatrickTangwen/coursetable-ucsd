@@ -7,6 +7,7 @@ import {
   anonymousWorksheetFromShare,
   resolveAnonymousWorksheetCourses,
 } from '../utilities/anonymousWorksheet';
+import { resolveSavedWorksheetCourses } from '../utilities/savedWorksheet';
 
 const browser = vi.hoisted(() => {
   const values = new Map<string, string>();
@@ -125,6 +126,24 @@ describe('Catalog network boundary', () => {
         section_id: 'FA26:123456',
         course_code: 'CSE 1',
       },
+    });
+    const savedWorksheetRestored = resolveSavedWorksheetCourses(
+      {
+        term: 'FA26',
+        sections: [
+          {
+            sectionId: 'FA26:123456',
+            color: '#654321',
+            hidden: true,
+          },
+        ],
+      },
+      new Map([[listing!.section.sectionId, listing!]]),
+    );
+    expect(savedWorksheetRestored.courses[0]).toMatchObject({
+      color: '#654321',
+      hidden: true,
+      listing: { section_id: 'FA26:123456' },
     });
     expect(requestUrls).toHaveLength(1);
   });

@@ -1,39 +1,18 @@
 import { describe, expect, it } from 'vitest';
 
-import { resolveLegacyWorksheet } from './legacyAnonymousWorksheet';
 import {
   buildSaveAnonymousWorksheetPayload,
   buildRestoredAnonymousWorksheet,
   canRestoreSavedWorksheet,
   canSaveAnonymousWorksheet,
   getDefaultSavedWorksheetName,
+  resolveSavedWorksheetCourses,
   type SavedWorksheetAuthStatus,
 } from './savedWorksheet';
-import type { CatalogListing } from '../queries/api';
-import type { Crn, Season } from '../queries/graphql-types';
+import type { Season } from '../queries/graphql-types';
+import { createCoursePlanningListingFixture } from '../testFixtures/coursePlanningListing';
 
 const testTerm = 'FA26' as Season;
-
-function createListing({ crn, sectionId }: { crn: number; sectionId: string }) {
-  return {
-    crn: crn as Crn,
-    course_code: sectionId.includes('MATH') ? 'MATH 20A' : 'CSE 3',
-    number: sectionId.includes('MATH') ? '20A' : '3',
-    school: 'UCSD',
-    subject: sectionId.includes('MATH') ? 'MATH' : 'CSE',
-    section_id: sectionId,
-    course: {
-      season_code: testTerm,
-      same_course_id: crn,
-      listings: [
-        {
-          crn: crn as Crn,
-          section_id: sectionId,
-        },
-      ],
-    },
-  } as unknown as CatalogListing;
-}
 
 describe('saved worksheet helpers', () => {
   it('builds the default saved worksheet name from the term', () => {
@@ -102,13 +81,12 @@ describe('saved worksheet helpers', () => {
     });
   });
 
-  it('restores saved worksheets through the Catalog Snapshot and reports missing Section IDs', () => {
-    const cse = createListing({
-      crn: 101,
-      sectionId: 'FA26:CSE-TRACER-3',
-    });
-    const catalog = new Map<Crn, CatalogListing>([[cse.crn, cse]]);
-    const worksheet = buildRestoredAnonymousWorksheet({
+  it('restores saved worksheets through owned Course Planning listings and reports missing Section IDs', () => {
+    const cse = createCoursePlanningListingFixture(
+      'FA26:CSE-TRACER-3',
+      'CSE 3',
+    );
+    const worksheet = {
       id: 12,
       name: 'Saved Plan',
       term: testTerm,
@@ -121,18 +99,22 @@ describe('saved worksheet helpers', () => {
         { sectionId: 'FA26:CSE-TRACER-3', color: '#55aaff', hidden: false },
         { sectionId: 'FA26:STALE-404', color: '#ee6677', hidden: true },
       ],
-    });
+    };
 
-    const restored = resolveLegacyWorksheet(worksheet, catalog);
+    const restored = resolveSavedWorksheetCourses(
+      worksheet,
+      new Map([[cse.section.sectionId, cse]]),
+    );
 
     expect(restored.missingSectionIds).toEqual(['FA26:STALE-404']);
-    expect(restored.worksheets.get(testTerm)?.get(0)?.courses).toEqual([
-      {
-        crn: 101,
-        color: '#55aaff',
-        hidden: false,
-        sameCourseId: 101,
+    expect(restored.courses).toHaveLength(1);
+    expect(restored.courses[0]).toMatchObject({
+      color: '#55aaff',
+      hidden: false,
+      listing: {
+        section_id: 'FA26:CSE-TRACER-3',
+        course_code: 'CSE 3',
       },
-    ]);
+    });
   });
 });
