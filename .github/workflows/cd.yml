@@ -72,7 +72,7 @@ jobs:
           bun-version: latest
       - name: Install Dependencies
         run: bun install --frozen-lockfile
-      - uses: dopplerhq/secrets-fetch-action@v1.2.0
+      - uses: dopplerhq/secrets-fetch-action@v2.0.0
         id: doppler
         with:
           doppler-token: ${{ secrets.DOPPLER_TOKEN }}
@@ -101,7 +101,7 @@ jobs:
       - name: Sync Local Repository with Remote
         run: cd /home/app/coursetable && git pull
 
-      - uses: dopplerhq/secrets-fetch-action@v1.2.0
+      - uses: dopplerhq/secrets-fetch-action@v2.0.0
         id: doppler
         with:
           doppler-token: ${{ secrets.DOPPLER_TOKEN }}
