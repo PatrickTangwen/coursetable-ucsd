@@ -1,10 +1,8 @@
 {
-  "id": "b095edaf-6c13-4b6f-8df6-f0af957dd7d4",
-  "prevId": "51144bff-7422-4672-a9d9-71d25c9ad8bd",
-  "version": "5",
-  "dialect": "pg",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "appUsers": {
+    "public.appUsers": {
       "name": "appUsers",
       "schema": "",
       "columns": {
@@ -35,16 +33,29 @@
       },
       "indexes": {
         "app_users_verified_email_unique_idx": {
+          "columns": [
+            {
+              "expression": "verifiedEmail",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "app_users_verified_email_unique_idx",
-          "columns": ["verifiedEmail"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "emailDeliveryAudits": {
+    "public.emailDeliveryAudits": {
       "name": "emailDeliveryAudits",
       "schema": "",
       "columns": {
@@ -87,21 +98,50 @@
       },
       "indexes": {
         "email_delivery_audit_recipient_time_idx": {
+          "columns": [
+            {
+              "expression": "normalizedRecipientEmail",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "requestTime",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "email_delivery_audit_recipient_time_idx",
-          "columns": ["normalizedRecipientEmail", "requestTime"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         },
         "email_delivery_audit_expiry_idx": {
+          "columns": [
+            {
+              "expression": "expiresAt",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "email_delivery_audit_expiry_idx",
-          "columns": ["expiresAt"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "emailVerificationCodes": {
+    "public.emailVerificationCodes": {
       "name": "emailVerificationCodes",
       "schema": "",
       "columns": {
@@ -151,21 +191,50 @@
       },
       "indexes": {
         "email_verification_email_idx": {
+          "columns": [
+            {
+              "expression": "normalizedEmail",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "email_verification_email_idx",
-          "columns": ["normalizedEmail"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         },
         "email_verification_lookup_idx": {
+          "columns": [
+            {
+              "expression": "normalizedEmail",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "codeHash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "email_verification_lookup_idx",
-          "columns": ["normalizedEmail", "codeHash"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "savedSearches": {
+    "public.savedSearches": {
       "name": "savedSearches",
       "schema": "",
       "columns": {
@@ -208,41 +277,96 @@
       },
       "indexes": {
         "saved_searches_netid_idx": {
+          "columns": [
+            {
+              "expression": "netId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "saved_searches_netid_idx",
-          "columns": ["netId"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         },
         "saved_searches_user_id_idx": {
+          "columns": [
+            {
+              "expression": "userId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "saved_searches_user_id_idx",
-          "columns": ["userId"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         },
         "saved_searches_name_unique_idx": {
+          "columns": [
+            {
+              "expression": "netId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "saved_searches_name_unique_idx",
-          "columns": ["netId", "name"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         },
         "saved_searches_user_name_unique_idx": {
+          "columns": [
+            {
+              "expression": "userId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "saved_searches_user_name_unique_idx",
-          "columns": ["userId", "name"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "savedSearches_userId_appUsers_id_fk": {
           "name": "savedSearches_userId_appUsers_id_fk",
           "tableFrom": "savedSearches",
-          "tableTo": "appUsers",
           "columnsFrom": ["userId"],
+          "tableTo": "appUsers",
           "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "savedWorksheetSections": {
+    "public.savedWorksheetSections": {
       "name": "savedWorksheetSections",
       "schema": "",
       "columns": {
@@ -279,31 +403,60 @@
       },
       "indexes": {
         "saved_worksheet_sections_worksheet_id_idx": {
+          "columns": [
+            {
+              "expression": "worksheetId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "saved_worksheet_sections_worksheet_id_idx",
-          "columns": ["worksheetId"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         },
         "saved_worksheet_sections_unique_idx": {
+          "columns": [
+            {
+              "expression": "worksheetId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "sectionId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "saved_worksheet_sections_unique_idx",
-          "columns": ["worksheetId", "sectionId"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "savedWorksheetSections_worksheetId_savedWorksheets_id_fk": {
           "name": "savedWorksheetSections_worksheetId_savedWorksheets_id_fk",
           "tableFrom": "savedWorksheetSections",
-          "tableTo": "savedWorksheets",
           "columnsFrom": ["worksheetId"],
+          "tableTo": "savedWorksheets",
           "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "savedWorksheets": {
+    "public.savedWorksheets": {
       "name": "savedWorksheets",
       "schema": "",
       "columns": {
@@ -367,36 +520,87 @@
       },
       "indexes": {
         "saved_worksheets_user_id_idx": {
+          "columns": [
+            {
+              "expression": "userId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "saved_worksheets_user_id_idx",
-          "columns": ["userId"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         },
         "saved_worksheets_user_created_idx": {
+          "columns": [
+            {
+              "expression": "userId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "createdAt",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "saved_worksheets_user_created_idx",
-          "columns": ["userId", "createdAt"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         },
         "saved_worksheets_main_unique_idx": {
+          "columns": [
+            {
+              "expression": "userId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "term",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "mainWorksheetKey",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "saved_worksheets_main_unique_idx",
-          "columns": ["userId", "term", "mainWorksheetKey"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "savedWorksheets_userId_appUsers_id_fk": {
           "name": "savedWorksheets_userId_appUsers_id_fk",
           "tableFrom": "savedWorksheets",
-          "tableTo": "appUsers",
           "columnsFrom": ["userId"],
+          "tableTo": "appUsers",
           "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "studentBluebookSettings": {
+    "public.studentBluebookSettings": {
       "name": "studentBluebookSettings",
       "schema": "",
       "columns": {
@@ -554,9 +758,12 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "studentFriendRequests": {
+    "public.studentFriendRequests": {
       "name": "studentFriendRequests",
       "schema": "",
       "columns": {
@@ -581,21 +788,50 @@
       },
       "indexes": {
         "friend_requests_unique_idx": {
+          "columns": [
+            {
+              "expression": "netId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "friendNetId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "friend_requests_unique_idx",
-          "columns": ["netId", "friendNetId"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         },
         "friend_requests_netid_idx": {
+          "columns": [
+            {
+              "expression": "netId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "friend_requests_netid_idx",
-          "columns": ["netId"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "studentFriends": {
+    "public.studentFriends": {
       "name": "studentFriends",
       "schema": "",
       "columns": {
@@ -620,21 +856,50 @@
       },
       "indexes": {
         "friends_unique_idx": {
+          "columns": [
+            {
+              "expression": "netId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "friendNetId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "friends_unique_idx",
-          "columns": ["netId", "friendNetId"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         },
         "friends_netid_idx": {
+          "columns": [
+            {
+              "expression": "netId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "friends_netid_idx",
-          "columns": ["netId"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "wishlistCourses": {
+    "public.wishlistCourses": {
       "name": "wishlistCourses",
       "schema": "",
       "columns": {
@@ -665,21 +930,56 @@
       },
       "indexes": {
         "wishlist_netid_idx": {
+          "columns": [
+            {
+              "expression": "netId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "wishlist_netid_idx",
-          "columns": ["netId"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         },
         "wishlist_unique_idx": {
+          "columns": [
+            {
+              "expression": "netId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "season",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "crn",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "wishlist_unique_idx",
-          "columns": ["netId", "season", "crn"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "worksheetCourses": {
+    "public.worksheetCourses": {
       "name": "worksheetCourses",
       "schema": "",
       "columns": {
@@ -716,31 +1016,60 @@
       },
       "indexes": {
         "worksheet_id_idx": {
+          "columns": [
+            {
+              "expression": "worksheetId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "worksheet_id_idx",
-          "columns": ["worksheetId"],
-          "isUnique": false
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         },
         "worksheet_courses_unique_idx": {
+          "columns": [
+            {
+              "expression": "worksheetId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "crn",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "worksheet_courses_unique_idx",
-          "columns": ["worksheetId", "crn"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "worksheetCourses_worksheetId_worksheets_id_fk": {
           "name": "worksheetCourses_worksheetId_worksheets_id_fk",
           "tableFrom": "worksheetCourses",
-          "tableTo": "worksheets",
           "columnsFrom": ["worksheetId"],
+          "tableTo": "worksheets",
           "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "worksheets": {
+    "public.worksheets": {
       "name": "worksheets",
       "schema": "",
       "columns": {
@@ -784,30 +1113,58 @@
       },
       "indexes": {
         "worksheets_unique_idx": {
+          "columns": [
+            {
+              "expression": "netId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "season",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "worksheetNumber",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "with": {},
           "name": "worksheets_unique_idx",
-          "columns": ["netId", "season", "worksheetNumber"],
-          "isUnique": true
+          "isUnique": true,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     }
   },
   "enums": {
-    "profile_visibility": {
+    "public.profile_visibility": {
       "name": "profile_visibility",
-      "values": {
-        "self": "self",
-        "friends": "friends",
-        "public": "public"
-      }
+      "schema": "public",
+      "values": ["self", "friends", "public"]
     }
   },
   "schemas": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
-  }
+    "tables": {},
+    "columns": {}
+  },
+  "id": "b095edaf-6c13-4b6f-8df6-f0af957dd7d4",
+  "prevId": "51144bff-7422-4672-a9d9-71d25c9ad8bd",
+  "sequences": {},
+  "policies": {},
+  "views": {},
+  "roles": {}
 }

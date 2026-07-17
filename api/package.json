@@ -7,7 +7,7 @@
     "start": "bun run codegen:format && tsx watch src/server.ts",
     "start:prod": "tsx src/server.ts",
     "test": "vitest run",
-    "db:generate": "DB_URL=postgresql://migration-generation.invalid/app drizzle-kit generate:pg",
+    "db:generate": "DB_URL=postgresql://migration-generation.invalid/app drizzle-kit generate",
     "db:migrate": "tsx drizzle/migrate.ts",
     "db:migrate:hosted": "tsx drizzle/migrate.hosted.ts",
     "app-db:backup:prepare-role": "tsx src/appDatabaseBackup/backupRole.command.ts",
@@ -29,7 +29,7 @@
     "connect-redis": "^7.1.1",
     "cors": "^2.8.5",
     "csv-writer": "^1.6.0",
-    "drizzle-orm": "^0.30.10",
+    "drizzle-orm": "0.45.2",
     "express": "^4.21.2",
     "express-async-handler": "^1.2.0",
     "express-session": "^1.18.1",
@@ -40,7 +40,7 @@
     "jsonwebtoken": "^9.0.2",
     "lz-string": "^1.5.0",
     "morgan": "^1.10.0",
-    "passport": "0.5.0",
+    "passport": "0.6.0",
     "postgres": "^3.4.5",
     "proxy-addr": "^2.0.7",
     "redis": "^4.7.0",
@@ -63,7 +63,7 @@
     "@types/node": "^22.10.5",
     "@types/passport": "^1.0.17",
     "@types/proxy-addr": "^2.0.3",
-    "drizzle-kit": "^0.20.18",
+    "drizzle-kit": "0.31.10",
     "vitest": "4.1.4"
   }
 }
