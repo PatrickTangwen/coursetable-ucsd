@@ -172,3 +172,47 @@ The launch is accepted, but these non-blocking operations items remain:
 Any provider credential rotation, live database restore, plan change, cost-cap
 change, DNS mutation, or Production login-state change remains a separate
 maintainer-authorized action.
+
+## Dependency rollout acceptance (2026-07-17)
+
+Production now accepts commit
+`7b9ebd335d03ffbb868da7838dca1b1a733e63ca`, the merge commit from
+[PR #158](https://github.com/PatrickTangwen/coursetable-ucsd/pull/158). That PR
+made the R2 publication deadline cover the complete operation, added
+privacy-safe Term Archive progress stages, and made Staging, Production, and
+public-login workflows restore the last accepted deployment after cancellation
+as well as failure.
+
+The accepted hosted evidence is:
+
+- [Staging run 29599601435](https://github.com/PatrickTangwen/coursetable-ucsd/actions/runs/29599601435)
+  succeeded at the exact commit, including migration, Catalog publication,
+  Worker deployment, hosted smoke, and accepted-deployment evidence.
+- [Production run 29600031113](https://github.com/PatrickTangwen/coursetable-ucsd/actions/runs/29600031113)
+  succeeded with public login disabled, including migration, Catalog
+  publication, Worker deployment, hosted smoke, and accepted-deployment
+  evidence.
+- [Issue #86 comment 5005890849](https://github.com/PatrickTangwen/coursetable-ucsd/issues/86#issuecomment-5005890849)
+  supplied the fresh post-acceptance owner approval for public login.
+- [Login-toggle run 29601111143](https://github.com/PatrickTangwen/coursetable-ucsd/actions/runs/29601111143)
+  verified that approval and the accepted Worker/commit, enabled public login,
+  passed the hosted login-state smoke, and recorded the accepted toggle.
+
+The maintainer then completed a privacy-safe real-email acceptance. The
+verification email arrived, the code was accepted, the authenticated page
+remained authenticated after one reload, logout succeeded, and the session was
+no longer authenticated after logout. Delivery latency was not separately
+recorded. No email address, verification code, Cookie, or other personal data
+was retained.
+
+The earlier [Production run 29596445649](https://github.com/PatrickTangwen/coursetable-ucsd/actions/runs/29596445649)
+was cancelled while publishing the Term Archive, before a new Worker was
+deployed or hosted smoke and acceptance ran. Its then-current failure-only
+restore condition did not run on cancellation; verification showed that the
+previous accepted Worker remained active and the Catalog content was unchanged.
+No rollback or restore path ran during the later accepted Staging, Production,
+or login-toggle workflows.
+
+`APP_DB_BACKUP_ENABLED` remained `false` throughout this rollout. Scheduled
+Production App DB backups are still disabled, and enabling them remains outside
+this dependency release.
