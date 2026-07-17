@@ -1,10 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Element } from 'react-scroll';
 import 'rc-slider/assets/index.css';
 
 import MobileSearchForm from '../components/Search/MobileSearchForm';
 import Results from '../components/Search/Results';
+import { requireLegacyCatalogListing } from '../ferry/ferryCatalogCache';
 import { useSearch } from '../hooks/useSearch';
+import type { Season } from '../queries/graphql-types';
 import { defaultFilters } from '../search/searchConstants';
 import {
   sortByOptions,
@@ -52,6 +54,16 @@ function Search() {
   const searchFilters = useStore((state) => state.searchFilters);
   const patchSearchFilters = useStore((state) => state.patchSearchFilters);
   const { coursesLoading, searchData, multiSeasons } = useSearch();
+  const legacySearchData = useMemo(
+    () =>
+      searchData?.map((listing) =>
+        requireLegacyCatalogListing(
+          listing.section.supportedTerm as Season,
+          listing.section.sectionId,
+        ),
+      ) ?? null,
+    [searchData],
+  );
 
   useEffect(() => {
     const cleanup = getCatalogFilterCleanup(searchFilters);
@@ -64,7 +76,7 @@ function Search() {
       {isMobile && <MobileSearchForm />}
       <Element name="catalog" className="d-flex justify-content-center">
         <Results
-          data={searchData}
+          data={legacySearchData}
           loading={coursesLoading}
           multiSeasons={multiSeasons}
         />

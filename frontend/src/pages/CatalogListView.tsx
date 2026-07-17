@@ -3,9 +3,11 @@ import { useSearchParams } from 'react-router-dom';
 
 import CatalogTable from '../components/Catalog/CatalogTable';
 import FilterBar, { COURSE_TYPES } from '../components/Catalog/FilterBar';
+import { requireLegacyCatalogListing } from '../ferry/ferryCatalogCache';
 import { useFerry } from '../hooks/useFerry';
 import { useSearch } from '../hooks/useSearch';
-import type { CatalogListing } from '../queries/api';
+import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
+import type { Season } from '../queries/graphql-types';
 import {
   buildCatalogListFilterCleanup,
   extractCatalogSubjects,
@@ -39,17 +41,23 @@ export default function CatalogListView() {
     const matchers = COURSE_TYPES.filter((t) => typeFilters.includes(t.value));
     if (matchers.length === 0) return searchData;
 
-    return searchData.filter((l) => matchers.some((t) => t.matches(l.number)));
+    return searchData.filter((listing) =>
+      matchers.some((type) => type.matches(listing.course.courseNumber)),
+    );
   }, [searchData, typeFilters]);
 
   const handleOpenModal = useCallback(
-    (listing: CatalogListing) => {
-      navigate('push', { type: 'course', data: listing }, searchParams);
+    (listing: CoursePlanningListing) => {
+      const legacyListing = requireLegacyCatalogListing(
+        listing.section.supportedTerm as Season,
+        listing.section.sectionId,
+      );
+      navigate('push', { type: 'course', data: legacyListing }, searchParams);
       setSearchParams((prev) => {
         const next = new URLSearchParams(prev);
         next.set(
           'course-modal',
-          `${listing.course.season_code}-${listing.crn}`,
+          `${legacyListing.course.season_code}-${legacyListing.crn}`,
         );
         next.delete('prof-modal');
         return next;

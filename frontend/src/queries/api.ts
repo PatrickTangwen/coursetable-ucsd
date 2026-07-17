@@ -17,7 +17,7 @@ import {
   completeVerificationErrorMessage,
   requestVerificationErrorMessage,
 } from './ucsdAuthErrors';
-import { catalogResponseToCourseMap } from './ucsdCatalogSnapshot';
+import { catalogResponseToCatalogData } from './ucsdCatalogSnapshot';
 import { API_ENDPOINT } from '../config';
 import type {
   CatalogBySeasonQuery,
@@ -477,7 +477,7 @@ export async function fetchCatalog(season: Season) {
     breadcrumb,
   });
   if (!res) return undefined;
-  return catalogResponseToCourseMap(res);
+  return catalogResponseToCatalogData(res);
 }
 
 type CourseEvals = EvalsBySeasonQuery['courses'][number];

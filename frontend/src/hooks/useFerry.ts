@@ -23,7 +23,7 @@ export function useFerry() {
   return { requests: ferryRequests, loading, error, courses, requestSeasons };
 }
 
-export const useCourseData = (requestedSeasons: Season[]) => {
+function useCatalogRequest(requestedSeasons: Season[]) {
   const authStatus = useStore((s) => s.authStatus);
   const userHasEvals = useStore((s) => s.user?.hasEvals);
   const { error, courses, requestSeasons } = useFerry();
@@ -43,8 +43,23 @@ export const useCourseData = (requestedSeasons: Season[]) => {
     void requestSeasons(requestedSeasons);
   }, [includeEvals, requestSeasons, requestedSeasons]);
 
+  return { error, courses };
+}
+
+export const useCourseData = (requestedSeasons: Season[]) => {
+  const { error, courses } = useCatalogRequest(requestedSeasons);
   const loading =
     !error && !requestedSeasons.every((season) => courses[season]);
+
+  return { loading, error, courses };
+};
+
+export const useCoursePlanningData = (requestedSeasons: Season[]) => {
+  const { error, courses } = useCatalogRequest(requestedSeasons);
+
+  const loading =
+    !error &&
+    !requestedSeasons.every((season) => Boolean(courses[season]?.catalog));
 
   return { loading, error, courses };
 };

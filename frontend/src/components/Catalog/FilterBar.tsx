@@ -25,8 +25,8 @@ function parseCourseNumber(number: string): number {
 }
 
 function numberInRange(number: string, min: number, max: number): boolean {
-  const num = parseCourseNumber(number);
-  return num >= min && num <= max;
+  const value = parseCourseNumber(number);
+  return value >= min && value <= max;
 }
 
 const COURSE_TYPES = [

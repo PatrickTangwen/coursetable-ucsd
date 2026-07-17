@@ -7,7 +7,16 @@ import {
   type CatalogMetadata,
   type CatalogListing,
 } from '../queries/api';
+import {
+  flattenCoursePlanningCatalog,
+  type CoursePlanningCatalog,
+  type CoursePlanningListing,
+} from '../queries/coursePlanningViewModels';
 import type { Crn, Season } from '../queries/graphql-types';
+import {
+  getUcsdSectionId,
+  legacyCourseToPlanningEvaluation,
+} from '../queries/ucsdCatalogSnapshot';
 
 const courseDataLock = new AsyncLock();
 const catalogLoadAttempted = new Set<Season>();
@@ -16,7 +25,10 @@ const evalsLoadAttempted = new Set<Season>();
 type CourseData = {
   [seasonCode: Season]: {
     metadata: CatalogMetadata;
+    catalog: CoursePlanningCatalog | null;
+    listings: Map<string, CoursePlanningListing>;
     data: Map<Crn, CatalogListing>;
+    legacyBySectionId: Map<string, CatalogListing>;
   };
 };
 
@@ -71,11 +83,29 @@ const loadCatalog = (season: Season, includeEvals: boolean): Promise<void> =>
           throw new Error('Failed to load catalog or metadata');
         }
         const catalogOldFormat = new Map<Crn, CatalogListing>();
-        for (const course of data.values()) {
-          for (const listing of course.listings)
-            catalogOldFormat.set(listing.crn, { ...listing, course });
+        const legacyBySectionId = new Map<string, CatalogListing>();
+        for (const course of data.legacyCourseMap.values()) {
+          for (const listing of course.listings) {
+            const catalogListing = { ...listing, course };
+            catalogOldFormat.set(listing.crn, catalogListing);
+            const sectionId = getUcsdSectionId(course);
+            if (sectionId) legacyBySectionId.set(sectionId, catalogListing);
+          }
         }
-        return { metadata, data: catalogOldFormat };
+        const listings = new Map<string, CoursePlanningListing>();
+        if (data.coursePlanningCatalog) {
+          for (const listing of flattenCoursePlanningCatalog(
+            data.coursePlanningCatalog,
+          ))
+            listings.set(listing.section.sectionId, listing);
+        }
+        return {
+          metadata,
+          catalog: data.coursePlanningCatalog,
+          listings,
+          data: catalogOldFormat,
+          legacyBySectionId,
+        };
       } catch (err: unknown) {
         catalogLoadAttempted.delete(season);
         evalsLoadAttempted.delete(season);
@@ -117,6 +147,17 @@ const loadCatalog = (season: Season, includeEvals: boolean): Promise<void> =>
           const course = courseById.get(courseId);
           if (course) Object.assign(course, ratings);
         }
+        for (const [
+          sectionId,
+          legacyListing,
+        ] of seasonCatalog.legacyBySectionId) {
+          const listing = seasonCatalog.listings.get(sectionId);
+          if (listing) {
+            listing.evaluation = legacyCourseToPlanningEvaluation(
+              legacyListing.course,
+            );
+          }
+        }
       }
       courseData = {
         ...courseData,
@@ -147,4 +188,21 @@ export function shouldSkipCatalogRequest(
     catalogLoadAttempted.has(season) &&
     (!includeEvals || evalsLoadAttempted.has(season))
   );
+}
+
+export function getLegacyCatalogListing(
+  term: Season,
+  sectionId: string,
+): CatalogListing | undefined {
+  return courseData[term]?.legacyBySectionId.get(sectionId);
+}
+
+export function requireLegacyCatalogListing(
+  term: Season,
+  sectionId: string,
+): CatalogListing {
+  const listing = getLegacyCatalogListing(term, sectionId);
+  if (!listing)
+    throw new Error(`Missing legacy Catalog boundary for ${term}:${sectionId}`);
+  return listing;
 }

@@ -11,7 +11,8 @@ import { useShallow } from 'zustand/react/shallow';
 
 import DayDots from './DayDots';
 import SeatsDisplay from './SeatsDisplay';
-import type { CatalogListing } from '../../queries/api';
+import { requireLegacyCatalogListing } from '../../ferry/ferryCatalogCache';
+import type { CoursePlanningListing } from '../../queries/coursePlanningViewModels';
 import type { Season } from '../../queries/graphql-types';
 import type { CatalogSortKey } from '../../slices/CatalogViewSlice';
 import { useStore } from '../../store';
@@ -29,13 +30,13 @@ import styles from './CatalogTable.module.css';
 
 type CourseRow = {
   rowId: string;
-  sameCourseId: number;
+  sameCourseId: string;
   courseCode: string;
   seasonCode: Season;
   title: string;
   groups: OfferingGroup[];
   totalSections: number;
-  listings: CatalogListing[];
+  listings: CoursePlanningListing[];
 };
 
 type OfferingSection = OfferingGroup['sections'][number];
@@ -61,10 +62,10 @@ const courseCodeCollator = new Intl.Collator(undefined, {
   sensitivity: 'base',
 });
 
-function groupListingsByCourse(listings: CatalogListing[]): CourseRow[] {
-  const map = new Map<string, CatalogListing[]>();
+function groupListingsByCourse(listings: CoursePlanningListing[]): CourseRow[] {
+  const map = new Map<string, CoursePlanningListing[]>();
   for (const l of listings) {
-    const key = `${l.course.season_code}:${l.course.same_course_id}`;
+    const key = `${l.section.supportedTerm}:${l.course.courseId}`;
     const list = map.get(key);
     if (list) list.push(l);
     else map.set(key, [l]);
@@ -73,51 +74,31 @@ function groupListingsByCourse(listings: CatalogListing[]): CourseRow[] {
   const rows: CourseRow[] = [];
   for (const [rowId, group] of map) {
     const first = group[0]!;
-    const sameCourseId = first.course.same_course_id;
+    const sameCourseId = first.course.courseId;
     const sections = group.map((l) => {
-      const cal = (l.course as { [key: string]: unknown }).ucsd_calendar as
-        | { [key: string]: unknown }
-        | undefined;
+      const { section } = l;
       return {
-        section_id: String(
-          (cal?.section_id as string | number | undefined) ?? l.crn,
-        ),
-        course_id: String(sameCourseId),
-        section_code: (cal?.section_code ?? l.course.section) as string | null,
-        meeting_type: (cal?.meeting_type ?? null) as string | null,
-        instructors: l.course.course_professors.map((p) => p.professor.name),
-        meetings: Array.isArray(cal?.meetings)
-          ? (cal.meetings as { [key: string]: unknown }[]).map((m) => ({
-              days: (m.days ?? []) as string[],
-              start_time: (m.start_time ?? null) as string | null,
-              end_time: (m.end_time ?? null) as string | null,
-              building: (m.building ?? null) as string | null,
-              room: (m.room ?? null) as string | null,
-              is_tba: Boolean(m.is_tba),
-              meeting_type: (m.meeting_type ?? null) as string | null,
-              raw_days: (m.raw_days ?? null) as string | null,
-              raw_time: (m.raw_time ?? null) as string | null,
-              raw_location: (m.raw_location ?? null) as string | null,
-            }))
-          : l.course.course_meetings.map((m) => ({
-              days: [] as string[],
-              start_time: m.start_time,
-              end_time: m.end_time,
-              building: m.location?.building.code ?? null,
-              room: m.location?.room ?? null,
-              is_tba: false,
-              meeting_type: (m as { [key: string]: unknown }).meeting_type as
-                | string
-                | null,
-              raw_days: null as string | null,
-              raw_time: null as string | null,
-              raw_location: null as string | null,
-            })),
-        enrolled: (cal?.enrolled ?? null) as number | null,
-        capacity: (cal?.capacity ?? null) as number | null,
-        waitlist_count: 0,
-        raw: {},
-        listing: l,
+        section_id: section.sectionId,
+        course_id: section.courseId,
+        section_code: section.sectionCode,
+        meeting_type: section.meetingType,
+        instructors: section.instructors.map(({ name }) => name),
+        meetings: section.meetings.map((meeting) => ({
+          days: meeting.days,
+          date: meeting.date,
+          start_time: meeting.startTime,
+          end_time: meeting.endTime,
+          building: meeting.building,
+          room: meeting.room,
+          is_tba: meeting.isTba,
+          meeting_type: meeting.meetingType,
+          raw_days: meeting.rawDays,
+          raw_time: meeting.rawTime,
+          raw_location: meeting.rawLocation,
+        })),
+        enrolled: section.availability.enrolled,
+        capacity: section.availability.capacity,
+        waitlist_count: section.availability.waitlistCount,
       };
     });
 
@@ -125,8 +106,8 @@ function groupListingsByCourse(listings: CatalogListing[]): CourseRow[] {
     rows.push({
       rowId,
       sameCourseId,
-      courseCode: first.course_code,
-      seasonCode: first.course.season_code,
+      courseCode: first.course.courseCode,
+      seasonCode: first.section.supportedTerm as Season,
       title: first.course.title,
       groups,
       totalSections: group.length,
@@ -327,13 +308,37 @@ function useViewMode(): ViewMode {
   return mode;
 }
 
-function useListingInWorksheet(listing: CatalogListing): boolean {
+function legacyListing(listing: CoursePlanningListing) {
+  return requireLegacyCatalogListing(
+    listing.section.supportedTerm as Season,
+    listing.section.sectionId,
+  );
+}
+
+function useListingInWorksheet(listing: CoursePlanningListing): boolean {
   const getRelevantWorksheetNumber = useStore(
     (s) => s.getRelevantWorksheetNumber,
   );
+  const legacy = legacyListing(listing);
   return useWorksheetListingPresence(
-    listing,
-    getRelevantWorksheetNumber(listing.course.season_code),
+    legacy,
+    getRelevantWorksheetNumber(legacy.course.season_code),
+  );
+}
+
+function CatalogWorksheetToggleButton({
+  listing,
+  appearance,
+}: {
+  readonly listing: CoursePlanningListing;
+  readonly appearance?: 'mobile';
+}) {
+  return (
+    <WorksheetToggleButton
+      listing={legacyListing(listing)}
+      modal={false}
+      appearance={appearance}
+    />
   );
 }
 
@@ -358,16 +363,10 @@ function countLocations(row: CourseRow): number {
 function findSectionListing(
   row: CourseRow,
   section: OfferingSection,
-): CatalogListing {
+): CoursePlanningListing {
   return (
     row.listings.find(
-      (l) =>
-        (l.course as { [key: string]: unknown }).ucsd_calendar &&
-        (
-          (l.course as { [key: string]: unknown }).ucsd_calendar as {
-            [key: string]: unknown;
-          }
-        ).section_id === section.section_id,
+      (listing) => listing.section.sectionId === section.section_id,
     ) ?? row.listings[0]!
   );
 }
@@ -537,7 +536,7 @@ function FlatRow({
 }: {
   readonly row: CourseRow;
   readonly showTermColumn: boolean;
-  readonly onOpenModal: (courseListing: CatalogListing) => void;
+  readonly onOpenModal: (courseListing: CoursePlanningListing) => void;
 }) {
   const group = row.groups[0]!;
   const firstSection = group.sections[0]!;
@@ -561,7 +560,7 @@ function FlatRow({
       }}
     >
       <div className={styles.addCell}>
-        <WorksheetToggleButton listing={listing} modal={false} />
+        <CatalogWorksheetToggleButton listing={listing} />
       </div>
       <span className={clsx(styles.cell, styles.courseCode)}>
         {row.courseCode}
@@ -605,7 +604,7 @@ function SubRow({
   readonly group: OfferingGroup;
   readonly section: OfferingSection;
   readonly showTermColumn: boolean;
-  readonly onOpenModal: (courseListing: CatalogListing) => void;
+  readonly onOpenModal: (courseListing: CoursePlanningListing) => void;
 }) {
   const groupListing = findSectionListing(row, section);
   const inWorksheet = useListingInWorksheet(groupListing);
@@ -623,7 +622,7 @@ function SubRow({
       }}
     >
       <div className={styles.addCell}>
-        <WorksheetToggleButton listing={groupListing} modal={false} />
+        <CatalogWorksheetToggleButton listing={groupListing} />
       </div>
       <div className={styles.cell}>
         <span className={styles.subSectionBadge}>
@@ -665,7 +664,7 @@ function ExpandableRow({
 }: {
   readonly row: CourseRow;
   readonly showTermColumn: boolean;
-  readonly onOpenModal: (courseListing: CatalogListing) => void;
+  readonly onOpenModal: (courseListing: CoursePlanningListing) => void;
 }) {
   const { expanded, toggle } = useStore(
     useShallow((s) => ({
@@ -751,7 +750,7 @@ function MobileFlatCard({
 }: {
   readonly row: CourseRow;
   readonly showTermColumn: boolean;
-  readonly onOpenModal: (courseListing: CatalogListing) => void;
+  readonly onOpenModal: (courseListing: CoursePlanningListing) => void;
 }) {
   const group = row.groups[0]!;
   const firstSection = group.sections[0]!;
@@ -794,11 +793,7 @@ function MobileFlatCard({
           </div>
         </div>
         <div className={styles.mobileAddAction}>
-          <WorksheetToggleButton
-            listing={listing}
-            modal={false}
-            appearance="mobile"
-          />
+          <CatalogWorksheetToggleButton listing={listing} appearance="mobile" />
         </div>
       </div>
       <div className={styles.mobileCardMeta}>
@@ -841,7 +836,7 @@ function MobileSubRow({
   readonly row: CourseRow;
   readonly group: OfferingGroup;
   readonly section: OfferingSection;
-  readonly onOpenModal: (courseListing: CatalogListing) => void;
+  readonly onOpenModal: (courseListing: CoursePlanningListing) => void;
 }) {
   const groupListing = findSectionListing(row, section);
   const inWorksheet = useListingInWorksheet(groupListing);
@@ -876,9 +871,8 @@ function MobileSubRow({
           variant="subrow"
         />
         <div className={styles.mobileAddAction}>
-          <WorksheetToggleButton
+          <CatalogWorksheetToggleButton
             listing={groupListing}
-            modal={false}
             appearance="mobile"
           />
         </div>
@@ -916,7 +910,7 @@ function MobileExpandableCard({
 }: {
   readonly row: CourseRow;
   readonly showTermColumn: boolean;
-  readonly onOpenModal: (courseListing: CatalogListing) => void;
+  readonly onOpenModal: (courseListing: CoursePlanningListing) => void;
 }) {
   const { expanded, toggle } = useStore(
     useShallow((s) => ({
@@ -988,10 +982,10 @@ export default function CatalogTable({
   filterBar,
   onOpenModal,
 }: {
-  readonly data: CatalogListing[] | null;
+  readonly data: CoursePlanningListing[] | null;
   readonly loading: boolean;
   readonly filterBar: ReactNode;
-  readonly onOpenModal: (listing: CatalogListing) => void;
+  readonly onOpenModal: (listing: CoursePlanningListing) => void;
 }) {
   const viewMode = useViewMode();
   const rowsRef = useRef<HTMLDivElement>(null);

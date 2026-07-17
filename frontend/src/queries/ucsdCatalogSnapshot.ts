@@ -5,14 +5,26 @@ import {
   normalizePublishedSnapshot,
   type CoursePlanningCatalog,
   type CoursePlanningCourse,
+  type CoursePlanningEvaluation,
   type CoursePlanningMeeting,
   type CoursePlanningSection,
 } from './coursePlanningViewModels';
 import type { Crn, Season } from './graphql-types';
-import type { CatalogBySeasonQuery } from '../generated/graphql-types';
+import type {
+  CatalogBySeasonQuery,
+  EvalsBySeasonQuery,
+} from '../generated/graphql-types';
 
 type CoursePublic = CatalogBySeasonQuery['courses'][number];
 type CourseMap = Map<number, CoursePublic>;
+type CourseEvaluation = EvalsBySeasonQuery['courses'][number];
+type LegacyCourseWithEvaluation = CoursePublic &
+  Partial<Omit<CourseEvaluation, 'course_meetings'>>;
+
+export type CatalogResponseData = {
+  coursePlanningCatalog: CoursePlanningCatalog | null;
+  legacyCourseMap: CourseMap;
+};
 
 type CourseMeetingWithLocation = CoursePublic['course_meetings'][number] & {
   date?: string | null;
@@ -258,14 +270,28 @@ export function adaptCoursePlanningCatalog(
   return adapted;
 }
 
-export function catalogResponseToCourseMap(response: unknown): CourseMap {
+export function catalogResponseToCatalogData(
+  response: unknown,
+): CatalogResponseData {
   const catalog = normalizePublishedSnapshot(response);
-  if (catalog) return adaptCoursePlanningCatalog(catalog);
+  if (catalog) {
+    return {
+      coursePlanningCatalog: catalog,
+      legacyCourseMap: adaptCoursePlanningCatalog(catalog),
+    };
+  }
 
   const data = response as CatalogBySeasonQuery['courses'];
   const info = new Map<number, CoursePublic>();
   for (const course of data) info.set(course.course_id, course);
-  return info;
+  return {
+    coursePlanningCatalog: null,
+    legacyCourseMap: info,
+  };
+}
+
+export function catalogResponseToCourseMap(response: unknown): CourseMap {
+  return catalogResponseToCatalogData(response).legacyCourseMap;
 }
 
 export function getUcsdArchiveDetails(
@@ -278,4 +304,31 @@ export function getUcsdArchiveDetails(
     .passthrough()
     .safeParse(course);
   return parsed.success ? parsed.data.ucsd_archive : null;
+}
+
+export function getUcsdSectionId(course: unknown): string | null {
+  const parsed = z
+    .object({
+      ucsd_calendar: z.object({ section_id: z.string() }),
+    })
+    .passthrough()
+    .safeParse(course);
+  return parsed.success ? parsed.data.ucsd_calendar.section_id : null;
+}
+
+export function legacyCourseToPlanningEvaluation(
+  course: LegacyCourseWithEvaluation,
+): CoursePlanningEvaluation {
+  return {
+    overallRating:
+      course.average_rating_same_professors ?? course.average_rating ?? null,
+    workload:
+      course.average_workload_same_professors ??
+      course.average_workload ??
+      null,
+    professorRating: course.average_professor_rating ?? null,
+    gutRating: course.average_gut_rating ?? null,
+    enrollment:
+      course.evaluation_statistic?.enrolled ?? course.last_enrollment ?? null,
+  };
 }

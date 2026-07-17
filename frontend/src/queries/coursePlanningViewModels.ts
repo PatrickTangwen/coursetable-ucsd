@@ -97,6 +97,40 @@ export type CoursePlanningCatalog = {
   courses: CoursePlanningCourse[];
 };
 
+export type CoursePlanningListing = {
+  course: CoursePlanningCourse;
+  section: CoursePlanningSection;
+  generatedAt: string;
+  evaluation: CoursePlanningEvaluation;
+};
+
+export type CoursePlanningEvaluation = {
+  overallRating: number | null;
+  workload: number | null;
+  professorRating: number | null;
+  gutRating: number | null;
+  enrollment: number | null;
+};
+
+export function flattenCoursePlanningCatalog(
+  catalog: CoursePlanningCatalog,
+): CoursePlanningListing[] {
+  return catalog.courses.flatMap((course) =>
+    course.sections.map((section) => ({
+      course,
+      section,
+      generatedAt: catalog.generatedAt,
+      evaluation: {
+        overallRating: null,
+        workload: null,
+        professorRating: null,
+        gutRating: null,
+        enrollment: null,
+      },
+    })),
+  );
+}
+
 type CoursePlanningSectionDraft = Omit<
   CoursePlanningSection,
   'supportedTerm' | 'availability'

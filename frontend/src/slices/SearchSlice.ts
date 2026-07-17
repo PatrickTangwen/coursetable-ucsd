@@ -1,7 +1,7 @@
 import type { SetStateAction } from 'react';
 import type { StateCreator } from 'zustand';
 
-import type { CatalogListing } from '../queries/api';
+import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
 import { defaultFilters } from '../search/searchConstants';
 import type { Filters } from '../search/searchTypes';
 import type { Store } from '../store';
@@ -9,7 +9,7 @@ import type { NumFriendsReturn } from '../utilities/course';
 
 export interface SearchSliceState {
   searchFilters: Filters;
-  searchData: CatalogListing[] | null;
+  searchData: CoursePlanningListing[] | null;
   coursesLoading: boolean;
   multiSeasons: boolean;
   numFriends: NumFriendsReturn;
@@ -23,7 +23,7 @@ export interface SearchSliceActions {
     value: SetStateAction<Filters[K]>,
   ) => void;
   patchSearchFilters: (partial: Partial<Filters>) => void;
-  setSearchData: (data: CatalogListing[] | null) => void;
+  setSearchData: (data: CoursePlanningListing[] | null) => void;
   setSearchCoursesLoading: (loading: boolean) => void;
   setSearchMultiSeasons: (multi: boolean) => void;
   setSearchNumFriends: (n: NumFriendsReturn) => void;

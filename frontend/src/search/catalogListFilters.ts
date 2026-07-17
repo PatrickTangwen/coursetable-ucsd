@@ -19,7 +19,8 @@ export function extractCatalogSubjects(
   for (const seasonCode of seasonCodes) {
     const catalog = courses[seasonCode];
     if (!catalog) continue;
-    for (const listing of catalog.data.values()) set.add(listing.subject);
+    for (const listing of catalog.listings.values())
+      set.add(listing.course.subject);
   }
 
   const arr = [...set];
