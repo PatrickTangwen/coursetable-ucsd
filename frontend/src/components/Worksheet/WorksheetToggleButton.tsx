@@ -6,13 +6,14 @@ import React, {
   useEffect,
 } from 'react';
 import * as Sentry from '@sentry/react';
-import clsx from 'clsx';
-import { Button, Tooltip, OverlayTrigger, Fade, Modal } from 'react-bootstrap';
-import { MdErrorOutline } from 'react-icons/md';
+import { Button, Tooltip, OverlayTrigger, Modal } from 'react-bootstrap';
 import { useApolloClient } from '@apollo/client';
 import { components, type OptionProps } from 'react-select';
 import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
+import WorksheetConflictIcon, {
+  type ListingWithHistoricalInfo,
+} from './WorksheetConflictIcon';
 import WorksheetStatusIcon from './WorksheetStatusIcon';
 import {
   AddWorksheetButton,
@@ -21,7 +22,6 @@ import {
 import { CUR_YEAR } from '../../config';
 import { seasons } from '../../data/catalogSeasons';
 import type { LatestCurrentOfferingQuery } from '../../generated/graphql-types';
-import { useFerry, useWorksheetInfo } from '../../hooks/useFerry';
 import { isLegacyUserInfo, updateWorksheetCourses } from '../../queries/api';
 import { LatestCurrentOfferingDocument } from '../../queries/graphql-queries';
 import type { Season } from '../../queries/graphql-types';
@@ -35,22 +35,12 @@ import {
   getListingSectionId,
 } from '../../utilities/anonymousWorksheet';
 import { worksheetColors } from '../../utilities/constants';
-import {
-  isInWorksheet,
-  checkConflict,
-  toSeasonString,
-  type ListingWithTimes,
-} from '../../utilities/course';
-import { isPlannableTerm } from '../../utilities/termPlanning';
+import { isInWorksheet, toSeasonString } from '../../utilities/course';
 import { Popout } from '../Search/Popout';
 import { PopoutSelect } from '../Search/PopoutSelect';
 import styles from './WorksheetToggleButton.module.css';
 
-export type ListingWithHistoricalInfo = ListingWithTimes & {
-  course: ListingWithTimes['course'] & {
-    same_course_id?: number;
-  };
-};
+export type { ListingWithHistoricalInfo } from './WorksheetConflictIcon';
 
 export function useWorksheetListingPresence(
   listing: ListingWithHistoricalInfo,
@@ -116,136 +106,7 @@ export function useWorksheetListingPresence(
   ]);
 }
 
-export function useWorksheetConflictWarning({
-  listing,
-  inWorksheet,
-  modal,
-  worksheetNumber,
-}: {
-  readonly listing: ListingWithHistoricalInfo;
-  readonly inWorksheet: boolean;
-  readonly modal: boolean;
-  readonly worksheetNumber: number;
-}) {
-  const { worksheets, isAnonymousWorksheet, activeSavedWorksheet, courses } =
-    useStore(
-      useShallow((state) => ({
-        worksheets: state.worksheets,
-        isAnonymousWorksheet:
-          state.worksheetMemo.getIsAnonymousWorksheet(state),
-        activeSavedWorksheet: state.activeSavedWorksheet,
-        courses: state.courses,
-      })),
-    );
-
-  const { data } = useWorksheetInfo(
-    worksheets,
-    listing.course.season_code,
-    worksheetNumber,
-  );
-  const worksheetData =
-    isAnonymousWorksheet || activeSavedWorksheet ? courses : data;
-  const { courses: catalogData } = useFerry();
-  const supportedTerms = useMemo(
-    () =>
-      Object.values(catalogData).flatMap(
-        (catalog) => catalog.metadata.terms ?? [],
-      ),
-    [catalogData],
-  );
-  const termMetadata = useMemo(
-    () =>
-      supportedTerms.find((term) => term.term === listing.course.season_code),
-    [listing.course.season_code, supportedTerms],
-  );
-
-  return useMemo(() => {
-    // If the course is in the worksheet, we never report a conflict
-    if (inWorksheet) return undefined;
-    if (modal) {
-      if (!isPlannableTerm(termMetadata))
-        return 'This will add to a worksheet of a semester that has already ended.';
-      return undefined;
-    }
-    const conflicts = checkConflict(worksheetData, listing);
-    if (conflicts.length > 0)
-      return `Conflicts with: ${conflicts.map((x) => x.course_code).join(', ')}`;
-    return undefined;
-  }, [inWorksheet, modal, listing, termMetadata, worksheetData]);
-}
-
-function CourseConflictIcon({
-  listing,
-  inWorksheet,
-  modal,
-  mobile,
-  worksheetNumber,
-}: {
-  readonly listing: ListingWithHistoricalInfo;
-  readonly inWorksheet: boolean;
-  readonly modal: boolean;
-  readonly mobile?: boolean;
-  readonly worksheetNumber: number;
-}) {
-  const warning = useWorksheetConflictWarning({
-    listing,
-    inWorksheet,
-    modal,
-    worksheetNumber,
-  });
-
-  return (
-    <Fade in={Boolean(warning)}>
-      <div
-        className={clsx(
-          styles.courseConflictIcon,
-          modal && styles.modalCourseConflictIcon,
-          mobile && styles.mobileCourseConflictIcon,
-        )}
-      >
-        {warning && (
-          <OverlayTrigger
-            placement="top"
-            popperConfig={{
-              modifiers: [
-                {
-                  name: 'preventOverflow',
-                  // AltBoundary confines the tooltip to the icon's scroll
-                  // container (whose client box excludes the container's
-                  // scrollbar) instead of the whole viewport
-                  options: { padding: 8, altBoundary: true },
-                },
-              ],
-            }}
-            overlay={(props) => (
-              <Tooltip
-                {...props}
-                id={`worksheet-toggle-conflict-${listing.crn}-tooltip`}
-              >
-                <small>{warning}</small>
-              </Tooltip>
-            )}
-          >
-            <button
-              type="button"
-              className={styles.conflictIconButton}
-              aria-label={warning}
-              // On touch devices the tap's synthetic mouseover shows the
-              // tooltip; block the click from opening the course modal
-              onClick={(e) => e.stopPropagation()}
-            >
-              <MdErrorOutline
-                color="#fc4103"
-                size={modal ? 16 : 13}
-                aria-hidden="true"
-              />
-            </button>
-          </OverlayTrigger>
-        )}
-      </div>
-    </Fade>
-  );
-}
+export { useWorksheetConflictWarning } from './WorksheetConflictIcon';
 
 function PopoutOption(props: OptionProps<WorksheetNumberOption>) {
   return (
@@ -277,7 +138,8 @@ function PopoutOption(props: OptionProps<WorksheetNumberOption>) {
   );
 }
 
-function WorksheetToggleButton({
+/** Inherited CourseTable/Yale Worksheet behavior only. */
+function LegacyWorksheetToggleButton({
   listing,
   modal,
   inWorksheet: inWorksheetProp,
@@ -643,7 +505,7 @@ function WorksheetToggleButton({
         whole container */}
       <div className={styles.toggleContainer}>
         {showConflictIcon && (
-          <CourseConflictIcon
+          <WorksheetConflictIcon
             listing={listing}
             inWorksheet={inWorksheet}
             modal={modal}
@@ -724,4 +586,4 @@ function WorksheetToggleButton({
   );
 }
 
-export default WorksheetToggleButton;
+export default LegacyWorksheetToggleButton;

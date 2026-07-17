@@ -7,6 +7,7 @@ import {
 } from './course';
 import type { CatalogListing } from '../queries/api';
 import type { Crn, Season } from '../queries/graphql-types';
+import { legacyCatalogListingToWorksheetViewModel } from '../types/legacyWorksheetCourse';
 import type { WorksheetCourse } from '../types/worksheetCourse';
 
 type Meeting = {
@@ -57,7 +58,7 @@ function worksheetCourse(listing: CatalogListing): WorksheetCourse {
   return {
     crn: listing.crn,
     color: '#123456',
-    listing,
+    listing: legacyCatalogListingToWorksheetViewModel(listing),
     hidden: false,
   };
 }
@@ -109,7 +110,7 @@ describe('course conflict detection', () => {
     });
 
     expect(checkConflict([worksheetCourse(selected)], candidate)).toEqual([
-      selected,
+      legacyCatalogListingToWorksheetViewModel(selected),
     ]);
   });
 
@@ -170,7 +171,7 @@ describe('course conflict detection', () => {
     });
 
     expect(checkConflict([worksheetCourse(selected)], candidate)).toEqual([
-      selected,
+      legacyCatalogListingToWorksheetViewModel(selected),
     ]);
   });
 
@@ -245,7 +246,14 @@ describe('course conflict detection', () => {
         worksheetCourse(conflicting),
         worksheetCourse(tba),
       ]),
-    ).toEqual([{ courses: [selected, conflicting] }]);
+    ).toEqual([
+      {
+        courses: [
+          legacyCatalogListingToWorksheetViewModel(selected),
+          legacyCatalogListingToWorksheetViewModel(conflicting),
+        ],
+      },
+    ]);
   });
 
   it('filters only catalog Sections that conflict with the current worksheet', () => {

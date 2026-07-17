@@ -8,6 +8,7 @@ import {
 } from './scheduleConflicts';
 import type { CatalogListing } from '../queries/api';
 import type { Crn, Season } from '../queries/graphql-types';
+import { legacyCatalogListingToWorksheetViewModel } from '../types/legacyWorksheetCourse';
 import type { WorksheetCourse } from '../types/worksheetCourse';
 
 type Meeting = {
@@ -57,7 +58,7 @@ function makeCourse({
   return {
     crn: listing.crn,
     color: '#123456',
-    listing,
+    listing: legacyCatalogListingToWorksheetViewModel(listing),
     hidden: false,
   };
 }

@@ -2,7 +2,10 @@ import { useEffect, useMemo } from 'react';
 import chroma from 'chroma-js';
 import { createPortal } from 'react-dom';
 
-import type { CatalogListing } from '../../queries/api';
+import type {
+  WorksheetListingViewModel,
+  WorksheetMeeting,
+} from '../../types/worksheetCourse';
 import { weekdays } from '../../utilities/constants';
 import {
   describeConflictSlot,
@@ -31,7 +34,7 @@ type QuickExam = {
   badge: { label: string; tone: 'past' | 'soon' | 'upcoming' | 'later' };
 };
 
-type ExtendedMeeting = CatalogListing['course']['course_meetings'][number] & {
+type ExtendedMeeting = WorksheetMeeting & {
   date?: string | null;
   meeting_type?: string | null;
   raw_location?: string | null;
@@ -50,7 +53,10 @@ function typeCodeOf(type: string): string {
   return map[type] ?? (type ? type.slice(0, 2).toUpperCase() : 'OT');
 }
 
-function meetingTypeOf(listing: CatalogListing, meeting: ExtendedMeeting) {
+function meetingTypeOf(
+  listing: WorksheetListingViewModel,
+  meeting: ExtendedMeeting,
+) {
   const details = (
     listing.course as { ucsd_calendar?: { meeting_type?: string | null } }
   ).ucsd_calendar;
@@ -105,7 +111,7 @@ function examBadge(examDate: Date): QuickExam['badge'] {
 }
 
 export function getQuickModalData(
-  listing: CatalogListing,
+  listing: WorksheetListingViewModel,
   viewingKey: string | null,
 ): { meetings: QuickMeeting[]; exams: QuickExam[] } {
   const groups = new Map<
@@ -209,7 +215,7 @@ export default function CalendarQuickModal({
   conflicts = [],
   onClose,
 }: {
-  readonly listing: CatalogListing;
+  readonly listing: WorksheetListingViewModel;
   readonly color: string;
   readonly viewingKey: string | null;
   readonly conflicts?: readonly CourseConflict[];

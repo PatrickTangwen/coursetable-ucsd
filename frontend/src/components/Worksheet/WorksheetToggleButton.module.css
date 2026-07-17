@@ -26,33 +26,3 @@
 .toggleContainer {
   position: relative;
 }
-
-.courseConflictIcon {
-  position: absolute;
-  top: -3px;
-  right: -3px;
-  z-index: 1;
-}
-
-.modalCourseConflictIcon {
-  top: -8px;
-}
-
-.conflictIconButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 0;
-  background: transparent;
-}
-
-/* Larger tap target on touch layouts; offsets keep the icon visually put */
-.mobileCourseConflictIcon {
-  top: -9px;
-  right: -9px;
-}
-
-.mobileCourseConflictIcon .conflictIconButton {
-  padding: 6px;
-}

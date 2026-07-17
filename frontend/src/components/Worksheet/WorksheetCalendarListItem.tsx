@@ -7,9 +7,12 @@ import { FiChevronDown } from 'react-icons/fi';
 import { useShallow } from 'zustand/react/shallow';
 import { useWorksheetCalendarListContext } from './WorksheetCalendarListContext';
 import WorksheetHideButton from './WorksheetHideButton';
-import WorksheetToggleButton from './WorksheetToggleButton';
-import type { CatalogListing } from '../../queries/api';
+import WorksheetViewModelRemoveButton from './WorksheetViewModelRemoveButton';
 import { useStore } from '../../store';
+import type {
+  WorksheetListingViewModel,
+  WorksheetMeeting,
+} from '../../types/worksheetCourse';
 import {
   formatWorksheetSectionSuffix,
   toLocationsSummary,
@@ -19,12 +22,12 @@ import { ucsdMeetingTypeCode } from '../CourseModal/ucsdMeetingTypes';
 import styles from './WorksheetCalendarListItem.module.css';
 
 type WorksheetCalendarListItemProps = {
-  readonly listing: CatalogListing;
+  readonly listing: WorksheetListingViewModel;
   readonly hidden: boolean;
   readonly color: string;
 };
 
-type ExamMeeting = CatalogListing['course']['course_meetings'][number] & {
+type ExamMeeting = WorksheetMeeting & {
   date?: string | null;
   meeting_type?: string | null;
   raw_location?: string | null;
@@ -98,7 +101,7 @@ function countdownClass(daysUntil: number | null) {
   return styles.countdownLater;
 }
 
-function buildExamDetails(listing: CatalogListing): ExamDetails[] {
+function buildExamDetails(listing: WorksheetListingViewModel): ExamDetails[] {
   return listing.course.course_meetings.flatMap((meeting) => {
     const examMeeting = meeting as ExamMeeting;
     const code = ucsdMeetingTypeCode(examMeeting.meeting_type);
@@ -297,12 +300,7 @@ export default function WorksheetCalendarListItem({
           )}
 
           <div className={styles.cardFooter}>
-            <WorksheetToggleButton
-              listing={listing}
-              modal={false}
-              inWorksheet
-              appearance="remove"
-            />
+            <WorksheetViewModelRemoveButton listing={listing} />
           </div>
         </div>
       )}

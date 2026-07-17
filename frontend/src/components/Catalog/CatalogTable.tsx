@@ -12,20 +12,21 @@ import { useShallow } from 'zustand/react/shallow';
 import DayDots from './DayDots';
 import SeatsDisplay from './SeatsDisplay';
 import { requireLegacyCatalogListing } from '../../ferry/ferryCatalogCache';
+import { isLegacyUserInfo } from '../../queries/api';
 import type { CoursePlanningListing } from '../../queries/coursePlanningViewModels';
 import type { Season } from '../../queries/graphql-types';
 import type { CatalogSortKey } from '../../slices/CatalogViewSlice';
 import { useStore } from '../../store';
+import { anonymousWorksheetHasListing } from '../../utilities/anonymousWorksheet';
 import {
   parseDays,
   formatTime,
   buildOfferingGroups,
   type OfferingGroup,
 } from '../../utilities/catalogView';
-import { toSeasonString } from '../../utilities/course';
-import WorksheetToggleButton, {
-  useWorksheetListingPresence,
-} from '../Worksheet/WorksheetToggleButton';
+import { isInWorksheet, toSeasonString } from '../../utilities/course';
+import CoursePlanningWorksheetToggleButton from '../Worksheet/CoursePlanningWorksheetToggleButton';
+import WorksheetToggleButton from '../Worksheet/WorksheetToggleButton';
 import styles from './CatalogTable.module.css';
 
 type CourseRow = {
@@ -308,21 +309,51 @@ function useViewMode(): ViewMode {
   return mode;
 }
 
-function legacyListing(listing: CoursePlanningListing) {
-  return requireLegacyCatalogListing(
-    listing.section.supportedTerm as Season,
-    listing.section.sectionId,
-  );
-}
-
 function useListingInWorksheet(listing: CoursePlanningListing): boolean {
-  const getRelevantWorksheetNumber = useStore(
-    (s) => s.getRelevantWorksheetNumber,
+  const {
+    activeSavedWorksheet,
+    anonymousWorksheet,
+    crossTermSavedSections,
+    getRelevantWorksheetNumber,
+    isAnonymousWorksheet,
+    user,
+    worksheets,
+  } = useStore(
+    useShallow((state) => ({
+      activeSavedWorksheet: state.activeSavedWorksheet,
+      anonymousWorksheet: state.anonymousWorksheet,
+      crossTermSavedSections: state.crossTermSavedSections,
+      getRelevantWorksheetNumber: state.getRelevantWorksheetNumber,
+      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+      user: state.user,
+      worksheets: state.worksheets,
+    })),
   );
-  const legacy = legacyListing(listing);
-  return useWorksheetListingPresence(
-    legacy,
-    getRelevantWorksheetNumber(legacy.course.season_code),
+  if (isAnonymousWorksheet)
+    return anonymousWorksheetHasListing(anonymousWorksheet, listing);
+  if (user && isLegacyUserInfo(user)) {
+    const legacy = requireLegacyCatalogListing(
+      listing.section.supportedTerm as Season,
+      listing.section.sectionId,
+    );
+    return isInWorksheet(
+      legacy,
+      getRelevantWorksheetNumber(legacy.course.season_code),
+      worksheets,
+    );
+  }
+  const term = listing.section.supportedTerm;
+  if (activeSavedWorksheet && term !== activeSavedWorksheet.term) {
+    return Boolean(
+      crossTermSavedSections[term]?.some(
+        (section) => section.sectionId === listing.section.sectionId,
+      ),
+    );
+  }
+  return Boolean(
+    activeSavedWorksheet?.sections.some(
+      (section) => section.sectionId === listing.section.sectionId,
+    ),
   );
 }
 
@@ -333,9 +364,23 @@ function CatalogWorksheetToggleButton({
   readonly listing: CoursePlanningListing;
   readonly appearance?: 'mobile';
 }) {
+  const user = useStore((state) => state.user);
+  if (user && isLegacyUserInfo(user)) {
+    const legacy = requireLegacyCatalogListing(
+      listing.section.supportedTerm as Season,
+      listing.section.sectionId,
+    );
+    return (
+      <WorksheetToggleButton
+        listing={legacy}
+        modal={false}
+        appearance={appearance}
+      />
+    );
+  }
   return (
-    <WorksheetToggleButton
-      listing={legacyListing(listing)}
+    <CoursePlanningWorksheetToggleButton
+      listing={listing}
       modal={false}
       appearance={appearance}
     />

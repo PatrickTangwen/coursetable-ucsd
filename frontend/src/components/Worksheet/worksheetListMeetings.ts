@@ -1,4 +1,7 @@
-import type { CatalogListing } from '../../queries/api';
+import type {
+  WorksheetListingViewModel,
+  WorksheetMeeting,
+} from '../../types/worksheetCourse';
 import { formatTime } from '../../utilities/catalogView';
 import { weekdays } from '../../utilities/constants';
 import {
@@ -6,7 +9,7 @@ import {
   ucsdMeetingTypeLabel,
 } from '../CourseModal/ucsdMeetingTypes';
 
-type ListItemMeeting = CatalogListing['course']['course_meetings'][number] & {
+type ListItemMeeting = WorksheetMeeting & {
   date?: string | null;
   meeting_type?: string | null;
   raw_location?: string | null;
@@ -123,7 +126,7 @@ function meetingKindLabel(meeting: ListItemMeeting): string {
 }
 
 export function buildWorksheetItemMeetings(
-  listing: CatalogListing,
+  listing: WorksheetListingViewModel,
 ): WorksheetItemMeetings {
   const weekly: WorksheetWeeklyMeeting[] = [];
   const dated: WorksheetDatedMeeting[] = [];

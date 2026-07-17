@@ -101,6 +101,7 @@ export type CoursePlanningListing = {
   course: CoursePlanningCourse;
   section: CoursePlanningSection;
   generatedAt: string;
+  termDateRange?: CoursePlanningTermDateRange | null;
   evaluation: CoursePlanningEvaluation;
 };
 
@@ -133,6 +134,7 @@ export function flattenCoursePlanningCatalog(
       course,
       section,
       generatedAt: catalog.generatedAt,
+      termDateRange: catalog.termDateRange,
       evaluation: {
         overallRating: null,
         workload: null,

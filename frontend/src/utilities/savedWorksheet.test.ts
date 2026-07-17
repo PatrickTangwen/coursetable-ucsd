@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { resolveAnonymousWorksheet } from './anonymousWorksheet';
+import { resolveLegacyWorksheet } from './legacyAnonymousWorksheet';
 import {
   buildSaveAnonymousWorksheetPayload,
   buildRestoredAnonymousWorksheet,
@@ -123,7 +123,7 @@ describe('saved worksheet helpers', () => {
       ],
     });
 
-    const restored = resolveAnonymousWorksheet(worksheet, catalog);
+    const restored = resolveLegacyWorksheet(worksheet, catalog);
 
     expect(restored.missingSectionIds).toEqual(['FA26:STALE-404']);
     expect(restored.worksheets.get(testTerm)?.get(0)?.courses).toEqual([

@@ -1,5 +1,9 @@
-import type { CatalogListing, UserWorksheets } from '../queries/api';
+import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
 import type { Crn, Season } from '../queries/graphql-types';
+import {
+  coursePlanningListingToWorksheetCourse,
+  type WorksheetCourse,
+} from '../types/worksheetCourse';
 
 export const ANONYMOUS_WORKSHEET_STORAGE_KEY = 'anonymousWorksheet';
 export const ANONYMOUS_WORKSHEET_NAME = 'Main Worksheet';
@@ -20,7 +24,14 @@ export type AnonymousWorksheetShare = {
   sectionIds: string[];
 };
 
-export type AnonymousWorksheetListing = {
+export type CoursePlanningWorksheetListing = {
+  section: {
+    sectionId: string;
+    supportedTerm: string;
+  };
+};
+
+export type LegacyAnonymousWorksheetListing = {
   crn: Crn;
   course?: {
     season_code?: Season;
@@ -32,6 +43,16 @@ export type AnonymousWorksheetListing = {
   };
   section_id?: unknown;
 };
+
+export type AnonymousWorksheetListing =
+  | CoursePlanningWorksheetListing
+  | LegacyAnonymousWorksheetListing;
+
+function isCoursePlanningWorksheetListing(
+  listing: AnonymousWorksheetListing,
+): listing is CoursePlanningWorksheetListing {
+  return Object.hasOwn(listing, 'section');
+}
 
 type UnknownRecord = { [key: string]: unknown };
 
@@ -105,6 +126,8 @@ export function writeAnonymousWorksheetStorage(
 export function getListingSectionId(
   listing: AnonymousWorksheetListing,
 ): string | null {
+  if (isCoursePlanningWorksheetListing(listing))
+    return listing.section.sectionId;
   if (typeof listing.section_id === 'string' && listing.section_id.length > 0)
     return listing.section_id;
   const matchingListing = listing.course?.listings?.find(
@@ -118,12 +141,21 @@ export function getListingSectionId(
   return null;
 }
 
+export function getListingTerm(
+  listing: AnonymousWorksheetListing,
+  fallbackTerm: Season,
+): Season {
+  if (isCoursePlanningWorksheetListing(listing))
+    return listing.section.supportedTerm as Season;
+  return listing.course?.season_code ?? fallbackTerm;
+}
+
 export function anonymousWorksheetHasListing(
   worksheet: AnonymousWorksheetState,
   listing: AnonymousWorksheetListing,
 ): boolean {
   const sectionId = getListingSectionId(listing);
-  const term = listing.course?.season_code ?? worksheet.term;
+  const term = getListingTerm(listing, worksheet.term);
   return Boolean(
     sectionId &&
     getAnonymousWorksheetCourses(worksheet, term).some(
@@ -161,7 +193,7 @@ export function addListingToAnonymousWorksheet(
 ): AnonymousWorksheetState {
   const sectionId = getListingSectionId(listing);
   if (!sectionId) return worksheet;
-  const term = listing.course?.season_code ?? worksheet.term;
+  const term = getListingTerm(listing, worksheet.term);
   const termCourses = getAnonymousWorksheetCourses(worksheet, term);
   if (termCourses.some((course) => course.sectionId === sectionId))
     return worksheet;
@@ -181,7 +213,7 @@ export function removeListingFromAnonymousWorksheet(
 ): AnonymousWorksheetState {
   const sectionId = getListingSectionId(listing);
   if (!sectionId) return worksheet;
-  const term = listing.course?.season_code ?? worksheet.term;
+  const term = getListingTerm(listing, worksheet.term);
   return updateAnonymousWorksheetCourses(worksheet, term, (courses) =>
     courses.filter((course) => course.sectionId !== sectionId),
   );
@@ -194,7 +226,7 @@ export function setAnonymousWorksheetCourseHidden(
 ): AnonymousWorksheetState {
   const sectionId = getListingSectionId(listing);
   if (!sectionId) return worksheet;
-  const term = listing.course?.season_code ?? worksheet.term;
+  const term = getListingTerm(listing, worksheet.term);
   return updateAnonymousWorksheetCourses(worksheet, term, (courses) =>
     courses.map((course) =>
       course.sectionId === sectionId ? { ...course, hidden } : course,
@@ -209,7 +241,7 @@ export function setAnonymousWorksheetCourseColor(
 ): AnonymousWorksheetState {
   const sectionId = getListingSectionId(listing);
   if (!sectionId) return worksheet;
-  const term = listing.course?.season_code ?? worksheet.term;
+  const term = getListingTerm(listing, worksheet.term);
   return updateAnonymousWorksheetCourses(worksheet, term, (courses) =>
     courses.map((course) =>
       course.sectionId === sectionId ? { ...course, color } : course,
@@ -298,30 +330,12 @@ export function createAnonymousWorksheetShareUrl(
   return `${origin}/worksheet?${params.toString()}`;
 }
 
-export function resolveAnonymousWorksheet(
+export function resolveAnonymousWorksheetCourses(
   worksheet: AnonymousWorksheetState,
-  catalog: Map<Crn, CatalogListing> | undefined,
+  listingsBySectionId: Map<string, CoursePlanningListing> | undefined,
   term: Season = worksheet.term,
-): { worksheets: UserWorksheets; missingSectionIds: string[] } {
-  type Worksheet =
-    UserWorksheets extends Map<Season, Map<number, infer W>> ? W : never;
-  const seasonWorksheets = new Map<number, Worksheet>();
-  const worksheets: UserWorksheets = new Map([[term, seasonWorksheets]]);
-
-  if (!catalog) {
-    seasonWorksheets.set(0, {
-      name: ANONYMOUS_WORKSHEET_NAME,
-      private: false,
-      courses: [],
-    });
-    return { worksheets, missingSectionIds: [] };
-  }
-
-  const listingsBySectionId = new Map<string, CatalogListing>();
-  for (const listing of catalog.values()) {
-    const sectionId = getListingSectionId(listing);
-    if (sectionId) listingsBySectionId.set(sectionId, listing);
-  }
+): { courses: WorksheetCourse[]; missingSectionIds: string[] } {
+  if (!listingsBySectionId) return { courses: [], missingSectionIds: [] };
 
   const missingSectionIds: string[] = [];
   const courses = getAnonymousWorksheetCourses(worksheet, term).flatMap(
@@ -332,21 +346,19 @@ export function resolveAnonymousWorksheet(
         return [];
       }
       return [
-        {
-          crn: listing.crn,
-          color: course.color,
-          hidden: course.hidden,
-          sameCourseId: listing.course.same_course_id,
-        },
+        coursePlanningListingToWorksheetCourse(
+          listing,
+          course.color,
+          course.hidden,
+        ),
       ];
     },
   );
 
-  seasonWorksheets.set(0, {
-    name: ANONYMOUS_WORKSHEET_NAME,
-    private: false,
-    courses,
-  });
-
-  return { worksheets, missingSectionIds };
+  return {
+    courses: courses.sort((a, b) =>
+      a.listing.course_code.localeCompare(b.listing.course_code, 'en-US'),
+    ),
+    missingSectionIds,
+  };
 }

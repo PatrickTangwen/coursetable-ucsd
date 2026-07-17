@@ -8,9 +8,12 @@ import {
   type SimpleDate,
   type SeasonCalendar,
 } from '../config';
-import type { CatalogListing } from '../queries/api';
 import type { Season } from '../queries/graphql-types';
 import type { WorksheetCourse } from '../slices/WorksheetSlice';
+import type {
+  WorksheetListingViewModel,
+  WorksheetMeeting,
+} from '../types/worksheetCourse';
 
 /**
  * The string never has the time zone offset, but it should always be Eastern
@@ -109,7 +112,7 @@ type CalendarEvent = {
   description: string;
   location: string;
   color: string;
-  listing: CatalogListing;
+  listing: WorksheetListingViewModel;
   days: number[];
   meetingType: string;
   section: string;
@@ -240,11 +243,11 @@ type UcsdCalendarDetails = {
   source_note?: string | null;
 };
 
-type CourseWithCalendarDetails = CatalogListing['course'] & {
+type CourseWithCalendarDetails = WorksheetListingViewModel['course'] & {
   ucsd_calendar?: UcsdCalendarDetails;
 };
 
-type CourseMeeting = CatalogListing['course']['course_meetings'][number] & {
+type CourseMeeting = WorksheetMeeting & {
   date?: string | null;
   meeting_type?: string | null;
   raw_location?: string | null;
@@ -256,7 +259,7 @@ export type CourseRBCEvent = {
   description: string;
   start: Date;
   end: Date;
-  listing: CatalogListing;
+  listing: WorksheetListingViewModel;
   color: string;
   location: string;
   meetingType: string;
@@ -301,7 +304,7 @@ type CalendarExportResult<T> = {
   skippedMeetings: CalendarSkippedMeeting[];
 };
 
-function ucsdCalendarDetails(listing: CatalogListing) {
+function ucsdCalendarDetails(listing: WorksheetListingViewModel) {
   return (listing.course as CourseWithCalendarDetails).ucsd_calendar;
 }
 
@@ -339,14 +342,17 @@ function getExportCalendar(
   return academicCalendars[viewedSeason] as SeasonCalendar | undefined;
 }
 
-function sectionLabel(listing: CatalogListing) {
+function sectionLabel(listing: WorksheetListingViewModel) {
   const details = ucsdCalendarDetails(listing);
   return (
     details?.section_code || listing.course.section || details?.section_id || ''
   );
 }
 
-function meetingTypeLabel(listing: CatalogListing, meeting?: CourseMeeting) {
+function meetingTypeLabel(
+  listing: WorksheetListingViewModel,
+  meeting?: CourseMeeting,
+) {
   return (
     meeting?.meeting_type ||
     ucsdCalendarDetails(listing)?.meeting_type ||
@@ -354,11 +360,14 @@ function meetingTypeLabel(listing: CatalogListing, meeting?: CourseMeeting) {
   );
 }
 
-function sourceNote(listing: CatalogListing) {
+function sourceNote(listing: WorksheetListingViewModel) {
   return ucsdCalendarDetails(listing)?.source_note || '';
 }
 
-function eventSummary(listing: CatalogListing, meeting?: CourseMeeting) {
+function eventSummary(
+  listing: WorksheetListingViewModel,
+  meeting?: CourseMeeting,
+) {
   return [
     listing.course_code,
     sectionLabel(listing),
@@ -368,7 +377,7 @@ function eventSummary(listing: CatalogListing, meeting?: CourseMeeting) {
     .join(' ');
 }
 
-function instructorNames(listing: CatalogListing) {
+function instructorNames(listing: WorksheetListingViewModel) {
   return listing.course.course_professors
     .map((p) => p.professor.name)
     .filter(Boolean)
@@ -385,7 +394,7 @@ function meetingLocation(meeting: CourseMeeting) {
 }
 
 function eventDescription(
-  listing: CatalogListing,
+  listing: WorksheetListingViewModel,
   location: string,
   meeting?: CourseMeeting,
 ) {
@@ -402,7 +411,7 @@ function eventDescription(
 }
 
 function skippedMeetingFromSource(
-  listing: CatalogListing,
+  listing: WorksheetListingViewModel,
   meeting: UcsdCalendarMeeting,
 ): CalendarSkippedMeeting {
   const rawLocation =
@@ -420,7 +429,7 @@ function skippedMeetingFromSource(
 }
 
 function skippedMeetingFromCourseMeeting(
-  listing: CatalogListing,
+  listing: WorksheetListingViewModel,
   meeting: CourseMeeting,
 ): CalendarSkippedMeeting {
   return {
@@ -437,7 +446,7 @@ function skippedMeetingFromCourseMeeting(
   };
 }
 
-function sourceSkippedMeetings(listing: CatalogListing) {
+function sourceSkippedMeetings(listing: WorksheetListingViewModel) {
   const meetings = ucsdCalendarDetails(listing)?.meetings ?? [];
   return meetings
     .filter(

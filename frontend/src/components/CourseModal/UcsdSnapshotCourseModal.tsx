@@ -26,13 +26,11 @@ import {
   type UcsdModalOfferingGroup,
   type UcsdModalSection,
 } from './ucsdSnapshotModalData';
-import { requireLegacyCatalogListing } from '../../ferry/ferryCatalogCache';
 import { useFerry } from '../../hooks/useFerry';
 import { useModalHistory } from '../../hooks/useModalHistory';
 import type { CoursePlanningCourse } from '../../queries/coursePlanningViewModels';
 import type { Season } from '../../queries/graphql-types';
 import { useStore } from '../../store';
-import type { AnonymousWorksheetListing } from '../../utilities/anonymousWorksheet';
 import {
   formatTime,
   parseDays,
@@ -776,14 +774,8 @@ export default function UcsdSnapshotCourseModal({
       const color = colors[Math.floor(Math.random() * colors.length)]!;
       const label =
         `${target.course.courseCode} ${target.section.sectionCode ?? ''}`.trim();
-      // Worksheet migration is a later slice. Keep its inherited input behind
-      // this explicit compatibility boundary while preserving Section ID.
-      const worksheetListing = requireLegacyCatalogListing(
-        target.section.supportedTerm as Season,
-        target.section.sectionId,
-      ) as AnonymousWorksheetListing;
       if (authStatus === 'authenticated') {
-        void addActiveSavedWorksheetListing(worksheetListing, color).then(
+        void addActiveSavedWorksheetListing(target, color).then(
           (savedAdded) => {
             if (savedAdded)
               toast.success(`Added ${label} to worksheet`, { duration: 800 });
@@ -791,7 +783,7 @@ export default function UcsdSnapshotCourseModal({
         );
         return;
       }
-      const added = addAnonymousWorksheetListing(worksheetListing, color);
+      const added = addAnonymousWorksheetListing(target, color);
       if (added)
         toast.success(`Added ${label} to worksheet`, { duration: 800 });
     },

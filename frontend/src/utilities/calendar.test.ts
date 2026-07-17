@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { formatSkippedMeetingsSummary, getCalendarExport } from './calendar';
 import type { CatalogListing } from '../queries/api';
 import type { Crn, Season } from '../queries/graphql-types';
+import { legacyCatalogListingToWorksheetViewModel } from '../types/legacyWorksheetCourse';
 import type { WorksheetCourse } from '../types/worksheetCourse';
 
 const dayMask = (...days: number[]) =>
@@ -102,7 +103,7 @@ function worksheetCourse(listing: CatalogListing): WorksheetCourse {
   return {
     crn: listing.crn,
     color: '#123456',
-    listing,
+    listing: legacyCatalogListingToWorksheetViewModel(listing),
     hidden: false,
   };
 }

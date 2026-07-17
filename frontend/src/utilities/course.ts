@@ -10,6 +10,10 @@ import type { Crn, Season } from '../queries/graphql-types';
 import type { SortKeys } from '../search/searchTypes';
 import type { WorksheetCourse } from '../slices/WorksheetSlice';
 import type { WishlistItemWithListings } from '../types/wishlist';
+import type {
+  WorksheetListingViewModel,
+  WorksheetMeeting,
+} from '../types/worksheetCourse';
 
 export function truncatedText(
   text: string | null | undefined,
@@ -158,11 +162,12 @@ export function toWeekdaysDisplayString(daysOfWeek: number): string {
   return base;
 }
 
-export function toTimesSummary(
-  course: Pick<CatalogListing['course'], 'course_meetings'>,
-): string {
+export function toTimesSummary(course: {
+  course_meetings: WorksheetMeeting[];
+}): string {
   if (!course.course_meetings.length) return 'TBA';
   const meeting = course.course_meetings[0]!;
+  if (!meeting.start_time || !meeting.end_time) return 'TBA';
   const days = toWeekdaysDisplayString(meeting.days_of_week);
   const summary = `${days} ${to12HourTime(meeting.start_time)}–${to12HourTime(
     meeting.end_time,
@@ -171,7 +176,7 @@ export function toTimesSummary(
 }
 
 export function toLocationsSummary(
-  course: Pick<CatalogListing['course'], 'course_meetings'>,
+  course: { course_meetings: WorksheetMeeting[] },
   hasEvals?: boolean,
 ): string {
   // Hide locations for users without evaluation access
@@ -246,8 +251,8 @@ export function listingsConflict(
 export function checkConflict(
   worksheetData: WorksheetCourse[],
   listing: ListingWithTimes,
-): CatalogListing[] {
-  const conflicts: CatalogListing[] = [];
+): WorksheetListingViewModel[] {
+  const conflicts: WorksheetListingViewModel[] = [];
   for (const { listing: worksheetCourse } of worksheetData) {
     if (listingsConflict(worksheetCourse, listing))
       conflicts.push(worksheetCourse);
@@ -256,7 +261,7 @@ export function checkConflict(
 }
 
 export type WorksheetConflict = {
-  courses: [CatalogListing, CatalogListing];
+  courses: [WorksheetListingViewModel, WorksheetListingViewModel];
 };
 
 export function getWorksheetConflicts(
@@ -624,7 +629,11 @@ export function isDiscussionSection(
 
 type WorksheetStatsCourse = {
   listing: {
-    course: Pick<CatalogListing['course'], 'listings' | 'credits' | 'section'>;
+    course: {
+      listings: { course_code: string }[];
+      credits: number | null;
+      section: string;
+    };
   };
   hidden: boolean | null;
 };
@@ -659,15 +668,15 @@ export function getWorksheetCourseStats(
  * @param course a course
  * @returns section number padded to two characters or empty string if NA
  */
-export function formatSectionSuffix(course: Pick<Courses, 'section'>): string {
+export function formatSectionSuffix(course: { section: string }): string {
   return isDiscussionSection(course) && course.section.length > 0
     ? ` ${course.section.padStart(2, '0')}`
     : '';
 }
 
 export function formatWorksheetSectionSuffix(
-  listing: Pick<Listings, 'school'> & {
-    course: Pick<Courses, 'section'>;
+  listing: { school: string } & {
+    course: { section: string };
   },
 ): string {
   if (listing.school === 'UCSD' && listing.course.section.length > 0)

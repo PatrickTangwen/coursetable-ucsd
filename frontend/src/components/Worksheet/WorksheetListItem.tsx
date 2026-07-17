@@ -12,7 +12,7 @@ import {
   type ListDayFlags,
   type WorksheetDatedMeeting,
 } from './worksheetListMeetings';
-import WorksheetToggleButton from './WorksheetToggleButton';
+import WorksheetViewModelRemoveButton from './WorksheetViewModelRemoveButton';
 import type { WorksheetCourse } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
 import { formatWorksheetSectionSuffix } from '../../utilities/course';
@@ -377,11 +377,8 @@ export default function WorksheetListItem({
             <div className={styles.noMeetings}>No meetings listed</div>
           )}
           <div className={styles.panelFooter}>
-            <WorksheetToggleButton
+            <WorksheetViewModelRemoveButton
               listing={listing}
-              modal={false}
-              inWorksheet
-              appearance="remove"
               className={styles.removeButton}
             />
           </div>

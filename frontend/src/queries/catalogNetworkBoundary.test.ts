@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { fetchCatalog } from './api';
+import { flattenCoursePlanningCatalog } from './coursePlanningViewModels';
 import type { Season } from './graphql-types';
+import {
+  anonymousWorksheetFromShare,
+  resolveAnonymousWorksheetCourses,
+} from '../utilities/anonymousWorksheet';
 
 const browser = vi.hoisted(() => {
   const values = new Map<string, string>();
@@ -105,5 +110,22 @@ describe('Catalog network boundary', () => {
       courseCode: 'CSE 1',
       sections: [{ sectionId: 'FA26:123456' }],
     });
+    const [listing] = flattenCoursePlanningCatalog(
+      result!.coursePlanningCatalog!,
+    );
+    const restored = resolveAnonymousWorksheetCourses(
+      anonymousWorksheetFromShare(
+        { term: 'FA26' as Season, sectionIds: ['FA26:123456'] },
+        () => '#123456',
+      ),
+      new Map([[listing!.section.sectionId, listing!]]),
+    );
+    expect(restored.courses[0]).toMatchObject({
+      listing: {
+        section_id: 'FA26:123456',
+        course_code: 'CSE 1',
+      },
+    });
+    expect(requestUrls).toHaveLength(1);
   });
 });

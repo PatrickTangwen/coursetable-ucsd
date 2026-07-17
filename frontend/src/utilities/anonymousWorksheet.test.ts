@@ -8,14 +8,18 @@ import {
   parseAnonymousWorksheetShare,
   readAnonymousWorksheetStorage,
   removeListingFromAnonymousWorksheet,
-  resolveAnonymousWorksheet,
+  resolveAnonymousWorksheetCourses,
+  setAnonymousWorksheetCourseColor,
+  setAnonymousWorksheetCourseHidden,
   toAnonymousWorksheetShare,
   writeAnonymousWorksheetStorage,
   type AnonymousWorksheetState,
 } from './anonymousWorksheet';
 import { checkConflict } from './course';
 import type { CatalogListing } from '../queries/api';
+import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
 import type { Crn, Season } from '../queries/graphql-types';
+import { legacyCatalogListingToWorksheetViewModel } from '../types/legacyWorksheetCourse';
 
 type Meeting = {
   days_of_week: number;
@@ -64,16 +68,62 @@ function createListing({
   } as unknown as CatalogListing;
 }
 
+function createPlanningListing(
+  sectionId: string,
+  courseCode: string,
+): CoursePlanningListing {
+  const [subject = 'CSE', courseNumber = '3'] = courseCode.split(' ');
+  return {
+    generatedAt: '2026-07-17T12:00:00.000Z',
+    evaluation: {
+      overallRating: null,
+      workload: null,
+      professorRating: null,
+      gutRating: null,
+      enrollment: null,
+    },
+    course: {
+      courseId: `${subject}:${courseNumber}`,
+      subject,
+      courseNumber,
+      courseCode,
+      title: `${courseCode} title`,
+      units: '4',
+      description: null,
+      prerequisites: null,
+      restrictions: null,
+      requirements: null,
+      catalogUrl: null,
+      archiveRecordCount: 0,
+      pastGrades: [],
+      sections: [],
+    },
+    section: {
+      sectionId,
+      courseId: `${subject}:${courseNumber}`,
+      supportedTerm: 'FA26',
+      sectionCode: 'A01',
+      meetingType: 'Lecture',
+      instructors: [],
+      meetings: [],
+      availability: {
+        enrolled: null,
+        capacity: null,
+        waitlistCount: 0,
+        snapshotTimestamp: null,
+      },
+      sourceNote: null,
+    },
+  };
+}
+
 afterEach(() => {
   vi.unstubAllGlobals();
 });
 
 describe('anonymous worksheet behavior', () => {
   it('adds and removes Sections by Published Snapshot Section ID', () => {
-    const listing = createListing({
-      crn: 101,
-      sectionId: 'FA26:CSE-TRACER-3',
-    });
+    const listing = createPlanningListing('FA26:CSE-TRACER-3', 'CSE 3');
     const empty: AnonymousWorksheetState = {
       term: 'FA26' as Season,
       coursesByTerm: {},
@@ -81,7 +131,13 @@ describe('anonymous worksheet behavior', () => {
 
     const added = addListingToAnonymousWorksheet(empty, listing, '#123456');
     const duplicate = addListingToAnonymousWorksheet(added, listing, '#abcdef');
-    const removed = removeListingFromAnonymousWorksheet(added, listing);
+    const hidden = setAnonymousWorksheetCourseHidden(added, listing, true);
+    const recolored = setAnonymousWorksheetCourseColor(
+      hidden,
+      listing,
+      '#abcdef',
+    );
+    const removed = removeListingFromAnonymousWorksheet(recolored, listing);
 
     expect(anonymousWorksheetHasListing(added, listing)).toBe(true);
     expect(getAnonymousWorksheetCourses(added, 'FA26' as Season)).toEqual([
@@ -94,6 +150,13 @@ describe('anonymous worksheet behavior', () => {
     expect(
       getAnonymousWorksheetCourses(duplicate, 'FA26' as Season),
     ).toHaveLength(1);
+    expect(getAnonymousWorksheetCourses(recolored, 'FA26' as Season)).toEqual([
+      {
+        sectionId: 'FA26:CSE-TRACER-3',
+        color: '#abcdef',
+        hidden: true,
+      },
+    ]);
     expect(getAnonymousWorksheetCourses(removed, 'FA26' as Season)).toEqual([]);
   });
 
@@ -134,7 +197,14 @@ describe('anonymous worksheet behavior', () => {
 
     expect(
       checkConflict(
-        [{ crn: first.crn, color: '#123456', listing: first, hidden: false }],
+        [
+          {
+            crn: first.crn,
+            color: '#123456',
+            listing: legacyCatalogListingToWorksheetViewModel(first),
+            hidden: false,
+          },
+        ],
         second,
       ),
     ).toEqual([first]);
@@ -192,6 +262,9 @@ describe('anonymous worksheet behavior', () => {
     writeAnonymousWorksheetStorage(worksheet);
 
     expect(readAnonymousWorksheetStorage('FA26' as Season)).toEqual(worksheet);
+    expect(localStorage.getItem('anonymousWorksheet')).toBe(
+      '{"term":"FA26","coursesByTerm":{"FA26":[{"sectionId":"FA26:CSE-TRACER-3","color":"#123456","hidden":true}]}}',
+    );
   });
 
   it('migrates legacy single-term anonymous worksheet storage', () => {
@@ -235,17 +308,11 @@ describe('anonymous worksheet behavior', () => {
   });
 
   it('restores matching Sections from the Published Snapshot and reports missing IDs', () => {
-    const cse = createListing({
-      crn: 101,
-      sectionId: 'FA26:CSE-TRACER-3',
-    });
-    const math = createListing({
-      crn: 202,
-      sectionId: 'FA26:MATH-TRACER-2',
-    });
-    const catalog = new Map<Crn, CatalogListing>([
-      [cse.crn, cse],
-      [math.crn, math],
+    const cse = createPlanningListing('FA26:CSE-TRACER-3', 'CSE 3');
+    const math = createPlanningListing('FA26:MATH-TRACER-2', 'MATH 20A');
+    const catalog = new Map([
+      [cse.section.sectionId, cse],
+      [math.section.sectionId, math],
     ]);
     const share = parseAnonymousWorksheetShare(
       new URLSearchParams({
@@ -258,16 +325,17 @@ describe('anonymous worksheet behavior', () => {
     const worksheet = anonymousWorksheetFromShare(share!, (index) =>
       index === 0 ? '#111111' : '#222222',
     );
-    const restored = resolveAnonymousWorksheet(worksheet, catalog);
+    const restored = resolveAnonymousWorksheetCourses(worksheet, catalog);
 
     expect(restored.missingSectionIds).toEqual(['FA26:STALE-404']);
-    expect(restored.worksheets.get('FA26' as Season)?.get(0)?.courses).toEqual([
-      {
-        crn: 101,
-        color: '#111111',
-        hidden: false,
-        sameCourseId: 101,
+    expect(restored.courses).toHaveLength(1);
+    expect(restored.courses[0]).toMatchObject({
+      color: '#111111',
+      hidden: false,
+      listing: {
+        section_id: 'FA26:CSE-TRACER-3',
+        course_code: 'CSE 3',
       },
-    ]);
+    });
   });
 });

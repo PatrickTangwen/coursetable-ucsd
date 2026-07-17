@@ -7,6 +7,7 @@ import {
 import type { UserWorksheets } from '../queries/api';
 import type { Season } from '../queries/graphql-types';
 import { useStore } from '../store';
+import { legacyCatalogListingToWorksheetViewModel } from '../types/legacyWorksheetCourse';
 import type { WorksheetCourse } from '../types/worksheetCourse';
 
 export function useFerry() {
@@ -107,7 +108,7 @@ export function useWorksheetInfo(
           dataReturn.push({
             crn,
             color,
-            listing,
+            listing: legacyCatalogListingToWorksheetViewModel(listing),
             hidden,
           });
         }

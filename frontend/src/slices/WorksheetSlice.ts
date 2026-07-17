@@ -7,7 +7,7 @@ import type { StateCreator } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 import { CUR_SEASON } from '../config';
 import { supportedTerms as allSeasons } from '../data/catalogSeasons';
-import { useCourseData, useWorksheetInfo } from '../hooks/useFerry';
+import { useCoursePlanningData, useWorksheetInfo } from '../hooks/useFerry';
 import {
   createBlankSavedWorksheet,
   deleteSavedWorksheet as deleteSavedWorksheetApi,
@@ -37,9 +37,10 @@ import {
   addListingToAnonymousWorksheet,
   anonymousWorksheetFromShare,
   getListingSectionId,
+  getListingTerm,
   readAnonymousWorksheetStorage,
   removeListingFromAnonymousWorksheet,
-  resolveAnonymousWorksheet,
+  resolveAnonymousWorksheetCourses,
   setAllAnonymousWorksheetCoursesHidden,
   setAnonymousWorksheetCourseColor,
   setAnonymousWorksheetCourseHidden,
@@ -52,6 +53,7 @@ import {
 import { createLocalStorageSlot } from '../utilities/browserStorage';
 import { worksheetColors } from '../utilities/constants';
 import { toSeasonString } from '../utilities/course';
+import { resolveLegacyWorksheet } from '../utilities/legacyAnonymousWorksheet';
 import {
   buildRestoredAnonymousWorksheet,
   type SavedWorksheetRestoreSource,
@@ -727,7 +729,7 @@ export const createWorksheetSlice: StateCreator<
       const sectionId = getListingSectionIdOrWarn(listing);
       if (!sectionId) return false;
 
-      const listingTerm = listing.course?.season_code;
+      const listingTerm = getListingTerm(listing, get().viewedSeason);
       let { activeSavedWorksheet } = get();
 
       if (!activeSavedWorksheet && listingTerm) {
@@ -798,7 +800,7 @@ export const createWorksheetSlice: StateCreator<
       const sectionId = getListingSectionIdOrWarn(listing);
       if (!sectionId) return false;
 
-      const listingTerm = listing.course?.season_code;
+      const listingTerm = getListingTerm(listing, get().viewedSeason);
       const { activeSavedWorksheet } = get();
       if (!activeSavedWorksheet) return false;
 
@@ -1105,12 +1107,16 @@ export const useWorksheetEffects = () => {
     ],
     [anonymousRequestedSeasons, savedWorksheetRequestedSeasons],
   );
-  const { courses: catalogCourses } = useCourseData(requestedSeasons);
+  const {
+    loading: coursePlanningLoading,
+    error: coursePlanningError,
+    courses: catalogCourses,
+  } = useCoursePlanningData(requestedSeasons);
   const anonymousResolved = useMemo(
     () =>
-      resolveAnonymousWorksheet(
+      resolveAnonymousWorksheetCourses(
         anonymousWorksheet,
-        catalogCourses[viewedSeason]?.data,
+        catalogCourses[viewedSeason]?.listings,
         viewedSeason,
       ),
     [anonymousWorksheet, catalogCourses, viewedSeason],
@@ -1125,7 +1131,7 @@ export const useWorksheetEffects = () => {
   const activeSavedWorksheetResolved = useMemo(
     () =>
       activeSavedWorksheetState
-        ? resolveAnonymousWorksheet(
+        ? resolveLegacyWorksheet(
             activeSavedWorksheetState,
             catalogCourses[activeSavedWorksheetState.term]?.data,
           )
@@ -1175,14 +1181,15 @@ export const useWorksheetEffects = () => {
   ]);
 
   const {
-    loading: worksheetLoading,
-    error: worksheetError,
-    data: courses,
+    loading: inheritedWorksheetLoading,
+    error: inheritedWorksheetError,
+    data: inheritedCourses,
   } = useWorksheetInfo(
-    exoticWorksheet?.worksheets ??
-      (isAnonymousWorksheet
-        ? anonymousResolved.worksheets
-        : (activeSavedWorksheetResolved?.worksheets ?? curWorksheet)),
+    isAnonymousWorksheet
+      ? undefined
+      : (exoticWorksheet?.worksheets ??
+          activeSavedWorksheetResolved?.worksheets ??
+          curWorksheet),
     exoticWorksheet?.data.season ??
       (isAnonymousWorksheet
         ? viewedSeason
@@ -1191,6 +1198,15 @@ export const useWorksheetEffects = () => {
       ? 0
       : viewedWorksheetNumber,
   );
+  const courses = isAnonymousWorksheet
+    ? anonymousResolved.courses
+    : inheritedCourses;
+  const worksheetLoading = isAnonymousWorksheet
+    ? coursePlanningLoading
+    : inheritedWorksheetLoading;
+  const worksheetError = isAnonymousWorksheet
+    ? coursePlanningError
+    : inheritedWorksheetError;
 
   useEffect(() => {
     setWorksheetInfo(courses, worksheetLoading, worksheetError);

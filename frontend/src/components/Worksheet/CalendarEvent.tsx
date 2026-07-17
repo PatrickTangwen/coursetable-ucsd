@@ -75,7 +75,7 @@ export function CalendarEventBody({
       ))
     : event.title;
 
-  const lastMod = event.listing.course.last_updated as string | undefined;
+  const lastMod = event.listing.course.last_updated;
 
   useLayoutEffect(() => {
     if (!walkBefore) {

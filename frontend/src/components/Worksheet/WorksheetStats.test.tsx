@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from 'vitest';
 import type { CatalogListing } from '../../queries/api';
 import type { Crn, Season } from '../../queries/graphql-types';
 import type { WorksheetCourse } from '../../slices/WorksheetSlice';
+import { legacyCatalogListingToWorksheetViewModel } from '../../types/legacyWorksheetCourse';
+import type { WorksheetListingViewModel } from '../../types/worksheetCourse';
 
 function createStorage() {
   const items = new Map<string, string>();
@@ -33,8 +35,8 @@ function createListing({
   credits: number;
   skills?: string[];
   areas?: string[];
-}): CatalogListing {
-  return {
+}): WorksheetListingViewModel {
+  return legacyCatalogListingToWorksheetViewModel({
     crn: crn as Crn,
     course_code: courseCode,
     number: courseCode.split(' ')[1] ?? courseCode,
@@ -54,7 +56,7 @@ function createListing({
         },
       ],
     },
-  } as unknown as CatalogListing;
+  } as unknown as CatalogListing);
 }
 
 async function renderWorksheetStats(courses: WorksheetCourse[]) {
