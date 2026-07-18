@@ -466,9 +466,8 @@ export async function runValidation(config: RunConfig) {
         `Missing expected indexes: ${missing(schemaEvidence.indexes, expectedIndexes).join(', ')}`,
       );
     }
-    if (!expectedOwnershipConstraintsPresent) {
+    if (!expectedOwnershipConstraintsPresent)
       throw new Error('Missing App User ownership constraints');
-    }
 
     const verify = await requestAndVerify(config, api, config.email);
     httpEvidence.requestVerificationStatus = 200;
@@ -586,9 +585,8 @@ export async function runValidation(config: RunConfig) {
       : [];
     if (
       boundarySearches.some((item) => expectRecord(item).id === savedSearchId)
-    ) {
+    )
       throw new Error('Another App User could list account-owned data');
-    }
 
     const boundaryDelete = await boundaryApi.post('/api/savedSearches/delete', {
       id: savedSearchId,
@@ -807,13 +805,11 @@ async function requestAndVerify(
     'POST /api/auth/ucsd/request-verification',
   );
   const requestBody = expectRecord(requestVerification.body);
-  if (Object.hasOwn(requestBody, 'devCode')) {
+  if (Object.hasOwn(requestBody, 'devCode'))
     throw new Error('Hosted-like verification response exposed devCode');
-  }
 
-  if (requestBody.status !== 'verification_sent') {
+  if (requestBody.status !== 'verification_sent')
     throw new Error('Verification request did not confirm sender delivery');
-  }
 
   const code = await consumeCapturedVerification(config, email);
   return api.post('/api/auth/ucsd/verify', { code, email });
@@ -1135,9 +1131,8 @@ function resolveRootPath(config: RunConfig, pathname: string) {
 }
 
 function expectStatus(response: ApiResponse, status: number, label: string) {
-  if (response.status !== status) {
+  if (response.status !== status)
     throw new Error(`${label} returned unexpected HTTP status`);
-  }
 }
 
 function expectRecord(value: unknown) {

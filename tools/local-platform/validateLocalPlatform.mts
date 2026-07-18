@@ -69,10 +69,11 @@ async function verifyCourseDataFailureCleanup(
     () => null,
     (error: unknown) => error as { stderr?: string },
   );
-  if (!failure?.stderr?.includes('Injected Course Data tracer failure'))
+  if (!failure?.stderr?.includes('Injected Course Data tracer failure')) {
     throw new Error(
       'Course Data failure cleanup probe did not fail as expected',
     );
+  }
 
   const resourceQueries = [
     [
@@ -210,10 +211,11 @@ export async function validateLocalPlatform() {
     )
       .then(() => false)
       .catch(() => true);
-    if (!hasuraUnavailable)
+    if (!hasuraUnavailable) {
       throw new Error(
         'Hasura must be unavailable during App Backend validation',
       );
+    }
     const auth = await runValidation(config);
     const courseDataFailureCleanup = await verifyCourseDataFailureCleanup(
       rootDir,
@@ -285,9 +287,8 @@ export async function validateLocalPlatform() {
         'COURSE_DATA_PUBLIC_GRAPHQL_PORT',
         'STATIC_CATALOG_SMOKE_PORT',
         'COURSE_DATA_TRACER_PROJECT',
-      ]) {
+      ])
         delete process.env[name];
-      }
     }
   }
 }
