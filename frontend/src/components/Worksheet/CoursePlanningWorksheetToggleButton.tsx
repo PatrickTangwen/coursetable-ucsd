@@ -9,7 +9,6 @@ import {
   AddWorksheetButton,
   RemoveWorksheetButton,
 } from './WorksheetToggleControls';
-import { isLegacyUserInfo } from '../../queries/api';
 import type { CoursePlanningListing } from '../../queries/coursePlanningViewModels';
 import type { Season } from '../../queries/graphql-types';
 import { useStore } from '../../store';
@@ -58,7 +57,7 @@ export default function CoursePlanningWorksheetToggleButton({
       user: state.user,
     })),
   );
-  const hasSavedWorksheetAccount = Boolean(user && !isLegacyUserInfo(user));
+  const hasSavedWorksheetAccount = Boolean(user);
   const term = listing.section.supportedTerm as Season;
   const selectedWorksheet = getRelevantWorksheetNumber(term);
   const inWorksheet = isAnonymousWorksheet

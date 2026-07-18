@@ -24,10 +24,8 @@ export function useCoursePlanningCatalog() {
 }
 
 export function useCoursePlanningRequest(requestedSeasons: Season[]) {
-  const authStatus = useStore((state) => state.authStatus);
-  const userHasEvals = useStore((state) => state.user?.hasEvals);
   const { error, courses, requestSeasons } = useCoursePlanningCatalog();
-  const includeEvals = Boolean(authStatus === 'authenticated' && userHasEvals);
+  const includeEvals = false;
 
   useEffect(() => {
     if (

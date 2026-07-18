@@ -14,10 +14,7 @@ import CalendarEvent, {
   type WalkModalInteraction,
   useEventStyle,
 } from './CalendarEvent';
-import {
-  ColorPickerModal,
-  WorksheetMoveModal,
-} from './WorksheetItemActionsButton';
+import { ColorPickerModal } from './WorksheetItemActionsButton';
 import { useStore } from '../../store';
 import {
   localizer,
@@ -173,7 +170,6 @@ function WorksheetCalendar({
     courses,
     viewedSeason,
     setOpenColorPickerEvent,
-    setOpenWorksheetMoveEvent,
     isCalendarViewLocked,
     calendarLockStart,
     calendarLockEnd,
@@ -182,7 +178,6 @@ function WorksheetCalendar({
       courses: state.courses,
       viewedSeason: state.viewedSeason,
       setOpenColorPickerEvent: state.setOpenColorPickerEvent,
-      setOpenWorksheetMoveEvent: state.setOpenWorksheetMoveEvent,
       isCalendarViewLocked: state.isCalendarViewLocked,
       calendarLockStart: state.calendarLockStart,
       calendarLockEnd: state.calendarLockEnd,
@@ -390,7 +385,6 @@ function WorksheetCalendar({
         tooltipAccessor={undefined}
       />
       <ColorPickerModal onClose={() => setOpenColorPickerEvent(null)} />
-      <WorksheetMoveModal onClose={() => setOpenWorksheetMoveEvent(null)} />
     </>
   );
 }

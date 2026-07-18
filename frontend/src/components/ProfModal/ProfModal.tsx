@@ -4,7 +4,6 @@ import ModalHeaderInfo from './Header/InfoRow';
 import type { ProfModalOverviewDataQuery } from '../../generated/graphql-types';
 import { useModalHistory } from '../../hooks/useModalHistory';
 import { useProfModalOverviewDataQuery } from '../../queries/graphql-queries';
-import { useStore } from '../../store';
 import { suspended } from '../../utilities/display';
 import Spinner from '../Spinner';
 import styles from './ProfModal.module.css';
@@ -14,11 +13,10 @@ export type ProfInfo = ProfModalOverviewDataQuery['professors'][0];
 const OverviewPanel = suspended(() => import('./OverviewPanel/OverviewPanel'));
 
 function ProfModal({ professorId }: { readonly professorId: number }) {
-  const user = useStore((state) => state.user);
   const { closeModal } = useModalHistory();
   const validId = Number.isFinite(professorId);
   const { data, loading, error } = useProfModalOverviewDataQuery({
-    variables: { professorId, hasEvals: Boolean(user?.hasEvals) },
+    variables: { professorId, hasEvals: false },
     skip: !validId,
   });
   const professor = data?.professors[0];

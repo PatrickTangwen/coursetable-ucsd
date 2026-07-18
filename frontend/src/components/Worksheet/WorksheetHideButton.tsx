@@ -2,23 +2,19 @@ import clsx from 'clsx';
 import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { BsEyeSlash, BsEye } from 'react-icons/bs';
 import { useShallow } from 'zustand/react/shallow';
-import { isLegacyUserInfo, setCourseHidden } from '../../queries/api';
 import type { Crn } from '../../queries/graphql-types';
 import { useStore } from '../../store';
 import styles from './WorksheetHideButton.module.css';
 
 /**
  * Returns a callback that toggles a worksheet course's hidden flag, handling
- * the three account modes (anonymous / saved / legacy). Returns null when the
+ * anonymous and saved account modes. Returns null when the
  * viewed worksheet is not editable.
  */
 export function useToggleCourseHidden():
   | ((crn: Crn, hidden: boolean) => Promise<void>)
   | null {
-  const worksheetsRefresh = useStore((state) => state.worksheetsRefresh);
   const {
-    viewedSeason,
-    viewedWorksheetNumber,
     viewedPerson,
     isReadonlyWorksheet,
     isAnonymousWorksheet,
@@ -28,8 +24,6 @@ export function useToggleCourseHidden():
     setActiveSavedWorksheetListingHidden,
   } = useStore(
     useShallow((state) => ({
-      viewedSeason: state.viewedSeason,
-      viewedWorksheetNumber: state.viewedWorksheetNumber,
       viewedPerson: state.viewedPerson,
       isReadonlyWorksheet: state.worksheetMemo.getIsReadonlyWorksheet(state),
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
@@ -41,28 +35,18 @@ export function useToggleCourseHidden():
         state.setActiveSavedWorksheetListingHidden,
     })),
   );
-  const hasSavedWorksheetAccount = Boolean(user && !isLegacyUserInfo(user));
   if (isReadonlyWorksheet || viewedPerson !== 'me') return null;
+  if (!isAnonymousWorksheet && !user) return null;
   return async (crn: Crn, hidden: boolean) => {
     if (isAnonymousWorksheet) {
-      const course = courses.find((c) => c.listing.crn === crn);
-      if (course) setAnonymousWorksheetListingHidden(course.listing, !hidden);
+      const anonymousCourse = courses.find((c) => c.listing.crn === crn);
+      if (anonymousCourse)
+        setAnonymousWorksheetListingHidden(anonymousCourse.listing, !hidden);
       return;
     }
-    if (hasSavedWorksheetAccount) {
-      const course = courses.find((c) => c.listing.crn === crn);
-      if (course)
-        await setActiveSavedWorksheetListingHidden(course.listing, !hidden);
-
-      return;
-    }
-    await setCourseHidden({
-      season: viewedSeason,
-      worksheetNumber: viewedWorksheetNumber,
-      crn,
-      hidden: !hidden,
-    });
-    await worksheetsRefresh();
+    const savedCourse = courses.find((c) => c.listing.crn === crn);
+    if (savedCourse)
+      await setActiveSavedWorksheetListingHidden(savedCourse.listing, !hidden);
   };
 }
 

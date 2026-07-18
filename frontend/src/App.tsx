@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import * as Sentry from '@sentry/react';
 import PullToRefresh from 'pulltorefreshjs';
 import { Helmet } from 'react-helmet';
@@ -13,7 +13,6 @@ import TopNav from './components/Navbar/TopNav';
 import Notice from './components/Notice';
 import ProfModal from './components/ProfModal/ProfModal';
 import SeoMeta from './components/SeoMeta';
-import Tutorial from './components/Tutorial';
 
 // Popular pages are eagerly fetched
 import CatalogListView from './pages/CatalogListView';
@@ -22,34 +21,14 @@ import Worksheet from './pages/Worksheet';
 import { useStore, useInitStore } from './store';
 
 import { suspended } from './utilities/display';
-import { createCatalogLink } from './utilities/navigation';
 import styles from './App.module.css';
 
 const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
 
 const SignIn = suspended(() => import('./pages/SignIn'));
-const About = suspended(() => import('./pages/About'));
-const FAQ = suspended(() => import('./pages/FAQ'));
 const Privacy = suspended(() => import('./pages/Privacy.mdx'));
 const NotFound = suspended(() => import('./pages/NotFound'));
-const Challenge = suspended(() => import('./pages/Challenge'));
 const Graphiql = suspended(() => import('./pages/Graphiql'));
-const Join = suspended(() => import('./pages/Join'));
-const UserProfile = suspended(() => import('./pages/UserProfile'));
-const ReleaseNotes = suspended(() => import('./pages/releases/releases'));
-// TODO: use import.meta.glob instead of manual import
-const Fall23Release = suspended(() => import('./pages/releases/fall23.mdx'));
-const QuistRelease = suspended(() => import('./pages/releases/quist.mdx'));
-const LinkPreview = suspended(
-  () => import('./pages/releases/link-preview.mdx'),
-);
-const Spring24Release = suspended(
-  () => import('./pages/releases/spring24.mdx'),
-);
-const Fall24Release = suspended(() => import('./pages/releases/fall24.mdx'));
-const Spring26Release = suspended(
-  () => import('./pages/releases/spring26.mdx'),
-);
 
 // Wraps every real route with the shared footer; the 404 catch-all stays
 // outside so unknown URLs render without it.
@@ -148,35 +127,14 @@ function App() {
             <Route path="/login" element={<SignIn />} />
           </Route>
 
-          {/* Challenge handles its own auth */}
-          <Route path="/challenge" element={<Challenge />} />
-
           {/* Static pages that don't need login */}
-          <Route path="/about" element={<About />} />
-          <Route path="/joinus" element={<Join />} />
-          <Route path="/faq" element={<FAQ />} />
           <Route path="/privacypolicy" element={<Privacy />} />
-          <Route path="/u/:netId" element={<UserProfile />} />
-
-          <Route
-            path="/Table"
-            element={<Navigate to={createCatalogLink()} />}
-          />
-
-          <Route path="/releases/fall23" element={<Fall23Release />} />
-          <Route path="/releases/quist" element={<QuistRelease />} />
-          <Route path="/releases/link-preview" element={<LinkPreview />} />
-          <Route path="/releases/spring24" element={<Spring24Release />} />
-          <Route path="/releases/fall24" element={<Fall24Release />} />
-          <Route path="/releases/spring26" element={<Spring26Release />} />
-          <Route path="/releases" element={<ReleaseNotes />} />
         </Route>
         {/* Catch-all route to NotFound page; outside FooterLayout so the 404
         page renders without the footer */}
         <Route path="/*" element={<NotFound />} />
       </SentryRoutes>
       {/* Globally overlaid components */}
-      <Tutorial />
       <ModalHistoryBridge />
       <Modal />
     </div>

@@ -5,15 +5,10 @@ import { MdAdd, MdCheck, MdClose, MdDelete, MdEdit } from 'react-icons/md';
 import { useShallow } from 'zustand/react/shallow';
 import SeasonDropdown, { useWorksheetSeasonCodes } from './SeasonDropdown';
 import SegmentedControl from './SegmentedControl';
-import WorksheetNumDropdown from './WorksheetNumberDropdown';
 import WorksheetPicker from './WorksheetPicker';
 import WorksheetStatusIcon from './WorksheetStatusIcon';
 
-import {
-  isLegacyUserInfo,
-  type SavedWorksheet,
-  type SavedWorksheetSummary,
-} from '../../queries/api';
+import type { SavedWorksheet, SavedWorksheetSummary } from '../../queries/api';
 import type { Season } from '../../queries/graphql-types';
 import type { WorksheetView } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
@@ -295,7 +290,6 @@ export function NavbarWorksheetSearchView({
   changeWorksheetView,
   isExoticWorksheet,
   exitExoticWorksheet,
-  hasLegacyWorksheetAccount,
   hasSavedWorksheetAccount,
   activeSavedWorksheet,
   savedWorksheetSummaries,
@@ -315,7 +309,6 @@ export function NavbarWorksheetSearchView({
   readonly changeWorksheetView: (view: VisibleWorksheetView) => void;
   readonly isExoticWorksheet: boolean;
   readonly exitExoticWorksheet: () => void;
-  readonly hasLegacyWorksheetAccount: boolean;
   readonly hasSavedWorksheetAccount: boolean;
   readonly activeSavedWorksheet: SavedWorksheet | undefined;
   readonly savedWorksheetSummaries: SavedWorksheetSummary[];
@@ -422,11 +415,6 @@ export function NavbarWorksheetSearchView({
             Exit
           </Button>
         </div>
-      ) : hasLegacyWorksheetAccount ? (
-        <>
-          <SeasonDropdown mobile={false} />
-          <WorksheetNumDropdown mobile={false} />
-        </>
       ) : hasSavedWorksheetAccount ? (
         // On the calendar view the sidebar owns the worksheet picker, so the
         // navbar only shows the term selector; the list view has no other
@@ -532,8 +520,7 @@ export function NavbarWorksheetSearch({
     [seasonCodes],
   );
 
-  const hasLegacyWorksheetAccount = isLegacyUserInfo(user);
-  const hasSavedWorksheetAccount = Boolean(user && !hasLegacyWorksheetAccount);
+  const hasSavedWorksheetAccount = Boolean(user);
 
   return (
     <NavbarWorksheetSearchView
@@ -542,7 +529,6 @@ export function NavbarWorksheetSearch({
       changeWorksheetView={changeWorksheetView}
       isExoticWorksheet={isExoticWorksheet}
       exitExoticWorksheet={exitExoticWorksheet}
-      hasLegacyWorksheetAccount={hasLegacyWorksheetAccount}
       hasSavedWorksheetAccount={hasSavedWorksheetAccount}
       activeSavedWorksheet={activeSavedWorksheet}
       savedWorksheetSummaries={savedWorksheetSummaries}

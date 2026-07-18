@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { isLegacyUserInfo, logout } from '../../queries/api';
+import { logout } from '../../queries/api';
 import { useStore } from '../../store';
 import {
   PUBLIC_LOGIN_ENABLED,
@@ -84,11 +84,7 @@ function MeDropdown() {
     return () => document.removeEventListener('mousedown', onMouseDown);
   }, [open]);
 
-  const title =
-    user?.firstName && user.lastName
-      ? `${user.firstName} ${user.lastName}`
-      : ((!isLegacyUserInfo(user) ? user?.verifiedEmail : undefined) ??
-        'Your profile');
+  const title = user?.verifiedEmail ?? 'Your profile';
 
   if (
     !shouldShowPublicLoginEntry(

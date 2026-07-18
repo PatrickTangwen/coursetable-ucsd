@@ -1,12 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import clsx from 'clsx';
 import {
   Button,
   ButtonGroup,
-  Collapse,
   Dropdown,
   DropdownButton,
-  Form,
   ListGroup,
   Modal,
   OverlayTrigger,
@@ -15,8 +13,7 @@ import {
 } from 'react-bootstrap';
 import { BsEye, BsEyeSlash } from 'react-icons/bs';
 import { CiSettings } from 'react-icons/ci';
-import { TbCalendarDown, TbCalendarUp } from 'react-icons/tb';
-import { toast } from 'sonner';
+import { TbCalendarDown } from 'react-icons/tb';
 import { useShallow } from 'zustand/react/shallow';
 
 import ICSExportButton from './ICSExportButton';
@@ -27,34 +24,14 @@ import {
 import URLExportButton from './URLExportButton';
 import WorksheetCalendarListContext from './WorksheetCalendarListContext';
 import WorksheetCalendarListItem from './WorksheetCalendarListItem';
-import WorksheetStatusIcon from './WorksheetStatusIcon';
-import {
-  isLegacyUserInfo,
-  setCourseHidden,
-  updateWorksheetCourses,
-  updateWorksheetMetadata,
-  type SavedWorksheetSummary,
-} from '../../queries/api';
-import type { Crn, Season } from '../../queries/graphql-types';
-import {
-  useWorksheetNumberOptions,
-  type WorksheetCourse,
-} from '../../slices/WorksheetSlice';
+import type { SavedWorksheetSummary } from '../../queries/api';
+import type { Season } from '../../queries/graphql-types';
 import { useStore } from '../../store';
 import type { AnonymousWorksheetState } from '../../utilities/anonymousWorksheet';
 import { toSeasonString } from '../../utilities/course';
 import NoCourses from '../Search/NoCourses';
 import { SurfaceComponent } from '../Typography';
 import styles from './WorksheetCalendarList.module.css';
-
-type CourseImportAction = {
-  season: Season;
-  crn: Crn;
-  worksheetNumber: number;
-  action: 'add';
-  color: string;
-  hidden: boolean;
-};
 
 type AnonymousWorksheetTermChip = {
   term: Season;
@@ -115,34 +92,6 @@ export function getSavedWorksheetTermChips(
   return chips;
 }
 
-export function buildCourseImports(
-  currentCourses: readonly WorksheetCourse[],
-  targetSeason: Season,
-  targetWorksheetNumber: number,
-  targetWorksheet: { courses: { crn: Crn }[] } | undefined,
-): CourseImportAction[] {
-  const actions: CourseImportAction[] = [];
-
-  for (const course of currentCourses) {
-    if (
-      targetWorksheet &&
-      targetWorksheet.courses.some((c) => c.crn === course.listing.crn)
-    )
-      continue;
-
-    actions.push({
-      season: targetSeason,
-      crn: course.listing.crn,
-      worksheetNumber: targetWorksheetNumber,
-      action: 'add',
-      color: course.color,
-      hidden: course.hidden ?? false,
-    });
-  }
-
-  return actions;
-}
-
 type WorksheetCalendarListProps = {
   readonly highlightBuilding: string | null;
   readonly showLocation: boolean;
@@ -163,13 +112,9 @@ function WorksheetCalendarList({
   const {
     courses,
     viewedSeason,
-    viewedWorksheetNumber,
     isReadonlyWorksheet,
     isExoticWorksheet,
-    exoticWorksheet,
-    isViewedWorksheetPrivate,
     viewedPerson,
-    worksheets,
     user,
     isAnonymousWorksheet,
     anonymousWorksheet,
@@ -186,14 +131,9 @@ function WorksheetCalendarList({
     useShallow((state) => ({
       courses: state.courses,
       viewedSeason: state.viewedSeason,
-      viewedWorksheetNumber: state.viewedWorksheetNumber,
       isReadonlyWorksheet: state.worksheetMemo.getIsReadonlyWorksheet(state),
       isExoticWorksheet: state.worksheetMemo.getIsExoticWorksheet(state),
-      exoticWorksheet: state.exoticWorksheet,
-      isViewedWorksheetPrivate:
-        state.worksheetMemo.getIsViewedWorksheetPrivate(state),
       viewedPerson: state.viewedPerson,
-      worksheets: state.worksheets,
       user: state.user,
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
       anonymousWorksheet: state.anonymousWorksheet,
@@ -209,7 +149,6 @@ function WorksheetCalendarList({
     })),
   );
 
-  const worksheetsRefresh = useStore((state) => state.worksheetsRefresh);
   const seasonCodes = useWorksheetSeasonCodes();
   const anonymousEmptyTermChips = useMemo(
     () =>
@@ -256,12 +195,9 @@ function WorksheetCalendarList({
   );
 
   const HideShowIcon = areHidden ? BsEyeSlash : BsEye;
-  const hasLegacyWorksheetAccount = isLegacyUserInfo(user);
-  const hasSavedWorksheetAccount = Boolean(user && !hasLegacyWorksheetAccount);
+  const hasSavedWorksheetAccount = Boolean(user);
   const canMutateCurrentWorksheet =
-    isAnonymousWorksheet ||
-    hasLegacyWorksheetAccount ||
-    hasSavedWorksheetAccount;
+    isAnonymousWorksheet || hasSavedWorksheetAccount;
 
   const showControls = controlsMode !== 'none';
   const showHideButton = controlsMode !== 'none' && canMutateCurrentWorksheet;
@@ -271,39 +207,12 @@ function WorksheetCalendarList({
     !isExoticWorksheet &&
     viewedPerson === 'me' &&
     (!isAnonymousWorksheet || courses.length > 0);
-  const showWorksheetPrivacySetting =
-    !isAnonymousWorksheet && hasLegacyWorksheetAccount;
   const showExport = controlsMode === 'full';
-  const showImport =
-    controlsMode === 'full' &&
-    isExoticWorksheet &&
-    hasLegacyWorksheetAccount &&
-    !hasSavedWorksheetAccount;
-
-  const [showImportRow, setShowImportRow] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
-  const [importTargetWorksheet, setImportTargetWorksheet] = useState(0);
-
-  useEffect(() => {
-    if (!isExoticWorksheet || !hasLegacyWorksheetAccount) {
-      setShowImportRow(false);
-      setImportTargetWorksheet(0);
-    }
-  }, [hasLegacyWorksheetAccount, isExoticWorksheet]);
-
-  const importSeason = exoticWorksheet?.data.season ?? viewedSeason;
-  const importWorksheetOptions = useWorksheetNumberOptions('me', importSeason);
 
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
-  const [privateState, setPrivateState] = useState(isViewedWorksheetPrivate);
-  const [updatingWSState, setUpdatingWSState] = useState(false);
 
   const [clearModalOpen, setClearModalOpen] = useState(false);
   const [clearing, setClearing] = useState(false);
-
-  useEffect(() => {
-    setPrivateState(isViewedWorksheetPrivate);
-  }, [isViewedWorksheetPrivate]);
 
   const contextValue = useMemo(
     () => ({
@@ -339,23 +248,6 @@ function WorksheetCalendarList({
       } finally {
         setClearing(false);
       }
-      return;
-    }
-
-    const actions = courses.map((course) => ({
-      action: 'remove' as const,
-      season: viewedSeason,
-      crn: course.listing.crn,
-      worksheetNumber: viewedWorksheetNumber,
-    }));
-
-    setClearing(true);
-    try {
-      await updateWorksheetCourses(actions);
-      await worksheetsRefresh();
-      setClearModalOpen(false);
-    } finally {
-      setClearing(false);
     }
   };
 
@@ -383,17 +275,8 @@ function WorksheetCalendarList({
                         setAllAnonymousWorksheetHidden(!areHidden);
                         return;
                       }
-                      if (hasSavedWorksheetAccount) {
+                      if (hasSavedWorksheetAccount)
                         await setAllActiveSavedWorksheetHidden(!areHidden);
-                        return;
-                      }
-                      await setCourseHidden({
-                        season: viewedSeason,
-                        worksheetNumber: viewedWorksheetNumber,
-                        crn: courses.map((course) => course.listing.crn),
-                        hidden: !areHidden,
-                      });
-                      await worksheetsRefresh();
                     }}
                     variant="none"
                     className={clsx(styles.button, 'px-3 w-100')}
@@ -465,133 +348,7 @@ function WorksheetCalendarList({
                   </DropdownButton>
                 </OverlayTrigger>
               )}
-
-              {showImport && (
-                <OverlayTrigger
-                  placement="top"
-                  overlay={(props) => (
-                    <Tooltip id="worksheet-calendar-import-tooltip" {...props}>
-                      <span>Import courses into your worksheet</span>
-                    </Tooltip>
-                  )}
-                >
-                  <Button
-                    variant="none"
-                    className={clsx(styles.button, 'px-3 w-100')}
-                    aria-label="Import courses"
-                    aria-expanded={showImportRow}
-                    onClick={() => {
-                      setShowImportRow(!showImportRow);
-                    }}
-                  >
-                    <TbCalendarUp
-                      className={clsx(styles.icon, styles.calendarIcon)}
-                      size={22}
-                    />
-                  </Button>
-                </OverlayTrigger>
-              )}
             </ButtonGroup>
-
-            <Collapse in={showImportRow}>
-              <div>
-                <div className={styles.importRow}>
-                  <div className={styles.importTopRow}>
-                    <span className={styles.importLabel}>Import into:</span>
-                    <DropdownButton
-                      size="sm"
-                      variant="outline-secondary"
-                      className={styles.importDropdown}
-                      title={
-                        <>
-                          {WorksheetStatusIcon(
-                            importTargetWorksheet,
-                            importWorksheetOptions[importTargetWorksheet]
-                              ?.isPrivate,
-                          )}
-                          <span className={styles.importDropdownTitle}>
-                            {importWorksheetOptions[importTargetWorksheet]
-                              ?.label ?? 'Main Worksheet'}
-                          </span>
-                        </>
-                      }
-                      onSelect={(key) => {
-                        if (key !== null) setImportTargetWorksheet(Number(key));
-                      }}
-                    >
-                      {Object.values(importWorksheetOptions).map((opt) => (
-                        <Dropdown.Item
-                          key={opt.value}
-                          eventKey={opt.value}
-                          active={opt.value === importTargetWorksheet}
-                          className={styles.importDropdownItem}
-                        >
-                          {WorksheetStatusIcon(opt.value, opt.isPrivate)}
-                          {opt.label}
-                        </Dropdown.Item>
-                      ))}
-                    </DropdownButton>
-                  </div>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    disabled={isImporting}
-                    onClick={async () => {
-                      if (isImporting) return;
-                      setIsImporting(true);
-
-                      const targetWorksheet = worksheets
-                        ?.get(importSeason)
-                        ?.get(importTargetWorksheet);
-
-                      if (courses.length === 0) {
-                        toast.error(
-                          'Current worksheet has no courses to import',
-                        );
-                        setIsImporting(false);
-                        return;
-                      }
-
-                      const actions = buildCourseImports(
-                        courses,
-                        importSeason,
-                        importTargetWorksheet,
-                        targetWorksheet,
-                      );
-
-                      if (actions.length === 0) {
-                        toast.success('All courses imported successfully');
-                        setIsImporting(false);
-                        setShowImportRow(false);
-                        return;
-                      }
-
-                      try {
-                        const success = await updateWorksheetCourses(actions);
-                        if (success) {
-                          await worksheetsRefresh();
-                          toast.success(
-                            `Imported ${actions.length} course${
-                              actions.length === 1 ? '' : 's'
-                            }`,
-                          );
-                          setShowImportRow(false);
-                        }
-                      } catch (error) {
-                        toast.error(
-                          'Failed to import courses. Please try again.',
-                        );
-                        console.error('Failed to import courses:', error);
-                      } finally {
-                        setIsImporting(false);
-                      }
-                    }}
-                  >
-                    {isImporting ? 'Importing...' : 'Confirm'}
-                  </Button>
-                </div>
-              </div>
-            </Collapse>
           </div>
         </SurfaceComponent>
       )}
@@ -672,97 +429,22 @@ function WorksheetCalendarList({
         </Modal.Header>
 
         <Modal.Body>
-          <Form>
-            {showWorksheetPrivacySetting &&
-              (viewedWorksheetNumber === 0 ? (
-                <OverlayTrigger
-                  placement="right"
-                  overlay={
-                    <Tooltip id="worksheet-settings-private-disabled-tooltip">
-                      Your main worksheet must always be public.
-                    </Tooltip>
-                  }
-                >
-                  <span style={{ display: 'inline-block' }}>
-                    <Form.Check
-                      type="switch"
-                      id="private-worksheet-switch"
-                      label="Private Worksheet"
-                      checked={false}
-                      disabled
-                    />
-                  </span>
-                </OverlayTrigger>
-              ) : (
-                <Form.Check
-                  type="switch"
-                  id="private-worksheet-switch"
-                  label="Private Worksheet"
-                  checked={privateState}
-                  onChange={() => setPrivateState(!privateState)}
-                />
-              ))}
-
-            {courses.length > 0 && (
-              <div className={clsx(showWorksheetPrivacySetting && 'mt-4')}>
-                <button
-                  type="button"
-                  onClick={() => setClearModalOpen(true)}
-                  disabled={clearing}
-                  className={styles.clearAllButton}
-                >
-                  <strong>Clear All Classes</strong>
-                  <p className="text-muted small mb-0">
-                    {courses.length === 1
-                      ? 'Remove this class from this worksheet'
-                      : `Remove all ${courses.length} classes from this worksheet`}
-                  </p>
-                </button>
-              </div>
-            )}
-          </Form>
-        </Modal.Body>
-
-        {showWorksheetPrivacySetting && (
-          <Modal.Footer>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                if (privateState !== isViewedWorksheetPrivate) {
-                  setUpdatingWSState(true);
-                  (async () => {
-                    await updateWorksheetMetadata({
-                      season: viewedSeason,
-                      action: 'setPrivate',
-                      worksheetNumber: viewedWorksheetNumber,
-                      private: privateState,
-                    });
-                    await worksheetsRefresh();
-                  })()
-                    .then(() => {
-                      setUpdatingWSState(false);
-                      setSettingsModalOpen(false);
-                    })
-                    .catch(() => {
-                      setUpdatingWSState(false);
-                    });
-                }
-              }}
-              disabled={
-                privateState === isViewedWorksheetPrivate || updatingWSState
-              }
-              style={{ minWidth: '4rem' }}
+          {courses.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setClearModalOpen(true)}
+              disabled={clearing}
+              className={styles.clearAllButton}
             >
-              {updatingWSState ? (
-                <div className="ms-auto">
-                  <Spinner size="sm" />
-                </div>
-              ) : (
-                'Save'
-              )}
-            </Button>
-          </Modal.Footer>
-        )}
+              <strong>Clear All Classes</strong>
+              <p className="text-muted small mb-0">
+                {courses.length === 1
+                  ? 'Remove this class from this worksheet'
+                  : `Remove all ${courses.length} classes from this worksheet`}
+              </p>
+            </button>
+          )}
+        </Modal.Body>
       </Modal>
 
       <Modal

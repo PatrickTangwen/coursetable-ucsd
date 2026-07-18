@@ -2,7 +2,6 @@ import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
 
 import { RemoveWorksheetButton } from './WorksheetToggleControls';
-import { isLegacyUserInfo } from '../../queries/api';
 import { useStore } from '../../store';
 import type { WorksheetListingViewModel } from '../../types/worksheetCourse';
 
@@ -27,7 +26,7 @@ export default function WorksheetViewModelRemoveButton({
       user: state.user,
     })),
   );
-  const hasSavedWorksheetAccount = Boolean(user && !isLegacyUserInfo(user));
+  const hasSavedWorksheetAccount = Boolean(user);
   const remove = async () => {
     const changed = isAnonymousWorksheet
       ? removeAnonymousWorksheetListing(listing)

@@ -5,24 +5,6 @@
   justify-content: center;
 }
 
-.worksheetDropdown {
-  font-size: 14px;
-  font-weight: bold;
-  text-wrap: nowrap;
-  background-color: var(--color-select);
-  color: var(--color-text);
-}
-
-.popoutOption {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.worksheetDropdown:hover {
-  opacity: 1 !important;
-}
-
 .toggleContainer {
   position: relative;
 }

@@ -15,7 +15,6 @@ import {
   ensureMainSavedWorksheet,
   fetchSavedWorksheet,
   fetchSavedWorksheets,
-  isLegacyUserInfo,
   renameSavedWorksheet as renameSavedWorksheetApi,
   updateSavedWorksheetSections,
   type SavedWorksheet,
@@ -304,7 +303,7 @@ export const createWorksheetSlice: StateCreator<
     error instanceof Error ? error : new Error(String(error));
   const hasSavedWorksheetAccount = () => {
     const { authStatus, user } = get();
-    return authStatus === 'authenticated' && user && !isLegacyUserInfo(user);
+    return authStatus === 'authenticated' && Boolean(user);
   };
   const activateSavedWorksheet = (
     worksheet: SavedWorksheet,
@@ -347,12 +346,7 @@ export const createWorksheetSlice: StateCreator<
     sections: SavedWorksheetSection[],
   ) => {
     const { activeSavedWorksheet, user } = get();
-    if (
-      !hasSavedWorksheetAccount() ||
-      !user ||
-      isLegacyUserInfo(user) ||
-      !activeSavedWorksheet
-    )
+    if (!hasSavedWorksheetAccount() || !user || !activeSavedWorksheet)
       return false;
 
     const updatedWorksheet = await updateSavedWorksheetSections(
@@ -466,7 +460,6 @@ export const createWorksheetSlice: StateCreator<
         '',
         `${window.location.pathname}${searchParams}`,
       );
-      if (isLegacyUserInfo(get().user)) void get().worksheetsRefresh();
     },
     restoreAnonymousWorksheetFromShare(share) {
       setAnonymousWorksheet(
@@ -515,7 +508,7 @@ export const createWorksheetSlice: StateCreator<
 
         try {
           const mainWorksheet = await ensureMainSavedWorksheet(term);
-          if (!mainWorksheet || !user || isLegacyUserInfo(user)) {
+          if (!mainWorksheet || !user) {
             set({
               savedWorksheetBootstrapStatus: 'error',
               savedWorksheetBootstrapError: new Error(
@@ -633,8 +626,7 @@ export const createWorksheetSlice: StateCreator<
     },
     async selectSavedWorksheet(id) {
       const { user } = get();
-      if (!hasSavedWorksheetAccount() || !user || isLegacyUserInfo(user))
-        return false;
+      if (!hasSavedWorksheetAccount() || !user) return false;
 
       const worksheet = await fetchSavedWorksheet(id);
       if (!worksheet) return false;
@@ -643,8 +635,7 @@ export const createWorksheetSlice: StateCreator<
     },
     async createBlankSavedWorksheetForTerm(term) {
       const { user } = get();
-      if (!hasSavedWorksheetAccount() || !user || isLegacyUserInfo(user))
-        return false;
+      if (!hasSavedWorksheetAccount() || !user) return false;
 
       set({
         savedWorksheetListStatus: 'loading',
@@ -670,8 +661,7 @@ export const createWorksheetSlice: StateCreator<
     },
     async renameSavedWorksheet(id, name) {
       const { user } = get();
-      if (!hasSavedWorksheetAccount() || !user || isLegacyUserInfo(user))
-        return false;
+      if (!hasSavedWorksheetAccount() || !user) return false;
 
       const worksheet = await renameSavedWorksheetApi(id, name);
       if (!worksheet) return false;
@@ -690,8 +680,7 @@ export const createWorksheetSlice: StateCreator<
     },
     async deleteSavedWorksheet(id) {
       const { user, activeSavedWorksheet } = get();
-      if (!hasSavedWorksheetAccount() || !user || isLegacyUserInfo(user))
-        return false;
+      if (!hasSavedWorksheetAccount() || !user) return false;
 
       const result = await deleteSavedWorksheetApi(id);
       if (!result) return false;
@@ -1236,7 +1225,6 @@ export const useSavedWorksheetBootstrap = () => {
     if (
       authStatus !== 'authenticated' ||
       !user ||
-      isLegacyUserInfo(user) ||
       viewAnonymousWorksheet ||
       savedWorksheetBootstrapStatus === 'loading' ||
       savedWorksheetBootstrapStatus === 'error'

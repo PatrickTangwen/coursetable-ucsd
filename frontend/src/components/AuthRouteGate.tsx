@@ -1,5 +1,4 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useShallow } from 'zustand/react/shallow';
 
 import Spinner from './Spinner';
 import NeedsLogin from '../pages/NeedsLogin';
@@ -11,12 +10,7 @@ import {
 } from '../utilities/publicLogin';
 
 export default function AuthRouteGate() {
-  const { authStatus, user } = useStore(
-    useShallow((state) => ({
-      user: state.user,
-      authStatus: state.authStatus,
-    })),
-  );
+  const authStatus = useStore((state) => state.authStatus);
   const location = useLocation();
 
   if (authStatus === 'loading') return <Spinner message="Authenticating..." />;
@@ -24,7 +18,6 @@ export default function AuthRouteGate() {
     return <Spinner message="Fetching user info..." />;
 
   if (location.pathname === '/graphiql') {
-    if (user?.hasEvals) return <Outlet />;
     return (
       <NeedsLogin
         redirect={location.pathname}

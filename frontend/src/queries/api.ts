@@ -8,7 +8,6 @@ import z from 'zod';
 import {
   seasonSchema,
   crnSchema,
-  netIdSchema,
   type Season,
   type Crn,
   type NetId,
@@ -311,40 +310,6 @@ export async function updateWorksheetCourses(
   return true;
 }
 
-export async function updateWishlistCourses(
-  body: {
-    season: Season;
-    crn: Crn;
-  } & (
-    | {
-        action: 'add';
-      }
-    | {
-        action: 'remove';
-      }
-  ),
-): Promise<boolean> {
-  return await fetchAPI('/user/updateWishlistCourses', {
-    body,
-    breadcrumb: {
-      category: 'wishlist',
-      message: 'Updating wishlist',
-    },
-    handleErrorCode(err) {
-      switch (err) {
-        case 'ALREADY_BOOKMARKED':
-          toast.error('You have already added this class to your wishlist');
-          return true;
-        case 'NOT_BOOKMARKED':
-          toast.error('You have already removed this class from your wishlist');
-          return true;
-        default:
-          return false;
-      }
-    },
-  });
-}
-
 export async function updateWorksheetMetadata(
   body: {
     season: Season;
@@ -523,290 +488,10 @@ export async function logout() {
   return res;
 }
 
-const requestResSchema = z.object({
-  token: z.string(),
-  salt: z.string(),
-  courseInfo: z.array(
-    z.object({
-      courseId: z.number(),
-      courseTitle: z.string(),
-      courseRatingIndex: z.number(),
-      courseOceUrl: z.string(),
-    }),
-  ),
-  challengeTries: z.number(),
-  maxChallengeTries: z.number(),
-});
-
-export type RequestChallengeResBody = z.infer<typeof requestResSchema>;
-
-export async function requestChallenge(): Promise<
-  | { status: 'success'; data: z.infer<typeof requestResSchema> }
-  | { status: 'error'; message?: string }
-> {
-  let message: string | undefined = undefined;
-  const res = await fetchAPI('/challenge/request', {
-    schema: requestResSchema,
-    breadcrumb: {
-      category: 'challenge',
-      message: 'Requesting challenge',
-    },
-    handleErrorCode(err) {
-      message = err;
-      // Intercept all errors
-      return true;
-    },
-  });
-  if (!res) return { status: 'error', message };
-  return { status: 'success', data: res };
-}
-
-const verifyResSchema = z.object({
-  results: z.array(z.boolean()),
-  challengeTries: z.number(),
-  maxChallengeTries: z.number(),
-});
-
-export async function verifyChallenge(body: {
-  token: string;
-  salt: string;
-  answers: {
-    answer: number;
-    courseRatingId: number;
-    courseRatingIndex: number;
-  }[];
-}): Promise<
-  | { status: 'accepted' }
-  | { status: 'rejected'; data: z.infer<typeof verifyResSchema> }
-  | { status: 'error'; message: string | undefined }
-> {
-  let message: string | undefined = undefined;
-  const res = await fetchAPI('/challenge/verify', {
-    body,
-    schema: verifyResSchema,
-    breadcrumb: {
-      category: 'challenge',
-      message: 'Verifying challenge',
-    },
-    handleErrorCode(err) {
-      message = err;
-      // Intercept all errors
-      return true;
-    },
-  });
-  if (!res) return { status: 'error', message };
-  return res.results.every((x) => x)
-    ? { status: 'accepted' }
-    : { status: 'rejected', data: res };
-}
-
-const legacyUserInfoSchema = z.object({
-  netId: netIdSchema,
-  firstName: z.string().nullable(),
-  lastName: z.string().nullable(),
-  email: z.string().nullable(),
-  hasEvals: z.boolean(),
-  year: z.number().nullable(),
-  school: z.string().nullable(),
-  major: z.string().nullable(),
-});
-
 export type AppUserInfo = {
   user_id: number;
   verifiedEmail: string;
-  firstName: null;
-  lastName: null;
-  email: string;
-  hasEvals: false;
-  year: null;
-  school: null;
-  major: null;
 };
-
-export type LegacyUserInfo = z.infer<typeof legacyUserInfoSchema>;
-export type UserInfo = LegacyUserInfo | AppUserInfo;
-
-export function isLegacyUserInfo(
-  user: UserInfo | null | undefined,
-): user is LegacyUserInfo {
-  return Boolean(user && Object.hasOwn(user, 'netId'));
-}
-
-export async function getUserInfo() {
-  const res = await fetchAPI('/user/info', {
-    schema: legacyUserInfoSchema,
-    breadcrumb: {
-      category: 'user',
-      message: 'Fetching user info',
-    },
-  });
-  return res;
-}
-
-const visibilitySettingSchema = z.union([
-  z.literal('self'),
-  z.literal('friends'),
-  z.literal('public'),
-]);
-
-const profilePrivacySchema = z.object({
-  nameVisibility: visibilitySettingSchema,
-  emailVisibility: visibilitySettingSchema,
-  yearVisibility: visibilitySettingSchema,
-  schoolVisibility: visibilitySettingSchema,
-  majorVisibility: visibilitySettingSchema,
-});
-
-const myProfileSchema = z.object({
-  netId: netIdSchema,
-  firstName: z.string().nullable(),
-  lastName: z.string().nullable(),
-  preferredFirstName: z.string().nullable(),
-  preferredLastName: z.string().nullable(),
-  displayFirstName: z.string().nullable(),
-  displayLastName: z.string().nullable(),
-  displayName: z.string().nullable(),
-  email: z.string().nullable(),
-  year: z.number().nullable(),
-  school: z.string().nullable(),
-  major: z.string().nullable(),
-  hasEvals: z.boolean(),
-  evalsRevoked: z.boolean(),
-  profilePageEnabled: z.boolean(),
-  allowAnonymousProfileView: z.boolean(),
-  privacy: profilePrivacySchema,
-});
-
-export type MyProfile = z.infer<typeof myProfileSchema>;
-export type ProfilePrivacy = z.infer<typeof profilePrivacySchema>;
-
-export function getMyProfile() {
-  return fetchAPI('/profile/me', {
-    schema: myProfileSchema,
-    breadcrumb: {
-      category: 'profile',
-      message: 'Fetching my profile settings',
-    },
-  });
-}
-
-export function updateMyProfile(body: {
-  preferredFirstName?: string | null;
-  preferredLastName?: string | null;
-  profilePageEnabled?: boolean;
-  allowAnonymousProfileView?: boolean;
-  privacy?: Partial<ProfilePrivacy>;
-}) {
-  return fetchAPI('/profile/me', {
-    body,
-    schema: myProfileSchema,
-    breadcrumb: {
-      category: 'profile',
-      message: 'Updating profile settings',
-    },
-  });
-}
-
-const revokeEvaluationsSchema = z.object({
-  hasEvals: z.boolean(),
-  evalsRevoked: z.boolean(),
-});
-
-export function revokeEvaluationsAccess() {
-  return fetchAPI('/profile/me/revokeEvaluations', {
-    body: {},
-    schema: revokeEvaluationsSchema,
-    breadcrumb: {
-      category: 'profile',
-      message: 'Revoking evaluations access',
-    },
-  });
-}
-
-const sharedProfileSchema = z.object({
-  netId: netIdSchema,
-  relation: z.union([
-    z.literal('self'),
-    z.literal('friend'),
-    z.literal('stranger'),
-  ]),
-  displayName: z.string().nullable(),
-  firstName: z.string().nullable(),
-  lastName: z.string().nullable(),
-  email: z.string().nullable(),
-  year: z.number().nullable(),
-  school: z.string().nullable(),
-  major: z.string().nullable(),
-  visible: z.object({
-    name: z.boolean(),
-    email: z.boolean(),
-    year: z.boolean(),
-    school: z.boolean(),
-    major: z.boolean(),
-  }),
-});
-
-export type SharedProfile = z.infer<typeof sharedProfileSchema>;
-
-export const sharedProfileNotFound = { notFound: true as const };
-
-export type SharedProfileResult =
-  | SharedProfile
-  | typeof sharedProfileNotFound
-  | undefined;
-
-export function isLoadedSharedProfile(
-  value: SharedProfileResult,
-): value is SharedProfile {
-  return (
-    value !== undefined &&
-    typeof value === 'object' &&
-    Object.hasOwn(value, 'netId')
-  );
-}
-
-export function getSharedProfile(netId: NetId): Promise<SharedProfileResult> {
-  return fetchAPI(`/profile/${netId}`, {
-    schema: sharedProfileSchema,
-    mapHttpError: {
-      USER_NOT_FOUND: sharedProfileNotFound,
-    },
-    breadcrumb: {
-      category: 'profile',
-      message: 'Fetching shared profile',
-    },
-  }) as Promise<SharedProfileResult>;
-}
-
-const profileSearchResultSchema = z.object({
-  netId: netIdSchema,
-  relation: z.union([
-    z.literal('self'),
-    z.literal('friend'),
-    z.literal('stranger'),
-  ]),
-  displayName: z.string().nullable(),
-});
-
-const profileSearchSchema = z.object({
-  profiles: z.array(profileSearchResultSchema),
-});
-
-export type ProfileSearchResult = z.infer<typeof profileSearchResultSchema>;
-
-export function searchProfiles(query: string, limit = 20) {
-  const params = new URLSearchParams({
-    q: query,
-    limit: String(limit),
-  });
-  return fetchAPI(`/profile/search?${params.toString()}`, {
-    schema: profileSearchSchema,
-    breadcrumb: {
-      category: 'profile',
-      message: 'Searching profiles',
-    },
-  });
-}
 
 // Shared schema for worksheet courses (used by both user and friends)
 const worksheetCourseSchema = z.object({
@@ -905,131 +590,12 @@ export async function fetchUserWorksheets() {
   return res;
 }
 
-const userWishlistSchema = z.object({
-  data: z.array(
-    z.object({
-      season: seasonSchema,
-      crn: crnSchema,
-    }),
-  ),
-});
-
-export type WishlistItem = { season: Season; crn: Crn };
-
-export async function fetchUserWishlist() {
-  return await fetchAPI('/user/wishlist', {
-    schema: userWishlistSchema,
-    breadcrumb: {
-      category: 'user',
-      message: 'Fetching user wishlist',
-    },
-  });
-}
-
-const friendsSchema = z.record(
-  z.object({
-    name: z.string().nullable(),
-    worksheets: worksheetsMapSchema,
-  }),
-);
-
-// Narrower index type
 export type FriendRecord = {
-  [netId: NetId]: NonNullable<z.infer<typeof friendsSchema>[string]>;
+  [netId: NetId]: {
+    name: string | null;
+    worksheets: UserWorksheets;
+  };
 };
-
-export function fetchFriendWorksheets() {
-  return fetchAPI('/friends/worksheets', {
-    schema: z.object({
-      friends: friendsSchema,
-      sameCourseIdToCrns: z.record(z.array(z.number())).optional(),
-    }),
-    breadcrumb: {
-      category: 'friends',
-      message: 'Fetching friends data',
-    },
-  });
-}
-
-const friendRequestsSchema = z.array(
-  z.object({
-    netId: netIdSchema,
-    name: z.string().nullable(),
-  }),
-);
-
-export type FriendRequests = z.infer<typeof friendRequestsSchema>;
-
-export function fetchFriendReqs() {
-  return fetchAPI('/friends/getRequests', {
-    schema: z.object({
-      requests: friendRequestsSchema,
-    }),
-    breadcrumb: {
-      category: 'friends',
-      message: 'Fetching friend requests',
-    },
-  });
-}
-
-const userNamesSchema = z.array(
-  z.object({
-    netId: netIdSchema,
-    first: z.union([z.string(), z.null()]),
-    last: z.union([z.string(), z.null()]),
-    college: z.union([z.string(), z.null()]),
-  }),
-);
-
-export type UserNames = z.infer<typeof userNamesSchema>;
-
-export function fetchAllNames() {
-  return fetchAPI('/friends/names', {
-    schema: z.object({
-      names: userNamesSchema,
-    }),
-    breadcrumb: {
-      category: 'friends',
-      message: 'Fetching all user names',
-    },
-  });
-}
-
-export function addFriend(friendNetId: NetId) {
-  return fetchAPI('/friends/add', {
-    body: { friendNetId },
-    breadcrumb: {
-      category: 'friends',
-      message: 'Adding friend',
-    },
-    // TODO: handleErrorCode
-  });
-}
-
-export function requestAddFriend(friendNetId: NetId) {
-  return fetchAPI('/friends/request', {
-    body: { friendNetId },
-    breadcrumb: {
-      category: 'friends',
-      message: 'Requesting friend',
-    },
-    handleErrorCode(err) {
-      switch (err) {
-        case 'FRIEND_NOT_FOUND':
-          toast.error(`The net ID ${friendNetId} does not exist.`);
-          return true;
-        case 'ALREADY_SENT_REQUEST':
-          toast.error(
-            `You already sent a friend request to ${friendNetId}. Wait for them to accept it!`,
-          );
-          return true;
-        default:
-          // TODO: handle other errors
-          return false;
-      }
-    },
-  });
-}
 
 const worksheetDemandSchema = z.object({
   demand: z.number().int().nonnegative(),
@@ -1041,16 +607,6 @@ export async function fetchWorksheetDemand(crn: number, season: string) {
     breadcrumb: {
       category: 'demand',
       message: 'Fetching worksheet demand',
-    },
-  });
-}
-
-export function removeFriend(friendNetId: string) {
-  return fetchAPI('/friends/remove', {
-    body: { friendNetId },
-    breadcrumb: {
-      category: 'friends',
-      message: 'Removing friend',
     },
   });
 }
@@ -1089,17 +645,12 @@ function appUserResponseToUserInfo(
   return {
     user_id: user.user_id,
     verifiedEmail: user.verified_email,
-    firstName: null,
-    lastName: null,
-    email: user.verified_email,
-    hasEvals: false,
-    year: null,
-    school: null,
-    major: null,
   };
 }
 
-export async function fetchCurrentUser(): Promise<UserInfo | null | undefined> {
+export async function fetchCurrentUser(): Promise<
+  AppUserInfo | null | undefined
+> {
   const res = await fetchAPI('/auth/current-user', {
     schema: compatibleCurrentUserResponseSchema,
     breadcrumb: {

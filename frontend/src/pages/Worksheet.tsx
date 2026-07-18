@@ -19,7 +19,6 @@ import WorksheetCalendarSidebar from '../components/Worksheet/WorksheetCalendarS
 import WorksheetList from '../components/Worksheet/WorksheetList';
 
 import { CUR_SEASON } from '../config';
-import { isLegacyUserInfo } from '../queries/api';
 import {
   getInitialSavedWorksheetTerm,
   parseCoursesFromURL,
@@ -100,7 +99,6 @@ function Worksheet() {
       skipAccountBootstrapRef.current ||
       authStatus !== 'authenticated' ||
       !user ||
-      isLegacyUserInfo(user) ||
       viewAnonymousWorksheet ||
       savedWorksheetBootstrapStatus === 'loading' ||
       savedWorksheetBootstrapStatus === 'error'

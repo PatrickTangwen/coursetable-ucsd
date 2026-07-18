@@ -463,27 +463,6 @@
   line-height: 1.5;
 }
 
-.importRow {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.importLabel {
-  color: var(--ct-text-secondary);
-  font-size: 12.5px;
-  font-weight: 500;
-}
-
-.importDropdown {
-  display: inline-flex;
-}
-
-.importDropdownTitle {
-  margin-left: 4px;
-}
-
 .courseList {
   display: flex;
   flex-direction: column;

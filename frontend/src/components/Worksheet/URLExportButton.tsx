@@ -2,7 +2,6 @@ import { FaRegClipboard } from 'react-icons/fa';
 import { compressToEncodedURIComponent } from 'lz-string';
 import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
-import { isLegacyUserInfo } from '../../queries/api';
 import type { ExoticWorksheet } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
 import {
@@ -69,12 +68,7 @@ export function useWorksheetURLExport() {
       return;
     }
     // Use the worksheet owner's name, not the exporter's
-    const userDisplayName =
-      user.firstName && user.lastName
-        ? `${user.firstName} ${user.lastName}`
-        : isLegacyUserInfo(user)
-          ? user.netId
-          : user.verifiedEmail;
+    const userDisplayName = user.verifiedEmail;
     const creatorName =
       exoticWorksheet?.data.creatorName ??
       (viewedPerson !== 'me'

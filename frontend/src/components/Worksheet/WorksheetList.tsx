@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Dropdown, DropdownButton } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { BsEye, BsEyeSlash } from 'react-icons/bs';
 import { FiDownload, FiLink } from 'react-icons/fi';
-import { TbCalendarUp } from 'react-icons/tb';
-import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
 
 import ConflictModal from './ConflictModal';
@@ -13,7 +11,6 @@ import { useWorksheetSeasonCodes } from './SeasonDropdown';
 import { useWorksheetURLExport } from './URLExportButton';
 import WeeklyLoadChart from './WeeklyLoadChart';
 import {
-  buildCourseImports,
   getAnonymousWorksheetTermChips,
   getSavedWorksheetTermChips,
 } from './WorksheetCalendarList';
@@ -24,16 +21,8 @@ import {
   hasAnyExam,
 } from './worksheetInsights';
 import WorksheetListItem from './WorksheetListItem';
-import WorksheetStatusIcon from './WorksheetStatusIcon';
-import {
-  isLegacyUserInfo,
-  setCourseHidden,
-  updateWorksheetCourses,
-  updateWorksheetMetadata,
-  type SavedWorksheetSection,
-} from '../../queries/api';
+import type { SavedWorksheetSection } from '../../queries/api';
 import type { Crn } from '../../queries/graphql-types';
-import { useWorksheetNumberOptions } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
 import {
   getAnonymousWorksheetCourses,
@@ -52,8 +41,7 @@ import styles from './WorksheetList.module.css';
 
 type ClearedSnapshot =
   | { kind: 'saved'; sections: SavedWorksheetSection[] }
-  | { kind: 'anonymous'; courses: AnonymousWorksheetCourse[] }
-  | { kind: 'legacy'; courses: { crn: Crn; color: string; hidden: boolean }[] };
+  | { kind: 'anonymous'; courses: AnonymousWorksheetCourse[] };
 
 function ExpandAllIcon({ allExpanded }: { readonly allExpanded: boolean }) {
   return (
@@ -135,10 +123,8 @@ function WorksheetList() {
     isReadonlyWorksheet,
     isExoticWorksheet,
     exoticWorksheet,
-    isViewedWorksheetPrivate,
     viewedPerson,
     friends,
-    worksheets,
     user,
     isAnonymousWorksheet,
     anonymousWorksheet,
@@ -167,11 +153,8 @@ function WorksheetList() {
       isReadonlyWorksheet: state.worksheetMemo.getIsReadonlyWorksheet(state),
       isExoticWorksheet: state.worksheetMemo.getIsExoticWorksheet(state),
       exoticWorksheet: state.exoticWorksheet,
-      isViewedWorksheetPrivate:
-        state.worksheetMemo.getIsViewedWorksheetPrivate(state),
       viewedPerson: state.viewedPerson,
       friends: state.friends,
-      worksheets: state.worksheets,
       user: state.user,
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
       anonymousWorksheet: state.anonymousWorksheet,
@@ -194,7 +177,6 @@ function WorksheetList() {
       exitExoticWorksheet: state.exitExoticWorksheet,
     })),
   );
-  const worksheetsRefresh = useStore((state) => state.worksheetsRefresh);
   const seasonCodes = useWorksheetSeasonCodes();
 
   const [expandedCrns, setExpandedCrns] = useState<ReadonlySet<Crn>>(new Set());
@@ -203,13 +185,9 @@ function WorksheetList() {
   const [confirmClear, setConfirmClear] = useState(false);
   const [conflictModalOpen, setConflictModalOpen] = useState(false);
   const [examsModalOpen, setExamsModalOpen] = useState(false);
-  const [updatingWSState, setUpdatingWSState] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [clearedSnapshot, setClearedSnapshot] =
     useState<ClearedSnapshot | null>(null);
-  const [showImportRow, setShowImportRow] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
-  const [importTargetWorksheet, setImportTargetWorksheet] = useState(0);
 
   const closeSettingsMenu = () => {
     setSettingsMenuOpen(false);
@@ -225,19 +203,9 @@ function WorksheetList() {
     setConfirmClear(false);
   }, [worksheetKey]);
 
-  const hasLegacyWorksheetAccount = isLegacyUserInfo(user);
-  const hasSavedWorksheetAccount = Boolean(user && !hasLegacyWorksheetAccount);
+  const hasSavedWorksheetAccount = Boolean(user);
   const canMutateCurrentWorksheet =
-    isAnonymousWorksheet ||
-    hasLegacyWorksheetAccount ||
-    hasSavedWorksheetAccount;
-
-  useEffect(() => {
-    if (!isExoticWorksheet || !hasLegacyWorksheetAccount) {
-      setShowImportRow(false);
-      setImportTargetWorksheet(0);
-    }
-  }, [hasLegacyWorksheetAccount, isExoticWorksheet]);
+    isAnonymousWorksheet || hasSavedWorksheetAccount;
 
   const { courseCount, credits } = getWorksheetCourseStats(courses);
   const load = creditLoad(credits);
@@ -315,13 +283,7 @@ function WorksheetList() {
     // Keep the menu reachable right after clearing an anonymous worksheet so
     // "Restore all courses" stays available.
     (!isAnonymousWorksheet || courses.length > 0 || clearedSnapshot !== null);
-  const showWorksheetPrivacySetting =
-    !isAnonymousWorksheet && hasLegacyWorksheetAccount;
-  const showImport =
-    isExoticWorksheet && hasLegacyWorksheetAccount && !hasSavedWorksheetAccount;
-
   const importSeason = exoticWorksheet?.data.season ?? viewedSeason;
-  const importWorksheetOptions = useWorksheetNumberOptions('me', importSeason);
 
   const pageTitle = isExoticWorksheet
     ? (exoticWorksheet?.data.name ?? 'Shared Worksheet')
@@ -354,21 +316,9 @@ function WorksheetList() {
   };
 
   const handleToggleAllHidden = async () => {
-    if (isAnonymousWorksheet) {
-      setAllAnonymousWorksheetHidden(!areHidden);
-      return;
-    }
-    if (hasSavedWorksheetAccount) {
+    if (isAnonymousWorksheet) setAllAnonymousWorksheetHidden(!areHidden);
+    else if (hasSavedWorksheetAccount)
       await setAllActiveSavedWorksheetHidden(!areHidden);
-      return;
-    }
-    await setCourseHidden({
-      season: viewedSeason,
-      worksheetNumber: viewedWorksheetNumber,
-      crn: courses.map((course) => course.listing.crn),
-      hidden: !areHidden,
-    });
-    await worksheetsRefresh();
   };
 
   const handleClearAll = async () => {
@@ -397,116 +347,16 @@ function WorksheetList() {
       } finally {
         setClearing(false);
       }
-      return;
-    }
-
-    const snapshot = courses.map((course) => ({
-      crn: course.listing.crn,
-      color: course.color,
-      hidden: Boolean(course.hidden),
-    }));
-    const actions = courses.map((course) => ({
-      action: 'remove' as const,
-      season: viewedSeason,
-      crn: course.listing.crn,
-      worksheetNumber: viewedWorksheetNumber,
-    }));
-
-    setClearing(true);
-    try {
-      const success = await updateWorksheetCourses(actions);
-      if (success) {
-        await worksheetsRefresh();
-        setClearedSnapshot({ kind: 'legacy', courses: snapshot });
-        closeSettingsMenu();
-      }
-    } finally {
-      setClearing(false);
     }
   };
 
   const handleRestoreAll = async () => {
     if (!clearedSnapshot) return;
-    if (clearedSnapshot.kind === 'anonymous') {
+    if (clearedSnapshot.kind === 'anonymous')
       restoreAnonymousWorksheetCourses(clearedSnapshot.courses);
-    } else if (clearedSnapshot.kind === 'saved') {
-      await restoreActiveSavedWorksheetSections(clearedSnapshot.sections);
-    } else {
-      const success = await updateWorksheetCourses(
-        clearedSnapshot.courses.map((course) => ({
-          action: 'add' as const,
-          season: viewedSeason,
-          crn: course.crn,
-          worksheetNumber: viewedWorksheetNumber,
-          color: course.color,
-          hidden: course.hidden,
-        })),
-      );
-      if (success) await worksheetsRefresh();
-    }
+    else await restoreActiveSavedWorksheetSections(clearedSnapshot.sections);
     setClearedSnapshot(null);
     closeSettingsMenu();
-  };
-
-  const handleTogglePrivate = async () => {
-    if (updatingWSState || viewedWorksheetNumber === 0) return;
-    setUpdatingWSState(true);
-    try {
-      await updateWorksheetMetadata({
-        season: viewedSeason,
-        action: 'setPrivate',
-        worksheetNumber: viewedWorksheetNumber,
-        private: !isViewedWorksheetPrivate,
-      });
-      await worksheetsRefresh();
-    } finally {
-      setUpdatingWSState(false);
-    }
-  };
-
-  const handleImport = async () => {
-    if (isImporting) return;
-    setIsImporting(true);
-
-    const targetWorksheet = worksheets
-      ?.get(importSeason)
-      ?.get(importTargetWorksheet);
-
-    if (courses.length === 0) {
-      toast.error('Current worksheet has no courses to import');
-      setIsImporting(false);
-      return;
-    }
-
-    const actions = buildCourseImports(
-      courses,
-      importSeason,
-      importTargetWorksheet,
-      targetWorksheet,
-    );
-
-    if (actions.length === 0) {
-      toast.success('All courses imported successfully');
-      setIsImporting(false);
-      setShowImportRow(false);
-      return;
-    }
-
-    try {
-      const success = await updateWorksheetCourses(actions);
-      if (success) {
-        await worksheetsRefresh();
-        toast.success(
-          `Imported ${actions.length} course${actions.length === 1 ? '' : 's'}`,
-        );
-        setShowImportRow(false);
-      }
-    } catch (error) {
-      toast.error('Failed to import courses. Please try again.');
-      console.error('Failed to import courses:', error);
-    } finally {
-      setIsImporting(false);
-    }
   };
 
   const warnings: string[] = [];
@@ -818,48 +668,6 @@ function WorksheetList() {
                         </svg>
                       )}
                     </button>
-                    {showWorksheetPrivacySetting && (
-                      <>
-                        <div
-                          className={styles.settingsMenuDivider}
-                          aria-hidden="true"
-                        />
-                        <button
-                          type="button"
-                          role="menuitemcheckbox"
-                          aria-checked={isViewedWorksheetPrivate}
-                          className={styles.settingsMenuRow}
-                          disabled={
-                            viewedWorksheetNumber === 0 || updatingWSState
-                          }
-                          title={
-                            viewedWorksheetNumber === 0
-                              ? 'Your main worksheet must always be public.'
-                              : undefined
-                          }
-                          onClick={() => {
-                            void handleTogglePrivate();
-                          }}
-                        >
-                          <span>Private worksheet</span>
-                          {isViewedWorksheetPrivate && (
-                            <svg
-                              width="14"
-                              height="14"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="var(--ct-accent-text)"
-                              strokeWidth="2.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              aria-hidden="true"
-                            >
-                              <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                          )}
-                        </button>
-                      </>
-                    )}
                     {!isReadonlyWorksheet &&
                       (courses.length > 0 || clearedSnapshot) && (
                         <>
@@ -979,18 +787,6 @@ function WorksheetList() {
               <WorksheetExportMenu onClose={() => setExportMenuOpen(false)} />
             )}
           </div>
-          {showImport && (
-            <button
-              type="button"
-              className={styles.controlButton}
-              onClick={() => setShowImportRow((open) => !open)}
-              title="Import courses into your worksheet"
-              aria-label="Import courses"
-              aria-expanded={showImportRow}
-            >
-              <TbCalendarUp size={15} aria-hidden="true" />
-            </button>
-          )}
         </div>
 
         {warnings.length > 0 && (
@@ -1000,53 +796,6 @@ function WorksheetList() {
                 {warning}
               </div>
             ))}
-          </div>
-        )}
-
-        {showImportRow && (
-          <div className={styles.importRow}>
-            <span className={styles.importLabel}>Import into:</span>
-            <DropdownButton
-              size="sm"
-              variant="outline-secondary"
-              className={styles.importDropdown}
-              title={
-                <>
-                  {WorksheetStatusIcon(
-                    importTargetWorksheet,
-                    importWorksheetOptions[importTargetWorksheet]?.isPrivate,
-                  )}
-                  <span className={styles.importDropdownTitle}>
-                    {importWorksheetOptions[importTargetWorksheet]?.label ??
-                      'Main Worksheet'}
-                  </span>
-                </>
-              }
-              onSelect={(key) => {
-                if (key !== null) setImportTargetWorksheet(Number(key));
-              }}
-            >
-              {Object.values(importWorksheetOptions).map((opt) => (
-                <Dropdown.Item
-                  key={opt.value}
-                  eventKey={opt.value}
-                  active={opt.value === importTargetWorksheet}
-                >
-                  {WorksheetStatusIcon(opt.value, opt.isPrivate)}
-                  {opt.label}
-                </Dropdown.Item>
-              ))}
-            </DropdownButton>
-            <Button
-              variant="primary"
-              size="sm"
-              disabled={isImporting}
-              onClick={() => {
-                void handleImport();
-              }}
-            >
-              {isImporting ? 'Importing...' : 'Confirm'}
-            </Button>
           </div>
         )}
       </div>

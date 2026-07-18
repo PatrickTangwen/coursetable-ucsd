@@ -48,12 +48,9 @@ export const createFerrySlice: StateCreator<Store, [], [], FerrySlice> = (
 
     async requestSeasons(requestedSeasons) {
       set({ ferryErrors: [] });
-      const { authStatus, user } = get();
       const fetches = requestedSeasons.map(async (season) => {
         if (!seasons.includes(season)) return;
-        const includeEvals = Boolean(
-          authStatus === 'authenticated' && user?.hasEvals,
-        );
+        const includeEvals = false;
         if (shouldSkipCatalogRequest(season, includeEvals)) return;
 
         set({ ferryRequests: get().ferryRequests + 1 });

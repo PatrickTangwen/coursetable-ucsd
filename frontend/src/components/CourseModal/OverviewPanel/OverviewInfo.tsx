@@ -12,7 +12,6 @@ import type {
 } from '../../../generated/graphql-types';
 import { useModalHistory } from '../../../hooks/useModalHistory';
 import { useWorksheetDemand } from '../../../hooks/useWorksheetDemand';
-import { isLegacyUserInfo } from '../../../queries/api';
 import { usePrereqLinkInfoQuery } from '../../../queries/graphql-queries';
 import { useStore } from '../../../store';
 import { schools } from '../../../utilities/constants';
@@ -130,14 +129,13 @@ function Prereqs({
   readonly season: string;
   readonly onNavigation: ModalNavigationFunction;
 }) {
-  const user = useStore((state) => state.user);
   const segments = parsePrereqs(course.requirements);
   const [searchParams] = useSearchParams();
   const { data, error, loading } = usePrereqLinkInfoQuery({
     variables: {
       courseCodes:
         segments?.filter((s) => s.type === 'course').map((s) => s.course) ?? [],
-      hasEvals: Boolean(user?.hasEvals),
+      hasEvals: false,
     },
     skip: !segments,
   });
@@ -447,14 +445,13 @@ function OverviewInfo({
   readonly sameCourse: CourseModalOverviewDataQuery['sameCourse'];
 }) {
   const numFriends = useStore((state) => state.numFriends);
-  const user = useStore((state) => state.user);
   const alsoTaking = [
     ...(numFriends[`${listing.season_code}${listing.crn}`] ?? []),
   ];
   const { demand, loading: demandLoading } = useWorksheetDemand(
     listing.crn,
     listing.season_code,
-    isLegacyUserInfo(user),
+    false,
   );
   const { course } = listing;
   const [enrollment, isRealData] = getEnrolled(course, 'modal');
@@ -468,7 +465,7 @@ function OverviewInfo({
       />
       <Syllabus course={course} sameCourse={sameCourse} />
       <Professors course={course} />
-      <TimeLocation course={course} hasEvals={Boolean(user?.hasEvals)} />
+      <TimeLocation course={course} hasEvals={false} />
       <DataField name="Section" value={course.section} />
       <DataField
         name="Info"

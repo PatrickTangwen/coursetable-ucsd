@@ -11,7 +11,6 @@ import {
 } from './user.utils.js';
 
 import {
-  studentBluebookSettings,
   worksheetCourses,
   worksheets,
   wishlistCourses,
@@ -169,45 +168,6 @@ export const updateWorksheetCourses = async (
     }
   }
   res.sendStatus(200);
-};
-
-export const getUserInfo = async (
-  req: express.Request,
-  res: express.Response,
-): Promise<void> => {
-  const { netId } = req.user!;
-
-  const studentProfile = await db.query.studentBluebookSettings.findFirst({
-    where: eq(studentBluebookSettings.netId, netId),
-    columns: {
-      netId: true,
-      firstName: true,
-      lastName: true,
-      preferredFirstName: true,
-      preferredLastName: true,
-      email: true,
-      evaluationsEnabled: true,
-      evaluationsRevoked: true,
-      year: true,
-      school: true,
-      major: true,
-    },
-  });
-
-  res.json({
-    netId,
-    firstName:
-      studentProfile?.preferredFirstName ?? studentProfile?.firstName ?? null,
-    lastName:
-      studentProfile?.preferredLastName ?? studentProfile?.lastName ?? null,
-    email: studentProfile?.email ?? null,
-    hasEvals:
-      Boolean(studentProfile?.evaluationsEnabled) &&
-      !studentProfile?.evaluationsRevoked,
-    year: studentProfile?.year ?? null,
-    school: studentProfile?.school ?? null,
-    major: studentProfile?.major ?? null,
-  });
 };
 
 export const getUserWorksheet = async (

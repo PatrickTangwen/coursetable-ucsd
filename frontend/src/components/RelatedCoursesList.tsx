@@ -22,7 +22,6 @@ import type {
   CourseModalOverviewDataQuery,
 } from '../generated/graphql-types';
 import { useModalHistory } from '../hooks/useModalHistory';
-import { useStore } from '../store';
 import { generateRandomColor } from '../utilities/common';
 import { ratingColormap, workloadColormap } from '../utilities/constants';
 import { toSeasonString } from '../utilities/course';
@@ -331,7 +330,6 @@ export default function RelatedCoursesList<T extends RelatedCourseInfo>({
   readonly onNavigation?: ModalNavigationFunction;
   readonly extraText: (l: T) => string;
 }) {
-  const user = useStore((state) => state.user);
   const columnHeaders = columns.map((column) => {
     switch (column) {
       case 'rating':
@@ -403,7 +401,7 @@ export default function RelatedCoursesList<T extends RelatedCourseInfo>({
               <RatingNumbers
                 columnWidth={columnWidth}
                 course={course}
-                hasEvals={user?.hasEvals}
+                hasEvals={false}
                 columns={columns}
               />
             </Row>
@@ -425,7 +423,7 @@ export default function RelatedCoursesList<T extends RelatedCourseInfo>({
                   <RatingNumbers
                     columnWidth={columnWidth}
                     course={course}
-                    hasEvals={user?.hasEvals}
+                    hasEvals={false}
                     columns={columns}
                   />
                 </Row>

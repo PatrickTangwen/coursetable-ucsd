@@ -1,50 +1,28 @@
-import React, {
-  useMemo,
-  useState,
-  useCallback,
-  useRef,
-  useEffect,
-} from 'react';
+import { useEffect, useMemo } from 'react';
 import * as Sentry from '@sentry/react';
-import { Button, Tooltip, OverlayTrigger, Modal } from 'react-bootstrap';
-import { useApolloClient } from '@apollo/client';
-import { components, type OptionProps } from 'react-select';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
+
 import WorksheetConflictIcon, {
   type ListingWithHistoricalInfo,
 } from './WorksheetConflictIcon';
-import WorksheetStatusIcon from './WorksheetStatusIcon';
 import {
   AddWorksheetButton,
   RemoveWorksheetButton,
 } from './WorksheetToggleControls';
-import { CUR_YEAR } from '../../config';
-import { seasons } from '../../data/catalogSeasons';
-import type { LatestCurrentOfferingQuery } from '../../generated/graphql-types';
-import { isLegacyUserInfo, updateWorksheetCourses } from '../../queries/api';
-import { LatestCurrentOfferingDocument } from '../../queries/graphql-queries';
-import type { Season } from '../../queries/graphql-types';
-import {
-  useWorksheetNumberOptions,
-  type WorksheetNumberOption,
-} from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
 import {
   anonymousWorksheetHasListing,
   getListingSectionId,
 } from '../../utilities/anonymousWorksheet';
 import { worksheetColors } from '../../utilities/constants';
-import { isInWorksheet, toSeasonString } from '../../utilities/course';
-import { Popout } from '../Search/Popout';
-import { PopoutSelect } from '../Search/PopoutSelect';
 import styles from './WorksheetToggleButton.module.css';
 
 export type { ListingWithHistoricalInfo } from './WorksheetConflictIcon';
 
 export function useWorksheetListingPresence(
   listing: ListingWithHistoricalInfo,
-  selectedWorksheet: number,
   inWorksheetProp?: boolean,
 ) {
   const {
@@ -53,7 +31,6 @@ export function useWorksheetListingPresence(
     activeSavedWorksheet,
     crossTermSavedSections,
     user,
-    worksheets,
   } = useStore(
     useShallow((state) => ({
       anonymousWorksheet: state.anonymousWorksheet,
@@ -61,84 +38,49 @@ export function useWorksheetListingPresence(
       activeSavedWorksheet: state.activeSavedWorksheet,
       crossTermSavedSections: state.crossTermSavedSections,
       user: state.user,
-      worksheets: state.worksheets,
     })),
   );
-  const hasSavedWorksheetAccount = Boolean(user && !isLegacyUserInfo(user));
 
   return useMemo(() => {
     if (isAnonymousWorksheet)
       return anonymousWorksheetHasListing(anonymousWorksheet, listing);
-    if (hasSavedWorksheetAccount) {
-      const sectionId = getListingSectionId(listing);
-      if (!sectionId) return false;
-      const listingTerm = listing.course.season_code;
-      if (
-        activeSavedWorksheet &&
-        listingTerm &&
-        listingTerm !== activeSavedWorksheet.term
-      ) {
-        const crossSections = crossTermSavedSections[listingTerm];
-        return (
-          crossSections?.some((section) => section.sectionId === sectionId) ??
-          false
-        );
-      }
-      return Boolean(
-        activeSavedWorksheet?.sections.some(
-          (section) => section.sectionId === sectionId,
-        ),
+    if (!user) return inWorksheetProp ?? false;
+
+    const sectionId = getListingSectionId(listing);
+    if (!sectionId) return false;
+    const listingTerm = listing.course.season_code;
+    if (
+      activeSavedWorksheet &&
+      listingTerm &&
+      listingTerm !== activeSavedWorksheet.term
+    ) {
+      const crossSections = crossTermSavedSections[listingTerm];
+      return (
+        crossSections?.some((section) => section.sectionId === sectionId) ??
+        false
       );
     }
-    return (
-      inWorksheetProp ?? isInWorksheet(listing, selectedWorksheet, worksheets)
+    return Boolean(
+      activeSavedWorksheet?.sections.some(
+        (section) => section.sectionId === sectionId,
+      ),
     );
   }, [
     activeSavedWorksheet,
     anonymousWorksheet,
     crossTermSavedSections,
-    hasSavedWorksheetAccount,
     inWorksheetProp,
     isAnonymousWorksheet,
     listing,
-    selectedWorksheet,
-    worksheets,
+    user,
   ]);
 }
 
 export { useWorksheetConflictWarning } from './WorksheetConflictIcon';
 
-function PopoutOption(props: OptionProps<WorksheetNumberOption>) {
-  return (
-    <components.Option {...props}>
-      <div className={styles.popoutOption}>
-        {/* Star/Lock/Unlock Icon in front of worksheet name in options */}
-        <OverlayTrigger
-          placement="left"
-          overlay={(overlayProps) => (
-            <Tooltip
-              id={`worksheet-toggle-button-${props.data.value}-tooltip`}
-              {...overlayProps}
-            >
-              <span>
-                {props.data.value === 0
-                  ? 'Main Worksheet'
-                  : props.data.isPrivate
-                    ? 'Private Worksheet'
-                    : 'Public Worksheet'}
-              </span>
-            </Tooltip>
-          )}
-        >
-          {WorksheetStatusIcon(props.data.value, props.data.isPrivate)}
-        </OverlayTrigger>
-        <span>{props.data.label}</span>
-      </div>
-    </components.Option>
-  );
-}
-
-/** Inherited CourseTable/Yale Worksheet behavior only. */
+/**
+ * Worksheet toggle for inherited GraphQL listing data at the current app seam.
+ */
 function LegacyWorksheetToggleButton({
   listing,
   modal,
@@ -154,15 +96,6 @@ function LegacyWorksheetToggleButton({
   readonly className?: string;
   readonly showConflictIcon?: boolean;
 }) {
-  const { worksheets, worksheetsRefresh, getRelevantWorksheetNumber, user } =
-    useStore(
-      useShallow((state) => ({
-        worksheets: state.worksheets,
-        worksheetsRefresh: state.worksheetsRefresh,
-        getRelevantWorksheetNumber: state.getRelevantWorksheetNumber,
-        user: state.user,
-      })),
-    );
   const {
     isAnonymousWorksheet,
     activeSavedWorksheet,
@@ -173,6 +106,8 @@ function LegacyWorksheetToggleButton({
     removeAnonymousWorksheetListing,
     addActiveSavedWorksheetListing,
     removeActiveSavedWorksheetListing,
+    getRelevantWorksheetNumber,
+    user,
   } = useStore(
     useShallow((state) => ({
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
@@ -186,82 +121,15 @@ function LegacyWorksheetToggleButton({
       addActiveSavedWorksheetListing: state.addActiveSavedWorksheetListing,
       removeActiveSavedWorksheetListing:
         state.removeActiveSavedWorksheetListing,
+      getRelevantWorksheetNumber: state.getRelevantWorksheetNumber,
+      user: state.user,
     })),
   );
-  const hasSavedWorksheetAccount = Boolean(user && !isLegacyUserInfo(user));
-  const client = useApolloClient();
-  const pendingLatestChoiceRef = useRef<
-    ((choice: 'latest' | 'historical' | 'cancel') => void) | null
-  >(null);
-  const [latestOfferingPrompt, setLatestOfferingPrompt] = useState<{
-    courseCode: string;
-    seasonCode: Season;
-  } | null>(null);
-
-  const resolveLatestOfferingPrompt = useCallback(
-    (choice: 'latest' | 'historical' | 'cancel') => {
-      pendingLatestChoiceRef.current?.(choice);
-      pendingLatestChoiceRef.current = null;
-      setLatestOfferingPrompt(null);
-    },
-    [],
-  );
-
-  const confirmAddLatestOffering = useCallback(
-    (
-      courseCode: string,
-      seasonCode: Season,
-    ): Promise<'latest' | 'historical' | 'cancel'> =>
-      new Promise((resolve) => {
-        pendingLatestChoiceRef.current = resolve;
-        setLatestOfferingPrompt({ courseCode, seasonCode });
-      }),
-    [],
-  );
-
-  useEffect(
-    () => () => {
-      pendingLatestChoiceRef.current?.('cancel');
-      pendingLatestChoiceRef.current = null;
-    },
-    [],
-  );
-
-  const defaultWorksheetNumber = getRelevantWorksheetNumber(
+  const hasSavedWorksheetAccount = Boolean(user);
+  const selectedWorksheet = getRelevantWorksheetNumber(
     listing.course.season_code,
   );
-
-  // In the modal, the select can override the "currently viewed" worksheet
-  // Please read https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
-  const [selectedWorksheet, setSelectedWorksheet] = useState(
-    defaultWorksheetNumber,
-  );
-  useEffect(() => {
-    setSelectedWorksheet(
-      getRelevantWorksheetNumber(listing.course.season_code),
-    );
-  }, [listing.course.season_code, listing.crn, getRelevantWorksheetNumber]);
-
-  const worksheetOptions = useWorksheetNumberOptions(
-    'me',
-    listing.course.season_code,
-  );
-
-  const resolveWorksheetNumberForSeason = useCallback(
-    (seasonCode: Season, preferredWorksheetNumber: number) => {
-      const seasonWorksheets = worksheets?.get(seasonCode);
-      if (seasonWorksheets?.has(preferredWorksheetNumber))
-        return preferredWorksheetNumber;
-      return getRelevantWorksheetNumber(seasonCode);
-    },
-    [worksheets, getRelevantWorksheetNumber],
-  );
-
-  const inWorksheet = useWorksheetListingPresence(
-    listing,
-    selectedWorksheet,
-    inWorksheetProp,
-  );
+  const inWorksheet = useWorksheetListingPresence(listing, inWorksheetProp);
 
   useEffect(() => {
     if (!hasSavedWorksheetAccount || !activeSavedWorksheet) return;
@@ -279,221 +147,71 @@ function LegacyWorksheetToggleButton({
     loadSavedWorksheetSectionsForTerm,
   ]);
 
-  const toggleWorkSheet = useCallback(
-    async (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.preventDefault();
-      e.stopPropagation();
+  const toggleWorksheet = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
 
-      let targetSeason = listing.course.season_code;
-      let targetCrn = listing.crn;
-      let targetWorksheetNumber = selectedWorksheet;
-      let switchedToLatest = false;
-
-      if (isAnonymousWorksheet) {
-        const sectionId = getListingSectionId(listing);
-        if (!sectionId) {
-          toast.error('This section cannot be added to this worksheet.');
-          return;
-        }
-        const changed = inWorksheet
-          ? removeAnonymousWorksheetListing(listing)
-          : addAnonymousWorksheetListing(
-              listing,
-              worksheetColors[
-                Math.floor(Math.random() * worksheetColors.length)
-              ]!,
-            );
-        if (changed && inWorksheet)
-          toast.success('Removed from worksheet', { duration: 800 });
-
-        if (changed && !inWorksheet) {
-          toast.success(
-            `Added ${listing.course_code ?? 'section'} to worksheet`,
-            { duration: 800 },
-          );
-        }
+    if (isAnonymousWorksheet) {
+      if (!getListingSectionId(listing)) {
+        toast.error('This section cannot be added to this worksheet.');
         return;
       }
-
-      if (hasSavedWorksheetAccount) {
-        if (!activeSavedWorksheet) {
-          toast.info('Saved Worksheet is still opening.');
-          return;
-        }
-        const color =
-          worksheetColors[Math.floor(Math.random() * worksheetColors.length)]!;
-        const changed = inWorksheet
-          ? await removeActiveSavedWorksheetListing(listing)
-          : await addActiveSavedWorksheetListing(listing, color);
-        if (changed) {
-          toast.success(
-            inWorksheet
-              ? 'Removed from Saved Worksheet'
-              : 'Added to Saved Worksheet',
-            { duration: 800 },
+      const anonymousChanged = inWorksheet
+        ? removeAnonymousWorksheetListing(listing)
+        : addAnonymousWorksheetListing(
+            listing,
+            worksheetColors[
+              Math.floor(Math.random() * worksheetColors.length)
+            ]!,
           );
-        }
-        return;
-      }
-
-      const sameCourseId = listing.course.same_course_id;
-
-      if (!inWorksheet && sameCourseId !== undefined) {
-        try {
-          const { data } = await client.query<LatestCurrentOfferingQuery>({
-            query: LatestCurrentOfferingDocument,
-            variables: {
-              sameCourseId,
-              seasonCodes: seasons as string[],
-            },
-          });
-          const [latestCourse] = data.courses;
-          const [latestListing] = latestCourse?.listings ?? [];
-          if (latestCourse && latestListing) {
-            // Skip when both terms are in CUR_YEAR: avoids "past semester" for
-            // e.g. Fall 2026 listing vs Spring 2027 latest (same update cycle).
-            const hasLatestOffering =
-              latestCourse.season_code !== listing.course.season_code &&
-              !(
-                CUR_YEAR.includes(listing.course.season_code) &&
-                CUR_YEAR.includes(latestCourse.season_code)
-              );
-
-            if (hasLatestOffering) {
-              const addChoice = await confirmAddLatestOffering(
-                latestListing.course_code,
-                latestCourse.season_code,
-              );
-
-              if (addChoice === 'latest') {
-                targetSeason = latestCourse.season_code;
-                targetCrn = latestListing.crn;
-                targetWorksheetNumber = getRelevantWorksheetNumber(
-                  latestCourse.season_code,
-                );
-                switchedToLatest = true;
-              } else if (addChoice === 'cancel') {
-                // User cancelled the modal, don't add anything
-                return;
-              }
-            }
-          }
-        } catch (error: unknown) {
-          Sentry.captureException(error);
-          // If lookup fails, fall back to adding the selected listing
-        }
-      }
-      if (!inWorksheet) {
-        targetWorksheetNumber = resolveWorksheetNumberForSeason(
-          targetSeason,
-          targetWorksheetNumber,
+      if (anonymousChanged) {
+        toast.success(
+          inWorksheet
+            ? 'Removed from worksheet'
+            : `Added ${listing.course_code ?? 'section'} to worksheet`,
+          { duration: 800 },
         );
-        const targetWorksheet = worksheets
-          ?.get(targetSeason)
-          ?.get(targetWorksheetNumber);
-        if (
-          targetWorksheet?.courses.some((course) => course.crn === targetCrn)
-        ) {
-          const worksheetName =
-            targetWorksheet.name ||
-            (targetWorksheetNumber === 0
-              ? 'Main Worksheet'
-              : `Worksheet ${targetWorksheetNumber}`);
-          if (switchedToLatest) {
-            toast.error(
-              `The latest version of this course already exists in your currently selected worksheet (${worksheetName}).`,
-            );
-          } else {
-            toast.error(`This course already exists in "${worksheetName}".`);
-          }
-          return;
-        }
       }
+      return;
+    }
 
-      const success = await updateWorksheetCourses({
-        action: inWorksheet ? 'remove' : 'add',
-        season: targetSeason,
-        crn: targetCrn,
-        worksheetNumber: targetWorksheetNumber,
-        color:
-          worksheetColors[Math.floor(Math.random() * worksheetColors.length)]!,
-        hidden: false,
-      });
-      if (success) await worksheetsRefresh();
-    },
-    [
-      inWorksheet,
-      isAnonymousWorksheet,
-      addAnonymousWorksheetListing,
-      addActiveSavedWorksheetListing,
-      activeSavedWorksheet,
-      client,
-      confirmAddLatestOffering,
-      getRelevantWorksheetNumber,
-      hasSavedWorksheetAccount,
-      listing,
-      removeAnonymousWorksheetListing,
-      removeActiveSavedWorksheetListing,
-      resolveWorksheetNumberForSeason,
-      selectedWorksheet,
-      worksheets,
-      worksheetsRefresh,
-    ],
-  );
+    if (!hasSavedWorksheetAccount || !activeSavedWorksheet) return;
+    const color =
+      worksheetColors[Math.floor(Math.random() * worksheetColors.length)]!;
+    const savedChanged = inWorksheet
+      ? await removeActiveSavedWorksheetListing(listing)
+      : await addActiveSavedWorksheetListing(listing, color);
+    if (savedChanged) {
+      toast.success(
+        inWorksheet
+          ? 'Removed from Saved Worksheet'
+          : 'Added to Saved Worksheet',
+        { duration: 800 },
+      );
+    }
+  };
 
   const buttonLabel = isAnonymousWorksheet
     ? `${inWorksheet ? 'Remove from' : 'Add to'} worksheet`
     : hasSavedWorksheetAccount
       ? `${inWorksheet ? 'Remove from' : 'Add to'} active Saved Worksheet`
-      : worksheets
-        ? // The worksheet name can only be unknown if we triggered the
-          // if (prevWorksheetCtx !== defaultWorksheetNumber) code path above
-          // We will update it once and then it will be correct
-          `${inWorksheet ? 'Remove from' : 'Add to'} worksheet "${worksheetOptions[selectedWorksheet]?.label ?? 'Unknown'}"`
-        : 'Log in to add to your worksheet';
-
-  // Disabled worksheet add/remove button while auth is still resolving.
-  if (
-    (!worksheets && !isAnonymousWorksheet && !hasSavedWorksheetAccount) ||
-    (hasSavedWorksheetAccount && !activeSavedWorksheet)
-  ) {
-    if (appearance === 'remove') {
-      return (
-        <RemoveWorksheetButton
-          className={className}
-          disabled
-          ariaLabel={buttonLabel}
-        />
-      );
-    }
-
-    return (
-      <div className={styles.container}>
-        <OverlayTrigger
-          placement="top"
-          overlay={
-            <Tooltip id={`worksheet-toggle-disabled-${listing.crn}-tooltip`}>
-              {buttonLabel}
-            </Tooltip>
-          }
-        >
-          <AddWorksheetButton
-            className="p-0"
-            ariaLabel={buttonLabel}
-            disabled
-            mobile={appearance === 'mobile'}
-          />
-        </OverlayTrigger>
-      </div>
-    );
-  }
+      : 'Log in to add to your worksheet';
+  const disabled =
+    (!isAnonymousWorksheet && !hasSavedWorksheetAccount) ||
+    (hasSavedWorksheetAccount && !activeSavedWorksheet);
 
   if (appearance === 'remove') {
     return (
       <RemoveWorksheetButton
         className={className}
-        onClick={toggleWorkSheet}
-        disabled={!inWorksheet}
+        onClick={(event) => {
+          toggleWorksheet(event).catch((error: unknown) =>
+            Sentry.captureException(error),
+          );
+        }}
+        disabled={disabled || !inWorksheet}
         ariaLabel={buttonLabel}
       />
     );
@@ -501,8 +219,6 @@ function LegacyWorksheetToggleButton({
 
   return (
     <div className={styles.container}>
-      {/* This div "anchors" the conflict icon to the plus icon instead of the
-        whole container */}
       <div className={styles.toggleContainer}>
         {showConflictIcon && (
           <WorksheetConflictIcon
@@ -525,63 +241,17 @@ function LegacyWorksheetToggleButton({
           <AddWorksheetButton
             className="p-0"
             added={inWorksheet}
-            onClick={toggleWorkSheet}
+            onClick={(event) => {
+              toggleWorksheet(event).catch((error: unknown) =>
+                Sentry.captureException(error),
+              );
+            }}
             ariaLabel={buttonLabel}
+            disabled={disabled}
             mobile={appearance === 'mobile'}
           />
         </OverlayTrigger>
       </div>
-      {modal && !isAnonymousWorksheet && !hasSavedWorksheetAccount && (
-        <Popout
-          buttonText="Worksheet"
-          selectedOptions={worksheetOptions[selectedWorksheet]}
-          clearIcon={false}
-          displayOptionLabel
-          className={styles.worksheetDropdown}
-          Icon={WorksheetStatusIcon(
-            worksheetOptions[selectedWorksheet]?.value ?? 0,
-            worksheetOptions[selectedWorksheet]?.isPrivate ?? false,
-          )}
-        >
-          <PopoutSelect<WorksheetNumberOption, false>
-            value={worksheetOptions[selectedWorksheet]}
-            options={Object.values(worksheetOptions)}
-            onChange={(option) => setSelectedWorksheet(option!.value)}
-            showControl={false}
-            minWidth={200}
-            components={{ Option: PopoutOption }}
-          />
-        </Popout>
-      )}
-      <Modal
-        show={latestOfferingPrompt !== null}
-        onHide={() => resolveLatestOfferingPrompt('cancel')}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Add latest offering?</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {latestOfferingPrompt && (
-            <>
-              This course is from a past semester. Add the latest offering (
-              {latestOfferingPrompt.courseCode},{' '}
-              {toSeasonString(latestOfferingPrompt.seasonCode)}) instead?
-            </>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => resolveLatestOfferingPrompt('historical')}
-          >
-            Add historical
-          </Button>
-          <Button onClick={() => resolveLatestOfferingPrompt('latest')}>
-            Add latest
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </div>
   );
 }

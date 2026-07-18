@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 import {
   DropdownButton,
@@ -13,7 +12,6 @@ import { toast } from 'sonner';
 import { CUR_YEAR } from '../../../config';
 import type { CourseModalPrefetchListingDataFragment } from '../../../generated/graphql-types';
 import { useModalHistory } from '../../../hooks/useModalHistory';
-import WishlistToggleButton from '../../Wishlist/WishlistToggleButton';
 import LegacyWorksheetToggleButton from '../../Worksheet/LegacyWorksheetToggleButton';
 import styles from './ControlsRow.module.css';
 
@@ -81,8 +79,9 @@ function MoreButton({
       className={styles.moreDropdown}
     >
       <Dropdown.Item
-        as={Link}
-        to="/faq#how_do_i_report_a_data_error"
+        href="https://github.com/PatrickTangwen/coursetable-ucsd/issues/new"
+        target="_blank"
+        rel="noreferrer"
         onClick={closeModal}
       >
         Report an error
@@ -194,9 +193,6 @@ export default function ModalHeaderControls({
       <ViewTabs tabs={tabs} onSelectTab={setView} currentTab={view} />
       <div className={styles.toolBar}>
         <LegacyWorksheetToggleButton listing={listing} modal />
-        <div className={styles.toolbarIconSlot}>
-          <WishlistToggleButton listing={listing} modal />
-        </div>
         <div className={styles.toolbarIconSlot}>
           <ShareButton listing={listing} />
         </div>

@@ -4,7 +4,6 @@ import clsx from 'clsx';
 import { ListGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { BsExclamationTriangleFill } from 'react-icons/bs';
 import { FiChevronDown } from 'react-icons/fi';
-import { useShallow } from 'zustand/react/shallow';
 import { useWorksheetCalendarListContext } from './WorksheetCalendarListContext';
 import WorksheetHideButton from './WorksheetHideButton';
 import WorksheetViewModelRemoveButton from './WorksheetViewModelRemoveButton';
@@ -141,13 +140,8 @@ export default function WorksheetCalendarListItem({
   const target = useCourseModalLink(listing);
   const setHoverCourse = useStore((state) => state.setHoverCourse);
   const [expanded, setExpanded] = useState(false);
-  const { viewedPerson, user } = useStore(
-    useShallow((state) => ({
-      viewedPerson: state.viewedPerson,
-      user: state.user,
-    })),
-  );
-  const locationSummary = toLocationsSummary(listing.course, user?.hasEvals);
+  const viewedPerson = useStore((state) => state.viewedPerson);
+  const locationSummary = toLocationsSummary(listing.course, false);
   const locationDisplay =
     locationSummary === 'TBA' ? 'Location: TBA' : locationSummary;
   const missingCoordinate =

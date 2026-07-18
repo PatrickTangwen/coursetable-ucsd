@@ -8,8 +8,6 @@ import {
 } from './NavbarWorksheetSearch';
 import { useWorksheetSeasonCodes } from './SeasonDropdown';
 import SegmentedControl from './SegmentedControl';
-import WorksheetNumDropdown from './WorksheetNumberDropdown';
-import { isLegacyUserInfo } from '../../queries/api';
 import { useStore } from '../../store';
 import { toSeasonString } from '../../utilities/course';
 import { PUBLIC_LOGIN_ENABLED } from '../../utilities/publicLogin';
@@ -67,8 +65,7 @@ export default function WorksheetMobileMenu({
   const seasonCodes = useWorksheetSeasonCodes();
   const [worksheetMenuOpen, setWorksheetMenuOpen] = useState(false);
 
-  const hasLegacyWorksheetAccount = isLegacyUserInfo(user);
-  const hasSavedWorksheetAccount = Boolean(user && !hasLegacyWorksheetAccount);
+  const hasSavedWorksheetAccount = Boolean(user);
   const finalsCount = useMemo(() => countCoursesWithFinals(courses), [courses]);
   const visibleView = worksheetView === 'list' ? 'list' : 'calendar';
 
@@ -128,8 +125,6 @@ export default function WorksheetMobileMenu({
               </div>
             )}
           </div>
-        ) : hasLegacyWorksheetAccount ? (
-          <WorksheetNumDropdown mobile />
         ) : PUBLIC_LOGIN_ENABLED ? (
           <a href="/login" className={styles.signInButton}>
             <svg

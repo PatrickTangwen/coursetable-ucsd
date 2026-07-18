@@ -37,13 +37,6 @@ const s126 = 'S126' as Season;
 const testUser: AppUserInfo = {
   user_id: 1,
   verifiedEmail: 'student@ucsd.edu',
-  firstName: null,
-  lastName: null,
-  email: 'student@ucsd.edu',
-  hasEvals: false,
-  year: null,
-  school: null,
-  major: null,
 };
 
 const mainWorksheet: SavedWorksheet = {

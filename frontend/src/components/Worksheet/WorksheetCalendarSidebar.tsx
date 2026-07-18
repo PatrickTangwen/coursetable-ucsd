@@ -16,12 +16,7 @@ import {
 } from './worksheetInsights';
 import WorksheetPicker, { useCloseOnOutsideClick } from './WorksheetPicker';
 import noCoursesImg from '../../images/calendar_img_high_res.png';
-import {
-  isLegacyUserInfo,
-  setCourseHidden,
-  updateWorksheetCourses,
-  type SavedWorksheetSection,
-} from '../../queries/api';
+import type { SavedWorksheetSection } from '../../queries/api';
 import type { Crn } from '../../queries/graphql-types';
 import type { WorksheetCourse } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
@@ -36,8 +31,7 @@ import styles from './WorksheetCalendarSidebar.module.css';
 
 type ClearedSnapshot =
   | { kind: 'saved'; sections: SavedWorksheetSection[] }
-  | { kind: 'anonymous'; courses: AnonymousWorksheetCourse[] }
-  | { kind: 'legacy'; courses: { crn: Crn; color: string; hidden: boolean }[] };
+  | { kind: 'anonymous'; courses: AnonymousWorksheetCourse[] };
 
 function sectionOf(course: WorksheetCourse) {
   const details = (
@@ -364,7 +358,6 @@ export default function WorksheetCalendarSidebar() {
     clearActiveSavedWorksheet,
     restoreAnonymousWorksheetCourses,
     restoreActiveSavedWorksheetSections,
-    worksheetsRefresh,
   } = useStore(
     useShallow((state) => ({
       courses: state.courses,
@@ -388,12 +381,11 @@ export default function WorksheetCalendarSidebar() {
       restoreAnonymousWorksheetCourses: state.restoreAnonymousWorksheetCourses,
       restoreActiveSavedWorksheetSections:
         state.restoreActiveSavedWorksheetSections,
-      worksheetsRefresh: state.worksheetsRefresh,
     })),
   );
   const toggleCourseHidden = useToggleCourseHidden();
   const canEdit = toggleCourseHidden !== null;
-  const hasSavedWorksheetAccount = Boolean(user && !isLegacyUserInfo(user));
+  const hasSavedWorksheetAccount = Boolean(user);
   const icsExport = useICSExport();
   const urlExport = useWorksheetURLExport();
 
@@ -497,89 +489,29 @@ export default function WorksheetCalendarSidebar() {
       const sections = activeSavedWorksheet?.sections ?? [];
       if (await clearActiveSavedWorksheet())
         setClearedSnapshot({ kind: 'saved', sections });
-    } else {
-      const snapshot = courses.map((c) => ({
-        crn: c.listing.crn,
-        color: c.color,
-        hidden: Boolean(c.hidden),
-      }));
-      const success = await updateWorksheetCourses(
-        courses.map((c) => ({
-          action: 'remove' as const,
-          season: viewedSeason,
-          crn: c.listing.crn,
-          worksheetNumber: viewedWorksheetNumber,
-          color: c.color,
-          hidden: false,
-        })),
-      );
-      if (success) {
-        await worksheetsRefresh();
-        setClearedSnapshot({ kind: 'legacy', courses: snapshot });
-      }
     }
     closeStyleMenu();
   };
 
   const restoreAllCourses = async () => {
     if (!clearedSnapshot) return;
-    if (clearedSnapshot.kind === 'anonymous') {
+    if (clearedSnapshot.kind === 'anonymous')
       restoreAnonymousWorksheetCourses(clearedSnapshot.courses);
-    } else if (clearedSnapshot.kind === 'saved') {
-      await restoreActiveSavedWorksheetSections(clearedSnapshot.sections);
-    } else {
-      const success = await updateWorksheetCourses(
-        clearedSnapshot.courses.map((c) => ({
-          action: 'add' as const,
-          season: viewedSeason,
-          crn: c.crn,
-          worksheetNumber: viewedWorksheetNumber,
-          color: c.color,
-          hidden: c.hidden,
-        })),
-      );
-      if (success) await worksheetsRefresh();
-    }
+    else await restoreActiveSavedWorksheetSections(clearedSnapshot.sections);
     setClearedSnapshot(null);
     closeStyleMenu();
   };
 
   const toggleAllHidden = async () => {
-    if (isAnonymousWorksheet) {
-      setAllAnonymousWorksheetHidden(!areHidden);
-      return;
-    }
-    if (hasSavedWorksheetAccount) {
+    if (isAnonymousWorksheet) setAllAnonymousWorksheetHidden(!areHidden);
+    else if (hasSavedWorksheetAccount)
       await setAllActiveSavedWorksheetHidden(!areHidden);
-      return;
-    }
-    await setCourseHidden({
-      season: viewedSeason,
-      worksheetNumber: viewedWorksheetNumber,
-      crn: courses.map((c) => c.listing.crn),
-      hidden: !areHidden,
-    });
-    await worksheetsRefresh();
   };
 
   const removeCourse = async (course: WorksheetCourse) => {
-    if (isAnonymousWorksheet) {
-      removeAnonymousWorksheetListing(course.listing);
-      return;
-    }
-    if (hasSavedWorksheetAccount) {
+    if (isAnonymousWorksheet) removeAnonymousWorksheetListing(course.listing);
+    else if (hasSavedWorksheetAccount)
       await removeActiveSavedWorksheetListing(course.listing);
-      return;
-    }
-    const success = await updateWorksheetCourses({
-      action: 'remove',
-      season: viewedSeason,
-      crn: course.listing.crn,
-      worksheetNumber: viewedWorksheetNumber,
-      color: course.color,
-      hidden: false,
-    });
-    if (success) await worksheetsRefresh();
   };
 
   const gridStyleOptions = [

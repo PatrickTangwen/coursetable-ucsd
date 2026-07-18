@@ -6,7 +6,6 @@ import OverviewRatings from './OverviewRatings';
 
 import type { CourseModalPrefetchListingDataFragment } from '../../../generated/graphql-types';
 import { useCourseModalOverviewDataQuery } from '../../../queries/graphql-queries';
-import { useStore } from '../../../store';
 import { getListingId } from '../../../utilities/course';
 import Spinner from '../../Spinner';
 import type { ModalNavigationFunction } from '../CourseModal';
@@ -18,11 +17,10 @@ function OverviewPanel({
   readonly onNavigation: ModalNavigationFunction;
   readonly prefetched: CourseModalPrefetchListingDataFragment;
 }) {
-  const user = useStore((state) => state.user);
   const { data, loading, error } = useCourseModalOverviewDataQuery({
     variables: {
       listingId: getListingId(prefetched.course.season_code, prefetched.crn),
-      hasEvals: Boolean(user?.hasEvals),
+      hasEvals: false,
       sameCourseId: prefetched.course.same_course_id,
     },
   });

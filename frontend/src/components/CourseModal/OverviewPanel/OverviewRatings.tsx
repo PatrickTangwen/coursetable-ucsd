@@ -167,7 +167,7 @@ function OverviewRatings({
 }) {
   const [searchParams] = useSearchParams();
   const { navigate } = useModalHistory();
-  const hasEvals = useStore((state) => state.user?.hasEvals);
+  const hasEvals = false;
   const sameCourseNormalized = sameCourse
     .filter((o) => !isDiscussionSection(o) && o.extra_info === 'ACTIVE')
     .sort(

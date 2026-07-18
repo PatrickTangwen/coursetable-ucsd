@@ -347,6 +347,10 @@ Endpoints that take a request body may return 400 with `error: "INVALID_REQUEST"
 
 ### `GET` `/api/user/info`
 
+> **Removed July 17, 2026 (#102).** This legacy NetID profile endpoint is no
+> longer registered. The contract below is retained as historical reference;
+> current UCSD authentication uses `GET /api/auth/current-user`.
+
 #### Request
 
 - Needs credentials

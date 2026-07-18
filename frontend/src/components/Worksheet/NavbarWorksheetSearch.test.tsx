@@ -52,7 +52,6 @@ describe('NavbarWorksheetSearch', () => {
           changeWorksheetView={() => {}}
           isExoticWorksheet={false}
           exitExoticWorksheet={() => {}}
-          hasLegacyWorksheetAccount={false}
           hasSavedWorksheetAccount
           activeSavedWorksheet={mainWorksheet}
           savedWorksheetSummaries={[{ ...mainWorksheet, sectionCount: 0 }]}
@@ -94,7 +93,6 @@ describe('NavbarWorksheetSearch', () => {
         changeWorksheetView={() => {}}
         isExoticWorksheet={false}
         exitExoticWorksheet={() => {}}
-        hasLegacyWorksheetAccount={false}
         hasSavedWorksheetAccount={false}
         activeSavedWorksheet={undefined}
         savedWorksheetSummaries={[]}

@@ -148,14 +148,13 @@ export default function ModalHeaderInfo({
   readonly listing: CourseModalPrefetchListingDataFragment;
   readonly onNavigation: ModalNavigationFunction;
 }) {
-  const user = useStore((state) => state.user);
   const [searchParams] = useSearchParams();
   const backTarget = useStore((state) => state.backTarget);
   const { data, loading, error } = useCourseSectionsQuery({
     variables: {
       courseCode: listing.course_code,
       seasonCode: listing.course.season_code,
-      hasEvals: Boolean(user?.hasEvals),
+      hasEvals: false,
     },
   });
   const sections =

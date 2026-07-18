@@ -12,12 +12,11 @@ export default function LegacyCourseModalUrlHydrator({
   readonly variables: CourseModalUrlVariables;
   readonly searchKey: string;
 }) {
-  const user = useStore((s) => s.user);
   const navigate = useStore((s) => s.navigate);
   const { data } = useCourseModalFromUrlQuery({
     variables: {
       listingId: variables.listingId,
-      hasEvals: Boolean(user?.hasEvals),
+      hasEvals: false,
     },
   });
   const course = data?.listings_by_pk ?? undefined;

@@ -7,7 +7,6 @@ export type CalendarGridStyle = 'paper' | 'embossed' | 'colorBar';
 
 interface CalendarSliceState {
   openColorPickerEvent: CourseRBCEvent | null;
-  openWorksheetMoveEvent: CourseRBCEvent | null;
   isCalendarViewLocked: boolean;
   calendarLockStart: number;
   calendarLockEnd: number;
@@ -19,7 +18,6 @@ interface CalendarSliceState {
 
 interface CalendarSliceActions {
   setOpenColorPickerEvent: (value: CourseRBCEvent | null) => void;
-  setOpenWorksheetMoveEvent: (value: CourseRBCEvent | null) => void;
   setCalendarViewLocked: (locked: boolean) => void;
   setCalendarLockRange: (start: number, end: number) => void;
   setCalendarLockSettingsOpen: (open: boolean) => void;
@@ -35,13 +33,9 @@ export const createCalendarSlice: StateCreator<Store, [], [], CalendarSlice> = (
   set,
 ) => ({
   openColorPickerEvent: null,
-  openWorksheetMoveEvent: null,
   isCalendarViewLocked: false,
   setOpenColorPickerEvent(value) {
     set({ openColorPickerEvent: value });
-  },
-  setOpenWorksheetMoveEvent(value) {
-    set({ openWorksheetMoveEvent: value });
   },
   setCalendarViewLocked(locked) {
     set({ isCalendarViewLocked: locked });

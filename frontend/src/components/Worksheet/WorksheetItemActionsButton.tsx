@@ -6,18 +6,14 @@ import {
   OverlayTrigger,
   Modal,
   Button,
-  DropdownButton,
-  Dropdown,
 } from 'react-bootstrap';
 import { FaEllipsisH } from 'react-icons/fa';
-import { MdEdit, MdMoveToInbox } from 'react-icons/md';
+import { MdEdit } from 'react-icons/md';
 import chroma from 'chroma-js';
 import { Calendar } from 'react-big-calendar';
 import { HexColorPicker } from 'react-colorful';
 import { useShallow } from 'zustand/react/shallow';
 import { CalendarEventBody, useEventStyle } from './CalendarEvent';
-import { isLegacyUserInfo, updateWorksheetCourses } from '../../queries/api';
-import { useWorksheetNumberOptions } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
 import { type CourseRBCEvent, localizer } from '../../utilities/calendar';
 import { worksheetColors } from '../../utilities/constants';
@@ -34,19 +30,9 @@ function WorksheetItemActionsButton({
   const [popoverOpen, setPopoverOpen] = useState(false);
   const targetRef = useRef<HTMLButtonElement>(null);
 
-  const { setOpenColorPickerEvent, setOpenWorksheetMoveEvent } = useStore(
-    useShallow((state) => ({
-      setOpenColorPickerEvent: state.setOpenColorPickerEvent,
-      setOpenWorksheetMoveEvent: state.setOpenWorksheetMoveEvent,
-    })),
+  const setOpenColorPickerEvent = useStore(
+    (state) => state.setOpenColorPickerEvent,
   );
-  const { isAnonymousWorksheet, user } = useStore(
-    useShallow((state) => ({
-      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
-      user: state.user,
-    })),
-  );
-  const hasLegacyWorksheetAccount = isLegacyUserInfo(user);
 
   const togglePopover = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -109,31 +95,6 @@ function WorksheetItemActionsButton({
                     <MdEdit color="var(--color-text-dark)" />
                   </button>
                 </OverlayTrigger>
-                {!isAnonymousWorksheet && hasLegacyWorksheetAccount && (
-                  <OverlayTrigger
-                    placement="bottom"
-                    overlay={
-                      <Tooltip
-                        id={`worksheet-item-move-${event.listing.crn}-${event.start.getTime()}-tooltip`}
-                      >
-                        <small>Move to another worksheet</small>
-                      </Tooltip>
-                    }
-                  >
-                    <button
-                      type="button"
-                      className={className}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenWorksheetMoveEvent(event);
-                        setPopoverOpen(false);
-                      }}
-                      aria-label="Move course"
-                    >
-                      <MdMoveToInbox color="var(--color-text-dark)" />
-                    </button>
-                  </OverlayTrigger>
-                )}
               </div>
             </Popover.Body>
           </Popover>
@@ -148,10 +109,7 @@ export function ColorPickerModal({
 }: {
   readonly onClose: () => void;
 }) {
-  const worksheetsRefresh = useStore((state) => state.worksheetsRefresh);
   const {
-    viewedSeason,
-    viewedWorksheetNumber,
     openColorPickerEvent,
     isAnonymousWorksheet,
     user,
@@ -159,8 +117,6 @@ export function ColorPickerModal({
     setActiveSavedWorksheetListingColor,
   } = useStore(
     useShallow((state) => ({
-      viewedSeason: state.viewedSeason,
-      viewedWorksheetNumber: state.viewedWorksheetNumber,
       openColorPickerEvent: state.openColorPickerEvent,
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
       user: state.user,
@@ -206,7 +162,7 @@ export function ColorPickerModal({
               onClose();
               return;
             }
-            if (user && !isLegacyUserInfo(user)) {
+            if (user) {
               await setActiveSavedWorksheetListingColor(
                 openColorPickerEvent.listing,
                 newColor ?? openColorPickerEvent.color,
@@ -214,98 +170,10 @@ export function ColorPickerModal({
               onClose();
               return;
             }
-            await updateWorksheetCourses({
-              action: 'update',
-              season: viewedSeason,
-              crn: openColorPickerEvent.listing.crn,
-              worksheetNumber: viewedWorksheetNumber,
-              color: newColor,
-            });
-            await worksheetsRefresh();
             onClose();
           }}
         >
           Save changes
-        </Button>
-      </Modal.Footer>
-    </Modal>
-  );
-}
-
-export function WorksheetMoveModal({
-  onClose,
-}: {
-  readonly onClose: () => void;
-}) {
-  const {
-    viewedSeason,
-    viewedWorksheetNumber,
-    worksheetsRefresh,
-    changeViewedWorksheetNumber,
-    openWorksheetMoveEvent,
-  } = useStore(
-    useShallow((state) => ({
-      viewedSeason: state.viewedSeason,
-      viewedWorksheetNumber: state.viewedWorksheetNumber,
-      worksheetsRefresh: state.worksheetsRefresh,
-      changeViewedWorksheetNumber: state.changeViewedWorksheetNumber,
-      openWorksheetMoveEvent: state.openWorksheetMoveEvent,
-    })),
-  );
-
-  const options = useWorksheetNumberOptions('me', viewedSeason);
-  const filteredOptions = Object.values(options).filter(
-    (option) => option.value !== viewedWorksheetNumber,
-  );
-  const event = openWorksheetMoveEvent;
-  if (!event) return null;
-
-  const handleSelect = async (worksheetKey: string | null) => {
-    if (!worksheetKey) return;
-    const newWorksheetNumber = Number(worksheetKey);
-
-    await updateWorksheetCourses({
-      action: 'remove',
-      season: viewedSeason,
-      crn: event.listing.crn,
-      worksheetNumber: viewedWorksheetNumber,
-    });
-
-    const addResult = await updateWorksheetCourses({
-      action: 'add',
-      season: viewedSeason,
-      crn: event.listing.crn,
-      worksheetNumber: newWorksheetNumber,
-      color: event.color,
-      hidden: false,
-    });
-
-    if (addResult) {
-      void worksheetsRefresh();
-      changeViewedWorksheetNumber(newWorksheetNumber);
-      onClose();
-    }
-  };
-
-  return (
-    <Modal show onHide={onClose} centered>
-      <Modal.Body className={styles.modalBody}>
-        <DropdownButton
-          title="Select Worksheet"
-          onSelect={handleSelect}
-          variant="secondary"
-          size="sm"
-        >
-          {filteredOptions.map(({ value, label }) => (
-            <Dropdown.Item key={value} eventKey={String(value)}>
-              {label}
-            </Dropdown.Item>
-          ))}
-        </DropdownButton>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onClose}>
-          Close
         </Button>
       </Modal.Footer>
     </Modal>
