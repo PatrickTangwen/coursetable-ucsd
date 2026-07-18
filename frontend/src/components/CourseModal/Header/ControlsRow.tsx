@@ -14,7 +14,7 @@ import { CUR_YEAR } from '../../../config';
 import type { CourseModalPrefetchListingDataFragment } from '../../../generated/graphql-types';
 import { useModalHistory } from '../../../hooks/useModalHistory';
 import WishlistToggleButton from '../../Wishlist/WishlistToggleButton';
-import WorksheetToggleButton from '../../Worksheet/WorksheetToggleButton';
+import LegacyWorksheetToggleButton from '../../Worksheet/LegacyWorksheetToggleButton';
 import styles from './ControlsRow.module.css';
 
 function copyToClipboard(text: string, successMessage: string) {
@@ -193,7 +193,7 @@ export default function ModalHeaderControls({
     <div className={styles.modalControls}>
       <ViewTabs tabs={tabs} onSelectTab={setView} currentTab={view} />
       <div className={styles.toolBar}>
-        <WorksheetToggleButton listing={listing} modal />
+        <LegacyWorksheetToggleButton listing={listing} modal />
         <div className={styles.toolbarIconSlot}>
           <WishlistToggleButton listing={listing} modal />
         </div>

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { MdUpdate } from 'react-icons/md';
-import { useFerry } from '../../hooks/useFerry';
+import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
 import { useStore } from '../../store';
 import {
   getCatalogLastUpdated,
@@ -10,7 +10,7 @@ import {
 import { TextComponent } from '../Typography';
 
 export default function LastUpdated() {
-  const { courses } = useFerry();
+  const { courses } = useCoursePlanningCatalog();
   const selectedSeasons = useStore(
     (state) => state.searchFilters.selectSeasons,
   );

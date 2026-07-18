@@ -1,10 +1,10 @@
 import { defaultFilters } from './searchConstants';
 import type { Filters, Option } from './searchTypes';
-import type { useFerry } from '../hooks/useFerry';
+import type { useCoursePlanningCatalog } from '../hooks/useCoursePlanning';
 import type { Season } from '../queries/graphql-types';
 import { isEqual } from '../utilities/common';
 
-type CatalogCache = ReturnType<typeof useFerry>['courses'];
+type CatalogCache = ReturnType<typeof useCoursePlanningCatalog>['courses'];
 
 export function extractCatalogSubjects(
   courses: CatalogCache,

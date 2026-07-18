@@ -26,7 +26,7 @@ import {
   type UcsdModalOfferingGroup,
   type UcsdModalSection,
 } from './ucsdSnapshotModalData';
-import { useFerry } from '../../hooks/useFerry';
+import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
 import { useModalHistory } from '../../hooks/useModalHistory';
 import type { CoursePlanningCourse } from '../../queries/coursePlanningViewModels';
 import type { Season } from '../../queries/graphql-types';
@@ -600,7 +600,7 @@ export default function UcsdSnapshotCourseModal({
     nonce: number;
   } | null>(null);
   const { closeModal } = useModalHistory();
-  const { courses } = useFerry();
+  const { courses } = useCoursePlanningCatalog();
   const season = listing.section.supportedTerm as Season;
   const allListings = useMemo(
     () => [...(courses[season]?.listings.values() ?? [])],

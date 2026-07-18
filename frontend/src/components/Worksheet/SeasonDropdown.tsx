@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { useShallow } from 'zustand/react/shallow';
-import { useFerry } from '../../hooks/useFerry';
+import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
 import type { Season } from '../../queries/graphql-types';
 import { useStore } from '../../store';
 import {
@@ -19,7 +19,7 @@ export function useWorksheetSeasonCodes() {
   const fallbackSeasonCodes = useStore((state) =>
     state.worksheetMemo.getSeasonCodes(state),
   );
-  const { courses } = useFerry();
+  const { courses } = useCoursePlanningCatalog();
   const registryTerms = useMemo(
     () =>
       Object.values(courses).flatMap((catalog) => catalog.metadata.terms ?? []),

@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 
 import CatalogTable from '../components/Catalog/CatalogTable';
 import FilterBar, { COURSE_TYPES } from '../components/Catalog/FilterBar';
-import { useFerry } from '../hooks/useFerry';
+import { useCoursePlanningCatalog } from '../hooks/useCoursePlanning';
 import { useSearch } from '../hooks/useSearch';
 import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
 import {
@@ -16,7 +16,7 @@ import styles from './CatalogListView.module.css';
 
 export default function CatalogListView() {
   const { searchData, coursesLoading } = useSearch();
-  const { courses } = useFerry();
+  const { courses } = useCoursePlanningCatalog();
   const typeFilters = useStore((s) => s.catalogTypeFilters);
   const searchFilters = useStore((s) => s.searchFilters);
   const patchSearchFilters = useStore((s) => s.patchSearchFilters);

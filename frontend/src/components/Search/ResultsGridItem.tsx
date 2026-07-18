@@ -16,7 +16,7 @@ import {
 import { useCourseModalLink } from '../../utilities/display';
 import SkillBadge from '../SkillBadge';
 import { TextComponent } from '../Typography';
-import WorksheetToggleButton from '../Worksheet/WorksheetToggleButton';
+import LegacyWorksheetToggleButton from '../Worksheet/LegacyWorksheetToggleButton';
 import styles from './ResultsGridItem.module.css';
 
 function ResultsGridItem({
@@ -125,7 +125,7 @@ function ResultsGridItem({
       {/* Don't this inside the link because interactive elements can't be
         nested */}
       <div className={styles.worksheetBtn}>
-        <WorksheetToggleButton
+        <LegacyWorksheetToggleButton
           listing={listing}
           modal={false}
           inWorksheet={inWorksheet}

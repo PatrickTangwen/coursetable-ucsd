@@ -1,5 +1,4 @@
 import { getListingId } from './course';
-import type { CourseModalPrefetchListingDataFragment } from '../generated/graphql-types';
 import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
 import type { Crn, Season } from '../queries/graphql-types';
 
@@ -11,7 +10,6 @@ export type CourseModalUrlVariables = {
 
 type StaticCatalogCourses = {
   readonly [seasonCode: string]: {
-    readonly data?: Map<Crn, CourseModalPrefetchListingDataFragment>;
     readonly listingsByModalId?: Map<Crn, CoursePlanningListing>;
   };
 };
@@ -55,22 +53,4 @@ export function parseCourseModalQuery(
     crn: crnNum,
     listingId: getListingId(seasonCode, crnNum),
   };
-}
-
-/** Numeric season codes belong to the inherited CourseTable/Yale boundary. */
-export function isLegacyCourseModalUrl(
-  variables: CourseModalUrlVariables | undefined,
-): variables is CourseModalUrlVariables {
-  return Boolean(variables && Number.isFinite(Number(variables.seasonCode)));
-}
-
-export function getStaticCourseFromModalUrl(
-  courses: StaticCatalogCourses,
-  variables: CourseModalUrlVariables | undefined,
-): CourseModalPrefetchListingDataFragment | undefined {
-  if (variables === undefined) return undefined;
-
-  return matchingSeasonCatalog(courses, variables.seasonCode)?.data?.get(
-    variables.crn,
-  );
 }

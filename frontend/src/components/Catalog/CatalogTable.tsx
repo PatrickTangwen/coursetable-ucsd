@@ -25,8 +25,9 @@ import {
   type OfferingGroup,
 } from '../../utilities/catalogView';
 import { isInWorksheet, toSeasonString } from '../../utilities/course';
+import { savedWorksheetHasListing } from '../../utilities/savedWorksheet';
 import CoursePlanningWorksheetToggleButton from '../Worksheet/CoursePlanningWorksheetToggleButton';
-import WorksheetToggleButton from '../Worksheet/WorksheetToggleButton';
+import LegacyWorksheetToggleButton from '../Worksheet/LegacyWorksheetToggleButton';
 import styles from './CatalogTable.module.css';
 
 type CourseRow = {
@@ -342,18 +343,10 @@ function useListingInWorksheet(listing: CoursePlanningListing): boolean {
       worksheets,
     );
   }
-  const term = listing.section.supportedTerm;
-  if (activeSavedWorksheet && term !== activeSavedWorksheet.term) {
-    return Boolean(
-      crossTermSavedSections[term]?.some(
-        (section) => section.sectionId === listing.section.sectionId,
-      ),
-    );
-  }
-  return Boolean(
-    activeSavedWorksheet?.sections.some(
-      (section) => section.sectionId === listing.section.sectionId,
-    ),
+  return savedWorksheetHasListing(
+    activeSavedWorksheet,
+    crossTermSavedSections,
+    listing,
   );
 }
 
@@ -371,7 +364,7 @@ function CatalogWorksheetToggleButton({
       listing.section.sectionId,
     );
     return (
-      <WorksheetToggleButton
+      <LegacyWorksheetToggleButton
         listing={legacy}
         modal={false}
         appearance={appearance}

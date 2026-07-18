@@ -4,7 +4,8 @@ import { Fade, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { MdErrorOutline } from 'react-icons/md';
 import { useShallow } from 'zustand/react/shallow';
 
-import { useFerry, useWorksheetInfo } from '../../hooks/useFerry';
+import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
+import { useLegacyWorksheetInfo } from '../../hooks/useLegacyWorksheetInfo';
 import { useStore } from '../../store';
 import { checkConflict, type ListingWithTimes } from '../../utilities/course';
 import { isPlannableTerm } from '../../utilities/termPlanning';
@@ -38,14 +39,14 @@ export function useWorksheetConflictWarning({
       })),
     );
 
-  const { data } = useWorksheetInfo(
+  const { data } = useLegacyWorksheetInfo(
     worksheets,
     listing.course.season_code,
     worksheetNumber,
   );
   const worksheetData =
     isAnonymousWorksheet || activeSavedWorksheet ? courses : data;
-  const { courses: catalogData } = useFerry();
+  const { courses: catalogData } = useCoursePlanningCatalog();
   const supportedTerms = useMemo(
     () =>
       Object.values(catalogData).flatMap(

@@ -16,6 +16,7 @@ import { useStore } from '../../store';
 import { coursePlanningListingToWorksheetCourse } from '../../types/worksheetCourse';
 import { anonymousWorksheetHasListing } from '../../utilities/anonymousWorksheet';
 import { worksheetColors } from '../../utilities/constants';
+import { savedWorksheetHasListing } from '../../utilities/savedWorksheet';
 import styles from './CoursePlanningWorksheetToggleButton.module.css';
 
 export default function CoursePlanningWorksheetToggleButton({
@@ -59,17 +60,14 @@ export default function CoursePlanningWorksheetToggleButton({
   );
   const hasSavedWorksheetAccount = Boolean(user && !isLegacyUserInfo(user));
   const term = listing.section.supportedTerm as Season;
-  const { sectionId } = listing.section;
   const selectedWorksheet = getRelevantWorksheetNumber(term);
   const inWorksheet = isAnonymousWorksheet
     ? anonymousWorksheetHasListing(anonymousWorksheet, listing)
-    : activeSavedWorksheet && term !== activeSavedWorksheet.term
-      ? (crossTermSavedSections[term]?.some(
-          (section) => section.sectionId === sectionId,
-        ) ?? false)
-      : (activeSavedWorksheet?.sections.some(
-          (section) => section.sectionId === sectionId,
-        ) ?? false);
+    : savedWorksheetHasListing(
+        activeSavedWorksheet,
+        crossTermSavedSections,
+        listing,
+      );
   const worksheetListing = useMemo(
     () =>
       coursePlanningListingToWorksheetCourse(listing, '#7B68EE', false).listing,

@@ -4,6 +4,7 @@ import {
   resolveAnonymousWorksheetCourses,
   type AnonymousWorksheetState,
 } from './anonymousWorksheet';
+import type { SavedWorksheet, SavedWorksheetSection } from '../queries/api';
 import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
 import type { Season } from '../queries/graphql-types';
 
@@ -12,6 +13,24 @@ export type SavedWorksheetAuthStatus =
   | 'initializing'
   | 'authenticated'
   | 'unauthenticated';
+
+export function savedWorksheetHasListing(
+  activeWorksheet: Pick<SavedWorksheet, 'term' | 'sections'> | undefined,
+  crossTermSections: { [term: string]: SavedWorksheetSection[] },
+  listing: CoursePlanningListing,
+) {
+  if (!activeWorksheet) return false;
+  const term = listing.section.supportedTerm;
+  const sections =
+    term === activeWorksheet.term
+      ? activeWorksheet.sections
+      : crossTermSections[term];
+  return Boolean(
+    sections?.some(
+      (section) => section.sectionId === listing.section.sectionId,
+    ),
+  );
+}
 
 export function getDefaultSavedWorksheetName(term: Season) {
   return `${term} Worksheet`;

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { useShallow } from 'zustand/react/shallow';
 import { COURSE_TYPES } from './FilterBar';
-import { useFerry } from '../../hooks/useFerry';
+import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
 import {
   buildCatalogListAdvancedFilterReset,
   extractCatalogSubjects,
@@ -113,7 +113,7 @@ export default function MobileFilterSheet({
       clearTypeFilters: s.clearCatalogTypeFilters,
     })),
   );
-  const { courses } = useFerry();
+  const { courses } = useCoursePlanningCatalog();
 
   const [view, setView] = useState<FilterView>('main');
   const [query, setQuery] = useState('');

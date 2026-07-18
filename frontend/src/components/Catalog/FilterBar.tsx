@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 import { DropdownMenu } from './DropdownMenu';
-import { useFerry } from '../../hooks/useFerry';
+import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
 import type { Season } from '../../queries/graphql-types';
 import {
   buildCatalogListAdvancedFilterReset,
@@ -84,7 +84,7 @@ function FilterChip({
 }
 
 function UpdatedLabel({ season }: { readonly season: Season | null }) {
-  const { courses } = useFerry();
+  const { courses } = useCoursePlanningCatalog();
   const lastUpdated = getCatalogLastUpdated(courses);
   const label = season
     ? getCatalogStalenessLabel(courses, season)

@@ -2,12 +2,12 @@ import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import LegacyCourseModalUrlHydrator from './LegacyCourseModalUrlHydrator';
-import { useFerry } from '../hooks/useFerry';
+import { useCoursePlanningCatalog } from '../hooks/useCoursePlanning';
 import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
 import { useStore } from '../store';
+import { isLegacyCourseModalUrl } from '../utilities/legacyCourseModalUrl';
 import {
   getCoursePlanningCourseFromModalUrl,
-  isLegacyCourseModalUrl,
   parseCourseModalQuery,
 } from '../utilities/modalHistoryUrl';
 
@@ -34,7 +34,7 @@ export default function ModalHistoryBridge() {
   const courseVariables = parseCourseModalQuery(
     searchParams.get('course-modal'),
   );
-  const { courses, loading } = useFerry();
+  const { courses, loading } = useCoursePlanningCatalog();
   const courseFromURL: CoursePlanningListing | undefined =
     getCoursePlanningCourseFromModalUrl(courses, courseVariables);
   const profFromURL = useProfInfoFromURL();

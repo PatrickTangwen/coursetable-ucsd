@@ -10,6 +10,7 @@ import * as Sentry from '@sentry/react';
 import debounce from 'lodash.debounce';
 import { buildEvaluator } from 'quist';
 import { useShallow } from 'zustand/react/shallow';
+import { getCatalogConflictCourses } from './catalogWorksheetContext';
 import {
   coursePlanningQueryValue,
   filterAndSortCoursePlanningListings,
@@ -18,7 +19,8 @@ import { defaultFilters, SEARCH_FILTER_KEYS } from './searchConstants';
 import { getSearchSeasonScope } from './searchSeasonScope';
 import type { Filters } from './searchTypes';
 import { getLegacyCatalogListing } from '../ferry/ferryCatalogCache';
-import { useCoursePlanningData, useWorksheetInfo } from '../hooks/useFerry';
+import { useCoursePlanningData } from '../hooks/useCoursePlanning';
+import { useLegacyWorksheetInfo } from '../hooks/useLegacyWorksheetInfo';
 import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
 import type { Season } from '../queries/graphql-types';
 import { useHydration, useStore } from '../store';
@@ -33,6 +35,7 @@ import {
   buildCatalogSearchParams,
   getFilterFromParams,
 } from '../utilities/params';
+import { savedWorksheetHasListing } from '../utilities/savedWorksheet';
 
 type PendingUrlHydration = {
   search: string;
@@ -215,6 +218,9 @@ export function SearchBootstrap({
     getRelevantWorksheetNumber,
     isAnonymousWorksheet,
     anonymousWorksheet,
+    activeSavedWorksheet,
+    activeWorksheetCourses,
+    crossTermSavedSections,
   } = useStore(
     useShallow((state) => ({
       worksheets: state.worksheets,
@@ -223,6 +229,9 @@ export function SearchBootstrap({
       getRelevantWorksheetNumber: state.getRelevantWorksheetNumber,
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
       anonymousWorksheet: state.anonymousWorksheet,
+      activeSavedWorksheet: state.activeSavedWorksheet,
+      activeWorksheetCourses: state.courses,
+      crossTermSavedSections: state.crossTermSavedSections,
     })),
   );
 
@@ -239,7 +248,7 @@ export function SearchBootstrap({
     courses: courseData,
     error: courseLoadError,
   } = useCoursePlanningData(processedSeasons);
-  const { data: worksheetInfo } = useWorksheetInfo(
+  const { data: legacyWorksheetInfo } = useLegacyWorksheetInfo(
     worksheets,
     processedSeasons,
     getRelevantWorksheetNumber,
@@ -259,18 +268,28 @@ export function SearchBootstrap({
   );
   const isListingInActiveWorksheet = useCallback(
     (listing: CoursePlanningListing) => {
+      if (isAnonymousWorksheet)
+        return anonymousWorksheetHasListing(anonymousWorksheet, listing);
+      if (activeSavedWorksheet) {
+        return savedWorksheetHasListing(
+          activeSavedWorksheet,
+          crossTermSavedSections,
+          listing,
+        );
+      }
       const legacy = legacyListing(listing);
-      if (!legacy) return false;
-      return isAnonymousWorksheet
-        ? anonymousWorksheetHasListing(anonymousWorksheet, legacy)
-        : isInWorksheet(
+      return legacy
+        ? isInWorksheet(
             legacy,
             getRelevantWorksheetNumber(legacy.course.season_code),
             worksheets,
-          );
+          )
+        : false;
     },
     [
+      activeSavedWorksheet,
       anonymousWorksheet,
+      crossTermSavedSections,
       getRelevantWorksheetNumber,
       isAnonymousWorksheet,
       legacyListing,
@@ -280,6 +299,12 @@ export function SearchBootstrap({
   const isConflicting = useCallback(
     (listing: CoursePlanningListing) => {
       const legacy = legacyListing(listing);
+      const worksheetInfo = getCatalogConflictCourses(
+        isAnonymousWorksheet,
+        activeSavedWorksheet,
+        activeWorksheetCourses,
+        legacyWorksheetInfo,
+      );
       return legacy
         ? shouldHideConflictingListing(
             worksheetInfo,
@@ -288,7 +313,14 @@ export function SearchBootstrap({
           )
         : false;
     },
-    [isListingInActiveWorksheet, legacyListing, worksheetInfo],
+    [
+      activeSavedWorksheet,
+      activeWorksheetCourses,
+      isAnonymousWorksheet,
+      isListingInActiveWorksheet,
+      legacyListing,
+      legacyWorksheetInfo,
+    ],
   );
   const friendCount = useCallback(
     (listing: CoursePlanningListing) => {

@@ -7,7 +7,8 @@ import type { StateCreator } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 import { CUR_SEASON } from '../config';
 import { supportedTerms as allSeasons } from '../data/catalogSeasons';
-import { useCoursePlanningData, useWorksheetInfo } from '../hooks/useFerry';
+import { useCoursePlanningData } from '../hooks/useCoursePlanning';
+import { useLegacyWorksheetInfo } from '../hooks/useLegacyWorksheetInfo';
 import {
   createBlankSavedWorksheet,
   deleteSavedWorksheet as deleteSavedWorksheetApi,
@@ -1178,7 +1179,7 @@ export const useWorksheetEffects = () => {
     loading: inheritedWorksheetLoading,
     error: inheritedWorksheetError,
     data: inheritedCourses,
-  } = useWorksheetInfo(
+  } = useLegacyWorksheetInfo(
     isAnonymousWorksheet
       ? undefined
       : (exoticWorksheet?.worksheets ??

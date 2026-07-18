@@ -6,6 +6,7 @@ import {
   canRestoreSavedWorksheet,
   canSaveAnonymousWorksheet,
   getDefaultSavedWorksheetName,
+  savedWorksheetHasListing,
   resolveSavedWorksheetCourses,
   type SavedWorksheetAuthStatus,
 } from './savedWorksheet';
@@ -15,6 +16,44 @@ import { createCoursePlanningListingFixture } from '../testFixtures/coursePlanni
 const testTerm = 'FA26' as Season;
 
 describe('saved worksheet helpers', () => {
+  it('finds listings in the active worksheet for its own term', () => {
+    const listing = createCoursePlanningListingFixture('FA26:CSE-3', 'CSE 3');
+
+    expect(
+      savedWorksheetHasListing(
+        {
+          term: testTerm,
+          sections: [
+            { sectionId: 'FA26:CSE-3', color: '#55aaff', hidden: false },
+          ],
+        },
+        {},
+        listing,
+      ),
+    ).toBe(true);
+  });
+
+  it('finds listings in the active worksheet cross-term sections', () => {
+    const listing = createCoursePlanningListingFixture('WI27:CSE-4', 'CSE 4');
+    listing.section.supportedTerm = 'WI27';
+
+    expect(
+      savedWorksheetHasListing(
+        { term: testTerm, sections: [] },
+        {
+          WI27: [{ sectionId: 'WI27:CSE-4', color: '#ee6677', hidden: false }],
+        },
+        listing,
+      ),
+    ).toBe(true);
+  });
+
+  it('reports false without an active saved worksheet', () => {
+    const listing = createCoursePlanningListingFixture('FA26:CSE-3', 'CSE 3');
+
+    expect(savedWorksheetHasListing(undefined, {}, listing)).toBe(false);
+  });
+
   it('builds the default saved worksheet name from the term', () => {
     expect(getDefaultSavedWorksheetName(testTerm)).toBe('FA26 Worksheet');
   });
