@@ -1,6 +1,7 @@
 import {
   useMemo,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -58,6 +59,7 @@ const subRowsMaxHeight = 190;
 const overscanRows = 8;
 const minCourseCodeWidthCh = 9;
 const courseCodeWidthBufferCh = 2;
+const sectionCountWidthBufferCh = 9;
 
 const courseCodeCollator = new Intl.Collator(undefined, {
   numeric: true,
@@ -190,6 +192,7 @@ function buildGridTemplate(
   compact: boolean,
   showTermColumn: boolean,
   codeSlotCh: number,
+  sectionSlotCh: number,
 ): string {
   // Invariant: the sum of the column minimums plus gaps, side padding, and
   // the vertical scrollbar must fit the narrowest viewport of the view mode
@@ -199,11 +202,12 @@ function buildGridTemplate(
   // caps it so the leftover space flows to the title — same effect as
   // upstream CourseTable's clamp()ed meets column.
   const codeCol = `max(${compact ? 86 : 104}px, ${codeSlotCh}ch)`;
+  const sectionCol = `max(${compact ? 92 : 132}px, ${sectionSlotCh}ch)`;
   const parts = compact
     ? [
         '32px',
         codeCol,
-        '92px',
+        sectionCol,
         'minmax(120px, 1.6fr)',
         '72px',
         'minmax(88px, 0.7fr)',
@@ -214,7 +218,7 @@ function buildGridTemplate(
     : [
         '40px',
         codeCol,
-        '132px',
+        sectionCol,
         'minmax(200px, 1.7fr)',
         '110px',
         'minmax(124px, 0.9fr)',
@@ -714,6 +718,22 @@ function ExpandableRow({
   const toggleExpanded = () => toggle(row.rowId);
   const instructorCount = countInstructors(row);
   const locationCount = countLocations(row);
+  const subRowsRef = useRef<HTMLDivElement>(null);
+  const [subScrollbarWidth, setSubScrollbarWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    const el = subRowsRef.current;
+    if (!expanded || !el) return undefined;
+
+    const updateScrollbarWidth = () => {
+      setSubScrollbarWidth(el.offsetWidth - el.clientWidth);
+    };
+    updateScrollbarWidth();
+
+    const observer = new ResizeObserver(updateScrollbarWidth);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [expanded]);
 
   const parentRow = (
     // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- CSS grid row, not a real table
@@ -763,7 +783,15 @@ function ExpandableRow({
   return (
     <div className={styles.expandedGroup}>
       {parentRow}
-      <div className={styles.subRowContainer}>
+      <div
+        ref={subRowsRef}
+        className={styles.subRowContainer}
+        style={
+          {
+            '--ct-sub-scrollbar-w': `${subScrollbarWidth}px`,
+          } as CSSProperties
+        }
+      >
         {row.groups.flatMap((group) =>
           group.sections.map((sec) => (
             <SubRow
@@ -1055,6 +1083,13 @@ export default function CatalogTable({
       ) + courseCodeWidthBufferCh,
     [courseRows],
   );
+  const sectionSlotCh = useMemo(
+    () =>
+      String(
+        courseRows.reduce((max, row) => Math.max(max, row.totalSections), 1),
+      ).length + sectionCountWidthBufferCh,
+    [courseRows],
+  );
   const gridVars = useMemo(
     () =>
       ({
@@ -1062,10 +1097,11 @@ export default function CatalogTable({
           viewMode === 'compact',
           showTermColumn,
           codeSlotCh,
+          sectionSlotCh,
         ),
         '--ct-scrollbar-w': `${scrollbarWidth}px`,
       }) as CSSProperties,
-    [viewMode, showTermColumn, codeSlotCh, scrollbarWidth],
+    [viewMode, showTermColumn, codeSlotCh, sectionSlotCh, scrollbarWidth],
   );
 
   // The fixed table header compensates for the rows container's vertical

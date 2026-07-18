@@ -1,3 +1,15 @@
+.wrap {
+  position: relative;
+  width: 100%;
+}
+
 .fig {
-  margin: 0 auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: scale(var(--figure-scale, 1));
+  transform-origin: top left;
+  /* stylelint-disable-next-line property-no-vendor-prefix -- required by iOS Safari */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }

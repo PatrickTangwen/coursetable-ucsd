@@ -9,6 +9,13 @@
   flex: 1;
   max-width: 560px;
   position: relative;
+  border-radius: 8px;
+  background: rgb(var(--ct-line-rgb) / 4%);
+  transition: background 0.15s;
+}
+
+.searchBox:focus-within {
+  background: var(--ct-surface);
 }
 
 .searchIcon {
@@ -18,10 +25,13 @@
   transform: translateY(-50%);
   color: var(--ct-text-muted);
   display: flex;
+  z-index: 3;
   pointer-events: none;
 }
 
 .input {
+  position: relative;
+  z-index: 2;
   width: 100%;
   box-sizing: border-box;
   padding: 10px 36px 10px 40px;
@@ -29,21 +39,30 @@
   border-radius: 8px;
   font-size: 14px;
   font-family: inherit;
-  background: rgb(var(--ct-line-rgb) / 4%);
+  background: transparent;
   color: var(--ct-ink);
   outline: none;
-  transition:
-    border-color 0.15s,
-    background 0.15s;
+  transition: border-color 0.15s;
 }
 
 .input:focus {
   border-color: var(--ct-accent);
-  background: var(--ct-surface);
 }
 
-.input::placeholder {
+.placeholder {
+  position: absolute;
+  z-index: 1;
+  left: 40px;
+  right: 36px;
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 0;
+  overflow: hidden;
   color: var(--ct-text-muted);
+  font-size: 14px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  pointer-events: none;
 }
 
 .clearBtn {
@@ -52,6 +71,7 @@
   top: 50%;
   transform: translateY(-50%);
   display: flex;
+  z-index: 3;
   align-items: center;
   justify-content: center;
   color: var(--ct-text-muted);
@@ -118,12 +138,18 @@
 
   .searchBox {
     max-width: none;
+    border-radius: 12px;
+    background: var(--ct-surface-tint);
   }
 
   .input {
     padding: 12px 36px 12px 38px;
     border-radius: 12px;
-    background: var(--ct-surface-tint);
+    font-size: 13.5px;
+  }
+
+  .placeholder {
+    left: 38px;
     font-size: 13.5px;
   }
 }

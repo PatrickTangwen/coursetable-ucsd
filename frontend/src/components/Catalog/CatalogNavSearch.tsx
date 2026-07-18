@@ -103,8 +103,21 @@ function MobileFiltersButton() {
 
 export default function CatalogNavSearch() {
   const { filters, setStartTime } = useSearch();
-  const isMobile = useStore((s) => s.isMobile);
+  const { isMobile, isTablet, isSmDesktop } = useStore(
+    useShallow((s) => ({
+      isMobile: s.isMobile,
+      isTablet: s.isTablet,
+      isSmDesktop: s.isSmDesktop,
+    })),
+  );
   const { searchText } = filters;
+  const searchPrompt = isMobile
+    ? 'Search'
+    : isTablet
+      ? 'Search courses'
+      : isSmDesktop
+        ? 'Course code, title, or instructor'
+        : 'Search by course code, title, instructor, or description';
 
   return (
     <div className={styles.container}>
@@ -115,17 +128,18 @@ export default function CatalogNavSearch() {
         <input
           type="text"
           className={styles.input}
-          placeholder={
-            isMobile
-              ? 'Search'
-              : 'Search by course code, title, instructor, or description'
-          }
+          aria-label="Search courses"
           value={searchText.value}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             searchText.set(e.target.value);
             setStartTime(Date.now());
           }}
         />
+        {!searchText.value && (
+          <span className={styles.placeholder} aria-hidden="true">
+            {searchPrompt}
+          </span>
+        )}
         {searchText.value && (
           <button
             type="button"

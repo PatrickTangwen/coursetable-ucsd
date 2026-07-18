@@ -7,6 +7,7 @@
   --line: rgb(11 11 11 / 8%);
   --line-soft: rgb(11 11 11 / 6%);
   --serif: 'Cormorant Garamond', serif;
+  --content-max: 1200px;
 
   width: 100%;
   min-height: 100vh;
@@ -44,7 +45,7 @@
 .headerInner {
   position: relative;
   z-index: 3;
-  max-width: 1200px;
+  max-width: var(--content-max);
   margin: 0 auto;
   padding: 18px 40px;
   display: flex;
@@ -93,6 +94,26 @@
   background: none;
   cursor: pointer;
   font-family: inherit;
+}
+
+.headerCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 9px;
+  background: var(--accent);
+  box-shadow: 0 7px 18px -9px rgb(24 95 165 / 65%);
+  color: #fff;
+  font-size: 15.5px;
+  font-weight: 600;
+}
+
+.headerCta:hover {
+  background: var(--accent-strong);
+  color: #fff;
 }
 
 .spacer {
@@ -176,7 +197,7 @@
 /* ═══ Hero ═══ */
 
 .hero {
-  max-width: 1200px;
+  max-width: var(--content-max);
   margin: 0 auto;
   padding: 44px 40px 60px;
   display: grid;
@@ -369,6 +390,7 @@
 
 /* Anchor navigation (#worksheet, #how, …) stops each section just below the
    sticky header (81px tall on desktop) instead of underneath it. */
+.hero,
 .worksheetSection,
 .examsSection,
 .courseSection,
@@ -405,7 +427,7 @@
 /* ═══ Department strip ═══ */
 
 .strip {
-  max-width: 1200px;
+  max-width: var(--content-max);
   margin: 0 auto;
   padding: 8px 40px 44px;
 }
@@ -459,7 +481,7 @@
 }
 
 .worksheetGrid {
-  max-width: 1200px;
+  max-width: var(--content-max);
   margin: 0 auto;
   padding: 64px 40px;
   display: grid;
@@ -485,7 +507,7 @@
 /* ═══ Exams section ═══ */
 
 .examsSection {
-  max-width: 1200px;
+  max-width: var(--content-max);
   margin: 0 auto;
   padding: 72px 40px;
   display: grid;
@@ -497,7 +519,7 @@
 /* ═══ Course detail section ═══ */
 
 .courseSection {
-  max-width: 1200px;
+  max-width: var(--content-max);
   margin: 0 auto;
   padding: 72px 40px;
   display: grid;
@@ -522,7 +544,7 @@
 }
 
 .syncInner {
-  max-width: 1200px;
+  max-width: var(--content-max);
   margin: 0 auto;
   padding: 72px 40px;
   display: flex;
@@ -572,7 +594,7 @@
 }
 
 .howInner {
-  max-width: 1200px;
+  max-width: var(--content-max);
   margin: 0 auto;
   padding: 72px 40px;
   display: flex;
@@ -644,7 +666,7 @@
 /* ═══ Final CTA ═══ */
 
 .ctaSection {
-  max-width: 1200px;
+  max-width: var(--content-max);
   margin: 0 auto;
   padding: 80px 40px;
 }
@@ -780,7 +802,7 @@
 }
 
 .footerInner {
-  max-width: 1200px;
+  max-width: var(--content-max);
   margin: 0 auto;
   padding: 40px;
   display: flex;
@@ -819,6 +841,125 @@
 
 /* ═══ Responsive ═══ */
 
+/* On 32-inch QHD and low-scaled 4K displays, let the product interfaces take
+   visual priority instead of leaving the landing page in a narrow 1200px
+   island. Copy widths remain bounded so the larger canvas improves hierarchy
+   without creating long, tiring lines of text. */
+@media (min-width: 2200px) {
+  .page {
+    --content-max: 1800px;
+  }
+
+  .headerInner {
+    padding: 22px 56px;
+    gap: 40px;
+  }
+
+  .logoSvg {
+    width: 76px;
+    height: 50px;
+  }
+
+  .navLink {
+    padding: 9px 17px;
+    font-size: 20px;
+  }
+
+  .headerCta {
+    height: 46px;
+    padding: 0 22px;
+    font-size: 17px;
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.38fr);
+    padding: 68px 56px 88px;
+    gap: 84px;
+    scroll-margin-top: 95px;
+  }
+
+  .heroPanel1 {
+    max-width: 620px;
+    gap: 30px;
+  }
+
+  .heroPanel2Inner {
+    max-width: 580px;
+    gap: 24px;
+  }
+
+  .h1 {
+    font-size: 80px;
+  }
+
+  .h2 {
+    font-size: 48px;
+  }
+
+  .heroLead {
+    max-width: 560px;
+    font-size: 18.5px;
+  }
+
+  .sectionLead {
+    font-size: 17.5px;
+  }
+
+  .featureTitle {
+    font-size: 16px;
+  }
+
+  .featureDesc {
+    font-size: 14.5px;
+  }
+
+  .statNum {
+    font-size: 34px;
+  }
+
+  .statLabel {
+    font-size: 13.5px;
+  }
+
+  .strip {
+    padding: 12px 56px 56px;
+  }
+
+  .stripLabel,
+  .stripChip {
+    font-size: 13.5px;
+  }
+
+  .worksheetGrid {
+    padding: 88px 56px;
+    gap: 68px;
+  }
+
+  .examsSection,
+  .courseSection {
+    padding: 96px 56px;
+    gap: 80px;
+  }
+
+  .copyCol {
+    max-width: 560px;
+    gap: 24px;
+  }
+
+  .syncInner,
+  .howInner {
+    padding: 92px 56px;
+  }
+
+  .ctaSection {
+    padding: 104px 56px;
+  }
+
+  .footerInner {
+    padding: 48px 56px;
+  }
+}
+
 @media (max-width: 768px) {
   .page {
     overflow-x: clip;
@@ -853,6 +994,12 @@
   .authBtn {
     padding: 8px 12px;
     font-size: 15px;
+  }
+
+  .headerCta {
+    height: 38px;
+    padding: 0 13px;
+    font-size: 14px;
   }
 
   /* Dim only the page below the header, so the header row stays crisp. */
@@ -910,6 +1057,7 @@
   }
 
   /* The mobile header is shorter (67px). */
+  .hero,
   .worksheetSection,
   .examsSection,
   .courseSection,
@@ -991,6 +1139,36 @@
 }
 
 @media (max-width: 400px) {
+  .headerInner {
+    gap: 8px;
+  }
+
+  .logoSvg {
+    width: 52px;
+    height: 36px;
+  }
+
+  .authBtn {
+    padding: 6px 8px;
+    font-size: 14px;
+  }
+
+  .headerCta {
+    height: 36px;
+    padding: 0 10px;
+    font-size: 13.5px;
+  }
+
+  .menuBtn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .menuBars {
+    top: 17px;
+    left: 8px;
+  }
+
   .h1 {
     font-size: 32px;
   }

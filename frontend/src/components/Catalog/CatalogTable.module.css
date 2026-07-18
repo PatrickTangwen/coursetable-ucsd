@@ -263,7 +263,6 @@
   max-height: 190px;
   overflow: hidden auto;
   border-top: 1px solid rgb(var(--ct-line-rgb) / 8%);
-  margin-right: 10px;
   scrollbar-width: thin;
   scrollbar-color: rgb(var(--ct-line-rgb) / 14%) transparent;
 }
@@ -291,12 +290,12 @@
   column-gap: var(--ct-gap);
   align-items: center;
   box-sizing: border-box;
+  width: calc(100% + var(--ct-sub-scrollbar-w, 0px));
 
   /* Height must stay in sync with subRowHeight in CatalogTable.tsx. */
   height: 42px;
   padding: 0 var(--ct-side-pad);
   border-bottom: 1px solid rgb(var(--ct-line-rgb) / 8%);
-  font-size: 13px;
   cursor: pointer;
   transition: background 0.1s;
 }

@@ -30,6 +30,7 @@ describe('Home public login entries', () => {
     const html = renderHome(true);
 
     expect(html).toContain('href="/login"');
+    expect(html).toContain('Get Started');
     expect(html).toContain('student@ucsd.edu');
     expect(html).toContain('Sign in to save');
   });
@@ -38,6 +39,7 @@ describe('Home public login entries', () => {
     const html = renderHome(false);
 
     expect(html).not.toContain('href="/login"');
+    expect(html).toContain('Get Started');
     expect(html).not.toContain('student@ucsd.edu');
     expect(html).not.toContain('Sign in to save');
     expect(html).toContain('Search the catalog');

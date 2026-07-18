@@ -49,8 +49,13 @@ function Feature({
   );
 }
 
-function Hero() {
-  const [slide, setSlide] = useState(0);
+function Hero({
+  slide,
+  onSelect,
+}: {
+  readonly slide: number;
+  readonly onSelect: (index: number) => void;
+}) {
   // Slides sit in a clipped flex track with a --slide-gap between them so the
   // off-screen panel's text never bleeds across the clip seam. The gap has to
   // be added back into the translate distance, or the active slide lands short.
@@ -178,7 +183,7 @@ function Hero() {
 
       <div className={styles.heroWrap}>
         <FitFigure width={640}>
-          <CatalogDemo slide={slide} onSelect={setSlide} />
+          <CatalogDemo slide={slide} onSelect={onSelect} />
         </FitFigure>
       </div>
     </section>
@@ -613,6 +618,7 @@ export default function Home({
   readonly publicLoginEnabled?: boolean;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [heroSlide, setHeroSlide] = useState(0);
   const closeMenu = () => setMenuOpen(false);
   const authStatus = useStore((state) => state.authStatus);
   const refreshAuth = useStore((state) => state.refreshAuth);
@@ -647,9 +653,13 @@ export default function Home({
             <LogoMark className={styles.logoSvg} />
           </a>
           <nav className={styles.nav}>
-            <Link to={createCatalogLink()} className={styles.navLink}>
+            <a
+              href="#top"
+              className={styles.navLink}
+              onClick={() => setHeroSlide(1)}
+            >
               Catalog
-            </Link>
+            </a>
             <a href="#worksheet" className={styles.navLink}>
               Worksheet
             </a>
@@ -673,6 +683,9 @@ export default function Home({
               Sign in
             </Link>
           ) : null}
+          <Link to={createCatalogLink()} className={styles.headerCta}>
+            Get Started
+          </Link>
           <button
             type="button"
             className={styles.menuBtn}
@@ -694,13 +707,16 @@ export default function Home({
               onClick={closeMenu}
             />
             <nav id="mobile-menu" className={styles.mobileMenu}>
-              <Link
-                to={createCatalogLink()}
+              <a
+                href="#top"
                 className={styles.mobileMenuLink}
-                onClick={closeMenu}
+                onClick={() => {
+                  setHeroSlide(1);
+                  closeMenu();
+                }}
               >
                 Catalog
-              </Link>
+              </a>
               <a
                 href="#worksheet"
                 className={styles.mobileMenuLink}
@@ -720,7 +736,7 @@ export default function Home({
         )}
       </header>
 
-      <Hero />
+      <Hero slide={heroSlide} onSelect={setHeroSlide} />
       <DeptStrip />
       <WorksheetSection />
       <ExamsSection />
