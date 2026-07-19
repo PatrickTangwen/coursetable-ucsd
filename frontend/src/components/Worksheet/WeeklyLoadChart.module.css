@@ -2,7 +2,9 @@
    Hardcoded hex per the finalized-design convention. */
 
 .chartCard {
-  padding: 10px 12px 9px;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 14px 12px;
   border: 1px solid rgb(var(--ct-line-rgb) / 10%);
   border-radius: 8px;
   background: var(--ct-surface);
@@ -16,11 +18,8 @@
 }
 
 .chartTitle {
-  display: flex;
-  align-items: center;
-  gap: 5px;
   color: var(--ct-text-muted);
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 700;
 }
 
@@ -34,8 +33,13 @@
 .chartBars {
   display: flex;
   align-items: flex-end;
-  gap: 10px;
-  height: 66px;
+  gap: 8px;
+  height: 252px;
+
+  /* Headroom so the floating hours label of a full-height bar stays inside
+     the chart instead of colliding with the header. */
+  padding-top: 18px;
+  box-sizing: border-box;
 }
 
 .chartColumn {
@@ -45,11 +49,25 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  gap: 3px;
+  gap: 4px;
+}
+
+.chartBarArea {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
 }
 
 .chartHours {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
   font-size: 10px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
@@ -72,14 +90,14 @@
 
 .chartDayLabel {
   color: var(--ct-text-muted);
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 500;
 }
 
 .chartLegend {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 12px;
+  gap: 5px 8px;
   margin-top: 10px;
   padding-top: 9px;
   border-top: 1px solid rgb(var(--ct-line-rgb) / 5%);
@@ -94,14 +112,21 @@
 }
 
 .legendSwatch {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 2px;
   flex-shrink: 0;
 }
 
 .legendCode {
   color: var(--ct-text-secondary);
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 500;
+}
+
+@media (max-width: 639px) {
+  .chartBars {
+    height: 200px;
+    gap: 5px;
+  }
 }

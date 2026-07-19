@@ -250,51 +250,55 @@ export default function WorksheetListItem({
                   )}
                 </button>
               )}
+              <button
+                type="button"
+                className={styles.chevronButton}
+                onClick={(event) => {
+                  // Keep the header's own click handler from double-toggling
+                  event.stopPropagation();
+                  handleToggle();
+                }}
+                aria-expanded={expanded}
+                aria-label={`${expanded ? 'Collapse' : 'Expand'} ${listing.course_code}`}
+              >
+                <FiChevronDown
+                  className={clsx(
+                    styles.chevron,
+                    expanded && styles.chevronOpen,
+                  )}
+                  aria-hidden="true"
+                />
+              </button>
             </span>
           </div>
           <div className={styles.title}>{listing.course.title}</div>
-          <div className={styles.preview}>
-            {preview ? (
-              <>
-                <ListDayDots days={preview.days} />
-                <span className={styles.previewTime}>{preview.time}</span>
-                {preview.location && (
-                  <>
-                    <span
-                      className={styles.previewSeparator}
-                      aria-hidden="true"
-                    >
-                      ·
-                    </span>
-                    <span className={styles.previewLocation}>
-                      {preview.location}
-                    </span>
-                  </>
-                )}
-              </>
-            ) : (
-              <span className={styles.noSchedule}>
-                No lecture time scheduled
-              </span>
-            )}
-            <span className={styles.previewSpacer} aria-hidden="true" />
-            <button
-              type="button"
-              className={styles.chevronButton}
-              onClick={(event) => {
-                // Don't let the header's own click handler toggle a second time
-                event.stopPropagation();
-                handleToggle();
-              }}
-              aria-expanded={expanded}
-              aria-label={`${expanded ? 'Collapse' : 'Expand'} ${listing.course_code}`}
-            >
-              <FiChevronDown
-                className={clsx(styles.chevron, expanded && styles.chevronOpen)}
-                aria-hidden="true"
-              />
-            </button>
-          </div>
+          {!expanded && (
+            <div className={styles.preview}>
+              {preview ? (
+                <>
+                  <ListDayDots days={preview.days} />
+                  <span className={styles.previewTime}>{preview.time}</span>
+                  {preview.location && (
+                    <>
+                      <span
+                        className={styles.previewSeparator}
+                        aria-hidden="true"
+                      >
+                        ·
+                      </span>
+                      <span className={styles.previewLocation}>
+                        {preview.location}
+                      </span>
+                    </>
+                  )}
+                </>
+              ) : (
+                <span className={styles.noSchedule}>
+                  No lecture time scheduled
+                </span>
+              )}
+            </div>
+          )}
           {hidden && (
             <div className={styles.hiddenLabel}>Hidden from calendar</div>
           )}

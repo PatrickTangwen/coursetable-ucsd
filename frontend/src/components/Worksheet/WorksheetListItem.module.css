@@ -199,10 +199,6 @@
   color: var(--ct-ink);
 }
 
-.previewSpacer {
-  flex: 1;
-}
-
 .noSchedule {
   color: var(--ct-text-muted);
   font-size: 11px;

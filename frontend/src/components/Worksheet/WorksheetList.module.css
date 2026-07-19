@@ -1,8 +1,5 @@
 .page {
   width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 24px 28px 32px;
   font-family:
     Inter,
     system-ui,
@@ -15,7 +12,33 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 20px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 20px 24px 0;
+}
+
+.mainRow {
+  display: flex;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.sidebar {
+  box-sizing: border-box;
+  flex: 2 1 0;
+  min-width: 0;
+  padding: 20px 24px;
+  border-right: 1px solid rgb(var(--ct-line-rgb) / 8%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.content {
+  flex: 3 1 0;
+  min-width: 0;
+  padding: 20px 24px;
 }
 
 .pageTitle {
@@ -32,22 +55,15 @@
   font-size: 12px;
 }
 
-.summaryStack {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
 /* ── Dashboard tiles ── */
 .dashboardGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.05fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 
 .dashTile {
-  padding: 10px 14px;
+  padding: 10px 12px;
   border: 1px solid rgb(var(--ct-line-rgb) / 10%);
   border-radius: 8px;
   background: var(--ct-surface);
@@ -55,32 +71,32 @@
 
 .dashLabel {
   color: var(--ct-text-muted);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 500;
 }
 
 .dashValue {
   margin-top: 2px;
   color: var(--ct-ink);
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.3px;
 }
 
 .dashSub {
-  margin-top: 3px;
+  margin-top: 2px;
   color: var(--ct-text-muted);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 500;
 }
 
 .dashLoad {
-  margin-top: 3px;
+  margin-top: 2px;
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
 }
 
@@ -92,21 +108,22 @@
 }
 
 .dashClear {
-  margin-top: 3px;
+  margin-top: 2px;
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 5px;
   color: var(--ct-green-text);
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .conflictTile {
   position: relative;
-  padding: 10px 14px;
-  border: 1px solid rgb(var(--ct-line-rgb) / 10%);
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--ct-danger-accent);
   border-radius: 8px;
-  background: var(--ct-surface);
+  background: var(--ct-danger-tint);
   text-align: left;
   font-family: inherit;
   cursor: pointer;
@@ -120,42 +137,24 @@
   transform: translateY(-1px);
 }
 
-/* "Warnings hidden" state: same quiet tile, no lift on hover */
-.conflictTile[data-muted]:hover {
-  transform: none;
+.conflictTileLabel {
+  color: var(--ct-danger-text);
+  font-size: 10.5px;
+  font-weight: 600;
 }
 
-.conflictPulseDot {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--ct-danger-accent);
-  animation: list-dot-pulse 1.6s ease-in-out infinite;
+.conflictTileValue {
+  margin-top: 2px;
+  color: var(--ct-danger-text);
+  font-size: 19px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
-@keyframes list-dot-pulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  50% {
-    opacity: 0.4;
-    transform: scale(0.72);
-  }
-}
-
-.conflictTileView {
-  margin-top: 3px;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  color: var(--ct-text-muted);
-  font-size: 11px;
+.conflictTileReview {
+  margin-top: 2px;
+  color: var(--ct-danger-text);
+  font-size: 10.5px;
   font-weight: 500;
 }
 
@@ -168,7 +167,7 @@
 
 .infoTile {
   position: relative;
-  padding: 9px 12px;
+  padding: 10px 12px;
   border: 1px solid rgb(var(--ct-line-rgb) / 10%);
   border-radius: 8px;
   background: var(--ct-surface);
@@ -179,7 +178,7 @@
   text-align: left;
   font-family: inherit;
   cursor: pointer;
-  padding: 9px 12px;
+  padding: 10px 12px;
   border: 1px solid rgb(var(--ct-line-rgb) / 10%);
   border-radius: 8px;
   background: var(--ct-surface);
@@ -194,12 +193,12 @@
 }
 
 .infoSubRow {
-  margin-top: 1px;
+  margin-top: 3px;
   display: flex;
   align-items: center;
   gap: 3px;
   color: var(--ct-text-muted);
-  font-size: 10.5px;
+  font-size: 10px;
 }
 
 .infoLabel {
@@ -207,38 +206,42 @@
   align-items: center;
   gap: 5px;
   color: var(--ct-text-muted);
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 10.5px;
+  font-weight: 500;
 }
 
 .infoValue {
-  margin-top: 3px;
+  margin-top: 5px;
   color: var(--ct-ink);
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .infoSub {
-  margin-top: 1px;
+  margin-top: 3px;
   color: var(--ct-text-muted);
-  font-size: 10.5px;
+  font-size: 10px;
 }
 
 /* ── Controls ── */
 .controls {
-  display: flex;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
+  margin-top: 8px;
 }
 
 .controlButton {
-  flex: 1;
+  box-sizing: border-box;
   width: 100%;
-  padding: 8px;
+  min-height: 34px;
+  padding: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
   border: 1px solid rgb(var(--ct-line-rgb) / 14%);
   border-radius: 8px;
   background: var(--ct-surface);
@@ -258,8 +261,23 @@
 
 .menuWrapper {
   position: relative;
-  flex: 1;
+  min-width: 0;
   display: flex;
+}
+
+/* Settings uses an unpositioned wrapper so its menu anchors to the whole
+   .controls row (design: right-aligned with the row's right edge). */
+.menuWrapperStatic {
+  min-width: 0;
+  display: flex;
+}
+
+/* Keep the trigger buttons above the fixed backdrop (z-index 20) so they
+   stay hoverable and toggle the menu closed while it is open. */
+.menuWrapper .controlButton,
+.menuWrapperStatic .controlButton {
+  position: relative;
+  z-index: 21;
 }
 
 /* ── Settings menu ── */
@@ -469,6 +487,19 @@
   gap: 8px;
 }
 
+/* Empty worksheet: no sidebar, hint centered on the page */
+.emptyState {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: min(12vh, 120px) 24px 64px;
+}
+
+.emptyRestoreWrap {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+}
+
 .emptyTermContent {
   margin-top: 8px;
   text-align: center;
@@ -507,8 +538,50 @@
   border-color: rgb(40 113 190 / 40%);
 }
 
-@media (max-width: 720px) {
-  .page {
-    padding: 16px 14px 24px;
+@media (max-width: 899px) {
+  .mainRow {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    flex: none;
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgb(var(--ct-line-rgb) / 8%);
+    padding: 18px 20px;
+  }
+
+  .content {
+    flex: none;
+    padding: 20px 20px 28px;
+  }
+
+  .pageHeader {
+    padding: 18px 20px 0;
+  }
+}
+
+@media (max-width: 639px) {
+  .sidebar {
+    padding: 16px;
+  }
+
+  .content {
+    padding: 16px 16px 24px;
+  }
+
+  .pageHeader {
+    padding: 16px 16px 0;
+  }
+
+  .dashboardGrid,
+  .infoGrid,
+  .controls {
+    gap: 6px;
+  }
+
+  .controlButton {
+    min-height: 44px;
+    padding: 10px 6px;
   }
 }

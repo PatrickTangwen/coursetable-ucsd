@@ -9,7 +9,6 @@ import type { Crn } from '../../queries/graphql-types';
 import type { WorksheetCourse } from '../../slices/WorksheetSlice';
 import styles from './WeeklyLoadChart.module.css';
 
-const CHART_MAX_PX = 40;
 const fullDayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
 export default function WeeklyLoadChart({
@@ -34,24 +33,7 @@ export default function WeeklyLoadChart({
   return (
     <div id={WEEKLY_LOAD_TARGET_ID} ref={chartRef} className={styles.chartCard}>
       <div className={styles.chartHeader}>
-        <span className={styles.chartTitle}>
-          <svg
-            width="11"
-            height="11"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <line x1="12" y1="20" x2="12" y2="10" />
-            <line x1="18" y1="20" x2="18" y2="4" />
-            <line x1="6" y1="20" x2="6" y2="16" />
-          </svg>
-          Weekly load
-        </span>
+        <span className={styles.chartTitle}>Weekly load</span>
         <span className={styles.chartTotal}>
           {formatHours(load.totalMinutes)}/wk
         </span>
@@ -60,21 +42,12 @@ export default function WeeklyLoadChart({
         {load.days.map((day, index) => {
           const isBusiest =
             busiestLabel === fullDayLabels[index] && day.minutes > 0;
-          const barPx =
+          const barPct =
             day.minutes > 0
-              ? Math.max(
-                  6,
-                  Math.round((day.minutes / maxDayMinutes) * CHART_MAX_PX),
-                )
-              : 3;
+              ? Math.max(4, (day.minutes / maxDayMinutes) * 100)
+              : 2;
           let hoursLabel = day.minutes > 0 ? formatHours(day.minutes) : '–';
-          let labelColor =
-            day.minutes > 0
-              ? isBusiest
-                ? 'var(--ct-ink)'
-                : 'var(--ct-text-secondary)'
-              : 'var(--ct-text-faint)';
-          let labelWeight = isBusiest ? 700 : 500;
+          let labelColor = 'var(--ct-text-muted)';
           if (hoveredCrn) {
             const courseMinutes = day.segments
               .filter((segment) => segment.crn === hoveredCrn)
@@ -82,38 +55,44 @@ export default function WeeklyLoadChart({
             if (courseMinutes > 0) {
               hoursLabel = formatHours(courseMinutes);
               labelColor = hoveredColor ?? 'var(--ct-ink)';
-              labelWeight = 700;
             } else {
               hoursLabel = '–';
               labelColor = 'var(--ct-text-faint)';
-              labelWeight = 500;
             }
           }
           return (
             <div key={day.label} className={styles.chartColumn}>
-              <span
-                className={styles.chartHours}
-                style={{ color: labelColor, fontWeight: labelWeight }}
-              >
-                {hoursLabel}
-              </span>
-              <div className={styles.chartBar} style={{ height: barPx }}>
-                {day.segments.map((segment, segmentIndex) => (
-                  <div
-                    key={segmentIndex}
-                    className={styles.chartSegment}
-                    style={{
-                      flexGrow: segment.minutes,
-                      background: segment.color,
-                      opacity:
-                        hoveredCrn && hoveredCrn !== segment.crn ? 0.22 : 1,
-                    }}
-                    onMouseEnter={() => setHoveredCrn(segment.crn)}
-                    onMouseLeave={() => setHoveredCrn(null)}
-                    onFocus={() => setHoveredCrn(segment.crn)}
-                    onBlur={() => setHoveredCrn(null)}
-                  />
-                ))}
+              <div className={styles.chartBarArea}>
+                <span
+                  className={styles.chartHours}
+                  style={{
+                    color: labelColor,
+                    bottom: `calc(${barPct}% + 6px)`,
+                  }}
+                >
+                  {hoursLabel}
+                </span>
+                <div
+                  className={styles.chartBar}
+                  style={{ height: `${barPct}%` }}
+                >
+                  {day.segments.map((segment, segmentIndex) => (
+                    <div
+                      key={segmentIndex}
+                      className={styles.chartSegment}
+                      style={{
+                        flexGrow: segment.minutes,
+                        background: segment.color,
+                        opacity:
+                          hoveredCrn && hoveredCrn !== segment.crn ? 0.22 : 1,
+                      }}
+                      onMouseEnter={() => setHoveredCrn(segment.crn)}
+                      onMouseLeave={() => setHoveredCrn(null)}
+                      onFocus={() => setHoveredCrn(segment.crn)}
+                      onBlur={() => setHoveredCrn(null)}
+                    />
+                  ))}
+                </div>
               </div>
               <span
                 className={styles.chartDayLabel}

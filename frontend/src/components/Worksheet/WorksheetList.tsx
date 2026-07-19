@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { BsEye, BsEyeSlash } from 'react-icons/bs';
-import { FiDownload, FiLink } from 'react-icons/fi';
 import { useShallow } from 'zustand/react/shallow';
 
 import ConflictModal from './ConflictModal';
@@ -94,8 +93,22 @@ function WorksheetExportMenu({ onClose }: { readonly onClose: () => void }) {
             onClose();
           }}
         >
-          <FiDownload size={13} aria-hidden="true" />
-          Export .ics
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Export as .ics file
         </a>
         <button
           type="button"
@@ -106,8 +119,21 @@ function WorksheetExportMenu({ onClose }: { readonly onClose: () => void }) {
             onClose();
           }}
         >
-          <FiLink size={13} aria-hidden="true" />
-          Copy URL
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+          </svg>
+          Copy shareable URL
         </button>
       </div>
     </>
@@ -384,487 +410,521 @@ function WorksheetList() {
         </div>
       )}
 
-      <div className={styles.summaryStack}>
-        <div className={styles.dashboardGrid}>
-          <div className={styles.dashTile}>
-            <div className={styles.dashLabel}>Courses</div>
-            <div className={styles.dashValue}>{courseCount}</div>
-            <div className={styles.dashSub}>planned</div>
-          </div>
-          <div className={styles.dashTile}>
-            <div className={styles.dashLabel}>Credits</div>
-            <div className={styles.dashValue}>{credits}</div>
-            <div className={styles.dashLoad} style={{ color: load.color }}>
-              <span
-                className={styles.loadDot}
-                style={{ background: load.color }}
-                aria-hidden="true"
-              />
-              {load.label}
-            </div>
-          </div>
-          {scheduleConflicts.length > 0 ? (
-            <button
-              type="button"
-              className={styles.conflictTile}
-              data-muted={hideConflictWarnings || undefined}
-              onClick={() => setConflictModalOpen(true)}
-            >
-              {!hideConflictWarnings && (
-                <span className={styles.conflictPulseDot} aria-hidden="true" />
-              )}
-              <div className={styles.dashLabel}>Conflicts</div>
-              <div className={styles.dashValue}>{scheduleConflicts.length}</div>
-              <div className={styles.conflictTileView}>
-                {hideConflictWarnings ? 'warnings hidden' : 'View'}
-                <svg
-                  width="9"
-                  height="9"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
+      {courses.length > 0 ? (
+        <div className={styles.mainRow}>
+          <div className={styles.sidebar}>
+            <div className={styles.dashboardGrid}>
+              <div className={styles.dashTile}>
+                <div className={styles.dashLabel}>Courses</div>
+                <div className={styles.dashValue}>{courseCount}</div>
+                <div className={styles.dashSub}>planned</div>
+              </div>
+              <div className={styles.dashTile}>
+                <div className={styles.dashLabel}>Credits</div>
+                <div className={styles.dashValue}>{credits}</div>
+                <div className={styles.dashLoad} style={{ color: load.color }}>
+                  <span
+                    className={styles.loadDot}
+                    style={{ background: load.color }}
+                    aria-hidden="true"
+                  />
+                  {load.label}
+                </div>
+              </div>
+              {scheduleConflicts.length > 0 ? (
+                <button
+                  type="button"
+                  className={styles.conflictTile}
+                  onClick={() => setConflictModalOpen(true)}
                 >
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
-              </div>
-            </button>
-          ) : (
-            <div className={styles.dashTile}>
-              <div className={styles.dashLabel}>Conflicts</div>
-              <div className={styles.dashValue}>0</div>
-              <div className={styles.dashClear}>
-                <svg
-                  width="10"
-                  height="10"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--ct-green-icon)"
-                  strokeWidth="2.6"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                all clear
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className={styles.infoGrid}>
-          {anyExam ? (
-            <button
-              type="button"
-              className={styles.examTileButton}
-              onClick={() => setExamsModalOpen(true)}
-            >
-              <div className={styles.infoLabel}>
-                <svg
-                  width="11"
-                  height="11"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <rect x="3" y="4" width="18" height="18" rx="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-                Exam
-              </div>
-              <div className={styles.infoValue}>
-                {exam ? exam.countdown : '—'}
-              </div>
-              <div className={styles.infoSubRow}>
-                First · {exam ? exam.dateShort : '—'}
-                <svg
-                  width="9"
-                  height="9"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
-              </div>
-            </button>
-          ) : (
-            <div className={styles.infoTile}>
-              <div className={styles.infoLabel}>
-                <svg
-                  width="11"
-                  height="11"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <rect x="3" y="4" width="18" height="18" rx="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-                Exam
-              </div>
-              <div className={styles.infoValue}>—</div>
-              <div className={styles.infoSub}>First · —</div>
-            </div>
-          )}
-          <div className={styles.infoTile}>
-            <div className={styles.infoLabel}>
-              <svg
-                width="11"
-                height="11"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-              </svg>
-              Busiest day
-            </div>
-            <div className={styles.infoValue}>
-              {busiest ? busiest.label : '—'}
-            </div>
-            <div className={styles.infoSub}>
-              {busiest
-                ? `${busiest.count} ${busiest.count === 1 ? 'class' : 'classes'}`
-                : 'No weekly classes'}
-            </div>
-          </div>
-        </div>
-
-        {courses.length > 0 && (
-          <WeeklyLoadChart
-            courses={visibleCourses}
-            busiestLabel={busiest?.label ?? null}
-          />
-        )}
-
-        <div className={styles.controls}>
-          <button
-            type="button"
-            className={styles.controlButton}
-            onClick={toggleAllExpand}
-            title={allExpanded ? 'Collapse all' : 'Expand all'}
-            aria-label={allExpanded ? 'Collapse all' : 'Expand all'}
-          >
-            <ExpandAllIcon allExpanded={allExpanded} />
-          </button>
-          {showHideButton && (
-            <button
-              type="button"
-              className={styles.controlButton}
-              onClick={() => {
-                void handleToggleAllHidden();
-              }}
-              title={areHidden ? 'Show all' : 'Hide all'}
-              aria-label={`${areHidden ? 'Show' : 'Hide'} all`}
-            >
-              {areHidden ? (
-                <BsEyeSlash size={15} aria-hidden="true" />
+                  <div className={styles.conflictTileLabel}>Conflicts</div>
+                  <div className={styles.conflictTileValue}>
+                    {scheduleConflicts.length}
+                  </div>
+                  <div className={styles.conflictTileReview}>Review →</div>
+                </button>
               ) : (
-                <BsEye size={15} aria-hidden="true" />
+                <div className={styles.dashTile}>
+                  <div className={styles.dashLabel}>Conflicts</div>
+                  <div className={styles.dashClear}>
+                    <svg
+                      width="11"
+                      height="11"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="var(--ct-green-icon)"
+                      strokeWidth="2.4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    all clear
+                  </div>
+                </div>
               )}
-            </button>
-          )}
-          {showSettings && (
-            <div className={styles.menuWrapper}>
+            </div>
+
+            <div className={styles.infoGrid}>
+              {anyExam ? (
+                <button
+                  type="button"
+                  className={styles.examTileButton}
+                  onClick={() => setExamsModalOpen(true)}
+                >
+                  <div className={styles.infoLabel}>
+                    <svg
+                      width="11"
+                      height="11"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <rect x="3" y="4" width="18" height="18" rx="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    Exam
+                  </div>
+                  <div className={styles.infoValue}>
+                    {exam ? exam.countdown : '—'}
+                  </div>
+                  <div className={styles.infoSubRow}>
+                    {exam ? exam.dateShort : '—'}
+                    <svg
+                      width="9"
+                      height="9"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </div>
+                </button>
+              ) : (
+                <div className={styles.infoTile}>
+                  <div className={styles.infoLabel}>
+                    <svg
+                      width="11"
+                      height="11"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <rect x="3" y="4" width="18" height="18" rx="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    Exam
+                  </div>
+                  <div className={styles.infoValue}>—</div>
+                  <div className={styles.infoSub}>—</div>
+                </div>
+              )}
+              <div className={styles.infoTile}>
+                <div className={styles.infoLabel}>
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                  </svg>
+                  Busiest day
+                </div>
+                <div className={styles.infoValue}>
+                  {busiest ? busiest.label : '—'}
+                </div>
+                <div className={styles.infoSub}>
+                  {busiest
+                    ? `${busiest.count} ${busiest.count === 1 ? 'class' : 'classes'}`
+                    : 'No weekly classes'}
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.controls}>
               <button
                 type="button"
                 className={styles.controlButton}
-                onClick={() => {
-                  if (settingsMenuOpen) closeSettingsMenu();
-                  else setSettingsMenuOpen(true);
-                }}
-                title="Worksheet settings"
-                aria-label="Worksheet settings"
-                aria-haspopup="menu"
-                aria-expanded={settingsMenuOpen}
+                onClick={toggleAllExpand}
+                title={allExpanded ? 'Collapse all' : 'Expand all'}
+                aria-label={allExpanded ? 'Collapse all' : 'Expand all'}
               >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.9"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-                </svg>
-                <svg
-                  width="8"
-                  height="5"
-                  viewBox="0 0 10 6"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M1 1L5 5L9 1"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <ExpandAllIcon allExpanded={allExpanded} />
               </button>
-              {settingsMenuOpen && (
-                <>
+              {showHideButton && (
+                <button
+                  type="button"
+                  className={styles.controlButton}
+                  onClick={() => {
+                    void handleToggleAllHidden();
+                  }}
+                  title={areHidden ? 'Show all' : 'Hide all'}
+                  aria-label={`${areHidden ? 'Show' : 'Hide'} all`}
+                >
+                  {areHidden ? (
+                    <BsEyeSlash size={15} aria-hidden="true" />
+                  ) : (
+                    <BsEye size={15} aria-hidden="true" />
+                  )}
+                </button>
+              )}
+              {showSettings && (
+                <div className={styles.menuWrapperStatic}>
                   <button
                     type="button"
-                    className={styles.menuBackdrop}
-                    onClick={closeSettingsMenu}
-                    aria-label="Close settings menu"
-                    tabIndex={-1}
-                  />
-                  <div className={styles.settingsMenu} role="menu">
-                    <button
-                      type="button"
-                      role="menuitemcheckbox"
-                      aria-checked={hideConflictWarnings}
-                      className={styles.settingsMenuRow}
-                      onClick={() =>
-                        setHideConflictWarnings(!hideConflictWarnings)
+                    className={styles.controlButton}
+                    onClick={() => {
+                      if (settingsMenuOpen) {
+                        closeSettingsMenu();
+                      } else {
+                        setExportMenuOpen(false);
+                        setSettingsMenuOpen(true);
                       }
+                    }}
+                    title="Worksheet settings"
+                    aria-label="Worksheet settings"
+                    aria-haspopup="menu"
+                    aria-expanded={settingsMenuOpen}
+                  >
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
                     >
-                      <span>Hide conflict warnings</span>
-                      {hideConflictWarnings && (
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="var(--ct-accent-text)"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          aria-hidden="true"
+                      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                    </svg>
+                    <svg
+                      width="9"
+                      height="9"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+                  {settingsMenuOpen && (
+                    <>
+                      <button
+                        type="button"
+                        className={styles.menuBackdrop}
+                        onClick={closeSettingsMenu}
+                        aria-label="Close settings menu"
+                        tabIndex={-1}
+                      />
+                      <div className={styles.settingsMenu} role="menu">
+                        <button
+                          type="button"
+                          role="menuitemcheckbox"
+                          aria-checked={hideConflictWarnings}
+                          className={styles.settingsMenuRow}
+                          onClick={() =>
+                            setHideConflictWarnings(!hideConflictWarnings)
+                          }
                         >
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      )}
-                    </button>
-                    {!isReadonlyWorksheet &&
-                      (courses.length > 0 || clearedSnapshot) && (
-                        <>
-                          <div
-                            className={styles.settingsMenuDivider}
-                            aria-hidden="true"
-                          />
-                          {confirmClear ? (
-                            <div className={styles.confirmBlock}>
-                              <div className={styles.confirmText}>
-                                Remove all {courses.length}{' '}
-                                {courses.length === 1 ? 'course' : 'courses'}{' '}
-                                from this worksheet?
-                              </div>
-                              <div className={styles.confirmActions}>
+                          <span>Hide conflict warnings</span>
+                          {hideConflictWarnings && (
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="var(--ct-accent-text)"
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                            >
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          )}
+                        </button>
+                        {!isReadonlyWorksheet &&
+                          (courses.length > 0 || clearedSnapshot) && (
+                            <>
+                              <div
+                                className={styles.settingsMenuDivider}
+                                aria-hidden="true"
+                              />
+                              {confirmClear ? (
+                                <div className={styles.confirmBlock}>
+                                  <div className={styles.confirmText}>
+                                    Remove all {courses.length}{' '}
+                                    {courses.length === 1
+                                      ? 'course'
+                                      : 'courses'}{' '}
+                                    from this worksheet?
+                                  </div>
+                                  <div className={styles.confirmActions}>
+                                    <button
+                                      type="button"
+                                      className={styles.confirmClearButton}
+                                      disabled={clearing}
+                                      onClick={() => {
+                                        void handleClearAll();
+                                      }}
+                                    >
+                                      {clearing ? 'Clearing…' : 'Clear all'}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className={styles.confirmCancelButton}
+                                      onClick={() => setConfirmClear(false)}
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : courses.length > 0 ? (
                                 <button
                                   type="button"
-                                  className={styles.confirmClearButton}
-                                  disabled={clearing}
+                                  className={styles.settingsMenuDanger}
+                                  onClick={() => setConfirmClear(true)}
+                                >
+                                  <svg
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    aria-hidden="true"
+                                  >
+                                    <polyline points="3 6 5 6 21 6" />
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                  </svg>
+                                  Clear all courses
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className={styles.settingsMenuRestore}
                                   onClick={() => {
-                                    void handleClearAll();
+                                    void handleRestoreAll();
                                   }}
                                 >
-                                  {clearing ? 'Clearing…' : 'Clear all'}
+                                  <svg
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    aria-hidden="true"
+                                  >
+                                    <polyline points="1 4 1 10 7 10" />
+                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                                  </svg>
+                                  Restore all courses
                                 </button>
-                                <button
-                                  type="button"
-                                  className={styles.confirmCancelButton}
-                                  onClick={() => setConfirmClear(false)}
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          ) : courses.length > 0 ? (
-                            <button
-                              type="button"
-                              className={styles.settingsMenuDanger}
-                              onClick={() => setConfirmClear(true)}
-                            >
-                              <svg
-                                width="14"
-                                height="14"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                aria-hidden="true"
-                              >
-                                <polyline points="3 6 5 6 21 6" />
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                              </svg>
-                              Clear all courses
-                            </button>
-                          ) : (
-                            <button
-                              type="button"
-                              className={styles.settingsMenuRestore}
-                              onClick={() => {
-                                void handleRestoreAll();
-                              }}
-                            >
-                              <svg
-                                width="14"
-                                height="14"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                aria-hidden="true"
-                              >
-                                <polyline points="1 4 1 10 7 10" />
-                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
-                              </svg>
-                              Restore all courses
-                            </button>
+                              )}
+                            </>
                           )}
-                        </>
-                      )}
-                  </div>
-                </>
+                      </div>
+                    </>
+                  )}
+                </div>
               )}
-            </div>
-          )}
-          <div className={styles.menuWrapper}>
-            <button
-              type="button"
-              className={styles.controlButton}
-              onClick={() => setExportMenuOpen((open) => !open)}
-              title="Export worksheet"
-              aria-label="Export worksheet"
-              aria-haspopup="menu"
-              aria-expanded={exportMenuOpen}
-            >
-              <FiDownload size={13} aria-hidden="true" />
-              <svg
-                width="8"
-                height="5"
-                viewBox="0 0 10 6"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M1 1L5 5L9 1"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-            {exportMenuOpen && (
-              <WorksheetExportMenu onClose={() => setExportMenuOpen(false)} />
-            )}
-          </div>
-        </div>
-
-        {warnings.length > 0 && (
-          <div className={styles.warnings}>
-            {warnings.map((warning) => (
-              <div key={warning} className={styles.warning}>
-                {warning}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {courses.length > 0 ? (
-        <div className={styles.courseList}>
-          {courses.map((course) => (
-            <WorksheetListItem
-              key={viewedSeason + course.crn}
-              course={course}
-              expanded={expandedCrns.has(course.crn)}
-              conflicts={
-                hideConflictWarnings
-                  ? []
-                  : (conflictsByCrn.get(course.crn) ?? [])
-              }
-              onToggleExpand={() => toggleOneExpand(course.crn)}
-            />
-          ))}
-        </div>
-      ) : (
-        <NoCourses
-          heading={
-            anonymousEmptyTermChips.length > 0 ||
-            savedWorksheetEmptyTermChips.length > 0
-              ? `${toSeasonString(viewedSeason)} worksheet is empty`
-              : undefined
-          }
-        >
-          {anonymousEmptyTermChips.length > 0 ? (
-            <div className={styles.emptyTermContent}>
-              <p className={styles.emptyTermText}>
-                This term&apos;s worksheet is empty. Your courses are in:
-              </p>
-              <div className={styles.emptyTermChips}>
-                {anonymousEmptyTermChips.map((chip) => (
-                  <button
-                    key={chip.term}
-                    type="button"
-                    className={styles.emptyTermChip}
-                    onClick={() => changeViewedSeason(chip.term)}
+              <div className={styles.menuWrapper}>
+                <button
+                  type="button"
+                  className={styles.controlButton}
+                  onClick={() => {
+                    closeSettingsMenu();
+                    setExportMenuOpen((open) => !open);
+                  }}
+                  title="Export worksheet"
+                  aria-label="Export worksheet"
+                  aria-haspopup="menu"
+                  aria-expanded={exportMenuOpen}
+                >
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
                   >
-                    {chip.label}
-                  </button>
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                    <path d="M12 14l0 4" />
+                    <path d="M9 17l3 3 3-3" />
+                  </svg>
+                  <svg
+                    width="9"
+                    height="9"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </button>
+                {exportMenuOpen && (
+                  <WorksheetExportMenu
+                    onClose={() => setExportMenuOpen(false)}
+                  />
+                )}
+              </div>
+            </div>
+
+            {warnings.length > 0 && (
+              <div className={styles.warnings}>
+                {warnings.map((warning) => (
+                  <div key={warning} className={styles.warning}>
+                    {warning}
+                  </div>
                 ))}
               </div>
+            )}
+
+            <WeeklyLoadChart
+              courses={visibleCourses}
+              busiestLabel={busiest?.label ?? null}
+            />
+          </div>
+
+          <div className={styles.content}>
+            <div className={styles.courseList}>
+              {courses.map((course) => (
+                <WorksheetListItem
+                  key={viewedSeason + course.crn}
+                  course={course}
+                  expanded={expandedCrns.has(course.crn)}
+                  conflicts={
+                    hideConflictWarnings
+                      ? []
+                      : (conflictsByCrn.get(course.crn) ?? [])
+                  }
+                  onToggleExpand={() => toggleOneExpand(course.crn)}
+                />
+              ))}
             </div>
-          ) : savedWorksheetEmptyTermChips.length > 0 ? (
-            <div className={styles.emptyTermContent}>
-              <p className={styles.emptyTermText}>
-                This term&apos;s worksheet is empty. Your courses are in:
-              </p>
-              <div className={styles.emptyTermChips}>
-                {savedWorksheetEmptyTermChips.map((chip) => (
+          </div>
+        </div>
+      ) : (
+        <div className={styles.emptyState}>
+          {warnings.length > 0 && (
+            <div className={styles.warnings}>
+              {warnings.map((warning) => (
+                <div key={warning} className={styles.warning}>
+                  {warning}
+                </div>
+              ))}
+            </div>
+          )}
+          <NoCourses
+            heading={
+              anonymousEmptyTermChips.length > 0 ||
+              savedWorksheetEmptyTermChips.length > 0
+                ? `${toSeasonString(viewedSeason)} worksheet is empty`
+                : undefined
+            }
+          >
+            {anonymousEmptyTermChips.length > 0 ? (
+              <div className={styles.emptyTermContent}>
+                <p className={styles.emptyTermText}>
+                  This term&apos;s worksheet is empty. Your courses are in:
+                </p>
+                <div className={styles.emptyTermChips}>
+                  {anonymousEmptyTermChips.map((chip) => (
+                    <button
+                      key={chip.term}
+                      type="button"
+                      className={styles.emptyTermChip}
+                      onClick={() => changeViewedSeason(chip.term)}
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : savedWorksheetEmptyTermChips.length > 0 ? (
+              <div className={styles.emptyTermContent}>
+                <p className={styles.emptyTermText}>
+                  This term&apos;s worksheet is empty. Your courses are in:
+                </p>
+                <div className={styles.emptyTermChips}>
+                  {savedWorksheetEmptyTermChips.map((chip) => (
+                    <button
+                      key={chip.term}
+                      type="button"
+                      className={styles.emptyTermChip}
+                      onClick={() => {
+                        void ensureMainSavedWorksheetForTerm(chip.term);
+                      }}
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : undefined}
+            {clearedSnapshot !== null &&
+              showSettings &&
+              !isReadonlyWorksheet && (
+                <div className={styles.emptyRestoreWrap}>
                   <button
-                    key={chip.term}
                     type="button"
                     className={styles.emptyTermChip}
                     onClick={() => {
-                      void ensureMainSavedWorksheetForTerm(chip.term);
+                      void handleRestoreAll();
                     }}
                   >
-                    {chip.label}
+                    Restore all courses
                   </button>
-                ))}
-              </div>
-            </div>
-          ) : undefined}
-        </NoCourses>
+                </div>
+              )}
+          </NoCourses>
+        </div>
       )}
 
       {conflictModalOpen && (
