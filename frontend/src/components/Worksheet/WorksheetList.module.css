@@ -117,13 +117,16 @@
   font-weight: 700;
 }
 
+/* Conflicts tile — matches the calendar sidebar: quiet neutral card with a
+   pulsing dot in the corner when conflicts exist, muted when warnings are
+   hidden. */
 .conflictTile {
   position: relative;
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid var(--ct-danger-accent);
+  border: 1px solid rgb(var(--ct-line-rgb) / 10%);
   border-radius: 8px;
-  background: var(--ct-danger-tint);
+  background: var(--ct-surface);
   text-align: left;
   font-family: inherit;
   cursor: pointer;
@@ -137,23 +140,41 @@
   transform: translateY(-1px);
 }
 
-.conflictTileLabel {
-  color: var(--ct-danger-text);
-  font-size: 10.5px;
-  font-weight: 600;
+/* "Warnings hidden" state: same quiet tile, no lift on hover */
+.conflictTile[data-muted]:hover {
+  transform: none;
 }
 
-.conflictTileValue {
-  margin-top: 2px;
-  color: var(--ct-danger-text);
-  font-size: 19px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+.conflictPulseDot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ct-danger-accent);
+  animation: list-dot-pulse 1.6s ease-in-out infinite;
 }
 
-.conflictTileReview {
+@keyframes list-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: scale(0.72);
+  }
+}
+
+.conflictTileView {
   margin-top: 2px;
-  color: var(--ct-danger-text);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--ct-text-muted);
   font-size: 10.5px;
   font-weight: 500;
 }

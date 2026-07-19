@@ -435,17 +435,40 @@ function WorksheetList() {
                 <button
                   type="button"
                   className={styles.conflictTile}
+                  data-muted={hideConflictWarnings || undefined}
                   onClick={() => setConflictModalOpen(true)}
                 >
-                  <div className={styles.conflictTileLabel}>Conflicts</div>
-                  <div className={styles.conflictTileValue}>
+                  {!hideConflictWarnings && (
+                    <span
+                      className={styles.conflictPulseDot}
+                      aria-hidden="true"
+                    />
+                  )}
+                  <div className={styles.dashLabel}>Conflicts</div>
+                  <div className={styles.dashValue}>
                     {scheduleConflicts.length}
                   </div>
-                  <div className={styles.conflictTileReview}>Review →</div>
+                  <div className={styles.conflictTileView}>
+                    {hideConflictWarnings ? 'warnings hidden' : 'View'}
+                    <svg
+                      width="9"
+                      height="9"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </div>
                 </button>
               ) : (
                 <div className={styles.dashTile}>
                   <div className={styles.dashLabel}>Conflicts</div>
+                  <div className={styles.dashValue}>0</div>
                   <div className={styles.dashClear}>
                     <svg
                       width="11"
