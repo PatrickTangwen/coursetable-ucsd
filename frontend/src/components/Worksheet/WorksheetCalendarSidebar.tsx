@@ -14,6 +14,7 @@ import {
   firstExam,
   hasAnyExam,
 } from './worksheetInsights';
+import { openWeeklyLoad } from './worksheetNavigation';
 import WorksheetPicker, { useCloseOnOutsideClick } from './WorksheetPicker';
 import noCoursesImg from '../../images/calendar_img_high_res.png';
 import type { SavedWorksheetSection } from '../../queries/api';
@@ -358,6 +359,7 @@ export default function WorksheetCalendarSidebar() {
     clearActiveSavedWorksheet,
     restoreAnonymousWorksheetCourses,
     restoreActiveSavedWorksheetSections,
+    changeWorksheetView,
   } = useStore(
     useShallow((state) => ({
       courses: state.courses,
@@ -381,6 +383,7 @@ export default function WorksheetCalendarSidebar() {
       restoreAnonymousWorksheetCourses: state.restoreAnonymousWorksheetCourses,
       restoreActiveSavedWorksheetSections:
         state.restoreActiveSavedWorksheetSections,
+      changeWorksheetView: state.changeWorksheetView,
     })),
   );
   const toggleCourseHidden = useToggleCourseHidden();
@@ -674,32 +677,68 @@ export default function WorksheetCalendarSidebar() {
               <span className={styles.infoTileSub}>First · —</span>
             </div>
           )}
-          <div className={styles.infoTile}>
-            <span className={styles.infoTileLabel}>
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-              </svg>
-              Busiest day
-            </span>
-            <span className={styles.infoTileValue}>
-              {busiest ? busiest.label : '—'}
-            </span>
-            <span className={styles.infoTileSub}>
-              {busiest
-                ? `${busiest.count} ${busiest.count === 1 ? 'class' : 'classes'}`
-                : 'No weekly classes'}
-            </span>
-          </div>
+          {busiest ? (
+            <button
+              type="button"
+              className={styles.examTileButton}
+              onClick={() => openWeeklyLoad(changeWorksheetView)}
+            >
+              <span className={styles.infoTileLabel}>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                </svg>
+                Busiest day
+              </span>
+              <span className={styles.infoTileValue}>{busiest.label}</span>
+              <span className={styles.infoTileSubRow}>
+                {busiest.count} {busiest.count === 1 ? 'class' : 'classes'}
+                <svg
+                  width="9"
+                  height="9"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </span>
+            </button>
+          ) : (
+            <div className={styles.infoTile}>
+              <span className={styles.infoTileLabel}>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                </svg>
+                Busiest day
+              </span>
+              <span className={styles.infoTileValue}>—</span>
+              <span className={styles.infoTileSub}>No weekly classes</span>
+            </div>
+          )}
         </div>
       </div>
 

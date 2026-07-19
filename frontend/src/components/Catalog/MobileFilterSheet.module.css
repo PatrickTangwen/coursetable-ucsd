@@ -162,7 +162,7 @@
   color: var(--ct-ink);
 }
 
-.clearBtn {
+.pickerActionBtn {
   background: none;
   border: 0;
   color: var(--ct-accent-text);

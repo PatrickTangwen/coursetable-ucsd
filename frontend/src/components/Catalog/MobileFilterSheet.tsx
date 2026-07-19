@@ -21,7 +21,6 @@ interface PickerConfig {
   options: readonly { value: string; label: string }[];
   selected: readonly string[];
   toggle: (v: string) => void;
-  clear: () => void;
 }
 
 function SearchIcon() {
@@ -168,27 +167,29 @@ export default function MobileFilterSheet({
     clearTypeFilters();
   }, [setSearchFilter, patchSearchFilters, clearTypeFilters]);
 
+  const returnToMainView = useCallback(() => {
+    setView('main');
+    setQuery('');
+  }, []);
+
   const pickers: { [K in Exclude<FilterView, 'main'>]: PickerConfig } = {
     subject: {
       title: 'Subject',
       options: subjectOptions,
       selected: selectedSubjects.map((s) => s.value),
       toggle: toggleSubject,
-      clear: () => setSearchFilter('selectSubjects', []),
     },
     courseType: {
       title: 'Course Type',
       options: COURSE_TYPES.map((t) => ({ value: t.value, label: t.label })),
       selected: typeFilters,
       toggle: toggleTypeFilter,
-      clear: clearTypeFilters,
     },
     term: {
       title: 'Term',
       options: seasonsOptions,
       selected: selectedSeasons.map((s) => s.value),
       toggle: toggleTerm,
-      clear: () => setSearchFilter('selectSeasons', []),
     },
   };
 
@@ -268,10 +269,7 @@ export default function MobileFilterSheet({
               <button
                 type="button"
                 className={styles.backBtn}
-                onClick={() => {
-                  setView('main');
-                  setQuery('');
-                }}
+                onClick={returnToMainView}
                 aria-label="Back"
               >
                 <svg
@@ -290,15 +288,13 @@ export default function MobileFilterSheet({
               </button>
               <span className={styles.pickerTitle}>{picker!.title}</span>
             </div>
-            {picker!.selected.length > 0 && (
-              <button
-                type="button"
-                className={styles.clearBtn}
-                onClick={picker!.clear}
-              >
-                Clear
-              </button>
-            )}
+            <button
+              type="button"
+              className={styles.pickerActionBtn}
+              onClick={returnToMainView}
+            >
+              Done
+            </button>
           </div>
 
           <div className={styles.pickerSearch}>
