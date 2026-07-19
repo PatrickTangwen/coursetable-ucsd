@@ -8,15 +8,15 @@
   border-bottom: 1px solid rgb(var(--ct-line-rgb) / 8%);
 }
 
-/* Left padding matches the catalog control card side padding (40px full /
-   16px below 1320px) so the logo aligns with the filter bar; the right side
-   stays at 16px so the nav buttons hug the page's right edge. */
+/* Left padding tracks --ct-page-gutter (shared with the catalog control
+   card) so the logo aligns with the filter bar at every width; the right
+   side stays at 16px so the nav buttons hug the page's right edge. */
 .topRow {
   box-sizing: border-box;
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  padding: 14px 16px 14px 40px;
+  padding: 14px 16px 14px var(--ct-page-gutter);
   flex-wrap: wrap;
 }
 
@@ -26,7 +26,10 @@
 .topRowPrimary {
   align-items: center;
   flex-wrap: nowrap;
-  gap: 16px;
+
+  /* Fluid: 16px at ≥1232px viewport, tightening toward 8px at the 768px
+     mobile breakpoint so the row compresses smoothly instead of overflowing. */
+  gap: clamp(8px, calc(8px + (100vw - 768px) / 58), 16px);
   min-height: calc(var(--height-navbar) - 1px);
 }
 
@@ -72,7 +75,9 @@
 .navActions {
   display: flex;
   align-items: center;
-  gap: 6px;
+
+  /* Fluid 4px→6px across the 768–1320px band; continuous, no breakpoint. */
+  gap: clamp(4px, calc(4px + (100vw - 768px) / 276), 6px);
   flex-shrink: 0;
 }
 
@@ -96,7 +101,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 6px 16px;
+
+  /* Fluid 10px→16px across the 768–1320px band; continuous, no breakpoint. */
+  padding: 6px clamp(10px, calc(10px + (100vw - 768px) / 92), 16px);
   font-size: 14px;
   font-weight: 500;
   color: var(--ct-text-secondary);
@@ -136,24 +143,6 @@
 .navTabActive:hover {
   background: var(--ct-accent-tint);
   color: var(--ct-accent-text);
-}
-
-@media (max-width: calc(1320px - 0.5px)) {
-  .topRow {
-    padding: 14px 16px;
-  }
-
-  .topRowPrimary {
-    gap: 16px;
-  }
-
-  .navActions {
-    gap: 4px;
-  }
-
-  .navTab {
-    padding: 6px 10px;
-  }
 }
 
 /* ── Mobile responsive ── */

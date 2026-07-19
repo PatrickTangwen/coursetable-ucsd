@@ -1,7 +1,10 @@
 .container {
   display: flex;
   align-items: center;
-  gap: 16px;
+
+  /* Matches the navbar row's fluid gap so the worksheet controls compress
+     at the same rate as the rest of the chrome. */
+  gap: clamp(8px, calc(8px + (100vw - 768px) / 58), 16px);
   min-height: 0;
   min-width: 0;
   width: 100%;

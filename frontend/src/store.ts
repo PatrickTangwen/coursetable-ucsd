@@ -16,6 +16,7 @@ import {
   type CourseModalUISlice,
 } from './slices/CourseModalUISlice';
 import {
+  breakpoints,
   createDimensionsSlice,
   type DimensionsSlice,
 } from './slices/DimensionsSlice';
@@ -137,9 +138,16 @@ const useDimensions = () => {
 
   useEffect(() => {
     handleResize();
-    window.addEventListener('resize', handleResize);
+    // The matchMedia queries fire exactly at breakpoint crossings, keeping the
+    // JS breakpoint state in lockstep with the CSS media queries on resize.
+    const queries = Object.values(breakpoints).map((width) =>
+      window.matchMedia(`(min-width: ${width}px)`),
+    );
+    queries.forEach((query) => query.addEventListener('change', handleResize));
     return () => {
-      window.removeEventListener('resize', handleResize);
+      queries.forEach((query) =>
+        query.removeEventListener('change', handleResize),
+      );
     };
   }, [handleResize]);
 };

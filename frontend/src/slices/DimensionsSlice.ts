@@ -1,4 +1,3 @@
-import debounce from 'lodash.debounce';
 import type { StateCreator } from 'zustand';
 import type { Store } from '../store';
 
@@ -35,7 +34,11 @@ export const createDimensionsSlice: StateCreator<
   isTablet: false,
   isSmDesktop: false,
   isLgDesktop: false,
-  handleResize: debounce(() => {
+  // Recomputed from matchMedia change events (see useDimensions in store.ts),
+  // which fire exactly when a breakpoint is crossed — no debounce, so the JS
+  // breakpoint state flips in the same frame as the CSS media queries and the
+  // navbar never renders a mixed desktop/mobile state mid-resize.
+  handleResize() {
     set({
       isMobile: range(window.innerWidth, 0, breakpoints.mobile),
       isTablet: range(
@@ -50,5 +53,5 @@ export const createDimensionsSlice: StateCreator<
       ),
       isLgDesktop: range(window.innerWidth, breakpoints.smDesktop, Infinity),
     });
-  }, 100),
+  },
 });

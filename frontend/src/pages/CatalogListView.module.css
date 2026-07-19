@@ -1,8 +1,10 @@
 .page {
   /* Side padding / column gap shared by the filter bar, table header, and
-     rows via CSS custom properties. Breakpoints must stay in sync with the
-     JS view-mode breakpoints in CatalogTable (900px mobile, 1320px compact). */
-  --ct-side-pad: 40px;
+     rows via CSS custom properties. Side padding tracks --ct-page-gutter
+     (shared with the navbar) so the chrome slides continuously on resize;
+     the gap breakpoint must stay in sync with the JS view-mode breakpoints
+     in CatalogTable (900px mobile, 1320px compact). */
+  --ct-side-pad: var(--ct-page-gutter);
   --ct-gap: 16px;
 
   display: flex;
@@ -14,7 +16,6 @@
 
 @media (max-width: calc(1320px - 0.5px)) {
   .page {
-    --ct-side-pad: 16px;
     --ct-gap: 10px;
   }
 }

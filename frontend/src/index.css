@@ -97,6 +97,12 @@
   --sg-shadow-fab: 0 4px 16px rgb(26 86 219 / 35%);
   --sg-backdrop: rgb(0 0 0 / 42%);
 
+  /* ── Page gutter — side padding shared by the navbar and the catalog
+     controls. Fluid: 16px at the 768px mobile breakpoint growing to 40px at
+     ≥1320px (the catalog compact breakpoint), so the shared chrome slides
+     continuously instead of jumping when the viewport is resized. ── */
+  --ct-page-gutter: clamp(16px, calc(16px + (100vw - 768px) / 23), 40px);
+
   /* ── CT UI palette — semantic tokens for the shipped SunGrid surfaces.
      Light values match the previously hardcoded literals exactly; dark values
      live in the :root[data-theme='dark'] block below. ── */
