@@ -403,17 +403,19 @@ export const evalQuestionTags = [
   'Professor',
 ];
 
+// Hues cover the full wheel and the order alternates across it, so
+// consecutively added courses land on strongly contrasting colors.
 export const worksheetColors = [
-  '#31a4d4',
-  '#2cafb7',
-  '#26ba9a',
-  '#49be85',
-  '#6cc26f',
-  '#a3b24b',
-  '#daa126',
+  '#3d95d6',
   '#df8653',
+  '#49be85',
+  '#c765b0',
+  '#daa126',
+  '#7d7fd9',
   '#ca5f53',
-  '#ba7881',
+  '#2cafb7',
+  '#a06fd0',
+  '#a3b24b',
 ];
 
 export const barChartColors = [
