@@ -17,6 +17,16 @@
   display: none;
 }
 
+.boundedMenu {
+  width: min(240px, 100%);
+}
+
+.boundedMenuSlot:not(:empty) {
+  padding: var(--worksheet-color-menu-slot-padding, 4px 12px 8px 0);
+  border-top: 1px solid rgb(var(--ct-line-rgb) / 8%);
+  background: var(--ct-surface-hover);
+}
+
 .menuBody {
   padding: 6px;
   color: var(--ct-ink);
@@ -103,7 +113,7 @@
   border-radius: 50%;
 }
 
-.visibilityState,
+.visibilityCheckbox,
 .checkSlot {
   width: 16px;
   height: 16px;
@@ -112,6 +122,22 @@
   align-items: center;
   justify-content: center;
   color: var(--ct-text-muted);
+}
+
+.visibilityCheckbox {
+  border: 1px solid rgb(var(--ct-line-rgb) / 22%);
+  border-radius: 4px;
+  background: var(--ct-surface);
+  transition:
+    background-color 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.visibilityCheckbox[data-checked] {
+  border-color: var(--ct-accent-text);
+  background: var(--ct-accent-text);
+  color: #fff;
 }
 
 .menuItem[data-active] .checkSlot {

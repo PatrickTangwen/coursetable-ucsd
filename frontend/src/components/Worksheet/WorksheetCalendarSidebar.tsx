@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -11,6 +11,7 @@ import { useWorksheetURLExport } from './URLExportButton';
 import {
   type WorksheetControlsMenu,
   WorksheetColorMenuButton,
+  WorksheetColorMenuSlot,
   WorksheetVisibilityMenuButton,
 } from './WorksheetCourseMenus';
 import { useToggleCourseHidden } from './WorksheetHideButton';
@@ -95,6 +96,7 @@ function CourseCard({
   conflictTooltip,
   expanded,
   colorMenuOpen,
+  showColorPalette,
   onToggleExpand,
   onColorMenuOpenChange,
   onRemove,
@@ -105,6 +107,7 @@ function CourseCard({
   readonly conflictTooltip: string | null;
   readonly expanded: boolean;
   readonly colorMenuOpen: boolean;
+  readonly showColorPalette: boolean;
   readonly onToggleExpand: () => void;
   readonly onColorMenuOpenChange: (open: boolean) => void;
   readonly onRemove: (courseToRemove: WorksheetCourse) => void;
@@ -116,9 +119,9 @@ function CourseCard({
     })),
   );
   const [, setSearchParams] = useSearchParams();
+  const colorMenuContainerRef = useRef<HTMLDivElement>(null);
 
   const { crn } = course.listing;
-  const hidden = Boolean(course.hidden);
   const { exams } = useMemo(
     () => getQuickModalData(course.listing, null),
     [course.listing],
@@ -158,10 +161,10 @@ function CourseCard({
       >
         <span
           className={styles.colorBar}
-          style={{ background: course.color, opacity: hidden ? 0.3 : 1 }}
+          style={{ background: course.color }}
           aria-hidden="true"
         />
-        <div className={styles.cardInfo} data-hidden={hidden || undefined}>
+        <div className={styles.cardInfo}>
           <span className={styles.cardCodeLine}>
             <strong className={styles.cardCode}>
               {course.listing.course_code}
@@ -194,11 +197,12 @@ function CourseCard({
             {course.listing.course.title}
           </span>
         </div>
-        {canEdit && (
+        {canEdit && showColorPalette && (
           <WorksheetColorMenuButton
             course={course}
             className={styles.cardColorButton}
             iconSize={18}
+            boundedContainerRef={colorMenuContainerRef}
             open={colorMenuOpen}
             onOpenChange={onColorMenuOpenChange}
           />
@@ -232,6 +236,10 @@ function CourseCard({
           </svg>
         </button>
       </div>
+      <WorksheetColorMenuSlot
+        containerRef={colorMenuContainerRef}
+        className={styles.cardColorMenuSlot}
+      />
       {expanded && (
         <div className={styles.cardDetails}>
           {exams.length === 0 && (
@@ -326,6 +334,8 @@ export default function WorksheetCalendarSidebar() {
     setGridStyle,
     hideConflictWarnings,
     setHideConflictWarnings,
+    hideCalendarColorPalettes,
+    setHideCalendarColorPalettes,
     removeAnonymousWorksheetListing,
     removeActiveSavedWorksheetListing,
     clearAnonymousWorksheet,
@@ -346,6 +356,8 @@ export default function WorksheetCalendarSidebar() {
       setGridStyle: state.setCalendarGridStyle,
       hideConflictWarnings: state.hideConflictWarnings,
       setHideConflictWarnings: state.setHideConflictWarnings,
+      hideCalendarColorPalettes: state.hideCalendarColorPalettes,
+      setHideCalendarColorPalettes: state.setHideCalendarColorPalettes,
       removeAnonymousWorksheetListing: state.removeAnonymousWorksheetListing,
       removeActiveSavedWorksheetListing:
         state.removeActiveSavedWorksheetListing,
@@ -416,8 +428,7 @@ export default function WorksheetCalendarSidebar() {
   );
   const load = creditLoad(credits);
   const exam = useMemo(() => firstExam(visibleCourses), [visibleCourses]);
-  // The all-exams modal covers every course, hidden included.
-  const anyExam = useMemo(() => hasAnyExam(courses), [courses]);
+  const anyExam = useMemo(() => hasAnyExam(visibleCourses), [visibleCourses]);
   const busiest = useMemo(() => busiestDay(visibleCourses), [visibleCourses]);
   const visibleConflicts = useMemo(
     () => getScheduleConflicts(visibleCourses),
@@ -425,7 +436,7 @@ export default function WorksheetCalendarSidebar() {
   );
   const conflictPartners = useMemo(() => {
     const sectionByCrn = new Map(
-      courses.map((c) => [c.listing.crn, sectionOf(c)]),
+      visibleCourses.map((c) => [c.listing.crn, sectionOf(c)]),
     );
     const label = (crn: Crn, code: string) => {
       const section = sectionByCrn.get(crn);
@@ -442,14 +453,16 @@ export default function WorksheetCalendarSidebar() {
       add(conflict.b.crn, label(conflict.a.crn, conflict.a.courseCode));
     }
     return partners;
-  }, [visibleConflicts, courses]);
+  }, [visibleConflicts, visibleCourses]);
 
   const allExpanded =
-    courses.length > 0 &&
-    courses.every((c) => expandedCards.has(c.listing.crn));
+    visibleCourses.length > 0 &&
+    visibleCourses.every((c) => expandedCards.has(c.listing.crn));
   const toggleExpandAll = () => {
     setExpandedCards(
-      allExpanded ? new Set() : new Set(courses.map((c) => c.listing.crn)),
+      allExpanded
+        ? new Set()
+        : new Set(visibleCourses.map((c) => c.listing.crn)),
     );
   };
   const toggleCardExpanded = (crn: Crn) => {
@@ -845,6 +858,52 @@ export default function WorksheetCalendarSidebar() {
                   </svg>
                 )}
               </button>
+              <button
+                type="button"
+                role="menuitemcheckbox"
+                aria-checked={hideCalendarColorPalettes}
+                className={styles.menuItem}
+                onClick={() => {
+                  const nextHidden = !hideCalendarColorPalettes;
+                  setHideCalendarColorPalettes(nextHidden);
+                  if (nextHidden) setOpenColorMenuCrn(null);
+                }}
+              >
+                <span className={styles.menuItemLabel}>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 3a9 9 0 0 0 0 18h1.5a1.8 1.8 0 0 0 1.1-3.22 1.8 1.8 0 0 1 1.1-3.22H18A3 3 0 0 0 21 11.5 8.6 8.6 0 0 0 12 3Z" />
+                    <circle cx="8" cy="10" r="1" fill="currentColor" />
+                    <circle cx="11" cy="7" r="1" fill="currentColor" />
+                    <circle cx="15" cy="7.5" r="1" fill="currentColor" />
+                  </svg>
+                  Hide color palettes
+                </span>
+                {hideCalendarColorPalettes && (
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--ct-accent-text)"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </button>
               {canEdit && (courses.length > 0 || clearedSnapshot) && (
                 <>
                   <div className={styles.menuDivider} aria-hidden="true" />
@@ -1052,7 +1111,7 @@ export default function WorksheetCalendarSidebar() {
         </div>
       </div>
 
-      {courses.length > 0 && (
+      {visibleCourses.length > 0 && (
         <div className={styles.expandAllRow}>
           <button
             type="button"
@@ -1080,7 +1139,7 @@ export default function WorksheetCalendarSidebar() {
       )}
 
       <div className={styles.courseList}>
-        {courses.map((course) => {
+        {visibleCourses.map((course) => {
           const partners = conflictPartners.get(course.listing.crn);
           return (
             <CourseCard
@@ -1093,6 +1152,7 @@ export default function WorksheetCalendarSidebar() {
               }
               expanded={expandedCards.has(course.listing.crn)}
               colorMenuOpen={openColorMenuCrn === course.listing.crn}
+              showColorPalette={!hideCalendarColorPalettes}
               onToggleExpand={() => toggleCardExpanded(course.listing.crn)}
               onColorMenuOpenChange={(open) =>
                 setOpenColorMenuCrn(open ? course.listing.crn : null)
@@ -1125,14 +1185,14 @@ export default function WorksheetCalendarSidebar() {
       {conflictModalOpen && (
         <ConflictModal
           conflicts={visibleConflicts}
-          courses={courses}
+          courses={visibleCourses}
           onClose={() => setConflictModalOpen(false)}
         />
       )}
 
       {examsModalOpen && (
         <ExamsModal
-          courses={courses}
+          courses={visibleCourses}
           onClose={() => setExamsModalOpen(false)}
         />
       )}

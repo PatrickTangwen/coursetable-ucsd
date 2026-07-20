@@ -243,21 +243,18 @@ function WorksheetList() {
   const canMutateCurrentWorksheet =
     isAnonymousWorksheet || hasSavedWorksheetAccount;
 
-  const { courseCount, credits } = getWorksheetCourseStats(courses);
-  const load = creditLoad(credits);
-  const allExpanded =
-    courses.length > 0 &&
-    courses.every((course) => expandedCrns.has(course.crn));
-
-  // Match the calendar: hidden courses don't take part in conflicts or the
-  // schedule insights.
   const visibleCourses = useMemo(
     () => courses.filter((course) => !course.hidden),
     [courses],
   );
+  const { courseCount, credits } = getWorksheetCourseStats(visibleCourses);
+  const load = creditLoad(credits);
+  const allExpanded =
+    visibleCourses.length > 0 &&
+    visibleCourses.every((course) => expandedCrns.has(course.crn));
+
   const exam = useMemo(() => firstExam(visibleCourses), [visibleCourses]);
-  // The all-exams modal covers every course, hidden included.
-  const anyExam = useMemo(() => hasAnyExam(courses), [courses]);
+  const anyExam = useMemo(() => hasAnyExam(visibleCourses), [visibleCourses]);
   const busiest = useMemo(() => busiestDay(visibleCourses), [visibleCourses]);
   const scheduleConflicts = useMemo(
     () => getScheduleConflicts(visibleCourses),
@@ -334,7 +331,9 @@ function WorksheetList() {
 
   const toggleAllExpand = () => {
     setExpandedCrns(
-      allExpanded ? new Set() : new Set(courses.map((course) => course.crn)),
+      allExpanded
+        ? new Set()
+        : new Set(visibleCourses.map((course) => course.crn)),
     );
   };
 
@@ -869,12 +868,13 @@ function WorksheetList() {
 
           <div className={styles.content}>
             <div className={styles.courseList}>
-              {courses.map((course) => (
+              {visibleCourses.map((course) => (
                 <WorksheetListItem
                   key={viewedSeason + course.crn}
                   course={course}
                   expanded={expandedCrns.has(course.crn)}
                   colorMenuOpen={openColorMenuCrn === course.crn}
+                  boundedColorMenu={isMobile}
                   conflicts={
                     hideConflictWarnings
                       ? []
@@ -969,14 +969,14 @@ function WorksheetList() {
       {conflictModalOpen && (
         <ConflictModal
           conflicts={scheduleConflicts}
-          courses={courses}
+          courses={visibleCourses}
           onClose={() => setConflictModalOpen(false)}
         />
       )}
 
       {examsModalOpen && (
         <ExamsModal
-          courses={courses}
+          courses={visibleCourses}
           onClose={() => setExamsModalOpen(false)}
         />
       )}

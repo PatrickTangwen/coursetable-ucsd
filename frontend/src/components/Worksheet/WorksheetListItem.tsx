@@ -3,7 +3,10 @@ import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 import { FiChevronDown } from 'react-icons/fi';
 
-import { WorksheetColorMenuButton } from './WorksheetCourseMenus';
+import {
+  WorksheetColorMenuButton,
+  WorksheetColorMenuSlot,
+} from './WorksheetCourseMenus';
 import {
   buildWorksheetItemMeetings,
   countdownLabel,
@@ -99,6 +102,7 @@ export default function WorksheetListItem({
   course,
   expanded,
   colorMenuOpen,
+  boundedColorMenu,
   conflicts,
   onToggleExpand,
   onColorMenuOpenChange,
@@ -106,13 +110,14 @@ export default function WorksheetListItem({
   readonly course: WorksheetCourse;
   readonly expanded: boolean;
   readonly colorMenuOpen: boolean;
+  readonly boundedColorMenu: boolean;
   readonly conflicts: readonly CourseConflict[];
   readonly onToggleExpand: () => void;
   readonly onColorMenuOpenChange: (open: boolean) => void;
 }) {
   const { listing, color } = course;
-  const hidden = course.hidden ?? false;
   const cardRef = useRef<HTMLDivElement>(null);
+  const colorMenuContainerRef = useRef<HTMLDivElement>(null);
   const target = useCourseModalLink(listing);
   const setHoverCourse = useStore((state) => state.setHoverCourse);
   const { weekly, dated } = useMemo(
@@ -160,11 +165,7 @@ export default function WorksheetListItem({
   return (
     <div
       ref={cardRef}
-      className={clsx(
-        styles.card,
-        expanded && styles.cardExpanded,
-        hidden && styles.cardHidden,
-      )}
+      className={clsx(styles.card, expanded && styles.cardExpanded)}
       onMouseEnter={() => setHoverCourse(listing.crn)}
       onMouseLeave={() => setHoverCourse(null)}
       onFocus={() => setHoverCourse(listing.crn)}
@@ -213,6 +214,9 @@ export default function WorksheetListItem({
                 course={course}
                 className={styles.colorButton}
                 iconSize={13}
+                boundedContainerRef={
+                  boundedColorMenu ? colorMenuContainerRef : undefined
+                }
                 open={colorMenuOpen}
                 onOpenChange={onColorMenuOpenChange}
               />
@@ -265,11 +269,13 @@ export default function WorksheetListItem({
               )}
             </div>
           )}
-          {hidden && (
-            <div className={styles.hiddenLabel}>Hidden from calendar</div>
-          )}
         </div>
       </div>
+
+      <WorksheetColorMenuSlot
+        containerRef={colorMenuContainerRef}
+        className={styles.cardColorMenuSlot}
+      />
 
       {expanded && (
         <div className={styles.expandPanel}>

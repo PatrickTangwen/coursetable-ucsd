@@ -1,6 +1,14 @@
-import { useRef, useState, type ReactNode, type RefObject } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from 'react';
+import clsx from 'clsx';
 import { Overlay, Popover } from 'react-bootstrap';
 import { BsEye, BsEyeSlash } from 'react-icons/bs';
+import { createPortal } from 'react-dom';
 import { useShallow } from 'zustand/react/shallow';
 
 import { useToggleCourseHidden } from './WorksheetHideButton';
@@ -244,12 +252,12 @@ export function WorksheetVisibilityMenuButton({
                       />
                       <span className={styles.courseCode}>{courseLabel}</span>
                     </span>
-                    <span className={styles.visibilityState}>
-                      {hidden ? (
-                        <BsEyeSlash size={15} aria-hidden="true" />
-                      ) : (
-                        <BsEye size={15} aria-hidden="true" />
-                      )}
+                    <span
+                      className={styles.visibilityCheckbox}
+                      data-checked={hidden || undefined}
+                      aria-hidden="true"
+                    >
+                      {hidden && <CheckIcon />}
                     </span>
                   </button>
                 );
@@ -299,18 +307,75 @@ export function WorksheetColorMenuButton({
   course,
   className,
   iconSize,
+  boundedContainerRef,
   open,
   onOpenChange,
 }: {
   readonly course: WorksheetCourse;
   readonly className?: string;
   readonly iconSize: number;
+  readonly boundedContainerRef?: RefObject<HTMLDivElement | null>;
   readonly open: boolean;
   readonly onOpenChange: (nextOpen: boolean) => void;
 }) {
   const setCourseColor = useSetWorksheetCourseColor();
   const targetRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const bounded = boundedContainerRef !== undefined;
+
+  useEffect(() => {
+    if (!bounded || !open) return undefined;
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (
+        !targetRef.current?.contains(target) &&
+        !menuRef.current?.contains(target)
+      )
+        onOpenChange(false);
+    };
+    document.addEventListener('mousedown', closeOnOutsideClick);
+    return () => document.removeEventListener('mousedown', closeOnOutsideClick);
+  }, [bounded, onOpenChange, open]);
+
   if (!setCourseColor) return null;
+
+  const menuContents = (
+    <>
+      <div className={styles.menuLabel}>Course color</div>
+      <div className={styles.menuList}>
+        {worksheetColorTokens.map((token) => {
+          const active =
+            token.solid.toLowerCase() === course.color.toLowerCase();
+          return (
+            <button
+              key={token.hue}
+              type="button"
+              role="menuitemradio"
+              aria-checked={active}
+              className={styles.menuItem}
+              data-active={active || undefined}
+              onClick={() => {
+                onOpenChange(false);
+                void setCourseColor(course.listing, token.solid);
+              }}
+            >
+              <span className={styles.courseIdentity}>
+                <span
+                  className={styles.colorDot}
+                  style={{ backgroundColor: token.solid }}
+                  aria-hidden="true"
+                />
+                <span>{token.hue}</span>
+              </span>
+              <span className={styles.checkSlot}>
+                {active && <CheckIcon />}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </>
+  );
 
   return (
     <>
@@ -329,46 +394,53 @@ export function WorksheetColorMenuButton({
       >
         <PaletteIcon color={course.color} size={iconSize} />
       </button>
-      <MenuOverlay
-        target={targetRef}
-        open={open}
-        onClose={() => onOpenChange(false)}
-        id={`worksheet-course-color-menu-${course.listing.crn}`}
-      >
-        <div className={styles.menuLabel}>Course color</div>
-        <div className={styles.menuList}>
-          {worksheetColorTokens.map((token) => {
-            const active =
-              token.solid.toLowerCase() === course.color.toLowerCase();
-            return (
-              <button
-                key={token.hue}
-                type="button"
-                role="menuitemradio"
-                aria-checked={active}
-                className={styles.menuItem}
-                data-active={active || undefined}
-                onClick={() => {
-                  onOpenChange(false);
-                  void setCourseColor(course.listing, token.solid);
-                }}
-              >
-                <span className={styles.courseIdentity}>
-                  <span
-                    className={styles.colorDot}
-                    style={{ backgroundColor: token.solid }}
-                    aria-hidden="true"
-                  />
-                  <span>{token.hue}</span>
-                </span>
-                <span className={styles.checkSlot}>
-                  {active && <CheckIcon />}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </MenuOverlay>
+      {bounded ? (
+        open &&
+        boundedContainerRef.current &&
+        createPortal(
+          <div
+            ref={menuRef}
+            id={`worksheet-course-color-menu-${course.listing.crn}`}
+            className={clsx(styles.menu, styles.boundedMenu)}
+            role="menu"
+            tabIndex={-1}
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                onOpenChange(false);
+                targetRef.current?.focus();
+              }
+            }}
+          >
+            <div className={styles.menuBody}>{menuContents}</div>
+          </div>,
+          boundedContainerRef.current,
+        )
+      ) : (
+        <MenuOverlay
+          target={targetRef}
+          open={open}
+          onClose={() => onOpenChange(false)}
+          id={`worksheet-course-color-menu-${course.listing.crn}`}
+        >
+          {menuContents}
+        </MenuOverlay>
+      )}
     </>
+  );
+}
+
+export function WorksheetColorMenuSlot({
+  containerRef,
+  className,
+}: {
+  readonly containerRef: RefObject<HTMLDivElement | null>;
+  readonly className?: string;
+}) {
+  return (
+    <div
+      ref={containerRef}
+      className={clsx(styles.boundedMenuSlot, className)}
+    />
   );
 }

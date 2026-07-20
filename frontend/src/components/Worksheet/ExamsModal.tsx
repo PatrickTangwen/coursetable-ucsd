@@ -23,7 +23,7 @@ export default function ExamsModal({
 }) {
   const [sortBy, setSortBy] = useState<'date' | 'course'>('date');
 
-  // All exams (midterms + finals) across every course, hidden included.
+  // The caller supplies only courses currently visible in the worksheet.
   const exams = useMemo(() => {
     const list = [];
     for (const course of courses) {
