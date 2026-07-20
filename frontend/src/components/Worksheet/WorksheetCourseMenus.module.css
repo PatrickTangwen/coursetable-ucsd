@@ -67,7 +67,7 @@
 .colorMenuTitle {
   min-width: 0;
   overflow: hidden;
-  color: var(--ct-text-muted);
+  color: var(--ct-ink);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -77,7 +77,7 @@
 
 .colorMenuDone {
   flex: 0 0 auto;
-  padding: 2px 0;
+  padding: 3px 7px;
   border: 0;
   border-radius: 4px;
   background: transparent;
@@ -90,8 +90,7 @@
 
 .colorMenuDone:hover,
 .colorMenuDone:focus-visible {
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  background: var(--ct-accent-tint);
 }
 
 .menuHint {
@@ -219,20 +218,25 @@
   line-height: 1.3;
 }
 
-.colorSheetClose {
-  width: 30px;
-  height: 30px;
-  display: flex;
+.colorSheetDone {
+  display: inline-flex;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding: 6px 8px;
   border: 0;
-  border-radius: 50%;
-  background: var(--ct-surface-tint);
-  color: var(--ct-text-secondary);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ct-accent-text);
   cursor: pointer;
-  font-size: 16px;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.colorSheetDone:hover,
+.colorSheetDone:focus-visible {
+  background: var(--ct-accent-tint);
 }
 
 .colorSheetList {

@@ -8,7 +8,6 @@ import {
 import clsx from 'clsx';
 import { Overlay, Popover } from 'react-bootstrap';
 import { BsEye, BsEyeSlash } from 'react-icons/bs';
-import { FaXmark } from 'react-icons/fa6';
 import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
@@ -382,56 +381,10 @@ function useDisplayedColorCourse(
   return course ?? lastCourse;
 }
 
-function WorksheetColorPickerContent({
-  course,
-  theme,
-  onClose,
-  onSelect,
-}: {
-  readonly course: WorksheetCourse;
-  readonly theme: 'light' | 'dark';
-  readonly onClose: () => void;
-  readonly onSelect: (color: string) => void;
-}) {
-  const titleId = `worksheet-course-color-sheet-title-${course.listing.crn}`;
-  return (
-    <section aria-labelledby={titleId} className={styles.colorSheetInner}>
-      <div className={styles.colorSheetHeader}>
-        <h2 id={titleId} className={styles.colorSheetTitle}>
-          {course.listing.course_code} color
-        </h2>
-        <button
-          type="button"
-          className={styles.colorSheetClose}
-          onClick={onClose}
-          aria-label="Close course color picker"
-        >
-          <FaXmark aria-hidden="true" />
-        </button>
-      </div>
-      <div className={styles.colorSheetList}>
-        <WorksheetColorOptions
-          course={course}
-          theme={theme}
-          variant="sheet"
-          onSelect={onSelect}
-        />
-      </div>
-    </section>
-  );
-}
-
-function WorksheetDesktopColorMenuContent({
-  course,
-  theme,
-  onDone,
-  onPersist,
-}: {
-  readonly course: WorksheetCourse;
-  readonly theme: 'light' | 'dark';
-  readonly onDone: () => void;
-  readonly onPersist: (color: string) => Promise<boolean> | boolean;
-}) {
+function usePersistedCourseColor(
+  course: WorksheetCourse,
+  onPersist: (color: string) => Promise<boolean> | boolean,
+) {
   const [previewColor, setPreviewColor] = useState(course.color);
   const confirmedColor = useRef(course.color);
   const saveQueue = useRef(Promise.resolve());
@@ -459,6 +412,68 @@ function WorksheetDesktopColorMenuContent({
         toast.error(`Unable to update ${course.listing.course_code} color`);
       });
   };
+
+  return { previewColor, selectColor };
+}
+
+function WorksheetColorPickerContent({
+  course,
+  theme,
+  onClose,
+  onPersist,
+}: {
+  readonly course: WorksheetCourse;
+  readonly theme: 'light' | 'dark';
+  readonly onClose: () => void;
+  readonly onPersist: (color: string) => Promise<boolean> | boolean;
+}) {
+  const { previewColor, selectColor } = usePersistedCourseColor(
+    course,
+    onPersist,
+  );
+  const titleId = `worksheet-course-color-sheet-title-${course.listing.crn}`;
+  return (
+    <section aria-labelledby={titleId} className={styles.colorSheetInner}>
+      <div className={styles.colorSheetHeader}>
+        <h2 id={titleId} className={styles.colorSheetTitle}>
+          {course.listing.course_code} Color
+        </h2>
+        <button
+          type="button"
+          className={styles.colorSheetDone}
+          onClick={onClose}
+        >
+          Done
+        </button>
+      </div>
+      <div className={styles.colorSheetList}>
+        <WorksheetColorOptions
+          course={course}
+          theme={theme}
+          variant="sheet"
+          selectedColor={previewColor}
+          onSelect={selectColor}
+        />
+      </div>
+    </section>
+  );
+}
+
+function WorksheetDesktopColorMenuContent({
+  course,
+  theme,
+  onDone,
+  onPersist,
+}: {
+  readonly course: WorksheetCourse;
+  readonly theme: 'light' | 'dark';
+  readonly onDone: () => void;
+  readonly onPersist: (color: string) => Promise<boolean> | boolean;
+}) {
+  const { previewColor, selectColor } = usePersistedCourseColor(
+    course,
+    onPersist,
+  );
 
   return (
     <>
@@ -550,13 +565,11 @@ export function WorksheetColorPicker({
       className={styles.colorSheet}
     >
       <WorksheetColorPickerContent
+        key={`${displayedCourse.listing.crn}-${selectedCrn ?? 'closed'}`}
         course={displayedCourse}
         theme={theme}
         onClose={onClose}
-        onSelect={(color) => {
-          onClose();
-          void updateColor(color);
-        }}
+        onPersist={updateColor}
       />
     </BottomSheet>
   );

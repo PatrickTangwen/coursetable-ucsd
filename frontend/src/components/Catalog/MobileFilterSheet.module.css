@@ -23,20 +23,6 @@
   color: var(--ct-ink);
 }
 
-.closeBtn {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 0;
-  background: var(--ct-surface-tint);
-  color: var(--ct-text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-}
-
 .categoryList {
   overflow-y: auto;
   padding: 0 20px;
