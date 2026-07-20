@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import clsx from 'clsx';
+import { FaCalendarCheck } from 'react-icons/fa6';
 import { useShallow } from 'zustand/react/shallow';
 import { logout } from '../../queries/api';
 import { useStore } from '../../store';
@@ -29,24 +30,6 @@ function CatalogIcon() {
       <rect x="14" y="3" width="7" height="7" rx="1.5" />
       <rect x="3" y="14" width="7" height="7" rx="1.5" />
       <rect x="14" y="14" width="7" height="7" rx="1.5" />
-    </svg>
-  );
-}
-
-function WorksheetIcon() {
-  return (
-    <svg
-      width="17"
-      height="17"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M4 6h16M4 12h10M4 18h16" />
     </svg>
   );
 }
@@ -175,7 +158,7 @@ export default function MobileNavSheet({
         <NavSheetLink
           to="/worksheet"
           label="Worksheet"
-          icon={<WorksheetIcon />}
+          icon={<FaCalendarCheck size={17} aria-hidden="true" />}
           onNavigate={handleNavigate}
         />
         {shouldShowPublicLoginEntry(
