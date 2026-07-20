@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 
 import CatalogTable from '../components/Catalog/CatalogTable';
 import FilterBar, { COURSE_TYPES } from '../components/Catalog/FilterBar';
+import { DataLoadErrorPage } from '../components/PageStatus';
 import { useCoursePlanningCatalog } from '../hooks/useCoursePlanning';
 import { useSearch } from '../hooks/useSearch';
 import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
@@ -16,7 +17,7 @@ import styles from './CatalogListView.module.css';
 
 export default function CatalogListView() {
   const { searchData, coursesLoading } = useSearch();
-  const { courses } = useCoursePlanningCatalog();
+  const { courses, error: courseLoadError } = useCoursePlanningCatalog();
   const typeFilters = useStore((s) => s.catalogTypeFilters);
   const searchFilters = useStore((s) => s.searchFilters);
   const patchSearchFilters = useStore((s) => s.patchSearchFilters);
@@ -59,6 +60,8 @@ export default function CatalogListView() {
     },
     [navigate, searchParams, setSearchParams],
   );
+
+  if (courseLoadError) return <DataLoadErrorPage />;
 
   return (
     <div className={styles.page}>

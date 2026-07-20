@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fa';
 import { useShallow } from 'zustand/react/shallow';
 
-import ErrorPage from '../components/ErrorPage';
+import { DataLoadErrorPage } from '../components/PageStatus';
 import Spinner from '../components/Spinner';
 import CalendarLockSettingsModal from '../components/Worksheet/CalendarLockSettingsModal';
 import SunGridCalendar from '../components/Worksheet/SunGridCalendar';
@@ -40,6 +40,7 @@ function Worksheet() {
     activeSavedWorksheet,
     activeSavedWorksheetOwnerId,
     savedWorksheetBootstrapStatus,
+    savedWorksheetBootstrapError,
     ensureMainSavedWorksheetForTerm,
     setCalendarViewLocked,
     setCalendarLockSettingsOpen,
@@ -56,6 +57,7 @@ function Worksheet() {
       activeSavedWorksheet: state.activeSavedWorksheet,
       activeSavedWorksheetOwnerId: state.activeSavedWorksheetOwnerId,
       savedWorksheetBootstrapStatus: state.savedWorksheetBootstrapStatus,
+      savedWorksheetBootstrapError: state.savedWorksheetBootstrapError,
       ensureMainSavedWorksheetForTerm: state.ensureMainSavedWorksheetForTerm,
       setCalendarViewLocked: state.setCalendarViewLocked,
       setCalendarLockSettingsOpen: state.setCalendarLockSettingsOpen,
@@ -120,9 +122,18 @@ function Worksheet() {
   ]);
 
   // Wait for search query to finish
-  if (worksheetError) {
-    Sentry.captureException(worksheetError);
-    return <ErrorPage message="There seems to be an issue with our server" />;
+  const accountBootstrapError =
+    !skipAccountBootstrapRef.current &&
+    authStatus === 'authenticated' &&
+    user &&
+    !viewAnonymousWorksheet &&
+    savedWorksheetBootstrapStatus === 'error'
+      ? savedWorksheetBootstrapError
+      : null;
+  const pageLoadError = worksheetError ?? accountBootstrapError;
+  if (pageLoadError) {
+    Sentry.captureException(pageLoadError);
+    return <DataLoadErrorPage />;
   }
   if (worksheetLoading) return <Spinner message="Loading worksheet data..." />;
   const isListView = worksheetView === 'list';

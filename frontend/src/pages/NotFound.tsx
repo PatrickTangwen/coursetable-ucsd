@@ -1,20 +1,11 @@
-import NotFoundImage from '../images/page_not_found.png';
-import styles from './NotFound.module.css';
+import PageStatus from '../components/PageStatus';
 
 function NotFound() {
   return (
-    <div className={styles.container}>
-      <img
-        alt="A paper plane flying out of an open folder"
-        className={styles.illustration}
-        src={NotFoundImage}
-      />
-      <h3 className={styles.title}>Page not found</h3>
-      <p className={styles.message}>
-        The page you&rsquo;re looking for doesn&rsquo;t exist or may have been
-        moved.
-      </p>
-    </div>
+    <PageStatus
+      title="Page not found"
+      message="The page you're looking for doesn't exist or may have been moved."
+    />
   );
 }
 
