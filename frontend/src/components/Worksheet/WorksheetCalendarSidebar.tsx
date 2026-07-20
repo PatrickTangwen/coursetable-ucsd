@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import clsx from 'clsx';
 import { useShallow } from 'zustand/react/shallow';
 
 import { getQuickModalData } from './CalendarQuickModal';
@@ -13,6 +14,7 @@ import {
   WorksheetColorMenuButton,
   WorksheetColorMenuSlot,
   WorksheetVisibilityMenuButton,
+  worksheetColorMenuHostClassName,
 } from './WorksheetCourseMenus';
 import { useToggleCourseHidden } from './WorksheetHideButton';
 import {
@@ -141,9 +143,10 @@ function CourseCard({
 
   return (
     <div
-      className={styles.card}
+      className={clsx(styles.card, worksheetColorMenuHostClassName)}
       data-hovered={(hoverCourse === crn && !expanded) || undefined}
       data-expanded={expanded || undefined}
+      data-color-menu-open={colorMenuOpen || undefined}
     >
       {/* eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- clickable card row wraps nested buttons */}
       <div

@@ -18,13 +18,23 @@
 }
 
 .boundedMenu {
+  position: absolute;
+  top: 4px;
+  right: var(--worksheet-color-menu-right, auto);
+  left: var(--worksheet-color-menu-left, 0);
   width: min(240px, 100%);
 }
 
-.boundedMenuSlot:not(:empty) {
-  padding: var(--worksheet-color-menu-slot-padding, 4px 12px 8px 0);
-  border-top: 1px solid rgb(var(--ct-line-rgb) / 8%);
-  background: var(--ct-surface-hover);
+.boundedMenuSlot {
+  position: relative;
+  z-index: 1080;
+  height: 0;
+}
+
+.boundedMenuHost[data-color-menu-open] {
+  position: relative;
+  z-index: 2;
+  overflow: visible;
 }
 
 .menuBody {

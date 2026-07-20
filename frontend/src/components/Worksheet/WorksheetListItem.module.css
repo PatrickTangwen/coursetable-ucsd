@@ -170,10 +170,6 @@
     color 0.12s ease;
 }
 
-.cardColorMenuSlot {
-  --worksheet-color-menu-slot-padding: 4px 16px 10px 0;
-}
-
 .colorButton:hover,
 .colorButton:focus-visible,
 .chevronButton:hover,

@@ -693,7 +693,8 @@
 }
 
 .cardColorMenuSlot {
-  --worksheet-color-menu-slot-padding: 4px 12px 8px 0;
+  --worksheet-color-menu-left: 0;
+  --worksheet-color-menu-right: auto;
 }
 
 .cardExpandButton {
@@ -870,7 +871,7 @@
 
 @media (max-width: calc(768px - 0.5px)) {
   .cardColorMenuSlot {
-    display: flex;
-    justify-content: flex-end;
+    --worksheet-color-menu-left: auto;
+    --worksheet-color-menu-right: 12px;
   }
 }

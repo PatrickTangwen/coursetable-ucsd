@@ -6,6 +6,7 @@ import { FiChevronDown } from 'react-icons/fi';
 import {
   WorksheetColorMenuButton,
   WorksheetColorMenuSlot,
+  worksheetColorMenuHostClassName,
 } from './WorksheetCourseMenus';
 import {
   buildWorksheetItemMeetings,
@@ -165,7 +166,12 @@ export default function WorksheetListItem({
   return (
     <div
       ref={cardRef}
-      className={clsx(styles.card, expanded && styles.cardExpanded)}
+      className={clsx(
+        styles.card,
+        worksheetColorMenuHostClassName,
+        expanded && styles.cardExpanded,
+      )}
+      data-color-menu-open={(boundedColorMenu && colorMenuOpen) || undefined}
       onMouseEnter={() => setHoverCourse(listing.crn)}
       onMouseLeave={() => setHoverCourse(null)}
       onFocus={() => setHoverCourse(listing.crn)}
@@ -272,10 +278,7 @@ export default function WorksheetListItem({
         </div>
       </div>
 
-      <WorksheetColorMenuSlot
-        containerRef={colorMenuContainerRef}
-        className={styles.cardColorMenuSlot}
-      />
+      <WorksheetColorMenuSlot containerRef={colorMenuContainerRef} />
 
       {expanded && (
         <div className={styles.expandPanel}>

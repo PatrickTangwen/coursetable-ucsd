@@ -20,6 +20,7 @@ import { formatWorksheetSectionSuffix } from '../../utilities/course';
 import styles from './WorksheetCourseMenus.module.css';
 
 export type WorksheetControlsMenu = 'visibility' | 'settings' | 'export' | null;
+export const worksheetColorMenuHostClassName = styles.boundedMenuHost;
 
 function CheckIcon() {
   return (
