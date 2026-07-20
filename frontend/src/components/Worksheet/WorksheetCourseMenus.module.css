@@ -55,6 +55,45 @@
   color: var(--ct-ink);
 }
 
+.colorMenuHeader {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 10px 4px;
+}
+
+.colorMenuTitle {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ct-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.colorMenuDone {
+  flex: 0 0 auto;
+  padding: 2px 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ct-accent-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.colorMenuDone:hover,
+.colorMenuDone:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .menuHint {
   padding: 0 10px 6px;
   color: var(--ct-text-muted);
@@ -249,13 +288,14 @@
 
 .containedColorMenu {
   position: absolute;
-  right: 8px;
-  bottom: 8px;
+  top: 50%;
+  left: 50%;
   z-index: 2;
   width: min(240px, calc(100% - 16px));
   max-height: calc(100% - 16px);
   overflow-y: auto;
-  transform-origin: right bottom;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
   animation: contained-color-menu-in 0.14s ease-out;
 }
 
@@ -272,7 +312,7 @@
 @keyframes contained-color-menu-in {
   from {
     opacity: 0;
-    transform: translateY(4px) scale(0.98);
+    transform: translate(-50%, calc(-50% + 4px)) scale(0.98);
   }
 }
 

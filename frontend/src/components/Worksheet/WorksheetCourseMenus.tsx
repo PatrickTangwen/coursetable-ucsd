@@ -10,6 +10,7 @@ import { Overlay, Popover } from 'react-bootstrap';
 import { BsEye, BsEyeSlash } from 'react-icons/bs';
 import { FaXmark } from 'react-icons/fa6';
 import { createPortal } from 'react-dom';
+import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
 
 import { useToggleCourseHidden } from './WorksheetHideButton';
@@ -308,9 +309,9 @@ export function useSetWorksheetCourseColor() {
   return async (listing: WorksheetListingViewModel, color: string) => {
     if (isAnonymousWorksheet) {
       setAnonymousWorksheetListingColor(listing, color);
-      return;
+      return true;
     }
-    await setActiveSavedWorksheetListingColor(listing, color);
+    return await setActiveSavedWorksheetListingColor(listing, color);
   };
 }
 
@@ -318,15 +319,17 @@ function WorksheetColorOptions({
   course,
   theme,
   variant,
+  selectedColor = course.color,
   onSelect,
 }: {
   readonly course: WorksheetCourse;
   readonly theme: 'light' | 'dark';
   readonly variant: 'menu' | 'sheet';
+  readonly selectedColor?: string;
   readonly onSelect: (color: string) => void;
 }) {
   return worksheetColorTokens.map((token) => {
-    const active = token.solid.toLowerCase() === course.color.toLowerCase();
+    const active = token.solid.toLowerCase() === selectedColor.toLowerCase();
     const sheetVariant = variant === 'sheet';
     const optionProps = sheetVariant
       ? {
@@ -418,6 +421,68 @@ function WorksheetColorPickerContent({
   );
 }
 
+function WorksheetDesktopColorMenuContent({
+  course,
+  theme,
+  onDone,
+  onPersist,
+}: {
+  readonly course: WorksheetCourse;
+  readonly theme: 'light' | 'dark';
+  readonly onDone: () => void;
+  readonly onPersist: (color: string) => Promise<boolean> | boolean;
+}) {
+  const [previewColor, setPreviewColor] = useState(course.color);
+  const confirmedColor = useRef(course.color);
+  const saveQueue = useRef(Promise.resolve());
+  const selectionVersion = useRef(0);
+  const persistColor = useRef(onPersist);
+
+  useEffect(() => {
+    persistColor.current = onPersist;
+  }, [onPersist]);
+
+  const selectColor = (color: string) => {
+    selectionVersion.current += 1;
+    const version = selectionVersion.current;
+    setPreviewColor(color);
+    saveQueue.current = saveQueue.current
+      .then(async () => {
+        const persisted = await persistColor.current(color);
+        if (!persisted && color !== confirmedColor.current)
+          throw new Error('Course color was not saved');
+        confirmedColor.current = color;
+      })
+      .catch(() => {
+        if (selectionVersion.current === version)
+          setPreviewColor(confirmedColor.current);
+        toast.error(`Unable to update ${course.listing.course_code} color`);
+      });
+  };
+
+  return (
+    <>
+      <div className={styles.colorMenuHeader}>
+        <div className={styles.colorMenuTitle}>
+          {course.listing.course_code} Color
+        </div>
+        <button type="button" className={styles.colorMenuDone} onClick={onDone}>
+          Done
+        </button>
+      </div>
+      <div className={styles.menuList}>
+        <WorksheetColorOptions
+          course={course}
+          theme={theme}
+          variant="menu"
+          selectedColor={previewColor}
+          onSelect={selectColor}
+        />
+      </div>
+    </>
+  );
+}
+
 export function WorksheetColorPicker({
   courses,
   selectedCrn,
@@ -445,10 +510,8 @@ export function WorksheetColorPicker({
 
   if (!displayedCourse || !setCourseColor) return null;
 
-  const selectColor = (color: string) => {
-    onClose();
-    void setCourseColor(displayedCourse.listing, color);
-  };
+  const updateColor = (color: string) =>
+    setCourseColor(displayedCourse.listing, color);
 
   if (isContainedMenu) {
     if (selectedCrn === null) return null;
@@ -467,15 +530,12 @@ export function WorksheetColorPicker({
           tabIndex={-1}
         >
           <div className={styles.menuBody}>
-            <div className={styles.menuLabel}>Course color</div>
-            <div className={styles.menuList}>
-              <WorksheetColorOptions
-                course={displayedCourse}
-                theme={theme}
-                variant="menu"
-                onSelect={selectColor}
-              />
-            </div>
+            <WorksheetDesktopColorMenuContent
+              course={displayedCourse}
+              theme={theme}
+              onDone={onClose}
+              onPersist={updateColor}
+            />
           </div>
         </div>
       </>
@@ -493,7 +553,10 @@ export function WorksheetColorPicker({
         course={displayedCourse}
         theme={theme}
         onClose={onClose}
-        onSelect={selectColor}
+        onSelect={(color) => {
+          onClose();
+          void updateColor(color);
+        }}
       />
     </BottomSheet>
   );
@@ -542,20 +605,12 @@ export function WorksheetColorMenuButton({
   if (!setCourseColor) return null;
 
   const menuContents = (
-    <>
-      <div className={styles.menuLabel}>Course color</div>
-      <div className={styles.menuList}>
-        <WorksheetColorOptions
-          course={course}
-          theme={theme}
-          variant="menu"
-          onSelect={(color) => {
-            onOpenChange(false);
-            void setCourseColor(course.listing, color);
-          }}
-        />
-      </div>
-    </>
+    <WorksheetDesktopColorMenuContent
+      course={course}
+      theme={theme}
+      onDone={() => onOpenChange(false)}
+      onPersist={(color) => setCourseColor(course.listing, color)}
+    />
   );
 
   return (
