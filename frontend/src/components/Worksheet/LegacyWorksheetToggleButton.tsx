@@ -14,9 +14,11 @@ import {
 import { useStore } from '../../store';
 import {
   anonymousWorksheetHasListing,
+  getAnonymousWorksheetCourses,
   getListingSectionId,
+  getListingTerm,
 } from '../../utilities/anonymousWorksheet';
-import { worksheetColors } from '../../utilities/constants';
+import { getNextWorksheetColor } from '../../utilities/constants';
 import styles from './WorksheetToggleButton.module.css';
 
 export type { ListingWithHistoricalInfo } from './WorksheetConflictIcon';
@@ -98,6 +100,7 @@ function LegacyWorksheetToggleButton({
 }) {
   const {
     isAnonymousWorksheet,
+    anonymousWorksheet,
     activeSavedWorksheet,
     crossTermSavedSections,
     allTermSavedWorksheetSummaries,
@@ -111,6 +114,7 @@ function LegacyWorksheetToggleButton({
   } = useStore(
     useShallow((state) => ({
       isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+      anonymousWorksheet: state.anonymousWorksheet,
       activeSavedWorksheet: state.activeSavedWorksheet,
       crossTermSavedSections: state.crossTermSavedSections,
       allTermSavedWorksheetSummaries: state.allTermSavedWorksheetSummaries,
@@ -153,6 +157,16 @@ function LegacyWorksheetToggleButton({
     event.preventDefault();
     event.stopPropagation();
 
+    const listingTerm = getListingTerm(listing, anonymousWorksheet.term);
+    const worksheetSections = isAnonymousWorksheet
+      ? getAnonymousWorksheetCourses(anonymousWorksheet, listingTerm)
+      : listingTerm === activeSavedWorksheet?.term
+        ? activeSavedWorksheet.sections
+        : (crossTermSavedSections[listingTerm] ?? []);
+    const color = getNextWorksheetColor(
+      worksheetSections.map((section) => section.color),
+    );
+
     if (isAnonymousWorksheet) {
       if (!getListingSectionId(listing)) {
         toast.error('This section cannot be added to this worksheet.');
@@ -160,12 +174,7 @@ function LegacyWorksheetToggleButton({
       }
       const anonymousChanged = inWorksheet
         ? removeAnonymousWorksheetListing(listing)
-        : addAnonymousWorksheetListing(
-            listing,
-            worksheetColors[
-              Math.floor(Math.random() * worksheetColors.length)
-            ]!,
-          );
+        : addAnonymousWorksheetListing(listing, color);
       if (anonymousChanged) {
         toast.success(
           inWorksheet
@@ -178,8 +187,6 @@ function LegacyWorksheetToggleButton({
     }
 
     if (!hasSavedWorksheetAccount || !activeSavedWorksheet) return;
-    const color =
-      worksheetColors[Math.floor(Math.random() * worksheetColors.length)]!;
     const savedChanged = inWorksheet
       ? await removeActiveSavedWorksheetListing(listing)
       : await addActiveSavedWorksheetListing(listing, color);

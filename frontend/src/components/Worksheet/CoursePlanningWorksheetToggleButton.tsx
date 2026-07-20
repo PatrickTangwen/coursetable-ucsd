@@ -13,8 +13,11 @@ import type { CoursePlanningListing } from '../../queries/coursePlanningViewMode
 import type { Season } from '../../queries/graphql-types';
 import { useStore } from '../../store';
 import { coursePlanningListingToWorksheetCourse } from '../../types/worksheetCourse';
-import { anonymousWorksheetHasListing } from '../../utilities/anonymousWorksheet';
-import { worksheetColors } from '../../utilities/constants';
+import {
+  anonymousWorksheetHasListing,
+  getAnonymousWorksheetCourses,
+} from '../../utilities/anonymousWorksheet';
+import { getNextWorksheetColor } from '../../utilities/constants';
 import { savedWorksheetHasListing } from '../../utilities/savedWorksheet';
 import styles from './CoursePlanningWorksheetToggleButton.module.css';
 
@@ -82,8 +85,14 @@ export default function CoursePlanningWorksheetToggleButton({
   ) => {
     event.preventDefault();
     event.stopPropagation();
-    const color =
-      worksheetColors[Math.floor(Math.random() * worksheetColors.length)]!;
+    const worksheetSections = isAnonymousWorksheet
+      ? getAnonymousWorksheetCourses(anonymousWorksheet, term)
+      : term === activeSavedWorksheet?.term
+        ? activeSavedWorksheet.sections
+        : (crossTermSavedSections[term] ?? []);
+    const color = getNextWorksheetColor(
+      worksheetSections.map((section) => section.color),
+    );
     const changed = hasSavedWorksheetAccount
       ? inWorksheet
         ? await removeActiveSavedWorksheetListing(listing)

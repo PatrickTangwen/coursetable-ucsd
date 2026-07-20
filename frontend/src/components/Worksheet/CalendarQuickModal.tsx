@@ -6,7 +6,7 @@ import type {
   WorksheetListingViewModel,
   WorksheetMeeting,
 } from '../../types/worksheetCourse';
-import { weekdays } from '../../utilities/constants';
+import { getWorksheetColorToken, weekdays } from '../../utilities/constants';
 import {
   describeConflictSlot,
   type CourseConflict,
@@ -231,6 +231,9 @@ export default function CalendarQuickModal({
       .ucsd_calendar?.section_code ?? listing.course.section;
 
   const unitsChip = useMemo(() => {
+    const preset = getWorksheetColorToken(color);
+    if (preset) return { background: preset.soft, color: preset.deep };
+
     const base = chroma.valid(color) ? chroma(color) : chroma('#378add');
     return {
       background: chroma.mix(base, '#ffffff', 0.85).hex(),

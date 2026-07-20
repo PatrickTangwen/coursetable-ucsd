@@ -17,6 +17,7 @@ import {
   getCalendarEvents,
   type CourseRBCEvent,
 } from '../../utilities/calendar';
+import { getWorksheetColorToken } from '../../utilities/constants';
 import {
   getScheduleConflicts,
   groupConflictsByCrn,
@@ -53,6 +54,10 @@ function safeChroma(color: string): chroma.Color {
 }
 
 function tagFromColor(color: string): EventTag {
+  const preset = getWorksheetColorToken(color);
+  if (preset)
+    return { soft: preset.soft, solid: preset.solid, deep: preset.deep };
+
   const base = safeChroma(color);
   return {
     soft: chroma.mix(base, '#ffffff', 0.85).hex(),

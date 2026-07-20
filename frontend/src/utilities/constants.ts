@@ -403,20 +403,46 @@ export const evalQuestionTags = [
   'Professor',
 ];
 
-// Hues cover the full wheel and the order alternates across it, so
-// consecutively added courses land on strongly contrasting colors.
-export const worksheetColors = [
-  '#3d95d6',
-  '#df8653',
-  '#49be85',
-  '#c765b0',
-  '#daa126',
-  '#7d7fd9',
-  '#ca5f53',
-  '#2cafb7',
-  '#a06fd0',
-  '#a3b24b',
+// Each course hue has an intentional accent, soft surface, and readable text
+// color. Presets use the exact trio; custom colors continue to derive these
+// roles at the component boundary.
+export const worksheetColorTokens = [
+  { hue: 'Coral', solid: '#D96868', soft: '#FBEAEA', deep: '#8D3434' },
+  { hue: 'Orange', solid: '#D98245', soft: '#FBEFE5', deep: '#8A4B20' },
+  { hue: 'Amber', solid: '#C79A30', soft: '#FAF3DD', deep: '#765913' },
+  { hue: 'Green', solid: '#62A168', soft: '#EAF5EB', deep: '#356B3B' },
+  { hue: 'Teal', solid: '#3F9B91', soft: '#E3F4F1', deep: '#24675F' },
+  { hue: 'Blue', solid: '#4E8BC8', soft: '#E8F1FA', deep: '#285D91' },
+  { hue: 'Indigo', solid: '#6C76C8', soft: '#ECEEFA', deep: '#414B91' },
+  { hue: 'Purple', solid: '#9369BD', soft: '#F2EAF8', deep: '#604080' },
+  { hue: 'Rose', solid: '#C56892', soft: '#FAEAF1', deep: '#843E5F' },
 ];
+
+export const worksheetColors = worksheetColorTokens.map((color) => color.solid);
+
+export function getWorksheetColorToken(color: string) {
+  const normalizedColor = color.toLowerCase();
+  return worksheetColorTokens.find(
+    (preset) => preset.solid.toLowerCase() === normalizedColor,
+  );
+}
+
+export function getNextWorksheetColor(usedColors: readonly string[]) {
+  const usage = new Map(
+    worksheetColors.map((color) => [color.toLowerCase(), 0]),
+  );
+  for (const color of usedColors) {
+    const normalizedColor = color.toLowerCase();
+    const count = usage.get(normalizedColor);
+    if (count !== undefined) usage.set(normalizedColor, count + 1);
+  }
+
+  return worksheetColors.reduce((nextColor, color) =>
+    usage.get(color.toLowerCase())! < usage.get(nextColor.toLowerCase())!
+      ? color
+      : nextColor,
+  );
+}
 
 export const barChartColors = [
   '#f54242',
