@@ -15,7 +15,7 @@ import {
 } from './WorksheetCalendarList';
 import {
   type WorksheetControlsMenu,
-  WorksheetColorBottomSheet,
+  WorksheetColorSheet,
   WorksheetVisibilityMenuButton,
 } from './WorksheetCourseMenus';
 import {
@@ -984,7 +984,7 @@ function WorksheetList() {
       )}
 
       {isMobile && (
-        <WorksheetColorBottomSheet
+        <WorksheetColorSheet
           courses={visibleCourses}
           selectedCrn={openColorMenuCrn}
           onClose={() => setOpenColorMenuCrn(null)}

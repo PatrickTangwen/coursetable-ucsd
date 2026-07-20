@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import clsx from 'clsx';
 import { useShallow } from 'zustand/react/shallow';
 
 import { getQuickModalData } from './CalendarQuickModal';
@@ -11,11 +10,9 @@ import { useCalendarPNGExport } from './PNGExportButton';
 import { useWorksheetURLExport } from './URLExportButton';
 import {
   type WorksheetControlsMenu,
-  WorksheetColorBottomSheet,
   WorksheetColorMenuButton,
-  WorksheetColorMenuSlot,
+  WorksheetColorSheet,
   WorksheetVisibilityMenuButton,
-  worksheetColorMenuHostClassName,
 } from './WorksheetCourseMenus';
 import { useToggleCourseHidden } from './WorksheetHideButton';
 import {
@@ -142,7 +139,6 @@ function CourseCard({
     })),
   );
   const [, setSearchParams] = useSearchParams();
-  const colorMenuContainerRef = useRef<HTMLDivElement>(null);
 
   const { crn } = course.listing;
   const { exams } = useMemo(
@@ -168,10 +164,9 @@ function CourseCard({
 
   return (
     <div
-      className={clsx(styles.card, worksheetColorMenuHostClassName)}
+      className={styles.card}
       data-hovered={(hoverCourse === crn && !expanded) || undefined}
       data-expanded={expanded || undefined}
-      data-color-menu-open={colorMenuOpen || undefined}
     >
       {/* eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- clickable card row wraps nested buttons */}
       <div
@@ -230,7 +225,7 @@ function CourseCard({
             course={course}
             className={styles.cardColorButton}
             iconSize={18}
-            boundedContainerRef={colorMenuContainerRef}
+            externalPicker
             open={colorMenuOpen}
             onOpenChange={onColorMenuOpenChange}
           />
@@ -264,10 +259,6 @@ function CourseCard({
           </svg>
         </button>
       </div>
-      <WorksheetColorMenuSlot
-        containerRef={colorMenuContainerRef}
-        className={styles.cardColorMenuSlot}
-      />
       {expanded && (
         <div className={styles.cardDetails}>
           {exams.length === 0 && (
@@ -1157,47 +1148,58 @@ export default function WorksheetCalendarSidebar() {
         </div>
       )}
 
-      <div className={styles.courseList}>
-        {visibleCourses.map((course) => {
-          const partners = conflictPartners.get(course.listing.crn);
-          return (
-            <CourseCard
-              key={course.listing.crn}
-              course={course}
-              canEdit={canEdit}
-              hasConflict={Boolean(partners) && !hideConflictWarnings}
-              conflictTooltip={
-                partners ? `Conflicts with ${[...partners].join(', ')}` : null
-              }
-              expanded={expandedCards.has(course.listing.crn)}
-              colorMenuOpen={openColorMenuCrn === course.listing.crn}
-              showColorPalette={showCalendarColorPalette}
-              onToggleExpand={() => toggleCardExpanded(course.listing.crn)}
-              onColorMenuOpenChange={(open) =>
-                setOpenColorMenuCrn(open ? course.listing.crn : null)
-              }
-              onRemove={(c) => {
-                void removeCourse(c);
-              }}
-            />
-          );
-        })}
-        {courses.length === 0 && (
-          <div className={styles.emptyList}>
-            <img
-              alt=""
-              aria-hidden="true"
-              src={noCoursesImg}
-              className={styles.emptyListImage}
-            />
-            <p className={styles.emptyListTitle}>Nothing planned yet</p>
-            <p className={styles.emptyListHint}>
-              Courses you add from the catalog will show up here.
-            </p>
-            <Link to={createCatalogLink()} className={styles.emptyListButton}>
-              Browse Catalog
-            </Link>
-          </div>
+      <div className={styles.courseListRegion}>
+        <div className={styles.courseList}>
+          {visibleCourses.map((course) => {
+            const partners = conflictPartners.get(course.listing.crn);
+            return (
+              <CourseCard
+                key={course.listing.crn}
+                course={course}
+                canEdit={canEdit}
+                hasConflict={Boolean(partners) && !hideConflictWarnings}
+                conflictTooltip={
+                  partners ? `Conflicts with ${[...partners].join(', ')}` : null
+                }
+                expanded={expandedCards.has(course.listing.crn)}
+                colorMenuOpen={openColorMenuCrn === course.listing.crn}
+                showColorPalette={showCalendarColorPalette}
+                onToggleExpand={() => toggleCardExpanded(course.listing.crn)}
+                onColorMenuOpenChange={(open) =>
+                  setOpenColorMenuCrn(open ? course.listing.crn : null)
+                }
+                onRemove={(c) => {
+                  void removeCourse(c);
+                }}
+              />
+            );
+          })}
+          {courses.length === 0 && (
+            <div className={styles.emptyList}>
+              <img
+                alt=""
+                aria-hidden="true"
+                src={noCoursesImg}
+                className={styles.emptyListImage}
+              />
+              <p className={styles.emptyListTitle}>Nothing planned yet</p>
+              <p className={styles.emptyListHint}>
+                Courses you add from the catalog will show up here.
+              </p>
+              <Link to={createCatalogLink()} className={styles.emptyListButton}>
+                Browse Catalog
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {!isMobile && (
+          <WorksheetColorSheet
+            courses={visibleCourses}
+            selectedCrn={openColorMenuCrn}
+            onClose={() => setOpenColorMenuCrn(null)}
+            contained
+          />
         )}
       </div>
 
@@ -1217,7 +1219,7 @@ export default function WorksheetCalendarSidebar() {
       )}
 
       {isMobile && (
-        <WorksheetColorBottomSheet
+        <WorksheetColorSheet
           courses={visibleCourses}
           selectedCrn={openColorMenuCrn}
           onClose={() => setOpenColorMenuCrn(null)}

@@ -36,6 +36,21 @@
   transform: translateY(0);
 }
 
+.backdropContained {
+  position: absolute;
+  z-index: 1;
+}
+
+.sheetContained {
+  position: absolute;
+  z-index: 2;
+  height: min(500px, 100%);
+  max-height: 100%;
+  overflow: hidden;
+  border-top: 1px solid rgb(var(--ct-line-rgb) / 8%);
+  border-radius: 16px 16px 0 0;
+}
+
 .handle {
   position: relative;
   width: 72px;
@@ -54,4 +69,11 @@
   background: rgb(var(--ct-line-rgb) / 8%);
   border-radius: 2px;
   content: '';
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .sheet {
+    transition: none;
+  }
 }

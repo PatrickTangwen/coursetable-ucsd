@@ -16,12 +16,16 @@ export default function BottomSheet({
   open,
   onClose,
   swipeToClose = false,
+  contained = false,
+  closeLabel = 'Close menu',
   className,
   children,
 }: {
   readonly open: boolean;
   readonly onClose: () => void;
   readonly swipeToClose?: boolean;
+  readonly contained?: boolean;
+  readonly closeLabel?: string;
   readonly className?: string;
   readonly children: React.ReactNode;
 }) {
@@ -30,16 +34,16 @@ export default function BottomSheet({
   useEffect(() => {
     if (!open) return undefined;
     const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    if (!contained) document.body.style.overflow = 'hidden';
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKeyDown);
     return () => {
-      document.body.style.overflow = prevOverflow;
+      if (!contained) document.body.style.overflow = prevOverflow;
       window.removeEventListener('keydown', onKeyDown);
     };
-  }, [open, onClose]);
+  }, [contained, open, onClose]);
 
   const handleSwipeStart = (event: React.PointerEvent) => {
     if (!swipeToClose) return;
@@ -61,18 +65,28 @@ export default function BottomSheet({
     swipeStart.current = null;
   };
 
-  return createPortal(
+  const sheet = (
     <>
       <button
         type="button"
-        className={clsx(styles.backdrop, open && styles.backdropOpen)}
-        aria-label="Close menu"
+        className={clsx(
+          styles.backdrop,
+          contained && styles.backdropContained,
+          open && styles.backdropOpen,
+        )}
+        aria-label={closeLabel}
         tabIndex={open ? 0 : -1}
         onClick={onClose}
       />
       <div
-        className={clsx(styles.sheet, className, open && styles.sheetOpen)}
+        className={clsx(
+          styles.sheet,
+          contained && styles.sheetContained,
+          className,
+          open && styles.sheetOpen,
+        )}
         aria-hidden={!open}
+        inert={!open}
       >
         <div
           className={styles.handle}
@@ -86,7 +100,8 @@ export default function BottomSheet({
         />
         {children}
       </div>
-    </>,
-    document.body,
+    </>
   );
+
+  return contained ? sheet : createPortal(sheet, document.body);
 }

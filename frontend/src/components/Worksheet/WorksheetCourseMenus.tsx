@@ -366,61 +366,93 @@ function WorksheetColorOptions({
   });
 }
 
-export function WorksheetColorBottomSheet({
-  courses,
-  selectedCrn,
-  onClose,
-}: {
-  readonly courses: readonly WorksheetCourse[];
-  readonly selectedCrn: Crn | null;
-  readonly onClose: () => void;
-}) {
-  const setCourseColor = useSetWorksheetCourseColor();
-  const theme = useStore((state) => state.theme);
+function useDisplayedColorCourse(
+  courses: readonly WorksheetCourse[],
+  selectedCrn: Crn | null,
+) {
   const course =
     courses.find((candidate) => candidate.listing.crn === selectedCrn) ?? null;
   const [lastCourse, setLastCourse] = useState(course);
   useEffect(() => {
     if (course) setLastCourse(course);
   }, [course]);
-  const displayedCourse = course ?? lastCourse;
+  return course ?? lastCourse;
+}
+
+function WorksheetColorPickerContent({
+  course,
+  theme,
+  onClose,
+  onSelect,
+}: {
+  readonly course: WorksheetCourse;
+  readonly theme: 'light' | 'dark';
+  readonly onClose: () => void;
+  readonly onSelect: (color: string) => void;
+}) {
+  const titleId = `worksheet-course-color-sheet-title-${course.listing.crn}`;
+  return (
+    <section aria-labelledby={titleId} className={styles.colorSheetInner}>
+      <div className={styles.colorSheetHeader}>
+        <h2 id={titleId} className={styles.colorSheetTitle}>
+          {course.listing.course_code} color
+        </h2>
+        <button
+          type="button"
+          className={styles.colorSheetClose}
+          onClick={onClose}
+          aria-label="Close course color picker"
+        >
+          <FaXmark aria-hidden="true" />
+        </button>
+      </div>
+      <div className={styles.colorSheetList}>
+        <WorksheetColorOptions
+          course={course}
+          theme={theme}
+          variant="sheet"
+          onSelect={onSelect}
+        />
+      </div>
+    </section>
+  );
+}
+
+export function WorksheetColorSheet({
+  courses,
+  selectedCrn,
+  onClose,
+  contained = false,
+}: {
+  readonly courses: readonly WorksheetCourse[];
+  readonly selectedCrn: Crn | null;
+  readonly onClose: () => void;
+  readonly contained?: boolean;
+}) {
+  const setCourseColor = useSetWorksheetCourseColor();
+  const theme = useStore((state) => state.theme);
+  const displayedCourse = useDisplayedColorCourse(courses, selectedCrn);
 
   if (!displayedCourse || !setCourseColor) return null;
 
-  const titleId = `worksheet-course-color-sheet-title-${displayedCourse.listing.crn}`;
   return (
     <BottomSheet
       open={selectedCrn !== null}
       onClose={onClose}
-      swipeToClose
-      className={styles.colorSheet}
+      swipeToClose={!contained}
+      contained={contained}
+      closeLabel={contained ? 'Dismiss course color picker' : undefined}
+      className={contained ? styles.containedColorSheet : styles.colorSheet}
     >
-      <section aria-labelledby={titleId} className={styles.colorSheetInner}>
-        <div className={styles.colorSheetHeader}>
-          <h2 id={titleId} className={styles.colorSheetTitle}>
-            {displayedCourse.listing.course_code} color
-          </h2>
-          <button
-            type="button"
-            className={styles.colorSheetClose}
-            onClick={onClose}
-            aria-label="Close course color picker"
-          >
-            <FaXmark aria-hidden="true" />
-          </button>
-        </div>
-        <div className={styles.colorSheetList}>
-          <WorksheetColorOptions
-            course={displayedCourse}
-            theme={theme}
-            variant="sheet"
-            onSelect={(color) => {
-              onClose();
-              void setCourseColor(displayedCourse.listing, color);
-            }}
-          />
-        </div>
-      </section>
+      <WorksheetColorPickerContent
+        course={displayedCourse}
+        theme={theme}
+        onClose={onClose}
+        onSelect={(color) => {
+          onClose();
+          void setCourseColor(displayedCourse.listing, color);
+        }}
+      />
     </BottomSheet>
   );
 }
@@ -430,6 +462,7 @@ export function WorksheetColorMenuButton({
   className,
   iconSize,
   boundedContainerRef,
+  externalPicker = false,
   open,
   onOpenChange,
 }: {
@@ -437,6 +470,7 @@ export function WorksheetColorMenuButton({
   readonly className?: string;
   readonly iconSize: number;
   readonly boundedContainerRef?: RefObject<HTMLDivElement | null>;
+  readonly externalPicker?: boolean;
   readonly open: boolean;
   readonly onOpenChange: (nextOpen: boolean) => void;
 }) {
@@ -445,7 +479,8 @@ export function WorksheetColorMenuButton({
   const isMobile = useStore((state) => state.isMobile);
   const targetRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const bounded = boundedContainerRef !== undefined && !isMobile;
+  const usesExternalPicker = isMobile || externalPicker;
+  const bounded = boundedContainerRef !== undefined && !usesExternalPicker;
 
   useEffect(() => {
     if (!bounded || !open) return undefined;
@@ -488,7 +523,7 @@ export function WorksheetColorMenuButton({
         className={className}
         title={`Change ${course.listing.course_code} color`}
         aria-label={`Change ${course.listing.course_code} color`}
-        aria-haspopup={isMobile ? 'dialog' : 'menu'}
+        aria-haspopup={usesExternalPicker ? 'dialog' : 'menu'}
         aria-expanded={open}
         onClick={(event) => {
           event.stopPropagation();
@@ -500,7 +535,7 @@ export function WorksheetColorMenuButton({
           size={iconSize}
         />
       </button>
-      {isMobile ? null : bounded ? (
+      {usesExternalPicker ? null : bounded ? (
         open &&
         boundedContainerRef.current &&
         createPortal(
