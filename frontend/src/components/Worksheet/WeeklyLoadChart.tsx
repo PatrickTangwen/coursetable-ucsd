@@ -1,10 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { buildWeeklyLoad, formatHours } from './worksheetInsights';
-import {
-  scrollToRequestedWeeklyLoad,
-  WEEKLY_LOAD_TARGET_ID,
-} from './worksheetNavigation';
 import type { Crn } from '../../queries/graphql-types';
 import type { WorksheetCourse } from '../../slices/WorksheetSlice';
 import styles from './WeeklyLoadChart.module.css';
@@ -18,7 +14,6 @@ export default function WeeklyLoadChart({
   readonly courses: readonly WorksheetCourse[];
   readonly busiestLabel: string | null;
 }) {
-  const chartRef = useRef<HTMLDivElement>(null);
   const [hoveredCrn, setHoveredCrn] = useState<Crn | null>(null);
   const load = useMemo(() => buildWeeklyLoad(courses), [courses]);
   const maxDayMinutes = Math.max(1, ...load.days.map((day) => day.minutes));
@@ -26,12 +21,8 @@ export default function WeeklyLoadChart({
     ? (load.legend.find((item) => item.crn === hoveredCrn)?.color ?? null)
     : null;
 
-  useEffect(() => {
-    if (chartRef.current) scrollToRequestedWeeklyLoad(chartRef.current);
-  }, []);
-
   return (
-    <div id={WEEKLY_LOAD_TARGET_ID} ref={chartRef} className={styles.chartCard}>
+    <div className={styles.chartCard}>
       <div className={styles.chartHeader}>
         <span className={styles.chartTitle}>Weekly load</span>
         <span className={styles.chartTotal}>

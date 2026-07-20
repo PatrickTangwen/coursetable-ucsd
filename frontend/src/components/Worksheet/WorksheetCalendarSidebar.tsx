@@ -23,7 +23,6 @@ import {
   firstExam,
   hasAnyExam,
 } from './worksheetInsights';
-import { openWeeklyLoad } from './worksheetNavigation';
 import WorksheetPicker, { useCloseOnOutsideClick } from './WorksheetPicker';
 import noCoursesImg from '../../images/calendar_img_high_res.png';
 import type { SavedWorksheetSection } from '../../queries/api';
@@ -673,7 +672,7 @@ export default function WorksheetCalendarSidebar() {
             <button
               type="button"
               className={styles.examTileButton}
-              onClick={() => openWeeklyLoad(changeWorksheetView)}
+              onClick={() => changeWorksheetView('list')}
             >
               <span className={styles.infoTileLabel}>
                 <svg
