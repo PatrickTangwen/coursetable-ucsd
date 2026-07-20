@@ -23,6 +23,7 @@ import {
   firstExam,
   hasAnyExam,
 } from './worksheetInsights';
+import { worksheetExportMenuCopy } from './worksheetMenuCopy';
 import WorksheetPicker, { useCloseOnOutsideClick } from './WorksheetPicker';
 import noCoursesImg from '../../images/calendar_img_high_res.png';
 import type { SavedWorksheetSection } from '../../queries/api';
@@ -539,7 +540,7 @@ export default function WorksheetCalendarSidebar() {
   const gridStyleOptions = [
     { value: 'paper', label: 'Paper' },
     { value: 'embossed', label: 'Embossed' },
-    { value: 'colorBar', label: 'Color bar' },
+    { value: 'colorBar', label: 'Color Bar' },
   ] as const;
 
   return (
@@ -913,7 +914,7 @@ export default function WorksheetCalendarSidebar() {
                     <line x1="3" y1="12" x2="21" y2="12" />
                     <circle cx="7" cy="12" r="2" fill="currentColor" />
                   </svg>
-                  Show current time line
+                  Show current time indicator
                 </span>
                 {showCalendarNowLine && <MenuCheckIcon />}
               </button>
@@ -1068,7 +1069,7 @@ export default function WorksheetCalendarSidebar() {
                   <polyline points="7 10 12 15 17 10" />
                   <line x1="12" y1="15" x2="12" y2="3" />
                 </svg>
-                Export as .ics file
+                {worksheetExportMenuCopy.ics}
               </a>
               <button
                 type="button"
@@ -1093,7 +1094,9 @@ export default function WorksheetCalendarSidebar() {
                   <circle cx="8.5" cy="8.5" r="1.5" />
                   <polyline points="21 15 16 10 5 21" />
                 </svg>
-                {isExportingPNG ? 'Exporting…' : 'Download calendar as PNG'}
+                {isExportingPNG
+                  ? worksheetExportMenuCopy.exportingPng
+                  : worksheetExportMenuCopy.png}
               </button>
               <button
                 type="button"
@@ -1117,7 +1120,7 @@ export default function WorksheetCalendarSidebar() {
                   <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
                   <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                 </svg>
-                Copy shareable URL
+                {worksheetExportMenuCopy.share}
               </button>
             </div>
           )}
