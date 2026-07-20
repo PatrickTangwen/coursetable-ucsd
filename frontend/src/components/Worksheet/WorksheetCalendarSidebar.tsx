@@ -52,6 +52,24 @@ function sectionOf(course: WorksheetCourse) {
   return details?.section_code ?? course.listing.course.section;
 }
 
+function MenuCheckIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="var(--ct-accent-text)"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
 function WorksheetHeader({
   onOpenChange,
 }: {
@@ -344,6 +362,8 @@ export default function WorksheetCalendarSidebar() {
     setHideConflictWarnings,
     showCalendarColorPalette,
     setShowCalendarColorPalette,
+    showCalendarNowLine,
+    setShowCalendarNowLine,
     removeAnonymousWorksheetListing,
     removeActiveSavedWorksheetListing,
     clearAnonymousWorksheet,
@@ -366,6 +386,8 @@ export default function WorksheetCalendarSidebar() {
       setHideConflictWarnings: state.setHideConflictWarnings,
       showCalendarColorPalette: state.showCalendarColorPalette,
       setShowCalendarColorPalette: state.setShowCalendarColorPalette,
+      showCalendarNowLine: state.showCalendarNowLine,
+      setShowCalendarNowLine: state.setShowCalendarNowLine,
       removeAnonymousWorksheetListing: state.removeAnonymousWorksheetListing,
       removeActiveSavedWorksheetListing:
         state.removeActiveSavedWorksheetListing,
@@ -809,21 +831,7 @@ export default function WorksheetCalendarSidebar() {
                   }}
                 >
                   <span>{option.label}</span>
-                  {gridStyle === option.value && (
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="var(--ct-accent-text)"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  )}
+                  {gridStyle === option.value && <MenuCheckIcon />}
                 </button>
               ))}
               <div className={styles.menuDivider} aria-hidden="true" />
@@ -850,21 +858,7 @@ export default function WorksheetCalendarSidebar() {
                   </svg>
                   Hide conflict warnings
                 </span>
-                {hideConflictWarnings && (
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="var(--ct-accent-text)"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                )}
+                {hideConflictWarnings && <MenuCheckIcon />}
               </button>
               <button
                 type="button"
@@ -896,21 +890,32 @@ export default function WorksheetCalendarSidebar() {
                   </svg>
                   Show color palette
                 </span>
-                {showCalendarColorPalette && (
+                {showCalendarColorPalette && <MenuCheckIcon />}
+              </button>
+              <button
+                type="button"
+                role="menuitemcheckbox"
+                aria-checked={showCalendarNowLine}
+                className={styles.menuItem}
+                onClick={() => setShowCalendarNowLine(!showCalendarNowLine)}
+              >
+                <span className={styles.menuItemLabel}>
                   <svg
                     width="14"
                     height="14"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="var(--ct-accent-text)"
-                    strokeWidth="2.5"
+                    stroke="currentColor"
+                    strokeWidth="2"
                     strokeLinecap="round"
-                    strokeLinejoin="round"
                     aria-hidden="true"
                   >
-                    <polyline points="20 6 9 17 4 12" />
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <circle cx="7" cy="12" r="2" fill="currentColor" />
                   </svg>
-                )}
+                  Show current time line
+                </span>
+                {showCalendarNowLine && <MenuCheckIcon />}
               </button>
               {canEdit && (courses.length > 0 || clearedSnapshot) && (
                 <>

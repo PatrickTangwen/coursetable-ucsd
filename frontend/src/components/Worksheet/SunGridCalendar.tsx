@@ -144,12 +144,14 @@ function useElementHeight(ref: React.RefObject<HTMLElement | null>): number {
   return height;
 }
 
-function useNowMinutes(): { weekday: number; minutes: number } {
+function useNowMinutes(enabled: boolean): { weekday: number; minutes: number } {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
+    if (!enabled) return undefined;
+    setNow(new Date());
     const interval = window.setInterval(() => setNow(new Date()), 60_000);
     return () => window.clearInterval(interval);
-  }, []);
+  }, [enabled]);
   return { weekday: now.getDay(), minutes: minutesOf(now) };
 }
 
@@ -502,6 +504,7 @@ export default function SunGridCalendar() {
     calendarLockStart,
     calendarLockEnd,
     calendarMode,
+    showCalendarNowLine,
     isMobile,
   } = useStore(
     useShallow((state) => ({
@@ -511,12 +514,13 @@ export default function SunGridCalendar() {
       calendarLockStart: state.calendarLockStart,
       calendarLockEnd: state.calendarLockEnd,
       calendarMode: state.calendarMode,
+      showCalendarNowLine: state.showCalendarNowLine,
       isMobile: state.isMobile,
     })),
   );
   const bodyRef = useRef<HTMLDivElement>(null);
   const bodyHeight = useElementHeight(bodyRef);
-  const now = useNowMinutes();
+  const now = useNowMinutes(showCalendarNowLine);
   const [openedEvent, setOpenedEvent] = useState<CourseRBCEvent | null>(null);
 
   const allEvents = useMemo(
@@ -615,6 +619,7 @@ export default function SunGridCalendar() {
   }, [events, visibleDays]);
 
   const showNowLine =
+    showCalendarNowLine &&
     calendarMode === 'week' &&
     now.weekday >= 1 &&
     now.weekday <= 5 &&
