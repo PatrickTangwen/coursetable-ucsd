@@ -73,10 +73,7 @@ export default function TopNav() {
 
         <button
           type="button"
-          className={clsx(
-            styles.menuToggle,
-            isWorksheetMobile && styles.menuToggleBoxed,
-          )}
+          className={styles.menuToggle}
           onClick={() =>
             setMobileSheet((current) =>
               current === 'navigation' ? null : 'navigation',

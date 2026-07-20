@@ -507,7 +507,7 @@ export function WorksheetColorPicker({
   readonly courses: readonly WorksheetCourse[];
   readonly selectedCrn: Crn | null;
   readonly onClose: () => void;
-  readonly presentation: 'mobile-sheet' | 'contained-menu';
+  readonly presentation: 'bottom-sheet' | 'contained-menu';
 }) {
   const setCourseColor = useSetWorksheetCourseColor();
   const theme = useStore((state) => state.theme);

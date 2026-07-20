@@ -192,12 +192,3 @@
   background: rgb(var(--ct-line-rgb) / 4%);
   color: var(--ct-text-secondary);
 }
-
-.menuToggleBoxed {
-  width: 38px;
-  height: 38px;
-  background: var(--ct-surface-hover);
-  border: 1px solid rgb(var(--ct-line-rgb) / 14%);
-  border-radius: 6px;
-  color: var(--ct-text-secondary);
-}

@@ -1223,7 +1223,7 @@ export default function WorksheetCalendarSidebar() {
           courses={visibleCourses}
           selectedCrn={openColorMenuCrn}
           onClose={() => setOpenColorMenuCrn(null)}
-          presentation="mobile-sheet"
+          presentation="bottom-sheet"
         />
       )}
     </div>

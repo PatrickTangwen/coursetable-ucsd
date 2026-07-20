@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { Button } from 'react-bootstrap';
 import { useShallow } from 'zustand/react/shallow';
@@ -47,6 +47,28 @@ import styles from './WorksheetList.module.css';
 type ClearedSnapshot =
   | { kind: 'saved'; sections: SavedWorksheetSection[] }
   | { kind: 'anonymous'; courses: AnonymousWorksheetCourse[] };
+
+function useStackedListLayout(active: boolean) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [stacked, setStacked] = useState(false);
+
+  useLayoutEffect(() => {
+    if (!active) {
+      setStacked(false);
+      return undefined;
+    }
+    const container = containerRef.current;
+    if (!container) return undefined;
+    const sync = () =>
+      setStacked(getComputedStyle(container).flexDirection === 'column');
+    sync();
+    const observer = new ResizeObserver(sync);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [active]);
+
+  return { containerRef, stacked };
+}
 
 function ExpandAllIcon({ allExpanded }: { readonly allExpanded: boolean }) {
   return (
@@ -206,6 +228,8 @@ function WorksheetList() {
     })),
   );
   const seasonCodes = useWorksheetSeasonCodes();
+  const { containerRef: mainRowRef, stacked: colorPickerInSheet } =
+    useStackedListLayout(courses.length > 0);
 
   const [expandedCrns, setExpandedCrns] = useState<ReadonlySet<Crn>>(new Set());
   const [openControlsMenu, setOpenControlsMenu] =
@@ -412,7 +436,7 @@ function WorksheetList() {
       )}
 
       {courses.length > 0 ? (
-        <div className={styles.mainRow}>
+        <div ref={mainRowRef} className={styles.mainRow}>
           <div className={styles.sidebar}>
             <div className={styles.dashboardGrid}>
               <div className={styles.dashTile}>
@@ -876,7 +900,7 @@ function WorksheetList() {
                   course={course}
                   expanded={expandedCrns.has(course.crn)}
                   colorMenuOpen={openColorMenuCrn === course.crn}
-                  boundedColorMenu={isMobile}
+                  colorPickerInSheet={colorPickerInSheet}
                   conflicts={
                     hideConflictWarnings
                       ? []
@@ -983,12 +1007,12 @@ function WorksheetList() {
         />
       )}
 
-      {isMobile && (
+      {colorPickerInSheet && (
         <WorksheetColorPicker
           courses={visibleCourses}
           selectedCrn={openColorMenuCrn}
           onClose={() => setOpenColorMenuCrn(null)}
-          presentation="mobile-sheet"
+          presentation="bottom-sheet"
         />
       )}
     </div>
