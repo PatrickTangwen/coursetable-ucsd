@@ -45,6 +45,8 @@ import styles from './UcsdSnapshotCourseModal.module.css';
 
 type UcsdModalView = 'overview' | 'evals' | 'past-grades';
 
+const courseActionToastDuration = 800;
+
 const weekdayLabels: (keyof DayFlags)[] = ['M', 'Tu', 'W', 'Th', 'F'];
 const weekLabels: (keyof DayFlags)[] = [...weekdayLabels, 'Sa', 'Su'];
 
@@ -208,7 +210,10 @@ function CheckIcon() {
 function CopyUrlButton() {
   const copyUrl = () => {
     navigator.clipboard.writeText(window.location.href).then(
-      () => toast.success('Course URL copied'),
+      () =>
+        toast.success('Course URL copied', {
+          duration: courseActionToastDuration,
+        }),
       () => toast.error('Failed to copy course URL'),
     );
   };
@@ -777,15 +782,21 @@ export default function UcsdSnapshotCourseModal({
       if (authStatus === 'authenticated') {
         void addActiveSavedWorksheetListing(target, color).then(
           (savedAdded) => {
-            if (savedAdded)
-              toast.success(`Added ${label} to worksheet`, { duration: 800 });
+            if (savedAdded) {
+              toast.success(`Added ${label} to worksheet`, {
+                duration: courseActionToastDuration,
+              });
+            }
           },
         );
         return;
       }
       const added = addAnonymousWorksheetListing(target, color);
-      if (added)
-        toast.success(`Added ${label} to worksheet`, { duration: 800 });
+      if (added) {
+        toast.success(`Added ${label} to worksheet`, {
+          duration: courseActionToastDuration,
+        });
+      }
     },
     [addActiveSavedWorksheetListing, addAnonymousWorksheetListing, authStatus],
   );
