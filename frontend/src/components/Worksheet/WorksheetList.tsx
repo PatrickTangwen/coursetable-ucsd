@@ -422,7 +422,7 @@ function WorksheetList() {
               <div className={styles.dashTile}>
                 <div className={styles.dashLabel}>Credits</div>
                 <div className={styles.dashValue}>{credits}</div>
-                <div className={styles.dashLoad} style={{ color: load.color }}>
+                <div className={styles.dashLoad}>
                   <span
                     className={styles.loadDot}
                     style={{ background: load.color }}
@@ -519,7 +519,7 @@ function WorksheetList() {
                     {exam ? exam.countdown : '—'}
                   </div>
                   <div className={styles.infoSubRow}>
-                    {exam ? exam.dateShort : '—'}
+                    First · {exam ? exam.dateShort : '—'}
                     <svg
                       width="9"
                       height="9"
@@ -557,7 +557,7 @@ function WorksheetList() {
                     Exam
                   </div>
                   <div className={styles.infoValue}>—</div>
-                  <div className={styles.infoSub}>—</div>
+                  <div className={styles.infoSub}>First · —</div>
                 </div>
               )}
               <div className={styles.infoTile}>

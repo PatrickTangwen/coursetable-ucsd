@@ -7,12 +7,14 @@
     sans-serif;
 }
 
+/* On large monitors (24"/27"/32", QHD+) the row widens smoothly up to
+   1680px — no zooming, just more room for the two columns. */
 .pageHeader {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  max-width: 1440px;
+  max-width: clamp(1440px, 92vw, 1680px);
   margin: 0 auto;
   padding: 20px 24px 0;
 }
@@ -20,7 +22,7 @@
 .mainRow {
   display: flex;
   width: 100%;
-  max-width: 1440px;
+  max-width: clamp(1440px, 92vw, 1680px);
   margin: 0 auto;
 }
 
@@ -69,26 +71,29 @@
   background: var(--ct-surface);
 }
 
+/* Typography matches the calendar sidebar's stat tiles. */
 .dashLabel {
   color: var(--ct-text-muted);
-  font-size: 10.5px;
-  font-weight: 500;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .dashValue {
   margin-top: 2px;
   color: var(--ct-ink);
-  font-size: 19px;
+  font-size: 21px;
   font-weight: 700;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.3px;
 }
 
 .dashSub {
   margin-top: 2px;
   color: var(--ct-text-muted);
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .dashLoad {
@@ -96,13 +101,14 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 10.5px;
+  color: var(--ct-text-secondary);
+  font-size: 10px;
   font-weight: 600;
 }
 
 .loadDot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -111,10 +117,10 @@
   margin-top: 2px;
   display: flex;
   align-items: center;
-  gap: 5px;
-  color: var(--ct-green-text);
-  font-size: 12px;
-  font-weight: 700;
+  gap: 4px;
+  color: var(--ct-text-secondary);
+  font-size: 10px;
+  font-weight: 600;
 }
 
 /* Conflicts tile — matches the calendar sidebar: quiet neutral card with a
@@ -173,9 +179,9 @@
   margin-top: 2px;
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
   color: var(--ct-text-muted);
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 500;
 }
 
@@ -213,13 +219,16 @@
   transform: translateY(-1px);
 }
 
+/* Typography matches the calendar sidebar's exam/busiest tiles. */
 .infoSubRow {
   margin-top: 3px;
   display: flex;
   align-items: center;
   gap: 3px;
   color: var(--ct-text-muted);
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .infoLabel {
@@ -227,22 +236,27 @@
   align-items: center;
   gap: 5px;
   color: var(--ct-text-muted);
-  font-size: 10.5px;
-  font-weight: 500;
+  font-size: 10px;
+  font-weight: 700;
 }
 
 .infoValue {
-  margin-top: 5px;
+  margin-top: 3px;
   color: var(--ct-ink);
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 700;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
 .infoSub {
   margin-top: 3px;
   color: var(--ct-text-muted);
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── Controls ── */
