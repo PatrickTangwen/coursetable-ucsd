@@ -31,3 +31,41 @@ The focused comparison confirms readable and consistent title hierarchy, close b
 - P3 follow-up: confirm the downward-close gesture once on physical iOS/Android touch hardware.
 
 final result: passed
+
+---
+
+# Worksheet Mobile Header And Navigation QA — 2026-07-20
+
+- Source visual truth (header): `/var/folders/pl/ftltwy057lsgp0vvzr8r96b80000gn/T/codex-clipboard-bafc8288-b72f-4f4c-b25c-20f6e26041e2.png`
+- Source visual truth (navigation sheet): `/var/folders/pl/ftltwy057lsgp0vvzr8r96b80000gn/T/codex-clipboard-bb853015-9181-4a00-bddc-858dd4f75049.png`
+- Browser-rendered header: `/tmp/coursetable-worksheet-mobile-header-final.png`
+- Browser-rendered navigation sheet: `/tmp/coursetable-worksheet-mobile-nav-final.png`
+- Full-view comparison: `/tmp/coursetable-worksheet-mobile-nav-full-comparison.png`
+- Focused header comparison: `/tmp/coursetable-worksheet-mobile-header-comparison.png`
+- Focused navigation comparison: `/tmp/coursetable-worksheet-mobile-nav-focused-comparison.png`
+- Viewport: 390 × 844
+- State: mobile Worksheet List view, light theme; header closed and site navigation sheet open states captured separately
+
+## Evidence
+
+The full-view comparison confirms the existing navigation-sheet composition, backdrop, rounded top edge, row rhythm, divider, Appearance area, and Light/Dark toggle are preserved. The intentional difference is that Worksheet, rather than Catalog, now uses the blue active icon, label, and dot on the Worksheet route.
+
+The focused header comparison confirms `Options` occupies the former Catalog control position with matching text scale, baseline, spacing, and relationship to the boxed hamburger button. The focused sheet comparison keeps the reference typography, icon containers, alignment, and vertical rhythm without changing Catalog's menu implementation.
+
+## Interactions tested
+
+- `Options` opened Worksheet Options without changing the `/worksheet` URL.
+- The hamburger opened the independent Site menu while Worksheet Options remained hidden.
+- Worksheet was visibly selected in blue; Catalog was not selected.
+- Catalog navigation still reached `/catalog`, where Filters remained available.
+- Calendar and List modes both retained the `Options` entry and both Bottom Sheet routes.
+- Browser console errors checked: none.
+
+## Findings and comparison history
+
+- First comparison: no actionable P0, P1, or P2 differences. No visual fixes were required after the combined full-view and focused comparisons.
+- Image quality and assets: no raster imagery is introduced; the new Options glyph uses the existing icon library and renders sharply at mobile size.
+- Typography, spacing, colors, and copy match the established SunGrid mobile navigation tokens. The active-state color change is intentional and route-correct.
+- P3 follow-up: none.
+
+final result: passed

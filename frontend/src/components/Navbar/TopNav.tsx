@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import clsx from 'clsx';
+import { FaSliders } from 'react-icons/fa6';
 
 import DarkModeButton from './DarkModeButton';
 import Logo from './Logo';
@@ -16,10 +17,12 @@ import { NavbarWorksheetSearch } from '../Worksheet/NavbarWorksheetSearch';
 import WorksheetOptionsSheet from '../Worksheet/WorksheetOptionsSheet';
 import styles from './TopNav.module.css';
 
+type MobileSheet = 'navigation' | 'worksheet-options' | null;
+
 export default function TopNav() {
   const isMobile = useStore((state) => state.isMobile);
   const location = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileSheet, setMobileSheet] = useState<MobileSheet>(null);
 
   const showCatalogSearch = location.pathname === '/catalog';
   const isWorksheetPage = location.pathname === '/worksheet';
@@ -56,27 +59,16 @@ export default function TopNav() {
         {showCatalogSearch && <CatalogResultCount />}
 
         {isWorksheetMobile && (
-          <NavLink
-            to={createCatalogLink()}
-            className={styles.mobileCatalogLink}
-            onClick={scrollToTop}
+          <button
+            type="button"
+            className={styles.mobileWorksheetOptionsButton}
+            onClick={() => setMobileSheet('worksheet-options')}
+            aria-haspopup="dialog"
+            aria-expanded={mobileSheet === 'worksheet-options'}
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.9"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-            </svg>
-            Catalog
-          </NavLink>
+            <FaSliders aria-hidden="true" />
+            Options
+          </button>
         )}
 
         <button
@@ -85,9 +77,13 @@ export default function TopNav() {
             styles.menuToggle,
             isWorksheetMobile && styles.menuToggleBoxed,
           )}
-          onClick={() => setMenuOpen(!menuOpen)}
+          onClick={() =>
+            setMobileSheet((current) =>
+              current === 'navigation' ? null : 'navigation',
+            )
+          }
           aria-label="Toggle navigation"
-          aria-expanded={menuOpen}
+          aria-expanded={mobileSheet === 'navigation'}
         >
           <svg
             width="18"
@@ -103,13 +99,11 @@ export default function TopNav() {
           </svg>
         </button>
 
-        {isWorksheetMobile ? (
-          <WorksheetOptionsSheet
-            open={menuOpen}
-            onClose={() => setMenuOpen(false)}
+        {isMobile ? (
+          <MobileNavSheet
+            open={mobileSheet === 'navigation'}
+            onClose={() => setMobileSheet(null)}
           />
-        ) : isMobile ? (
-          <MobileNavSheet open={menuOpen} onClose={() => setMenuOpen(false)} />
         ) : (
           <div className={styles.navActions}>
             <DarkModeButton className={styles.settingsBtn} />
@@ -136,6 +130,13 @@ export default function TopNav() {
             </NavLink>
             <MeDropdown />
           </div>
+        )}
+
+        {isWorksheetMobile && (
+          <WorksheetOptionsSheet
+            open={mobileSheet === 'worksheet-options'}
+            onClose={() => setMobileSheet(null)}
+          />
         )}
       </nav>
     </header>
