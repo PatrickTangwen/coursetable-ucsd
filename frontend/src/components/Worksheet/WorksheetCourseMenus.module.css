@@ -236,6 +236,49 @@
   height: 13px;
 }
 
-.containedColorSheet .colorSheetInner {
-  max-height: calc(100% - 22px);
+.containedColorBackdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 0;
+  border: 0;
+  background: rgb(15 23 42 / 8%);
+  cursor: default;
+  animation: contained-color-backdrop-in 0.14s ease-out;
+}
+
+.containedColorMenu {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 2;
+  width: min(240px, calc(100% - 16px));
+  max-height: calc(100% - 16px);
+  overflow-y: auto;
+  transform-origin: right bottom;
+  animation: contained-color-menu-in 0.14s ease-out;
+}
+
+.containedColorMenu .menuList {
+  max-height: none;
+}
+
+@keyframes contained-color-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes contained-color-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .containedColorBackdrop,
+  .containedColorMenu {
+    animation: none;
+  }
 }

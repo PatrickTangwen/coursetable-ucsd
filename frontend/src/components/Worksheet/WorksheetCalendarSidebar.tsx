@@ -11,7 +11,7 @@ import { useWorksheetURLExport } from './URLExportButton';
 import {
   type WorksheetControlsMenu,
   WorksheetColorMenuButton,
-  WorksheetColorSheet,
+  WorksheetColorPicker,
   WorksheetVisibilityMenuButton,
 } from './WorksheetCourseMenus';
 import { useToggleCourseHidden } from './WorksheetHideButton';
@@ -225,7 +225,7 @@ function CourseCard({
             course={course}
             className={styles.cardColorButton}
             iconSize={18}
-            externalPicker
+            externalPicker="menu"
             open={colorMenuOpen}
             onOpenChange={onColorMenuOpenChange}
           />
@@ -1194,11 +1194,11 @@ export default function WorksheetCalendarSidebar() {
         </div>
 
         {!isMobile && (
-          <WorksheetColorSheet
+          <WorksheetColorPicker
             courses={visibleCourses}
             selectedCrn={openColorMenuCrn}
             onClose={() => setOpenColorMenuCrn(null)}
-            contained
+            presentation="contained-menu"
           />
         )}
       </div>
@@ -1219,10 +1219,11 @@ export default function WorksheetCalendarSidebar() {
       )}
 
       {isMobile && (
-        <WorksheetColorSheet
+        <WorksheetColorPicker
           courses={visibleCourses}
           selectedCrn={openColorMenuCrn}
           onClose={() => setOpenColorMenuCrn(null)}
+          presentation="mobile-sheet"
         />
       )}
     </div>

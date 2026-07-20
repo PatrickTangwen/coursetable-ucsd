@@ -418,40 +418,82 @@ function WorksheetColorPickerContent({
   );
 }
 
-export function WorksheetColorSheet({
+export function WorksheetColorPicker({
   courses,
   selectedCrn,
   onClose,
-  contained = false,
+  presentation,
 }: {
   readonly courses: readonly WorksheetCourse[];
   readonly selectedCrn: Crn | null;
   readonly onClose: () => void;
-  readonly contained?: boolean;
+  readonly presentation: 'mobile-sheet' | 'contained-menu';
 }) {
   const setCourseColor = useSetWorksheetCourseColor();
   const theme = useStore((state) => state.theme);
   const displayedCourse = useDisplayedColorCourse(courses, selectedCrn);
+  const isContainedMenu = presentation === 'contained-menu';
+
+  useEffect(() => {
+    if (!isContainedMenu || selectedCrn === null) return undefined;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [isContainedMenu, onClose, selectedCrn]);
 
   if (!displayedCourse || !setCourseColor) return null;
+
+  const selectColor = (color: string) => {
+    onClose();
+    void setCourseColor(displayedCourse.listing, color);
+  };
+
+  if (isContainedMenu) {
+    if (selectedCrn === null) return null;
+    return (
+      <>
+        <button
+          type="button"
+          className={styles.containedColorBackdrop}
+          aria-label="Dismiss course color menu"
+          onClick={onClose}
+        />
+        <div
+          className={clsx(styles.menu, styles.containedColorMenu)}
+          role="menu"
+          aria-label={`${displayedCourse.listing.course_code} color`}
+          tabIndex={-1}
+        >
+          <div className={styles.menuBody}>
+            <div className={styles.menuLabel}>Course color</div>
+            <div className={styles.menuList}>
+              <WorksheetColorOptions
+                course={displayedCourse}
+                theme={theme}
+                variant="menu"
+                onSelect={selectColor}
+              />
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <BottomSheet
       open={selectedCrn !== null}
       onClose={onClose}
-      swipeToClose={!contained}
-      contained={contained}
-      closeLabel={contained ? 'Dismiss course color picker' : undefined}
-      className={contained ? styles.containedColorSheet : styles.colorSheet}
+      swipeToClose
+      className={styles.colorSheet}
     >
       <WorksheetColorPickerContent
         course={displayedCourse}
         theme={theme}
         onClose={onClose}
-        onSelect={(color) => {
-          onClose();
-          void setCourseColor(displayedCourse.listing, color);
-        }}
+        onSelect={selectColor}
       />
     </BottomSheet>
   );
@@ -462,7 +504,7 @@ export function WorksheetColorMenuButton({
   className,
   iconSize,
   boundedContainerRef,
-  externalPicker = false,
+  externalPicker,
   open,
   onOpenChange,
 }: {
@@ -470,7 +512,7 @@ export function WorksheetColorMenuButton({
   readonly className?: string;
   readonly iconSize: number;
   readonly boundedContainerRef?: RefObject<HTMLDivElement | null>;
-  readonly externalPicker?: boolean;
+  readonly externalPicker?: 'dialog' | 'menu';
   readonly open: boolean;
   readonly onOpenChange: (nextOpen: boolean) => void;
 }) {
@@ -479,7 +521,8 @@ export function WorksheetColorMenuButton({
   const isMobile = useStore((state) => state.isMobile);
   const targetRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const usesExternalPicker = isMobile || externalPicker;
+  const usesExternalPicker = isMobile || externalPicker !== undefined;
+  const externalPickerRole = isMobile ? 'dialog' : externalPicker;
   const bounded = boundedContainerRef !== undefined && !usesExternalPicker;
 
   useEffect(() => {
@@ -523,7 +566,7 @@ export function WorksheetColorMenuButton({
         className={className}
         title={`Change ${course.listing.course_code} color`}
         aria-label={`Change ${course.listing.course_code} color`}
-        aria-haspopup={usesExternalPicker ? 'dialog' : 'menu'}
+        aria-haspopup={externalPickerRole ?? 'menu'}
         aria-expanded={open}
         onClick={(event) => {
           event.stopPropagation();
