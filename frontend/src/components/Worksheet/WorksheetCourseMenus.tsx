@@ -8,10 +8,12 @@ import {
 import clsx from 'clsx';
 import { Overlay, Popover } from 'react-bootstrap';
 import { BsEye, BsEyeSlash } from 'react-icons/bs';
+import { FaXmark } from 'react-icons/fa6';
 import { createPortal } from 'react-dom';
 import { useShallow } from 'zustand/react/shallow';
 
 import { useToggleCourseHidden } from './WorksheetHideButton';
+import type { Crn } from '../../queries/graphql-types';
 import type { WorksheetCourse } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
 import type { WorksheetListingViewModel } from '../../types/worksheetCourse';
@@ -20,6 +22,7 @@ import {
   worksheetColorTokens,
 } from '../../utilities/constants';
 import { formatWorksheetSectionSuffix } from '../../utilities/course';
+import BottomSheet from '../BottomSheet';
 import styles from './WorksheetCourseMenus.module.css';
 
 export type WorksheetControlsMenu = 'visibility' | 'settings' | 'export' | null;
@@ -311,6 +314,117 @@ export function useSetWorksheetCourseColor() {
   };
 }
 
+function WorksheetColorOptions({
+  course,
+  theme,
+  variant,
+  onSelect,
+}: {
+  readonly course: WorksheetCourse;
+  readonly theme: 'light' | 'dark';
+  readonly variant: 'menu' | 'sheet';
+  readonly onSelect: (color: string) => void;
+}) {
+  return worksheetColorTokens.map((token) => {
+    const active = token.solid.toLowerCase() === course.color.toLowerCase();
+    const sheetVariant = variant === 'sheet';
+    const optionProps = sheetVariant
+      ? {
+          'aria-pressed': active,
+          className: styles.colorSheetOption,
+        }
+      : {
+          'aria-checked': active,
+          className: styles.menuItem,
+          role: 'menuitemradio' as const,
+        };
+    return (
+      <button
+        key={token.hue}
+        type="button"
+        {...optionProps}
+        data-active={active || undefined}
+        onClick={() => onSelect(token.solid)}
+      >
+        <span className={styles.courseIdentity}>
+          <span
+            className={clsx(
+              styles.colorDot,
+              sheetVariant && styles.colorSheetDot,
+            )}
+            style={{
+              backgroundColor: getWorksheetColorAppearance(token.solid, theme)
+                .primary,
+            }}
+            aria-hidden="true"
+          />
+          <span>{token.hue}</span>
+        </span>
+        <span className={styles.checkSlot}>{active && <CheckIcon />}</span>
+      </button>
+    );
+  });
+}
+
+export function WorksheetColorBottomSheet({
+  courses,
+  selectedCrn,
+  onClose,
+}: {
+  readonly courses: readonly WorksheetCourse[];
+  readonly selectedCrn: Crn | null;
+  readonly onClose: () => void;
+}) {
+  const setCourseColor = useSetWorksheetCourseColor();
+  const theme = useStore((state) => state.theme);
+  const course =
+    courses.find((candidate) => candidate.listing.crn === selectedCrn) ?? null;
+  const [lastCourse, setLastCourse] = useState(course);
+  useEffect(() => {
+    if (course) setLastCourse(course);
+  }, [course]);
+  const displayedCourse = course ?? lastCourse;
+
+  if (!displayedCourse || !setCourseColor) return null;
+
+  const titleId = `worksheet-course-color-sheet-title-${displayedCourse.listing.crn}`;
+  return (
+    <BottomSheet
+      open={selectedCrn !== null}
+      onClose={onClose}
+      swipeToClose
+      className={styles.colorSheet}
+    >
+      <section aria-labelledby={titleId} className={styles.colorSheetInner}>
+        <div className={styles.colorSheetHeader}>
+          <h2 id={titleId} className={styles.colorSheetTitle}>
+            {displayedCourse.listing.course_code} color
+          </h2>
+          <button
+            type="button"
+            className={styles.colorSheetClose}
+            onClick={onClose}
+            aria-label="Close course color picker"
+          >
+            <FaXmark aria-hidden="true" />
+          </button>
+        </div>
+        <div className={styles.colorSheetList}>
+          <WorksheetColorOptions
+            course={displayedCourse}
+            theme={theme}
+            variant="sheet"
+            onSelect={(color) => {
+              onClose();
+              void setCourseColor(displayedCourse.listing, color);
+            }}
+          />
+        </div>
+      </section>
+    </BottomSheet>
+  );
+}
+
 export function WorksheetColorMenuButton({
   course,
   className,
@@ -328,9 +442,10 @@ export function WorksheetColorMenuButton({
 }) {
   const setCourseColor = useSetWorksheetCourseColor();
   const theme = useStore((state) => state.theme);
+  const isMobile = useStore((state) => state.isMobile);
   const targetRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const bounded = boundedContainerRef !== undefined;
+  const bounded = boundedContainerRef !== undefined && !isMobile;
 
   useEffect(() => {
     if (!bounded || !open) return undefined;
@@ -352,41 +467,15 @@ export function WorksheetColorMenuButton({
     <>
       <div className={styles.menuLabel}>Course color</div>
       <div className={styles.menuList}>
-        {worksheetColorTokens.map((token) => {
-          const active =
-            token.solid.toLowerCase() === course.color.toLowerCase();
-          return (
-            <button
-              key={token.hue}
-              type="button"
-              role="menuitemradio"
-              aria-checked={active}
-              className={styles.menuItem}
-              data-active={active || undefined}
-              onClick={() => {
-                onOpenChange(false);
-                void setCourseColor(course.listing, token.solid);
-              }}
-            >
-              <span className={styles.courseIdentity}>
-                <span
-                  className={styles.colorDot}
-                  style={{
-                    backgroundColor: getWorksheetColorAppearance(
-                      token.solid,
-                      theme,
-                    ).primary,
-                  }}
-                  aria-hidden="true"
-                />
-                <span>{token.hue}</span>
-              </span>
-              <span className={styles.checkSlot}>
-                {active && <CheckIcon />}
-              </span>
-            </button>
-          );
-        })}
+        <WorksheetColorOptions
+          course={course}
+          theme={theme}
+          variant="menu"
+          onSelect={(color) => {
+            onOpenChange(false);
+            void setCourseColor(course.listing, color);
+          }}
+        />
       </div>
     </>
   );
@@ -399,7 +488,7 @@ export function WorksheetColorMenuButton({
         className={className}
         title={`Change ${course.listing.course_code} color`}
         aria-label={`Change ${course.listing.course_code} color`}
-        aria-haspopup="menu"
+        aria-haspopup={isMobile ? 'dialog' : 'menu'}
         aria-expanded={open}
         onClick={(event) => {
           event.stopPropagation();
@@ -411,7 +500,7 @@ export function WorksheetColorMenuButton({
           size={iconSize}
         />
       </button>
-      {bounded ? (
+      {isMobile ? null : bounded ? (
         open &&
         boundedContainerRef.current &&
         createPortal(

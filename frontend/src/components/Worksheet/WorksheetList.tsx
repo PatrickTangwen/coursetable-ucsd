@@ -15,6 +15,7 @@ import {
 } from './WorksheetCalendarList';
 import {
   type WorksheetControlsMenu,
+  WorksheetColorBottomSheet,
   WorksheetVisibilityMenuButton,
 } from './WorksheetCourseMenus';
 import {
@@ -979,6 +980,14 @@ function WorksheetList() {
         <ExamsModal
           courses={visibleCourses}
           onClose={() => setExamsModalOpen(false)}
+        />
+      )}
+
+      {isMobile && (
+        <WorksheetColorBottomSheet
+          courses={visibleCourses}
+          selectedCrn={openColorMenuCrn}
+          onClose={() => setOpenColorMenuCrn(null)}
         />
       )}
     </div>

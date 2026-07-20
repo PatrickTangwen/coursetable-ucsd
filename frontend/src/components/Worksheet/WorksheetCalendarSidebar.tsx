@@ -11,6 +11,7 @@ import { useCalendarPNGExport } from './PNGExportButton';
 import { useWorksheetURLExport } from './URLExportButton';
 import {
   type WorksheetControlsMenu,
+  WorksheetColorBottomSheet,
   WorksheetColorMenuButton,
   WorksheetColorMenuSlot,
   WorksheetVisibilityMenuButton,
@@ -372,6 +373,7 @@ export default function WorksheetCalendarSidebar() {
     restoreAnonymousWorksheetCourses,
     restoreActiveSavedWorksheetSections,
     changeWorksheetView,
+    isMobile,
   } = useStore(
     useShallow((state) => ({
       courses: state.courses,
@@ -398,6 +400,7 @@ export default function WorksheetCalendarSidebar() {
       restoreActiveSavedWorksheetSections:
         state.restoreActiveSavedWorksheetSections,
       changeWorksheetView: state.changeWorksheetView,
+      isMobile: state.isMobile,
     })),
   );
   const toggleCourseHidden = useToggleCourseHidden();
@@ -1210,6 +1213,14 @@ export default function WorksheetCalendarSidebar() {
         <ExamsModal
           courses={visibleCourses}
           onClose={() => setExamsModalOpen(false)}
+        />
+      )}
+
+      {isMobile && (
+        <WorksheetColorBottomSheet
+          courses={visibleCourses}
+          selectedCrn={openColorMenuCrn}
+          onClose={() => setOpenColorMenuCrn(null)}
         />
       )}
     </div>

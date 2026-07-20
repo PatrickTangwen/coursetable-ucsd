@@ -153,3 +153,85 @@
 .menuItem[data-active] .checkSlot {
   color: var(--ct-accent-text);
 }
+
+.colorSheet {
+  max-height: 76%;
+}
+
+.colorSheetInner {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(76vh - 22px);
+}
+
+.colorSheetHeader {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px 14px;
+}
+
+.colorSheetTitle {
+  margin: 0;
+  color: var(--ct-ink);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.colorSheetClose {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ct-surface-tint);
+  color: var(--ct-text-secondary);
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.colorSheetList {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 20px calc(20px + env(safe-area-inset-bottom));
+}
+
+.colorSheetOption {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 10px;
+  border: 0;
+  border-bottom: 1px solid rgb(var(--ct-line-rgb) / 8%);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ct-ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.colorSheetOption[data-active] {
+  background: var(--ct-accent-tint);
+  color: var(--ct-accent-text);
+  font-weight: 700;
+}
+
+.colorSheetOption[data-active] .checkSlot {
+  color: var(--ct-accent-text);
+}
+
+.colorSheetDot {
+  width: 13px;
+  height: 13px;
+}
