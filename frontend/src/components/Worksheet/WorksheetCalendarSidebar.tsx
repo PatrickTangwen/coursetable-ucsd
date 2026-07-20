@@ -912,7 +912,7 @@ export default function WorksheetCalendarSidebar() {
                     aria-hidden="true"
                   >
                     <line x1="3" y1="12" x2="21" y2="12" />
-                    <circle cx="7" cy="12" r="2" fill="currentColor" />
+                    <circle cx="8" cy="12" r="2" fill="currentColor" />
                   </svg>
                   Show current time indicator
                 </span>

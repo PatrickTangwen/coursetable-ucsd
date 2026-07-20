@@ -225,7 +225,7 @@ export function WorksheetVisibilityMenuButton({
             <div className={styles.menuLabel} data-visibility-heading>
               Hide courses
             </div>
-            <div className={styles.menuHint}>Select courses to hide.</div>
+            <div className={styles.menuHint}>Select courses to hide</div>
             <div className={styles.menuList}>
               {courses.map((course) => {
                 const hidden = Boolean(course.hidden);
