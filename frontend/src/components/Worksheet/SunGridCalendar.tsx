@@ -12,12 +12,16 @@ import { useShallow } from 'zustand/react/shallow';
 
 import CalendarQuickModal from './CalendarQuickModal';
 import { useToggleCourseHidden } from './WorksheetHideButton';
+import type { Theme } from '../../slices/ThemeSlice';
 import { useStore } from '../../store';
 import {
   getCalendarEvents,
   type CourseRBCEvent,
 } from '../../utilities/calendar';
-import { getWorksheetColorToken } from '../../utilities/constants';
+import {
+  getWorksheetColorAppearance,
+  type WorksheetColorAppearance,
+} from '../../utilities/constants';
 import {
   getScheduleConflicts,
   groupConflictsByCrn,
@@ -39,30 +43,12 @@ const dayLabelByDay: { [day: number]: string } = {
 // blended (soft-light) over the tinted fill.
 const noiseTile = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
-type EventTag = {
-  soft: string;
-  solid: string;
-  deep: string;
-};
+type EventTag = WorksheetColorAppearance & { isDark: boolean };
 
-function safeChroma(color: string): chroma.Color {
-  try {
-    return chroma(color);
-  } catch {
-    return chroma('#378add');
-  }
-}
-
-function tagFromColor(color: string): EventTag {
-  const preset = getWorksheetColorToken(color);
-  if (preset)
-    return { soft: preset.soft, solid: preset.solid, deep: preset.deep };
-
-  const base = safeChroma(color);
+function tagFromColor(color: string, theme: Theme): EventTag {
   return {
-    soft: chroma.mix(base, '#ffffff', 0.85).hex(),
-    solid: base.hex(),
-    deep: base.darken(2).hex(),
+    ...getWorksheetColorAppearance(color, theme),
+    isDark: theme === 'dark',
   };
 }
 
@@ -172,12 +158,14 @@ function eventSkin(
   gridStyle: 'paper' | 'embossed' | 'colorBar',
   hoverState: 'none' | 'hovered' | 'dimmed',
 ): CSSProperties {
-  const skin: CSSProperties = { color: tag.deep };
+  const background =
+    tag.isDark && hoverState === 'hovered' ? tag.hover : tag.background;
+  const skin: CSSProperties = { color: tag.text };
   if (gridStyle === 'colorBar') {
     Object.assign(skin, {
-      backgroundColor: tag.soft,
-      border: `1px solid ${tag.solid}`,
-      borderLeft: `3px solid ${tag.solid}`,
+      backgroundColor: background,
+      border: `1px solid ${tag.isDark ? tag.border : tag.primary}`,
+      borderLeft: `3px solid ${tag.primary}`,
       borderRadius: 5,
       boxShadow: '0 1px 2px rgb(11 11 11 / 4%)',
     });
@@ -185,33 +173,41 @@ function eventSkin(
       skin.boxShadow = '0 4px 12px rgb(11 11 11 / 8%)';
   } else if (gridStyle === 'embossed') {
     Object.assign(skin, {
-      backgroundColor: tag.soft,
-      backgroundImage: `linear-gradient(180deg, ${chroma.mix(tag.soft, '#ffffff', 0.42).hex()} 0%, ${tag.soft} 50%, ${chroma.mix(tag.soft, '#000000', 0.1).hex()} 100%)`,
-      border: `1px solid ${chroma.mix(tag.solid, '#ffffff', 0.4).hex()}`,
+      backgroundColor: background,
+      backgroundImage: tag.isDark
+        ? 'none'
+        : `linear-gradient(180deg, ${chroma.mix(tag.background, '#ffffff', 0.42).hex()} 0%, ${tag.background} 50%, ${chroma.mix(tag.background, '#000000', 0.1).hex()} 100%)`,
+      border: `1px solid ${tag.isDark ? tag.border : chroma.mix(tag.primary, '#ffffff', 0.4).hex()}`,
       borderRadius: 6,
-      boxShadow:
-        'inset 0 1px 0 rgb(255 255 255 / 70%), inset 0 -1px 2px rgb(0 0 0 / 5%), 0 1px 2px rgb(11 11 11 / 8%), 0 2px 5px rgb(11 11 11 / 4%)',
+      boxShadow: tag.isDark
+        ? 'inset 0 1px 0 rgb(255 255 255 / 8%), inset 0 -1px 2px rgb(0 0 0 / 18%), 0 2px 5px rgb(0 0 0 / 18%)'
+        : 'inset 0 1px 0 rgb(255 255 255 / 70%), inset 0 -1px 2px rgb(0 0 0 / 5%), 0 1px 2px rgb(11 11 11 / 8%), 0 2px 5px rgb(11 11 11 / 4%)',
     });
     if (hoverState === 'hovered') {
       skin.transform = 'translateY(-1px)';
-      skin.boxShadow =
-        'inset 0 1px 0 rgb(255 255 255 / 75%), 0 6px 16px rgb(11 11 11 / 14%), 0 2px 6px rgb(11 11 11 / 8%)';
+      skin.boxShadow = tag.isDark
+        ? 'inset 0 1px 0 rgb(255 255 255 / 10%), 0 6px 16px rgb(0 0 0 / 28%), 0 2px 6px rgb(0 0 0 / 20%)'
+        : 'inset 0 1px 0 rgb(255 255 255 / 75%), 0 6px 16px rgb(11 11 11 / 14%), 0 2px 6px rgb(11 11 11 / 8%)';
     }
   } else {
     Object.assign(skin, {
-      backgroundColor: tag.soft,
-      backgroundImage: `${noiseTile}, linear-gradient(180deg, ${chroma.mix(tag.soft, '#ffffff', 0.28).hex()} 0%, ${tag.soft} 62%)`,
-      backgroundSize: '140px 140px, auto',
-      backgroundBlendMode: 'soft-light, normal',
-      border: `1px solid ${chroma.mix(tag.solid, '#ffffff', 0.58).hex()}`,
+      backgroundColor: background,
+      backgroundImage: tag.isDark
+        ? noiseTile
+        : `${noiseTile}, linear-gradient(180deg, ${chroma.mix(tag.background, '#ffffff', 0.28).hex()} 0%, ${tag.background} 62%)`,
+      backgroundSize: tag.isDark ? '140px 140px' : '140px 140px, auto',
+      backgroundBlendMode: tag.isDark ? 'soft-light' : 'soft-light, normal',
+      border: `1px solid ${tag.isDark ? tag.border : chroma.mix(tag.primary, '#ffffff', 0.58).hex()}`,
       borderRadius: 6,
-      boxShadow:
-        'inset 0 1px 0 rgb(255 255 255 / 45%), 0 1px 1px rgb(42 34 25 / 5%), 0 3px 6px rgb(42 34 25 / 6%), 0 8px 14px rgb(42 34 25 / 4%)',
+      boxShadow: tag.isDark
+        ? 'inset 0 1px 0 rgb(255 255 255 / 6%), 0 1px 1px rgb(0 0 0 / 16%), 0 3px 6px rgb(0 0 0 / 18%), 0 8px 14px rgb(0 0 0 / 12%)'
+        : 'inset 0 1px 0 rgb(255 255 255 / 45%), 0 1px 1px rgb(42 34 25 / 5%), 0 3px 6px rgb(42 34 25 / 6%), 0 8px 14px rgb(42 34 25 / 4%)',
     });
     if (hoverState === 'hovered') {
       skin.transform = 'translateY(-1px)';
-      skin.boxShadow =
-        'inset 0 1px 0 rgb(255 255 255 / 50%), 0 4px 10px rgb(42 34 25 / 10%), 0 12px 22px rgb(42 34 25 / 8%)';
+      skin.boxShadow = tag.isDark
+        ? 'inset 0 1px 0 rgb(255 255 255 / 8%), 0 4px 10px rgb(0 0 0 / 26%), 0 12px 22px rgb(0 0 0 / 20%)'
+        : 'inset 0 1px 0 rgb(255 255 255 / 50%), 0 4px 10px rgb(42 34 25 / 10%), 0 12px 22px rgb(42 34 25 / 8%)';
     }
   }
   if (hoverState === 'dimmed') skin.opacity = 0.32;
@@ -241,11 +237,12 @@ function EventBlock({
   readonly isMobile: boolean;
   readonly onOpen: (event: CourseRBCEvent) => void;
 }) {
-  const { hoverCourse, setHoverCourse, gridStyle } = useStore(
+  const { hoverCourse, setHoverCourse, gridStyle, theme } = useStore(
     useShallow((s) => ({
       hoverCourse: s.hoverCourse,
       setHoverCourse: s.setHoverCourse,
       gridStyle: s.calendarGridStyle,
+      theme: s.theme,
     })),
   );
   const toggleCourseHidden = useToggleCourseHidden();
@@ -263,7 +260,10 @@ function EventBlock({
   const widthPct = 100 / event.colCount;
   const leftPct = event.colIndex * widthPct;
 
-  const tag = useMemo(() => tagFromColor(event.color), [event.color]);
+  const tag = useMemo(
+    () => tagFromColor(event.color, theme),
+    [event.color, theme],
+  );
   const hoverState =
     hoverCourse === null ? 'none' : hoverCourse === crn ? 'hovered' : 'dimmed';
 

@@ -33,6 +33,7 @@ import {
   getAnonymousWorksheetCourses,
   type AnonymousWorksheetCourse,
 } from '../../utilities/anonymousWorksheet';
+import { getWorksheetColorAppearance } from '../../utilities/constants';
 import { getWorksheetCourseStats } from '../../utilities/course';
 import { createCatalogLink } from '../../utilities/navigation';
 import { getScheduleConflicts } from '../../utilities/scheduleConflicts';
@@ -113,10 +114,11 @@ function CourseCard({
   readonly onColorMenuOpenChange: (open: boolean) => void;
   readonly onRemove: (courseToRemove: WorksheetCourse) => void;
 }) {
-  const { hoverCourse, setHoverCourse } = useStore(
+  const { hoverCourse, setHoverCourse, theme } = useStore(
     useShallow((s) => ({
       hoverCourse: s.hoverCourse,
       setHoverCourse: s.setHoverCourse,
+      theme: s.theme,
     })),
   );
   const [, setSearchParams] = useSearchParams();
@@ -128,6 +130,10 @@ function CourseCard({
     [course.listing],
   );
   const section = sectionOf(course);
+  const primaryColor = useMemo(
+    () => getWorksheetColorAppearance(course.color, theme).primary,
+    [course.color, theme],
+  );
 
   const openModal = () => {
     setSearchParams((prev) => {
@@ -163,7 +169,7 @@ function CourseCard({
       >
         <span
           className={styles.colorBar}
-          style={{ background: course.color }}
+          style={{ background: primaryColor }}
           aria-hidden="true"
         />
         <div className={styles.cardInfo}>
@@ -248,7 +254,7 @@ function CourseCard({
             <div className={styles.examEntry}>
               <span
                 className={styles.examDot}
-                style={{ background: course.color }}
+                style={{ background: primaryColor }}
                 aria-hidden="true"
               />
               <div className={styles.examEntryBody}>
@@ -263,7 +269,7 @@ function CourseCard({
             <div key={exam.key} className={styles.examEntry}>
               <span
                 className={styles.examDot}
-                style={{ background: course.color }}
+                style={{ background: primaryColor }}
                 aria-hidden="true"
               />
               <div className={styles.examEntryBody}>

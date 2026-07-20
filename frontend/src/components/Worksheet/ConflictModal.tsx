@@ -3,7 +3,11 @@ import { createPortal } from 'react-dom';
 
 import type { Crn } from '../../queries/graphql-types';
 import type { WorksheetCourse } from '../../slices/WorksheetSlice';
-import { weekdays } from '../../utilities/constants';
+import { useStore } from '../../store';
+import {
+  getWorksheetColorAppearance,
+  weekdays,
+} from '../../utilities/constants';
 import {
   formatMinuteRange,
   type ScheduleConflict,
@@ -69,6 +73,7 @@ export default function ConflictModal({
   readonly courses: readonly WorksheetCourse[];
   readonly onClose: () => void;
 }) {
+  const theme = useStore((state) => state.theme);
   const sectionByCrn = useMemo(() => {
     const map = new Map<Crn, string>();
     for (const course of courses)
@@ -186,7 +191,12 @@ export default function ConflictModal({
                   <div className={styles.coursesLine}>
                     <span
                       className={styles.colorChip}
-                      style={{ background: conflict.a.color }}
+                      style={{
+                        background: getWorksheetColorAppearance(
+                          conflict.a.color,
+                          theme,
+                        ).primary,
+                      }}
                     />
                     <b className={styles.courseCode}>{conflict.a.courseCode}</b>
                     <span className={styles.courseSection}>
@@ -195,7 +205,12 @@ export default function ConflictModal({
                     <span className={styles.vs}>vs</span>
                     <span
                       className={styles.colorChip}
-                      style={{ background: conflict.b.color }}
+                      style={{
+                        background: getWorksheetColorAppearance(
+                          conflict.b.color,
+                          theme,
+                        ).primary,
+                      }}
                     />
                     <b className={styles.courseCode}>{conflict.b.courseCode}</b>
                     <span className={styles.courseSection}>

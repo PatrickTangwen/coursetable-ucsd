@@ -15,7 +15,10 @@ import { useToggleCourseHidden } from './WorksheetHideButton';
 import type { WorksheetCourse } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
 import type { WorksheetListingViewModel } from '../../types/worksheetCourse';
-import { worksheetColorTokens } from '../../utilities/constants';
+import {
+  getWorksheetColorAppearance,
+  worksheetColorTokens,
+} from '../../utilities/constants';
 import { formatWorksheetSectionSuffix } from '../../utilities/course';
 import styles from './WorksheetCourseMenus.module.css';
 
@@ -178,6 +181,7 @@ export function WorksheetVisibilityMenuButton({
   readonly onOpenChange: (nextOpen: boolean) => void;
 }) {
   const toggleCourseHidden = useToggleCourseHidden();
+  const theme = useStore((state) => state.theme);
   const [pendingCrn, setPendingCrn] = useState<number | null>(null);
   if (!toggleCourseHidden) return null;
 
@@ -248,7 +252,12 @@ export function WorksheetVisibilityMenuButton({
                     <span className={styles.courseIdentity}>
                       <span
                         className={styles.colorDot}
-                        style={{ backgroundColor: course.color }}
+                        style={{
+                          backgroundColor: getWorksheetColorAppearance(
+                            course.color,
+                            theme,
+                          ).primary,
+                        }}
                         aria-hidden="true"
                       />
                       <span className={styles.courseCode}>{courseLabel}</span>
@@ -320,6 +329,7 @@ export function WorksheetColorMenuButton({
   readonly onOpenChange: (nextOpen: boolean) => void;
 }) {
   const setCourseColor = useSetWorksheetCourseColor();
+  const theme = useStore((state) => state.theme);
   const targetRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const bounded = boundedContainerRef !== undefined;
@@ -363,7 +373,12 @@ export function WorksheetColorMenuButton({
               <span className={styles.courseIdentity}>
                 <span
                   className={styles.colorDot}
-                  style={{ backgroundColor: token.solid }}
+                  style={{
+                    backgroundColor: getWorksheetColorAppearance(
+                      token.solid,
+                      theme,
+                    ).primary,
+                  }}
                   aria-hidden="true"
                 />
                 <span>{token.hue}</span>
@@ -393,7 +408,10 @@ export function WorksheetColorMenuButton({
           onOpenChange(!open);
         }}
       >
-        <PaletteIcon color={course.color} size={iconSize} />
+        <PaletteIcon
+          color={getWorksheetColorAppearance(course.color, theme).primary}
+          size={iconSize}
+        />
       </button>
       {bounded ? (
         open &&

@@ -19,6 +19,7 @@ import {
 import WorksheetViewModelRemoveButton from './WorksheetViewModelRemoveButton';
 import type { WorksheetCourse } from '../../slices/WorksheetSlice';
 import { useStore } from '../../store';
+import { getWorksheetColorAppearance } from '../../utilities/constants';
 import { formatWorksheetSectionSuffix } from '../../utilities/course';
 import { useCourseModalLink } from '../../utilities/display';
 import {
@@ -121,6 +122,11 @@ export default function WorksheetListItem({
   const colorMenuContainerRef = useRef<HTMLDivElement>(null);
   const target = useCourseModalLink(listing);
   const setHoverCourse = useStore((state) => state.setHoverCourse);
+  const theme = useStore((state) => state.theme);
+  const primaryColor = useMemo(
+    () => getWorksheetColorAppearance(color, theme).primary,
+    [color, theme],
+  );
   const { weekly, dated } = useMemo(
     () => buildWorksheetItemMeetings(listing),
     [listing],
@@ -182,7 +188,7 @@ export default function WorksheetListItem({
       <div className={styles.header} onClick={handleToggle}>
         <span
           className={styles.colorBar}
-          style={{ backgroundColor: color }}
+          style={{ backgroundColor: primaryColor }}
           aria-hidden="true"
         />
         <div className={styles.main}>
@@ -286,7 +292,7 @@ export default function WorksheetListItem({
             <div key={`weekly-${index}`} className={styles.meetingRow}>
               <span
                 className={styles.meetingDot}
-                style={{ backgroundColor: color }}
+                style={{ backgroundColor: primaryColor }}
                 aria-hidden="true"
               />
               <div>
@@ -318,7 +324,7 @@ export default function WorksheetListItem({
             <div key={`dated-${index}`} className={styles.meetingRow}>
               <span
                 className={styles.meetingDot}
-                style={{ backgroundColor: color }}
+                style={{ backgroundColor: primaryColor }}
                 aria-hidden="true"
               />
               <div>

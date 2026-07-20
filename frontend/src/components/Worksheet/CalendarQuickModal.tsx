@@ -1,12 +1,15 @@
 import { useEffect, useMemo } from 'react';
-import chroma from 'chroma-js';
 import { createPortal } from 'react-dom';
 
+import { useStore } from '../../store';
 import type {
   WorksheetListingViewModel,
   WorksheetMeeting,
 } from '../../types/worksheetCourse';
-import { getWorksheetColorToken, weekdays } from '../../utilities/constants';
+import {
+  getWorksheetColorAppearance,
+  weekdays,
+} from '../../utilities/constants';
 import {
   describeConflictSlot,
   type CourseConflict,
@@ -221,6 +224,7 @@ export default function CalendarQuickModal({
   readonly conflicts?: readonly CourseConflict[];
   readonly onClose: () => void;
 }) {
+  const theme = useStore((state) => state.theme);
   const { meetings, exams } = useMemo(
     () => getQuickModalData(listing, viewingKey),
     [listing, viewingKey],
@@ -231,15 +235,16 @@ export default function CalendarQuickModal({
       .ucsd_calendar?.section_code ?? listing.course.section;
 
   const unitsChip = useMemo(() => {
-    const preset = getWorksheetColorToken(color);
-    if (preset) return { background: preset.soft, color: preset.deep };
-
-    const base = chroma.valid(color) ? chroma(color) : chroma('#378add');
+    const appearance = getWorksheetColorAppearance(color, theme);
     return {
-      background: chroma.mix(base, '#ffffff', 0.85).hex(),
-      color: base.darken(2).hex(),
+      background: appearance.background,
+      color: appearance.text,
     };
-  }, [color]);
+  }, [color, theme]);
+  const primaryColor = useMemo(
+    () => getWorksheetColorAppearance(color, theme).primary,
+    [color, theme],
+  );
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -267,7 +272,10 @@ export default function CalendarQuickModal({
         <div className={styles.header}>
           <div className={styles.headerInfo}>
             <div className={styles.titleRow}>
-              <span className={styles.colorDot} style={{ background: color }} />
+              <span
+                className={styles.colorDot}
+                style={{ background: primaryColor }}
+              />
               <span className={styles.code}>{listing.course_code}</span>
               {section && <span className={styles.section}>{section}</span>}
             </div>

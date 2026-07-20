@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 
 import { buildWorksheetItemMeetings } from './worksheetListMeetings';
 import type { WorksheetCourse } from '../../slices/WorksheetSlice';
+import { useStore } from '../../store';
+import { getWorksheetColorAppearance } from '../../utilities/constants';
 import styles from './ExamsModal.module.css';
 
 function sectionOf(course: WorksheetCourse) {
@@ -21,6 +23,7 @@ export default function ExamsModal({
   readonly courses: readonly WorksheetCourse[];
   readonly onClose: () => void;
 }) {
+  const theme = useStore((state) => state.theme);
   const [sortBy, setSortBy] = useState<'date' | 'course'>('date');
 
   // The caller supplies only courses currently visible in the worksheet.
@@ -151,7 +154,10 @@ export default function ExamsModal({
               <div className={styles.codeRow}>
                 <span
                   className={styles.colorDot}
-                  style={{ background: exam.color }}
+                  style={{
+                    background: getWorksheetColorAppearance(exam.color, theme)
+                      .primary,
+                  }}
                   aria-hidden="true"
                 />
                 <span className={styles.code}>{exam.code}</span>

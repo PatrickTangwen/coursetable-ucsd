@@ -3,6 +3,8 @@ import { useMemo, useState } from 'react';
 import { buildWeeklyLoad, formatHours } from './worksheetInsights';
 import type { Crn } from '../../queries/graphql-types';
 import type { WorksheetCourse } from '../../slices/WorksheetSlice';
+import { useStore } from '../../store';
+import { getWorksheetColorAppearance } from '../../utilities/constants';
 import styles from './WeeklyLoadChart.module.css';
 
 const fullDayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
@@ -14,11 +16,15 @@ export default function WeeklyLoadChart({
   readonly courses: readonly WorksheetCourse[];
   readonly busiestLabel: string | null;
 }) {
+  const theme = useStore((state) => state.theme);
   const [hoveredCrn, setHoveredCrn] = useState<Crn | null>(null);
   const load = useMemo(() => buildWeeklyLoad(courses), [courses]);
   const maxDayMinutes = Math.max(1, ...load.days.map((day) => day.minutes));
-  const hoveredColor = hoveredCrn
-    ? (load.legend.find((item) => item.crn === hoveredCrn)?.color ?? null)
+  const hoveredItem = hoveredCrn
+    ? load.legend.find((item) => item.crn === hoveredCrn)
+    : null;
+  const hoveredColor = hoveredItem
+    ? getWorksheetColorAppearance(hoveredItem.color, theme).primary
     : null;
 
   return (
@@ -73,7 +79,10 @@ export default function WeeklyLoadChart({
                       className={styles.chartSegment}
                       style={{
                         flexGrow: segment.minutes,
-                        background: segment.color,
+                        background: getWorksheetColorAppearance(
+                          segment.color,
+                          theme,
+                        ).primary,
                         opacity:
                           hoveredCrn && hoveredCrn !== segment.crn ? 0.22 : 1,
                       }}
@@ -115,7 +124,10 @@ export default function WeeklyLoadChart({
             >
               <span
                 className={styles.legendSwatch}
-                style={{ background: item.color }}
+                style={{
+                  background: getWorksheetColorAppearance(item.color, theme)
+                    .primary,
+                }}
                 aria-hidden="true"
               />
               <span className={styles.legendCode}>{item.code}</span>

@@ -1,5 +1,6 @@
 import chroma from 'chroma-js';
 import type { ExtraInfo } from '../queries/graphql-types';
+import type { Theme } from '../slices/ThemeSlice';
 
 // Phrases for search speed [50 character limit]
 export const searchSpeed = {
@@ -407,24 +408,213 @@ export const evalQuestionTags = [
 // color. Presets use the exact trio; custom colors continue to derive these
 // roles at the component boundary.
 export const worksheetColorTokens = [
-  { hue: 'Coral', solid: '#D96868', soft: '#FBEAEA', deep: '#8D3434' },
-  { hue: 'Orange', solid: '#D98245', soft: '#FBEFE5', deep: '#8A4B20' },
-  { hue: 'Amber', solid: '#C79A30', soft: '#FAF3DD', deep: '#765913' },
-  { hue: 'Green', solid: '#62A168', soft: '#EAF5EB', deep: '#356B3B' },
-  { hue: 'Teal', solid: '#3F9B91', soft: '#E3F4F1', deep: '#24675F' },
-  { hue: 'Blue', solid: '#4E8BC8', soft: '#E8F1FA', deep: '#285D91' },
-  { hue: 'Indigo', solid: '#6C76C8', soft: '#ECEEFA', deep: '#414B91' },
-  { hue: 'Purple', solid: '#9369BD', soft: '#F2EAF8', deep: '#604080' },
-  { hue: 'Rose', solid: '#C56892', soft: '#FAEAF1', deep: '#843E5F' },
-];
+  {
+    hue: 'Coral',
+    solid: '#D96868',
+    soft: '#FBEAEA',
+    deep: '#8D3434',
+    dark: {
+      background: '#2C1C1F',
+      hover: '#382226',
+      border: '#704047',
+      primary: '#D9787C',
+      text: '#F0A5A8',
+    },
+  },
+  {
+    hue: 'Orange',
+    solid: '#D98245',
+    soft: '#FBEFE5',
+    deep: '#8A4B20',
+    dark: {
+      background: '#2D211A',
+      hover: '#39291F',
+      border: '#755039',
+      primary: '#D98A55',
+      text: '#EDB083',
+    },
+  },
+  {
+    hue: 'Amber',
+    solid: '#C79A30',
+    soft: '#FAF3DD',
+    deep: '#765913',
+    dark: {
+      background: '#2B2619',
+      hover: '#37301D',
+      border: '#6F602E',
+      primary: '#C9A447',
+      text: '#E4C976',
+    },
+  },
+  {
+    hue: 'Green',
+    solid: '#62A168',
+    soft: '#EAF5EB',
+    deep: '#356B3B',
+    dark: {
+      background: '#1C281F',
+      hover: '#223328',
+      border: '#416A49',
+      primary: '#6DAF74',
+      text: '#9BD1A0',
+    },
+  },
+  {
+    hue: 'Teal',
+    solid: '#3F9B91',
+    soft: '#E3F4F1',
+    deep: '#24675F',
+    dark: {
+      background: '#182927',
+      hover: '#1E3431',
+      border: '#376B65',
+      primary: '#4EAAA0',
+      text: '#82CEC6',
+    },
+  },
+  {
+    hue: 'Blue',
+    solid: '#4E8BC8',
+    soft: '#E8F1FA',
+    deep: '#285D91',
+    dark: {
+      background: '#192532',
+      hover: '#1E2F40',
+      border: '#365E83',
+      primary: '#6098D0',
+      text: '#91BDE6',
+    },
+  },
+  {
+    hue: 'Indigo',
+    solid: '#6C76C8',
+    soft: '#ECEEFA',
+    deep: '#414B91',
+    dark: {
+      background: '#202236',
+      hover: '#282B44',
+      border: '#505889',
+      primary: '#7D87D4',
+      text: '#ABB2EA',
+    },
+  },
+  {
+    hue: 'Purple',
+    solid: '#9369BD',
+    soft: '#F2EAF8',
+    deep: '#604080',
+    dark: {
+      background: '#271F32',
+      hover: '#32283F',
+      border: '#654A7C',
+      primary: '#A17AC5',
+      text: '#C7A6E1',
+    },
+  },
+  {
+    hue: 'Rose',
+    solid: '#C56892',
+    soft: '#FAEAF1',
+    deep: '#843E5F',
+    dark: {
+      background: '#301E29',
+      hover: '#3C2633',
+      border: '#79445D',
+      primary: '#D0789E',
+      text: '#E7A7C2',
+    },
+  },
+] as const;
+
+export type WorksheetHue = (typeof worksheetColorTokens)[number]['hue'];
 
 export const worksheetColors = worksheetColorTokens.map((color) => color.solid);
+
+// Courses saved before the named Hue palette retain their original hex. Map
+// those historical presets at render time so Dark Mode can use the matching
+// approved Hue without rewriting persisted worksheet data or changing their
+// Light Mode appearance.
+const legacyWorksheetColorHues: {
+  [color: string]: WorksheetHue | undefined;
+} = {
+  '#31a4d4': 'Blue',
+  '#3d95d6': 'Blue',
+  '#df8653': 'Orange',
+  '#26ba9a': 'Green',
+  '#49be85': 'Green',
+  '#6cc26f': 'Green',
+  '#c765b0': 'Rose',
+  '#daa126': 'Amber',
+  '#7d7fd9': 'Indigo',
+  '#ca5f53': 'Coral',
+  '#2cafb7': 'Teal',
+  '#a06fd0': 'Purple',
+  '#a3b24b': 'Green',
+  '#ba7881': 'Rose',
+};
 
 export function getWorksheetColorToken(color: string) {
   const normalizedColor = color.toLowerCase();
   return worksheetColorTokens.find(
     (preset) => preset.solid.toLowerCase() === normalizedColor,
   );
+}
+
+function getLegacyWorksheetColorToken(color: string) {
+  const hue = legacyWorksheetColorHues[color.toLowerCase()];
+  return hue
+    ? worksheetColorTokens.find((preset) => preset.hue === hue)
+    : undefined;
+}
+
+export type WorksheetColorAppearance = {
+  background: string;
+  hover: string;
+  border: string;
+  primary: string;
+  text: string;
+};
+
+export function getWorksheetColorAppearance(
+  color: string,
+  theme: Theme,
+): WorksheetColorAppearance {
+  const preset = getWorksheetColorToken(color);
+  if (theme === 'dark') {
+    const darkPreset = preset ?? getLegacyWorksheetColorToken(color);
+    if (darkPreset) return darkPreset.dark;
+  }
+  if (preset) {
+    return {
+      background: preset.soft,
+      hover: preset.soft,
+      border: preset.solid,
+      primary: preset.solid,
+      text: preset.deep,
+    };
+  }
+
+  const base = chroma.valid(color) ? chroma(color) : chroma('#378add');
+  if (theme === 'light') {
+    const soft = chroma.mix(base, '#ffffff', 0.85).hex();
+    return {
+      background: soft,
+      hover: soft,
+      border: base.hex(),
+      primary: base.hex(),
+      text: base.darken(2).hex(),
+    };
+  }
+
+  const primary = chroma.mix(base, '#ffffff', 0.18, 'lab');
+  return {
+    background: chroma.mix(primary, '#121212', 0.82, 'lab').hex(),
+    hover: chroma.mix(primary, '#121212', 0.74, 'lab').hex(),
+    border: chroma.mix(primary, '#121212', 0.46, 'lab').hex(),
+    primary: primary.hex(),
+    text: chroma.mix(primary, '#ffffff', 0.38, 'lab').hex(),
+  };
 }
 
 export function getNextWorksheetColor(usedColors: readonly string[]) {
