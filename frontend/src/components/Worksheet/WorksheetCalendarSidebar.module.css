@@ -683,7 +683,7 @@
   color: rgb(var(--ct-line-rgb) / 22%);
 }
 
-.cardEyeButton {
+.cardColorButton {
   display: flex;
   flex: 0 0 auto;
   align-items: center;

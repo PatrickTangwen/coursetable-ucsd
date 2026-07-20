@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from 'react-bootstrap';
-import { BsEye, BsEyeSlash } from 'react-icons/bs';
 import { useShallow } from 'zustand/react/shallow';
 
 import ConflictModal from './ConflictModal';
@@ -13,6 +12,7 @@ import {
   getAnonymousWorksheetTermChips,
   getSavedWorksheetTermChips,
 } from './WorksheetCalendarList';
+import { WorksheetVisibilityMenuButton } from './WorksheetCourseMenus';
 import {
   busiestDay,
   creditLoad,
@@ -157,8 +157,6 @@ function WorksheetList() {
     worksheetMissingSectionIds,
     isMobile,
     changeViewedSeason,
-    setAllAnonymousWorksheetHidden,
-    setAllActiveSavedWorksheetHidden,
     clearAnonymousWorksheet,
     clearActiveSavedWorksheet,
     restoreAnonymousWorksheetCourses,
@@ -187,8 +185,6 @@ function WorksheetList() {
       worksheetMissingSectionIds: state.worksheetMissingSectionIds,
       isMobile: state.isMobile,
       changeViewedSeason: state.changeViewedSeason,
-      setAllAnonymousWorksheetHidden: state.setAllAnonymousWorksheetHidden,
-      setAllActiveSavedWorksheetHidden: state.setAllActiveSavedWorksheetHidden,
       clearAnonymousWorksheet: state.clearAnonymousWorksheet,
       clearActiveSavedWorksheet: state.clearActiveSavedWorksheet,
       restoreAnonymousWorksheetCourses: state.restoreAnonymousWorksheetCourses,
@@ -235,10 +231,6 @@ function WorksheetList() {
 
   const { courseCount, credits } = getWorksheetCourseStats(courses);
   const load = creditLoad(credits);
-  const areHidden = useMemo(
-    () => courses.length > 0 && courses.every((course) => course.hidden),
-    [courses],
-  );
   const allExpanded =
     courses.length > 0 &&
     courses.every((course) => expandedCrns.has(course.crn));
@@ -339,12 +331,6 @@ function WorksheetList() {
       else next.add(crn);
       return next;
     });
-  };
-
-  const handleToggleAllHidden = async () => {
-    if (isAnonymousWorksheet) setAllAnonymousWorksheetHidden(!areHidden);
-    else if (hasSavedWorksheetAccount)
-      await setAllActiveSavedWorksheetHidden(!areHidden);
   };
 
   const handleClearAll = async () => {
@@ -599,21 +585,11 @@ function WorksheetList() {
                 <ExpandAllIcon allExpanded={allExpanded} />
               </button>
               {showHideButton && (
-                <button
-                  type="button"
+                <WorksheetVisibilityMenuButton
+                  courses={courses}
                   className={styles.controlButton}
-                  onClick={() => {
-                    void handleToggleAllHidden();
-                  }}
-                  title={areHidden ? 'Show all' : 'Hide all'}
-                  aria-label={`${areHidden ? 'Show' : 'Hide'} all`}
-                >
-                  {areHidden ? (
-                    <BsEyeSlash size={15} aria-hidden="true" />
-                  ) : (
-                    <BsEye size={15} aria-hidden="true" />
-                  )}
-                </button>
+                  iconSize={15}
+                />
               )}
               {showSettings && (
                 <div className={styles.menuWrapperStatic}>

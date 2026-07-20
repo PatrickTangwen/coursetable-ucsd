@@ -8,6 +8,10 @@ import ExamsModal from './ExamsModal';
 import { useICSExport } from './ICSExportButton';
 import { useCalendarPNGExport } from './PNGExportButton';
 import { useWorksheetURLExport } from './URLExportButton';
+import {
+  WorksheetColorMenuButton,
+  WorksheetVisibilityMenuButton,
+} from './WorksheetCourseMenus';
 import { useToggleCourseHidden } from './WorksheetHideButton';
 import {
   busiestDay,
@@ -98,7 +102,7 @@ function CourseCard({
   readonly conflictTooltip: string | null;
   readonly expanded: boolean;
   readonly onToggleExpand: () => void;
-  readonly onRemove: (course: WorksheetCourse) => void;
+  readonly onRemove: (courseToRemove: WorksheetCourse) => void;
 }) {
   const { hoverCourse, setHoverCourse } = useStore(
     useShallow((s) => ({
@@ -106,7 +110,6 @@ function CourseCard({
       setHoverCourse: s.setHoverCourse,
     })),
   );
-  const toggleCourseHidden = useToggleCourseHidden();
   const [, setSearchParams] = useSearchParams();
 
   const { crn } = course.listing;
@@ -186,48 +189,12 @@ function CourseCard({
             {course.listing.course.title}
           </span>
         </div>
-        {canEdit && toggleCourseHidden && (
-          <button
-            type="button"
-            className={styles.cardEyeButton}
-            aria-label={hidden ? 'Show in calendar' : 'Hide from calendar'}
-            onClick={(e) => {
-              e.stopPropagation();
-              void toggleCourseHidden(crn, hidden);
-            }}
-          >
-            {hidden ? (
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="var(--ct-text-muted)"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                <line x1="1" y1="1" x2="23" y2="23" />
-              </svg>
-            ) : (
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="var(--ct-ink)"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-            )}
-          </button>
+        {canEdit && (
+          <WorksheetColorMenuButton
+            course={course}
+            className={styles.cardColorButton}
+            iconSize={18}
+          />
         )}
         <button
           type="button"
@@ -352,8 +319,6 @@ export default function WorksheetCalendarSidebar() {
     setGridStyle,
     hideConflictWarnings,
     setHideConflictWarnings,
-    setAllAnonymousWorksheetHidden,
-    setAllActiveSavedWorksheetHidden,
     removeAnonymousWorksheetListing,
     removeActiveSavedWorksheetListing,
     clearAnonymousWorksheet,
@@ -374,8 +339,6 @@ export default function WorksheetCalendarSidebar() {
       setGridStyle: state.setCalendarGridStyle,
       hideConflictWarnings: state.hideConflictWarnings,
       setHideConflictWarnings: state.setHideConflictWarnings,
-      setAllAnonymousWorksheetHidden: state.setAllAnonymousWorksheetHidden,
-      setAllActiveSavedWorksheetHidden: state.setAllActiveSavedWorksheetHidden,
       removeAnonymousWorksheetListing: state.removeAnonymousWorksheetListing,
       removeActiveSavedWorksheetListing:
         state.removeActiveSavedWorksheetListing,
@@ -437,8 +400,6 @@ export default function WorksheetCalendarSidebar() {
   // The all-exams modal covers every course, hidden included.
   const anyExam = useMemo(() => hasAnyExam(courses), [courses]);
   const busiest = useMemo(() => busiestDay(visibleCourses), [visibleCourses]);
-  const areHidden = courses.length > 0 && courses.every((c) => c.hidden);
-
   const visibleConflicts = useMemo(
     () => getScheduleConflicts(visibleCourses),
     [visibleCourses],
@@ -505,12 +466,6 @@ export default function WorksheetCalendarSidebar() {
     else await restoreActiveSavedWorksheetSections(clearedSnapshot.sections);
     setClearedSnapshot(null);
     closeStyleMenu();
-  };
-
-  const toggleAllHidden = async () => {
-    if (isAnonymousWorksheet) setAllAnonymousWorksheetHidden(!areHidden);
-    else if (hasSavedWorksheetAccount)
-      await setAllActiveSavedWorksheetHidden(!areHidden);
   };
 
   const removeCourse = async (course: WorksheetCourse) => {
@@ -746,46 +701,12 @@ export default function WorksheetCalendarSidebar() {
 
       <div className={styles.controlsRow}>
         {canEdit && (
-          <button
-            type="button"
+          <WorksheetVisibilityMenuButton
+            courses={courses}
             className={styles.controlButton}
-            aria-label={areHidden ? 'Show all courses' : 'Hide all courses'}
-            onClick={() => {
-              void toggleAllHidden();
-            }}
-          >
-            {areHidden ? (
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="var(--ct-text-muted)"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                <line x1="1" y1="1" x2="23" y2="23" />
-              </svg>
-            ) : (
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-            )}
-          </button>
+            iconSize={18}
+            iconStyle="calendar"
+          />
         )}
         <div ref={styleRef} className={styles.controlWrapper}>
           <button

@@ -1,0 +1,115 @@
+.menu {
+  --bs-popover-max-width: none;
+
+  z-index: 1080;
+  width: 240px;
+  max-height: min(420px, calc(100vh - 24px));
+  overflow: hidden;
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
+  border-radius: 8px;
+  background: var(--ct-surface-raised);
+  color: var(--ct-ink);
+  box-shadow: 0 8px 24px rgb(11 11 11 / 14%);
+  font-family: inherit;
+}
+
+.menu > :global(.popover-arrow) {
+  display: none;
+}
+
+.menuBody {
+  padding: 6px;
+  color: var(--ct-ink);
+}
+
+.menuLabel {
+  padding: 4px 10px 2px;
+  color: var(--ct-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.menuHint {
+  padding: 0 10px 6px;
+  color: var(--ct-text-muted);
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+
+.menuList {
+  max-height: min(344px, calc(100vh - 92px));
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--ct-line-rgb) / 18%) transparent;
+}
+
+.menuItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ct-ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12.5px;
+  text-align: left;
+  transition: background 0.12s ease;
+}
+
+.menuItem:hover,
+.menuItem:focus-visible {
+  background: rgb(var(--ct-line-rgb) / 4%);
+}
+
+.menuItem[data-active] {
+  background: var(--ct-accent-tint);
+  color: var(--ct-accent-text);
+  font-weight: 600;
+}
+
+.menuItem:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.courseIdentity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.courseCode {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.colorDot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+}
+
+.visibilityState,
+.checkSlot {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ct-text-muted);
+}
+
+.menuItem[data-active] .checkSlot {
+  color: var(--ct-accent-text);
+}

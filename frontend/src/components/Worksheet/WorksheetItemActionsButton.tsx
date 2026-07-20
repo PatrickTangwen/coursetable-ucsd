@@ -12,8 +12,8 @@ import { MdEdit } from 'react-icons/md';
 import chroma from 'chroma-js';
 import { Calendar } from 'react-big-calendar';
 import { HexColorPicker } from 'react-colorful';
-import { useShallow } from 'zustand/react/shallow';
 import { CalendarEventBody, useEventStyle } from './CalendarEvent';
+import { useSetWorksheetCourseColor } from './WorksheetCourseMenus';
 import { useStore } from '../../store';
 import { type CourseRBCEvent, localizer } from '../../utilities/calendar';
 import { worksheetColors } from '../../utilities/constants';
@@ -109,23 +109,8 @@ export function ColorPickerModal({
 }: {
   readonly onClose: () => void;
 }) {
-  const {
-    openColorPickerEvent,
-    isAnonymousWorksheet,
-    user,
-    setAnonymousWorksheetListingColor,
-    setActiveSavedWorksheetListingColor,
-  } = useStore(
-    useShallow((state) => ({
-      openColorPickerEvent: state.openColorPickerEvent,
-      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
-      user: state.user,
-      setAnonymousWorksheetListingColor:
-        state.setAnonymousWorksheetListingColor,
-      setActiveSavedWorksheetListingColor:
-        state.setActiveSavedWorksheetListingColor,
-    })),
-  );
+  const openColorPickerEvent = useStore((state) => state.openColorPickerEvent);
+  const setCourseColor = useSetWorksheetCourseColor();
   const [newColor, setNewColor] = useState<string | undefined>(undefined);
 
   if (!openColorPickerEvent) return null;
@@ -154,21 +139,11 @@ export function ColorPickerModal({
         <Button
           variant="primary"
           onClick={async () => {
-            if (isAnonymousWorksheet) {
-              setAnonymousWorksheetListingColor(
+            if (setCourseColor) {
+              await setCourseColor(
                 openColorPickerEvent.listing,
                 newColor ?? openColorPickerEvent.color,
               );
-              onClose();
-              return;
-            }
-            if (user) {
-              await setActiveSavedWorksheetListingColor(
-                openColorPickerEvent.listing,
-                newColor ?? openColorPickerEvent.color,
-              );
-              onClose();
-              return;
             }
             onClose();
           }}

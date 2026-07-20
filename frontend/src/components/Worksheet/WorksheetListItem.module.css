@@ -172,7 +172,7 @@
   text-transform: uppercase;
 }
 
-.hideButton,
+.colorButton,
 .chevronButton {
   width: 22px;
   height: 22px;
@@ -191,8 +191,8 @@
     color 0.12s ease;
 }
 
-.hideButton:hover,
-.hideButton:focus-visible,
+.colorButton:hover,
+.colorButton:focus-visible,
 .chevronButton:hover,
 .chevronButton:focus-visible {
   background: rgb(var(--ct-line-rgb) / 6%);
