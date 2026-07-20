@@ -490,12 +490,14 @@
     0 4px 18px rgb(11 11 11 / 6%);
 }
 
-/* The visibility menu follows the adjacent export menu's in-sidebar
-   positioning while retaining the settings menu's six-pixel content inset. */
+/* Anchor the visibility menu to the trigger's left edge so it opens toward
+   the right at every List View scale. */
 .visibilityMenu {
   --worksheet-course-menu-item-font-size: 12.5px;
   --worksheet-course-menu-item-padding: 8px 10px;
 
+  right: auto;
+  left: 0;
   width: 240px;
   min-width: 0;
   max-width: min(240px, calc(100vw - 32px));
@@ -596,11 +598,6 @@
 }
 
 @media (max-width: 899px) {
-  .visibilityMenu {
-    right: auto;
-    left: 0;
-  }
-
   .mainRow {
     flex-direction: column;
   }
