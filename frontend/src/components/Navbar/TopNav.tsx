@@ -13,7 +13,7 @@ import CatalogNavSearch, {
   CatalogResultCount,
 } from '../Catalog/CatalogNavSearch';
 import { NavbarWorksheetSearch } from '../Worksheet/NavbarWorksheetSearch';
-import WorksheetMobileMenu from '../Worksheet/WorksheetMobileMenu';
+import WorksheetOptionsSheet from '../Worksheet/WorksheetOptionsSheet';
 import styles from './TopNav.module.css';
 
 export default function TopNav() {
@@ -104,19 +104,10 @@ export default function TopNav() {
         </button>
 
         {isWorksheetMobile ? (
-          menuOpen && (
-            <>
-              <button
-                type="button"
-                className={styles.mobileMenuBackdrop}
-                aria-label="Close menu"
-                onClick={() => setMenuOpen(false)}
-              />
-              <div className={styles.mobileMenuPanel}>
-                <WorksheetMobileMenu onClose={() => setMenuOpen(false)} />
-              </div>
-            </>
-          )
+          <WorksheetOptionsSheet
+            open={menuOpen}
+            onClose={() => setMenuOpen(false)}
+          />
         ) : isMobile ? (
           <MobileNavSheet open={menuOpen} onClose={() => setMenuOpen(false)} />
         ) : (

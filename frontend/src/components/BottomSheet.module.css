@@ -37,10 +37,21 @@
 }
 
 .handle {
+  position: relative;
+  width: 72px;
+  height: 22px;
+  margin: 0 auto;
+  flex-shrink: 0;
+  touch-action: none;
+}
+
+.handle::after {
+  position: absolute;
+  top: 10px;
+  left: 18px;
   width: 36px;
   height: 4px;
   background: rgb(var(--ct-line-rgb) / 8%);
   border-radius: 2px;
-  margin: 10px auto 8px;
-  flex-shrink: 0;
+  content: '';
 }

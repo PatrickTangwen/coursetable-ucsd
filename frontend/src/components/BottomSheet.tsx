@@ -1,6 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import clsx from 'clsx';
 import { createPortal } from 'react-dom';
+import {
+  isDownwardCloseGesture,
+  type PointerPosition,
+} from './bottomSheetGesture';
 import styles from './BottomSheet.module.css';
 
 /**
@@ -11,14 +15,18 @@ import styles from './BottomSheet.module.css';
 export default function BottomSheet({
   open,
   onClose,
+  swipeToClose = false,
   className,
   children,
 }: {
   readonly open: boolean;
   readonly onClose: () => void;
+  readonly swipeToClose?: boolean;
   readonly className?: string;
   readonly children: React.ReactNode;
 }) {
+  const swipeStart = useRef<PointerPosition | null>(null);
+
   useEffect(() => {
     if (!open) return undefined;
     const prevOverflow = document.body.style.overflow;
@@ -33,6 +41,26 @@ export default function BottomSheet({
     };
   }, [open, onClose]);
 
+  const handleSwipeStart = (event: React.PointerEvent) => {
+    if (!swipeToClose) return;
+    swipeStart.current = { x: event.clientX, y: event.clientY };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const maybeCloseFromSwipe = (event: React.PointerEvent) => {
+    const start = swipeStart.current;
+    if (!swipeToClose || !start) return;
+    if (isDownwardCloseGesture(start, { x: event.clientX, y: event.clientY })) {
+      swipeStart.current = null;
+      onClose();
+    }
+  };
+
+  const handleSwipeEnd = (event: React.PointerEvent) => {
+    maybeCloseFromSwipe(event);
+    swipeStart.current = null;
+  };
+
   return createPortal(
     <>
       <button
@@ -46,7 +74,16 @@ export default function BottomSheet({
         className={clsx(styles.sheet, className, open && styles.sheetOpen)}
         aria-hidden={!open}
       >
-        <div className={styles.handle} />
+        <div
+          className={styles.handle}
+          aria-hidden="true"
+          onPointerDown={handleSwipeStart}
+          onPointerMove={maybeCloseFromSwipe}
+          onPointerUp={handleSwipeEnd}
+          onPointerCancel={() => {
+            swipeStart.current = null;
+          }}
+        />
         {children}
       </div>
     </>,
