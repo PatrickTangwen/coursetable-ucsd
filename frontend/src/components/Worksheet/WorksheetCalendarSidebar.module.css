@@ -353,6 +353,14 @@
   margin: 6px 4px;
 }
 
+/* Leading icon + label, spaced like .menuDangerItem so the icons of all
+   menu rows line up in one column. */
+.menuItemLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .menuDangerItem,
 .menuRestoreItem {
   width: 100%;
@@ -360,7 +368,7 @@
   padding: 8px 10px;
   font-size: 12px;
   font-family: inherit;
-  color: var(--ct-text-secondary);
+  color: var(--ct-ink);
   border-radius: 6px;
   display: flex;
   align-items: center;

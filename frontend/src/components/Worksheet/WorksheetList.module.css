@@ -352,6 +352,14 @@
   transition: background 0.12s ease;
 }
 
+/* Leading icon + label, spaced like .settingsMenuDanger so the icons of
+   all menu rows line up in one column. */
+.settingsMenuRowLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .settingsMenuRow:focus-visible {
   background: rgb(var(--ct-line-rgb) / 4%);
 }
