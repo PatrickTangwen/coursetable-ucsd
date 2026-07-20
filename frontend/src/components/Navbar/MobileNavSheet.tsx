@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import clsx from 'clsx';
-import { FaCalendarCheck } from 'react-icons/fa6';
+import { LuCalendarCheck2 } from 'react-icons/lu';
 import { useShallow } from 'zustand/react/shallow';
 import { logout } from '../../queries/api';
 import { useStore } from '../../store';
@@ -158,7 +158,7 @@ export default function MobileNavSheet({
         <NavSheetLink
           to="/worksheet"
           label="Worksheet"
-          icon={<FaCalendarCheck size={17} aria-hidden="true" />}
+          icon={<LuCalendarCheck2 size={17} aria-hidden="true" />}
           onNavigate={handleNavigate}
         />
         {shouldShowPublicLoginEntry(
