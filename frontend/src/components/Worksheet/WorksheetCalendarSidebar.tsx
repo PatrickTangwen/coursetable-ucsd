@@ -6,6 +6,7 @@ import { getQuickModalData } from './CalendarQuickModal';
 import ConflictModal from './ConflictModal';
 import ExamsModal from './ExamsModal';
 import { useICSExport } from './ICSExportButton';
+import { useCalendarPNGExport } from './PNGExportButton';
 import { useWorksheetURLExport } from './URLExportButton';
 import { useToggleCourseHidden } from './WorksheetHideButton';
 import {
@@ -391,6 +392,7 @@ export default function WorksheetCalendarSidebar() {
   const hasSavedWorksheetAccount = Boolean(user);
   const icsExport = useICSExport();
   const urlExport = useWorksheetURLExport();
+  const { exportPNG, isExporting: isExportingPNG } = useCalendarPNGExport();
 
   const [styleMenuOpen, setStyleMenuOpen] = useState(false);
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
@@ -1048,6 +1050,31 @@ export default function WorksheetCalendarSidebar() {
                 </svg>
                 Export as .ics file
               </a>
+              <button
+                type="button"
+                className={styles.menuItem}
+                disabled={isExportingPNG}
+                onClick={() => {
+                  void exportPNG().finally(() => setExportMenuOpen(false));
+                }}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+                {isExportingPNG ? 'Exporting…' : 'Download calendar as PNG'}
+              </button>
               <button
                 type="button"
                 className={styles.menuItem}

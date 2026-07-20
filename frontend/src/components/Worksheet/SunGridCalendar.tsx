@@ -624,7 +624,11 @@ export default function SunGridCalendar() {
   } as CSSProperties;
 
   return (
-    <div className={styles.calendar} style={gridColumns}>
+    <div
+      className={styles.calendar}
+      style={gridColumns}
+      data-png-export-root=""
+    >
       <div className={styles.headerRow}>
         <div className={styles.headerGutter} />
         {visibleDays.map((day) => (
@@ -669,7 +673,11 @@ export default function SunGridCalendar() {
             </div>
           ))}
           {showNowLine && (
-            <div className={styles.nowLine} style={{ top: `${nowTopPct}%` }}>
+            <div
+              className={styles.nowLine}
+              style={{ top: `${nowTopPct}%` }}
+              data-png-export-ignore=""
+            >
               <span className={styles.nowDot} />
             </div>
           )}
