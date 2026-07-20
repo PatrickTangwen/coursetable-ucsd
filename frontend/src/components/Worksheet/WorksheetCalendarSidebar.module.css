@@ -867,3 +867,10 @@
   mix-blend-mode: screen;
   filter: invert(1) hue-rotate(180deg);
 }
+
+@media (max-width: calc(768px - 0.5px)) {
+  .cardColorMenuSlot {
+    display: flex;
+    justify-content: flex-end;
+  }
+}
