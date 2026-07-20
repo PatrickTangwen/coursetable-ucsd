@@ -88,11 +88,6 @@
   font-weight: 600;
 }
 
-.colorMenuDone:hover,
-.colorMenuDone:focus-visible {
-  background: var(--ct-accent-tint);
-}
-
 .menuHint {
   padding: 0 10px 6px;
   color: var(--ct-text-muted);
@@ -232,11 +227,6 @@
   font: inherit;
   font-size: 13.5px;
   font-weight: 600;
-}
-
-.colorSheetDone:hover,
-.colorSheetDone:focus-visible {
-  background: var(--ct-accent-tint);
 }
 
 .colorSheetList {
