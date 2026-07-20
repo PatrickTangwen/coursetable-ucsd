@@ -337,8 +337,8 @@ export default function WorksheetCalendarSidebar() {
     setGridStyle,
     hideConflictWarnings,
     setHideConflictWarnings,
-    hideCalendarColorPalettes,
-    setHideCalendarColorPalettes,
+    showCalendarColorPalette,
+    setShowCalendarColorPalette,
     removeAnonymousWorksheetListing,
     removeActiveSavedWorksheetListing,
     clearAnonymousWorksheet,
@@ -359,8 +359,8 @@ export default function WorksheetCalendarSidebar() {
       setGridStyle: state.setCalendarGridStyle,
       hideConflictWarnings: state.hideConflictWarnings,
       setHideConflictWarnings: state.setHideConflictWarnings,
-      hideCalendarColorPalettes: state.hideCalendarColorPalettes,
-      setHideCalendarColorPalettes: state.setHideCalendarColorPalettes,
+      showCalendarColorPalette: state.showCalendarColorPalette,
+      setShowCalendarColorPalette: state.setShowCalendarColorPalette,
       removeAnonymousWorksheetListing: state.removeAnonymousWorksheetListing,
       removeActiveSavedWorksheetListing:
         state.removeActiveSavedWorksheetListing,
@@ -864,12 +864,12 @@ export default function WorksheetCalendarSidebar() {
               <button
                 type="button"
                 role="menuitemcheckbox"
-                aria-checked={hideCalendarColorPalettes}
+                aria-checked={showCalendarColorPalette}
                 className={styles.menuItem}
                 onClick={() => {
-                  const nextHidden = !hideCalendarColorPalettes;
-                  setHideCalendarColorPalettes(nextHidden);
-                  if (nextHidden) setOpenColorMenuCrn(null);
+                  const nextShow = !showCalendarColorPalette;
+                  setShowCalendarColorPalette(nextShow);
+                  if (!nextShow) setOpenColorMenuCrn(null);
                 }}
               >
                 <span className={styles.menuItemLabel}>
@@ -889,9 +889,9 @@ export default function WorksheetCalendarSidebar() {
                     <circle cx="11" cy="7" r="1" fill="currentColor" />
                     <circle cx="15" cy="7.5" r="1" fill="currentColor" />
                   </svg>
-                  Hide color palettes
+                  Show color palette
                 </span>
-                {hideCalendarColorPalettes && (
+                {showCalendarColorPalette && (
                   <svg
                     width="14"
                     height="14"
@@ -1155,7 +1155,7 @@ export default function WorksheetCalendarSidebar() {
               }
               expanded={expandedCards.has(course.listing.crn)}
               colorMenuOpen={openColorMenuCrn === course.listing.crn}
-              showColorPalette={!hideCalendarColorPalettes}
+              showColorPalette={showCalendarColorPalette}
               onToggleExpand={() => toggleCardExpanded(course.listing.crn)}
               onColorMenuOpenChange={(open) =>
                 setOpenColorMenuCrn(open ? course.listing.crn : null)
