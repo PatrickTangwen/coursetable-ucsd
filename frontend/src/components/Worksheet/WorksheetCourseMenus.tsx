@@ -272,14 +272,17 @@ export function WorksheetColorMenuButton({
   course,
   className,
   iconSize,
+  open,
+  onOpenChange,
 }: {
   readonly course: WorksheetCourse;
   readonly className?: string;
   readonly iconSize: number;
+  readonly open: boolean;
+  readonly onOpenChange: (nextOpen: boolean) => void;
 }) {
   const setCourseColor = useSetWorksheetCourseColor();
   const targetRef = useRef<HTMLButtonElement>(null);
-  const [open, setOpen] = useState(false);
   if (!setCourseColor) return null;
 
   return (
@@ -294,7 +297,7 @@ export function WorksheetColorMenuButton({
         aria-expanded={open}
         onClick={(event) => {
           event.stopPropagation();
-          setOpen((previous) => !previous);
+          onOpenChange(!open);
         }}
       >
         <PaletteIcon color={course.color} size={iconSize} />
@@ -302,7 +305,7 @@ export function WorksheetColorMenuButton({
       <MenuOverlay
         target={targetRef}
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={() => onOpenChange(false)}
         id={`worksheet-course-color-menu-${course.listing.crn}`}
       >
         <div className={styles.menuLabel}>Course color</div>
@@ -319,7 +322,7 @@ export function WorksheetColorMenuButton({
                 className={styles.menuItem}
                 data-active={active || undefined}
                 onClick={() => {
-                  setOpen(false);
+                  onOpenChange(false);
                   void setCourseColor(course.listing, token.solid);
                 }}
               >

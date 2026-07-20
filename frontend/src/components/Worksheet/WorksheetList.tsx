@@ -207,6 +207,7 @@ function WorksheetList() {
   const [confirmClear, setConfirmClear] = useState(false);
   const [conflictModalOpen, setConflictModalOpen] = useState(false);
   const [examsModalOpen, setExamsModalOpen] = useState(false);
+  const [openColorMenuCrn, setOpenColorMenuCrn] = useState<Crn | null>(null);
   const [clearing, setClearing] = useState(false);
   const [clearedSnapshot, setClearedSnapshot] =
     useState<ClearedSnapshot | null>(null);
@@ -223,6 +224,7 @@ function WorksheetList() {
     setExpandedCrns(new Set());
     setClearedSnapshot(null);
     setConfirmClear(false);
+    setOpenColorMenuCrn(null);
   }, [worksheetKey]);
 
   const hasSavedWorksheetAccount = Boolean(user);
@@ -855,12 +857,16 @@ function WorksheetList() {
                   key={viewedSeason + course.crn}
                   course={course}
                   expanded={expandedCrns.has(course.crn)}
+                  colorMenuOpen={openColorMenuCrn === course.crn}
                   conflicts={
                     hideConflictWarnings
                       ? []
                       : (conflictsByCrn.get(course.crn) ?? [])
                   }
                   onToggleExpand={() => toggleOneExpand(course.crn)}
+                  onColorMenuOpenChange={(open) =>
+                    setOpenColorMenuCrn(open ? course.crn : null)
+                  }
                 />
               ))}
             </div>

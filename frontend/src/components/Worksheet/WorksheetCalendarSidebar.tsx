@@ -93,7 +93,9 @@ function CourseCard({
   hasConflict,
   conflictTooltip,
   expanded,
+  colorMenuOpen,
   onToggleExpand,
+  onColorMenuOpenChange,
   onRemove,
 }: {
   readonly course: WorksheetCourse;
@@ -101,7 +103,9 @@ function CourseCard({
   readonly hasConflict: boolean;
   readonly conflictTooltip: string | null;
   readonly expanded: boolean;
+  readonly colorMenuOpen: boolean;
   readonly onToggleExpand: () => void;
+  readonly onColorMenuOpenChange: (open: boolean) => void;
   readonly onRemove: (courseToRemove: WorksheetCourse) => void;
 }) {
   const { hoverCourse, setHoverCourse } = useStore(
@@ -194,6 +198,8 @@ function CourseCard({
             course={course}
             className={styles.cardColorButton}
             iconSize={18}
+            open={colorMenuOpen}
+            onOpenChange={onColorMenuOpenChange}
           />
         )}
         <button
@@ -368,6 +374,7 @@ export default function WorksheetCalendarSidebar() {
   const [expandedCards, setExpandedCards] = useState<ReadonlySet<Crn>>(
     () => new Set(),
   );
+  const [openColorMenuCrn, setOpenColorMenuCrn] = useState<Crn | null>(null);
   const closeStyleMenu = () => {
     setStyleMenuOpen(false);
     setConfirmClear(false);
@@ -383,6 +390,7 @@ export default function WorksheetCalendarSidebar() {
   useEffect(() => {
     setClearedSnapshot(null);
     setConfirmClear(false);
+    setOpenColorMenuCrn(null);
   }, [worksheetKey]);
 
   // Match the grid: hidden courses don't render there, so they don't count
@@ -1065,7 +1073,11 @@ export default function WorksheetCalendarSidebar() {
                 partners ? `Conflicts with ${[...partners].join(', ')}` : null
               }
               expanded={expandedCards.has(course.listing.crn)}
+              colorMenuOpen={openColorMenuCrn === course.listing.crn}
               onToggleExpand={() => toggleCardExpanded(course.listing.crn)}
+              onColorMenuOpenChange={(open) =>
+                setOpenColorMenuCrn(open ? course.listing.crn : null)
+              }
               onRemove={(c) => {
                 void removeCourse(c);
               }}

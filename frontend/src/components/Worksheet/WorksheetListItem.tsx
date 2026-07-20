@@ -98,13 +98,17 @@ function datedKindClass(meeting: WorksheetDatedMeeting): string | false {
 export default function WorksheetListItem({
   course,
   expanded,
+  colorMenuOpen,
   conflicts,
   onToggleExpand,
+  onColorMenuOpenChange,
 }: {
   readonly course: WorksheetCourse;
   readonly expanded: boolean;
+  readonly colorMenuOpen: boolean;
   readonly conflicts: readonly CourseConflict[];
   readonly onToggleExpand: () => void;
+  readonly onColorMenuOpenChange: (open: boolean) => void;
 }) {
   const { listing, color } = course;
   const hidden = course.hidden ?? false;
@@ -209,6 +213,8 @@ export default function WorksheetListItem({
                 course={course}
                 className={styles.colorButton}
                 iconSize={13}
+                open={colorMenuOpen}
+                onOpenChange={onColorMenuOpenChange}
               />
               <button
                 type="button"
