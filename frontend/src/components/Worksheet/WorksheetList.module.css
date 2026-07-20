@@ -490,6 +490,20 @@
     0 4px 18px rgb(11 11 11 / 6%);
 }
 
+/* The visibility menu follows the adjacent export menu's in-sidebar
+   positioning while retaining the settings menu's six-pixel content inset. */
+.visibilityMenu {
+  --worksheet-course-menu-item-font-size: 12.5px;
+  --worksheet-course-menu-item-padding: 8px 10px;
+
+  width: 240px;
+  min-width: 0;
+  max-width: min(240px, calc(100vw - 32px));
+  max-height: min(420px, calc(100vh - 24px));
+  overflow: hidden;
+  padding: 6px;
+}
+
 .exportMenuItem {
   width: 100%;
   display: flex;
@@ -582,6 +596,11 @@
 }
 
 @media (max-width: 899px) {
+  .visibilityMenu {
+    right: auto;
+    left: 0;
+  }
+
   .mainRow {
     flex-direction: column;
   }

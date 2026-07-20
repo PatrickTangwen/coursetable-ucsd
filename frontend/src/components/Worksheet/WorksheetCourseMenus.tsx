@@ -11,6 +11,8 @@ import { worksheetColorTokens } from '../../utilities/constants';
 import { formatWorksheetSectionSuffix } from '../../utilities/course';
 import styles from './WorksheetCourseMenus.module.css';
 
+export type WorksheetControlsMenu = 'visibility' | 'settings' | 'export' | null;
+
 function CheckIcon() {
   return (
     <svg
@@ -150,17 +152,23 @@ function MenuOverlay({
 export function WorksheetVisibilityMenuButton({
   courses,
   className,
+  menuClassName,
+  backdropClassName,
   iconSize,
   iconStyle = 'list',
+  open,
+  onOpenChange,
 }: {
   readonly courses: readonly WorksheetCourse[];
   readonly className?: string;
+  readonly menuClassName?: string;
+  readonly backdropClassName?: string;
   readonly iconSize: number;
   readonly iconStyle?: 'calendar' | 'list';
+  readonly open: boolean;
+  readonly onOpenChange: (nextOpen: boolean) => void;
 }) {
   const toggleCourseHidden = useToggleCourseHidden();
-  const targetRef = useRef<HTMLButtonElement>(null);
-  const [open, setOpen] = useState(false);
   const [pendingCrn, setPendingCrn] = useState<number | null>(null);
   if (!toggleCourseHidden) return null;
 
@@ -169,68 +177,87 @@ export function WorksheetVisibilityMenuButton({
   return (
     <>
       <button
-        ref={targetRef}
         type="button"
         className={className}
         title="Choose courses to hide"
         aria-label="Choose courses to hide"
         aria-haspopup="menu"
         aria-expanded={open}
-        onClick={() => setOpen((previous) => !previous)}
+        aria-controls="worksheet-course-visibility-menu"
+        onClick={() => onOpenChange(!open)}
       >
         <VisibilityIcon hidden={allHidden} size={iconSize} style={iconStyle} />
       </button>
-      <MenuOverlay
-        target={targetRef}
-        open={open}
-        onClose={() => setOpen(false)}
-        id="worksheet-course-visibility-menu"
-      >
-        <div className={styles.menuLabel}>Hide courses</div>
-        <div className={styles.menuHint}>
-          Select a course to hide or restore it.
-        </div>
-        <div className={styles.menuList}>
-          {courses.map((course) => {
-            const hidden = Boolean(course.hidden);
-            const courseLabel = `${course.listing.course_code}${formatWorksheetSectionSuffix(course.listing)}`;
-            return (
-              <button
-                key={course.listing.crn}
-                type="button"
-                role="menuitemcheckbox"
-                aria-checked={hidden}
-                className={styles.menuItem}
-                disabled={pendingCrn !== null}
-                onClick={async () => {
-                  setPendingCrn(course.listing.crn);
-                  try {
-                    await toggleCourseHidden(course.listing.crn, hidden);
-                  } finally {
-                    setPendingCrn(null);
-                  }
-                }}
-              >
-                <span className={styles.courseIdentity}>
-                  <span
-                    className={styles.colorDot}
-                    style={{ backgroundColor: course.color }}
-                    aria-hidden="true"
-                  />
-                  <span className={styles.courseCode}>{courseLabel}</span>
-                </span>
-                <span className={styles.visibilityState}>
-                  {hidden ? (
-                    <BsEyeSlash size={15} aria-hidden="true" />
-                  ) : (
-                    <BsEye size={15} aria-hidden="true" />
-                  )}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </MenuOverlay>
+      {open && (
+        <>
+          {backdropClassName && (
+            <button
+              type="button"
+              className={backdropClassName}
+              onClick={() => onOpenChange(false)}
+              aria-label="Close course visibility menu"
+              tabIndex={-1}
+            />
+          )}
+          <div
+            id="worksheet-course-visibility-menu"
+            className={menuClassName}
+            role="menu"
+            tabIndex={-1}
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') onOpenChange(false);
+            }}
+          >
+            <div className={styles.menuLabel} data-visibility-heading>
+              Hide courses
+            </div>
+            <div className={styles.menuHint}>
+              Select a course to hide or restore it.
+            </div>
+            <div className={styles.menuList}>
+              {courses.map((course) => {
+                const hidden = Boolean(course.hidden);
+                const courseLabel = `${course.listing.course_code}${formatWorksheetSectionSuffix(course.listing)}`;
+                return (
+                  <button
+                    key={course.listing.crn}
+                    type="button"
+                    role="menuitemcheckbox"
+                    aria-checked={hidden}
+                    className={styles.menuItem}
+                    disabled={pendingCrn !== null}
+                    onClick={async () => {
+                      setPendingCrn(course.listing.crn);
+                      try {
+                        await toggleCourseHidden(course.listing.crn, hidden);
+                      } finally {
+                        setPendingCrn(null);
+                      }
+                    }}
+                  >
+                    <span className={styles.courseIdentity}>
+                      <span
+                        className={styles.colorDot}
+                        style={{ backgroundColor: course.color }}
+                        aria-hidden="true"
+                      />
+                      <span className={styles.courseCode}>{courseLabel}</span>
+                    </span>
+                    <span className={styles.visibilityState}>
+                      {hidden ? (
+                        <BsEyeSlash size={15} aria-hidden="true" />
+                      ) : (
+                        <BsEye size={15} aria-hidden="true" />
+                      )}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 }

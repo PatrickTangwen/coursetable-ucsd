@@ -9,6 +9,7 @@ import { useICSExport } from './ICSExportButton';
 import { useCalendarPNGExport } from './PNGExportButton';
 import { useWorksheetURLExport } from './URLExportButton';
 import {
+  type WorksheetControlsMenu,
   WorksheetColorMenuButton,
   WorksheetVisibilityMenuButton,
 } from './WorksheetCourseMenus';
@@ -363,8 +364,8 @@ export default function WorksheetCalendarSidebar() {
   const urlExport = useWorksheetURLExport();
   const { exportPNG, isExporting: isExportingPNG } = useCalendarPNGExport();
 
-  const [styleMenuOpen, setStyleMenuOpen] = useState(false);
-  const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const [openControlsMenu, setOpenControlsMenu] =
+    useState<WorksheetControlsMenu>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [conflictModalOpen, setConflictModalOpen] = useState(false);
   const [examsModalOpen, setExamsModalOpen] = useState(false);
@@ -375,13 +376,22 @@ export default function WorksheetCalendarSidebar() {
     () => new Set(),
   );
   const [openColorMenuCrn, setOpenColorMenuCrn] = useState<Crn | null>(null);
+  const styleMenuOpen = openControlsMenu === 'settings';
+  const visibilityMenuOpen = openControlsMenu === 'visibility';
+  const exportMenuOpen = openControlsMenu === 'export';
+  const changeControlsMenu = (nextMenu: WorksheetControlsMenu) => {
+    if (nextMenu !== 'settings') setConfirmClear(false);
+    setOpenControlsMenu(nextMenu);
+  };
   const closeStyleMenu = () => {
-    setStyleMenuOpen(false);
-    setConfirmClear(false);
+    changeControlsMenu(null);
   };
   const styleRef = useCloseOnOutsideClick(styleMenuOpen, closeStyleMenu);
+  const visibilityRef = useCloseOnOutsideClick(visibilityMenuOpen, () =>
+    changeControlsMenu(null),
+  );
   const exportRef = useCloseOnOutsideClick(exportMenuOpen, () =>
-    setExportMenuOpen(false),
+    changeControlsMenu(null),
   );
 
   // A cleared-courses snapshot only makes sense for the worksheet it came
@@ -390,6 +400,7 @@ export default function WorksheetCalendarSidebar() {
   useEffect(() => {
     setClearedSnapshot(null);
     setConfirmClear(false);
+    setOpenControlsMenu(null);
     setOpenColorMenuCrn(null);
   }, [worksheetKey]);
 
@@ -709,12 +720,19 @@ export default function WorksheetCalendarSidebar() {
 
       <div className={styles.controlsRow}>
         {canEdit && (
-          <WorksheetVisibilityMenuButton
-            courses={courses}
-            className={styles.controlButton}
-            iconSize={18}
-            iconStyle="calendar"
-          />
+          <div ref={visibilityRef} className={styles.controlWrapper}>
+            <WorksheetVisibilityMenuButton
+              courses={courses}
+              className={styles.controlButton}
+              menuClassName={styles.menu}
+              iconSize={18}
+              iconStyle="calendar"
+              open={visibilityMenuOpen}
+              onOpenChange={(nextOpen) => {
+                changeControlsMenu(nextOpen ? 'visibility' : null);
+              }}
+            />
+          </div>
         )}
         <div ref={styleRef} className={styles.controlWrapper}>
           <button
@@ -722,10 +740,9 @@ export default function WorksheetCalendarSidebar() {
             className={styles.controlButton}
             aria-label="Grid style"
             aria-expanded={styleMenuOpen}
-            onClick={() => {
-              if (styleMenuOpen) closeStyleMenu();
-              else setStyleMenuOpen(true);
-            }}
+            onClick={() =>
+              changeControlsMenu(styleMenuOpen ? null : 'settings')
+            }
           >
             <svg
               width="16"
@@ -767,7 +784,7 @@ export default function WorksheetCalendarSidebar() {
                   data-active={gridStyle === option.value || undefined}
                   onClick={() => {
                     setGridStyle(option.value);
-                    setStyleMenuOpen(false);
+                    changeControlsMenu(null);
                   }}
                 >
                   <span>{option.label}</span>
@@ -915,7 +932,9 @@ export default function WorksheetCalendarSidebar() {
             className={styles.controlButton}
             aria-label="Export worksheet"
             aria-expanded={exportMenuOpen}
-            onClick={() => setExportMenuOpen((x) => !x)}
+            onClick={() => {
+              changeControlsMenu(exportMenuOpen ? null : 'export');
+            }}
           >
             <svg
               width="17"
@@ -959,7 +978,7 @@ export default function WorksheetCalendarSidebar() {
                 download={icsExport.download}
                 onClick={(e) => {
                   icsExport.onClick(e);
-                  setExportMenuOpen(false);
+                  changeControlsMenu(null);
                 }}
               >
                 <svg
@@ -984,7 +1003,7 @@ export default function WorksheetCalendarSidebar() {
                 className={styles.menuItem}
                 disabled={isExportingPNG}
                 onClick={() => {
-                  void exportPNG().finally(() => setExportMenuOpen(false));
+                  void exportPNG().finally(() => changeControlsMenu(null));
                 }}
               >
                 <svg
@@ -1009,7 +1028,7 @@ export default function WorksheetCalendarSidebar() {
                 className={styles.menuItem}
                 onClick={() => {
                   void urlExport();
-                  setExportMenuOpen(false);
+                  changeControlsMenu(null);
                 }}
               >
                 <svg

@@ -289,6 +289,9 @@
 
 .menu,
 .menuRight {
+  --worksheet-course-menu-item-font-size: 12px;
+  --worksheet-course-menu-item-padding: 8px 10px;
+
   position: absolute;
   top: calc(100% - 4px);
   left: 12px;
@@ -306,7 +309,7 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--ct-text-muted);
+  color: var(--ct-ink);
   font-weight: 600;
   padding: 4px 10px 6px;
 }

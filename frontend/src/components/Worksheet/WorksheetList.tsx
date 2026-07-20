@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import clsx from 'clsx';
 import { Button } from 'react-bootstrap';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -12,7 +13,10 @@ import {
   getAnonymousWorksheetTermChips,
   getSavedWorksheetTermChips,
 } from './WorksheetCalendarList';
-import { WorksheetVisibilityMenuButton } from './WorksheetCourseMenus';
+import {
+  type WorksheetControlsMenu,
+  WorksheetVisibilityMenuButton,
+} from './WorksheetCourseMenus';
 import {
   busiestDay,
   creditLoad,
@@ -202,8 +206,8 @@ function WorksheetList() {
   const seasonCodes = useWorksheetSeasonCodes();
 
   const [expandedCrns, setExpandedCrns] = useState<ReadonlySet<Crn>>(new Set());
-  const [exportMenuOpen, setExportMenuOpen] = useState(false);
-  const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
+  const [openControlsMenu, setOpenControlsMenu] =
+    useState<WorksheetControlsMenu>(null);
   const [confirmClear, setConfirmClear] = useState(false);
   const [conflictModalOpen, setConflictModalOpen] = useState(false);
   const [examsModalOpen, setExamsModalOpen] = useState(false);
@@ -212,9 +216,16 @@ function WorksheetList() {
   const [clearedSnapshot, setClearedSnapshot] =
     useState<ClearedSnapshot | null>(null);
 
+  const visibilityMenuOpen = openControlsMenu === 'visibility';
+  const exportMenuOpen = openControlsMenu === 'export';
+  const settingsMenuOpen = openControlsMenu === 'settings';
+  const changeControlsMenu = (nextMenu: WorksheetControlsMenu) => {
+    if (nextMenu !== 'settings') setConfirmClear(false);
+    setOpenControlsMenu(nextMenu);
+  };
+
   const closeSettingsMenu = () => {
-    setSettingsMenuOpen(false);
-    setConfirmClear(false);
+    changeControlsMenu(null);
   };
 
   // A cleared-courses snapshot only makes sense for the worksheet it came
@@ -224,6 +235,7 @@ function WorksheetList() {
     setExpandedCrns(new Set());
     setClearedSnapshot(null);
     setConfirmClear(false);
+    setOpenControlsMenu(null);
     setOpenColorMenuCrn(null);
   }, [worksheetKey]);
 
@@ -587,25 +599,31 @@ function WorksheetList() {
                 <ExpandAllIcon allExpanded={allExpanded} />
               </button>
               {showHideButton && (
-                <WorksheetVisibilityMenuButton
-                  courses={courses}
-                  className={styles.controlButton}
-                  iconSize={15}
-                />
+                <div className={styles.menuWrapper}>
+                  <WorksheetVisibilityMenuButton
+                    courses={courses}
+                    className={styles.controlButton}
+                    menuClassName={clsx(
+                      styles.exportMenu,
+                      styles.visibilityMenu,
+                    )}
+                    backdropClassName={styles.menuBackdrop}
+                    iconSize={15}
+                    open={visibilityMenuOpen}
+                    onOpenChange={(nextOpen) => {
+                      changeControlsMenu(nextOpen ? 'visibility' : null);
+                    }}
+                  />
+                </div>
               )}
               {showSettings && (
                 <div className={styles.menuWrapperStatic}>
                   <button
                     type="button"
                     className={styles.controlButton}
-                    onClick={() => {
-                      if (settingsMenuOpen) {
-                        closeSettingsMenu();
-                      } else {
-                        setExportMenuOpen(false);
-                        setSettingsMenuOpen(true);
-                      }
-                    }}
+                    onClick={() =>
+                      changeControlsMenu(settingsMenuOpen ? null : 'settings')
+                    }
                     title="Worksheet settings"
                     aria-label="Worksheet settings"
                     aria-haspopup="menu"
@@ -786,8 +804,7 @@ function WorksheetList() {
                   type="button"
                   className={styles.controlButton}
                   onClick={() => {
-                    closeSettingsMenu();
-                    setExportMenuOpen((open) => !open);
+                    changeControlsMenu(exportMenuOpen ? null : 'export');
                   }}
                   title="Export worksheet"
                   aria-label="Export worksheet"
@@ -828,7 +845,7 @@ function WorksheetList() {
                 </button>
                 {exportMenuOpen && (
                   <WorksheetExportMenu
-                    onClose={() => setExportMenuOpen(false)}
+                    onClose={() => changeControlsMenu(null)}
                   />
                 )}
               </div>

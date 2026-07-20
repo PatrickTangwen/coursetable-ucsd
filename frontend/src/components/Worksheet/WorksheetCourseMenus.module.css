@@ -31,6 +31,10 @@
   text-transform: uppercase;
 }
 
+.menuLabel[data-visibility-heading] {
+  color: var(--ct-ink);
+}
+
 .menuHint {
   padding: 0 10px 6px;
   color: var(--ct-text-muted);
@@ -51,14 +55,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 6px 10px;
+  padding: var(--worksheet-course-menu-item-padding, 6px 10px);
   border: 0;
   border-radius: 6px;
   background: transparent;
   color: var(--ct-ink);
   cursor: pointer;
   font: inherit;
-  font-size: 12.5px;
+  font-size: var(--worksheet-course-menu-item-font-size, 12.5px);
   text-align: left;
   transition: background 0.12s ease;
 }
