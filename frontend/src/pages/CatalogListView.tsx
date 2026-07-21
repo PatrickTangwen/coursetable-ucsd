@@ -1,6 +1,7 @@
 import { useMemo, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+import CatalogDisclaimer from '../components/Catalog/CatalogDisclaimer';
 import CatalogTable from '../components/Catalog/CatalogTable';
 import FilterBar, { COURSE_TYPES } from '../components/Catalog/FilterBar';
 import { DataLoadErrorPage } from '../components/PageStatus';
@@ -46,11 +47,6 @@ export default function CatalogListView() {
     );
   }, [searchData, typeFilters]);
 
-  const hasPartialCoverage = searchData?.some(
-    ({ catalogCoverage }) =>
-      !catalogCoverage.complete || catalogCoverage.continuationNeeded,
-  );
-
   const handleOpenModal = useCallback(
     (listing: CoursePlanningListing) => {
       navigate(
@@ -70,12 +66,7 @@ export default function CatalogListView() {
 
   return (
     <div className={styles.page}>
-      {hasPartialCoverage && (
-        <output className={styles.coverageWarning}>
-          Partial schedule snapshot: the source reports that more data is
-          needed, so some sections or meetings may be missing.
-        </output>
-      )}
+      <CatalogDisclaimer />
       <CatalogTable
         data={filteredData}
         loading={coursesLoading}

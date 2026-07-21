@@ -91,3 +91,17 @@ export const useLocalStorageState = <T>(
   defaultValue: T | (() => T),
 ): readonly [T, (newValue: T) => void] =>
   useStorageState(localStorage, key, defaultValue);
+
+export function usePersistentDismissal(key: string, version: number) {
+  const [dismissedVersion, setDismissedVersion] = useLocalStorageState<
+    number | null
+  >(key, null);
+
+  return {
+    dismissed: dismissedVersion === version,
+    dismiss: useCallback(
+      () => setDismissedVersion(version),
+      [setDismissedVersion, version],
+    ),
+  };
+}

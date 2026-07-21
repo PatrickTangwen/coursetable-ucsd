@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { FaTimes } from 'react-icons/fa';
-import { createLocalStorageSlot } from '../utilities/browserStorage';
+import { usePersistentDismissal } from '../utilities/browserStorage';
 import styles from './Notice.module.css';
-
-const storage = createLocalStorageSlot<number>('lastDismissedBanner');
 
 function Notice({
   children,
@@ -12,13 +10,12 @@ function Notice({
   readonly children?: React.ReactNode;
   readonly id: number;
 }) {
-  const [visible, setVisible] = useState(true);
-  useEffect(() => {
-    const lastDismissed = storage.get();
-    if (lastDismissed === id) setVisible(false);
-  }, [id]);
+  const { dismissed, dismiss } = usePersistentDismissal(
+    'lastDismissedBanner',
+    id,
+  );
 
-  if (!visible || !children) return null;
+  if (dismissed || !children) return null;
   return (
     <div className={styles.banner}>
       <div className={styles.content}>
@@ -27,10 +24,7 @@ function Notice({
       <button
         type="button"
         className={styles.closeButton}
-        onClick={() => {
-          setVisible(false);
-          storage.set(id);
-        }}
+        onClick={dismiss}
         aria-label="Close"
       >
         <FaTimes />

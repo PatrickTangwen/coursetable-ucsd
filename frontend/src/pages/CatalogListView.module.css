@@ -14,15 +14,6 @@
   background: var(--ct-surface-soft);
 }
 
-.coverageWarning {
-  padding: 10px var(--ct-side-pad);
-  border-bottom: 1px solid var(--warning-border);
-  color: var(--warning-text);
-  background: var(--warning-bg);
-  font-size: 13px;
-  line-height: 1.4;
-}
-
 @media (max-width: calc(1320px - 0.5px)) {
   .page {
     --ct-gap: 10px;
