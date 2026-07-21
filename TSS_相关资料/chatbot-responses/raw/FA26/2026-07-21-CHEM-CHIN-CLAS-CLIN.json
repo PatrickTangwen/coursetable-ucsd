@@ -15,7 +15,7 @@
           "booking_choice_ordinal": 1,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-08",
           "components": [
             {
               "type": "lecture",
@@ -46,12 +46,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-08",
+                  "days": "T",
+                  "start_time": "8:00am",
+                  "end_time": "10:59am",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Thomas Bussey",
                   "is_tba": false,
                   "is_arranged": null
@@ -122,7 +122,7 @@
           "booking_choice_ordinal": 2,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-08",
           "components": [
             {
               "type": "lecture",
@@ -153,12 +153,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-08",
+                  "days": "T",
+                  "start_time": "8:00am",
+                  "end_time": "10:59am",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Thomas Bussey",
                   "is_tba": false,
                   "is_arranged": null
@@ -229,7 +229,7 @@
           "booking_choice_ordinal": 3,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-08",
           "components": [
             {
               "type": "lecture",
@@ -260,12 +260,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-08",
+                  "days": "T",
+                  "start_time": "8:00am",
+                  "end_time": "10:59am",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Thomas Bussey",
                   "is_tba": false,
                   "is_arranged": null
@@ -336,7 +336,7 @@
           "booking_choice_ordinal": 4,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-08",
           "components": [
             {
               "type": "lecture",
@@ -367,12 +367,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-08",
+                  "days": "T",
+                  "start_time": "8:00am",
+                  "end_time": "10:59am",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Thomas Bussey",
                   "is_tba": false,
                   "is_arranged": null
@@ -443,7 +443,7 @@
           "booking_choice_ordinal": 5,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-08",
           "components": [
             {
               "type": "lecture",
@@ -474,12 +474,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-08",
+                  "days": "T",
+                  "start_time": "8:00am",
+                  "end_time": "10:59am",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Thomas Bussey",
                   "is_tba": false,
                   "is_arranged": null
@@ -550,7 +550,7 @@
           "booking_choice_ordinal": 6,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-08",
           "components": [
             {
               "type": "lecture",
@@ -581,12 +581,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-08",
+                  "days": "T",
+                  "start_time": "8:00am",
+                  "end_time": "10:59am",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Thomas Bussey",
                   "is_tba": false,
                   "is_arranged": null
@@ -657,7 +657,7 @@
           "booking_choice_ordinal": 7,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-08",
           "components": [
             {
               "type": "lecture",
@@ -688,12 +688,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-08",
+                  "days": "T",
+                  "start_time": "8:00am",
+                  "end_time": "10:59am",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Thomas Bussey",
                   "is_tba": false,
                   "is_arranged": null
@@ -764,7 +764,7 @@
           "booking_choice_ordinal": 8,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-08",
           "components": [
             {
               "type": "lecture",
@@ -795,12 +795,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-08",
+                  "days": "T",
+                  "start_time": "8:00am",
+                  "end_time": "10:59am",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Thomas Bussey",
                   "is_tba": false,
                   "is_arranged": null
@@ -871,7 +871,7 @@
           "booking_choice_ordinal": 9,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -902,12 +902,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "WLH 2001",
                   "instructor": "Thomas Bussey",
                   "is_tba": false,
                   "is_arranged": null
@@ -978,7 +978,7 @@
           "booking_choice_ordinal": 10,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -1009,12 +1009,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "WLH 2001",
                   "instructor": "Thomas Bussey",
                   "is_tba": false,
                   "is_arranged": null
@@ -1085,7 +1085,7 @@
           "booking_choice_ordinal": 11,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -1116,12 +1116,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "WLH 2001",
                   "instructor": "Thomas Bussey",
                   "is_tba": false,
                   "is_arranged": null
@@ -1192,7 +1192,7 @@
           "booking_choice_ordinal": 12,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -1223,12 +1223,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "WLH 2001",
                   "instructor": "Thomas Bussey",
                   "is_tba": false,
                   "is_arranged": null
@@ -1299,7 +1299,7 @@
           "booking_choice_ordinal": 13,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -1330,12 +1330,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "WLH 2001",
                   "instructor": "Thomas Bussey",
                   "is_tba": false,
                   "is_arranged": null
@@ -1406,7 +1406,7 @@
           "booking_choice_ordinal": 14,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -1437,12 +1437,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "WLH 2001",
                   "instructor": "Thomas Bussey",
                   "is_tba": false,
                   "is_arranged": null
@@ -1513,7 +1513,7 @@
           "booking_choice_ordinal": 15,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -1544,12 +1544,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "WLH 2001",
                   "instructor": "Thomas Bussey",
                   "is_tba": false,
                   "is_arranged": null
@@ -1620,7 +1620,7 @@
           "booking_choice_ordinal": 16,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -1651,12 +1651,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "WLH 2001",
                   "instructor": "Thomas Bussey",
                   "is_tba": false,
                   "is_arranged": null
@@ -1734,7 +1734,7 @@
           "booking_choice_ordinal": 1,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-05",
           "components": [
             {
               "type": "lecture",
@@ -1776,34 +1776,34 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-05",
+                  "days": "S",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-10-22",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-11-12",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
@@ -1863,7 +1863,7 @@
           "booking_choice_ordinal": 2,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-05",
           "components": [
             {
               "type": "lecture",
@@ -1905,34 +1905,34 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-05",
+                  "days": "S",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-10-22",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-11-12",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
@@ -1992,7 +1992,7 @@
           "booking_choice_ordinal": 3,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-05",
           "components": [
             {
               "type": "lecture",
@@ -2034,34 +2034,34 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-05",
+                  "days": "S",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-10-22",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-11-12",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
@@ -2121,7 +2121,7 @@
           "booking_choice_ordinal": 4,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-05",
           "components": [
             {
               "type": "lecture",
@@ -2163,34 +2163,34 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-05",
+                  "days": "S",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-10-22",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-11-12",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
@@ -2250,7 +2250,7 @@
           "booking_choice_ordinal": 5,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-05",
           "components": [
             {
               "type": "lecture",
@@ -2292,34 +2292,34 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-05",
+                  "days": "S",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-10-22",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-11-12",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
@@ -2379,7 +2379,7 @@
           "booking_choice_ordinal": 6,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-05",
           "components": [
             {
               "type": "lecture",
@@ -2421,34 +2421,34 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-05",
+                  "days": "S",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-10-22",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-11-12",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
@@ -2508,7 +2508,7 @@
           "booking_choice_ordinal": 7,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-05",
           "components": [
             {
               "type": "lecture",
@@ -2550,34 +2550,34 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-05",
+                  "days": "S",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-10-22",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-11-12",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
@@ -2637,7 +2637,7 @@
           "booking_choice_ordinal": 8,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-05",
           "components": [
             {
               "type": "lecture",
@@ -2679,34 +2679,34 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-05",
+                  "days": "S",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-10-22",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-11-12",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
@@ -2766,7 +2766,7 @@
           "booking_choice_ordinal": 9,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-05",
           "components": [
             {
               "type": "lecture",
@@ -2808,34 +2808,34 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-05",
+                  "days": "S",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-10-22",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-11-12",
+                  "days": "R",
+                  "start_time": "8:00pm",
+                  "end_time": "9:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
@@ -2895,7 +2895,7 @@
           "booking_choice_ordinal": 10,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-05",
           "components": [
             {
               "type": "lecture",
@@ -2937,34 +2937,34 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-05",
+                  "days": "S",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "GH 242",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-10-24",
+                  "days": "S",
+                  "start_time": "12:00pm",
+                  "end_time": "1:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-11-21",
+                  "days": "S",
+                  "start_time": "12:00pm",
+                  "end_time": "1:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
@@ -3024,7 +3024,7 @@
           "booking_choice_ordinal": 11,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-05",
           "components": [
             {
               "type": "lecture",
@@ -3066,34 +3066,34 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-05",
+                  "days": "S",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "GH 242",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-10-24",
+                  "days": "S",
+                  "start_time": "12:00pm",
+                  "end_time": "1:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-11-21",
+                  "days": "S",
+                  "start_time": "12:00pm",
+                  "end_time": "1:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
@@ -3153,7 +3153,7 @@
           "booking_choice_ordinal": 12,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-05",
           "components": [
             {
               "type": "lecture",
@@ -3195,34 +3195,34 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-05",
+                  "days": "S",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "GH 242",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-10-24",
+                  "days": "S",
+                  "start_time": "12:00pm",
+                  "end_time": "1:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-11-21",
+                  "days": "S",
+                  "start_time": "12:00pm",
+                  "end_time": "1:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
@@ -3282,7 +3282,7 @@
           "booking_choice_ordinal": 13,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-05",
           "components": [
             {
               "type": "lecture",
@@ -3324,34 +3324,34 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-05",
+                  "days": "S",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "GH 242",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-10-24",
+                  "days": "S",
+                  "start_time": "12:00pm",
+                  "end_time": "1:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-11-21",
+                  "days": "S",
+                  "start_time": "12:00pm",
+                  "end_time": "1:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
@@ -3411,7 +3411,7 @@
           "booking_choice_ordinal": 14,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-05",
           "components": [
             {
               "type": "lecture",
@@ -3453,34 +3453,34 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-05",
+                  "days": "S",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "GH 242",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-10-24",
+                  "days": "S",
+                  "start_time": "12:00pm",
+                  "end_time": "1:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-11-21",
+                  "days": "S",
+                  "start_time": "12:00pm",
+                  "end_time": "1:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
@@ -3540,7 +3540,7 @@
           "booking_choice_ordinal": 15,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-05",
           "components": [
             {
               "type": "lecture",
@@ -3582,34 +3582,34 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-05",
+                  "days": "S",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "GH 242",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-10-24",
+                  "days": "S",
+                  "start_time": "12:00pm",
+                  "end_time": "1:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-11-21",
+                  "days": "S",
+                  "start_time": "12:00pm",
+                  "end_time": "1:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
@@ -3669,7 +3669,7 @@
           "booking_choice_ordinal": 16,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-05",
           "components": [
             {
               "type": "lecture",
@@ -3711,34 +3711,34 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-05",
+                  "days": "S",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "GH 242",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-10-24",
+                  "days": "S",
+                  "start_time": "12:00pm",
+                  "end_time": "1:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-11-21",
+                  "days": "S",
+                  "start_time": "12:00pm",
+                  "end_time": "1:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
@@ -3798,7 +3798,7 @@
           "booking_choice_ordinal": 17,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-05",
           "components": [
             {
               "type": "lecture",
@@ -3840,34 +3840,34 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-05",
+                  "days": "S",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "GH 242",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-10-24",
+                  "days": "S",
+                  "start_time": "12:00pm",
+                  "end_time": "1:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2026-11-21",
+                  "days": "S",
+                  "start_time": "12:00pm",
+                  "end_time": "1:50pm",
+                  "location_displayed": "YORK 2722",
                   "instructor": "Brian Leigh",
                   "is_tba": false,
                   "is_arranged": null
@@ -3958,23 +3958,23 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-10-28",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-12-02",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
@@ -4076,23 +4076,23 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-10-28",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-12-02",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
@@ -4194,23 +4194,23 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-10-28",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-12-02",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
@@ -4312,23 +4312,23 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-10-28",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-12-02",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
@@ -4430,23 +4430,23 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-10-28",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-12-02",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
@@ -4548,23 +4548,23 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-10-28",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-12-02",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
@@ -4666,23 +4666,23 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-10-28",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-12-02",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
@@ -4784,23 +4784,23 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-10-28",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-12-02",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
@@ -4902,23 +4902,23 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-10-28",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-12-02",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
@@ -5020,23 +5020,23 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-10-28",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "midterm",
+                  "specific_date": "2025-12-02",
+                  "days": "W",
+                  "start_time": "7:00pm",
+                  "end_time": "8:50pm",
+                  "location_displayed": "CTL 0125",
                   "instructor": null,
                   "is_tba": false,
                   "is_arranged": null
@@ -5114,7 +5114,7 @@
           "booking_choice_ordinal": 1,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-10",
           "components": [
             {
               "type": "lecture",
@@ -5145,12 +5145,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-10",
+                  "days": "R",
+                  "start_time": "8:00am",
+                  "end_time": "10:59am",
+                  "location_displayed": "CENTR 201",
                   "instructor": "Mingming Liu",
                   "is_tba": false,
                   "is_arranged": null
@@ -5232,7 +5232,7 @@
           "booking_choice_ordinal": 2,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-10",
           "components": [
             {
               "type": "lecture",
@@ -5263,12 +5263,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-10",
+                  "days": "R",
+                  "start_time": "8:00am",
+                  "end_time": "10:59am",
+                  "location_displayed": "CENTR 201",
                   "instructor": "Mingming Liu",
                   "is_tba": false,
                   "is_arranged": null
@@ -5357,7 +5357,7 @@
           "booking_choice_ordinal": 1,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -5388,12 +5388,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "HSS 2321",
                   "instructor": "Pei-Chia Chen",
                   "is_tba": false,
                   "is_arranged": null
@@ -5464,7 +5464,7 @@
           "booking_choice_ordinal": 2,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -5495,12 +5495,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "HSS 2321",
                   "instructor": "Pei-Chia Chen",
                   "is_tba": false,
                   "is_arranged": null
@@ -5578,7 +5578,7 @@
           "booking_choice_ordinal": 1,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-10",
           "components": [
             {
               "type": "lecture",
@@ -5609,12 +5609,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-10",
+                  "days": "R",
+                  "start_time": "8:00am",
+                  "end_time": "10:59am",
+                  "location_displayed": "HSS 1305",
                   "instructor": "Li Xu",
                   "is_tba": false,
                   "is_arranged": null
@@ -5696,7 +5696,7 @@
           "booking_choice_ordinal": 2,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-10",
           "components": [
             {
               "type": "lecture",
@@ -5727,12 +5727,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-10",
+                  "days": "R",
+                  "start_time": "8:00am",
+                  "end_time": "10:59am",
+                  "location_displayed": "HSS 1305",
                   "instructor": "Li Xu",
                   "is_tba": false,
                   "is_arranged": null
@@ -5814,7 +5814,7 @@
           "booking_choice_ordinal": 3,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -5845,12 +5845,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "HSS 1305",
                   "instructor": "Li Xu",
                   "is_tba": false,
                   "is_arranged": null
@@ -5932,7 +5932,7 @@
           "booking_choice_ordinal": 4,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -5963,12 +5963,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "HSS 1305",
                   "instructor": "Li Xu",
                   "is_tba": false,
                   "is_arranged": null
@@ -6050,7 +6050,7 @@
           "booking_choice_ordinal": 5,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-10",
           "components": [
             {
               "type": "lecture",
@@ -6081,12 +6081,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-10",
+                  "days": "R",
+                  "start_time": "3:00pm",
+                  "end_time": "5:59pm",
+                  "location_displayed": "YORK 4050A",
                   "instructor": "Li Xu",
                   "is_tba": false,
                   "is_arranged": null
@@ -6168,7 +6168,7 @@
           "booking_choice_ordinal": 6,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-10",
           "components": [
             {
               "type": "lecture",
@@ -6199,12 +6199,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-10",
+                  "days": "R",
+                  "start_time": "3:00pm",
+                  "end_time": "5:59pm",
+                  "location_displayed": "YORK 4050A",
                   "instructor": "Li Xu",
                   "is_tba": false,
                   "is_arranged": null
@@ -6293,7 +6293,7 @@
           "booking_choice_ordinal": 1,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -6324,12 +6324,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "CENTR 201",
                   "instructor": "Mingming Liu",
                   "is_tba": false,
                   "is_arranged": null
@@ -6400,7 +6400,7 @@
           "booking_choice_ordinal": 2,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -6431,12 +6431,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "CENTR 201",
                   "instructor": "Mingming Liu",
                   "is_tba": false,
                   "is_arranged": null
@@ -6514,7 +6514,7 @@
           "booking_choice_ordinal": 1,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -6545,12 +6545,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "RWAC 0624",
                   "instructor": "Xiao Wang",
                   "is_tba": false,
                   "is_arranged": null
@@ -6621,7 +6621,7 @@
           "booking_choice_ordinal": 2,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -6652,12 +6652,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "RWAC 0624",
                   "instructor": "Xiao Wang",
                   "is_tba": false,
                   "is_arranged": null
@@ -6728,7 +6728,7 @@
           "booking_choice_ordinal": 3,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-10",
           "components": [
             {
               "type": "lecture",
@@ -6759,12 +6759,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-10",
+                  "days": "R",
+                  "start_time": "3:00pm",
+                  "end_time": "5:59pm",
+                  "location_displayed": "HSS 2150",
                   "instructor": "Xiao Wang",
                   "is_tba": false,
                   "is_arranged": null
@@ -6835,7 +6835,7 @@
           "booking_choice_ordinal": 4,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-10",
           "components": [
             {
               "type": "lecture",
@@ -6866,12 +6866,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-10",
+                  "days": "R",
+                  "start_time": "3:00pm",
+                  "end_time": "5:59pm",
+                  "location_displayed": "HSS 2150",
                   "instructor": "Xiao Wang",
                   "is_tba": false,
                   "is_arranged": null
@@ -6949,7 +6949,7 @@
           "booking_choice_ordinal": 1,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-10",
           "components": [
             {
               "type": "lecture",
@@ -6980,12 +6980,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-10",
+                  "days": "R",
+                  "start_time": "8:00am",
+                  "end_time": "10:59am",
+                  "location_displayed": "CENTR 203",
                   "instructor": "Qin-Hong Anderson",
                   "is_tba": false,
                   "is_arranged": null
@@ -7056,7 +7056,7 @@
           "booking_choice_ordinal": 2,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-10",
           "components": [
             {
               "type": "lecture",
@@ -7087,12 +7087,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-10",
+                  "days": "R",
+                  "start_time": "8:00am",
+                  "end_time": "10:59am",
+                  "location_displayed": "CENTR 203",
                   "instructor": "Qin-Hong Anderson",
                   "is_tba": false,
                   "is_arranged": null
@@ -7163,7 +7163,7 @@
           "booking_choice_ordinal": 3,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -7194,12 +7194,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "CENTR 203",
                   "instructor": "Qin-Hong Anderson",
                   "is_tba": false,
                   "is_arranged": null
@@ -7270,7 +7270,7 @@
           "booking_choice_ordinal": 4,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-09",
           "components": [
             {
               "type": "lecture",
@@ -7301,12 +7301,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-09",
+                  "days": "W",
+                  "start_time": "11:30am",
+                  "end_time": "2:29pm",
+                  "location_displayed": "CENTR 203",
                   "instructor": "Qin-Hong Anderson",
                   "is_tba": false,
                   "is_arranged": null
@@ -7377,7 +7377,7 @@
           "booking_choice_ordinal": 5,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-10",
           "components": [
             {
               "type": "lecture",
@@ -7408,12 +7408,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-10",
+                  "days": "R",
+                  "start_time": "3:00pm",
+                  "end_time": "5:59pm",
+                  "location_displayed": "CENTR 202",
                   "instructor": "Qin-Hong Anderson",
                   "is_tba": false,
                   "is_arranged": null
@@ -7491,7 +7491,7 @@
           "booking_choice_ordinal": 1,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-07",
           "components": [
             {
               "type": "lecture",
@@ -7522,12 +7522,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-07",
+                  "days": "M",
+                  "start_time": "3:00pm",
+                  "end_time": "5:59pm",
+                  "location_displayed": "HSS 2305A",
                   "instructor": "Xiao Wang",
                   "is_tba": false,
                   "is_arranged": null
@@ -7562,7 +7562,7 @@
           "booking_choice_ordinal": 1,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-10",
           "components": [
             {
               "type": "lecture",
@@ -7593,12 +7593,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-10",
+                  "days": "R",
+                  "start_time": "8:00am",
+                  "end_time": "10:59am",
+                  "location_displayed": "HSS 2321",
                   "instructor": "Pei-Chia Chen",
                   "is_tba": false,
                   "is_arranged": null
@@ -7633,7 +7633,7 @@
           "booking_choice_ordinal": 1,
           "displayed_package_section": null,
           "displayed_package_id": null,
-          "final_exam_date": null,
+          "final_exam_date": "2026-12-10",
           "components": [
             {
               "type": "lecture",
@@ -7664,12 +7664,12 @@
                   "is_arranged": null
                 },
                 {
-                  "meeting_kind": "",
-                  "specific_date": null,
-                  "days": null,
-                  "start_time": "tba",
-                  "end_time": "tba",
-                  "location_displayed": null,
+                  "meeting_kind": "final",
+                  "specific_date": "2026-12-10",
+                  "days": "R",
+                  "start_time": "3:00pm",
+                  "end_time": "5:59pm",
+                  "location_displayed": "HSS 2305B",
                   "instructor": "Pei-Chia Chen",
                   "is_tba": false,
                   "is_arranged": null
