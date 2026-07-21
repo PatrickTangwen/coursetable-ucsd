@@ -375,6 +375,7 @@ type MeetingRowData = {
   meeting: UcsdModalSection['meetings'][number];
   section: UcsdModalSection | null;
   sectionCode: string;
+  usesFriendlySectionCode: boolean;
 };
 
 function buildMeetingRows(
@@ -387,6 +388,7 @@ function buildMeetingRows(
     meeting,
     section: null,
     sectionCode: anchorSectionCode(group),
+    usesFriendlySectionCode: false,
   }));
 
   for (const section of group.sections) {
@@ -409,6 +411,8 @@ function buildMeetingRows(
           section,
           sectionMapping?.get(section.sectionId),
         ),
+        usesFriendlySectionCode:
+          sectionMapping?.has(section.sectionId) ?? false,
       });
     }
   }
@@ -455,6 +459,7 @@ function MeetingRow({
   const meetingTime = formatTime(row.meeting.startTime, row.meeting.endTime);
   const rowClassName = clsx(
     styles.meetingRow,
+    row.usesFriendlySectionCode && styles.friendlyMeetingRow,
     row.role === 'selectable' && styles.selectableRow,
     selected && styles.selectedRow,
   );
@@ -488,7 +493,14 @@ function MeetingRow({
           {ucsdMeetingTypeLabel(row.meeting.meetingType)}
         </span>
       </div>
-      <div className={styles.sectionCode}>{row.sectionCode}</div>
+      <div
+        className={clsx(
+          styles.sectionCode,
+          row.usesFriendlySectionCode && styles.friendlySectionCode,
+        )}
+      >
+        {row.sectionCode}
+      </div>
       <div className={styles.meetingTime}>
         {!row.meeting.isTba && (
           <ModalDayDots

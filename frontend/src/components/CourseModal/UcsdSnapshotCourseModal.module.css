@@ -1194,12 +1194,20 @@
     row-gap: 7px;
   }
 
+  .friendlyMeetingRow {
+    grid-template-columns: 20px minmax(0, 1fr) max-content;
+  }
+
   .typeCell {
     grid-column: 2;
   }
 
   .sectionCode {
     grid-column: 3;
+  }
+
+  .friendlySectionCode {
+    white-space: nowrap;
   }
 
   .meetingTime {
