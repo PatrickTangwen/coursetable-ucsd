@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { resolveCurrentUcsdTerm } from './config';
+import { CUR_SEASON, resolveCurrentUcsdTerm } from './config';
+
+describe('active planning term', () => {
+  it('defaults Catalog and Worksheet to Fall 2026', () => {
+    expect(CUR_SEASON).toBe('FA26');
+  });
+});
 
 describe('resolveCurrentUcsdTerm', () => {
   it('uses Spring 2026 during the explicit UCSD spring date range', () => {

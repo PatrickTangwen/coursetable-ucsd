@@ -168,4 +168,35 @@ describe('WorksheetCalendarList', () => {
     );
     expect(chips2).toEqual([{ term: 'FA26', label: 'Fall 2026' }]);
   });
+
+  it('omits saved worksheet chips outside the Worksheet term window', async () => {
+    const { getSavedWorksheetTermChips } =
+      await import('./WorksheetCalendarList');
+    const summaries: SavedWorksheetSummary[] = [
+      {
+        id: 1,
+        name: 'Spring Plan',
+        term: 'SP26' as Season,
+        createdAt: 1,
+        updatedAt: 1,
+        private: true,
+        isMain: true,
+        sectionCount: 1,
+      },
+      {
+        id: 2,
+        name: 'Summer Plan',
+        term: 'S126' as Season,
+        createdAt: 2,
+        updatedAt: 2,
+        private: true,
+        isMain: true,
+        sectionCount: 1,
+      },
+    ];
+
+    expect(getSavedWorksheetTermChips(summaries, {}, 'FA26' as Season)).toEqual(
+      [{ term: 'S126', label: 'Summer Session 1 2026' }],
+    );
+  });
 });

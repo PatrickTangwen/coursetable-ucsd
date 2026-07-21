@@ -6,7 +6,10 @@ import { z } from 'zod';
 import type { StateCreator } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 import { CUR_SEASON } from '../config';
-import { supportedTerms as allSeasons } from '../data/catalogSeasons';
+import {
+  isWorksheetTerm,
+  supportedTerms as allSeasons,
+} from '../data/catalogSeasons';
 import { useCoursePlanningData } from '../hooks/useCoursePlanning';
 import { useLegacyWorksheetInfo } from '../hooks/useLegacyWorksheetInfo';
 import {
@@ -66,8 +69,7 @@ const emptyWorksheetCourses: WorksheetCourse[] = [];
 
 export function getInitialSavedWorksheetTerm(): Season {
   const stored = lastViewedSavedWorksheetTermSlot.get();
-  if (stored && (allSeasons as readonly string[]).includes(stored))
-    return stored as Season;
+  if (stored && isWorksheetTerm(stored as Season)) return stored as Season;
   return CUR_SEASON;
 }
 
@@ -289,7 +291,12 @@ export const createWorksheetSlice: StateCreator<
   [],
   WorksheetSlice
 > = (set, get) => {
-  const initialAnonymousWorksheet = readAnonymousWorksheetStorage(CUR_SEASON);
+  const storedAnonymousWorksheet = readAnonymousWorksheetStorage(CUR_SEASON);
+  const initialAnonymousWorksheet = isWorksheetTerm(
+    storedAnonymousWorksheet.term,
+  )
+    ? storedAnonymousWorksheet
+    : { ...storedAnonymousWorksheet, term: CUR_SEASON };
   const pendingMainSavedWorksheetByTerm = new Map<Season, Promise<void>>();
   const setAnonymousWorksheet = (worksheet: AnonymousWorksheetState) => {
     writeAnonymousWorksheetStorage(worksheet);
@@ -415,6 +422,7 @@ export const createWorksheetSlice: StateCreator<
       set({ viewedWorksheetNumber: 0, viewedPerson: newPerson });
     },
     changeViewedSeason(seasonCode) {
+      if (!isWorksheetTerm(seasonCode)) return;
       const nextAnonymousWorksheet = {
         ...get().anonymousWorksheet,
         term: seasonCode,

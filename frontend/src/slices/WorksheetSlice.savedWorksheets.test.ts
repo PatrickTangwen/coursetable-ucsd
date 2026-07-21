@@ -445,6 +445,26 @@ describe('Saved Worksheet slice behavior', () => {
     expect(useStore.getState().anonymousWorksheet.term).toBe('FA26');
   });
 
+  it('returns an out-of-range stored Worksheet term to the active term', async () => {
+    const useStore = await loadStore({
+      signedIn: false,
+      anonymousWorksheetStorage: {
+        term: 'SP26',
+        coursesByTerm: {
+          SP26: [{ sectionId: 'SP26-123', color: '#abcdef', hidden: false }],
+        },
+      },
+    });
+
+    expect(useStore.getState().viewedSeason).toBe('FA26');
+    expect(useStore.getState().anonymousWorksheet).toEqual({
+      term: 'FA26',
+      coursesByTerm: {
+        SP26: [{ sectionId: 'SP26-123', color: '#abcdef', hidden: false }],
+      },
+    });
+  });
+
   it('routes a cross-term add into the target term worksheet without switching view', async () => {
     const fa26 = 'FA26' as Season;
     const fa26Main: SavedWorksheet = {

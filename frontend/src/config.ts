@@ -78,7 +78,12 @@ export function resolveCurrentUcsdTerm(date = new Date()): Season {
   return latestPastTerm ?? currentSupportedTerms.at(-1)!;
 }
 
-export const CUR_SEASON = resolveCurrentUcsdTerm();
+// Product-selected Active Planning Term. This may intentionally be ahead of
+// the term inferred from today's date while registration is open.
+export const ACTIVE_TERM = 'FA26' as Season;
+
+// Legacy name used throughout the frontend for the default selected term.
+export const CUR_SEASON = ACTIVE_TERM;
 
 // Active UCSD terms in MVP-1 have no legacy CourseTable evaluation data.
 export const CUR_YEAR = ['SP26'] as Season[];

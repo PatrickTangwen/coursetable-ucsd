@@ -1,37 +1,18 @@
 import { useMemo } from 'react';
 
 import { useShallow } from 'zustand/react/shallow';
-import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
+import { worksheetTerms } from '../../data/catalogSeasons';
 import type { Season } from '../../queries/graphql-types';
 import { useStore } from '../../store';
 import {
   getAnonymousWorksheetCourses,
   type AnonymousWorksheetState,
 } from '../../utilities/anonymousWorksheet';
-import {
-  compareSeasonsByRecency,
-  toSeasonString,
-} from '../../utilities/course';
-import { supportedTermCodes } from '../../utilities/termPlanning';
+import { toSeasonString } from '../../utilities/course';
 import { DropdownMenu } from '../Catalog/DropdownMenu';
 
 export function useWorksheetSeasonCodes() {
-  const fallbackSeasonCodes = useStore((state) =>
-    state.worksheetMemo.getSeasonCodes(state),
-  );
-  const { courses } = useCoursePlanningCatalog();
-  const registryTerms = useMemo(
-    () =>
-      Object.values(courses).flatMap((catalog) => catalog.metadata.terms ?? []),
-    [courses],
-  );
-  return useMemo(() => {
-    const seasonCodes =
-      registryTerms.length > 0
-        ? supportedTermCodes(registryTerms)
-        : fallbackSeasonCodes;
-    return [...seasonCodes].sort(compareSeasonsByRecency);
-  }, [fallbackSeasonCodes, registryTerms]);
+  return worksheetTerms;
 }
 
 export function getSeasonLabel(

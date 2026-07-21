@@ -15,6 +15,26 @@ export const supportedTerms = [
   ...generatedSupportedTerms.filter((term) => term !== CUR_SEASON),
 ].sort(compareSeasonsByRecency);
 
+const worksheetTermRange = {
+  start: 'S126' as Season,
+  end: 'FA26' as Season,
+};
+
+function isInWorksheetTermRange(term: Season) {
+  return (
+    compareSeasonsByRecency(term, worksheetTermRange.end) >= 0 &&
+    compareSeasonsByRecency(term, worksheetTermRange.start) <= 0
+  );
+}
+
+// Worksheet planning is intentionally narrower than Catalog browsing.
+export const worksheetTerms = supportedTerms.filter(isInWorksheetTermRange);
+const worksheetTermSet = new Set<Season>(worksheetTerms);
+
+export function isWorksheetTerm(term: Season) {
+  return worksheetTermSet.has(term);
+}
+
 // Every season the app is allowed to load. Supported Terms come first so the
 // UCSD multi-term snapshots are loadable; the inherited numeric codes are kept
 // for legacy consumers (worksheet, academic calendars).

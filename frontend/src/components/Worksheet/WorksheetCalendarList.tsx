@@ -24,6 +24,7 @@ import {
 import URLExportButton from './URLExportButton';
 import WorksheetCalendarListContext from './WorksheetCalendarListContext';
 import WorksheetCalendarListItem from './WorksheetCalendarListItem';
+import { isWorksheetTerm } from '../../data/catalogSeasons';
 import type { SavedWorksheetSummary } from '../../queries/api';
 import type { Season } from '../../queries/graphql-types';
 import { useStore } from '../../store';
@@ -77,7 +78,7 @@ export function getSavedWorksheetTermChips(
 
   const chips: SavedWorksheetTermChip[] = [];
   for (const [term, termSummaries] of summariesByTerm) {
-    if (term === viewedTerm) continue;
+    if (term === viewedTerm || !isWorksheetTerm(term as Season)) continue;
     const activeId = activeSavedWorksheetIdsByTerm[term];
     const resolved =
       (activeId ? termSummaries.find((s) => s.id === activeId) : undefined) ??
