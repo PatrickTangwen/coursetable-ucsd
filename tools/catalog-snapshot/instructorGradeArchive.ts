@@ -15,6 +15,7 @@ export type GradeArchiveRecord = {
   p: number | null;
   np: number | null;
   raw: { [key: string]: string };
+  matched_via?: 'cross_listed';
 };
 
 export type RawInstructorGradeArchiveSource = {

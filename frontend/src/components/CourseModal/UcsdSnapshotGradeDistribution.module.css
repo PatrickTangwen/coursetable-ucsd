@@ -37,6 +37,15 @@
   font-weight: 500;
 }
 
+.sourceNotice {
+  padding: 9px 18px;
+  border-bottom: 1px solid rgb(var(--ct-line-rgb) / 8%);
+  background: var(--ct-surface-soft);
+  color: var(--ct-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+}
+
 .tableScroll {
   flex: 1;
   min-height: 0;

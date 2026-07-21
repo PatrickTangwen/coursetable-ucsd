@@ -28,6 +28,7 @@ export const coursePlanningPastGradeSchema = z.object({
   p: z.number().nullable(),
   np: z.number().nullable(),
   raw: z.record(z.string()),
+  matched_via: z.literal('cross_listed').optional(),
 });
 
 export type CoursePlanningPastGrade = z.infer<

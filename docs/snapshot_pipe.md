@@ -251,6 +251,23 @@ The primary `--metadata-dir` remains required for backward compatibility. Its
 explicit or inferred timestamp is used only for that primary run; it is never
 attributed to another run whose timestamp is unknown.
 
+### Cross-listed grade records
+
+When a scheduled course has no exact Instructor Grade Archive rows, the
+snapshot may use records from another listing only when the General Catalog
+description explicitly says `Cross-listed with SUBJECT NUMBER`. The original
+archive `subject`, `course`, and `raw` values remain unchanged, and inherited
+rows carry `matched_via: "cross_listed"` so the Past Grades UI can identify the
+source listing. The target and source must also have a current-term offering
+with the same normalized instructor and the same non-Final meeting day, time,
+and location. Exactly one qualifying cross-listed source may have archive rows;
+ambiguous multi-source matches remain unavailable rather than being merged.
+
+Exact Course ID records always take precedence. Title similarity and
+`May be coscheduled with` text do not qualify: coscheduled undergraduate and
+graduate listings can have different grading populations and must not be merged
+without a separate authoritative archive relationship.
+
 ### Paired Snapshot and Import Manifest publication
 
 The TSS publisher produces one release candidate with matching identity across:

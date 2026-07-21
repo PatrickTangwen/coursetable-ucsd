@@ -66,6 +66,13 @@ export default function UcsdSnapshotGradeDistribution({
       </div>
     );
   }
+  const crossListedSources = [
+    ...new Set(
+      records
+        .filter((record) => record.matched_via === 'cross_listed')
+        .map(({ subject, course }) => `${subject.trim()} ${course.trim()}`),
+    ),
+  ];
 
   return (
     <div className={styles.card}>
@@ -78,6 +85,12 @@ export default function UcsdSnapshotGradeDistribution({
         </div>
         <div className={styles.cardNote}>% of enrolled by grade</div>
       </div>
+      {crossListedSources.length > 0 && (
+        <div className={styles.sourceNotice}>
+          Historical records shown from cross-listed{' '}
+          {crossListedSources.join(', ')}.
+        </div>
+      )}
       <div className={styles.tableScroll}>
         <table className={styles.table}>
           <colgroup>

@@ -1,6 +1,10 @@
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 
-import { displayedArchiveGpa } from './UcsdSnapshotGradeDistribution';
+import UcsdSnapshotGradeDistribution, {
+  displayedArchiveGpa,
+} from './UcsdSnapshotGradeDistribution';
 import type { CoursePlanningPastGrade } from '../../queries/coursePlanningViewModels';
 
 function gradeRecord(
@@ -46,5 +50,21 @@ describe('Past Grades GPA display', () => {
 
   it('does not reinterpret a nonzero GPA from the archive', () => {
     expect(displayedArchiveGpa(gradeRecord({ gpa: 3.5 }))).toBe(3.5);
+  });
+
+  it('labels records inherited from an explicitly cross-listed course', () => {
+    const record = {
+      ...gradeRecord({ subject: 'GLBH', course: '129', gpa: 3.5 }),
+      matched_via: 'cross_listed' as const,
+    };
+    const markup = renderToStaticMarkup(
+      createElement(UcsdSnapshotGradeDistribution, {
+        records: [record],
+      }),
+    );
+
+    expect(markup).toContain(
+      'Historical records shown from cross-listed GLBH 129.',
+    );
   });
 });

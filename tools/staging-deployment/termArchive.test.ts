@@ -6,7 +6,7 @@ describe('staging Term Archive', () => {
   it('builds a complete content-addressed registry from accepted repository artifacts', async () => {
     const archive = await buildTermArchive();
 
-    expect(archive.registry.last_update).toBe('2026-07-21T20:03:03.200Z');
+    expect(archive.registry.last_update).toBe('2026-07-21T20:45:22.835Z');
     expect(archive.terms).toHaveLength(15);
     expect(archive.registry.terms).toHaveLength(15);
 
@@ -16,7 +16,7 @@ describe('staging Term Archive', () => {
       term: 'FA26',
       label: 'Fall 2026',
       dateRange: null,
-      generatedAt: '2026-07-21T20:03:03.200Z',
+      generatedAt: '2026-07-21T20:45:22.835Z',
     });
     expect(fall.snapshot.sha256).toMatch(/^[a-f\d]{64}$/u);
     expect(fall.manifest.sha256).toMatch(/^[a-f\d]{64}$/u);

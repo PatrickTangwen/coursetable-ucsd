@@ -9,8 +9,10 @@ import {
   loadCatalogSnapshotConfig,
   publishCatalogSnapshot,
   validateCatalogSnapshot,
+  type CatalogSnapshot,
   type CatalogSnapshotConfig,
 } from './catalogSnapshot';
+import type { GradeArchiveRecord } from './instructorGradeArchive';
 
 function makeConfig(): CatalogSnapshotConfig {
   return {
@@ -28,6 +30,54 @@ function makeConfig(): CatalogSnapshotConfig {
       public_catalog_dir: 'api/static/catalogs/public',
       metadata_path: 'api/static/metadata.json',
     },
+  };
+}
+
+function setScheduledOffering(
+  course: CatalogSnapshot['courses'][number],
+  instructor: string,
+  startTime = '09:00',
+) {
+  const section = course.sections[0]!;
+  section.instructors = [instructor];
+  section.meetings = [
+    {
+      date: null,
+      days: ['Tuesday', 'Thursday'],
+      start_time: startTime,
+      end_time: '10:20',
+      building: 'CENTR',
+      room: '101',
+      is_tba: false,
+      meeting_type: 'Lecture',
+      raw_days: 'TuTh',
+      raw_time: `${startTime} - 10:20`,
+      raw_location: 'CENTR 101',
+    },
+  ];
+}
+
+function gradeArchiveRecord(
+  subject: string,
+  course: string,
+): GradeArchiveRecord {
+  return {
+    subject,
+    course,
+    year: '2025',
+    quarter: 'FA',
+    title: 'Cross-listed course',
+    instructor: 'Shared Instructor',
+    gpa: 3.5,
+    a: 50,
+    b: 50,
+    c: 0,
+    d: 0,
+    f: 0,
+    w: 0,
+    p: 0,
+    np: 0,
+    raw: {},
   };
 }
 
@@ -490,6 +540,49 @@ describe('Catalog Snapshot Grade Archive enrichment', () => {
     expect(validateCatalogSnapshot(enriched, config)).toEqual({
       success: true,
       errors: [],
+    });
+  });
+
+  it('does not inherit cross-listed records when current offerings do not share instructor and time', () => {
+    const snapshot = buildTracerCatalogSnapshot(makeConfig());
+    const target = snapshot.courses[0]!;
+    const source = snapshot.courses[1]!;
+    target.description = '(Cross-listed with MATH 1.)';
+    setScheduledOffering(target, 'Target Instructor');
+    setScheduledOffering(source, 'Source Instructor');
+
+    const enriched = attachGradeArchiveRecords(snapshot, [
+      gradeArchiveRecord('MATH', '1'),
+    ]);
+
+    expect(enriched.courses[0]).toMatchObject({
+      archive_record_count: 0,
+      grade_archive_records: [],
+    });
+  });
+
+  it('does not merge multiple current cross-listed sources with archive rows', () => {
+    const snapshot = buildTracerCatalogSnapshot(makeConfig());
+    const target = snapshot.courses[0]!;
+    const math = snapshot.courses[1]!;
+    const physics = structuredClone(math);
+    physics.course_id = 'PHYS:1';
+    physics.subject = 'PHYS';
+    physics.sections[0]!.course_id = 'PHYS:1';
+    target.description = '(Cross-listed with MATH 1 and PHYS 1.)';
+    setScheduledOffering(target, 'Shared Instructor');
+    setScheduledOffering(math, 'Shared Instructor');
+    setScheduledOffering(physics, 'Shared Instructor');
+    snapshot.courses.push(physics);
+
+    const enriched = attachGradeArchiveRecords(snapshot, [
+      gradeArchiveRecord('MATH', '1'),
+      gradeArchiveRecord('PHYS', '1'),
+    ]);
+
+    expect(enriched.courses[0]).toMatchObject({
+      archive_record_count: 0,
+      grade_archive_records: [],
     });
   });
 });

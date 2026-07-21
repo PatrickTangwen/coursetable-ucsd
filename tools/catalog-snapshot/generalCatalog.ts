@@ -89,6 +89,28 @@ function normalizeSubject(value: string): string {
   return value.trim().toUpperCase();
 }
 
+export function crossListedCourseIds(description: string | null): string[] {
+  if (!description) return [];
+  const courseIds = new Set<string>();
+  for (const match of description.matchAll(
+    /\bcross-listed with (?<list>[^.)]+)/giu,
+  )) {
+    const list = match.groups?.list;
+    if (!list) continue;
+    for (const listing of list.matchAll(
+      /\b(?<subject>[A-Z][A-Z\d]{1,7})\s+(?<course>\d+[A-Z]*(?:\/R)?)/gu,
+    )) {
+      const subject = listing.groups?.subject;
+      const course = listing.groups?.course;
+      if (!subject || !course) continue;
+      courseIds.add(
+        `${normalizeSubject(subject)}:${normalizeCourseNumber(course).replace(/\/R$/u, 'R')}`,
+      );
+    }
+  }
+  return [...courseIds];
+}
+
 type ParsedCatalogListing = {
   subject: string;
   courseNumber: string;

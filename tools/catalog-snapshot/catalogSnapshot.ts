@@ -2,7 +2,10 @@ import { readFile } from 'node:fs/promises';
 import pathModule from 'node:path';
 import { parse } from 'yaml';
 import { z } from 'zod';
-import type { GeneralCatalogCourse } from './generalCatalog';
+import {
+  crossListedCourseIds,
+  type GeneralCatalogCourse,
+} from './generalCatalog';
 import type { GradeArchiveRecord } from './instructorGradeArchive';
 import {
   createFileSnapshotStorage,
@@ -67,6 +70,7 @@ const gradeArchiveRecordSchema = z
     p: z.number().nullable(),
     np: z.number().nullable(),
     raw: z.record(z.string()),
+    matched_via: z.literal('cross_listed').optional(),
   })
   .strict();
 
@@ -553,10 +557,93 @@ function meanMostRecentTermGpa(records: GradeArchiveRecord[]): number | null {
   return meanGpa(mostRecentTermRecords(records));
 }
 
+type SnapshotCourse = CatalogSnapshot['courses'][number];
+
+function normalizedInstructorName(name: string): string {
+  return name
+    .normalize('NFKD')
+    .toLowerCase()
+    .replace(/[^\p{Letter}\p{Number}]+/gu, '');
+}
+
+function instructionalMeetingSignature(
+  meeting: SnapshotCourse['sections'][number]['meetings'][number],
+): string | null {
+  if (
+    meeting.is_tba ||
+    !meeting.start_time ||
+    !meeting.end_time ||
+    meeting.meeting_type?.trim().toLowerCase() === 'final'
+  )
+    return null;
+  return [
+    [...meeting.days].sort().join(','),
+    meeting.date ?? '',
+    meeting.start_time,
+    meeting.end_time,
+    meeting.building ?? '',
+    meeting.room ?? '',
+  ].join('|');
+}
+
+function coursesShareScheduledOffering(
+  target: SnapshotCourse,
+  source: SnapshotCourse,
+): boolean {
+  return target.sections.some((targetSection) => {
+    const targetInstructors = new Set(
+      targetSection.instructors.map(normalizedInstructorName),
+    );
+    const targetMeetings = new Set(
+      targetSection.meetings
+        .map(instructionalMeetingSignature)
+        .filter((signature): signature is string => signature !== null),
+    );
+    return source.sections.some((sourceSection) => {
+      const hasSharedInstructor = sourceSection.instructors.some((instructor) =>
+        targetInstructors.has(normalizedInstructorName(instructor)),
+      );
+      const hasSharedMeeting = sourceSection.meetings.some((meeting) => {
+        const signature = instructionalMeetingSignature(meeting);
+        return signature !== null && targetMeetings.has(signature);
+      });
+      return hasSharedInstructor && hasSharedMeeting;
+    });
+  });
+}
+
+function crossListedGradeArchiveRecords(
+  course: SnapshotCourse,
+  coursesById: Map<string, SnapshotCourse>,
+  recordsByCourseId: Map<string, GradeArchiveRecord[]>,
+): GradeArchiveRecord[] {
+  const sources = crossListedCourseIds(course.description)
+    .map((courseId) => ({
+      course: coursesById.get(courseId),
+      records: recordsByCourseId.get(courseId) ?? [],
+    }))
+    .filter(
+      (
+        source,
+      ): source is { course: SnapshotCourse; records: GradeArchiveRecord[] } =>
+        source.course !== undefined &&
+        source.records.length > 0 &&
+        coursesShareScheduledOffering(course, source.course),
+    );
+  if (sources.length !== 1) return [];
+  return sources[0]!.records.map((record) => ({
+    ...record,
+    matched_via: 'cross_listed',
+  }));
+}
+
 export function attachGradeArchiveRecords(
   snapshot: CatalogSnapshot,
   records: GradeArchiveRecord[],
 ): CatalogSnapshot {
+  const coursesById = new Map(
+    snapshot.courses.map((course) => [course.course_id, course]),
+  );
   const recordsByCourseId = new Map<string, GradeArchiveRecord[]>();
   for (const record of records) {
     const courseId = gradeArchiveCourseId(record);
@@ -567,7 +654,14 @@ export function attachGradeArchiveRecords(
   return {
     ...snapshot,
     courses: snapshot.courses.map((course) => {
-      const gradeArchiveRecords = recordsByCourseId.get(course.course_id) ?? [];
+      const exactRecords = recordsByCourseId.get(course.course_id) ?? [];
+      const gradeArchiveRecords = exactRecords.length
+        ? exactRecords
+        : crossListedGradeArchiveRecords(
+            course,
+            coursesById,
+            recordsByCourseId,
+          );
       return {
         ...course,
         archive_avg_gpa: meanMostRecentTermGpa(gradeArchiveRecords),

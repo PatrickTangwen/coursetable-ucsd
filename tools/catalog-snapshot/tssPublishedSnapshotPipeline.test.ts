@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import type { CatalogSnapshotConfig } from './catalogSnapshot';
+import type { CatalogSnapshot, CatalogSnapshotConfig } from './catalogSnapshot';
 import type { PublishedSnapshotImportManifest } from './publishedSnapshotPipeline';
 import { runTssPublishedSnapshotPipeline } from './tssPublishedSnapshotPipeline';
 
@@ -79,7 +79,19 @@ describe('TSS Published Snapshot entrypoint', () => {
                     section_code: '001-000-LE',
                     event_id: 'E 00000665',
                     requirement: 'required',
-                    meetings: [],
+                    meetings: [
+                      {
+                        meeting_kind: 'class',
+                        specific_date: null,
+                        days: 'T R',
+                        start_time: '09:00am',
+                        end_time: '10:20am',
+                        location_displayed: 'CENTR 101',
+                        instructor: 'Shared Instructor',
+                        is_tba: false,
+                        is_arranged: false,
+                      },
+                    ],
                     enrollment: {
                       enrolled: null,
                       capacity: null,
@@ -95,7 +107,40 @@ describe('TSS Published Snapshot entrypoint', () => {
             course_code: '002',
             course_title: 'CAT 002',
             tss_course_code: 'CAT-002',
-            booking_choices: [],
+            booking_choices: [
+              {
+                booking_choice_ordinal: 1,
+                displayed_package_section: null,
+                displayed_package_id: null,
+                components: [
+                  {
+                    type: 'lecture',
+                    section_code: '002-000-LE',
+                    event_id: 'E 00000666',
+                    requirement: 'required',
+                    meetings: [
+                      {
+                        meeting_kind: 'class',
+                        specific_date: null,
+                        days: 'T R',
+                        start_time: '09:00am',
+                        end_time: '10:20am',
+                        location_displayed: 'CENTR 101',
+                        instructor: 'Shared Instructor',
+                        is_tba: false,
+                        is_arranged: false,
+                      },
+                    ],
+                    enrollment: {
+                      enrolled: null,
+                      capacity: null,
+                      seats_available: null,
+                      waitlist: { state: 'not_shown', count: null },
+                    },
+                  },
+                ],
+              },
+            ],
           },
         ],
       }),
@@ -158,7 +203,8 @@ describe('TSS Published Snapshot entrypoint', () => {
           course_number: '2',
           title: 'Culture, Art, and Technology 2',
           units: '4',
-          description: 'A second catalog row makes this file more complete.',
+          description:
+            '(Cross-listed with CAT 1.) A second catalog row makes this file more complete.',
           prerequisites_text: null,
           restrictions_text: null,
           catalog_url: 'https://catalog.ucsd.edu/courses/CAT.html#cat2',
@@ -237,7 +283,7 @@ describe('TSS Published Snapshot entrypoint', () => {
     });
     const published = JSON.parse(
       await readFile(result.snapshotPath, 'utf-8'),
-    ) as { courses: { [key: string]: unknown }[] };
+    ) as CatalogSnapshot;
     const registry = JSON.parse(await readFile(metadataPath, 'utf-8')) as {
       terms: {
         term: string;
@@ -283,6 +329,36 @@ describe('TSS Published Snapshot entrypoint', () => {
         },
       ],
     });
+    const catOne = published.courses.find(
+      (course) => course.course_id === 'CAT:1',
+    )!;
+    const catTwo = published.courses.find(
+      (course) => course.course_id === 'CAT:2',
+    )!;
+    expect(catTwo.description).toContain('Cross-listed with CAT 1');
+    expect(catOne.grade_archive_records).toHaveLength(1);
+    expect(
+      catTwo.sections.map(({ instructors, meetings }) => ({
+        instructors,
+        meetings,
+      })),
+    ).toEqual(
+      catOne.sections.map(({ instructors, meetings }) => ({
+        instructors,
+        meetings,
+      })),
+    );
+    expect(catTwo).toMatchObject({
+      archive_record_count: 1,
+      grade_archive_records: [
+        {
+          subject: 'CAT',
+          course: '1',
+          gpa: 3.5,
+          matched_via: 'cross_listed',
+        },
+      ],
+    });
     expect(registry.terms).toMatchObject([
       {
         term: 'FA26',
@@ -304,7 +380,7 @@ describe('TSS Published Snapshot entrypoint', () => {
       status: 'ok',
       reason: null,
       attempts: 1,
-      row_counts: { courses: 2, sections: 1, meetings: 0 },
+      row_counts: { courses: 2, sections: 2, meetings: 2 },
       normalized_artifact: null,
     });
     expect(catSchedule?.raw_artifacts).toEqual(
