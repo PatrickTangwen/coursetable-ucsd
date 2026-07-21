@@ -1,5 +1,8 @@
 import { loadCatalogSnapshotConfig } from './catalogSnapshot.js';
-import { runTssPublishedSnapshotPipeline } from './tssPublishedSnapshotPipeline.js';
+import {
+  inferredNormalizedRunTimestamp,
+  runTssPublishedSnapshotPipeline,
+} from './tssPublishedSnapshotPipeline.js';
 
 function argument(name: string, fallback?: string): string {
   const index = process.argv.indexOf(name);
@@ -12,13 +15,6 @@ function argument(name: string, fallback?: string): string {
   return value;
 }
 
-function inferredMetadataTimestamp(directory: string): string | null {
-  const match = /multi-(?<timestamp>\d{4}-\d{2}-\d{2}T[^/]+?Z)-/u.exec(
-    directory,
-  );
-  return match?.groups?.timestamp ?? null;
-}
-
 try {
   const config = await loadCatalogSnapshotConfig(
     argument('--config', 'config/catalog-snapshot.ucsd.yaml'),
@@ -27,7 +23,7 @@ try {
   const metadataDirectory = argument('--metadata-dir');
   const metadataSourceTimestamp = process.argv.includes('--metadata-timestamp')
     ? argument('--metadata-timestamp')
-    : inferredMetadataTimestamp(metadataDirectory);
+    : inferredNormalizedRunTimestamp(metadataDirectory);
   if (!metadataSourceTimestamp) {
     throw new Error(
       '--metadata-timestamp is required when it cannot be inferred from the metadata directory',
@@ -37,6 +33,9 @@ try {
     config,
     rawDirectory,
     metadataDirectory,
+    metadataRootDirectory: process.argv.includes('--metadata-root')
+      ? argument('--metadata-root')
+      : undefined,
     metadataSourceTimestamp,
   });
   console.log(

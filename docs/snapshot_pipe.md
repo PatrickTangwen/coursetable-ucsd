@@ -221,6 +221,36 @@ bun run format:check
 `lint:check` currently passes with existing repository warnings unrelated to the
 snapshot description parser work.
 
+## Fall 2026 TSS Metadata Consolidation (2026-07-21)
+
+The normalized metadata directories under `data/normalized/` are term-scoped.
+A directory can therefore omit a subject that is present in the Fall 2026 TSS
+schedule even when another preserved normalized run contains complete General
+Catalog or Instructor Grade Archive data for that subject.
+
+The TSS publisher accepts `--metadata-root` to consolidate those preserved runs.
+For each source and subject, it selects the normalized JSON file that covers the
+most Course IDs actually scheduled in the target TSS term. Equal-coverage
+candidates prefer the newer timestamp encoded in the run directory. This avoids
+treating unrelated historical rows as evidence that a file is more complete.
+The Import Manifest records the exact selected artifact path. When the selected
+subject files span multiple capture timestamps, or a selected non-primary run
+has no timestamp in its directory name, the corresponding snapshot-level source
+timestamp is `null` rather than claiming one misleading shared timestamp.
+
+Example:
+
+```bash
+bun tools/catalog-snapshot/generate-tss-published-snapshot.mts \
+  --raw-dir TSS_相关资料/chatbot-responses/raw/FA26 \
+  --metadata-dir data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-SP26 \
+  --metadata-root data/normalized
+```
+
+The primary `--metadata-dir` remains required for backward compatibility. Its
+explicit or inferred timestamp is used only for that primary run; it is never
+attributed to another run whose timestamp is unknown.
+
 ## Schedule Parser and Modal Data Notes
 
 This section records Schedule of Classes parser and modal data-shape issues

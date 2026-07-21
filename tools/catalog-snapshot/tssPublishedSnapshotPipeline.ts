@@ -3,6 +3,7 @@ import path from 'node:path';
 import { z } from 'zod';
 
 import {
+  gradeArchiveCourseId,
   publishCatalogSnapshot,
   type CatalogSnapshot,
   type CatalogSnapshotConfig,
@@ -30,6 +31,7 @@ import {
 import {
   buildTssCatalogSnapshot,
   parseTssRequestedSubjects,
+  tssCourseIds,
   type TssCatalogSnapshotSources,
 } from './tssSchedule';
 
@@ -64,9 +66,28 @@ type NormalizedManifestOptions<T> = {
   term: string;
   subjects: string[];
   source: 'general_catalog' | 'instructor_grade_archive';
-  directory: string;
-  valuesBySubject: Map<string, T[]>;
+  metadataBySubject: Map<string, NormalizedSubjectMetadata<T>>;
   rowCountName: 'courses' | 'records';
+};
+
+type NormalizedSubjectMetadata<T> = {
+  artifactPath: string;
+  sourceTimestamp: string | null;
+  values: T[];
+};
+
+type NormalizedMetadataSelection<T> = {
+  bySubject: Map<string, NormalizedSubjectMetadata<T>>;
+  sourceTimestamp: string | null;
+};
+
+type NormalizedMetadataSelectionOptions<T> = {
+  directories: string[];
+  primaryDirectory: string;
+  source: 'general_catalog' | 'instructor_grade_archive';
+  primarySourceTimestamp: string;
+  scheduledCourseIds: Set<string>;
+  courseId: (value: T) => string;
 };
 
 const termNames: { [prefix: string]: string } = {
@@ -105,6 +126,15 @@ async function readNamedJsonFiles(directory: string) {
   );
 }
 
+async function optionalNamedJsonFiles(directory: string) {
+  try {
+    return await readNamedJsonFiles(directory);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return [];
+    throw error;
+  }
+}
+
 function tssTerm(responses: unknown[]): string {
   const terms = new Set(
     responses.map((response) => tssIdentitySchema.parse(response).term),
@@ -136,6 +166,7 @@ export type TssPublishedSnapshotPipelineOptions = {
   config: CatalogSnapshotConfig;
   rawDirectory: string;
   metadataDirectory: string;
+  metadataRootDirectory?: string;
   metadataSourceTimestamp: string;
   runId?: string;
   generatedAt?: string;
@@ -166,6 +197,115 @@ async function optionalTextFile(filePath: string): Promise<string | null> {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
     throw error;
   }
+}
+
+export function inferredNormalizedRunTimestamp(
+  directory: string,
+): string | null {
+  const match = /multi-(?<timestamp>\d{4}-\d{2}-\d{2}T[^/]+?Z)-/u.exec(
+    path.basename(directory),
+  );
+  return match?.groups?.timestamp ?? null;
+}
+
+async function normalizedRunDirectories(
+  primaryDirectory: string,
+  rootDirectory?: string,
+): Promise<string[]> {
+  const directories = new Set([primaryDirectory]);
+  if (!rootDirectory) return [...directories];
+
+  const entries = await readdir(rootDirectory, { withFileTypes: true });
+  for (const entry of entries) {
+    if (entry.isDirectory())
+      directories.add(path.join(rootDirectory, entry.name));
+  }
+  return [...directories].sort();
+}
+
+function coveredScheduledCourseCount<T>(
+  candidate: NormalizedSubjectMetadata<T>,
+  scheduledCourseIds: Set<string>,
+  courseId: (value: T) => string,
+): number {
+  return new Set(
+    candidate.values
+      .map(courseId)
+      .filter((candidateCourseId) => scheduledCourseIds.has(candidateCourseId)),
+  ).size;
+}
+
+function preferNormalizedCandidate<T>(
+  current: NormalizedSubjectMetadata<T> | undefined,
+  candidate: NormalizedSubjectMetadata<T>,
+  scheduledCourseIds: Set<string>,
+  courseId: (value: T) => string,
+): boolean {
+  if (!current) return true;
+  const currentCoverage = coveredScheduledCourseCount(
+    current,
+    scheduledCourseIds,
+    courseId,
+  );
+  const candidateCoverage = coveredScheduledCourseCount(
+    candidate,
+    scheduledCourseIds,
+    courseId,
+  );
+  if (candidateCoverage !== currentCoverage)
+    return candidateCoverage > currentCoverage;
+  const timestampComparison = (candidate.sourceTimestamp ?? '').localeCompare(
+    current.sourceTimestamp ?? '',
+  );
+  if (timestampComparison !== 0) return timestampComparison > 0;
+  return candidate.artifactPath.localeCompare(current.artifactPath) > 0;
+}
+
+async function selectNormalizedMetadata<T>(
+  options: NormalizedMetadataSelectionOptions<T>,
+): Promise<NormalizedMetadataSelection<T>> {
+  const bySubject = new Map<string, NormalizedSubjectMetadata<T>>();
+  for (const directory of options.directories) {
+    const sourceDirectory = path.join(directory, options.source);
+    const files = await optionalNamedJsonFiles(sourceDirectory);
+    for (const { fileName, value } of files) {
+      if (!Array.isArray(value)) {
+        throw new Error(
+          `${path.join(sourceDirectory, fileName)} must contain an array`,
+        );
+      }
+      const subject = path.basename(fileName, '.json').toUpperCase();
+      const candidate = {
+        artifactPath: path.join(sourceDirectory, fileName),
+        sourceTimestamp:
+          inferredNormalizedRunTimestamp(directory) ??
+          (directory === options.primaryDirectory
+            ? options.primarySourceTimestamp
+            : null),
+        values: value as T[],
+      };
+      if (
+        preferNormalizedCandidate(
+          bySubject.get(subject),
+          candidate,
+          options.scheduledCourseIds,
+          options.courseId,
+        )
+      )
+        bySubject.set(subject, candidate);
+    }
+  }
+
+  const sourceTimestamps = new Set(
+    [...bySubject.values()].map(({ sourceTimestamp }) => sourceTimestamp),
+  );
+  return {
+    bySubject,
+    sourceTimestamp:
+      sourceTimestamps.size === 1 && !sourceTimestamps.has(null)
+        ? (sourceTimestamps.values().next().value ?? null)
+        : null,
+  };
 }
 
 function isCompleteTssResponse(response: unknown): boolean {
@@ -253,8 +393,8 @@ function normalizedManifestCells<T>(
   options: NormalizedManifestOptions<T>,
 ): ImportManifestCell[] {
   return options.subjects.map((subject) => {
-    const values = options.valuesBySubject.get(subject);
-    const artifactPath = path.join(options.directory, `${subject}.json`);
+    const metadata = options.metadataBySubject.get(subject);
+    const values = metadata?.values;
     const status =
       values === undefined ? 'failed' : values.length ? 'ok' : 'empty';
     return {
@@ -271,7 +411,7 @@ function normalizedManifestCells<T>(
       attempts: values === undefined ? 0 : 1,
       row_counts: { [options.rowCountName]: values?.length ?? 0 },
       raw_artifacts: [],
-      normalized_artifact: values === undefined ? null : artifactPath,
+      normalized_artifact: metadata?.artifactPath ?? null,
     };
   });
 }
@@ -299,39 +439,36 @@ export async function runTssPublishedSnapshotPipeline(
       : null;
   if (availabilitySupplement) ({ responses } = availabilitySupplement);
 
-  const generalCatalogDirectory = path.join(
+  const metadataDirectories = await normalizedRunDirectories(
     options.metadataDirectory,
-    'general_catalog',
+    options.metadataRootDirectory,
   );
-  const gradeArchiveDirectory = path.join(
-    options.metadataDirectory,
-    'instructor_grade_archive',
+  const scheduledCourseIds = tssCourseIds(responses);
+  const generalCatalog = await selectNormalizedMetadata<GeneralCatalogCourse>({
+    directories: metadataDirectories,
+    primaryDirectory: options.metadataDirectory,
+    source: 'general_catalog',
+    primarySourceTimestamp: options.metadataSourceTimestamp,
+    scheduledCourseIds,
+    courseId: (course) => course.course_id,
+  });
+  const gradeArchive = await selectNormalizedMetadata<GradeArchiveRecord>({
+    directories: metadataDirectories,
+    primaryDirectory: options.metadataDirectory,
+    source: 'instructor_grade_archive',
+    primarySourceTimestamp: options.metadataSourceTimestamp,
+    scheduledCourseIds,
+    courseId: gradeArchiveCourseId,
+  });
+  const generalCatalogCourses = [...generalCatalog.bySubject.values()].flatMap(
+    ({ values }) => values,
   );
-  const generalCatalogFileNames = await jsonFileNames(generalCatalogDirectory);
-  const generalCatalogValues = await readNamedJsonFiles(
-    generalCatalogDirectory,
+  const gradeArchiveRecords = [...gradeArchive.bySubject.values()].flatMap(
+    ({ values }) => values,
   );
-  const gradeArchiveValues = await readNamedJsonFiles(gradeArchiveDirectory);
-  const generalCatalogBySubject = new Map(
-    generalCatalogValues.map(({ fileName, value }) => [
-      path.basename(fileName, '.json').toUpperCase(),
-      value as GeneralCatalogCourse[],
-    ]),
-  );
-  const gradeArchiveBySubject = new Map(
-    gradeArchiveValues.map(({ fileName, value }) => [
-      path.basename(fileName, '.json').toUpperCase(),
-      value as GradeArchiveRecord[],
-    ]),
-  );
-  const generalCatalogCourses = [...generalCatalogBySubject.values()].flat();
-  const gradeArchiveRecords = [...gradeArchiveBySubject.values()].flat();
   const term = tssTerm(responses);
   const configuredSubjects = uniqueSorted([
     ...options.config.configured_subjects,
-    ...generalCatalogFileNames.map((fileName) =>
-      path.basename(fileName, '.json').toUpperCase(),
-    ),
     ...tssSubjects(responses),
   ]);
   const config: CatalogSnapshotConfig = {
@@ -346,11 +483,11 @@ export async function runTssPublishedSnapshotPipeline(
     'generalCatalog' | 'gradeArchive'
   > = {
     generalCatalog: {
-      sourceTimestamp: options.metadataSourceTimestamp,
+      sourceTimestamp: generalCatalog.sourceTimestamp,
       courses: generalCatalogCourses,
     },
     gradeArchive: {
-      sourceTimestamp: options.metadataSourceTimestamp,
+      sourceTimestamp: gradeArchive.sourceTimestamp,
       records: gradeArchiveRecords,
     },
   };
@@ -385,16 +522,14 @@ export async function runTssPublishedSnapshotPipeline(
         term,
         subjects: configuredSubjects,
         source: 'general_catalog',
-        directory: generalCatalogDirectory,
-        valuesBySubject: generalCatalogBySubject,
+        metadataBySubject: generalCatalog.bySubject,
         rowCountName: 'courses',
       }),
       ...normalizedManifestCells({
         term,
         subjects: configuredSubjects,
         source: 'instructor_grade_archive',
-        directory: gradeArchiveDirectory,
-        valuesBySubject: gradeArchiveBySubject,
+        metadataBySubject: gradeArchive.bySubject,
         rowCountName: 'records',
       }),
     ],

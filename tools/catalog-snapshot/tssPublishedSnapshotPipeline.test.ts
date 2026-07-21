@@ -22,10 +22,26 @@ describe('TSS Published Snapshot entrypoint', () => {
     const root = await mkdtemp(path.join(tmpdir(), 'tss-pipeline-'));
     tempDirectories.push(root);
     const rawDirectory = path.join(root, 'raw');
-    const metadataDirectory = path.join(root, 'normalized');
+    const metadataRootDirectory = path.join(root, 'normalized-runs');
+    const metadataDirectory = path.join(
+      metadataRootDirectory,
+      'multi-2026-06-29T08:02:01.606Z-primary-S226',
+    );
+    const moreCompleteMetadataDirectory = path.join(
+      metadataRootDirectory,
+      'multi-2026-06-29T14:30:40.925Z-fallback-SP25',
+    );
     const generalDirectory = path.join(metadataDirectory, 'general_catalog');
     const gradeDirectory = path.join(
       metadataDirectory,
+      'instructor_grade_archive',
+    );
+    const moreCompleteGeneralDirectory = path.join(
+      moreCompleteMetadataDirectory,
+      'general_catalog',
+    );
+    const moreCompleteGradeDirectory = path.join(
+      moreCompleteMetadataDirectory,
       'instructor_grade_archive',
     );
     const publicDirectory = path.join(root, 'public');
@@ -33,6 +49,8 @@ describe('TSS Published Snapshot entrypoint', () => {
       mkdir(rawDirectory, { recursive: true }),
       mkdir(generalDirectory, { recursive: true }),
       mkdir(gradeDirectory, { recursive: true }),
+      mkdir(moreCompleteGeneralDirectory, { recursive: true }),
+      mkdir(moreCompleteGradeDirectory, { recursive: true }),
     ]);
 
     await writeFile(
@@ -73,6 +91,12 @@ describe('TSS Published Snapshot entrypoint', () => {
               },
             ],
           },
+          {
+            course_code: '002',
+            course_title: 'CAT 002',
+            tss_course_code: 'CAT-002',
+            booking_choices: [],
+          },
         ],
       }),
       'utf-8',
@@ -99,10 +123,73 @@ describe('TSS Published Snapshot entrypoint', () => {
           restrictions_text: null,
           catalog_url: 'https://catalog.ucsd.edu/courses/CAT.html#cat1',
         },
+        {
+          course_id: 'CAT:3',
+          subject: 'CAT',
+          course_number: '3',
+          title: 'Culture, Art, and Technology 3',
+          units: '4',
+          description: 'A same-sized candidate from the older run.',
+          prerequisites_text: null,
+          restrictions_text: null,
+          catalog_url: 'https://catalog.ucsd.edu/courses/CAT.html#cat3',
+        },
       ]),
       'utf-8',
     );
     await writeFile(path.join(gradeDirectory, 'CAT.json'), '[]', 'utf-8');
+    await writeFile(
+      path.join(moreCompleteGeneralDirectory, 'CAT.json'),
+      JSON.stringify([
+        {
+          course_id: 'CAT:1',
+          subject: 'CAT',
+          course_number: '1',
+          title: 'Culture, Art, and Technology 1',
+          units: '4',
+          description: 'Most complete General Catalog description.',
+          prerequisites_text: null,
+          restrictions_text: null,
+          catalog_url: 'https://catalog.ucsd.edu/courses/CAT.html#cat1',
+        },
+        {
+          course_id: 'CAT:2',
+          subject: 'CAT',
+          course_number: '2',
+          title: 'Culture, Art, and Technology 2',
+          units: '4',
+          description: 'A second catalog row makes this file more complete.',
+          prerequisites_text: null,
+          restrictions_text: null,
+          catalog_url: 'https://catalog.ucsd.edu/courses/CAT.html#cat2',
+        },
+      ]),
+      'utf-8',
+    );
+    await writeFile(
+      path.join(moreCompleteGradeDirectory, 'CAT.json'),
+      JSON.stringify([
+        {
+          subject: 'CAT',
+          course: '1',
+          year: '26',
+          quarter: 'SP',
+          title: 'Culture, Art, and Technology 1',
+          instructor: 'Test Instructor',
+          gpa: 3.5,
+          a: 50,
+          b: 50,
+          c: 0,
+          d: 0,
+          f: 0,
+          w: 0,
+          p: 0,
+          np: 0,
+          raw: {},
+        },
+      ]),
+      'utf-8',
+    );
     const metadataPath = path.join(root, 'metadata.json');
     await writeFile(
       metadataPath,
@@ -143,6 +230,7 @@ describe('TSS Published Snapshot entrypoint', () => {
       config,
       rawDirectory,
       metadataDirectory,
+      metadataRootDirectory,
       metadataSourceTimestamp: '2026-06-29T08:02:01.606Z',
       runId: 'tss-entrypoint-test',
       generatedAt: '2026-07-21T12:00:00.000Z',
@@ -166,6 +254,10 @@ describe('TSS Published Snapshot entrypoint', () => {
       term_label: 'Fall 2026',
       configured_subjects: ['CAT', 'CSE', 'MATH'],
       coverage: { complete: true, continuation_needed: false },
+      source_timestamps: {
+        general_catalog: '2026-06-29T14:30:40.925Z',
+        instructor_grade_archive: '2026-06-29T14:30:40.925Z',
+      },
     });
     expect(result.availabilitySupplement).toMatchObject({
       records: 1,
@@ -178,8 +270,10 @@ describe('TSS Published Snapshot entrypoint', () => {
     expect(published.courses[0]).toMatchObject({
       course_id: 'CAT:1',
       display_course_code: 'CAT-001',
-      description: 'General Catalog description.',
+      description: 'Most complete General Catalog description.',
       catalog_url: 'https://catalog.ucsd.edu/courses/CAT.html#cat1',
+      archive_record_count: 1,
+      grade_archive_records: [{ gpa: 3.5 }],
       sections: [
         {
           enrolled: null,
@@ -199,7 +293,7 @@ describe('TSS Published Snapshot entrypoint', () => {
     ]);
     expect(manifest).toMatchObject({
       active_planning_term: 'FA26',
-      summary: { ok: 2, empty: 3, failed: 4, partial: 0 },
+      summary: { ok: 3, empty: 2, failed: 4, partial: 0 },
     });
     expect(manifest.cells).toHaveLength(9);
     const catSchedule = manifest.cells.find(
@@ -210,7 +304,7 @@ describe('TSS Published Snapshot entrypoint', () => {
       status: 'ok',
       reason: null,
       attempts: 1,
-      row_counts: { courses: 1, sections: 1, meetings: 0 },
+      row_counts: { courses: 2, sections: 1, meetings: 0 },
       normalized_artifact: null,
     });
     expect(catSchedule?.raw_artifacts).toEqual(
@@ -229,9 +323,23 @@ describe('TSS Published Snapshot entrypoint', () => {
         expect.objectContaining({
           source: 'instructor_grade_archive',
           subject: 'CAT',
-          status: 'empty',
+          status: 'ok',
         }),
       ]),
+    );
+    const catCatalog = manifest.cells.find(
+      ({ source, subject }) =>
+        source === 'general_catalog' && subject === 'CAT',
+    );
+    const catGrades = manifest.cells.find(
+      ({ source, subject }) =>
+        source === 'instructor_grade_archive' && subject === 'CAT',
+    );
+    expect(catCatalog?.normalized_artifact).toBe(
+      path.join(moreCompleteGeneralDirectory, 'CAT.json'),
+    );
+    expect(catGrades?.normalized_artifact).toBe(
+      path.join(moreCompleteGradeDirectory, 'CAT.json'),
     );
   });
 });

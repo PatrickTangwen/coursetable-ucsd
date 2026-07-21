@@ -88,11 +88,11 @@ export type TssCatalogSnapshotSources = {
   runId?: string;
   generatedAt?: string;
   generalCatalog: {
-    sourceTimestamp: string;
+    sourceTimestamp: string | null;
     courses: GeneralCatalogCourse[];
   };
   gradeArchive: {
-    sourceTimestamp: string;
+    sourceTimestamp: string | null;
     records: GradeArchiveRecord[];
   };
 };
@@ -167,6 +167,16 @@ function courseIdentity(course: TssCourse) {
     courseNumber,
     courseId: `${subject}:${courseNumber}`,
   };
+}
+
+export function tssCourseIds(responses: unknown[]): Set<string> {
+  return new Set(
+    responses.flatMap((response) =>
+      tssResponseSchema
+        .parse(response)
+        .courses.map((course) => courseIdentity(course).courseId),
+    ),
+  );
 }
 
 function sectionId(

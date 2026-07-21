@@ -475,7 +475,7 @@ export function buildTracerCatalogSnapshot(
   };
 }
 
-function gradeArchiveCourseId(record: GradeArchiveRecord): string {
+export function gradeArchiveCourseId(record: GradeArchiveRecord): string {
   return `${record.subject.trim().toUpperCase()}:${record.course
     .trim()
     .toUpperCase()
