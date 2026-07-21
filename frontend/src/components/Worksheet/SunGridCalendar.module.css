@@ -157,9 +157,8 @@
 }
 
 /* Content stack sized by the block's width: lines wrap only at spaces so
-   course codes, times, and room numbers never split mid-word; the inline
-   font-size shrinks until every field fits both the block's height and its
-   width (see EventBlock). */
+   course codes, times, and room numbers never split mid-word. The full title,
+   type, time, and location hierarchy scales together in short blocks. */
 .eventFit {
   width: 100%;
   display: flex;
@@ -170,10 +169,6 @@
 .eventLine {
   display: block;
   max-width: 100%;
-}
-
-.eventLineHidden {
-  display: none;
 }
 
 .eventButtons {

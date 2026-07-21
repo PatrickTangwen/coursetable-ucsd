@@ -6,10 +6,10 @@ import {
   useState,
   type CSSProperties,
 } from 'react';
-import clsx from 'clsx';
 import chroma from 'chroma-js';
 import { useShallow } from 'zustand/react/shallow';
 
+import { chooseCalendarEventFontSize } from './calendarEventFit';
 import CalendarQuickModal from './CalendarQuickModal';
 import { useToggleCourseHidden } from './WorksheetHideButton';
 import type { Theme } from '../../slices/ThemeSlice';
@@ -221,7 +221,7 @@ function eventSkin(
 // side-by-side grids read as a single, uniform system.
 function textScale(isMobile: boolean) {
   if (isMobile) return { titleSize: 11, metaSize: 10, lineHeight: 1.15 };
-  return { titleSize: 12, metaSize: 11, lineHeight: 1.2 };
+  return { titleSize: 13, metaSize: 11, lineHeight: 1.2 };
 }
 
 function EventBlock({
@@ -252,7 +252,6 @@ function EventBlock({
   const fitRef = useRef<HTMLDivElement>(null);
   const [isNarrow, setIsNarrow] = useState(false);
   const [fitFontPx, setFitFontPx] = useState<number | null>(null);
-  const [dropTypeLine, setDropTypeLine] = useState(false);
 
   const { crn } = event.listing;
   const startMin = minutesOf(event.start);
@@ -276,7 +275,7 @@ function EventBlock({
       ? 1
       : 2
     : realPx < 58
-      ? 2
+      ? 1
       : realPx < 92
         ? 4
         : 7;
@@ -284,14 +283,11 @@ function EventBlock({
   // block in a crowded column still needs every horizontal pixel for text.
   const padX = isNarrow ? 3 : isMobile ? 4 : realPx < 92 ? 8 : 9;
 
-  // Every field must be fully visible no matter the block's size, but the
-  // font should stay as large as possible: lines wrap at spaces only (course
-  // codes, times, and room numbers never split mid-word), so tight blocks
-  // first trade line breaks for space, and only when the wrapped stack
-  // overflows the height — or a single word overflows the width — does the
-  // font binary-search down to the largest size that fits. The observer
-  // re-fits on block resizes (column count / conflict splits / window) and
-  // content reflows (font loading, text-size tier changes).
+  const contentLineHeight = !isMobile && realPx < 58 ? 1.05 : lineHeight;
+
+  // Preserve the complete information hierarchy in every desktop block.
+  // Tight blocks first reduce padding and line-height, then scale the whole
+  // hierarchy together so title, type, time, and location remain visible.
   useLayoutEffect(() => {
     const block = blockRef.current;
     const fit = fitRef.current;
@@ -299,45 +295,20 @@ function EventBlock({
     const update = () => {
       setIsNarrow(block.clientWidth < 100);
       const availHeight = block.clientHeight - padY * 2;
-      const typeLine = fit.querySelector<HTMLElement>('[data-line="type"]');
-      // Measure with the type line visible — the drop decision below is
-      // re-derived from scratch on every run so it cannot oscillate.
-      if (styles.eventLineHidden)
-        typeLine?.classList.remove(styles.eventLineHidden);
       const fitsAt = (candidate: number) => {
         fit.style.fontSize = `${candidate}px`;
         if (fit.scrollHeight > availHeight) return false;
+        if (fit.scrollWidth > fit.clientWidth + 1) return false;
         for (const line of fit.children)
           if (line.scrollWidth > line.clientWidth + 1) return false;
         return true;
       };
-      const largestFit = () => {
-        if (fitsAt(metaSize)) return metaSize;
-        let lo = 4;
-        let hi = metaSize;
-        for (let i = 0; i < 6; i++) {
-          const mid = (lo + hi) / 2;
-          if (fitsAt(mid)) lo = mid;
-          else hi = mid;
-        }
-        return lo;
-      };
-      let px = largestFit();
-      // Mobile has no hover fallback, and the long type word ("Laboratory",
-      // "Discussion") is usually what forces the shrink. Below legibility,
-      // drop the type line so the course code keeps its full size; the type
-      // stays reachable through the tap-open modal.
-      let nextDropTypeLine = false;
-      if (isMobile && typeLine && px < 8) {
-        if (styles.eventLineHidden)
-          typeLine.classList.add(styles.eventLineHidden);
-        nextDropTypeLine = true;
-        px = largestFit();
-      }
-      fit.style.fontSize = `${px}px`;
-      setDropTypeLine(nextDropTypeLine);
+      const nextFontSize = chooseCalendarEventFontSize(metaSize, 4, fitsAt);
+      fit.style.fontSize = `${nextFontSize}px`;
       setFitFontPx((prev) =>
-        prev !== null && Math.abs(prev - px) < 0.1 ? prev : px,
+        prev !== null && Math.abs(prev - nextFontSize) < 0.1
+          ? prev
+          : nextFontSize,
       );
     };
     let disposed = false;
@@ -356,7 +327,7 @@ function EventBlock({
     };
     // Narrow-tier flips change the horizontal padding (and thus the fit
     // width), so the fit must be re-measured when isNarrow changes.
-  }, [metaSize, padY, isNarrow, isMobile]);
+  }, [metaSize, padY, isNarrow]);
 
   // Word joiners (U+2060) around the en dash keep "9–11:50" from breaking
   // after the dash while still letting the line wrap at spaces.
@@ -417,7 +388,7 @@ function EventBlock({
           ref={fitRef}
           className={styles.eventFit}
           style={{
-            rowGap: isMobile ? 0 : realPx >= 118 ? 2 : 1,
+            rowGap: isMobile || realPx < 58 ? 0 : realPx >= 118 ? 2 : 1,
             fontSize: fitFontPx ?? metaSize,
           }}
         >
@@ -426,19 +397,15 @@ function EventBlock({
             style={{
               fontWeight: 700,
               fontSize: `${titleSize / metaSize}em`,
-              lineHeight,
+              lineHeight: contentLineHeight,
             }}
           >
             {event.title.split(' ').slice(0, 2).join(' ')}
           </strong>
           {showType && (
             <span
-              data-line="type"
-              className={clsx(
-                styles.eventLine,
-                dropTypeLine && styles.eventLineHidden,
-              )}
-              style={{ fontWeight: 600, lineHeight }}
+              className={styles.eventLine}
+              style={{ fontWeight: 600, lineHeight: contentLineHeight }}
             >
               {event.meetingType}
             </span>
@@ -446,7 +413,11 @@ function EventBlock({
           {showTime && (
             <span
               className={styles.eventLine}
-              style={{ fontWeight: 500, lineHeight, opacity: 0.9 }}
+              style={{
+                fontWeight: 500,
+                lineHeight: contentLineHeight,
+                opacity: 0.9,
+              }}
             >
               {timeText}
             </span>
@@ -457,7 +428,7 @@ function EventBlock({
               style={{
                 fontWeight: 400,
                 fontSize: '1em',
-                lineHeight,
+                lineHeight: contentLineHeight,
                 opacity: 0.72,
               }}
             >
