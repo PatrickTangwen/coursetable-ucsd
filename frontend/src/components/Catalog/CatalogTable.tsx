@@ -13,6 +13,10 @@ import { useShallow } from 'zustand/react/shallow';
 import DayDots from './DayDots';
 import SeatsDisplay from './SeatsDisplay';
 import type { CoursePlanningListing } from '../../queries/coursePlanningViewModels';
+import {
+  buildFa26SectionMapping,
+  type Fa26SectionMapping,
+} from '../../queries/fa26SectionMapping';
 import type { Season } from '../../queries/graphql-types';
 import type { CatalogSortKey } from '../../slices/CatalogViewSlice';
 import { useStore } from '../../store';
@@ -37,6 +41,7 @@ type CourseRow = {
   groups: OfferingGroup[];
   totalSections: number;
   listings: CoursePlanningListing[];
+  sectionMapping: Fa26SectionMapping;
 };
 
 type OfferingSection = OfferingGroup['sections'][number];
@@ -115,6 +120,7 @@ function groupListingsByCourse(listings: CoursePlanningListing[]): CourseRow[] {
       groups,
       totalSections: group.length,
       listings: group,
+      sectionMapping: buildFa26SectionMapping(first.course.sections),
     });
   }
   return rows;
@@ -381,6 +387,14 @@ function findSectionListing(
   );
 }
 
+function sectionDisplayName(row: CourseRow, section: OfferingSection) {
+  return (
+    row.sectionMapping.bySectionId.get(section.section_id)?.displayName ??
+    section.section_code ??
+    ''
+  );
+}
+
 function SortHeader({
   label,
   sortKey,
@@ -576,7 +590,7 @@ function FlatRow({
         {row.courseCode}
       </span>
       <span className={clsx(styles.cell, styles.sectionText)}>
-        {firstSection.section_code}
+        {sectionDisplayName(row, firstSection)}
       </span>
       <div className={clsx(styles.cell, styles.titleCell)}>{row.title}</div>
       {showTermColumn && (
@@ -638,7 +652,7 @@ function SubRow({
       </div>
       <div className={clsx(styles.cell, styles.subSectionCell)}>
         <span className={styles.subSectionBadge}>
-          {section.section_code ?? group.familyPrefix}
+          {sectionDisplayName(row, section) || group.familyPrefix}
         </span>
       </div>
       <div className={clsx(styles.cell, styles.subMeta)}>
@@ -816,9 +830,9 @@ function MobileFlatCard({
         <div className={styles.mobileCardInfo}>
           <div className={styles.mobileCodeRow}>
             <span className={styles.mobileCode}>{row.courseCode}</span>
-            {firstSection.section_code && (
+            {sectionDisplayName(row, firstSection) && (
               <span className={styles.mobileSectionBadge}>
-                {firstSection.section_code}
+                {sectionDisplayName(row, firstSection)}
               </span>
             )}
             {showTermColumn && <TermBadge seasonCode={row.seasonCode} />}
@@ -896,7 +910,7 @@ function MobileSubRow({
     >
       <div className={styles.mobileSubTop}>
         <span className={styles.subSectionBadge}>
-          {section.section_code ?? group.familyPrefix}
+          {sectionDisplayName(row, section) || group.familyPrefix}
         </span>
         {section.meeting_type && (
           <span className={styles.typeBadge}>

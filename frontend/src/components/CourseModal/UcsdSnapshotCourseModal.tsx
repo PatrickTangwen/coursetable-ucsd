@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import * as Sentry from '@sentry/react';
 import clsx from 'clsx';
 import { Helmet } from 'react-helmet';
 import { toast } from 'sonner';
@@ -28,7 +29,12 @@ import {
 } from './ucsdSnapshotModalData';
 import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
 import { useModalHistory } from '../../hooks/useModalHistory';
+import { useWorksheetListingSelection } from '../../hooks/useWorksheetListingSelection';
 import type { CoursePlanningCourse } from '../../queries/coursePlanningViewModels';
+import {
+  fall2026Term,
+  type Fa26SectionMappingEntry,
+} from '../../queries/fa26SectionMapping';
 import type { Season } from '../../queries/graphql-types';
 import { useStore } from '../../store';
 import {
@@ -43,7 +49,7 @@ import {
 } from '../../utilities/course';
 import styles from './UcsdSnapshotCourseModal.module.css';
 
-type UcsdModalView = 'overview' | 'evals' | 'past-grades';
+type UcsdModalView = 'overview' | 'evals' | 'past-grades' | 'section-mapping';
 
 const courseActionToastDuration = 800;
 
@@ -291,8 +297,24 @@ function locationText(meeting: UcsdModalSection['meetings'][number]): string {
   return parts.join(' ') || 'TBA';
 }
 
-function sectionLabel(group: UcsdModalOfferingGroup): string {
+function sectionLabel(
+  group: UcsdModalOfferingGroup,
+  mapping?: Fa26SectionMappingEntry,
+): string {
+  if (mapping) return mapping.displayName;
   return group.familyPrefix ? `Section ${group.familyPrefix}` : 'Section';
+}
+
+function sectionShortLabel(
+  section: UcsdModalSection,
+  mapping?: Fa26SectionMappingEntry,
+) {
+  return (
+    mapping?.displayOption ??
+    mapping?.displaySection ??
+    section.sectionCode ??
+    ''
+  );
 }
 
 function anchorSectionCode(group: UcsdModalOfferingGroup): string {
@@ -355,7 +377,10 @@ type MeetingRowData = {
   sectionCode: string;
 };
 
-function buildMeetingRows(group: UcsdModalOfferingGroup): MeetingRowData[] {
+function buildMeetingRows(
+  group: UcsdModalOfferingGroup,
+  sectionMapping?: ReadonlyMap<string, Fa26SectionMappingEntry>,
+): MeetingRowData[] {
   const rows: MeetingRowData[] = group.sharedMeetings.map((meeting, index) => ({
     key: `${group.familyPrefix}-shared-${index}`,
     role: isUcsdInfoMeeting(meeting.meetingType) ? 'info' : 'anchor',
@@ -380,7 +405,10 @@ function buildMeetingRows(group: UcsdModalOfferingGroup): MeetingRowData[] {
         role,
         meeting,
         section,
-        sectionCode: section.sectionCode ?? group.familyPrefix,
+        sectionCode: sectionShortLabel(
+          section,
+          sectionMapping?.get(section.sectionId),
+        ),
       });
     }
   }
@@ -503,27 +531,47 @@ function MeetingRow({
   return <div className={rowClassName}>{content}</div>;
 }
 
-function OfferingGroupCard({
-  group,
-  active,
-  selectedCode,
-  updatedLabel,
-  onSelect,
-  onAdd,
-  setRef,
-}: {
-  readonly group: UcsdModalOfferingGroup;
-  readonly active: boolean;
-  readonly selectedCode: string | null | undefined;
-  readonly updatedLabel: string | null;
-  readonly onSelect: (
+type OfferingGroupCardModel = {
+  group: UcsdModalOfferingGroup;
+  active: boolean;
+  mappingEntry?: Fa26SectionMappingEntry;
+  inWorksheet: boolean;
+  selectedCode: string | null | undefined;
+  updatedLabel: string | null;
+  worksheetDisabled: boolean;
+};
+
+type OfferingGroupCardActions = {
+  onSelect: (
     targetGroup: UcsdModalOfferingGroup,
     section: UcsdModalSection,
   ) => void;
-  readonly onAdd: (listing: UcsdModalListing) => void;
-  readonly setRef: (node: HTMLDivElement | null) => void;
+  onAdd: (listing: UcsdModalListing) => void;
+  onToggleWorksheet: (listing: UcsdModalListing) => void;
+  setRef: (node: HTMLDivElement | null) => void;
+};
+
+function OfferingGroupCard({
+  model,
+  actions,
+}: {
+  readonly model: OfferingGroupCardModel;
+  readonly actions: OfferingGroupCardActions;
 }) {
-  const rows = buildMeetingRows(group);
+  const {
+    group,
+    active,
+    mappingEntry,
+    inWorksheet,
+    selectedCode,
+    updatedLabel,
+    worksheetDisabled,
+  } = model;
+  const { onSelect, onAdd, onToggleWorksheet, setRef } = actions;
+  const sectionMapping = mappingEntry
+    ? new Map([[mappingEntry.packageId, mappingEntry]])
+    : undefined;
+  const rows = buildMeetingRows(group, sectionMapping);
   const selectedSection =
     group.sections.length === 1
       ? group.sections[0]
@@ -533,12 +581,18 @@ function OfferingGroupCard({
   return (
     <div
       ref={setRef}
-      className={clsx(styles.card, active && styles.cardActive)}
+      className={clsx(
+        styles.card,
+        active && styles.cardActive,
+        inWorksheet && styles.cardInWorksheet,
+      )}
       data-course-modal-family={group.familyPrefix}
     >
       <div className={styles.cardHeader}>
         <div>
-          <div className={styles.cardTitle}>{sectionLabel(group)}</div>
+          <div className={styles.cardTitle}>
+            {sectionLabel(group, mappingEntry)}
+          </div>
           <div className={styles.cardSubTitle}>{groupSubtitle(group)}</div>
         </div>
         <div className={styles.cardInstructor}>{groupInstructor(group)}</div>
@@ -567,11 +621,27 @@ function OfferingGroupCard({
         <div className={styles.cardAction}>
           <button
             type="button"
-            className={styles.addButton}
-            onClick={() => onAdd(selectedForAdd.listing)}
+            className={clsx(
+              styles.addButton,
+              inWorksheet && styles.removeButton,
+            )}
+            disabled={Boolean(mappingEntry && worksheetDisabled)}
+            onClick={() =>
+              mappingEntry
+                ? onToggleWorksheet(selectedForAdd.listing)
+                : onAdd(selectedForAdd.listing)
+            }
           >
-            <PlusIcon size={14} />
-            Add {selectedForAdd.sectionCode ?? group.familyPrefix} to Worksheet
+            {inWorksheet ? (
+              <span aria-hidden="true">✓</span>
+            ) : (
+              <PlusIcon size={14} />
+            )}
+            {inWorksheet ? 'Remove' : 'Add'}{' '}
+            {mappingEntry?.displayName ??
+              selectedForAdd.sectionCode ??
+              group.familyPrefix}{' '}
+            {inWorksheet ? 'from' : 'to'} Worksheet
           </button>
         </div>
       ) : (
@@ -584,6 +654,119 @@ function OfferingGroupCard({
         </div>
       )}
     </div>
+  );
+}
+
+function mappingSchedule(listing: UcsdModalListing) {
+  return listing.section.meetings
+    .filter((meeting) => !isUcsdInfoMeeting(meeting.meetingType))
+    .map((meeting) => {
+      const days = meeting.isTba ? 'TBA' : meeting.rawDays || 'TBA';
+      const time = formatTime(meeting.startTime, meeting.endTime);
+      const location = locationText(meeting);
+      return `${ucsdMeetingTypeCode(meeting.meetingType)} · ${days} ${time} · ${location}`;
+    });
+}
+
+function SectionMappingTable({
+  entries,
+  listingsBySectionId,
+  hasListing,
+  onToggle,
+  disabled,
+}: {
+  readonly entries: Fa26SectionMappingEntry[];
+  readonly listingsBySectionId: ReadonlyMap<string, UcsdModalListing>;
+  readonly hasListing: (listing: UcsdModalListing) => boolean;
+  readonly onToggle: (listing: UcsdModalListing) => void;
+  readonly disabled: boolean;
+}) {
+  return (
+    <section
+      className={styles.mappingPanel}
+      aria-labelledby="section-mapping-title"
+    >
+      <div className={styles.mappingIntro}>
+        <div>
+          <h2 id="section-mapping-title" className={styles.mappingTitle}>
+            Section Mapping
+          </h2>
+          <p className={styles.mappingDescription}>
+            Friendly Fall 2026 names are paired with their official TSS
+            packages. Select any combination to add it to your Worksheet.
+          </p>
+        </div>
+        <span className={styles.mappingCount}>{entries.length} packages</span>
+      </div>
+      <div className={styles.mappingTableWrap}>
+        <table className={styles.mappingTable}>
+          <thead>
+            <tr>
+              <th className={styles.mappingSelectHeader}>Select</th>
+              <th>Display name</th>
+              <th>Official TSS section combination</th>
+              <th>Instructor</th>
+              <th>Schedule</th>
+            </tr>
+          </thead>
+          <tbody>
+            {entries.map((entry) => {
+              const target = listingsBySectionId.get(entry.packageId);
+              if (!target) return null;
+              const selected = hasListing(target);
+              const instructors = target.section.instructors
+                .map(({ name }) => name)
+                .filter(Boolean)
+                .join(', ');
+              const schedules = mappingSchedule(target);
+              return (
+                <tr
+                  key={entry.packageId}
+                  className={selected ? styles.mappingRowSelected : undefined}
+                >
+                  <td className={styles.mappingSelectCell}>
+                    <input
+                      type="checkbox"
+                      className={styles.mappingCheckbox}
+                      checked={selected}
+                      disabled={disabled}
+                      onChange={() => onToggle(target)}
+                      aria-label={`${selected ? 'Remove' : 'Add'} ${entry.displayName} ${selected ? 'from' : 'to'} Worksheet`}
+                    />
+                  </td>
+                  <td>
+                    <span className={styles.mappingDisplayName}>
+                      {entry.displayName}
+                    </span>
+                  </td>
+                  <td>
+                    <code className={styles.mappingOfficialCode}>
+                      {entry.officialSectionCode}
+                    </code>
+                  </td>
+                  <td className={styles.mappingInstructor}>
+                    {instructors || 'Staff'}
+                  </td>
+                  <td>
+                    <ul className={styles.mappingScheduleList}>
+                      {schedules.length > 0 ? (
+                        schedules.map((schedule, index) => (
+                          <li key={`${entry.packageId}-${index}`}>
+                            {schedule}
+                          </li>
+                        ))
+                      ) : (
+                        <li>Schedule TBA</li>
+                      )}
+                    </ul>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
   );
 }
 
@@ -617,6 +800,22 @@ export default function UcsdSnapshotCourseModal({
     () => buildUcsdSnapshotModalCourse(listing, allListings),
     [allListings, listing],
   );
+  const isFall2026 = season === fall2026Term;
+  const listingsBySectionId = useMemo(
+    () =>
+      new Map(
+        modalCourse.listings.map((courseListing) => [
+          courseListing.section.sectionId,
+          courseListing,
+        ]),
+      ),
+    [modalCourse.listings],
+  );
+  const {
+    disabled: worksheetDisabled,
+    hasListing: worksheetHasListing,
+    toggleListing: toggleWorksheetListing,
+  } = useWorksheetListingSelection();
   const {
     activeFamilyState,
     selectedSections,
@@ -711,14 +910,22 @@ export default function UcsdSnapshotCourseModal({
   }, [closeModal]);
 
   const activeFamily = activeFamilyState ?? modalCourse.activeFamily;
-  const currentView = view === 'past-grades' ? 'past-grades' : 'overview';
+  const currentView =
+    view === 'past-grades' || (view === 'section-mapping' && isFall2026)
+      ? view
+      : 'overview';
   const updatedLabel = formatSnapshotUpdatedLabel(
     listing.section.availability.snapshotTimestamp ?? listing.generatedAt,
   );
   const units = unitsLabel(listing.course);
   const level = courseLevelLabel(listing.course.courseNumber);
   const hasRestrictions = Boolean(listing.course.restrictions);
-  const title = `${listing.course.courseCode} ${listing.section.sectionCode ?? ''}: ${listing.course.title} - UCSD ${toSeasonString(season)} | UCSD Course Planner`;
+  const titleSection =
+    modalCourse.sectionMapping.bySectionId.get(listing.section.sectionId)
+      ?.displayName ??
+    listing.section.sectionCode ??
+    '';
+  const title = `${listing.course.courseCode} ${titleSection}: ${listing.course.title} - UCSD ${toSeasonString(season)} | UCSD Course Planner`;
   const description = truncatedText(
     listing.course.description,
     300,
@@ -803,6 +1010,15 @@ export default function UcsdSnapshotCourseModal({
     [addActiveSavedWorksheetListing, addAnonymousWorksheetListing, authStatus],
   );
 
+  const handleToggleWorksheet = useCallback(
+    (target: UcsdModalListing) => {
+      void toggleWorksheetListing(target).catch((error: unknown) =>
+        Sentry.captureException(error),
+      );
+    },
+    [toggleWorksheetListing],
+  );
+
   const activeGroup = modalCourse.groups.find(
     (group) => group.familyPrefix === activeFamily,
   );
@@ -813,6 +1029,9 @@ export default function UcsdSnapshotCourseModal({
       selectedSections[activeGroup.familyPrefix],
     ) ??
       activeGroup.sections[0]);
+  const activeMapping = activeSelected
+    ? modalCourse.sectionMapping.bySectionId.get(activeSelected.sectionId)
+    : undefined;
 
   return (
     <div className={styles.backdrop}>
@@ -884,6 +1103,21 @@ export default function UcsdSnapshotCourseModal({
               >
                 Past Grades
               </button>
+              {isFall2026 && (
+                <button
+                  type="button"
+                  className={clsx(
+                    styles.tab,
+                    currentView === 'section-mapping' && styles.tabActive,
+                  )}
+                  aria-current={
+                    currentView === 'section-mapping' ? 'page' : undefined
+                  }
+                  onClick={() => setView('section-mapping')}
+                >
+                  Section Mapping
+                </button>
+              )}
             </div>
             <div className={styles.controlsRight}>
               {modalCourse.groups.length > 1 && (
@@ -900,7 +1134,9 @@ export default function UcsdSnapshotCourseModal({
                     aria-expanded={sectionMenuOpen}
                   >
                     <span className={styles.sectionSelectLabel}>
-                      Section {activeFamily}
+                      {activeGroup
+                        ? sectionLabel(activeGroup, activeMapping)
+                        : 'Section'}
                     </span>
                     <ChevronIcon
                       open={sectionMenuOpen}
@@ -920,6 +1156,58 @@ export default function UcsdSnapshotCourseModal({
                       <div className={styles.sectionMenu} role="menu">
                         {modalCourse.groups.map((group) => {
                           const isActive = activeFamily === group.familyPrefix;
+                          const [target] = group.sections;
+                          const mapping = target
+                            ? modalCourse.sectionMapping.bySectionId.get(
+                                target.sectionId,
+                              )
+                            : undefined;
+                          const inWorksheet = target
+                            ? worksheetHasListing(target.listing)
+                            : false;
+                          if (isFall2026 && target && mapping) {
+                            return (
+                              <div
+                                key={group.familyPrefix}
+                                className={clsx(
+                                  styles.sectionMenuItem,
+                                  styles.sectionMenuItemWithToggle,
+                                  isActive && styles.sectionMenuItemActive,
+                                )}
+                                role="none"
+                              >
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  className={styles.sectionMenuNavigation}
+                                  onClick={() =>
+                                    handleSelectFamily(group.familyPrefix)
+                                  }
+                                >
+                                  <span className={styles.sectionMenuText}>
+                                    <span className={styles.sectionMenuTitle}>
+                                      {mapping.displayName}
+                                    </span>
+                                    <span
+                                      className={styles.sectionMenuInstructor}
+                                    >
+                                      {groupInstructor(group)}
+                                    </span>
+                                  </span>
+                                </button>
+                                <input
+                                  type="checkbox"
+                                  className={styles.sectionMenuCheckbox}
+                                  checked={inWorksheet}
+                                  disabled={worksheetDisabled}
+                                  onChange={() =>
+                                    handleToggleWorksheet(target.listing)
+                                  }
+                                  aria-label={`${inWorksheet ? 'Remove' : 'Add'} ${mapping.displayName} ${inWorksheet ? 'from' : 'to'} Worksheet`}
+                                />
+                              </div>
+                            );
+                          }
                           return (
                             <button
                               key={group.familyPrefix}
@@ -935,7 +1223,7 @@ export default function UcsdSnapshotCourseModal({
                             >
                               <span className={styles.sectionMenuText}>
                                 <span className={styles.sectionMenuTitle}>
-                                  {sectionLabel(group)}
+                                  {sectionLabel(group, mapping)}
                                 </span>
                                 <span className={styles.sectionMenuInstructor}>
                                   {groupInstructor(group)}
@@ -955,11 +1243,21 @@ export default function UcsdSnapshotCourseModal({
                   type="button"
                   className={styles.iconButton}
                   onClick={() =>
-                    activeSelected && handleAdd(activeSelected.listing)
+                    activeSelected &&
+                    (isFall2026
+                      ? handleToggleWorksheet(activeSelected.listing)
+                      : handleAdd(activeSelected.listing))
                   }
-                  aria-label="Add selected section to worksheet"
+                  disabled={isFall2026 && worksheetDisabled}
+                  aria-label={`${isFall2026 && activeSelected && worksheetHasListing(activeSelected.listing) ? 'Remove' : 'Add'} selected section ${isFall2026 && activeSelected && worksheetHasListing(activeSelected.listing) ? 'from' : 'to'} worksheet`}
                 >
-                  <PlusIcon />
+                  {isFall2026 &&
+                  activeSelected &&
+                  worksheetHasListing(activeSelected.listing) ? (
+                    <CheckIcon />
+                  ) : (
+                    <PlusIcon />
+                  )}
                 </button>
                 <CopyUrlButton />
                 <button
@@ -989,6 +1287,14 @@ export default function UcsdSnapshotCourseModal({
           {currentView === 'past-grades' ? (
             <UcsdSnapshotGradeDistribution
               records={listing.course.pastGrades}
+            />
+          ) : currentView === 'section-mapping' ? (
+            <SectionMappingTable
+              entries={modalCourse.sectionMapping.entries}
+              listingsBySectionId={listingsBySectionId}
+              hasListing={worksheetHasListing}
+              onToggle={handleToggleWorksheet}
+              disabled={worksheetDisabled}
             />
           ) : (
             <>
@@ -1071,20 +1377,40 @@ export default function UcsdSnapshotCourseModal({
                   Schedule details are unavailable for this course.
                 </div>
               ) : (
-                modalCourse.groups.map((group) => (
-                  <OfferingGroupCard
-                    key={group.familyPrefix}
-                    group={group}
-                    active={activeFamily === group.familyPrefix}
-                    selectedCode={selectedSections[group.familyPrefix]}
-                    updatedLabel={updatedLabel}
-                    onSelect={handleSelectSection}
-                    onAdd={handleAdd}
-                    setRef={(node) => {
-                      cardRefs.current[group.familyPrefix] = node;
-                    }}
-                  />
-                ))
+                modalCourse.groups.map((group) => {
+                  const [target] = group.sections;
+                  const mappingEntry = target
+                    ? modalCourse.sectionMapping.bySectionId.get(
+                        target.sectionId,
+                      )
+                    : undefined;
+                  return (
+                    <OfferingGroupCard
+                      key={group.familyPrefix}
+                      model={{
+                        group,
+                        active: activeFamily === group.familyPrefix,
+                        mappingEntry,
+                        inWorksheet: Boolean(
+                          mappingEntry &&
+                          target &&
+                          worksheetHasListing(target.listing),
+                        ),
+                        selectedCode: selectedSections[group.familyPrefix],
+                        updatedLabel,
+                        worksheetDisabled,
+                      }}
+                      actions={{
+                        onSelect: handleSelectSection,
+                        onAdd: handleAdd,
+                        onToggleWorksheet: handleToggleWorksheet,
+                        setRef(node) {
+                          cardRefs.current[group.familyPrefix] = node;
+                        },
+                      }}
+                    />
+                  );
+                })
               )}
             </>
           )}

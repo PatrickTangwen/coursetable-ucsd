@@ -1,24 +1,16 @@
 import { useMemo } from 'react';
 import * as Sentry from '@sentry/react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { toast } from 'sonner';
-import { useShallow } from 'zustand/react/shallow';
 
 import WorksheetConflictIcon from './WorksheetConflictIcon';
 import {
   AddWorksheetButton,
   RemoveWorksheetButton,
 } from './WorksheetToggleControls';
+import { useWorksheetListingSelection } from '../../hooks/useWorksheetListingSelection';
 import type { CoursePlanningListing } from '../../queries/coursePlanningViewModels';
 import type { Season } from '../../queries/graphql-types';
-import { useStore } from '../../store';
 import { coursePlanningListingToWorksheetCourse } from '../../types/worksheetCourse';
-import {
-  anonymousWorksheetHasListing,
-  getAnonymousWorksheetCourses,
-} from '../../utilities/anonymousWorksheet';
-import { getNextWorksheetColor } from '../../utilities/constants';
-import { savedWorksheetHasListing } from '../../utilities/savedWorksheet';
 import styles from './CoursePlanningWorksheetToggleButton.module.css';
 
 export default function CoursePlanningWorksheetToggleButton({
@@ -35,41 +27,15 @@ export default function CoursePlanningWorksheetToggleButton({
   readonly showConflictIcon?: boolean;
 }) {
   const {
-    activeSavedWorksheet,
-    addActiveSavedWorksheetListing,
-    addAnonymousWorksheetListing,
-    anonymousWorksheet,
-    crossTermSavedSections,
+    disabled,
     getRelevantWorksheetNumber,
-    isAnonymousWorksheet,
-    removeActiveSavedWorksheetListing,
-    removeAnonymousWorksheetListing,
-    user,
-  } = useStore(
-    useShallow((state) => ({
-      activeSavedWorksheet: state.activeSavedWorksheet,
-      addActiveSavedWorksheetListing: state.addActiveSavedWorksheetListing,
-      addAnonymousWorksheetListing: state.addAnonymousWorksheetListing,
-      anonymousWorksheet: state.anonymousWorksheet,
-      crossTermSavedSections: state.crossTermSavedSections,
-      getRelevantWorksheetNumber: state.getRelevantWorksheetNumber,
-      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
-      removeActiveSavedWorksheetListing:
-        state.removeActiveSavedWorksheetListing,
-      removeAnonymousWorksheetListing: state.removeAnonymousWorksheetListing,
-      user: state.user,
-    })),
-  );
-  const hasSavedWorksheetAccount = Boolean(user);
+    hasListing,
+    hasSavedWorksheetAccount,
+    toggleListing,
+  } = useWorksheetListingSelection();
   const term = listing.section.supportedTerm as Season;
   const selectedWorksheet = getRelevantWorksheetNumber(term);
-  const inWorksheet = isAnonymousWorksheet
-    ? anonymousWorksheetHasListing(anonymousWorksheet, listing)
-    : savedWorksheetHasListing(
-        activeSavedWorksheet,
-        crossTermSavedSections,
-        listing,
-      );
+  const inWorksheet = hasListing(listing);
   const worksheetListing = useMemo(
     () =>
       coursePlanningListingToWorksheetCourse(listing, '#7B68EE', false).listing,
@@ -78,35 +44,12 @@ export default function CoursePlanningWorksheetToggleButton({
   const buttonLabel = `${inWorksheet ? 'Remove from' : 'Add to'} ${
     hasSavedWorksheetAccount ? 'active Saved Worksheet' : 'worksheet'
   }`;
-  const disabled = hasSavedWorksheetAccount && !activeSavedWorksheet;
-
   const toggleWorksheet = async (
     event: React.MouseEvent<HTMLButtonElement>,
   ) => {
     event.preventDefault();
     event.stopPropagation();
-    const worksheetSections = isAnonymousWorksheet
-      ? getAnonymousWorksheetCourses(anonymousWorksheet, term)
-      : term === activeSavedWorksheet?.term
-        ? activeSavedWorksheet.sections
-        : (crossTermSavedSections[term] ?? []);
-    const color = getNextWorksheetColor(
-      worksheetSections.map((section) => section.color),
-    );
-    const changed = hasSavedWorksheetAccount
-      ? inWorksheet
-        ? await removeActiveSavedWorksheetListing(listing)
-        : await addActiveSavedWorksheetListing(listing, color)
-      : inWorksheet
-        ? removeAnonymousWorksheetListing(listing)
-        : addAnonymousWorksheetListing(listing, color);
-    if (!changed) return;
-    toast.success(
-      inWorksheet
-        ? 'Removed from worksheet'
-        : `Added ${listing.course.courseCode} to worksheet`,
-      { duration: 800 },
-    );
+    await toggleListing(listing);
   };
 
   if (appearance === 'remove') {

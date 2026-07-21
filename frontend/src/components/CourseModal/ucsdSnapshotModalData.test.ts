@@ -70,6 +70,7 @@ function listing({
   enrolled,
   capacity,
   waitlist = 0,
+  supportedTerm = 'SP26',
 }: {
   crn: number;
   sectionCode: string;
@@ -77,6 +78,7 @@ function listing({
   enrolled: number;
   capacity: number;
   waitlist?: number;
+  supportedTerm?: string;
 }): UcsdModalListing {
   return {
     course: {
@@ -96,9 +98,9 @@ function listing({
       sections: [],
     },
     section: {
-      sectionId: `SP26:CSE-8A-${sectionCode}`,
+      sectionId: `${supportedTerm}:CSE-8A-${sectionCode}`,
       courseId: 'CSE:8A',
-      supportedTerm: 'SP26',
+      supportedTerm,
       sectionCode,
       meetingType: 'Laboratory',
       instructors: [{ name: 'Ada Lovelace' }],
@@ -126,6 +128,63 @@ function listing({
 }
 
 describe('UCSD snapshot modal data', () => {
+  it('builds the shared friendly section mapping for Fall 2026', () => {
+    const a01 = listing({
+      crn: 101,
+      sectionCode: '001-000-LE + 001-001-DI',
+      meetings: [meeting('Lecture', 'M', '10:00', '10:50')],
+      enrolled: 20,
+      capacity: 30,
+      supportedTerm: 'FA26',
+    });
+    const a02 = listing({
+      crn: 102,
+      sectionCode: '001-000-LE + 001-002-DI',
+      meetings: [meeting('Lecture', 'W', '10:00', '10:50')],
+      enrolled: 21,
+      capacity: 30,
+      supportedTerm: 'FA26',
+    });
+
+    const modalCourse = buildUcsdSnapshotModalCourse(a01, [a02]);
+
+    expect(
+      modalCourse.sectionMapping.entries.map((entry) => entry.displayName),
+    ).toEqual(['Section A · A01', 'Section A · A02']);
+  });
+
+  it('keeps duplicate Fall 2026 combinations separate by package id', () => {
+    const first = listing({
+      crn: 101,
+      sectionCode: '001-000-LE + 001-001-DI',
+      meetings: [meeting('Lecture', 'M', '10:00', '10:50')],
+      enrolled: 20,
+      capacity: 30,
+      supportedTerm: 'FA26',
+    });
+    const second = listing({
+      crn: 102,
+      sectionCode: '001-000-LE + 001-001-DI',
+      meetings: [meeting('Lecture', 'W', '10:00', '10:50')],
+      enrolled: 21,
+      capacity: 30,
+      supportedTerm: 'FA26',
+    });
+    second.section.sectionId = 'FA26:CSE-8A-duplicate-package';
+
+    const modalCourse = buildUcsdSnapshotModalCourse(first, [second]);
+
+    expect(modalCourse.groups).toHaveLength(2);
+    expect(modalCourse.groups.map((group) => group.familyPrefix)).toEqual([
+      first.section.sectionId,
+      second.section.sectionId,
+    ]);
+    expect(modalCourse.groups.map((group) => group.sections.length)).toEqual([
+      1, 1,
+    ]);
+    expect(modalCourse.activeFamily).toBe(first.section.sectionId);
+  });
+
   it('formats source-reported and effectively unbounded availability', () => {
     expect(formatUcsdAvailability(20, 100, null, 90)).toMatchObject({
       main: '90 seats left',

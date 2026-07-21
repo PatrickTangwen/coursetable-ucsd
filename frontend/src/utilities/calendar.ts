@@ -8,6 +8,7 @@ import {
   type SimpleDate,
   type SeasonCalendar,
 } from '../config';
+import { fall2026Term } from '../queries/fa26SectionMapping';
 import type { Season } from '../queries/graphql-types';
 import type { WorksheetCourse } from '../slices/WorksheetSlice';
 import type {
@@ -552,6 +553,14 @@ export function getCalendarExport(
   }
   const toEvent =
     type === 'gcal' ? toGCalEvent : type === 'ics' ? toICSEvent : toRBCEvent;
+  const hideRbcSectionNaming = type === 'rbc' && viewedSeason === fall2026Term;
+  const calendarSummary = (
+    target: WorksheetListingViewModel,
+    meeting: CourseMeeting,
+  ) =>
+    hideRbcSectionNaming ? target.course_code : eventSummary(target, meeting);
+  const calendarSection = (target: WorksheetListingViewModel) =>
+    hideRbcSectionNaming ? '' : sectionLabel(target);
   const events = visibleCourses.flatMap(({ listing: l, color }) => {
     const endRepeat = semester
       ? isoString(semester.end, '23:59').replace(/[:-]/gu, '')
@@ -583,7 +592,7 @@ export function getCalendarExport(
           Date.UTC(meetingDate[0], meetingDate[1] - 1, meetingDate[2]),
         ).getUTCDay();
         return toEvent({
-          summary: eventSummary(l, meeting),
+          summary: calendarSummary(l, meeting),
           start: isoString(meetingDate, startTime),
           end: isoString(meetingDate, endTime),
           recurrence: [],
@@ -593,7 +602,7 @@ export function getCalendarExport(
           listing: l,
           days: days.length > 0 ? days : [dateWeekday],
           meetingType: meetingTypeLabel(l, meeting),
-          section: sectionLabel(l),
+          section: calendarSection(l),
           date: meeting.date ?? null,
         });
       }
@@ -617,7 +626,7 @@ export function getCalendarExport(
           '';
 
       return toEvent({
-        summary: eventSummary(l, meeting),
+        summary: calendarSummary(l, meeting),
         start: isoString(firstMeetingDay, startTime),
         end: isoString(firstMeetingDay, endTime),
         recurrence: [
@@ -631,7 +640,7 @@ export function getCalendarExport(
         listing: l,
         days,
         meetingType: meetingTypeLabel(l, meeting),
-        section: sectionLabel(l),
+        section: calendarSection(l),
         date: null,
       });
     });

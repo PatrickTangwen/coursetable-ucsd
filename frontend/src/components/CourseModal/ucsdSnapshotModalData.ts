@@ -4,6 +4,11 @@ import type {
   CoursePlanningPastGrade,
   CoursePlanningSection,
 } from '../../queries/coursePlanningViewModels';
+import {
+  buildFa26SectionMapping,
+  fall2026Term,
+  type Fa26SectionMapping,
+} from '../../queries/fa26SectionMapping';
 import { seatsColor, type SeatsStatus } from '../../utilities/catalogView';
 
 export { formatSnapshotStalenessLabel } from '../../utilities/catalogFreshness';
@@ -27,6 +32,7 @@ export type UcsdSnapshotModalCourse = {
   groups: UcsdModalOfferingGroup[];
   activeFamily: string;
   selectedSectionCode: string | null;
+  sectionMapping: Fa26SectionMapping;
 };
 
 export type UcsdAvailabilityStatus = SeatsStatus | 'full';
@@ -96,7 +102,10 @@ function buildOfferingGroups(
 ): UcsdModalOfferingGroup[] {
   const families = new Map<string, UcsdModalSection[]>();
   for (const section of sections) {
-    const family = getUcsdModalSectionFamily(section.sectionCode);
+    const family =
+      section.supportedTerm === fall2026Term
+        ? section.sectionId
+        : getUcsdModalSectionFamily(section.sectionCode);
     const familySections = families.get(family);
     if (familySections) familySections.push(section);
     else families.set(family, [section]);
@@ -144,7 +153,9 @@ export function buildUcsdSnapshotModalCourse(
   );
   const selectedSectionCode = currentListing.section.sectionCode;
   const activeFamily =
-    getUcsdModalSectionFamily(selectedSectionCode) ||
+    (currentListing.section.supportedTerm === fall2026Term
+      ? currentListing.section.sectionId
+      : getUcsdModalSectionFamily(selectedSectionCode)) ||
     groups[0]?.familyPrefix ||
     '';
 
@@ -153,6 +164,7 @@ export function buildUcsdSnapshotModalCourse(
     groups,
     activeFamily,
     selectedSectionCode,
+    sectionMapping: buildFa26SectionMapping(sections),
   };
 }
 

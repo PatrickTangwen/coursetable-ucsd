@@ -297,6 +297,41 @@
   background: var(--ct-accent-tint);
 }
 
+.sectionMenuItemWithToggle {
+  padding: 0;
+  cursor: default;
+}
+
+.sectionMenuNavigation {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  padding: 8px 4px 8px 10px;
+  border: 0;
+  border-radius: 7px 0 0 7px;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.sectionMenuNavigation:focus-visible {
+  background: var(--ct-surface-soft);
+}
+
+.sectionMenuCheckbox {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  margin: 0 10px 0 6px;
+  accent-color: var(--ct-accent);
+  cursor: pointer;
+}
+
+.sectionMenuCheckbox:disabled {
+  cursor: not-allowed;
+}
+
 .sectionMenuText {
   display: flex;
   flex: 1;
@@ -523,6 +558,15 @@
   box-shadow:
     0 2px 6px rgb(11 11 11 / 6%),
     0 10px 28px rgb(11 11 11 / 10%);
+}
+
+.cardInWorksheet {
+  border-color: rgb(40 113 190 / 38%);
+  background: linear-gradient(
+    180deg,
+    var(--ct-accent-tint) 0,
+    var(--ct-surface) 72px
+  );
 }
 
 :global([data-theme='dark']) .cardActive {
@@ -832,6 +876,154 @@
   background: #378add;
 }
 
+.addButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.removeButton {
+  border: 1px solid var(--ct-accent-border);
+  background: var(--ct-accent-tint);
+  color: var(--ct-accent-text);
+}
+
+.removeButton:hover,
+.removeButton:focus-visible {
+  background: var(--ct-surface-soft);
+}
+
+.mappingPanel {
+  min-width: 0;
+}
+
+.mappingIntro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.mappingTitle {
+  margin: 0;
+  color: var(--ct-ink);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.mappingDescription {
+  max-width: 580px;
+  margin: 5px 0 0;
+  color: var(--ct-text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.mappingCount {
+  flex-shrink: 0;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--ct-surface-soft);
+  color: var(--ct-text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.mappingTableWrap {
+  overflow-x: auto;
+  border: 1px solid rgb(var(--ct-line-rgb) / 10%);
+  border-radius: 11px;
+  background: var(--ct-surface);
+}
+
+.mappingTable {
+  width: 100%;
+  min-width: 820px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.mappingTable th {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgb(var(--ct-line-rgb) / 10%);
+  background: var(--ct-surface-soft);
+  color: var(--ct-text-muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.045em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mappingTable td {
+  padding: 12px;
+  border-bottom: 1px solid rgb(var(--ct-line-rgb) / 7%);
+  color: var(--ct-text-strong);
+  line-height: 1.45;
+  vertical-align: top;
+}
+
+.mappingRowSelected td {
+  background: var(--ct-accent-tint);
+}
+
+.mappingTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.mappingSelectHeader,
+.mappingSelectCell {
+  width: 56px;
+  text-align: center !important;
+}
+
+.mappingCheckbox {
+  width: 17px;
+  height: 17px;
+  margin: 1px 0 0;
+  accent-color: var(--ct-accent);
+  cursor: pointer;
+}
+
+.mappingCheckbox:disabled {
+  cursor: not-allowed;
+}
+
+.mappingDisplayName {
+  color: var(--ct-accent-text);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.mappingOfficialCode {
+  display: block;
+  max-width: 270px;
+  color: var(--ct-ink);
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.mappingInstructor {
+  max-width: 140px;
+}
+
+.mappingScheduleList {
+  min-width: 190px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mappingScheduleList li + li {
+  margin-top: 3px;
+}
+
 .noSelection {
   padding: 12px 18px;
   border-top: 1px solid rgb(var(--ct-line-rgb) / 8%);
@@ -930,13 +1122,14 @@
 
   .controls {
     align-items: center;
-    flex-direction: row;
+    flex-flow: row wrap;
     gap: 8px;
     margin-top: 12px;
   }
 
   .controlsRight {
     flex: 1;
+    flex-basis: 100%;
     justify-content: flex-end;
     gap: 6px;
   }
@@ -948,6 +1141,11 @@
   .tabs,
   .toolbar {
     gap: 4px;
+  }
+
+  .tabs {
+    width: 100%;
+    overflow-x: auto;
   }
 
   .tab {
@@ -982,6 +1180,12 @@
 
   .body {
     padding: 14px;
+  }
+
+  .mappingIntro {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .meetingRow {

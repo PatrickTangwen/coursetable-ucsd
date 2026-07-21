@@ -109,6 +109,61 @@ function worksheetCourse(listing: CatalogListing): WorksheetCourse {
 }
 
 describe('calendar export', () => {
+  it('hides Fall 2026 section naming from Worksheet calendar events', () => {
+    const listing = makeListing({
+      courseCode: 'DOC-001',
+      crn: 101,
+      section: '001-000-LE + 001-001-DI',
+      meetings: [
+        {
+          days_of_week: dayMask(1),
+          start_time: '10:00',
+          end_time: '10:50',
+        },
+      ],
+    });
+
+    const exportResult = getCalendarExport(
+      'rbc',
+      [worksheetCourse(listing)],
+      'FA26' as Season,
+    );
+
+    expect(exportResult.events).toHaveLength(1);
+    expect(exportResult.events[0]).toMatchObject({
+      title: 'DOC-001',
+      section: '',
+      description: 'DOC-001 title',
+    });
+  });
+
+  it('preserves existing section labels in non-Fall-2026 calendar events', () => {
+    const listing = makeListing({
+      courseCode: 'CSE 3',
+      crn: 102,
+      section: 'A00',
+      season: 'SP26' as Season,
+      meetings: [
+        {
+          days_of_week: dayMask(1),
+          start_time: '10:00',
+          end_time: '10:50',
+        },
+      ],
+    });
+
+    const [event] = getCalendarExport(
+      'rbc',
+      [worksheetCourse(listing)],
+      'SP26' as Season,
+    ).events;
+
+    expect(event).toMatchObject({
+      title: 'CSE 3 A00 Lecture',
+      section: 'A00',
+    });
+  });
+
   it('exports timed ICS events across the configured Term Date Range', () => {
     const listing = makeListing({
       courseCode: 'CSE 3',

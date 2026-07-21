@@ -417,10 +417,10 @@ describe('TSS catalog response adapter', () => {
     expect(events).toHaveLength(4);
     expect(events.map((event) => event.day)).toEqual([1, 3, 5, 1]);
     expect(events[0]).toMatchObject({
-      title: 'CAT-001 001-000-LE + 001-001-DI Lecture',
+      title: 'CAT-001',
       location: 'PRICE THTRE',
       meetingType: 'Lecture',
-      section: '001-000-LE + 001-001-DI',
+      section: '',
       date: null,
     });
     expect(events[3]).toMatchObject({
