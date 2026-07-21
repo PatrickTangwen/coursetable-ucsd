@@ -22,29 +22,41 @@ const barClass = {
 export default function SeatsDisplay({
   enrolled,
   capacity,
+  availableSeats,
   variant = 'default',
 }: {
   readonly enrolled: number | null;
   readonly capacity: number | null;
+  readonly availableSeats?: number | null;
   readonly variant?: 'default' | 'subrow';
 }) {
-  if (enrolled === null || capacity === null || capacity <= 0) return null;
-  const availableSeats = Math.max(capacity - enrolled, 0);
-  const status = seatsColor(enrolled, capacity);
-  const availablePct = Math.min((availableSeats / capacity) * 100, 100);
+  const hasCapacity = enrolled !== null && capacity !== null && capacity > 0;
+  const displayedAvailableSeats = hasCapacity
+    ? Math.max(capacity - enrolled, 0)
+    : availableSeats;
+  if (displayedAvailableSeats === null || displayedAvailableSeats === undefined)
+    return null;
+  const status = hasCapacity ? seatsColor(enrolled, capacity) : 'available';
+  const availablePct = hasCapacity
+    ? Math.min((displayedAvailableSeats / capacity) * 100, 100)
+    : null;
 
   if (variant === 'subrow') {
     return (
       <div className={clsx(styles.container, styles.subrow)}>
         <span className={clsx(styles.text, textClass[status])}>
-          {availableSeats}/{capacity}
+          {hasCapacity
+            ? `${displayedAvailableSeats}/${capacity}`
+            : `${displayedAvailableSeats} left`}
         </span>
-        <div className={styles.bar}>
-          <div
-            className={clsx(styles.barFill, barClass[status])}
-            style={{ width: `${availablePct}%` }}
-          />
-        </div>
+        {availablePct !== null && (
+          <div className={styles.bar}>
+            <div
+              className={clsx(styles.barFill, barClass[status])}
+              style={{ width: `${availablePct}%` }}
+            />
+          </div>
+        )}
       </div>
     );
   }
@@ -52,7 +64,7 @@ export default function SeatsDisplay({
   return (
     <div className={styles.container}>
       <span className={clsx(styles.text, textClass[status])}>
-        {availableSeats} left
+        {displayedAvailableSeats} left
       </span>
     </div>
   );

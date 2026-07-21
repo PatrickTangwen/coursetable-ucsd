@@ -7,6 +7,7 @@ export function createCoursePlanningListingFixture(
   const [subject = 'CSE', courseNumber = '3'] = courseCode.split(' ');
   return {
     generatedAt: '2026-07-17T12:00:00.000Z',
+    catalogCoverage: { complete: true, continuationNeeded: false },
     evaluation: {
       overallRating: null,
       workload: null,
@@ -41,6 +42,7 @@ export function createCoursePlanningListingFixture(
       availability: {
         enrolled: null,
         capacity: null,
+        availableSeats: null,
         waitlistCount: 0,
         snapshotTimestamp: null,
       },

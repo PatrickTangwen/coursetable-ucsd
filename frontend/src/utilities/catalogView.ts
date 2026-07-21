@@ -113,7 +113,8 @@ type SectionInput = {
   }[];
   enrolled: number | null;
   capacity: number | null;
-  waitlist_count: number;
+  available_seats: number | null;
+  waitlist_count: number | null;
 };
 
 export type OfferingGroup = {
@@ -122,6 +123,7 @@ export type OfferingGroup = {
   sharedMeetings: SectionInput['meetings'];
   totalEnrolled: number;
   totalCapacity: number;
+  totalAvailableSeats: number | null;
 };
 
 function getFamilyPrefix(code: string | null): string {
@@ -174,9 +176,13 @@ export function buildOfferingGroups(sections: SectionInput[]): OfferingGroup[] {
     const shared = findSharedMeetings(familySections);
     let totalEnrolled = 0;
     let totalCapacity = 0;
+    let totalAvailableSeats = 0;
+    let hasCompleteAvailableSeats = true;
     for (const s of familySections) {
       if (s.enrolled !== null) totalEnrolled += s.enrolled;
       if (s.capacity !== null) totalCapacity += s.capacity;
+      if (s.available_seats === null) hasCompleteAvailableSeats = false;
+      else totalAvailableSeats += s.available_seats;
     }
     groups.push({
       familyPrefix: prefix,
@@ -184,6 +190,10 @@ export function buildOfferingGroups(sections: SectionInput[]): OfferingGroup[] {
       sharedMeetings: shared,
       totalEnrolled,
       totalCapacity,
+      totalAvailableSeats:
+        familySections.length === 1 && hasCompleteAvailableSeats
+          ? totalAvailableSeats
+          : null,
     });
   }
 

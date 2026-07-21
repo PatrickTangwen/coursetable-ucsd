@@ -11,6 +11,7 @@ import {
   type CoursePlanningSection,
 } from './coursePlanningViewModels';
 import type { Crn, Season } from './graphql-types';
+import { normalizeTssCatalogSnapshot } from './tssCatalogSnapshot';
 import type {
   CatalogBySeasonQuery,
   EvalsBySeasonQuery,
@@ -61,7 +62,7 @@ export type UcsdCalendarDetails = {
   meetings: LegacyUcsdMeeting[];
   enrolled: number | null;
   capacity: number | null;
-  waitlist_count: number;
+  waitlist_count: number | null;
   source_note: string | null;
 };
 
@@ -274,7 +275,9 @@ export function adaptCoursePlanningCatalog(
 export function catalogResponseToCatalogData(
   response: unknown,
 ): CatalogResponseData {
-  const catalog = normalizePublishedSnapshot(response);
+  const catalog =
+    normalizePublishedSnapshot(response) ??
+    normalizeTssCatalogSnapshot(response);
   if (catalog) {
     return {
       coursePlanningCatalog: catalog,

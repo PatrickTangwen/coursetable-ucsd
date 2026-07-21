@@ -164,7 +164,7 @@ export function getSectionVaryingMeetings(
 export function formatUcsdAvailability(
   enrolled: number | null,
   capacity: number | null,
-  waitlistCount = 0,
+  waitlistCount: number | null = null,
 ): UcsdAvailabilityDisplay {
   if (enrolled === null || capacity === null || capacity <= 0) {
     return {
@@ -176,7 +176,10 @@ export function formatUcsdAvailability(
 
   if (enrolled >= capacity) {
     return {
-      main: waitlistCount > 0 ? `FULL · WL(${waitlistCount})` : 'FULL',
+      main:
+        waitlistCount !== null && waitlistCount > 0
+          ? `FULL · WL(${waitlistCount})`
+          : 'FULL',
       detail: '',
       status: 'full',
     };

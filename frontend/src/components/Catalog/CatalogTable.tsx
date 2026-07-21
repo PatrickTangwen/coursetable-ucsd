@@ -99,6 +99,7 @@ function groupListingsByCourse(listings: CoursePlanningListing[]): CourseRow[] {
         })),
         enrolled: section.availability.enrolled,
         capacity: section.availability.capacity,
+        available_seats: section.availability.availableSeats,
         waitlist_count: section.availability.waitlistCount,
       };
     });
@@ -595,6 +596,7 @@ function FlatRow({
         <SeatsDisplay
           enrolled={group.totalEnrolled}
           capacity={group.totalCapacity}
+          availableSeats={group.totalAvailableSeats}
         />
       </div>
     </div>
@@ -647,6 +649,7 @@ function SubRow({
         <SeatsDisplay
           enrolled={section.enrolled}
           capacity={section.capacity}
+          availableSeats={section.available_seats}
           variant="subrow"
         />
       </div>
@@ -852,6 +855,7 @@ function MobileFlatCard({
           <SeatsDisplay
             enrolled={group.totalEnrolled}
             capacity={group.totalCapacity}
+            availableSeats={group.totalAvailableSeats}
           />
         </div>
       </div>
@@ -900,6 +904,7 @@ function MobileSubRow({
         <SeatsDisplay
           enrolled={section.enrolled}
           capacity={section.capacity}
+          availableSeats={section.available_seats}
           variant="subrow"
         />
         <div className={styles.mobileAddAction}>

@@ -55,8 +55,14 @@ export type CoursePlanningInstructor = {
 export type CoursePlanningAvailability = {
   enrolled: number | null;
   capacity: number | null;
-  waitlistCount: number;
+  availableSeats: number | null;
+  waitlistCount: number | null;
   snapshotTimestamp: string | null;
+};
+
+export type CoursePlanningCoverage = {
+  complete: boolean;
+  continuationNeeded: boolean;
 };
 
 export type CoursePlanningSection = {
@@ -94,6 +100,7 @@ export type CoursePlanningCatalog = {
   generatedAt: string;
   termDateRange: CoursePlanningTermDateRange | null;
   sourceTimestamps: CoursePlanningSourceTimestamps;
+  coverage: CoursePlanningCoverage;
   courses: CoursePlanningCourse[];
 };
 
@@ -102,6 +109,7 @@ export type CoursePlanningListing = {
   section: CoursePlanningSection;
   generatedAt: string;
   termDateRange?: CoursePlanningTermDateRange | null;
+  catalogCoverage: CoursePlanningCoverage;
   evaluation: CoursePlanningEvaluation;
 };
 
@@ -135,6 +143,7 @@ export function flattenCoursePlanningCatalog(
       section,
       generatedAt: catalog.generatedAt,
       termDateRange: catalog.termDateRange,
+      catalogCoverage: catalog.coverage,
       evaluation: {
         overallRating: null,
         workload: null,
@@ -265,6 +274,10 @@ const sectionSchema = z
       availability: {
         enrolled: section.enrolled,
         capacity: section.capacity,
+        availableSeats:
+          section.enrolled === null || section.capacity === null
+            ? null
+            : Math.max(section.capacity - section.enrolled, 0),
         waitlistCount: section.waitlist_count,
       },
       sourceNote: sourceNote(section.raw),
@@ -345,6 +358,10 @@ export const publishedSnapshotSchema = z
         generalCatalog: snapshot.source_timestamps.general_catalog,
         instructorGradeArchive:
           snapshot.source_timestamps.instructor_grade_archive,
+      },
+      coverage: {
+        complete: true,
+        continuationNeeded: false,
       },
       courses: snapshot.courses.map((course) => ({
         ...course,

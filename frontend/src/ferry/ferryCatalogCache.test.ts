@@ -35,6 +35,7 @@ const catalog: CoursePlanningCatalog = {
     generalCatalog: null,
     instructorGradeArchive: null,
   },
+  coverage: { complete: true, continuationNeeded: false },
   courses: [
     {
       courseId: 'CSE:1',
@@ -62,6 +63,7 @@ const catalog: CoursePlanningCatalog = {
           availability: {
             enrolled: 80,
             capacity: 100,
+            availableSeats: 20,
             waitlistCount: 0,
             snapshotTimestamp: '2026-07-17T10:00:00.000Z',
           },

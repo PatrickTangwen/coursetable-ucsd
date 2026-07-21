@@ -102,6 +102,7 @@ describe('Published Snapshot Course Planning view-model seam', () => {
         generalCatalog: '2026-07-16T10:00:00.000Z',
         instructorGradeArchive: '2026-07-15T10:00:00.000Z',
       },
+      coverage: { complete: true, continuationNeeded: false },
       courses: [
         {
           courseId: 'CSE:1',
@@ -162,6 +163,7 @@ describe('Published Snapshot Course Planning view-model seam', () => {
               availability: {
                 enrolled: 80,
                 capacity: 100,
+                availableSeats: 20,
                 waitlistCount: 2,
                 snapshotTimestamp: '2026-07-17T10:00:00.000Z',
               },
@@ -187,6 +189,7 @@ describe('Published Snapshot Course Planning view-model seam', () => {
         generalCatalog: '2026-07-16T10:00:00.000Z',
         instructorGradeArchive: '2026-07-15T10:00:00.000Z',
       },
+      coverage: { complete: true, continuationNeeded: false },
       courses: [
         {
           courseId: 'CSE:1',
@@ -228,6 +231,7 @@ describe('Published Snapshot Course Planning view-model seam', () => {
               availability: {
                 enrolled: 80,
                 capacity: 100,
+                availableSeats: 20,
                 waitlistCount: 2,
                 snapshotTimestamp: '2026-07-17T10:00:00.000Z',
               },

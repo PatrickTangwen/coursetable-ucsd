@@ -46,6 +46,11 @@ export default function CatalogListView() {
     );
   }, [searchData, typeFilters]);
 
+  const hasPartialCoverage = searchData?.some(
+    ({ catalogCoverage }) =>
+      !catalogCoverage.complete || catalogCoverage.continuationNeeded,
+  );
+
   const handleOpenModal = useCallback(
     (listing: CoursePlanningListing) => {
       navigate(
@@ -65,6 +70,12 @@ export default function CatalogListView() {
 
   return (
     <div className={styles.page}>
+      {hasPartialCoverage && (
+        <output className={styles.coverageWarning}>
+          Partial schedule snapshot: the source reports that more data is
+          needed, so some sections or meetings may be missing.
+        </output>
+      )}
       <CatalogTable
         data={filteredData}
         loading={coursesLoading}

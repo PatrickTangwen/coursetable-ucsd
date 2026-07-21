@@ -200,6 +200,7 @@ function makeSection({
   meetings,
   enrolled = 30,
   capacity = 50,
+  availableSeats = null,
   instructors = ['Staff'],
 }: {
   sectionCode: string;
@@ -207,6 +208,7 @@ function makeSection({
   meetings: { [key: string]: unknown }[];
   enrolled?: number | null;
   capacity?: number | null;
+  availableSeats?: number | null;
   instructors?: string[];
 }) {
   return {
@@ -230,12 +232,53 @@ function makeSection({
     })),
     enrolled,
     capacity,
+    available_seats: availableSeats,
     waitlist_count: 0,
     raw: {},
   };
 }
 
 describe('buildOfferingGroups', () => {
+  it('preserves explicit available-seat totals when capacity is unavailable', () => {
+    const sections = [
+      makeSection({
+        sectionCode: 'A01',
+        meetingType: 'Package',
+        meetings: [],
+        enrolled: null,
+        capacity: null,
+        availableSeats: 16,
+      }),
+    ];
+
+    expect(buildOfferingGroups(sections)[0]).toMatchObject({
+      totalEnrolled: 0,
+      totalCapacity: 0,
+      totalAvailableSeats: 16,
+    });
+  });
+
+  it('does not sum explicit seats across booking choices with shared constraints', () => {
+    const sections = [
+      makeSection({
+        sectionCode: 'A01',
+        meetingType: 'Package',
+        meetings: [],
+        availableSeats: 16,
+      }),
+      makeSection({
+        sectionCode: 'A02',
+        meetingType: 'Package',
+        meetings: [],
+        availableSeats: 12,
+      }),
+    ];
+
+    expect(buildOfferingGroups(sections)[0]).toMatchObject({
+      totalAvailableSeats: null,
+    });
+  });
+
   it('handles single section (CSE 5 pattern)', () => {
     const sections = [
       makeSection({

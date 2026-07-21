@@ -8,6 +8,7 @@ import {
 
 const listing: CoursePlanningListing = {
   generatedAt: '2026-07-17T12:00:00.000Z',
+  catalogCoverage: { complete: true, continuationNeeded: false },
   evaluation: {
     overallRating: null,
     workload: null,
@@ -56,6 +57,7 @@ const listing: CoursePlanningListing = {
     availability: {
       enrolled: 90,
       capacity: 100,
+      availableSeats: 10,
       waitlistCount: 0,
       snapshotTimestamp: '2026-07-17T10:00:00.000Z',
     },

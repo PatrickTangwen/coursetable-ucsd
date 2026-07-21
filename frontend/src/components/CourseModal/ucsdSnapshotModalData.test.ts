@@ -106,12 +106,14 @@ function listing({
       availability: {
         enrolled,
         capacity,
+        availableSeats: capacity - enrolled,
         waitlistCount: waitlist,
         snapshotTimestamp: '2026-06-20T00:00:00.000Z',
       },
       sourceNote: 'fixture',
     },
     generatedAt: '2026-06-20T00:00:00.000Z',
+    catalogCoverage: { complete: true, continuationNeeded: false },
     evaluation: {
       overallRating: null,
       workload: null,
