@@ -1,12 +1,15 @@
 {
-  "last_update": "2026-07-21T20:45:22.835Z",
+  "last_update": "2026-07-21T20:51:57.770Z",
   "terms": [
     {
       "term": "FA26",
       "label": "Fall 2026",
-      "date_range": null,
+      "date_range": {
+        "start": "2026-09-24",
+        "end": "2026-12-12"
+      },
       "frozen": false,
-      "generated_at": "2026-07-21T20:45:22.835Z",
+      "generated_at": "2026-07-21T20:51:57.770Z",
       "snapshot_path": "catalogs/public/FA26.json",
       "manifest_path": "catalogs/import-manifests/FA26.json"
     }

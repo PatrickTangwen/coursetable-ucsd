@@ -49,6 +49,9 @@ term_date_ranges:
   S326:
     start: '2026-06-15'
     end: '2026-09-19'
+  FA26:
+    start: '2026-09-24'
+    end: '2026-12-12'
 configured_subjects:
   - CSE
   - MATH

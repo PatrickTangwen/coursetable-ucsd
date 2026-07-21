@@ -122,6 +122,17 @@ describe('Catalog Snapshot config', () => {
 
     expect(config).toEqual(makeConfig());
   });
+
+  it('keeps the Fall 2026 Term Date Range available for calendar export', async () => {
+    const config = await loadCatalogSnapshotConfig(
+      'config/catalog-snapshot.ucsd.yaml',
+    );
+
+    expect(config.term_date_ranges?.FA26).toEqual({
+      start: '2026-09-24',
+      end: '2026-12-12',
+    });
+  });
 });
 
 describe('Catalog Snapshot validation', () => {
