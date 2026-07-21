@@ -1,73 +1,868 @@
-import clsx from 'clsx';
+import { Helmet } from 'react-helmet';
 import styles from './Privacy.module.css';
-import { TextComponent } from '../components/Typography';
 
-<div className={clsx(styles.container, 'mx-auto')}>
-<TextComponent type="secondary">
+<Helmet>
+  <title>Privacy Policy | SunGrid</title>
+  <meta
+    name="description"
+    content="How SunGrid collects, uses, stores, and shares information."
+  />
+</Helmet>
 
-# SunGrid privacy notice
+<article className={styles.policy}>
+  <section className={styles.hero}>
 
-_Last updated July 17, 2026_
+# Privacy Policy
 
-SunGrid is a UCSD course discovery and schedule-planning service. This notice
-describes the information the service uses to provide its public catalog,
-Worksheet, and optional account features.
+**Last updated: July 21, 2026**
 
-## Information SunGrid uses
+This Privacy Policy explains how SunGrid (“SunGrid,” “we,” “us,” or “our”) collects, uses, stores, and shares information when you access or use the SunGrid website and its related services.
 
-- **Public use.** You can browse the catalog and plan a signed-out Worksheet
-  without providing an email address. Signed-out Worksheet data is stored in
-  your browser.
-- **Account use.** If you sign in, SunGrid uses your verified `@ucsd.edu` email
-  address and an internal account identifier to authenticate you and associate
-  account-owned data such as Saved Worksheets and Saved Searches with you.
-- **Verification delivery.** SunGrid sends a one-time verification message to
-  the email address you provide. A short-lived delivery-audit record may retain
-  the addressed email and delivery outcome for support and abuse prevention; it
-  does not contain the verification code, email body, session, or provider
-  credential.
-- **Technical data.** The hosting, security, and error-monitoring systems may
-  process ordinary request and device information needed to operate and protect
-  the service.
+By accessing or using SunGrid, you acknowledge that you have read and understood this Privacy Policy.
 
-SunGrid does not use third-party social-login account data for UCSD sign-in.
+> **Independent service:** SunGrid is independently developed and is not affiliated with, endorsed by, sponsored by, operated by, or officially connected to UC San Diego, the University of California, or any other educational institution.
 
-## How information is used
+  </section>
 
-Information is used only to operate, secure, troubleshoot, and improve SunGrid;
-authenticate UCSD users; deliver verification messages; and persist the account
-features a signed-in user chooses to use. SunGrid does not sell personal
-information or use it for third-party advertising.
+<nav className={styles.toc} aria-label="Privacy policy sections">
+  <p className={styles.tocLabel}>On this page</p>
+  <div className={styles.tocLinks}>
+    <a href="#at-a-glance">Privacy at a glance</a>
+    <a href="#scope">1. Scope</a>
+    <a href="#information-we-collect">2. Information we collect</a>
+    <a href="#information-not-collected">3. Information we do not collect</a>
+    <a href="#how-we-use-information">4. How we use information</a>
+    <a href="#how-we-share-information">5. How we share information</a>
+    <a href="#no-sale">6. No sale of personal information</a>
+    <a href="#analytics">7. Analytics and tracking</a>
+    <a href="#retention">8. Data retention</a>
+    <a href="#security">9. Data security</a>
+    <a href="#worksheet-availability">10. Worksheet availability</a>
+    <a href="#choices">11. Your choices and requests</a>
+    <a href="#account-deletion">12. Account deletion</a>
+    <a href="#school-email">13. School email addresses</a>
+    <a href="#third-party-services">14. Third-party services</a>
+    <a href="#children">15. Children’s privacy</a>
+    <a href="#international-users">16. International users</a>
+    <a href="#changes">17. Policy changes</a>
+    <a href="#disclaimer">18. Disclaimer</a>
+    <a href="#no-affiliation">19. No university affiliation</a>
+    <a href="#contact">20. Contact us</a>
+  </div>
+</nav>
 
-## Service providers and storage
+  <div className={styles.body}>
 
-SunGrid relies on infrastructure and delivery providers to host the application,
-store account and session data, send verification messages, and monitor errors.
-Those providers process information on SunGrid's behalf as needed to provide
-their services. Course catalog data comes from public UCSD sources and is not
-linked to an individual user's account.
+## Privacy at a Glance (#at-a-glance)
 
-## Retention and choices
+SunGrid is designed to collect only the information reasonably necessary to provide account access, save worksheets, operate the website, investigate technical problems, prevent abuse, and improve the service.
 
-Verification-delivery audit records are designed to expire after seven days.
-Hosted login sessions have a fixed thirty-day lifetime. Account-owned planning
-data remains until it is deleted through the service or removed in response to a
-maintainer-supported request. You can remove signed-out Worksheet data by
-clearing this site's browser storage.
+In particular:
 
-## Security
+- A school email address is required to sign in to SunGrid.
+- SunGrid uses passwordless authentication.
+- A temporary six-digit login code is sent to the school email address provided by the user.
+- Users do not create or maintain a password specifically for SunGrid.
+- SunGrid does not request or store your school email password.
+- Courses, sections, worksheets, and related planning preferences may be stored so they can be restored after you sign in.
+- Limited technical information may be recorded automatically for security, troubleshooting, and website operation.
+- SunGrid does not use your login to access your school email inbox or official university records.
+- SunGrid does not sell or rent personal information.
+- School email addresses are not used for unrelated promotional marketing without consent.
+- You should not submit passwords, student identification numbers, enrollment codes, financial information, or other sensitive personal information.
 
-SunGrid uses access controls and environment separation intended to protect
-account and operational data. No internet service can guarantee absolute
-security, so please report a suspected security or privacy problem promptly.
+This summary is provided for convenience. The full Privacy Policy below controls.
 
-## Questions and requests
+## 1. Scope of This Privacy Policy (#scope)
 
-To report a privacy concern or request access to or deletion of account data,
-open a private maintainer contact if one is available. Otherwise, create a
-[GitHub issue](https://github.com/PatrickTangwen/coursetable-ucsd/issues/new)
-without including sensitive personal information; a maintainer can arrange a
-private follow-up.
+This Privacy Policy applies to information processed through:
 
-</TextComponent>
-</div>
+- The SunGrid website
+- The SunGrid login and account system
+- Saved worksheets and course-planning features
+- Course-issue reports and feedback forms
+- Related services operated by SunGrid
+
+This Privacy Policy does not apply to services operated independently by third parties, including:
+
+- UC San Diego websites or systems
+- The Triton Student System
+- University authentication or email systems
+- External course catalogs
+- Department websites
+- Third-party hosting providers
+- Third-party authentication providers
+- Third-party analytics or monitoring providers
+- Third-party feedback services
+- Other websites linked from SunGrid
+
+Those third-party services maintain their own terms, privacy policies, and security practices.
+
+## 2. Information We Collect (#information-we-collect)
+
+### 2.1 Account information
+
+When you sign in to SunGrid, we may collect or process:
+
+- Your school email address
+- A user or account identifier associated with your email address
+- The domain associated with your school email address
+- Authentication status
+- Login and verification timestamps
+- Session information
+- Limited technical information related to login attempts
+
+Your school email address is used primarily to:
+
+- Send a temporary six-digit login code
+- Verify that you currently have access to the email address
+- Identify and authenticate your SunGrid account
+- Associate saved worksheets with your account
+- Prevent spam, abuse, and unauthorized access
+- Send essential account, privacy, or security communications where necessary
+
+SunGrid does not use your school email address to access:
+
+- Your school email inbox
+- Your email messages or attachments
+- Your university account password
+- Your official student record
+- Your grades
+- Your tuition or billing information
+- Your official enrollment status
+- Your university files or documents
+
+### 2.2 Passwordless authentication and six-digit login codes
+
+SunGrid uses passwordless email authentication.
+
+To sign in, you provide your school email address. SunGrid or its authentication provider sends a temporary six-digit login code to that email address. You then enter the code on SunGrid to confirm that you have access to the email account.
+
+You do not create a password for SunGrid.
+
+SunGrid does not request, receive, or intentionally store:
+
+- Your school email password
+- Your university account password
+- A separate SunGrid password
+- Access credentials for the Triton Student System
+- Access credentials for another university system
+- The contents of your email inbox
+
+The six-digit login code is temporary. It may expire after a limited period, become invalid after use, or become invalid after a new code is requested.
+
+Do not share a login code with another person. Anyone who has access to both your school email account and an active login code may be able to access your SunGrid account.
+
+Authentication and login-email delivery may be handled by **SunGrid and its email delivery provider, Resend**. That provider may process limited information such as:
+
+- Your email address
+- Authentication requests
+- Login-code delivery status
+- IP address
+- Browser or device information
+- Login timestamps
+- Security and abuse-prevention signals
+
+This information is processed as necessary to provide and secure the authentication service.
+
+### 2.3 Saved worksheets and planning information
+
+When you use SunGrid’s planning features, we may store information such as:
+
+- Courses added to a worksheet
+- Selected sections
+- Selected offering groups
+- Worksheet names
+- Academic terms
+- Course arrangement
+- Schedule layout
+- Display preferences
+- Planning-related settings
+- Dates on which worksheets were created or modified
+- Other information you voluntarily add to a worksheet
+
+This information is used to save and restore your planning activity after you sign in.
+
+A worksheet is not an official enrollment record. Adding or saving a course or section on SunGrid does not:
+
+- Enroll you in a course
+- Add you to a waitlist
+- Reserve a seat
+- Drop you from a course
+- Modify your official schedule
+- Update your university student record
+- Submit an enrollment request to a university
+
+### 2.4 Feedback and course-issue reports
+
+When you submit feedback or report a course issue, we may collect:
+
+- The content of your report
+- The affected course
+- The affected section or offering group
+- The academic term
+- The page or tab from which the report was submitted
+- Screenshots or files you voluntarily upload
+- Links or supporting context you provide
+- Your email address, if you choose to provide it
+- The page URL
+- Limited technical information associated with the report
+
+SunGrid may use a third-party service, such as Tally, to collect and process feedback submissions.
+
+Do not include any of the following in a feedback submission:
+
+- Passwords
+- Six-digit login codes
+- Student identification numbers
+- Enrollment or authorization codes
+- Financial information
+- Private academic records
+- Government identification
+- Other sensitive personal information
+
+### 2.5 Technical and usage information
+
+When you access or use SunGrid, our servers and service providers may automatically process limited technical information, including:
+
+- IP address
+- Browser type and version
+- Device type
+- Operating system
+- Approximate date and time of access
+- Referring page
+- Pages or features accessed
+- Session identifiers
+- Request logs
+- Server logs
+- Error messages
+- Crash reports
+- Performance information
+- Security-related activity
+- Failed or successful login attempts
+
+This information may be used to:
+
+- Operate the website
+- Maintain account sessions
+- Diagnose errors
+- Investigate outages
+- Monitor performance
+- Protect accounts
+- Prevent fraud, spam, and abuse
+- Detect unauthorized access
+- Improve reliability and functionality
+
+### 2.6 Cookies and browser storage
+
+SunGrid may use cookies, local storage, session storage, or similar browser technologies to:
+
+- Maintain your authenticated session after you enter a valid login code
+- Keep you signed in for an appropriate period
+- Remember interface preferences
+- Restore worksheet state
+- Save temporary planning information
+- Prevent abuse and unauthorized access
+- Diagnose technical problems
+
+These technologies do not contain your school email password because SunGrid does not request or store that password.
+
+Some cookies or browser-storage items may be necessary for core website functionality. Blocking or deleting them may:
+
+- Sign you out
+- Prevent worksheets from saving correctly
+- Remove stored preferences
+- Prevent certain features from working
+
+### 2.7 Information received from service providers
+
+SunGrid may receive limited information from service providers used to operate the website, including:
+
+- Authentication confirmation
+- Login-code delivery status
+- Hosting and server logs
+- Database activity
+- Error and performance reports
+- Security alerts
+- Email-delivery status
+- Feedback-form submissions
+
+The exact information received depends on the third-party services used by SunGrid.
+
+## 3. Information We Do Not Intentionally Collect (#information-not-collected)
+
+SunGrid is not designed to collect or store:
+
+- Your school email password
+- Your university account password
+- A separate SunGrid password
+- The contents of your school email inbox
+- Email messages or attachments
+- Student identification numbers
+- Social Security numbers
+- Financial or payment information
+- Credit or debit card information
+- Government-issued identification
+- Health or medical information
+- Official transcripts
+- Official grades
+- Disciplinary records
+- Immigration records
+- Precise physical location
+- Your official university enrollment record
+- Enrollment codes
+- Authorization codes
+- Login credentials for the Triton Student System
+
+Please do not submit sensitive information through:
+
+- Worksheets
+- Feedback forms
+- Course-issue reports
+- Screenshots
+- File uploads
+- Support messages
+- Other website fields
+
+If sensitive information is submitted unintentionally, we may remove it when identified. However, we cannot guarantee that it will be identified or deleted immediately from every active system, log, cache, backup, or third-party service.
+
+## 4. How We Use Information (#how-we-use-information)
+
+We may use information collected through SunGrid to:
+
+- Create and manage SunGrid accounts
+- Send six-digit login codes
+- Authenticate users
+- Maintain user sessions
+- Save and restore worksheets
+- Associate planning data with the correct account
+- Provide course-planning features
+- Maintain user preferences
+- Respond to feedback or support requests
+- Investigate inaccurate or missing course information
+- Diagnose errors and outages
+- Improve website functionality and usability
+- Monitor website performance
+- Protect users and website infrastructure
+- Prevent spam, fraud, abuse, or unauthorized access
+- Enforce applicable website rules
+- Comply with legal obligations
+- Establish, exercise, or defend legal claims
+
+We do not use your school email address to send unrelated promotional or marketing messages unless you separately agree to receive them.
+
+## 5. How We Share Information (#how-we-share-information)
+
+SunGrid does not sell or rent personal information.
+
+We may disclose or allow limited information to be processed in the circumstances described below.
+
+### 5.1 Service providers
+
+Information may be processed by companies that help us operate SunGrid, including providers of:
+
+- Passwordless authentication
+- Transactional email delivery
+- Cloud hosting
+- Databases
+- File storage
+- Error monitoring
+- Website security
+- Analytics, if enabled
+- Feedback forms
+- Content delivery
+- Infrastructure services
+
+These providers may process information only as needed to provide their services to SunGrid. Their handling of information is also governed by their own terms, privacy policies, and security practices.
+
+Current service categories may include:
+
+| Service category | Provider                                            | Purpose                                                |
+| ---------------- | --------------------------------------------------- | ------------------------------------------------------ |
+| Authentication   | SunGrid                                             | Passwordless login and code verification               |
+| Email delivery   | Resend                                              | Delivery of six-digit login codes and essential emails |
+| Hosting          | Cloudflare                                          | Website and server hosting                             |
+| Database         | Neon                                                | Account and worksheet storage                          |
+| File storage     | Tally, when voluntarily included in a feedback form | Storage of uploaded screenshots or files               |
+| Feedback forms   | Tally                                               | Course-issue reports and feedback                      |
+| Error monitoring | Sentry                                              | Error diagnosis and performance monitoring             |
+| Analytics        | None currently                                      | General website usage analysis                         |
+
+### 5.2 Legal, security, and safety reasons
+
+We may preserve or disclose information when we reasonably believe it is necessary to:
+
+- Comply with applicable law
+- Comply with a valid legal process or governmental request
+- Protect the security or integrity of SunGrid
+- Investigate fraud, spam, abuse, or unauthorized access
+- Protect the rights, safety, or property of users, developers, operators, or others
+- Establish, exercise, or defend legal claims
+- Prevent harm or security incidents
+
+### 5.3 Changes to the project or its ownership
+
+If SunGrid, the project, or its assets are transferred, reorganized, merged, discontinued, or taken over by another operator, information associated with the service may be transferred as part of that change.
+
+Where reasonably practical, users will be informed of a material change in the operator or in how their information is handled.
+
+### 5.4 With your consent or direction
+
+We may share information when you explicitly ask us to do so or otherwise provide consent.
+
+## 6. No Sale of Personal Information (#no-sale)
+
+SunGrid does not currently sell personal information for monetary compensation.
+
+SunGrid also does not currently:
+
+- Rent school email addresses
+- Use school email addresses to build advertising profiles
+- Share personal information for cross-context behavioral advertising
+- Permit advertisers to access saved worksheets
+- Use saved course plans for targeted advertising
+
+If these practices change, this Privacy Policy will be updated before the new practice begins, and any choices required by applicable law will be provided.
+
+## 7. Analytics and Tracking (#analytics)
+
+SunGrid may process basic traffic, performance, security, and server information as part of operating the website.
+
+### Current analytics practice
+
+SunGrid does not currently use third-party advertising trackers or cross-site behavioral analytics.
+
+Cloudflare, Sentry, and other infrastructure providers may still process basic technical information as necessary to host, secure, monitor, and troubleshoot the service.
+
+### Do Not Track
+
+There is no universally accepted technical standard for browser-based “Do Not Track” signals. SunGrid may not respond differently when such a signal is received.
+
+SunGrid does not permit third parties to use the website for unrelated cross-site behavioral advertising unless this policy is updated to state otherwise.
+
+## 8. Data Retention (#retention)
+
+SunGrid retains information only for as long as reasonably necessary for the purposes described in this Privacy Policy, including:
+
+- Operating the website
+- Maintaining accounts
+- Saving worksheets
+- Providing login access
+- Preserving security logs
+- Investigating abuse
+- Resolving disputes
+- Complying with legal obligations
+- Enforcing applicable agreements
+
+In general:
+
+- Account information may be retained while an account remains active.
+- Saved worksheets may be retained until they are deleted, the associated account is deleted, or the service is discontinued.
+- Feedback and support correspondence may be retained while an issue is investigated and for a reasonable period afterward.
+- Security and server logs may be retained for a limited operational or security period.
+- Authentication and email-delivery records may be retained by the relevant providers under their own retention practices.
+- Backup copies may remain for an additional period before being overwritten or deleted.
+
+SunGrid does not guarantee permanent storage of any:
+
+- Account
+- Worksheet
+- Saved course
+- User preference
+- Screenshot
+- Uploaded file
+- Issue report
+- Feedback submission
+- Other information
+
+Information may be deleted, corrupted, lost, overwritten, or become unavailable because of:
+
+- Maintenance
+- Software errors
+- Database failures
+- Provider failures
+- Security incidents
+- Account problems
+- Infrastructure changes
+- Project changes
+- Discontinuation of the service
+
+Users should maintain a separate record of any important course plan.
+
+## 9. Data Security (#security)
+
+SunGrid uses reasonable administrative, technical, and organizational measures intended to protect information from unauthorized access, loss, misuse, alteration, or disclosure.
+
+Depending on SunGrid’s infrastructure, these measures may include:
+
+- Encrypted network connections
+- Passwordless authentication
+- Time-limited or single-use login codes
+- Restricted database access
+- Access logging
+- Secure session management
+- Infrastructure provided by established service providers
+- Software updates and dependency maintenance
+- Backups or recovery procedures, where available
+
+However, no website, database, email-delivery system, network transmission, storage system, or authentication service can be guaranteed to be completely secure.
+
+You use SunGrid and submit information at your own risk.
+
+SunGrid cannot guarantee that:
+
+- Unauthorized parties will never defeat security measures
+- An email account will never be compromised
+- Login codes will always be delivered correctly
+- Information will never be accessed without authorization
+- Information will never be disclosed, altered, corrupted, or lost
+- Service providers will never experience a security incident
+- The website will always be free from vulnerabilities
+
+To help protect your SunGrid account:
+
+- Do not share a six-digit login code with anyone.
+- Do not forward SunGrid login emails to another person.
+- Enter a login code only on the official SunGrid website.
+- Never provide your school email password to SunGrid.
+- Protect access to your school email account.
+- Use appropriate security settings for your email account.
+- Sign out when using a shared or public device.
+- Report suspected unauthorized access promptly.
+
+## 10. Worksheet Availability and Data Loss (#worksheet-availability)
+
+SunGrid is in an early stage of development.
+
+Its server capacity, database behavior, synchronization process, backup systems, and reliability may not have been fully tested under every possible:
+
+- Traffic level
+- Device
+- Browser
+- Network condition
+- Account configuration
+- Usage pattern
+
+Saved worksheets and account information may be affected by:
+
+- Software bugs
+- Database errors
+- Server outages
+- High traffic
+- Maintenance
+- Failed deployments
+- Authentication problems
+- Login-email delivery failures
+- Third-party provider outages
+- Browser or device compatibility problems
+- Data corruption
+- Project discontinuation
+
+You should not rely on SunGrid as the only record of your planned schedule.
+
+SunGrid does not guarantee:
+
+- Continuous or uninterrupted availability
+- Successful saving of every change
+- Permanent retention of worksheets
+- Immediate synchronization across devices
+- Recovery of deleted, corrupted, or lost information
+- Compatibility with every browser or device
+- Advance notice of every interruption
+- Permanent access to your account
+- Delivery of every login email or six-digit code
+
+Keep a separate screenshot, document, or written record of important:
+
+- Courses
+- Sections
+- Offering groups
+- Schedule plans
+- Enrollment alternatives
+
+SunGrid worksheets are planning aids and are not official enrollment records.
+
+## 11. Your Privacy Choices and Requests (#choices)
+
+Subject to applicable law and technical limitations, you may request to:
+
+- Access the account information associated with you
+- Correct inaccurate account information
+- Delete your SunGrid account
+- Delete saved worksheets
+- Request deletion of feedback or files you submitted
+- Ask questions about how your information is handled
+- Withdraw consent where processing is based on consent
+
+Requests may be sent to:
+
+[Sungridplanner@gmail.com](mailto:Sungridplanner@gmail.com)
+
+We may need to verify that the requester controls the relevant school email address before completing a request. Verification may involve sending a new temporary login code or confirmation message to the school email address associated with the account.
+
+Do not send your:
+
+- School email password
+- University password
+- Active six-digit login code
+- Student identification number
+
+We may retain limited information when reasonably necessary for:
+
+- Security
+- Fraud prevention
+- Compliance with legal obligations
+- Resolving disputes
+- Enforcing agreements
+- Maintaining backup integrity
+- Establishing or defending legal claims
+
+Deleting an account may permanently remove access to associated worksheets.
+
+Deleted information may remain temporarily in backups, logs, caches, or systems operated by service providers before being overwritten or removed.
+
+## 12. Account Deletion (#account-deletion)
+
+To request deletion of your SunGrid account, contact:
+
+[Sungridplanner@gmail.com](mailto:Sungridplanner@gmail.com)
+
+Include the school email address associated with your SunGrid account.
+
+Do not include:
+
+- Your school email password
+- Your university password
+- An active six-digit login code
+- Your student identification number
+
+SunGrid may send a new verification message or require another reasonable method of verification before processing the request.
+
+After verification, SunGrid will make reasonable efforts to delete or de-identify:
+
+- Your SunGrid account
+- Saved worksheets associated with the account
+- Related account preferences
+
+Deletion is subject to legitimate:
+
+- Security requirements
+- Legal obligations
+- Backup-retention periods
+- Fraud-prevention needs
+- Technical limitations
+
+Deleting a SunGrid account does not modify or delete information held by:
+
+- UC San Diego
+- The University of California
+- The Triton Student System
+- Your school email provider
+- SunGrid’s authentication provider
+- Another third-party service
+
+## 13. School Email Addresses (#school-email)
+
+A school email address is required to sign in to SunGrid and use account-based features such as saving and restoring worksheets.
+
+When you request access, SunGrid sends a temporary six-digit login code to the school email address you provide.
+
+Entering the correct code confirms that you currently have access to that email account. It does not establish or verify your:
+
+- Enrollment status
+- Student standing
+- Academic program
+- Identity beyond control of the email address
+- Eligibility for any university service
+
+Using a school email address does not mean that:
+
+- SunGrid is operated by your school
+- Your school endorses SunGrid
+- Your school has reviewed SunGrid’s security practices
+- Your school has approved SunGrid’s privacy practices
+- SunGrid has access to your university password
+- SunGrid has access to your email inbox
+- SunGrid has access to official university records
+- SunGrid can modify your official enrollment
+
+Your school email address will not be displayed publicly unless you intentionally include it in publicly visible content.
+
+SunGrid does not use school email addresses to contact:
+
+- Instructors
+- Departments
+- University administrators
+- Other students
+
+on your behalf.
+
+SunGrid may send emails necessary to operate the service, including:
+
+- Six-digit login codes
+- Authentication notices
+- Security notices
+- Responses to support or privacy requests
+- Important notices about SunGrid’s operation or availability
+
+SunGrid does not use school email addresses for unrelated promotional marketing unless the user separately agrees to receive such communications.
+
+## 14. Third-Party Links and Services (#third-party-services)
+
+SunGrid may contain links to:
+
+- The Triton Student System
+- University course catalogs
+- Department websites
+- University resources
+- GitHub
+- Tally
+- Other external websites or services
+
+A link does not mean that SunGrid controls, endorses, or is responsible for the linked service.
+
+SunGrid is not responsible for the:
+
+- Privacy practices
+- Security practices
+- Content
+- Accuracy
+- Availability
+- Data-handling practices
+- Terms of use
+
+of third-party websites or services.
+
+Review the privacy policy of any third-party service before submitting personal information.
+
+## 15. Children’s Privacy (#children)
+
+SunGrid is intended for university students and other users researching university courses.
+
+SunGrid is not directed to children under the age of 13, and we do not knowingly collect personal information from children under 13.
+
+If you believe that a child under 13 has submitted personal information through SunGrid, contact us at:
+
+[Sungridplanner@gmail.com](mailto:Sungridplanner@gmail.com)
+
+We will review the request and, where appropriate, make reasonable efforts to delete the information.
+
+## 16. International Users (#international-users)
+
+SunGrid and its service providers may process and store information in the United States or other jurisdictions where the relevant providers operate.
+
+Privacy and data-protection laws in those locations may differ from the laws of your country, state, or region.
+
+By using SunGrid, you understand that information may be processed in locations outside your place of residence, subject to applicable law.
+
+## 17. Changes to This Privacy Policy (#changes)
+
+SunGrid may update this Privacy Policy as the website, infrastructure, features, service providers, or legal obligations change.
+
+The updated policy will be posted on this page with a revised “Last updated” date.
+
+For material changes, SunGrid may provide additional notice through:
+
+- The website
+- The account interface
+- A notice shown during login
+- Email, where appropriate
+
+Your continued use of SunGrid after an updated Privacy Policy becomes effective indicates acknowledgment of the revised policy, to the extent permitted by applicable law.
+
+## 18. Disclaimer and Limitation of Responsibility (#disclaimer)
+
+This Privacy Policy describes how information is handled. It does not guarantee that SunGrid will always be:
+
+- Available
+- Secure
+- Accurate
+- Complete
+- Error-free
+- Free from interruption
+- Able to preserve every worksheet or account
+
+SunGrid is provided on an **“as is”** and **“as available”** basis.
+
+To the fullest extent permitted by applicable law, the developers, contributors, maintainers, and operators of SunGrid disclaim warranties regarding:
+
+- Data security
+- Data availability
+- Login-email delivery
+- Six-digit code delivery
+- Successful authentication
+- Account availability
+- Permanent worksheet storage
+- Error-free operation
+- Recovery of lost information
+- Availability of third-party services
+- Accuracy or completeness of saved information
+
+To the fullest extent permitted by applicable law, the developers, contributors, maintainers, and operators of SunGrid will not be liable for indirect, incidental, special, consequential, exemplary, or punitive damages arising from or related to:
+
+- Use of SunGrid
+- Inability to use SunGrid
+- Delayed, failed, or incorrectly delivered login codes
+- Unauthorized access to a school email account
+- Unauthorized access to a SunGrid account
+- Loss or corruption of worksheets
+- Loss of saved courses or preferences
+- Account-access problems
+- Service interruptions
+- Security incidents
+- Third-party provider failures
+- Reliance on information stored or displayed by SunGrid
+
+Nothing in this Privacy Policy excludes or limits responsibility where such exclusion or limitation is prohibited by applicable law.
+
+This Privacy Policy is not a substitute for SunGrid’s separate Terms of Use.
+
+## 19. No University Affiliation (#no-affiliation)
+
+SunGrid is an independently developed website.
+
+SunGrid is not affiliated with, endorsed by, sponsored by, operated by, or officially connected to:
+
+- UC San Diego
+- The University of California
+- Any university department
+- Any university registrar
+- Any official student-information system
+
+Requiring a school email address for login does not create an affiliation between SunGrid and the school associated with that email address.
+
+SunGrid cannot access, verify, or modify a user’s official:
+
+- Student record
+- Enrollment
+- Waitlist position
+- Grades
+- Billing information
+- Account holds
+- University status
+
+All official enrollment and student-record actions must be completed through the appropriate university systems.
+
+## 20. Contact Us (#contact)
+
+For privacy questions, account-deletion requests, or concerns about information handled through SunGrid, contact:
+
+**Email:** [Sungridplanner@gmail.com](mailto:Sungridplanner@gmail.com)
+
+**Website:** [Sungridplanner.com](https://sungridplanner.com)
+
+Please do not include:
+
+- Passwords
+- Active login codes
+- Student identification numbers
+- Enrollment codes
+- Financial information
+- Other sensitive personal information
+
+in your message.
+
+_Last updated: July 21, 2026_
+
+  </div>
+</article>

@@ -33,6 +33,17 @@
   min-height: calc(var(--height-navbar) - 1px);
 }
 
+.privacyTopRow {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-right: 40px;
+  padding-left: 40px;
+}
+
+.privacyLogo {
+  font-size: 26px;
+}
+
 .logoLink {
   flex-shrink: 0;
   display: flex;
@@ -145,6 +156,14 @@
   color: var(--ct-accent-text);
 }
 
+@media (min-width: 2200px) {
+  .privacyTopRow {
+    max-width: 1800px;
+    padding-right: 56px;
+    padding-left: 56px;
+  }
+}
+
 /* ── Mobile responsive ── */
 @media (max-width: calc(768px - 0.5px)) {
   .topRow {
@@ -154,6 +173,11 @@
   .topRowPrimary {
     flex-wrap: wrap;
     gap: 12px;
+  }
+
+  .privacyTopRow {
+    padding-right: 18px;
+    padding-left: 18px;
   }
 
   .menuToggle {

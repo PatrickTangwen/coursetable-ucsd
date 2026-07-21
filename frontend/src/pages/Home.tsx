@@ -11,6 +11,8 @@ import {
   LogoMark,
   SearchIcon,
 } from '../components/landing/icons';
+import LandingFooter from '../components/landing/LandingFooter';
+import { FAQ_URL } from '../components/landing/links';
 import WorksheetDemo from '../components/landing/WorksheetDemo';
 import { logout } from '../queries/api';
 import { useStore } from '../store';
@@ -666,6 +668,14 @@ export default function Home({
             <a href="#how" className={styles.navLink}>
               How it works
             </a>
+            <a
+              href={FAQ_URL}
+              className={styles.navLink}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              FAQ
+            </a>
           </nav>
           <div className={styles.spacer} />
           {authStatus === 'authenticated' ? (
@@ -731,6 +741,15 @@ export default function Home({
               >
                 How it works
               </a>
+              <a
+                href={FAQ_URL}
+                className={styles.mobileMenuLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={closeMenu}
+              >
+                FAQ
+              </a>
             </nav>
           </>
         )}
@@ -745,30 +764,7 @@ export default function Home({
       <HowSection publicLoginEnabled={publicLoginEnabled} />
       <CtaSection publicLoginEnabled={publicLoginEnabled} />
 
-      <footer className={styles.footer}>
-        <div className={styles.footerInner}>
-          <a href="#top" className={styles.footerLogo}>
-            SunGrid
-          </a>
-          <nav className={styles.footerNav}>
-            <Link to={createCatalogLink()} className={styles.footerLink}>
-              Catalog
-            </Link>
-            <a href="#worksheet" className={styles.footerLink}>
-              Worksheet
-            </a>
-            <a href="#how" className={styles.footerLink}>
-              How it works
-            </a>
-            {publicLoginEnabled && (
-              <Link to="/login" className={styles.footerLink}>
-                Sign in
-              </Link>
-            )}
-          </nav>
-          <div className={styles.spacer} />
-        </div>
-      </footer>
+      <LandingFooter publicLoginEnabled={publicLoginEnabled} />
     </div>
   );
 }

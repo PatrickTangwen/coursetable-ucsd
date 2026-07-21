@@ -55,4 +55,22 @@ describe('Home public login entries', () => {
     expect(html).not.toContain('Sync with your calendar');
     expect(html).not.toContain('stays in sync');
   });
+
+  it('opens the rendered landing-page FAQ entries in a new Tally tab', () => {
+    const html = renderHome(true);
+    const faqLinks = html.match(
+      /href="https:\/\/tally\.so\/r\/q47EA8"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/gu,
+    );
+
+    // The desktop header and footer render immediately. The matching mobile
+    // menu entry is mounted only after the menu is opened in the browser.
+    expect(faqLinks).toHaveLength(2);
+  });
+
+  it('links the landing-page footer to the privacy policy', () => {
+    const html = renderHome(true);
+
+    expect(html).toContain('href="/privacypolicy"');
+    expect(html).toContain('Privacy Policy');
+  });
 });

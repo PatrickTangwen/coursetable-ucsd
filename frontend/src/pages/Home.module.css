@@ -795,50 +795,6 @@
   color: #fff;
 }
 
-/* ═══ Footer ═══ */
-
-.footer {
-  border-top: 1px solid var(--line);
-}
-
-.footerInner {
-  max-width: var(--content-max);
-  margin: 0 auto;
-  padding: 40px;
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-
-.footerLogo {
-  display: flex;
-  align-items: baseline;
-  font-family: var(--serif);
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--ink);
-}
-
-.footerNav {
-  display: flex;
-  gap: 6px;
-  font-size: 15px;
-  color: var(--muted);
-  margin-left: -8px;
-}
-
-.footerLink {
-  padding: 6px 12px;
-  border-radius: 8px;
-  color: var(--muted);
-}
-
-.footerLink:hover {
-  background: rgb(11 11 11 / 5%);
-  color: var(--ink);
-}
-
 /* ═══ Responsive ═══ */
 
 /* On 32-inch QHD and low-scaled 4K displays, let the product interfaces take
@@ -953,10 +909,6 @@
 
   .ctaSection {
     padding: 104px 56px;
-  }
-
-  .footerInner {
-    padding: 48px 56px;
   }
 }
 
@@ -1091,19 +1043,6 @@
      paddings below buy the ~90px that layout needs vs the desktop spacing. */
   .ctaSection {
     padding: 32px 18px;
-  }
-
-  .footerInner {
-    padding: 28px 18px;
-    gap: 16px;
-  }
-
-  .footerNav {
-    font-size: 14px;
-  }
-
-  .footerLink {
-    padding: 6px 9px;
   }
 
   .strip {

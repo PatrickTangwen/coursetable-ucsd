@@ -8,6 +8,7 @@ import AuthRouteGate from './components/AuthRouteGate';
 import CourseModal from './components/CourseModal/CourseModal';
 import UcsdSnapshotCourseModal from './components/CourseModal/UcsdSnapshotCourseModal';
 import Footer from './components/Footer';
+import LandingFooter from './components/landing/LandingFooter';
 import ModalHistoryBridge from './components/ModalHistoryBridge';
 import TopNav from './components/Navbar/TopNav';
 import Notice from './components/Notice';
@@ -42,10 +43,11 @@ function FooterLayout() {
     location.pathname === '/login' ||
     location.pathname === '/catalog' ||
     location.pathname === '/worksheet';
+  const useLandingFooter = location.pathname === '/privacypolicy';
   return (
     <>
       <Outlet />
-      {!hideFooter && <Footer />}
+      {!hideFooter && (useLandingFooter ? <LandingFooter /> : <Footer />)}
     </>
   );
 }

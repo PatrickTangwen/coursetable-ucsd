@@ -26,6 +26,7 @@ export default function TopNav() {
 
   const showCatalogSearch = location.pathname === '/catalog';
   const isWorksheetPage = location.pathname === '/worksheet';
+  const isPrivacyPage = location.pathname === '/privacypolicy';
   const isWorksheetMobile = isWorksheetPage && isMobile;
 
   return (
@@ -34,6 +35,7 @@ export default function TopNav() {
         className={clsx(
           styles.topRow,
           (showCatalogSearch || isWorksheetPage) && styles.topRowPrimary,
+          isPrivacyPage && styles.privacyTopRow,
         )}
       >
         <NavLink
@@ -42,7 +44,7 @@ export default function TopNav() {
           onClick={scrollToTop}
           aria-label="SunGrid home"
         >
-          <Logo />
+          <Logo className={isPrivacyPage ? styles.privacyLogo : undefined} />
         </NavLink>
 
         {showCatalogSearch && <CatalogNavSearch />}
