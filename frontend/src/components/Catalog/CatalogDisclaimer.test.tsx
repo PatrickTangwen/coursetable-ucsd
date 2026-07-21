@@ -16,8 +16,8 @@ describe('CatalogDisclaimer', () => {
     const html = renderToStaticMarkup(<CatalogDisclaimer />);
 
     expect(html).toContain('not affiliated with UC San Diego');
-    expect(html).toContain('Seat counts are not real-time');
-    expect(html).toContain('course selections here do not enroll you in TSS');
+    expect(html).toContain('Seats are not live');
+    expect(html).toContain('Selecting courses here does not enroll you in TSS');
   });
 
   it('renders the FAQ link and dismiss control', () => {

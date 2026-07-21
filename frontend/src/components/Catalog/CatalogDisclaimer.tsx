@@ -17,11 +17,10 @@ export default function CatalogDisclaimer() {
   return (
     <aside className={styles.notice} aria-label="Catalog notice">
       <p className={styles.message}>
-        SunGrid is an independent planning tool and is not affiliated with UC
-        San Diego. Seat counts are not real-time, and course selections here do
-        not enroll you in TSS.{' '}
+        SunGrid is not affiliated with UC San Diego. Seats are not live.
+        Selecting courses here does not enroll you in TSS.{' '}
         <a href={FAQ_URL} target="_blank" rel="noopener noreferrer">
-          Read the FAQ
+          FAQ
         </a>
         .
       </p>
