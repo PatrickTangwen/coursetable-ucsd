@@ -36,4 +36,14 @@ describe('LandingFooter', () => {
     expect(html).toContain('href="/privacypolicy"');
     expect(html).toContain('href="https://tally.so/r/q47EA8"');
   });
+
+  it('opens the sushi support button in a new Buy Me a Coffee tab', () => {
+    const html = renderFooter('/');
+
+    expect(html).toContain('href="https://buymeacoffee.com/sungrid"');
+    expect(html).toContain('Buy me sushi');
+    expect(html).toContain('target="_blank"');
+    expect(html).toContain('rel="noopener noreferrer"');
+    expect(html).not.toContain('button.prod.min.js');
+  });
 });

@@ -81,6 +81,7 @@ Open:
 ```text
 https://localhost:3001
 https://localhost:3001/login
+https://localhost:3001/privacypolicy
 ```
 
 The frontend dev server uses the machine-local `mkcert` certificate. A browser
@@ -140,8 +141,9 @@ Expected:
 - `/api/ping` returns `pong`.
 - `/api/auth/current-user` returns an anonymous response before login and an
   authenticated response after login in the same browser session.
-- `https://localhost:3001/catalog`, `https://localhost:3001/worksheet`, and
-  `https://localhost:3001/login` load from the same frontend origin.
+- `https://localhost:3001/catalog`, `https://localhost:3001/worksheet`,
+  `https://localhost:3001/login`, and
+  `https://localhost:3001/privacypolicy` load from the same frontend origin.
 
 ## Common Failures
 

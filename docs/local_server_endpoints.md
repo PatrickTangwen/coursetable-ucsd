@@ -15,6 +15,7 @@ Frontend app:       https://localhost:3001
 Catalog page:       https://localhost:3001/catalog
 Worksheet page:     https://localhost:3001/worksheet
 Login page:         https://localhost:3001/login
+Privacy page:       https://localhost:3001/privacypolicy
 
 Backend/auth API:   https://localhost:3000
 API health check:   https://localhost:3000/api/ping

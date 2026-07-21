@@ -10,19 +10,27 @@ SunGrid's data handling or infrastructure changes.
 
 ## Public Routes And Destinations
 
-| Surface        | Destination                 | Expected behavior                                    |
-| -------------- | --------------------------- | ---------------------------------------------------- |
-| Landing page   | `/`                         | Public SunGrid product introduction and entry point. |
-| FAQ            | `https://tally.so/r/q47EA8` | Opens Tally in a new browser tab.                    |
-| Privacy Policy | `/privacypolicy`            | Public in-app page; no account required.             |
+| Surface        | Destination                        | Expected behavior                                    |
+| -------------- | ---------------------------------- | ---------------------------------------------------- |
+| Landing page   | `/`                                | Public SunGrid product introduction and entry point. |
+| FAQ            | `https://tally.so/r/q47EA8`        | Opens Tally in a new browser tab.                    |
+| Privacy Policy | `/privacypolicy`                   | Public in-app page; no account required.             |
+| Support        | `https://buymeacoffee.com/sungrid` | Opens SunGrid's Buy Me a Coffee page in a new tab.   |
 
 The FAQ is intentionally an external destination rather than an in-app route.
 FAQ links must use `target="_blank"` with `rel="noopener noreferrer"` so the
 current SunGrid page stays open.
 
+The “Buy me sushi” footer button is a direct external link styled by SunGrid.
+Do not replace it with Buy Me a Coffee's embedded script unless the additional
+third-party runtime, privacy, security-policy, and failure implications have
+been reviewed. The direct link keeps the current page open and contacts Buy Me
+a Coffee only after the user clicks.
+
 ## Navigation Ownership
 
 - `frontend/src/components/landing/links.ts` owns the shared external FAQ URL.
+- The same links module owns the Buy Me a Coffee support destination.
 - `frontend/src/components/landing/LandingFooter.tsx` owns the footer used by
   both the landing page and Privacy Policy page.
 - `frontend/src/pages/Home.tsx` owns the landing-page desktop and mobile FAQ
@@ -65,6 +73,10 @@ With the frontend running at `https://localhost:3001`, verify:
 5. The Privacy Policy navbar and footer SunGrid logos share the same size and
    horizontal alignment at desktop and mobile widths.
 6. The table of contents reaches every numbered policy section.
+7. “Buy me sushi” opens the configured Buy Me a Coffee page in a new tab and no
+   Buy Me a Coffee embed script is present in the page.
+8. The support button shares the navigation row on desktop and the SunGrid logo
+   row on mobile; the footer logo remains black on hover.
 
 Relevant focused tests:
 

@@ -15,6 +15,7 @@ describe('Privacy policy', () => {
     expect(html).toContain('Neon');
     expect(html).toContain('Resend');
     expect(html).toContain('Tally');
+    expect(html).toContain('Buy Me a Coffee');
     expect(html).toContain('Sentry');
     expect(html).not.toMatch(/\[(?:Provider|Month|Privacy|Account|analytics)/u);
     expect(html).not.toContain('<hr');
