@@ -96,9 +96,11 @@ function toSummary(worksheet: SavedWorksheet): SavedWorksheetSummary {
 async function loadStore({
   signedIn = true,
   anonymousWorksheetStorage,
+  persistedStore,
 }: {
   signedIn?: boolean;
   anonymousWorksheetStorage?: unknown;
+  persistedStore?: unknown;
 } = {}) {
   vi.resetModules();
   const localStorage = createStorage();
@@ -107,6 +109,12 @@ async function loadStore({
     localStorage.setItem(
       'anonymousWorksheet',
       JSON.stringify(anonymousWorksheetStorage),
+    );
+  }
+  if (persistedStore) {
+    localStorage.setItem(
+      'store',
+      JSON.stringify({ state: persistedStore, version: 0 }),
     );
   }
   vi.stubGlobal('localStorage', localStorage);
@@ -454,6 +462,7 @@ describe('Saved Worksheet slice behavior', () => {
           SP26: [{ sectionId: 'SP26-123', color: '#abcdef', hidden: false }],
         },
       },
+      persistedStore: { viewedSeason: 'SP26' },
     });
 
     expect(useStore.getState().viewedSeason).toBe('FA26');

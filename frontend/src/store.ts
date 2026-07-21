@@ -63,7 +63,6 @@ const basePersistKeys: (keyof Store)[] = [
   'theme',
   'coursePref',
   'professorPref',
-  'viewedSeason',
   'viewedWorksheetNumber',
   'activeSavedWorksheetIdsByTerm',
   'worksheetView',
@@ -74,6 +73,15 @@ const basePersistKeys: (keyof Store)[] = [
 const PersistKeys = basePersistKeys.concat(
   Object.keys(defaultPreferences) as (keyof Store)[],
 );
+
+function mergePersistedState(persistedState: unknown, currentState: Store) {
+  if (!persistedState || typeof persistedState !== 'object')
+    return currentState;
+
+  const persisted = { ...(persistedState as Partial<Store>) };
+  delete persisted.viewedSeason;
+  return { ...currentState, ...persisted };
+}
 
 export const useStore = create<Store>()(
   persist(
@@ -97,6 +105,7 @@ export const useStore = create<Store>()(
     {
       name: 'store',
       partialize: (state) => pick(state, PersistKeys),
+      merge: mergePersistedState,
     },
   ),
 );
