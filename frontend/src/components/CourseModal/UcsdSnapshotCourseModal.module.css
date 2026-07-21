@@ -622,6 +622,10 @@
   line-height: 1.35;
 }
 
+.friendlyCardTitle {
+  white-space: nowrap;
+}
+
 .cardSubTitle {
   margin-top: 2px;
   color: var(--ct-text-secondary);
@@ -662,6 +666,12 @@
   transition:
     background 0.12s ease,
     border-color 0.12s ease;
+}
+
+.friendlyMeetingRow {
+  grid-template-columns:
+    20px minmax(96px, max-content) max-content minmax(0, 1fr)
+    88px 100px;
 }
 
 .selectableRow {
@@ -772,6 +782,10 @@
   color: var(--ct-ink);
   font-size: 13px;
   font-weight: 600;
+}
+
+.friendlySectionCode {
+  white-space: nowrap;
 }
 
 .meetingTime {
@@ -1112,6 +1126,12 @@
     row-gap: 6px;
   }
 
+  .friendlyMeetingRow {
+    grid-template-columns:
+      20px minmax(96px, max-content) max-content minmax(0, 1fr)
+      minmax(70px, max-content);
+  }
+
   .meetingTime {
     grid-column: 4;
   }
@@ -1253,10 +1273,6 @@
 
   .sectionCode {
     grid-column: 3;
-  }
-
-  .friendlySectionCode {
-    white-space: nowrap;
   }
 
   .meetingTime {

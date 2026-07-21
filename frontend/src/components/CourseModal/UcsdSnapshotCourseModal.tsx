@@ -610,7 +610,12 @@ function OfferingGroupCard({
     >
       <div className={styles.cardHeader}>
         <div>
-          <div className={styles.cardTitle}>
+          <div
+            className={clsx(
+              styles.cardTitle,
+              mappingEntry && styles.friendlyCardTitle,
+            )}
+          >
             {sectionLabel(group, mappingEntry)}
           </div>
           <div className={styles.cardSubTitle}>{groupSubtitle(group)}</div>
