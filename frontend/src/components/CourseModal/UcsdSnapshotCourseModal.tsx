@@ -1302,7 +1302,7 @@ export default function UcsdSnapshotCourseModal({
                         <a
                           role="menuitem"
                           className={styles.toolbarMenuItem}
-                          href="https://github.com/PatrickTangwen/coursetable-ucsd/issues/new"
+                          href="https://tally.so/r/aQPrYW"
                           target="_blank"
                           rel="noreferrer"
                           onClick={() => closeHeaderMenu('more')}
