@@ -23,6 +23,7 @@ import {
   formatSnapshotUpdatedLabel,
   formatUcsdAvailability,
   getSectionVaryingMeetings,
+  shouldShowUcsdSectionSelector,
   type UcsdModalListing,
   type UcsdModalOfferingGroup,
   type UcsdModalSection,
@@ -1044,6 +1045,9 @@ export default function UcsdSnapshotCourseModal({
   const activeMapping = activeSelected
     ? modalCourse.sectionMapping.bySectionId.get(activeSelected.sectionId)
     : undefined;
+  const shouldShowSectionSelector = shouldShowUcsdSectionSelector(
+    modalCourse.groups,
+  );
 
   return (
     <div className={styles.backdrop}>
@@ -1091,7 +1095,12 @@ export default function UcsdSnapshotCourseModal({
             </button>
           </div>
 
-          <div className={styles.controls}>
+          <div
+            className={clsx(
+              styles.controls,
+              !shouldShowSectionSelector && styles.controlsSingleRow,
+            )}
+          >
             <div className={styles.tabs}>
               <button
                 type="button"
@@ -1132,7 +1141,7 @@ export default function UcsdSnapshotCourseModal({
               )}
             </div>
             <div className={styles.controlsRight}>
-              {modalCourse.groups.length > 1 && (
+              {shouldShowSectionSelector && (
                 <div className={styles.sectionSelect}>
                   <button
                     ref={sectionSelectButtonRef}

@@ -1134,6 +1134,15 @@
     gap: 6px;
   }
 
+  .controlsSingleRow {
+    flex-flow: row nowrap;
+    gap: 6px;
+  }
+
+  .controlsSingleRow .controlsRight {
+    flex: 0 0 auto;
+  }
+
   .sectionSelect {
     flex: 1 1 auto;
   }
@@ -1148,10 +1157,17 @@
     overflow-x: auto;
   }
 
+  .controlsSingleRow .tabs {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+  }
+
   .tab {
     padding: 6px 10px;
     border-radius: 7px;
     font-size: 12.5px;
+    white-space: nowrap;
   }
 
   .iconButton {

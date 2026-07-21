@@ -43,6 +43,12 @@ export type UcsdAvailabilityDisplay = {
   status: UcsdAvailabilityStatus;
 };
 
+export function shouldShowUcsdSectionSelector(
+  offeringGroups: readonly UcsdModalOfferingGroup[],
+): boolean {
+  return offeringGroups.length > 1;
+}
+
 export function getUcsdModalSectionFamily(
   sectionCode: string | null | undefined,
 ): string {

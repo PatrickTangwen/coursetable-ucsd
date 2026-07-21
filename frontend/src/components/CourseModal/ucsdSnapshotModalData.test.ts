@@ -7,6 +7,7 @@ import {
   formatSnapshotUpdatedLabel,
   formatUcsdAvailability,
   getSectionVaryingMeetings,
+  shouldShowUcsdSectionSelector,
   type UcsdModalListing,
 } from './ucsdSnapshotModalData';
 import type { CoursePlanningListing } from '../../queries/coursePlanningViewModels';
@@ -128,6 +129,32 @@ function listing({
 }
 
 describe('UCSD snapshot modal data', () => {
+  it('shows the section selector only when there are multiple offering groups', () => {
+    const section = listing({
+      crn: 101,
+      sectionCode: 'A00',
+      meetings: [meeting('Lecture', 'M', '10:00', '10:50')],
+      enrolled: 20,
+      capacity: 30,
+    });
+    const secondGroup = listing({
+      crn: 102,
+      sectionCode: 'B00',
+      meetings: [meeting('Lecture', 'W', '10:00', '10:50')],
+      enrolled: 20,
+      capacity: 30,
+    });
+
+    const singleGroup = buildUcsdSnapshotModalCourse(section, [section]);
+    const multipleGroups = buildUcsdSnapshotModalCourse(section, [
+      section,
+      secondGroup,
+    ]);
+
+    expect(shouldShowUcsdSectionSelector(singleGroup.groups)).toBe(false);
+    expect(shouldShowUcsdSectionSelector(multipleGroups.groups)).toBe(true);
+  });
+
   it('builds the shared friendly section mapping for Fall 2026', () => {
     const a01 = listing({
       crn: 101,
