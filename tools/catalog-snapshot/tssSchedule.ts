@@ -12,7 +12,7 @@ import {
   buildScheduleCatalogSnapshot,
   type ParsedScheduleOfClasses,
 } from './scheduleOfClasses';
-import { combineTssMeetingDays } from '../../shared/tssMeetingDays.js';
+import { normalizeTssMeetingDays } from '../../shared/tssMeetingDays.js';
 
 const meetingSchema = z.object({
   meeting_kind: z.string(),
@@ -357,7 +357,7 @@ function toSection(
     meeting_type: sectionMeetingType(choice),
     instructors,
     meetings: choice.components.flatMap((component) =>
-      combineTssMeetingDays(component.meetings).map((meeting) =>
+      normalizeTssMeetingDays(catalog.term, component.meetings).map((meeting) =>
         toMeeting(component, meeting),
       ),
     ),

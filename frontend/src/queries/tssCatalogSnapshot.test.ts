@@ -132,6 +132,25 @@ describe('TSS catalog response adapter', () => {
     );
   });
 
+  it('keeps matching component meetings separate outside FA26', () => {
+    const response = structuredClone(tssCatalogResponse);
+    response.term = 'SP26';
+    const lecture = response.courses[0]!.booking_choices[0]!.components[0]!;
+    const baseMeeting = lecture.meetings[0]!;
+    lecture.meetings = ['F', 'M', 'W'].map((days) => ({
+      ...baseMeeting,
+      days,
+    }));
+
+    const { coursePlanningCatalog } = catalogResponseToCatalogData(response);
+
+    expect(
+      coursePlanningCatalog?.courses[0]?.sections[0]?.meetings.map(
+        (meeting) => meeting.rawDays,
+      ),
+    ).toEqual(['F', 'M', 'W', 'M']);
+  });
+
   it('keeps TBA components when TSS uses nullable days and numeric flags', () => {
     const baseCourse = tssCatalogResponse.courses[0]!;
     const baseChoice = baseCourse.booking_choices[0]!;

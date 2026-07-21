@@ -6,7 +6,7 @@ import type {
   CoursePlanningMeeting,
   CoursePlanningSection,
 } from './coursePlanningViewModels';
-import { combineTssMeetingDays } from '../../../shared/tssMeetingDays.js';
+import { normalizeTssMeetingDays } from '../../../shared/tssMeetingDays.js';
 
 const tssMeetingSchema = z.object({
   meeting_kind: z.string(),
@@ -360,7 +360,7 @@ function toSection(
     meetingType: sectionMeetingType(choice),
     instructors: instructors.map((name) => ({ name })),
     meetings: choice.components.flatMap((component) =>
-      combineTssMeetingDays(component.meetings).map((meeting) =>
+      normalizeTssMeetingDays(catalog.term, component.meetings).map((meeting) =>
         toMeeting(component, meeting),
       ),
     ),

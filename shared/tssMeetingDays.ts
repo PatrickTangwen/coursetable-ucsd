@@ -31,7 +31,7 @@ function meetingScheduleKey(meeting: TssSourceMeeting): string {
   });
 }
 
-export function combineTssMeetingDays(
+function combineTssMeetingDays(
   meetings: TssSourceMeeting[],
 ): TssSourceMeeting[] {
   const combined = new Map<string, TssSourceMeeting>();
@@ -51,4 +51,11 @@ export function combineTssMeetingDays(
       tssDayOrder.filter((day) => days.has(day)).join(' ') || null;
   }
   return [...combined.values()];
+}
+
+export function normalizeTssMeetingDays(
+  term: string,
+  meetings: TssSourceMeeting[],
+): TssSourceMeeting[] {
+  return term === 'FA26' ? combineTssMeetingDays(meetings) : meetings;
 }

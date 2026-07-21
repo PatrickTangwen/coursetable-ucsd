@@ -110,6 +110,44 @@ describe('TSS Catalog Snapshot pipeline input', () => {
     ]);
   });
 
+  it('keeps matching component meetings separate outside FA26', () => {
+    const response = structuredClone(tssResponse);
+    response.term = 'SP26';
+    const lecture = response.courses[0]!.booking_choices[0]!.components[0]!;
+    const baseMeeting = lecture.meetings[0]!;
+    lecture.meetings = ['F', 'M', 'W'].map((days) => ({
+      ...baseMeeting,
+      days,
+    }));
+
+    const snapshot = buildTssCatalogSnapshot(
+      {
+        ...config,
+        active_planning_term: 'SP26',
+        term_label: 'Spring 2026',
+      },
+      [response],
+      {
+        runId: 'tss-sp26-separate-weekdays-test',
+        generatedAt: '2026-07-21T12:00:00.000Z',
+        generalCatalog: {
+          sourceTimestamp: '2026-07-20T12:00:00.000Z',
+          courses: [],
+        },
+        gradeArchive: {
+          sourceTimestamp: '2026-07-19T12:00:00.000Z',
+          records: [],
+        },
+      },
+    );
+
+    expect(snapshot.courses[0]?.sections[0]?.meetings).toMatchObject([
+      { days: ['Friday'], raw_days: 'F' },
+      { days: ['Monday'], raw_days: 'M' },
+      { days: ['Wednesday'], raw_days: 'W' },
+    ]);
+  });
+
   it('keeps same-type component meetings separate when their schedule differs', () => {
     const response = structuredClone(tssResponse);
     const lecture = response.courses[0]!.booking_choices[0]!.components[0]!;
