@@ -85,6 +85,13 @@ describe('Catalog Snapshot validation', () => {
     const result = validateCatalogSnapshot(snapshot, config);
 
     expect(result).toEqual({ success: true, errors: [] });
+    expect(snapshot.courses[0]?.sections[0]).toMatchObject({
+      enrolled: null,
+      capacity: null,
+      waitlist_count: null,
+      availability_verified: false,
+      availability_timestamp: null,
+    });
   });
 
   it('can seed tracer Courses with General Catalog metadata', () => {
@@ -209,7 +216,7 @@ describe('Catalog Snapshot validation', () => {
     );
   });
 
-  it('accepts snapshot-static availability fields (enrolled, capacity, waitlist_count) on sections', () => {
+  it('accepts source-provided and derived snapshot-static availability fields on sections', () => {
     const config = makeConfig();
     const snapshot = buildTracerCatalogSnapshot(config, {
       runId: 'run-test',
@@ -217,11 +224,34 @@ describe('Catalog Snapshot validation', () => {
     });
     snapshot.courses[0]!.sections[0]!.enrolled = 100;
     snapshot.courses[0]!.sections[0]!.capacity = 150;
+    snapshot.courses[0]!.sections[0]!.available_seats = 50;
     snapshot.courses[0]!.sections[0]!.waitlist_count = 3;
+    snapshot.courses[0]!.sections[0]!.availability_timestamp =
+      '2026-06-19T12:00:00.000Z';
 
     const result = validateCatalogSnapshot(snapshot, config);
 
     expect(result).toEqual({ success: true, errors: [] });
+  });
+
+  it('rejects verified availability without a section or schedule timestamp', () => {
+    const config = makeConfig();
+    const snapshot = buildTracerCatalogSnapshot(config, {
+      runId: 'run-test',
+      generatedAt: '2026-06-19T12:00:00.000Z',
+    });
+    snapshot.source_timestamps.schedule_of_classes = null;
+    snapshot.courses[0]!.sections[0]!.availability_verified = true;
+    snapshot.courses[0]!.sections[0]!.availability_timestamp = null;
+
+    const result = validateCatalogSnapshot(snapshot, config);
+
+    expect(result).toEqual({
+      success: false,
+      errors: [
+        'courses[0].sections[0] verified availability requires a timestamp',
+      ],
+    });
   });
 
   it('rejects excluded Availability Data, friends, and evaluation field names across common key styles', () => {

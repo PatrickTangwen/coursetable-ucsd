@@ -99,6 +99,7 @@ const sectionSchema = z
     meetings: z.array(meetingSchema),
     enrolled: z.number().int().nonnegative().nullable(),
     capacity: z.number().int().nonnegative().nullable(),
+    available_seats: z.number().int().nonnegative().nullable().optional(),
     waitlist_count: z.number().int().nonnegative().nullable(),
     availability_verified: z.boolean().optional(),
     availability_timestamp: z.string().nullable().optional(),
@@ -190,7 +191,6 @@ export async function loadCatalogSnapshotConfig(
 const excludedPublicFieldNames = new Set([
   'also_taking',
   'availability',
-  'available_seats',
   'cape',
   'course_evaluations',
   'demand',
@@ -291,6 +291,31 @@ function validateSectionIds(
   );
 }
 
+function validateAvailabilityTimestamps(snapshot: CatalogSnapshot): string[] {
+  const scheduleTimestamp = snapshot.source_timestamps.schedule_of_classes;
+  return snapshot.courses.flatMap((course, courseIndex) =>
+    course.sections.flatMap((section, sectionIndex) => {
+      const hasVerifiedAvailability =
+        section.availability_verified === true ||
+        section.enrolled !== null ||
+        section.capacity !== null ||
+        (section.available_seats !== null &&
+          section.available_seats !== undefined) ||
+        section.waitlist_count !== null;
+      if (
+        hasVerifiedAvailability &&
+        !section.availability_timestamp &&
+        !scheduleTimestamp
+      ) {
+        return [
+          `courses[${courseIndex}].sections[${sectionIndex}] verified availability requires a timestamp`,
+        ];
+      }
+      return [];
+    }),
+  );
+}
+
 export function validateCatalogSnapshot(
   value: unknown,
   config: CatalogSnapshotConfig,
@@ -321,6 +346,7 @@ export function validateCatalogSnapshot(
       : ['snapshot term label does not match config']),
     ...validateConfiguredSubjects(snapshot, config),
     ...validateSectionIds(snapshot, config),
+    ...validateAvailabilityTimestamps(snapshot),
     ...collectExcludedFieldPaths(snapshot),
   ];
 
@@ -403,7 +429,9 @@ export function buildTracerCatalogSnapshot(
             ],
             enrolled: null,
             capacity: null,
-            waitlist_count: 0,
+            waitlist_count: null,
+            availability_verified: false,
+            availability_timestamp: null,
             raw: {
               source: 'tracer',
             },

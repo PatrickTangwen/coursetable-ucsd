@@ -131,6 +131,7 @@ describe('TSS Catalog Snapshot pipeline input', () => {
           section_id: 'FA26:CAT-001:E00000665',
           course_id: 'CAT:1',
           section_code: '001-000-LE',
+          available_seats: 56,
           waitlist_count: null,
           availability_verified: true,
           availability_timestamp: '2026-07-21T12:00:00.000Z',
@@ -186,6 +187,102 @@ describe('TSS Catalog Snapshot pipeline input', () => {
       course_id: 'CAT:1',
       display_course_code: 'CAT-001',
       title: 'CAT-001',
+    });
+  });
+
+  it('keeps package seats unknown when any required component is unknown', () => {
+    const response = structuredClone(tssResponse);
+    const choice = response.courses[0]!.booking_choices[0]!;
+    const lecture = choice.components[0]!;
+    Object.assign(lecture.enrollment, { seats_available: null });
+    choice.components.push({
+      ...structuredClone(lecture),
+      section_code: '001-001-DI',
+      event_id: 'E 00000669',
+      enrollment: {
+        ...lecture.enrollment,
+        seats_available: 16,
+      },
+    });
+
+    const snapshot = buildTssCatalogSnapshot(config, [response], {
+      runId: 'tss-fa26-unknown-component-test',
+      generatedAt: '2026-07-21T12:00:00.000Z',
+      generalCatalog: {
+        sourceTimestamp: '2026-07-20T12:00:00.000Z',
+        courses: [],
+      },
+      gradeArchive: {
+        sourceTimestamp: '2026-07-19T12:00:00.000Z',
+        records: [],
+      },
+    });
+
+    expect(snapshot.courses[0]?.sections[0]?.available_seats).toBeNull();
+  });
+
+  it('distinguishes zero offerings from incomplete or omitted requested data', () => {
+    const sources = {
+      runId: 'tss-fa26-requested-subjects-test',
+      generatedAt: '2026-07-21T12:00:00.000Z',
+      generalCatalog: {
+        sourceTimestamp: '2026-07-20T12:00:00.000Z',
+        courses: [],
+      },
+      gradeArchive: {
+        sourceTimestamp: '2026-07-19T12:00:00.000Z',
+        records: [],
+      },
+    };
+    const completeSnapshot = buildTssCatalogSnapshot(
+      { ...config, configured_subjects: ['CAT', 'MATH'] },
+      [
+        {
+          ...tssResponse,
+          requested_course: 'CAT, MATH',
+          coverage: { complete: true, continuation_needed: false },
+        },
+      ],
+      sources,
+    );
+    const incompleteSnapshot = buildTssCatalogSnapshot(
+      { ...config, configured_subjects: ['CAT', 'MATH'] },
+      [
+        {
+          ...tssResponse,
+          requested_course: 'CAT, MATH',
+          coverage: { complete: false, continuation_needed: true },
+        },
+      ],
+      sources,
+    );
+    const omittedSnapshot = buildTssCatalogSnapshot(
+      { ...config, configured_subjects: ['CAT', 'MATH'] },
+      [
+        {
+          ...tssResponse,
+          requested_course: 'CAT, MATH',
+          coverage: {
+            complete: true,
+            continuation_needed: false,
+            omitted_courses: ['MATH-299'],
+          },
+        },
+      ],
+      sources,
+    );
+
+    expect(completeSnapshot.coverage).toEqual({
+      complete: true,
+      continuation_needed: false,
+    });
+    expect(incompleteSnapshot.coverage).toEqual({
+      complete: false,
+      continuation_needed: true,
+    });
+    expect(omittedSnapshot.coverage).toEqual({
+      complete: false,
+      continuation_needed: true,
     });
   });
 });

@@ -50,12 +50,14 @@ const tssBookingChoiceSchema = z.object({
 const tssCatalogSchema = z.object({
   schema_version: z.literal('tss-chatbot-v1'),
   term: z.string().min(1),
+  requested_course: z.string().min(1).optional(),
   source_metadata: z.object({
     last_refreshed_displayed: z.string().nullable(),
   }),
   coverage: z.object({
     complete: z.boolean(),
     continuation_needed: z.boolean(),
+    omitted_courses: z.array(z.string().min(1)).optional(),
   }),
   courses: z.array(
     z.object({
@@ -256,11 +258,13 @@ function choiceAvailability(choice: TssBookingChoice) {
     (component) => component.requirement === 'required',
   );
   const components = required.length > 0 ? required : choice.components;
-  const availableSeats = components
-    .map((component) => component.enrollment.seats_available)
-    .filter((value): value is number => value !== null);
-  const limitingSeats = availableSeats.length
-    ? Math.min(...availableSeats)
+  const allSeatsKnown = components.every(
+    (component) => component.enrollment.seats_available !== null,
+  );
+  const limitingSeats = allSeatsKnown
+    ? Math.min(
+        ...components.map((component) => component.enrollment.seats_available!),
+      )
     : null;
   const limitingComponent = components.find(
     (component) => component.enrollment.seats_available === limitingSeats,
@@ -277,9 +281,19 @@ function choiceAvailability(choice: TssBookingChoice) {
   };
 }
 
+function catalogCoverage(catalog: TssCatalog) {
+  const complete =
+    catalog.coverage.complete &&
+    !catalog.coverage.continuation_needed &&
+    (catalog.coverage.omitted_courses?.length ?? 0) === 0;
+  return {
+    complete,
+    continuationNeeded: !complete,
+  };
+}
+
 function sourceNote(catalog: TssCatalog): string {
-  if (catalog.coverage.complete && !catalog.coverage.continuation_needed)
-    return 'TSS schedule snapshot';
+  if (catalogCoverage(catalog).complete) return 'TSS schedule snapshot';
   return 'TSS schedule snapshot · partial coverage; continuation needed';
 }
 
@@ -366,10 +380,7 @@ export function normalizeTssCatalogSnapshot(
       generalCatalog: null,
       instructorGradeArchive: null,
     },
-    coverage: {
-      complete: catalog.coverage.complete,
-      continuationNeeded: catalog.coverage.continuation_needed,
-    },
+    coverage: catalogCoverage(catalog),
     courses: catalog.courses.map((course) => toCourse(catalog, course)),
   };
 }

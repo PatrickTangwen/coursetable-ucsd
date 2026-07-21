@@ -125,6 +125,10 @@ logs, or transient setup notes directly in ADRs.
 - `0035-use-only-the-staging-product-origin.md`: expose hosted staging only at
   the product staging domain and disable public `workers.dev` and `r2.dev`
   paths that would bypass the single-origin security boundary.
+- `0036-preserve-tss-coverage-and-seat-source-semantics.md`: use TSS request and
+  coverage metadata to distinguish zero offerings from incomplete responses,
+  and preserve source-provided available seats without inventing enrollment
+  totals.
 
 ## Editing Rule
 

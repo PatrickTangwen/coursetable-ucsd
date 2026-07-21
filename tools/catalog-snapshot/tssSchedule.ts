@@ -52,12 +52,14 @@ const bookingChoiceSchema = z.object({
 const tssResponseSchema = z.object({
   schema_version: z.literal('tss-chatbot-v1'),
   term: z.string().min(1),
+  requested_course: z.string().min(1).optional(),
   source_metadata: z.object({
     last_refreshed_displayed: z.string().nullable(),
   }),
   coverage: z.object({
     complete: z.boolean(),
     continuation_needed: z.boolean(),
+    omitted_courses: z.array(z.string().min(1)).optional(),
   }),
   courses: z.array(
     z.object({
@@ -90,6 +92,13 @@ export type TssCatalogSnapshotSources = {
     records: GradeArchiveRecord[];
   };
 };
+
+export function parseTssRequestedSubjects(value?: string): string[] {
+  return (value ?? '')
+    .split(/[^A-Za-z\d]+/u)
+    .map((subject) => subject.trim().toUpperCase())
+    .filter(Boolean);
+}
 
 const dayNames: { [day: string]: string } = {
   F: 'Friday',
@@ -258,10 +267,12 @@ function choiceEnrollment(choice: BookingChoice) {
     (component) => component.requirement === 'required',
   );
   const components = required.length ? required : choice.components;
-  const withSeats = components.filter(
+  const allSeatsKnown = components.every(
     (component) => component.enrollment.seats_available !== null,
   );
-  const limiting = withSeats.reduce<TssComponent | null>((current, item) => {
+  const limiting = (
+    allSeatsKnown ? components : []
+  ).reduce<TssComponent | null>((current, item) => {
     if (!current) return item;
     return item.enrollment.seats_available! <
       current.enrollment.seats_available!
@@ -275,6 +286,7 @@ function choiceEnrollment(choice: BookingChoice) {
   return {
     enrolled: limiting?.enrollment.enrolled ?? null,
     capacity: limiting?.enrollment.capacity ?? null,
+    availableSeats: limiting?.enrollment.seats_available ?? null,
     waitlistCount: waitlistCounts.length ? Math.max(...waitlistCounts) : null,
   };
 }
@@ -305,6 +317,7 @@ function toSection(
     ),
     enrolled: enrollment.enrolled,
     capacity: enrollment.capacity,
+    available_seats: enrollment.availableSeats,
     waitlist_count: enrollment.waitlistCount,
     availability_verified: Boolean(
       catalog.source_metadata.last_refreshed_displayed,
@@ -366,22 +379,25 @@ function parseTssResponse(
 
 function snapshotCoverage(responses: unknown[], configuredSubjects: string[]) {
   const parsed = responses.map((response) => tssResponseSchema.parse(response));
-  const presentSubjects = new Set(
-    parsed.flatMap((response) =>
-      response.courses.map((course) => courseIdentity(course).subject),
-    ),
+  const coveredSubjects = new Set(
+    parsed.flatMap((response) => {
+      const isComplete =
+        response.coverage.complete &&
+        !response.coverage.continuation_needed &&
+        (response.coverage.omitted_courses?.length ?? 0) === 0;
+      if (!isComplete) return [];
+      return [
+        ...response.courses.map((course) => courseIdentity(course).subject),
+        ...parseTssRequestedSubjects(response.requested_course),
+      ];
+    }),
   );
   const missingConfiguredSubject = configuredSubjects.some(
-    (subject) => !presentSubjects.has(subject),
+    (subject) => !coveredSubjects.has(subject),
   );
-  const continuationNeeded =
-    missingConfiguredSubject ||
-    parsed.some((response) => response.coverage.continuation_needed);
   return {
-    complete:
-      !continuationNeeded &&
-      parsed.every((response) => response.coverage.complete),
-    continuation_needed: continuationNeeded,
+    complete: !missingConfiguredSubject,
+    continuation_needed: missingConfiguredSubject,
   };
 }
 

@@ -270,6 +270,7 @@ const sectionSchema = z
       .nullable()
       .optional()
       .transform((value) => value ?? null),
+    available_seats: z.number().nullable().optional(),
     waitlist_count: z
       .number()
       .nullable()
@@ -290,12 +291,12 @@ const sectionSchema = z
       availability: {
         enrolled: section.availability_verified ? section.enrolled : null,
         capacity: section.availability_verified ? section.capacity : null,
-        availableSeats:
-          !section.availability_verified ||
-          section.enrolled === null ||
-          section.capacity === null
-            ? null
-            : Math.max(section.capacity - section.enrolled, 0),
+        availableSeats: !section.availability_verified
+          ? null
+          : (section.available_seats ??
+            (section.enrolled === null || section.capacity === null
+              ? null
+              : Math.max(section.capacity - section.enrolled, 0))),
         waitlistCount: section.availability_verified
           ? section.waitlist_count
           : null,
@@ -400,18 +401,26 @@ export const publishedSnapshotSchema = z
           snapshot.active_planning_term === 'FA26'
             ? course.courseCode
             : `${course.subject} ${course.courseNumber}`,
-        sections: course.sections.map((section) => ({
-          ...section,
-          supportedTerm: snapshot.active_planning_term,
-          sourceNote: coverageSourceNote(section.sourceNote, coverage),
-          availability: {
-            ...section.availability,
-            snapshotTimestamp:
-              section.availability.snapshotTimestamp === undefined
-                ? snapshot.source_timestamps.schedule_of_classes
-                : section.availability.snapshotTimestamp,
-          },
-        })),
+        sections: course.sections.map((section) => {
+          const snapshotTimestamp =
+            section.availability.snapshotTimestamp === undefined
+              ? snapshot.source_timestamps.schedule_of_classes
+              : section.availability.snapshotTimestamp;
+          return {
+            ...section,
+            supportedTerm: snapshot.active_planning_term,
+            sourceNote: coverageSourceNote(section.sourceNote, coverage),
+            availability: snapshotTimestamp
+              ? { ...section.availability, snapshotTimestamp }
+              : {
+                  enrolled: null,
+                  capacity: null,
+                  availableSeats: null,
+                  waitlistCount: null,
+                  snapshotTimestamp: null,
+                },
+          };
+        }),
       })),
     };
   });

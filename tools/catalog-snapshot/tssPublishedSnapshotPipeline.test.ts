@@ -39,6 +39,7 @@ describe('TSS Published Snapshot entrypoint', () => {
       JSON.stringify({
         schema_version: 'tss-chatbot-v1',
         term: 'FA26',
+        requested_course: 'CAT, CSE, MATH',
         source_metadata: { last_refreshed_displayed: null },
         coverage: { complete: true, continuation_needed: false },
         courses: [
@@ -124,8 +125,8 @@ describe('TSS Published Snapshot entrypoint', () => {
     expect(result.snapshot).toMatchObject({
       active_planning_term: 'FA26',
       term_label: 'Fall 2026',
-      configured_subjects: ['CAT', 'CSE'],
-      coverage: { complete: false, continuation_needed: true },
+      configured_subjects: ['CAT', 'CSE', 'MATH'],
+      coverage: { complete: true, continuation_needed: false },
     });
     expect(published.courses[0]).toMatchObject({
       course_id: 'CAT:1',

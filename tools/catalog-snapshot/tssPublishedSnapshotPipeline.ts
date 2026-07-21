@@ -17,11 +17,13 @@ import {
 } from './supportedTermRegistry';
 import {
   buildTssCatalogSnapshot,
+  parseTssRequestedSubjects,
   type TssCatalogSnapshotSources,
 } from './tssSchedule';
 
 const tssIdentitySchema = z.object({
   term: z.string().min(1),
+  requested_course: z.string().min(1).optional(),
   courses: z.array(
     z.object({
       tss_course_code: z.string().min(1),
@@ -73,13 +75,15 @@ function tssTerm(responses: unknown[]): string {
 }
 
 function tssSubjects(responses: unknown[]): string[] {
-  return responses.flatMap((response) =>
-    tssIdentitySchema
-      .parse(response)
-      .courses.map((course) =>
+  return responses.flatMap((response) => {
+    const parsed = tssIdentitySchema.parse(response);
+    return [
+      ...parseTssRequestedSubjects(parsed.requested_course),
+      ...parsed.courses.map((course) =>
         course.tss_course_code.split('-', 1)[0]!.trim().toUpperCase(),
       ),
-  );
+    ];
+  });
 }
 
 function uniqueSorted(values: string[]): string[] {

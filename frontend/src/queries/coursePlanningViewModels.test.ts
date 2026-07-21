@@ -237,6 +237,83 @@ describe('Published Snapshot Course Planning view-model seam', () => {
     });
   });
 
+  it('preserves source-provided available seats without inventing enrollment totals', () => {
+    const response = {
+      run_id: 'run-direct-seats-fixture',
+      generated_at: '2026-07-21T12:00:00.000Z',
+      active_planning_term: 'FA26',
+      term_label: 'Fall 2026',
+      term_date_range: null,
+      configured_subjects: ['CAT'],
+      source_timestamps: {
+        schedule_of_classes: '2026-07-20T00:00:00-07:00',
+        general_catalog: null,
+        instructor_grade_archive: null,
+      },
+      courses: [
+        {
+          course_id: 'CAT:1',
+          subject: 'CAT',
+          course_number: '1',
+          display_course_code: 'CAT-001',
+          title: 'Sixth College Seminar',
+          units: null,
+          description: null,
+          prerequisites_text: null,
+          restrictions_text: null,
+          catalog_url: null,
+          archive_avg_gpa: null,
+          archive_record_count: 0,
+          grade_archive_records: [],
+          ge_matches: [],
+          sections: [
+            {
+              section_id: 'FA26:CAT-001:E00000665',
+              course_id: 'CAT:1',
+              section_code: '001-000-LE',
+              meeting_type: 'Lecture',
+              instructors: [],
+              meetings: [],
+              enrolled: null,
+              capacity: null,
+              available_seats: 16,
+              waitlist_count: null,
+              availability_verified: true,
+              availability_timestamp: '2026-07-20T00:00:00-07:00',
+              raw: { source: 'ucsd_tss' },
+            },
+          ],
+        },
+      ],
+    };
+    const catalog = normalizePublishedSnapshot(response);
+    const withoutTimestamp = normalizePublishedSnapshot({
+      ...response,
+      source_timestamps: {
+        ...response.source_timestamps,
+        schedule_of_classes: null,
+      },
+      courses: response.courses.map((course) => ({
+        ...course,
+        sections: course.sections.map((section) => ({
+          ...section,
+          availability_timestamp: null,
+        })),
+      })),
+    });
+
+    expect(catalog?.courses[0]?.sections[0]?.availability).toEqual({
+      enrolled: null,
+      capacity: null,
+      availableSeats: 16,
+      waitlistCount: null,
+      snapshotTimestamp: '2026-07-20T00:00:00-07:00',
+    });
+    expect(
+      withoutTimestamp?.courses[0]?.sections[0]?.availability.availableSeats,
+    ).toBeNull();
+  });
+
   it('adapts an owned Course Planning catalog through the temporary legacy boundary', () => {
     const catalog = adaptCoursePlanningCatalog({
       supportedTerm: 'FA26',

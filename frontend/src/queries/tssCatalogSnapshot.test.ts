@@ -243,7 +243,7 @@ describe('TSS catalog response adapter', () => {
     expect(coursePlanningCatalog).toMatchObject({
       generatedAt: '',
       coverage: {
-        complete: true,
+        complete: false,
         continuationNeeded: true,
       },
       courses: [
@@ -264,6 +264,61 @@ describe('TSS catalog response adapter', () => {
         },
       ],
     });
+  });
+
+  it('treats omitted courses as partial coverage', () => {
+    const response = {
+      ...tssCatalogResponse,
+      requested_course: 'CAT',
+      coverage: {
+        complete: true,
+        continuation_needed: false,
+        omitted_courses: ['CAT-125'],
+      },
+    };
+
+    const { coursePlanningCatalog } = catalogResponseToCatalogData(response);
+
+    expect(coursePlanningCatalog?.coverage).toEqual({
+      complete: false,
+      continuationNeeded: true,
+    });
+  });
+
+  it('keeps package seats unknown when any required component is unknown', () => {
+    const baseCourse = tssCatalogResponse.courses[0]!;
+    const baseChoice = baseCourse.booking_choices[0]!;
+    const response = {
+      ...tssCatalogResponse,
+      courses: [
+        {
+          ...baseCourse,
+          booking_choices: [
+            {
+              ...baseChoice,
+              components: baseChoice.components.map((component, index) =>
+                index === 0
+                  ? {
+                      ...component,
+                      enrollment: {
+                        ...component.enrollment,
+                        seats_available: null,
+                      },
+                    }
+                  : component,
+              ),
+            },
+          ],
+        },
+      ],
+    };
+
+    const { coursePlanningCatalog } = catalogResponseToCatalogData(response);
+
+    expect(
+      coursePlanningCatalog?.courses[0]?.sections[0]?.availability
+        .availableSeats,
+    ).toBeNull();
   });
 
   it('produces normalized meetings for the worksheet calendar view', () => {
