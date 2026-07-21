@@ -251,3 +251,16 @@ Current local acceptance status at commit `1a775ad`:
 This is not the earlier missing-manifest failure, but it means the exact commit
 is not fully accepted for a hosted rollout. Resolve the regression and rerun
 the complete credential-free acceptance set before requesting deployment.
+
+### 2026-07-21 cross-listed grade follow-up
+
+Commit `53a5c09` resolves the `CAT:2` fixture regression with the conservative
+cross-listed Grade Archive rule documented in `grade_archive.md` and
+`snapshot_pipe.md`. Snapshot, frontend, API, Worker, Term Archive, and local
+single-origin Worker Catalog checks pass. The FA26 artifact adds inherited rows
+only for `ANSC:129` and `ETHN:133`; coscheduled-only relationships remain
+unavailable.
+
+This supersedes the red-test status above for later local work. It does not
+change the recorded state of commit `1a775ad`, certify FA26 source completeness,
+authorize a hosted deployment, or grant provider-mutation permission.

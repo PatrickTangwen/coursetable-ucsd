@@ -13,6 +13,8 @@ Status: top-level navigation for stable project documentation.
   modules, and disposable validation path.
 - `course_data_store.md`: shadow Course Data Store ownership, migrations,
   importer, Hasura metadata, and tracer validation.
+- `grade_archive.md`: current Instructor Grade Archive matching, explicit
+  cross-listed inheritance, provenance, and Past Grades display contract.
 - `local_server.md`: local frontend/backend/auth startup and login smoke
   runbook.
 - `local_server_endpoints.md`: current local frontend/backend URLs, Docker

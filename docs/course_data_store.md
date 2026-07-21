@@ -48,6 +48,13 @@ Grade Archive Records remain individual historical rows with their source term,
 instructor, GPA, grade buckets, and raw record. The Course Data Store does not
 compute or expose a single course-level Average GPA.
 
+The Published Snapshot can mark conservatively inherited cross-listed rows with
+`matched_via: "cross_listed"`; see `grade_archive.md`. The current shadow
+importer retains the target Course ID and the archive row's original
+subject/course fields, but does not persist that explicit match field. Treat
+cross-listed provenance as a documented parity gap until the Course Data Store
+stores and validates an equivalent structured relationship.
+
 Snapshot Availability Data is one observation per imported Section. Enrolled,
 capacity, and waitlist values are stored with the Snapshot generation timestamp
 and the Supported Term state at that timestamp (`upcoming`, `active`,
