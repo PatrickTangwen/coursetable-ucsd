@@ -17,7 +17,7 @@ export const supportedTerms = [
 
 const worksheetTermRange = {
   start: 'S126' as Season,
-  end: 'FA26' as Season,
+  end: CUR_SEASON,
 };
 
 function isInWorksheetTermRange(term: Season) {
