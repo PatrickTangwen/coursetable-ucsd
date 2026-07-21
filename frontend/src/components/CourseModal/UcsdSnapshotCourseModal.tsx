@@ -1299,19 +1299,17 @@ export default function UcsdSnapshotCourseModal({
                           <ShareIcon />
                           <span>Copy course URL</span>
                         </button>
-                        {listing.course.catalogUrl && (
-                          <a
-                            role="menuitem"
-                            className={styles.toolbarMenuItem}
-                            href={listing.course.catalogUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            onClick={() => closeHeaderMenu('more')}
-                          >
-                            <ExternalIcon />
-                            <span>Open UCSD catalog</span>
-                          </a>
-                        )}
+                        <a
+                          role="menuitem"
+                          className={styles.toolbarMenuItem}
+                          href="https://github.com/PatrickTangwen/coursetable-ucsd/issues/new"
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={() => closeHeaderMenu('more')}
+                        >
+                          <ExternalIcon />
+                          <span>Report a course issue</span>
+                        </a>
                       </div>
                     </>
                   )}
