@@ -137,7 +137,7 @@ function ShareIcon() {
   );
 }
 
-function ReportIssueIcon() {
+function SectionMappingIcon() {
   return (
     <svg
       width="17"
@@ -152,6 +152,25 @@ function ReportIssueIcon() {
       <circle cx="8.5" cy="8.5" r="6.25" />
       <line x1="8.5" y1="5" x2="8.5" y2="9.25" />
       <circle cx="8.5" cy="12" r="0.8" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function ReportIssueIcon() {
+  return (
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 17 17"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <line x1="4" y1="14.5" x2="4" y2="3" />
+      <path d="M4 3.5h7l-1.25 2.25L11 8H4" />
     </svg>
   );
 }
@@ -809,6 +828,7 @@ export default function UcsdSnapshotCourseModal({
 }) {
   const [view, setView] = useState<UcsdModalView>('overview');
   const titleId = useId();
+  const sectionMappingTooltipId = useId();
   const modalRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -1433,7 +1453,33 @@ export default function UcsdSnapshotCourseModal({
               )}
 
               <div className={styles.scheduleHeader}>
-                <div className={styles.scheduleTitle}>Schedule Options</div>
+                <div className={styles.scheduleHeading}>
+                  <div className={styles.scheduleTitle}>Schedule Options</div>
+                  {isFall2026 && (
+                    <span className={styles.sectionMappingTrigger}>
+                      <button
+                        type="button"
+                        className={styles.sectionMappingButton}
+                        aria-label="View official TSS section codes"
+                        aria-describedby={sectionMappingTooltipId}
+                        onClick={() => {
+                          bodyRef.current?.scrollTo({ top: 0 });
+                          setView('section-mapping');
+                        }}
+                      >
+                        <SectionMappingIcon />
+                      </button>
+                      <span
+                        id={sectionMappingTooltipId}
+                        className={styles.sectionMappingTooltip}
+                        role="tooltip"
+                      >
+                        View Section Mapping for the official TSS section codes
+                        used for enrollment.
+                      </span>
+                    </span>
+                  )}
+                </div>
                 <div className={styles.scheduleCount}>
                   {modalCourse.groups.length} offering{' '}
                   {modalCourse.groups.length === 1 ? 'group' : 'groups'}
