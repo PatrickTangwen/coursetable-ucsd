@@ -129,6 +129,9 @@ logs, or transient setup notes directly in ADRs.
   coverage metadata to distinguish zero offerings from incomplete responses,
   and preserve source-provided available seats without inventing enrollment
   totals.
+- `0037-use-explicit-tss-availability-supplement.md`: parse the mixed-format TSS
+  availability supplement as an authoritative, audited enrichment for matched
+  schedule components without creating sections that lack meeting data.
 
 ## Editing Rule
 

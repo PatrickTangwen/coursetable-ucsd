@@ -40,17 +40,48 @@ describe('TSS Published Snapshot entrypoint', () => {
         schema_version: 'tss-chatbot-v1',
         term: 'FA26',
         requested_course: 'CAT, CSE, MATH',
-        source_metadata: { last_refreshed_displayed: null },
+        source_metadata: {
+          last_refreshed_displayed: '2026-07-20T00:00:00-07:00',
+        },
         coverage: { complete: true, continuation_needed: false },
         courses: [
           {
             course_code: '001',
             course_title: 'CAT 001',
             tss_course_code: 'CAT-001',
-            booking_choices: [],
+            booking_choices: [
+              {
+                booking_choice_ordinal: 1,
+                displayed_package_section: null,
+                displayed_package_id: null,
+                components: [
+                  {
+                    type: 'lecture',
+                    section_code: '001-000-LE',
+                    event_id: 'E 00000665',
+                    requirement: 'required',
+                    meetings: [],
+                    enrollment: {
+                      enrolled: null,
+                      capacity: null,
+                      seats_available: 20,
+                      waitlist: { state: 'not_shown', count: null },
+                    },
+                  },
+                ],
+              },
+            ],
           },
         ],
       }),
+      'utf-8',
+    );
+    await writeFile(
+      path.join(rawDirectory, 'capacity_enrollment_supp.txt'),
+      [
+        'Subject,Course,Section,Type,Instructor,Seats_Total,Seats_Available',
+        'CAT,001,001-000-LE,lecture,Phoebe Bronstein,100,20',
+      ].join('\n'),
       'utf-8',
     );
     await writeFile(
@@ -128,11 +159,26 @@ describe('TSS Published Snapshot entrypoint', () => {
       configured_subjects: ['CAT', 'CSE', 'MATH'],
       coverage: { complete: true, continuation_needed: false },
     });
+    expect(result.availabilitySupplement).toMatchObject({
+      records: 1,
+      matchedRecords: 1,
+      updatedComponents: 1,
+      overriddenValues: 0,
+      unmatchedRecords: 0,
+      unmatchedKeys: [],
+    });
     expect(published.courses[0]).toMatchObject({
       course_id: 'CAT:1',
       display_course_code: 'CAT-001',
       description: 'General Catalog description.',
       catalog_url: 'https://catalog.ucsd.edu/courses/CAT.html#cat1',
+      sections: [
+        {
+          enrolled: 80,
+          capacity: 100,
+          available_seats: 20,
+        },
+      ],
     });
     expect(registry.terms).toMatchObject([
       { term: 'FA26', frozen: false },

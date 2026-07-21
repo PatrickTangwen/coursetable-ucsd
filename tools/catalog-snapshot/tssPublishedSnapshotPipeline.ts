@@ -16,6 +16,10 @@ import {
   writeSupportedTermRegistry,
 } from './supportedTermRegistry';
 import {
+  applyTssAvailabilitySupplement,
+  parseTssAvailabilitySupplement,
+} from './tssAvailabilitySupplement';
+import {
   buildTssCatalogSnapshot,
   parseTssRequestedSubjects,
   type TssCatalogSnapshotSources,
@@ -97,21 +101,54 @@ export type TssPublishedSnapshotPipelineOptions = {
   metadataSourceTimestamp: string;
   runId?: string;
   generatedAt?: string;
+  availabilitySupplementPath?: string;
 };
 
 export type TssPublishedSnapshotPipelineResult = {
   snapshot: CatalogSnapshot;
   snapshotPath: string;
   metadataPath: string | null;
+  availabilitySupplement: {
+    path: string;
+    records: number;
+    matchedRecords: number;
+    updatedComponents: number;
+    overriddenValues: number;
+    unmatchedRecords: number;
+    unmatchedKeys: string[];
+  } | null;
 };
+
+async function optionalTextFile(filePath: string): Promise<string | null> {
+  try {
+    return await readFile(filePath, 'utf-8');
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
+    throw error;
+  }
+}
 
 /** Reads raw TSS files and normalized metadata, then publishes one artifact. */
 export async function runTssPublishedSnapshotPipeline(
   options: TssPublishedSnapshotPipelineOptions,
 ): Promise<TssPublishedSnapshotPipelineResult> {
-  const responses = await readJsonFiles(options.rawDirectory);
+  let responses = await readJsonFiles(options.rawDirectory);
   if (responses.length === 0)
     throw new Error(`No TSS JSON files found in ${options.rawDirectory}`);
+  const availabilitySupplementPath =
+    options.availabilitySupplementPath ??
+    path.join(options.rawDirectory, 'capacity_enrollment_supp.txt');
+  const availabilitySupplementContents = await optionalTextFile(
+    availabilitySupplementPath,
+  );
+  const availabilitySupplement =
+    availabilitySupplementContents !== null
+      ? applyTssAvailabilitySupplement(
+          responses,
+          parseTssAvailabilitySupplement(availabilitySupplementContents),
+        )
+      : null;
+  if (availabilitySupplement) ({ responses } = availabilitySupplement);
 
   const generalCatalogDirectory = path.join(
     options.metadataDirectory,
@@ -191,5 +228,16 @@ export async function runTssPublishedSnapshotPipeline(
     snapshot,
     snapshotPath: published.snapshotPath,
     metadataPath,
+    availabilitySupplement: availabilitySupplement
+      ? {
+          path: availabilitySupplementPath,
+          records: availabilitySupplement.records,
+          matchedRecords: availabilitySupplement.matchedRecords,
+          updatedComponents: availabilitySupplement.updatedComponents,
+          overriddenValues: availabilitySupplement.overriddenValues,
+          unmatchedRecords: availabilitySupplement.unmatchedRecords,
+          unmatchedKeys: availabilitySupplement.unmatchedKeys,
+        }
+      : null,
   };
 }

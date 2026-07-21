@@ -22,7 +22,7 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
       },
       configured_subjects: ['CSE'],
       source_timestamps: {
-        schedule_of_classes: null,
+        schedule_of_classes: '2026-07-20T00:00:00-07:00',
         general_catalog: null,
         instructor_grade_archive: null,
       },
@@ -525,7 +525,7 @@ describe('UCSD Catalog Snapshot frontend adapter', () => {
     expect(getCalendarDetails(course)).toMatchObject({
       enrolled: null,
       capacity: null,
-      waitlist_count: 0,
+      waitlist_count: null,
     });
   });
 });

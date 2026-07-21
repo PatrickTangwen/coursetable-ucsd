@@ -45,6 +45,7 @@ try {
         run_id: result.snapshot.run_id,
         active_planning_term: result.snapshot.active_planning_term,
         coverage: result.snapshot.coverage,
+        availability_supplement: result.availabilitySupplement,
         snapshot_path: result.snapshotPath,
         metadata_path: result.metadataPath,
       },
