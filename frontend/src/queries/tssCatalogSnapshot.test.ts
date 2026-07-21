@@ -99,6 +99,39 @@ const tssCatalogResponse = {
 };
 
 describe('TSS catalog response adapter', () => {
+  it('combines matching TSS component meetings across weekdays', () => {
+    const response = structuredClone(tssCatalogResponse);
+    const lecture = response.courses[0]!.booking_choices[0]!.components[0]!;
+    const baseMeeting = lecture.meetings[0]!;
+    lecture.meetings = ['F', 'M', 'W'].map((days) => ({
+      ...baseMeeting,
+      days,
+      instructor: days === 'W' ? 'Grace Hopper' : baseMeeting.instructor,
+    }));
+
+    const { coursePlanningCatalog } = catalogResponseToCatalogData(response);
+
+    expect(
+      coursePlanningCatalog?.courses[0]?.sections[0]?.meetings,
+    ).toMatchObject([
+      {
+        days: ['Monday', 'Wednesday', 'Friday'],
+        meetingType: 'Lecture',
+        rawDays: 'MWF',
+        startTime: '11:00',
+        endTime: '11:50',
+        rawLocation: 'PRICE THTRE',
+      },
+      {
+        days: ['Monday'],
+        meetingType: 'Discussion',
+      },
+    ]);
+    expect(coursePlanningCatalog?.courses[0]?.sections[0]?.instructors).toEqual(
+      [{ name: 'Phoebe Bronstein' }, { name: 'Grace Hopper' }],
+    );
+  });
+
   it('keeps TBA components when TSS uses nullable days and numeric flags', () => {
     const baseCourse = tssCatalogResponse.courses[0]!;
     const baseChoice = baseCourse.booking_choices[0]!;

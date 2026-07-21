@@ -71,6 +71,73 @@ const tssResponse = {
 };
 
 describe('TSS Catalog Snapshot pipeline input', () => {
+  it('combines matching TSS component meetings across weekdays', () => {
+    const response = structuredClone(tssResponse);
+    const lecture = response.courses[0]!.booking_choices[0]!.components[0]!;
+    const baseMeeting = lecture.meetings[0]!;
+    lecture.meetings = ['F', 'M', 'W'].map((days) => ({
+      ...baseMeeting,
+      days,
+      instructor: days === 'W' ? 'Grace Hopper' : baseMeeting.instructor,
+    }));
+
+    const snapshot = buildTssCatalogSnapshot(config, [response], {
+      runId: 'tss-fa26-combined-weekdays-test',
+      generatedAt: '2026-07-21T12:00:00.000Z',
+      generalCatalog: {
+        sourceTimestamp: '2026-07-20T12:00:00.000Z',
+        courses: [],
+      },
+      gradeArchive: {
+        sourceTimestamp: '2026-07-19T12:00:00.000Z',
+        records: [],
+      },
+    });
+
+    expect(snapshot.courses[0]?.sections[0]?.meetings).toEqual([
+      expect.objectContaining({
+        days: ['Monday', 'Wednesday', 'Friday'],
+        meeting_type: 'Lecture',
+        raw_days: 'MWF',
+        start_time: '11:00',
+        end_time: '11:50',
+        raw_location: 'PRICE THTRE',
+      }),
+    ]);
+    expect(snapshot.courses[0]?.sections[0]?.instructors).toEqual([
+      'Phoebe Bronstein',
+      'Grace Hopper',
+    ]);
+  });
+
+  it('keeps same-type component meetings separate when their schedule differs', () => {
+    const response = structuredClone(tssResponse);
+    const lecture = response.courses[0]!.booking_choices[0]!.components[0]!;
+    const baseMeeting = lecture.meetings[0]!;
+    lecture.meetings = [
+      { ...baseMeeting, days: 'M' },
+      { ...baseMeeting, days: 'W', location_displayed: 'CENTR 101' },
+    ];
+
+    const snapshot = buildTssCatalogSnapshot(config, [response], {
+      runId: 'tss-fa26-distinct-schedules-test',
+      generatedAt: '2026-07-21T12:00:00.000Z',
+      generalCatalog: {
+        sourceTimestamp: '2026-07-20T12:00:00.000Z',
+        courses: [],
+      },
+      gradeArchive: {
+        sourceTimestamp: '2026-07-19T12:00:00.000Z',
+        records: [],
+      },
+    });
+
+    expect(snapshot.courses[0]?.sections[0]?.meetings).toMatchObject([
+      { days: ['Monday'], raw_location: 'PRICE THTRE' },
+      { days: ['Wednesday'], raw_location: 'CENTR 101' },
+    ]);
+  });
+
   it('publishes an FA26 display code while enriching by canonical Course ID', () => {
     const snapshot = buildTssCatalogSnapshot(config, [tssResponse], {
       runId: 'tss-fa26-test',

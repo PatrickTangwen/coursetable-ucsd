@@ -50,6 +50,7 @@ jobs:
               - '.github/workflows/cd.yml'
             frontend:
               - 'frontend/**'
+              - 'shared/tssMeetingDays.ts'
               - '.github/workflows/cd.yml'
             db:
               - 'api/drizzle/schema.ts'

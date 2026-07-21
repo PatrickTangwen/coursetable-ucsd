@@ -43,6 +43,7 @@ jobs:
               - '.github/workflows/staging_cd.yml'
             frontend:
               - 'frontend/**'
+              - 'shared/tssMeetingDays.ts'
               - '.github/workflows/staging_cd.yml'
             db:
               - 'api/drizzle/schema.ts'
