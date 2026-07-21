@@ -330,7 +330,10 @@ function toCourse(
     courseId,
     subject,
     courseNumber,
-    courseCode: `${subject} ${courseNumber}`,
+    courseCode:
+      catalog.term === 'FA26'
+        ? sourceIdentifier(course.tss_course_code)
+        : `${subject} ${courseNumber}`,
     title: course.course_title ?? `${subject} ${courseNumber}`,
     units: null,
     description: null,

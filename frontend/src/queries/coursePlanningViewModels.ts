@@ -78,9 +78,11 @@ export type CoursePlanningSection = {
 };
 
 export type CoursePlanningCourse = {
+  /** Canonical cross-term join key, independent of display formatting. */
   courseId: string;
   subject: string;
   courseNumber: string;
+  /** Term-scoped user-facing code, such as CAT 1 or CAT-001. */
   courseCode: string;
   title: string;
   units: string | null;
@@ -159,7 +161,9 @@ type CoursePlanningSectionDraft = Omit<
   CoursePlanningSection,
   'supportedTerm' | 'availability'
 > & {
-  availability: Omit<CoursePlanningAvailability, 'snapshotTimestamp'>;
+  availability: Omit<CoursePlanningAvailability, 'snapshotTimestamp'> & {
+    snapshotTimestamp?: string | null;
+  };
 };
 
 type CoursePlanningCourseDraft = Omit<CoursePlanningCourse, 'sections'> & {
@@ -197,7 +201,17 @@ function sourceNote(raw: { [key: string]: unknown }): string | null {
   if (typeof source !== 'string' || !source) return null;
   return source === 'ucsd_schedule_of_classes'
     ? 'UCSD Schedule of Classes'
-    : source;
+    : source === 'ucsd_tss'
+      ? 'TSS schedule snapshot'
+      : source;
+}
+
+function coverageSourceNote(
+  source: string | null,
+  coverage: CoursePlanningCoverage,
+): string | null {
+  if (coverage.complete && !coverage.continuationNeeded) return source;
+  return `${source ?? 'Published Snapshot'} · partial coverage; continuation needed`;
 }
 
 const meetingSchema = z
@@ -260,7 +274,9 @@ const sectionSchema = z
       .number()
       .nullable()
       .optional()
-      .transform((value) => value ?? 0),
+      .transform((value) => (value === undefined ? 0 : value)),
+    availability_verified: z.boolean().optional().default(true),
+    availability_timestamp: z.string().nullable().optional(),
     raw: z.record(z.unknown()),
   })
   .transform(
@@ -272,13 +288,18 @@ const sectionSchema = z
       instructors: section.instructors.map((name) => ({ name })),
       meetings: dedupeMeetings(section.meetings),
       availability: {
-        enrolled: section.enrolled,
-        capacity: section.capacity,
+        enrolled: section.availability_verified ? section.enrolled : null,
+        capacity: section.availability_verified ? section.capacity : null,
         availableSeats:
-          section.enrolled === null || section.capacity === null
+          !section.availability_verified ||
+          section.enrolled === null ||
+          section.capacity === null
             ? null
             : Math.max(section.capacity - section.enrolled, 0),
-        waitlistCount: section.waitlist_count,
+        waitlistCount: section.availability_verified
+          ? section.waitlist_count
+          : null,
+        snapshotTimestamp: section.availability_timestamp,
       },
       sourceNote: sourceNote(section.raw),
     }),
@@ -289,6 +310,7 @@ const courseSchema = z
     course_id: z.string(),
     subject: z.string(),
     course_number: z.string(),
+    display_course_code: z.string().min(1).nullable().optional(),
     title: z.string(),
     units: z.string().nullable(),
     description: z.string().nullable(),
@@ -310,7 +332,9 @@ const courseSchema = z
       courseId: course.course_id,
       subject: course.subject,
       courseNumber: course.course_number,
-      courseCode: `${course.subject} ${course.course_number}`,
+      courseCode:
+        course.display_course_code ??
+        `${course.subject} ${course.course_number}`,
       title: course.title,
       units: course.units,
       description: course.description,
@@ -343,12 +367,22 @@ export const publishedSnapshotSchema = z
         end: z.string(),
       })
       .nullable(),
+    coverage: z
+      .object({
+        complete: z.boolean(),
+        continuation_needed: z.boolean(),
+      })
+      .optional(),
     configured_subjects: z.array(z.string()),
     source_timestamps: sourceTimestampsSchema,
     courses: z.array(courseSchema),
   })
-  .transform(
-    (snapshot): CoursePlanningCatalog => ({
+  .transform((snapshot): CoursePlanningCatalog => {
+    const coverage = {
+      complete: snapshot.coverage?.complete ?? true,
+      continuationNeeded: snapshot.coverage?.continuation_needed ?? false,
+    };
+    return {
       supportedTerm: snapshot.active_planning_term,
       termLabel: snapshot.term_label,
       generatedAt: snapshot.generated_at,
@@ -359,23 +393,28 @@ export const publishedSnapshotSchema = z
         instructorGradeArchive:
           snapshot.source_timestamps.instructor_grade_archive,
       },
-      coverage: {
-        complete: true,
-        continuationNeeded: false,
-      },
+      coverage,
       courses: snapshot.courses.map((course) => ({
         ...course,
+        courseCode:
+          snapshot.active_planning_term === 'FA26'
+            ? course.courseCode
+            : `${course.subject} ${course.courseNumber}`,
         sections: course.sections.map((section) => ({
           ...section,
           supportedTerm: snapshot.active_planning_term,
+          sourceNote: coverageSourceNote(section.sourceNote, coverage),
           availability: {
             ...section.availability,
-            snapshotTimestamp: snapshot.source_timestamps.schedule_of_classes,
+            snapshotTimestamp:
+              section.availability.snapshotTimestamp === undefined
+                ? snapshot.source_timestamps.schedule_of_classes
+                : section.availability.snapshotTimestamp,
           },
         })),
       })),
-    }),
-  );
+    };
+  });
 
 export function normalizePublishedSnapshot(
   response: unknown,

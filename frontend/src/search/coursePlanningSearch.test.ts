@@ -83,6 +83,22 @@ const catalog: CoursePlanningCatalog = {
       pastGrades: [],
       sections: [],
     },
+    {
+      courseId: 'CAT:1',
+      subject: 'CAT',
+      courseNumber: '1',
+      courseCode: 'CAT-001',
+      title: 'Culture, Art, and Technology 1',
+      units: '4',
+      description: null,
+      prerequisites: null,
+      restrictions: null,
+      requirements: null,
+      catalogUrl: null,
+      archiveRecordCount: 0,
+      pastGrades: [],
+      sections: [],
+    },
   ],
 };
 
@@ -121,6 +137,16 @@ for (const course of catalog.courses) {
 }
 
 describe('Course Planning Catalog search', () => {
+  it('matches the FA26 TSS display code', () => {
+    const listings = flattenCoursePlanningCatalog(catalog);
+    const results = filterAndSortCoursePlanningListings(listings, {
+      ...defaultFilters,
+      searchText: 'CAT-001',
+    });
+
+    expect(results.map(({ course }) => course.courseCode)).toEqual(['CAT-001']);
+  });
+
   it('filters owned listings and preserves numeric course-code ordering', () => {
     const listings = flattenCoursePlanningCatalog(catalog);
     const results = filterAndSortCoursePlanningListings(listings, {

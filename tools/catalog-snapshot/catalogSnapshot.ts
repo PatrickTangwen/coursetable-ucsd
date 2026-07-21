@@ -99,7 +99,9 @@ const sectionSchema = z
     meetings: z.array(meetingSchema),
     enrolled: z.number().int().nonnegative().nullable(),
     capacity: z.number().int().nonnegative().nullable(),
-    waitlist_count: z.number().int().nonnegative(),
+    waitlist_count: z.number().int().nonnegative().nullable(),
+    availability_verified: z.boolean().optional(),
+    availability_timestamp: z.string().nullable().optional(),
     raw: z.record(z.unknown()),
   })
   .strict();
@@ -109,6 +111,7 @@ const courseSchema = z
     course_id: z.string().min(1),
     subject: z.string().min(1),
     course_number: z.string().min(1),
+    display_course_code: z.string().min(1).nullable().optional(),
     title: z.string().min(1),
     units: z.string().nullable(),
     description: z.string().nullable(),
@@ -136,6 +139,13 @@ export const catalogSnapshotSchema = z
       })
       .strict()
       .nullable(),
+    coverage: z
+      .object({
+        complete: z.boolean(),
+        continuation_needed: z.boolean(),
+      })
+      .strict()
+      .optional(),
     configured_subjects: z.array(z.string().min(1)).min(1),
     source_timestamps: sourceTimestampsSchema,
     courses: z.array(courseSchema),

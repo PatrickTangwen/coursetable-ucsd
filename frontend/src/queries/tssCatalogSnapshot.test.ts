@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { flattenCoursePlanningCatalog } from './coursePlanningViewModels';
 import type { Season } from './graphql-types';
-import { catalogResponseToCatalogData } from './ucsdCatalogSnapshot';
+import {
+  adaptCoursePlanningCatalog,
+  catalogResponseToCatalogData,
+} from './ucsdCatalogSnapshot';
 import { coursePlanningListingToWorksheetCourse } from '../types/worksheetCourse';
 import { getCalendarEvents } from '../utilities/calendar';
 
@@ -168,12 +171,64 @@ describe('TSS catalog response adapter', () => {
           courseId: 'CAT:1',
           subject: 'CAT',
           courseNumber: '1',
-          courseCode: 'CAT 1',
+          courseCode: 'CAT-001',
           title: 'Culture, Art, and Technology 1',
         },
       ],
     });
     expect(data.legacyCourseMap).toHaveLength(1);
+  });
+
+  it('keeps the legacy display format outside FA26', () => {
+    const response = { ...tssCatalogResponse, term: 'SP26' };
+
+    const { coursePlanningCatalog } = catalogResponseToCatalogData(response);
+
+    expect(coursePlanningCatalog?.courses[0]).toMatchObject({
+      courseId: 'CAT:1',
+      courseNumber: '1',
+      courseCode: 'CAT 1',
+    });
+  });
+
+  it('keeps a stable canonical identity for catalog and past-offering joins', () => {
+    const { coursePlanningCatalog } =
+      catalogResponseToCatalogData(tssCatalogResponse);
+    expect(coursePlanningCatalog).not.toBeNull();
+
+    const tssCourse = coursePlanningCatalog!.courses[0]!;
+    const historicalCatalog = {
+      ...coursePlanningCatalog!,
+      supportedTerm: 'SP26',
+      courses: [
+        {
+          ...tssCourse,
+          courseCode: 'CAT 1',
+          description: 'General Catalog description',
+          catalogUrl: 'https://catalog.ucsd.edu/courses/CAT.html#cat1',
+          archiveRecordCount: 33,
+          sections: tssCourse.sections.map((section) => ({
+            ...section,
+            sectionId: section.sectionId.replace(/^FA26:/u, 'SP26:'),
+            supportedTerm: 'SP26',
+          })),
+        },
+      ],
+    };
+    const [tssLegacyCourse] = adaptCoursePlanningCatalog(
+      coursePlanningCatalog!,
+    ).values();
+    const [historicalLegacyCourse] =
+      adaptCoursePlanningCatalog(historicalCatalog).values();
+
+    expect(tssCourse).toMatchObject({
+      courseId: 'CAT:1',
+      courseNumber: '1',
+      courseCode: 'CAT-001',
+    });
+    expect(tssLegacyCourse?.same_course_id).toBe(
+      historicalLegacyCourse?.same_course_id,
+    );
   });
 
   it('preserves partial coverage and hides availability without a source timestamp', () => {
@@ -231,7 +286,7 @@ describe('TSS catalog response adapter', () => {
     expect(events).toHaveLength(4);
     expect(events.map((event) => event.day)).toEqual([1, 3, 5, 1]);
     expect(events[0]).toMatchObject({
-      title: 'CAT 1 001-000-LE + 001-001-DI Lecture',
+      title: 'CAT-001 001-000-LE + 001-001-DI Lecture',
       location: 'PRICE THTRE',
       meetingType: 'Lecture',
       section: '001-000-LE + 001-001-DI',
@@ -252,7 +307,7 @@ describe('TSS catalog response adapter', () => {
       generatedAt: '2026-07-21T16:24:07+00:00',
       course: {
         courseId: 'CAT:1',
-        courseCode: 'CAT 1',
+        courseCode: 'CAT-001',
         title: 'Culture, Art, and Technology 1',
       },
       section: {

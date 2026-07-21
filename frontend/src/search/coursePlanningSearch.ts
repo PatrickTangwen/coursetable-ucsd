@@ -70,6 +70,7 @@ function matchesSearchText(
   const first = course.courseNumber.charAt(0);
   return tokens.every(
     (token) =>
+      course.courseCode.toLowerCase().startsWith(token) ||
       course.subject.toLowerCase().startsWith(token) ||
       course.courseNumber.toLowerCase().startsWith(token) ||
       (/\D/u.test(first) &&
@@ -294,7 +295,7 @@ export function coursePlanningQueryValue(
     case 'credits':
       return legacySearchCreditValue(course.units);
     case '*':
-      return `${course.subject} ${course.courseNumber} ${course.title} ${section.instructors.map(({ name }) => name).join(' ')}`;
+      return `${course.courseCode} ${course.subject} ${course.courseNumber} ${course.title} ${section.instructors.map(({ name }) => name).join(' ')}`;
     default:
       return null;
   }

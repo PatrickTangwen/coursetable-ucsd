@@ -23,6 +23,7 @@
     "resize-image": "bun tools/resize-image.mts",
     "resize-image:check": "bun tools/resize-image.mts --test",
     "snapshot:publish": "bun tools/catalog-snapshot/generate-published-snapshot.mts --config config/catalog-snapshot.ucsd.yaml",
+    "snapshot:tss": "bun tools/catalog-snapshot/generate-tss-published-snapshot.mts",
     "snapshot:tracer": "bun tools/catalog-snapshot/generate-tracer-snapshot.mts --config config/catalog-snapshot.ucsd.yaml",
     "snapshot:schedule": "bun tools/catalog-snapshot/generate-schedule-snapshot.mts --config config/catalog-snapshot.ucsd.yaml",
     "test:snapshot": "vitest run tools/**/*.test.ts",

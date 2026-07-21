@@ -2,9 +2,13 @@ import { describe, expect, it } from 'vitest';
 
 import {
   coursePlanningSectionModalId,
+  flattenCoursePlanningCatalog,
   normalizePublishedSnapshot,
 } from './coursePlanningViewModels';
+import type { Season } from './graphql-types';
 import { adaptCoursePlanningCatalog } from './ucsdCatalogSnapshot';
+import { coursePlanningListingToWorksheetCourse } from '../types/worksheetCourse';
+import { getCalendarExport } from '../utilities/calendar';
 
 describe('Published Snapshot Course Planning view-model seam', () => {
   it('normalizes canonical Course Planning data without inherited transport fields', () => {
@@ -17,6 +21,7 @@ describe('Published Snapshot Course Planning view-model seam', () => {
         start: '2026-09-24',
         end: '2026-12-12',
       },
+      coverage: { complete: false, continuation_needed: true },
       configured_subjects: ['CSE'],
       source_timestamps: {
         schedule_of_classes: '2026-07-17T10:00:00.000Z',
@@ -28,6 +33,7 @@ describe('Published Snapshot Course Planning view-model seam', () => {
           course_id: 'CSE:1',
           subject: 'CSE',
           course_number: '1',
+          display_course_code: 'CSE-001',
           title: 'Tracer Course',
           units: '4',
           description: 'A Course Planning fixture.',
@@ -82,7 +88,7 @@ describe('Published Snapshot Course Planning view-model seam', () => {
               enrolled: 80,
               capacity: 100,
               waitlist_count: 2,
-              raw: { source: 'ucsd_schedule_of_classes' },
+              raw: { source: 'ucsd_tss' },
             },
           ],
         },
@@ -102,13 +108,13 @@ describe('Published Snapshot Course Planning view-model seam', () => {
         generalCatalog: '2026-07-16T10:00:00.000Z',
         instructorGradeArchive: '2026-07-15T10:00:00.000Z',
       },
-      coverage: { complete: true, continuationNeeded: false },
+      coverage: { complete: false, continuationNeeded: true },
       courses: [
         {
           courseId: 'CSE:1',
           subject: 'CSE',
           courseNumber: '1',
-          courseCode: 'CSE 1',
+          courseCode: 'CSE-001',
           title: 'Tracer Course',
           units: '4',
           description: 'A Course Planning fixture.',
@@ -167,11 +173,67 @@ describe('Published Snapshot Course Planning view-model seam', () => {
                 waitlistCount: 2,
                 snapshotTimestamp: '2026-07-17T10:00:00.000Z',
               },
-              sourceNote: 'UCSD Schedule of Classes',
+              sourceNote:
+                'TSS schedule snapshot · partial coverage; continuation needed',
             },
           ],
         },
       ],
+    });
+
+    const [listing] = flattenCoursePlanningCatalog(catalog!);
+    const worksheetCourse = coursePlanningListingToWorksheetCourse(
+      listing!,
+      '#123456',
+      false,
+    );
+    const calendarExport = getCalendarExport(
+      'ics',
+      [worksheetCourse],
+      'FA26' as Season,
+    );
+    expect(calendarExport.events[0]).toContain(
+      'partial coverage; continuation needed',
+    );
+  });
+
+  it('ignores the TSS display field outside FA26', () => {
+    const catalog = normalizePublishedSnapshot({
+      run_id: 'run-legacy-display-fixture',
+      generated_at: '2026-07-17T12:00:00.000Z',
+      active_planning_term: 'SP26',
+      term_label: 'Spring 2026',
+      term_date_range: null,
+      configured_subjects: ['CAT'],
+      source_timestamps: {
+        schedule_of_classes: null,
+        general_catalog: null,
+        instructor_grade_archive: null,
+      },
+      courses: [
+        {
+          course_id: 'CAT:1',
+          subject: 'CAT',
+          course_number: '1',
+          display_course_code: 'CAT-001',
+          title: 'Sixth College Seminar',
+          units: '4',
+          description: null,
+          prerequisites_text: null,
+          restrictions_text: null,
+          catalog_url: null,
+          archive_avg_gpa: null,
+          archive_record_count: 0,
+          grade_archive_records: [],
+          ge_matches: [],
+          sections: [],
+        },
+      ],
+    });
+
+    expect(catalog?.courses[0]).toMatchObject({
+      courseId: 'CAT:1',
+      courseCode: 'CAT 1',
     });
   });
 
