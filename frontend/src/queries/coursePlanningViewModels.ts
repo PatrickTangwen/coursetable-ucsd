@@ -56,6 +56,7 @@ export type CoursePlanningAvailability = {
   enrolled: number | null;
   capacity: number | null;
   availableSeats: number | null;
+  capacityKind: 'bounded' | 'effectively_unbounded' | null;
   waitlistCount: number | null;
   snapshotTimestamp: string | null;
 };
@@ -271,6 +272,11 @@ const sectionSchema = z
       .optional()
       .transform((value) => value ?? null),
     available_seats: z.number().nullable().optional(),
+    capacity_kind: z
+      .enum(['bounded', 'effectively_unbounded'])
+      .nullable()
+      .optional()
+      .transform((value) => value ?? null),
     waitlist_count: z
       .number()
       .nullable()
@@ -280,8 +286,15 @@ const sectionSchema = z
     availability_timestamp: z.string().nullable().optional(),
     raw: z.record(z.unknown()),
   })
-  .transform(
-    (section): CoursePlanningSectionDraft => ({
+  .transform((section): CoursePlanningSectionDraft => {
+    const isSentinel = (value: number | null | undefined) =>
+      value === 9999 || value === 99999;
+    const effectivelyUnbounded =
+      section.capacity_kind === 'effectively_unbounded' ||
+      isSentinel(section.capacity) ||
+      isSentinel(section.available_seats);
+
+    return {
       sectionId: section.section_id,
       courseId: section.course_id,
       sectionCode: section.section_code,
@@ -289,22 +302,35 @@ const sectionSchema = z
       instructors: section.instructors.map((name) => ({ name })),
       meetings: dedupeMeetings(section.meetings),
       availability: {
-        enrolled: section.availability_verified ? section.enrolled : null,
-        capacity: section.availability_verified ? section.capacity : null,
-        availableSeats: !section.availability_verified
-          ? null
-          : (section.available_seats ??
-            (section.enrolled === null || section.capacity === null
-              ? null
-              : Math.max(section.capacity - section.enrolled, 0))),
+        enrolled: section.availability_verified
+          ? effectivelyUnbounded && isSentinel(section.enrolled)
+            ? null
+            : section.enrolled
+          : null,
+        capacity:
+          section.availability_verified && !effectivelyUnbounded
+            ? section.capacity
+            : null,
+        availableSeats:
+          !section.availability_verified || effectivelyUnbounded
+            ? null
+            : (section.available_seats ??
+              (section.enrolled === null || section.capacity === null
+                ? null
+                : Math.max(section.capacity - section.enrolled, 0))),
+        capacityKind: section.availability_verified
+          ? effectivelyUnbounded
+            ? 'effectively_unbounded'
+            : section.capacity_kind
+          : null,
         waitlistCount: section.availability_verified
           ? section.waitlist_count
           : null,
         snapshotTimestamp: section.availability_timestamp,
       },
       sourceNote: sourceNote(section.raw),
-    }),
-  );
+    };
+  });
 
 const courseSchema = z
   .object({
@@ -416,6 +442,7 @@ export const publishedSnapshotSchema = z
                   enrolled: null,
                   capacity: null,
                   availableSeats: null,
+                  capacityKind: null,
                   waitlistCount: null,
                   snapshotTimestamp: null,
                 },

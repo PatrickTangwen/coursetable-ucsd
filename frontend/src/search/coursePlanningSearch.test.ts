@@ -129,6 +129,7 @@ for (const course of catalog.courses) {
       enrolled: 80,
       capacity: 100,
       availableSeats: 20,
+      capacityKind: 'bounded',
       waitlistCount: 0,
       snapshotTimestamp: '2026-07-17T10:00:00.000Z',
     },

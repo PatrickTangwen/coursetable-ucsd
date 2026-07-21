@@ -23,20 +23,39 @@ export default function SeatsDisplay({
   enrolled,
   capacity,
   availableSeats,
+  capacityKind = null,
   variant = 'default',
 }: {
   readonly enrolled: number | null;
   readonly capacity: number | null;
   readonly availableSeats?: number | null;
+  readonly capacityKind?: 'bounded' | 'effectively_unbounded' | null;
   readonly variant?: 'default' | 'subrow';
 }) {
-  const hasCapacity = enrolled !== null && capacity !== null && capacity > 0;
-  const displayedAvailableSeats = hasCapacity
-    ? Math.max(capacity - enrolled, 0)
-    : availableSeats;
-  if (displayedAvailableSeats === null || displayedAvailableSeats === undefined)
-    return null;
-  const status = hasCapacity ? seatsColor(enrolled, capacity) : 'available';
+  if (capacityKind === 'effectively_unbounded') {
+    return (
+      <div
+        className={clsx(
+          styles.container,
+          variant === 'subrow' && styles.subrow,
+        )}
+      >
+        <span className={clsx(styles.text, textClass.available)}>
+          Open · no fixed cap
+        </span>
+      </div>
+    );
+  }
+  const hasCapacity = capacity !== null && capacity > 0;
+  const displayedAvailableSeats =
+    availableSeats ??
+    (enrolled !== null && capacity !== null
+      ? Math.max(capacity - enrolled, 0)
+      : null);
+  if (displayedAvailableSeats === null) return null;
+  const status = hasCapacity
+    ? seatsColor(enrolled, capacity, displayedAvailableSeats)
+    : 'available';
   const availablePct = hasCapacity
     ? Math.min((displayedAvailableSeats / capacity) * 100, 100)
     : null;

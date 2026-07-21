@@ -62,6 +62,7 @@ export type UcsdCalendarDetails = {
   meetings: LegacyUcsdMeeting[];
   enrolled: number | null;
   capacity: number | null;
+  capacity_kind: 'bounded' | 'effectively_unbounded' | null;
   waitlist_count: number | null;
   source_note: string | null;
 };
@@ -213,6 +214,7 @@ function toCoursePublic(
     meetings: section.meetings.map(toLegacyMeeting),
     enrolled: section.availability.enrolled,
     capacity: section.availability.capacity,
+    capacity_kind: section.availability.capacityKind,
     waitlist_count: section.availability.waitlistCount,
     source_note: section.sourceNote,
   };

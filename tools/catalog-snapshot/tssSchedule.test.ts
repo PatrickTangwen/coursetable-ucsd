@@ -221,6 +221,44 @@ describe('TSS Catalog Snapshot pipeline input', () => {
     expect(snapshot.courses[0]?.sections[0]?.available_seats).toBeNull();
   });
 
+  it('publishes TSS sentinel limits as effectively unbounded availability', () => {
+    const response = structuredClone(tssResponse);
+    Object.assign(
+      response.courses[0]!.booking_choices[0]!.components[0]!.enrollment,
+      {
+        enrolled: 0,
+        capacity: null,
+        seats_available: 9999,
+      },
+    );
+
+    const snapshot = buildTssCatalogSnapshot(config, [response], {
+      runId: 'tss-fa26-unbounded-test',
+      generatedAt: '2026-07-21T12:00:00.000Z',
+      generalCatalog: {
+        sourceTimestamp: '2026-07-20T12:00:00.000Z',
+        courses: [],
+      },
+      gradeArchive: {
+        sourceTimestamp: '2026-07-19T12:00:00.000Z',
+        records: [],
+      },
+    });
+
+    expect(snapshot.courses[0]?.sections[0]).toMatchObject({
+      enrolled: 0,
+      capacity: null,
+      available_seats: null,
+      capacity_kind: 'effectively_unbounded',
+      reported_capacity: null,
+      reported_seats_available: 9999,
+    });
+    expect(validateCatalogSnapshot(snapshot, config)).toEqual({
+      success: true,
+      errors: [],
+    });
+  });
+
   it('distinguishes zero offerings from incomplete or omitted requested data', () => {
     const sources = {
       runId: 'tss-fa26-requested-subjects-test',

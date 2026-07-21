@@ -25,6 +25,9 @@ const tssEnrollmentSchema = z.object({
   enrolled: z.number().nullable(),
   capacity: z.number().nullable(),
   seats_available: z.number().nullable(),
+  capacity_kind: z.enum(['bounded', 'effectively_unbounded']).optional(),
+  reported_capacity: z.number().nullable().optional(),
+  reported_seats_available: z.number().nullable().optional(),
   waitlist: z.object({
     state: z.string(),
     count: z.number().nullable(),
@@ -258,24 +261,58 @@ function choiceAvailability(choice: TssBookingChoice) {
     (component) => component.requirement === 'required',
   );
   const components = required.length > 0 ? required : choice.components;
+  const isUnbounded = (component: (typeof components)[number]) =>
+    component.enrollment.capacity_kind === 'effectively_unbounded' ||
+    component.enrollment.capacity === 9999 ||
+    component.enrollment.capacity === 99999 ||
+    component.enrollment.seats_available === 9999 ||
+    component.enrollment.seats_available === 99999;
   const allSeatsKnown = components.every(
-    (component) => component.enrollment.seats_available !== null,
+    (component) =>
+      isUnbounded(component) || component.enrollment.seats_available !== null,
   );
-  const limitingSeats = allSeatsKnown
-    ? Math.min(
-        ...components.map((component) => component.enrollment.seats_available!),
-      )
-    : null;
-  const limitingComponent = components.find(
-    (component) => component.enrollment.seats_available === limitingSeats,
+  const boundedComponents = components.filter(
+    (component) => !isUnbounded(component),
   );
+  const limitingComponent = (allSeatsKnown ? boundedComponents : []).reduce<
+    (typeof components)[number] | null
+  >((current, component) => {
+    if (!current) return component;
+    return component.enrollment.seats_available! <
+      current.enrollment.seats_available!
+      ? component
+      : current;
+  }, null);
+  const allUnbounded =
+    allSeatsKnown && components.every((component) => isUnbounded(component));
+  const unboundedEnrolled = allUnbounded
+    ? components
+        .map((component) => component.enrollment.enrolled)
+        .filter(
+          (value): value is number =>
+            value !== null && value !== 9999 && value !== 99999,
+        )
+    : [];
   const waitlistCounts = components
     .map((component) => component.enrollment.waitlist.count)
     .filter((count): count is number => count !== null);
   return {
-    enrolled: limitingComponent?.enrollment.enrolled ?? null,
-    capacity: limitingComponent?.enrollment.capacity ?? null,
-    availableSeats: limitingSeats,
+    enrolled: allUnbounded
+      ? unboundedEnrolled.length
+        ? Math.max(...unboundedEnrolled)
+        : null
+      : (limitingComponent?.enrollment.enrolled ?? null),
+    capacity: allUnbounded
+      ? null
+      : (limitingComponent?.enrollment.capacity ?? null),
+    availableSeats: allUnbounded
+      ? null
+      : (limitingComponent?.enrollment.seats_available ?? null),
+    capacityKind: allUnbounded
+      ? ('effectively_unbounded' as const)
+      : limitingComponent
+        ? ('bounded' as const)
+        : null,
     waitlistCount:
       waitlistCounts.length > 0 ? Math.max(...waitlistCounts) : null,
   };
@@ -328,6 +365,7 @@ function toSection(
       enrolled: snapshotTimestamp ? availability.enrolled : null,
       capacity: snapshotTimestamp ? availability.capacity : null,
       availableSeats: snapshotTimestamp ? availability.availableSeats : null,
+      capacityKind: snapshotTimestamp ? availability.capacityKind : null,
       waitlistCount: snapshotTimestamp ? availability.waitlistCount : null,
       snapshotTimestamp,
     },

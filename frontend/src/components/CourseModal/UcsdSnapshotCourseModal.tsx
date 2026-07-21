@@ -420,6 +420,8 @@ function MeetingRow({
           row.section.availability.enrolled,
           row.section.availability.capacity,
           row.section.availability.waitlistCount,
+          row.section.availability.availableSeats,
+          row.section.availability.capacityKind,
         )
       : null;
   const meetingTime = formatTime(row.meeting.startTime, row.meeting.endTime);

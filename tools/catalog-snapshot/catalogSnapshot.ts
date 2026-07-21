@@ -100,12 +100,44 @@ const sectionSchema = z
     enrolled: z.number().int().nonnegative().nullable(),
     capacity: z.number().int().nonnegative().nullable(),
     available_seats: z.number().int().nonnegative().nullable().optional(),
+    capacity_kind: z
+      .enum(['bounded', 'effectively_unbounded'])
+      .nullable()
+      .optional(),
+    reported_capacity: z.number().int().nonnegative().nullable().optional(),
+    reported_seats_available: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional(),
     waitlist_count: z.number().int().nonnegative().nullable(),
     availability_verified: z.boolean().optional(),
     availability_timestamp: z.string().nullable().optional(),
     raw: z.record(z.unknown()),
   })
-  .strict();
+  .strict()
+  .superRefine((section, context) => {
+    if (section.capacity_kind !== 'effectively_unbounded') return;
+    if (section.capacity !== null || section.available_seats !== null) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'effectively unbounded availability cannot publish numeric capacity or available seats',
+      });
+    }
+    const hasReportedSentinel = [
+      section.reported_capacity,
+      section.reported_seats_available,
+    ].some((value) => value === 9999 || value === 99999);
+    if (!hasReportedSentinel) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'effectively unbounded availability requires a reported sentinel value',
+      });
+    }
+  });
 
 const courseSchema = z
   .object({
@@ -297,6 +329,7 @@ function validateAvailabilityTimestamps(snapshot: CatalogSnapshot): string[] {
     course.sections.flatMap((section, sectionIndex) => {
       const hasVerifiedAvailability =
         section.availability_verified === true ||
+        section.capacity_kind === 'effectively_unbounded' ||
         section.enrolled !== null ||
         section.capacity !== null ||
         (section.available_seats !== null &&

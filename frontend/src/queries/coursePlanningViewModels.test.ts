@@ -170,6 +170,7 @@ describe('Published Snapshot Course Planning view-model seam', () => {
                 enrolled: 80,
                 capacity: 100,
                 availableSeats: 20,
+                capacityKind: null,
                 waitlistCount: 2,
                 snapshotTimestamp: '2026-07-17T10:00:00.000Z',
               },
@@ -282,6 +283,21 @@ describe('Published Snapshot Course Planning view-model seam', () => {
               availability_timestamp: '2026-07-20T00:00:00-07:00',
               raw: { source: 'ucsd_tss' },
             },
+            {
+              section_id: 'FA26:CAT-001:E00000666',
+              course_id: 'CAT:1',
+              section_code: '002-000-IN',
+              meeting_type: 'Independent Study',
+              instructors: [],
+              meetings: [],
+              enrolled: 0,
+              capacity: null,
+              available_seats: 9999,
+              waitlist_count: null,
+              availability_verified: true,
+              availability_timestamp: '2026-07-20T00:00:00-07:00',
+              raw: { source: 'ucsd_tss' },
+            },
           ],
         },
       ],
@@ -306,12 +322,19 @@ describe('Published Snapshot Course Planning view-model seam', () => {
       enrolled: null,
       capacity: null,
       availableSeats: 16,
+      capacityKind: null,
       waitlistCount: null,
       snapshotTimestamp: '2026-07-20T00:00:00-07:00',
     });
     expect(
       withoutTimestamp?.courses[0]?.sections[0]?.availability.availableSeats,
     ).toBeNull();
+    expect(catalog?.courses[0]?.sections[1]?.availability).toMatchObject({
+      enrolled: 0,
+      capacity: null,
+      availableSeats: null,
+      capacityKind: 'effectively_unbounded',
+    });
   });
 
   it('adapts an owned Course Planning catalog through the temporary legacy boundary', () => {
@@ -371,6 +394,7 @@ describe('Published Snapshot Course Planning view-model seam', () => {
                 enrolled: 80,
                 capacity: 100,
                 availableSeats: 20,
+                capacityKind: 'bounded',
                 waitlistCount: 2,
                 snapshotTimestamp: '2026-07-17T10:00:00.000Z',
               },

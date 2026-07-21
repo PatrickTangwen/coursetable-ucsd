@@ -35,6 +35,9 @@ const componentSchema = z.object({
     enrolled: z.number().nullable(),
     capacity: z.number().nullable(),
     seats_available: z.number().nullable(),
+    capacity_kind: z.enum(['bounded', 'effectively_unbounded']).optional(),
+    reported_capacity: z.number().nullable().optional(),
+    reported_seats_available: z.number().nullable().optional(),
     waitlist: z.object({
       state: z.string(),
       count: z.number().nullable(),
@@ -267,11 +270,21 @@ function choiceEnrollment(choice: BookingChoice) {
     (component) => component.requirement === 'required',
   );
   const components = required.length ? required : choice.components;
+  const isUnbounded = (component: TssComponent) =>
+    component.enrollment.capacity_kind === 'effectively_unbounded' ||
+    component.enrollment.capacity === 9999 ||
+    component.enrollment.capacity === 99999 ||
+    component.enrollment.seats_available === 9999 ||
+    component.enrollment.seats_available === 99999;
   const allSeatsKnown = components.every(
-    (component) => component.enrollment.seats_available !== null,
+    (component) =>
+      isUnbounded(component) || component.enrollment.seats_available !== null,
+  );
+  const boundedComponents = components.filter(
+    (component) => !isUnbounded(component),
   );
   const limiting = (
-    allSeatsKnown ? components : []
+    allSeatsKnown ? boundedComponents : []
   ).reduce<TssComponent | null>((current, item) => {
     if (!current) return item;
     return item.enrollment.seats_available! <
@@ -283,10 +296,40 @@ function choiceEnrollment(choice: BookingChoice) {
     const { count } = component.enrollment.waitlist;
     return count === null ? [] : [count];
   });
+  const allUnbounded =
+    allSeatsKnown && components.every((component) => isUnbounded(component));
+  const reportedUnbounded = allUnbounded ? components[0] : null;
+  const unboundedEnrolled = allUnbounded
+    ? components
+        .map((component) => component.enrollment.enrolled)
+        .filter(
+          (value): value is number =>
+            value !== null && value !== 9999 && value !== 99999,
+        )
+    : [];
   return {
-    enrolled: limiting?.enrollment.enrolled ?? null,
-    capacity: limiting?.enrollment.capacity ?? null,
-    availableSeats: limiting?.enrollment.seats_available ?? null,
+    enrolled: allUnbounded
+      ? unboundedEnrolled.length
+        ? Math.max(...unboundedEnrolled)
+        : null
+      : (limiting?.enrollment.enrolled ?? null),
+    capacity: allUnbounded ? null : (limiting?.enrollment.capacity ?? null),
+    availableSeats: allUnbounded
+      ? null
+      : (limiting?.enrollment.seats_available ?? null),
+    capacityKind: allUnbounded
+      ? ('effectively_unbounded' as const)
+      : limiting
+        ? ('bounded' as const)
+        : undefined,
+    reportedCapacity: reportedUnbounded
+      ? (reportedUnbounded.enrollment.reported_capacity ??
+        reportedUnbounded.enrollment.capacity)
+      : undefined,
+    reportedSeatsAvailable: reportedUnbounded
+      ? (reportedUnbounded.enrollment.reported_seats_available ??
+        reportedUnbounded.enrollment.seats_available)
+      : undefined,
     waitlistCount: waitlistCounts.length ? Math.max(...waitlistCounts) : null,
   };
 }
@@ -318,6 +361,9 @@ function toSection(
     enrolled: enrollment.enrolled,
     capacity: enrollment.capacity,
     available_seats: enrollment.availableSeats,
+    capacity_kind: enrollment.capacityKind,
+    reported_capacity: enrollment.reportedCapacity,
+    reported_seats_available: enrollment.reportedSeatsAvailable,
     waitlist_count: enrollment.waitlistCount,
     availability_verified: Boolean(
       catalog.source_metadata.last_refreshed_displayed,

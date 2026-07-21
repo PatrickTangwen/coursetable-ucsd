@@ -216,7 +216,7 @@ describe('Catalog Snapshot validation', () => {
     );
   });
 
-  it('accepts source-provided and derived snapshot-static availability fields on sections', () => {
+  it('accepts source-provided snapshot-static availability fields on sections', () => {
     const config = makeConfig();
     const snapshot = buildTracerCatalogSnapshot(config, {
       runId: 'run-test',
@@ -232,6 +232,32 @@ describe('Catalog Snapshot validation', () => {
     const result = validateCatalogSnapshot(snapshot, config);
 
     expect(result).toEqual({ success: true, errors: [] });
+  });
+
+  it('rejects numeric seats on an effectively unbounded section', () => {
+    const config = makeConfig();
+    const snapshot = buildTracerCatalogSnapshot(config, {
+      runId: 'run-test',
+      generatedAt: '2026-06-19T12:00:00.000Z',
+    });
+    Object.assign(snapshot.courses[0]!.sections[0]!, {
+      capacity: 9999,
+      available_seats: 9999,
+      capacity_kind: 'effectively_unbounded' as const,
+      reported_capacity: 9999,
+      availability_timestamp: '2026-06-19T12:00:00.000Z',
+    });
+
+    const result = validateCatalogSnapshot(snapshot, config);
+
+    expect(result.success).toBe(false);
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining(
+          'effectively unbounded availability cannot publish numeric capacity or available seats',
+        ),
+      ]),
+    );
   });
 
   it('rejects verified availability without a section or schedule timestamp', () => {

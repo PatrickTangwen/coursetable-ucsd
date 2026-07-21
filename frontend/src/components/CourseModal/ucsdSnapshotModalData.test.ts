@@ -107,6 +107,7 @@ function listing({
         enrolled,
         capacity,
         availableSeats: capacity - enrolled,
+        capacityKind: 'bounded',
         waitlistCount: waitlist,
         snapshotTimestamp: '2026-06-20T00:00:00.000Z',
       },
@@ -125,6 +126,19 @@ function listing({
 }
 
 describe('UCSD snapshot modal data', () => {
+  it('formats source-reported and effectively unbounded availability', () => {
+    expect(formatUcsdAvailability(20, 100, null, 90)).toMatchObject({
+      main: '90 seats left',
+    });
+    expect(
+      formatUcsdAvailability(null, null, null, null, 'effectively_unbounded'),
+    ).toEqual({
+      main: 'Open · no fixed cap',
+      detail: '',
+      status: 'available',
+    });
+  });
+
   it('groups same-course listings into offering families with shared anchors', () => {
     const lecture = meeting('Lecture', 'TuTh', '09:30', '10:50');
     const discussion = meeting('Discussion', 'W', '15:00', '15:50');

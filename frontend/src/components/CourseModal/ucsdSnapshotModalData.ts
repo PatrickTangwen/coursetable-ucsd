@@ -106,11 +106,17 @@ function buildOfferingGroups(
     sections: familySections,
     sharedMeetings: findSharedMeetings(familySections),
     totalEnrolled: familySections.reduce(
-      (total, section) => total + (section.availability.enrolled ?? 0),
+      (total, section) =>
+        section.availability.capacityKind === 'effectively_unbounded'
+          ? total
+          : total + (section.availability.enrolled ?? 0),
       0,
     ),
     totalCapacity: familySections.reduce(
-      (total, section) => total + (section.availability.capacity ?? 0),
+      (total, section) =>
+        section.availability.capacityKind === 'effectively_unbounded'
+          ? total
+          : total + (section.availability.capacity ?? 0),
       0,
     ),
   }));
@@ -165,7 +171,33 @@ export function formatUcsdAvailability(
   enrolled: number | null,
   capacity: number | null,
   waitlistCount: number | null = null,
+  availableSeats: number | null = null,
+  capacityKind: 'bounded' | 'effectively_unbounded' | null = null,
 ): UcsdAvailabilityDisplay {
+  if (capacityKind === 'effectively_unbounded') {
+    return {
+      main: 'Open · no fixed cap',
+      detail: '',
+      status: 'available',
+    };
+  }
+  if (availableSeats !== null) {
+    if (availableSeats === 0) {
+      return {
+        main:
+          waitlistCount !== null && waitlistCount > 0
+            ? `FULL · WL(${waitlistCount})`
+            : 'FULL',
+        detail: '',
+        status: 'full',
+      };
+    }
+    return {
+      main: `${availableSeats} ${availableSeats === 1 ? 'seat' : 'seats'} left`,
+      detail: '',
+      status: seatsColor(enrolled, capacity, availableSeats),
+    };
+  }
   if (enrolled === null || capacity === null || capacity <= 0) {
     return {
       main: 'Seats TBA',

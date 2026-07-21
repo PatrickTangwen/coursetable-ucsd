@@ -174,9 +174,10 @@ describe('TSS Published Snapshot entrypoint', () => {
       catalog_url: 'https://catalog.ucsd.edu/courses/CAT.html#cat1',
       sections: [
         {
-          enrolled: 80,
+          enrolled: null,
           capacity: 100,
           available_seats: 20,
+          capacity_kind: 'bounded',
         },
       ],
     });

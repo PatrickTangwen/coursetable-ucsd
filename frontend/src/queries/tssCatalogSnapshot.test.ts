@@ -179,6 +179,29 @@ describe('TSS catalog response adapter', () => {
     expect(data.legacyCourseMap).toHaveLength(1);
   });
 
+  it('normalizes TSS sentinel limits as effectively unbounded', () => {
+    const response = structuredClone(tssCatalogResponse);
+    const choice = response.courses[0]!.booking_choices[0]!;
+    for (const component of choice.components) {
+      Object.assign(component.enrollment, {
+        enrolled: 0,
+        capacity: 9999,
+        seats_available: 9999,
+      });
+    }
+
+    const { coursePlanningCatalog } = catalogResponseToCatalogData(response);
+
+    expect(
+      coursePlanningCatalog?.courses[0]?.sections[0]?.availability,
+    ).toMatchObject({
+      enrolled: 0,
+      capacity: null,
+      availableSeats: null,
+      capacityKind: 'effectively_unbounded',
+    });
+  });
+
   it('keeps the legacy display format outside FA26', () => {
     const response = { ...tssCatalogResponse, term: 'SP26' };
 
@@ -254,6 +277,7 @@ describe('TSS catalog response adapter', () => {
                 enrolled: null,
                 capacity: null,
                 availableSeats: null,
+                capacityKind: null,
                 waitlistCount: null,
                 snapshotTimestamp: null,
               },

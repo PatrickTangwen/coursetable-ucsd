@@ -4,9 +4,13 @@ export type TssAvailabilitySupplementRecord = {
   subject: string;
   course: string;
   sectionCode: string;
-  capacity: number;
-  enrolled: number;
-  availableSeats: number;
+  capacity: number | null;
+  enrolled: number | null;
+  availableSeats: number | null;
+  capacityKind: 'bounded' | 'effectively_unbounded';
+  reportedCapacity: number;
+  reportedAvailableSeats: number;
+  status: 'active' | 'unknown';
   line: number;
 };
 
@@ -18,6 +22,7 @@ type SupplementHeader = {
   capacity: number;
   enrolled: number | null;
   available: number;
+  status: number | null;
 };
 
 const enrollmentSchema = z
@@ -107,6 +112,7 @@ function parseHeader(line: string): SupplementHeader | null {
   ]);
   const enrolled = headerIndex(headers, ['enrolled']);
   const available = headerIndex(headers, ['seatsavailable', 'availableseats']);
+  const status = headerIndex(headers, ['status']);
   if (
     [subject, course, section, capacity, available].some((index) => index < 0)
   )
@@ -119,6 +125,7 @@ function parseHeader(line: string): SupplementHeader | null {
     capacity,
     enrolled: enrolled < 0 ? null : enrolled,
     available,
+    status: status < 0 ? null : status,
   };
 }
 
@@ -153,6 +160,20 @@ function parseCount(value: string | undefined, line: number, field: string) {
   if (!/^\d+$/u.test(normalized))
     throw new Error(`line ${line} has invalid ${field}: ${value ?? ''}`);
   return Number(normalized);
+}
+
+function parseStatus(
+  value: string | undefined,
+  line: number,
+): 'active' | 'unknown' {
+  const status = value?.trim().toUpperCase() ?? '';
+  if (!status) return 'unknown';
+  if (status === 'AC' || status === 'ACTIVE') return 'active';
+  throw new Error(`line ${line} has unsupported status: ${status}`);
+}
+
+function isEffectivelyUnbounded(value: number): boolean {
+  return value === 9999 || value === 99999;
 }
 
 function supplementKey(subject: string, course: string, sectionCode: string) {
@@ -198,26 +219,31 @@ export function parseTssAvailabilitySupplement(
       throw new Error(`line ${lineNumber} has invalid subject: ${subject}`);
     const course = normalizeCourse(values[header.course] ?? '');
     const sectionCode = normalizeSection(values[header.section] ?? '');
-    const capacity = parseCount(
+    const reportedCapacity = parseCount(
       values[header.capacity],
       lineNumber,
       'capacity',
     );
-    const availableSeats = parseCount(
+    const reportedAvailableSeats = parseCount(
       values[header.available],
       lineNumber,
       'available seats',
     );
     const enrolled =
       header.enrolled === null || !values[header.enrolled]?.trim()
-        ? capacity - availableSeats
+        ? null
         : parseCount(values[header.enrolled], lineNumber, 'enrolled');
-    if (
-      availableSeats > capacity ||
-      enrolled < 0 ||
-      capacity - availableSeats !== enrolled
-    )
-      throw new Error(`line ${lineNumber} enrollment values are inconsistent`);
+    const capacityKind =
+      isEffectivelyUnbounded(reportedCapacity) ||
+      isEffectivelyUnbounded(reportedAvailableSeats)
+        ? 'effectively_unbounded'
+        : 'bounded';
+    if (capacityKind === 'bounded' && reportedAvailableSeats > reportedCapacity)
+      throw new Error(`line ${lineNumber} available seats exceed capacity`);
+    const status = parseStatus(
+      header.status === null ? undefined : values[header.status],
+      lineNumber,
+    );
     const key = supplementKey(subject, course, sectionCode);
     if (keys.has(key))
       throw new Error(`line ${lineNumber} duplicates supplement record ${key}`);
@@ -226,9 +252,14 @@ export function parseTssAvailabilitySupplement(
       subject,
       course,
       sectionCode,
-      capacity,
+      capacity: capacityKind === 'bounded' ? reportedCapacity : null,
       enrolled,
-      availableSeats,
+      availableSeats:
+        capacityKind === 'bounded' ? reportedAvailableSeats : null,
+      capacityKind,
+      reportedCapacity,
+      reportedAvailableSeats,
+      status,
       line: lineNumber,
     });
   }
@@ -240,14 +271,14 @@ export function parseTssAvailabilitySupplement(
 
 function recordOverride(
   current: number | null,
-  next: number,
+  next: number | null,
   field: string,
   record: TssAvailabilitySupplementRecord,
   overrides: {
     key: string;
     field: string;
     current: number;
-    next: number;
+    next: number | null;
     line: number;
   }[],
 ) {
@@ -277,7 +308,7 @@ export function applyTssAvailabilitySupplement(
     key: string;
     field: string;
     current: number;
-    next: number;
+    next: number | null;
     line: number;
   }[] = [];
   let updatedComponents = 0;
@@ -300,6 +331,12 @@ export function applyTssAvailabilitySupplement(
               const key = supplementKey(subject, courseNumber, sectionCode);
               const record = recordsByKey.get(key);
               if (!record) return component;
+              const currentEnrolled = component.enrollment.enrolled;
+              const enrolled =
+                record.enrolled ??
+                (currentEnrolled === 9999 || currentEnrolled === 99999
+                  ? null
+                  : currentEnrolled);
               recordOverride(
                 component.enrollment.capacity,
                 record.capacity,
@@ -309,7 +346,7 @@ export function applyTssAvailabilitySupplement(
               );
               recordOverride(
                 component.enrollment.enrolled,
-                record.enrolled,
+                enrolled,
                 'enrolled',
                 record,
                 overrides,
@@ -328,8 +365,17 @@ export function applyTssAvailabilitySupplement(
                 enrollment: {
                   ...component.enrollment,
                   capacity: record.capacity,
-                  enrolled: record.enrolled,
+                  enrolled,
                   seats_available: record.availableSeats,
+                  capacity_kind: record.capacityKind,
+                  reported_capacity:
+                    record.capacityKind === 'effectively_unbounded'
+                      ? record.reportedCapacity
+                      : null,
+                  reported_seats_available:
+                    record.capacityKind === 'effectively_unbounded'
+                      ? record.reportedAvailableSeats
+                      : null,
                 },
               };
             }),

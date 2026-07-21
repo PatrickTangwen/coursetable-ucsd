@@ -201,6 +201,7 @@ function makeSection({
   enrolled = 30,
   capacity = 50,
   availableSeats = null,
+  capacityKind = null,
   instructors = ['Staff'],
 }: {
   sectionCode: string;
@@ -209,6 +210,7 @@ function makeSection({
   enrolled?: number | null;
   capacity?: number | null;
   availableSeats?: number | null;
+  capacityKind?: 'bounded' | 'effectively_unbounded' | null;
   instructors?: string[];
 }) {
   return {
@@ -233,6 +235,7 @@ function makeSection({
     enrolled,
     capacity,
     available_seats: availableSeats,
+    capacity_kind: capacityKind,
     waitlist_count: 0,
     raw: {},
   };
@@ -276,6 +279,57 @@ describe('buildOfferingGroups', () => {
 
     expect(buildOfferingGroups(sections)[0]).toMatchObject({
       totalAvailableSeats: null,
+    });
+  });
+
+  it('does not add effectively unbounded sentinel limits into group totals', () => {
+    const sections = [
+      makeSection({
+        sectionCode: '001-000-IN',
+        meetingType: 'Independent Study',
+        meetings: [],
+        enrolled: null,
+        capacity: null,
+        availableSeats: null,
+        capacityKind: 'effectively_unbounded',
+      }),
+    ];
+
+    expect(buildOfferingGroups(sections)[0]).toMatchObject({
+      totalEnrolled: 0,
+      totalCapacity: 0,
+      totalAvailableSeats: null,
+      capacityKind: 'effectively_unbounded',
+    });
+  });
+
+  it('suppresses numeric totals for mixed bounded and unbounded groups', () => {
+    const sections = [
+      makeSection({
+        sectionCode: 'A01',
+        meetingType: 'Discussion',
+        meetings: [],
+        enrolled: 20,
+        capacity: 30,
+        availableSeats: 10,
+        capacityKind: 'bounded',
+      }),
+      makeSection({
+        sectionCode: 'A02',
+        meetingType: 'Independent Study',
+        meetings: [],
+        enrolled: 5,
+        capacity: null,
+        availableSeats: null,
+        capacityKind: 'effectively_unbounded',
+      }),
+    ];
+
+    expect(buildOfferingGroups(sections)[0]).toMatchObject({
+      totalEnrolled: 0,
+      totalCapacity: 0,
+      totalAvailableSeats: null,
+      capacityKind: null,
     });
   });
 

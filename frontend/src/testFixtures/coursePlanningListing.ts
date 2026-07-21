@@ -43,6 +43,7 @@ export function createCoursePlanningListingFixture(
         enrolled: null,
         capacity: null,
         availableSeats: null,
+        capacityKind: null,
         waitlistCount: 0,
         snapshotTimestamp: null,
       },

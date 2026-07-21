@@ -81,10 +81,14 @@ export type SeatsStatus = 'critical' | 'low' | 'medium' | 'high' | 'available';
 export function seatsColor(
   enrolled: number | null,
   capacity: number | null,
+  availableSeats?: number | null,
 ): SeatsStatus {
-  if (enrolled === null || capacity === null || capacity === 0)
-    return 'available';
-  const availablePct = ((capacity - enrolled) / capacity) * 100;
+  if (capacity === null || capacity === 0) return 'available';
+  const available =
+    availableSeats ??
+    (enrolled === null ? null : Math.max(capacity - enrolled, 0));
+  if (available === null) return 'available';
+  const availablePct = (available / capacity) * 100;
   if (availablePct < 25) return 'critical';
   if (availablePct < 50) return 'low';
   if (availablePct < 75) return 'medium';
@@ -114,6 +118,7 @@ type SectionInput = {
   enrolled: number | null;
   capacity: number | null;
   available_seats: number | null;
+  capacity_kind: 'bounded' | 'effectively_unbounded' | null;
   waitlist_count: number | null;
 };
 
@@ -124,6 +129,7 @@ export type OfferingGroup = {
   totalEnrolled: number;
   totalCapacity: number;
   totalAvailableSeats: number | null;
+  capacityKind: 'bounded' | 'effectively_unbounded' | null;
 };
 
 function getFamilyPrefix(code: string | null): string {
@@ -174,14 +180,23 @@ export function buildOfferingGroups(sections: SectionInput[]): OfferingGroup[] {
   const groups: OfferingGroup[] = [];
   for (const [prefix, familySections] of familyMap) {
     const shared = findSharedMeetings(familySections);
+    const unboundedCount = familySections.filter(
+      (section) => section.capacity_kind === 'effectively_unbounded',
+    ).length;
+    const allUnbounded = unboundedCount === familySections.length;
+    const mixedCapacityKinds = unboundedCount > 0 && !allUnbounded;
+    const includeNumericTotals = unboundedCount === 0;
     let totalEnrolled = 0;
     let totalCapacity = 0;
     let totalAvailableSeats = 0;
     let hasCompleteAvailableSeats = true;
     for (const s of familySections) {
-      if (s.enrolled !== null) totalEnrolled += s.enrolled;
-      if (s.capacity !== null) totalCapacity += s.capacity;
-      if (s.available_seats === null) hasCompleteAvailableSeats = false;
+      if (includeNumericTotals && s.enrolled !== null)
+        totalEnrolled += s.enrolled;
+      if (includeNumericTotals && s.capacity !== null)
+        totalCapacity += s.capacity;
+      if (!includeNumericTotals || s.available_seats === null)
+        hasCompleteAvailableSeats = false;
       else totalAvailableSeats += s.available_seats;
     }
     groups.push({
@@ -194,6 +209,11 @@ export function buildOfferingGroups(sections: SectionInput[]): OfferingGroup[] {
         familySections.length === 1 && hasCompleteAvailableSeats
           ? totalAvailableSeats
           : null,
+      capacityKind: allUnbounded
+        ? 'effectively_unbounded'
+        : mixedCapacityKinds
+          ? null
+          : 'bounded',
     });
   }
 

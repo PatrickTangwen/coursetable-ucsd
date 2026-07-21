@@ -24,8 +24,12 @@ POLI,102G,001-000-LE,lecture,104,4,100
         course: '1',
         sectionCode: '001-000-LE',
         capacity: 256,
-        enrolled: 40,
+        enrolled: null,
         availableSeats: 216,
+        capacityKind: 'bounded',
+        reportedCapacity: 256,
+        reportedAvailableSeats: 216,
+        status: 'unknown',
         line: 3,
       },
       {
@@ -33,8 +37,12 @@ POLI,102G,001-000-LE,lecture,104,4,100
         course: '45',
         sectionCode: '001-000-LE',
         capacity: 140,
-        enrolled: 20,
+        enrolled: null,
         availableSeats: 120,
+        capacityKind: 'bounded',
+        reportedCapacity: 140,
+        reportedAvailableSeats: 120,
+        status: 'active',
         line: 6,
       },
       {
@@ -44,18 +52,50 @@ POLI,102G,001-000-LE,lecture,104,4,100
         capacity: 104,
         enrolled: 4,
         availableSeats: 100,
+        capacityKind: 'bounded',
+        reportedCapacity: 104,
+        reportedAvailableSeats: 100,
+        status: 'unknown',
         line: 9,
       },
     ]);
   });
 
-  it('rejects internally inconsistent enrollment values', () => {
-    expect(() =>
-      parseTssAvailabilitySupplement(`
+  it('preserves source-reported available seats instead of recomputing them', () => {
+    const [record] = parseTssAvailabilitySupplement(`
 Subject,Course,SectionCode,EnrollmentLimit,Enrolled,SeatsAvailable
 CAT,001,001-000-LE,100,20,90
+`);
+
+    expect(record).toMatchObject({
+      capacity: 100,
+      enrolled: 20,
+      availableSeats: 90,
+    });
+  });
+
+  it('recognizes an available-seat sentinel when the capacity is not a sentinel', () => {
+    const [record] = parseTssAvailabilitySupplement(`
+Subject,Course,SectionCode,EnrollmentLimit,SeatsAvailable
+NEUG,299,038-000-IN,100,9999
+`);
+
+    expect(record).toMatchObject({
+      capacity: null,
+      availableSeats: null,
+      capacityKind: 'effectively_unbounded',
+      reportedCapacity: 100,
+      reportedAvailableSeats: 9999,
+    });
+  });
+
+  it('rejects explicitly inactive supplement rows', () => {
+    expect(() =>
+      parseTssAvailabilitySupplement(`
+Subject,Course,Section Code,Section Name,Seats Available,Enrollment Limit,Status
+CAT,001,001-000-LE,CAT 001,90,100,CA
 `),
-    ).toThrow('line 3 enrollment values are inconsistent');
+    ).toThrow('line 3 has unsupported status: CA');
   });
 
   it('rejects malformed data rows instead of silently dropping them', () => {
@@ -133,7 +173,7 @@ MUS,095G,002-000-ST,studio,Kenneth Anderson,395,395
           key: 'LTWL:500:001-000-DI',
           field: 'enrolled',
           current: 9999,
-          next: 0,
+          next: null,
         },
       ],
       responses: [
@@ -145,9 +185,12 @@ MUS,095G,002-000-ST,studio,Kenneth Anderson,395,395
                   components: [
                     {
                       enrollment: {
-                        enrolled: 0,
-                        capacity: 9999,
-                        seats_available: 9999,
+                        enrolled: null,
+                        capacity: null,
+                        seats_available: null,
+                        capacity_kind: 'effectively_unbounded',
+                        reported_capacity: 9999,
+                        reported_seats_available: 9999,
                       },
                     },
                   ],
@@ -158,5 +201,44 @@ MUS,095G,002-000-ST,studio,Kenneth Anderson,395,395
         },
       ],
     });
+  });
+
+  it('preserves an existing enrolled count when the supplement omits it', () => {
+    const records = parseTssAvailabilitySupplement(`
+Subject,Course,Section,Type,Instructor,Seats_Total,Seats_Available
+CAT,001,001-000-LE,lecture,Phoebe Bronstein,100,90
+`);
+    const result = applyTssAvailabilitySupplement(
+      [
+        {
+          courses: [
+            {
+              course_code: '001',
+              tss_course_code: 'CAT-001',
+              booking_choices: [
+                {
+                  components: [
+                    {
+                      section_code: '001-000-LE',
+                      enrollment: {
+                        enrolled: 25,
+                        capacity: null,
+                        seats_available: null,
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      records,
+    );
+
+    expect(
+      result.responses[0]?.courses[0]?.booking_choices[0]?.components[0]
+        ?.enrollment.enrolled,
+    ).toBe(25);
   });
 });

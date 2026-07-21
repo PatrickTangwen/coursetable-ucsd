@@ -132,6 +132,9 @@ logs, or transient setup notes directly in ADRs.
 - `0037-use-explicit-tss-availability-supplement.md`: parse the mixed-format TSS
   availability supplement as an authoritative, audited enrichment for matched
   schedule components without creating sections that lack meeting data.
+- `0038-model-tss-unbounded-capacity-and-reported-seats.md`: preserve
+  source-reported available seats, model TSS sentinel limits as effectively
+  unbounded, and reject explicit non-active supplement status values.
 
 ## Editing Rule
 
