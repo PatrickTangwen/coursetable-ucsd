@@ -251,6 +251,49 @@ The primary `--metadata-dir` remains required for backward compatibility. Its
 explicit or inferred timestamp is used only for that primary run; it is never
 attributed to another run whose timestamp is unknown.
 
+### Paired Snapshot and Import Manifest publication
+
+The TSS publisher produces one release candidate with matching identity across:
+
+- `api/static/catalogs/public/FA26.json`
+- `api/static/catalogs/import-manifests/FA26.json`
+- the `FA26` entry in `api/static/metadata.json`
+
+It writes the snapshot and Import Manifest before updating the metadata
+registry. The metadata entry must contain
+`catalogs/import-manifests/FA26.json`; `manifest_path: null` is not an accepted
+Term Archive publication state.
+
+The Import Manifest has one cell for every configured subject and each of the
+three sources. Its statuses are evidence, not release-success labels:
+
+- `ok`: the selected source artifact was present and produced rows.
+- `empty`: the source was complete for that cell but legitimately produced no
+  rows.
+- `failed`: no TSS response covered the schedule subject, or the selected
+  normalized metadata artifact was missing.
+- `partial`: a matching TSS batch reported incomplete coverage, so that
+  subject's completeness is unknown even when rows were published.
+
+The Term Archive builder requires the repository snapshot and manifest term
+sets to match exactly, checks their term identities, and recalculates the
+manifest summary from its cells. This failure is intentional: do not bypass the
+validator or create an empty manifest to make a snapshot publishable. Run the
+formal publisher again and inspect the truthful cell evidence instead.
+
+Credential-free acceptance commands are:
+
+```bash
+bunx vitest run tools/catalog-snapshot/tssPublishedSnapshotPipeline.test.ts \
+  tools/staging-deployment/termArchive.test.ts
+bun run validate:staging-deployment
+bun run validate:production-deployment
+```
+
+Passing these checks proves that the repository artifacts are structurally
+publishable. It does not change `coverage.complete`, resolve `partial` or
+`failed` cells, or authorize a hosted Staging or Production deployment.
+
 ## Schedule Parser and Modal Data Notes
 
 This section records Schedule of Classes parser and modal data-shape issues

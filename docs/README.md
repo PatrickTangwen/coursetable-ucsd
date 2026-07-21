@@ -19,6 +19,8 @@ Status: top-level navigation for stable project documentation.
   containers, HTTPS certificates, and `mkcert` notes.
 - `local_course_data_platform.md`: complete disposable App Backend + Course Data
   Platform operator workflow and staging-readiness contract.
+- `public_pages.md`: landing-page, external FAQ, Privacy Policy, shared footer,
+  and public navigation ownership and verification.
 - `hosted-auth-security-2026-07-10.md`: hosted verification proxy trust,
   abuse-control budgets, and ambiguous-delivery behavior.
 - `email_delivery_audit_privacy-2026-07-11.md`: maintainer-only delivery audit,
@@ -43,7 +45,8 @@ Status: top-level navigation for stable project documentation.
 - `worker_planning_data.md`: Worker Saved Search and Saved Worksheet ownership,
   shared HTTP contract, and account-service failure isolation.
 - `snapshot_pipe.md`: catalog snapshot pipeline notes, including General Catalog
-  enrichment, Schedule parser edge cases, and raw HTML replay rules.
+  enrichment, FA26 TSS metadata and Import Manifest publication, Schedule parser
+  edge cases, and raw HTML replay rules.
 - `styling.md`: styling conventions.
 
 ## Historical SunGrid Records
