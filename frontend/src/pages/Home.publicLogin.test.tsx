@@ -67,10 +67,10 @@ describe('Home public login entries', () => {
     expect(faqLinks).toHaveLength(2);
   });
 
-  it('links the landing-page footer to the privacy policy', () => {
+  it('hides the disabled landing-page privacy policy link', () => {
     const html = renderHome(true);
 
-    expect(html).toContain('href="/privacypolicy"');
-    expect(html).toContain('Privacy Policy');
+    expect(html).not.toContain('href="/privacypolicy"');
+    expect(html).not.toContain('Privacy Policy');
   });
 });

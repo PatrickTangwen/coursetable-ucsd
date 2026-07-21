@@ -1,5 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import { FAQ_URL, SUPPORT_URL } from './links';
+import {
+  FAQ_URL,
+  SUPPORT_URL,
+  isPrivacyLinkEnabled,
+  isSupportLinkEnabled,
+} from './links';
 import { createCatalogLink } from '../../utilities/navigation';
 import { PUBLIC_LOGIN_ENABLED } from '../../utilities/publicLogin';
 import styles from './LandingFooter.module.css';
@@ -43,25 +48,29 @@ export default function LandingFooter({
             >
               FAQ
             </a>
-            <Link to="/privacypolicy" className={styles.footerLink}>
-              Privacy Policy
-            </Link>
+            {isPrivacyLinkEnabled() && (
+              <Link to="/privacypolicy" className={styles.footerLink}>
+                Privacy Policy
+              </Link>
+            )}
             {publicLoginEnabled && (
               <Link to="/login" className={styles.footerLink}>
                 Sign in
               </Link>
             )}
           </nav>
-          <a
-            href={SUPPORT_URL}
-            className={styles.supportButton}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Buy me sushi on Buy Me a Coffee"
-          >
-            <span aria-hidden="true">🍣</span>
-            <span>Buy me sushi</span>
-          </a>
+          {isSupportLinkEnabled() && (
+            <a
+              href={SUPPORT_URL}
+              className={styles.supportButton}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Buy me sushi on Buy Me a Coffee"
+            >
+              <span aria-hidden="true">🍣</span>
+              <span>Buy me sushi</span>
+            </a>
+          )}
           <div className={styles.spacer} />
         </div>
       </div>
