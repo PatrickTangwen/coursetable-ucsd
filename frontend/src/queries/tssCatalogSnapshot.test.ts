@@ -137,7 +137,7 @@ describe('TSS catalog response adapter', () => {
     expect(coursePlanningCatalog).toMatchObject({
       courses: [
         {
-          title: 'CAT 1',
+          title: 'CAT-001',
           sections: [
             {
               meetings: [

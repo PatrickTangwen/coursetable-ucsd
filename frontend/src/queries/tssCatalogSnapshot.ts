@@ -326,15 +326,16 @@ function toCourse(
   course: TssCourse,
 ): CoursePlanningCourse {
   const { subject, courseNumber, courseId } = courseIdentity(course);
+  const courseCode =
+    catalog.term === 'FA26'
+      ? sourceIdentifier(course.tss_course_code)
+      : `${subject} ${courseNumber}`;
   return {
     courseId,
     subject,
     courseNumber,
-    courseCode:
-      catalog.term === 'FA26'
-        ? sourceIdentifier(course.tss_course_code)
-        : `${subject} ${courseNumber}`,
-    title: course.course_title ?? `${subject} ${courseNumber}`,
+    courseCode,
+    title: course.course_title ?? courseCode,
     units: null,
     description: null,
     prerequisites: null,

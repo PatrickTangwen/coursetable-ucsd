@@ -155,7 +155,15 @@ describe('TSS Catalog Snapshot pipeline input', () => {
   it('marks coverage incomplete when a configured subject is absent', () => {
     const snapshot = buildTssCatalogSnapshot(
       { ...config, configured_subjects: ['CAT', 'MATH'] },
-      [tssResponse],
+      [
+        {
+          ...tssResponse,
+          courses: tssResponse.courses.map((course) => ({
+            ...course,
+            course_title: null,
+          })),
+        },
+      ],
       {
         runId: 'tss-fa26-partial-test',
         generatedAt: '2026-07-21T12:00:00.000Z',
@@ -173,6 +181,11 @@ describe('TSS Catalog Snapshot pipeline input', () => {
     expect(snapshot.coverage).toEqual({
       complete: false,
       continuation_needed: true,
+    });
+    expect(snapshot.courses[0]).toMatchObject({
+      course_id: 'CAT:1',
+      display_course_code: 'CAT-001',
+      title: 'CAT-001',
     });
   });
 });

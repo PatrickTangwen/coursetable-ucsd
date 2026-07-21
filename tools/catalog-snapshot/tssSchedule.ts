@@ -320,15 +320,16 @@ function toSection(
 
 function toCourse(catalog: TssResponse, course: TssCourse): SnapshotCourse {
   const { subject, courseNumber, courseId } = courseIdentity(course);
+  const courseCode =
+    catalog.term === 'FA26'
+      ? sourceIdentifier(course.tss_course_code)
+      : `${subject} ${courseNumber}`;
   return {
     course_id: courseId,
     subject,
     course_number: courseNumber,
-    display_course_code:
-      catalog.term === 'FA26'
-        ? sourceIdentifier(course.tss_course_code)
-        : undefined,
-    title: course.course_title ?? `${subject} ${courseNumber}`,
+    display_course_code: catalog.term === 'FA26' ? courseCode : undefined,
+    title: course.course_title ?? courseCode,
     units: null,
     description: null,
     prerequisites_text: null,
