@@ -987,26 +987,27 @@
 
 .mappingTable {
   width: 100%;
-  min-width: 820px;
+  min-width: 0;
   border-collapse: collapse;
   font-size: 12px;
+  table-layout: fixed;
 }
 
 .mappingTable th {
-  padding: 10px 12px;
+  padding: 9px 8px;
   border-bottom: 1px solid rgb(var(--ct-line-rgb) / 10%);
   background: var(--ct-surface-soft);
   color: var(--ct-text-muted);
   font-size: 10.5px;
   font-weight: 700;
+  line-height: 1.3;
   letter-spacing: 0.045em;
   text-align: left;
   text-transform: uppercase;
-  white-space: nowrap;
 }
 
 .mappingTable td {
-  padding: 12px;
+  padding: 11px 8px;
   border-bottom: 1px solid rgb(var(--ct-line-rgb) / 7%);
   color: var(--ct-text-strong);
   line-height: 1.45;
@@ -1023,8 +1024,24 @@
 
 .mappingSelectHeader,
 .mappingSelectCell {
-  width: 56px;
+  width: 7%;
   text-align: center !important;
+}
+
+.mappingNameHeader {
+  width: 17%;
+}
+
+.mappingOfficialHeader {
+  width: 27%;
+}
+
+.mappingInstructorHeader {
+  width: 16%;
+}
+
+.mappingScheduleHeader {
+  width: 33%;
 }
 
 .mappingCheckbox {
@@ -1047,7 +1064,6 @@
 
 .mappingOfficialCode {
   display: block;
-  max-width: 270px;
   color: var(--ct-ink);
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 10.5px;
@@ -1057,11 +1073,11 @@
 }
 
 .mappingInstructor {
-  max-width: 140px;
+  overflow-wrap: anywhere;
 }
 
 .mappingScheduleList {
-  min-width: 190px;
+  min-width: 0;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1255,6 +1271,82 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 8px;
+  }
+
+  .mappingTableWrap {
+    overflow-x: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .mappingTable,
+  .mappingTable tbody {
+    display: block;
+  }
+
+  .mappingTable thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    border: 0;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .mappingTable tbody {
+    display: grid;
+    gap: 10px;
+  }
+
+  .mappingTable tbody tr {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 7px 10px;
+    padding: 12px;
+    border: 1px solid rgb(var(--ct-line-rgb) / 10%);
+    border-radius: 10px;
+    background: var(--ct-surface);
+  }
+
+  .mappingTable td {
+    grid-column: 2;
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  .mappingTable td[data-label]::before {
+    display: block;
+    margin-bottom: 2px;
+    color: var(--ct-text-muted);
+    content: attr(data-label);
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  .mappingTable .mappingSelectCell {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+    width: auto;
+    padding-top: 1px;
+  }
+
+  .mappingTable tbody tr.mappingRowSelected {
+    background: var(--ct-accent-tint);
+  }
+
+  .mappingRowSelected td {
+    background: transparent;
+  }
+
+  .mappingDisplayName {
+    white-space: normal;
   }
 
   .meetingRow {

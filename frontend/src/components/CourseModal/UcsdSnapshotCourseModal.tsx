@@ -717,21 +717,25 @@ function SectionMappingTable({
             Section Mapping
           </h2>
           <p className={styles.mappingDescription}>
-            Friendly Fall 2026 names are paired with their official TSS
-            packages. Select any combination to add it to your Worksheet.
+            Choose a section to add to your Worksheet. SunGrid shows the section
+            name; UCSD uses the official TSS code.
           </p>
         </div>
-        <span className={styles.mappingCount}>{entries.length} packages</span>
+        <span className={styles.mappingCount}>
+          {entries.length} {entries.length === 1 ? 'section' : 'sections'}
+        </span>
       </div>
       <div className={styles.mappingTableWrap}>
         <table className={styles.mappingTable}>
           <thead>
             <tr>
-              <th className={styles.mappingSelectHeader}>Select</th>
-              <th>Display name</th>
-              <th>Official TSS section combination</th>
-              <th>Instructor</th>
-              <th>Schedule</th>
+              <th className={styles.mappingSelectHeader}>Add</th>
+              <th className={styles.mappingNameHeader}>Section name</th>
+              <th className={styles.mappingOfficialHeader}>
+                Official TSS code
+              </th>
+              <th className={styles.mappingInstructorHeader}>Instructor</th>
+              <th className={styles.mappingScheduleHeader}>Schedule</th>
             </tr>
           </thead>
           <tbody>
@@ -759,20 +763,23 @@ function SectionMappingTable({
                       aria-label={`${selected ? 'Remove' : 'Add'} ${entry.displayName} ${selected ? 'from' : 'to'} Worksheet`}
                     />
                   </td>
-                  <td>
+                  <td data-label="Section">
                     <span className={styles.mappingDisplayName}>
                       {entry.displayName}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Official TSS code">
                     <code className={styles.mappingOfficialCode}>
                       {entry.officialSectionCode}
                     </code>
                   </td>
-                  <td className={styles.mappingInstructor}>
+                  <td
+                    className={styles.mappingInstructor}
+                    data-label="Instructor"
+                  >
                     {instructors || 'Staff'}
                   </td>
-                  <td>
+                  <td data-label="Schedule">
                     <ul className={styles.mappingScheduleList}>
                       {schedules.length > 0 ? (
                         schedules.map((schedule, index) => (
