@@ -31,6 +31,27 @@ function gpaClass(gpa: number | null): string {
   return styles.gpaLow!;
 }
 
+export function displayedArchiveGpa(record: GradeRecord): number | null {
+  if (record.gpa === null) return null;
+  if (record.gpa !== 0) return record.gpa;
+
+  const letterGradePercentages = [
+    record.a,
+    record.b,
+    record.c,
+    record.d,
+    record.f,
+  ];
+  const hasLetterGrade = letterGradePercentages.some(
+    (percentage) => percentage !== null && percentage > 0,
+  );
+  const hasPassNoPassGrade =
+    (record.p !== null && record.p > 0) ||
+    (record.np !== null && record.np > 0);
+
+  return !hasLetterGrade && hasPassNoPassGrade ? null : record.gpa;
+}
+
 export default function UcsdSnapshotGradeDistribution({
   records: unsortedRecords,
 }: {
@@ -85,42 +106,47 @@ export default function UcsdSnapshotGradeDistribution({
             </tr>
           </thead>
           <tbody>
-            {records.map((record, index) => (
-              <tr
-                key={`${record.subject}-${record.course}-${record.year}-${record.quarter}-${record.instructor ?? 'TBA'}-${index}`}
-              >
-                <td className={styles.termCell}>
-                  <span className={styles.termBadge}>{termCode(record)}</span>
-                </td>
-                <td
-                  className={styles.instructorCell}
-                  title={record.instructor ?? 'TBA'}
+            {records.map((record, index) => {
+              const displayedGpa = displayedArchiveGpa(record);
+              return (
+                <tr
+                  key={`${record.subject}-${record.course}-${record.year}-${record.quarter}-${record.instructor ?? 'TBA'}-${index}`}
                 >
-                  {record.instructor ?? 'TBA'}
-                </td>
-                <td className={styles.gpaCell}>
-                  <span className={clsx(styles.gpaBadge, gpaClass(record.gpa))}>
-                    {record.gpa === null ? 'N/A' : record.gpa.toFixed(2)}
-                  </span>
-                </td>
-                {gradeColumns.map(([letter, field], columnIndex) => {
-                  const value = record[field];
-                  return (
-                    <td
-                      key={letter}
-                      className={clsx(
-                        styles.percentCell,
-                        value === null && styles.percentMissing,
-                        columnIndex === gradeColumns.length - 1 &&
-                          styles.lastCell,
-                      )}
+                  <td className={styles.termCell}>
+                    <span className={styles.termBadge}>{termCode(record)}</span>
+                  </td>
+                  <td
+                    className={styles.instructorCell}
+                    title={record.instructor ?? 'TBA'}
+                  >
+                    {record.instructor ?? 'TBA'}
+                  </td>
+                  <td className={styles.gpaCell}>
+                    <span
+                      className={clsx(styles.gpaBadge, gpaClass(displayedGpa))}
                     >
-                      {value === null ? '—' : value.toFixed(1)}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
+                      {displayedGpa === null ? 'N/A' : displayedGpa.toFixed(2)}
+                    </span>
+                  </td>
+                  {gradeColumns.map(([letter, field], columnIndex) => {
+                    const value = record[field];
+                    return (
+                      <td
+                        key={letter}
+                        className={clsx(
+                          styles.percentCell,
+                          value === null && styles.percentMissing,
+                          columnIndex === gradeColumns.length - 1 &&
+                            styles.lastCell,
+                        )}
+                      >
+                        {value === null ? '—' : value.toFixed(1)}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
