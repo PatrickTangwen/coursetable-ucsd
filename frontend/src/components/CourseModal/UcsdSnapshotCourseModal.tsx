@@ -137,6 +137,25 @@ function ShareIcon() {
   );
 }
 
+function ReportIssueIcon() {
+  return (
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 17 17"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <circle cx="8.5" cy="8.5" r="6.25" />
+      <line x1="8.5" y1="5" x2="8.5" y2="9.25" />
+      <circle cx="8.5" cy="12" r="0.8" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 function MoreIcon() {
   return (
     <svg
@@ -1307,7 +1326,7 @@ export default function UcsdSnapshotCourseModal({
                           rel="noreferrer"
                           onClick={() => closeHeaderMenu('more')}
                         >
-                          <ExternalIcon />
+                          <ReportIssueIcon />
                           <span>Report a course issue</span>
                         </a>
                       </div>

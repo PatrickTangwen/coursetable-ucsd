@@ -311,7 +311,9 @@
 }
 
 .toolbarMenuItem svg {
-  flex-shrink: 0;
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
   color: var(--ct-accent-text);
 }
 
