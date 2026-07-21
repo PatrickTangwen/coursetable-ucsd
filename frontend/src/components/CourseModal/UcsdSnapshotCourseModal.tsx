@@ -28,6 +28,7 @@ import {
   type UcsdModalOfferingGroup,
   type UcsdModalSection,
 } from './ucsdSnapshotModalData';
+import { isWorksheetTerm } from '../../data/catalogSeasons';
 import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
 import { useModalHistory } from '../../hooks/useModalHistory';
 import { useWorksheetListingSelection } from '../../hooks/useWorksheetListingSelection';
@@ -573,6 +574,7 @@ function MeetingRow({
 type OfferingGroupCardModel = {
   group: UcsdModalOfferingGroup;
   active: boolean;
+  canEditWorksheet: boolean;
   mappingEntry?: Fa26SectionMappingEntry;
   inWorksheet: boolean;
   selectedCode: string | null | undefined;
@@ -590,7 +592,7 @@ type OfferingGroupCardActions = {
   setRef: (node: HTMLDivElement | null) => void;
 };
 
-function OfferingGroupCard({
+export function OfferingGroupCard({
   model,
   actions,
 }: {
@@ -600,6 +602,7 @@ function OfferingGroupCard({
   const {
     group,
     active,
+    canEditWorksheet,
     mappingEntry,
     inWorksheet,
     selectedCode,
@@ -661,42 +664,44 @@ function OfferingGroupCard({
         </div>
       ))}
 
-      {selectedForAdd ? (
-        <div className={styles.cardAction}>
-          <button
-            type="button"
-            className={clsx(
-              styles.addButton,
-              inWorksheet && styles.removeButton,
-            )}
-            disabled={Boolean(mappingEntry && worksheetDisabled)}
-            onClick={() =>
-              mappingEntry
-                ? onToggleWorksheet(selectedForAdd.listing)
-                : onAdd(selectedForAdd.listing)
-            }
-          >
-            {inWorksheet ? (
-              <span aria-hidden="true">✓</span>
-            ) : (
-              <PlusIcon size={14} />
-            )}
-            {inWorksheet ? 'Remove' : 'Add'}{' '}
-            {mappingEntry?.displayName ??
-              selectedForAdd.sectionCode ??
-              group.familyPrefix}{' '}
-            {inWorksheet ? 'from' : 'to'} Worksheet
-          </button>
-        </div>
-      ) : (
-        <div className={styles.noSelection}>
-          Select a{' '}
-          {ucsdMeetingTypeLabel(
-            rows.find((row) => row.role === 'selectable')?.meeting.meetingType,
-          ).toLowerCase()}{' '}
-          section to add this group
-        </div>
-      )}
+      {canEditWorksheet &&
+        (selectedForAdd ? (
+          <div className={styles.cardAction}>
+            <button
+              type="button"
+              className={clsx(
+                styles.addButton,
+                inWorksheet && styles.removeButton,
+              )}
+              disabled={Boolean(mappingEntry && worksheetDisabled)}
+              onClick={() =>
+                mappingEntry
+                  ? onToggleWorksheet(selectedForAdd.listing)
+                  : onAdd(selectedForAdd.listing)
+              }
+            >
+              {inWorksheet ? (
+                <span aria-hidden="true">✓</span>
+              ) : (
+                <PlusIcon size={14} />
+              )}
+              {inWorksheet ? 'Remove' : 'Add'}{' '}
+              {mappingEntry?.displayName ??
+                selectedForAdd.sectionCode ??
+                group.familyPrefix}{' '}
+              {inWorksheet ? 'from' : 'to'} Worksheet
+            </button>
+          </div>
+        ) : (
+          <div className={styles.noSelection}>
+            Select a{' '}
+            {ucsdMeetingTypeLabel(
+              rows.find((row) => row.role === 'selectable')?.meeting
+                .meetingType,
+            ).toLowerCase()}{' '}
+            section to add this group
+          </div>
+        ))}
     </div>
   );
 }
@@ -846,6 +851,7 @@ export default function UcsdSnapshotCourseModal({
   const { closeModal } = useModalHistory();
   const { courses } = useCoursePlanningCatalog();
   const season = listing.section.supportedTerm as Season;
+  const canEditWorksheet = isWorksheetTerm(season);
   const allListings = useMemo(
     () => [...(courses[season]?.listings.values() ?? [])],
     [courses, season],
@@ -1040,6 +1046,7 @@ export default function UcsdSnapshotCourseModal({
 
   const handleAdd = useCallback(
     (target: UcsdModalListing) => {
+      if (!canEditWorksheet) return;
       const colors = [
         '#7B68EE',
         '#FF6B6B',
@@ -1070,16 +1077,22 @@ export default function UcsdSnapshotCourseModal({
         });
       }
     },
-    [addActiveSavedWorksheetListing, addAnonymousWorksheetListing, authStatus],
+    [
+      addActiveSavedWorksheetListing,
+      addAnonymousWorksheetListing,
+      authStatus,
+      canEditWorksheet,
+    ],
   );
 
   const handleToggleWorksheet = useCallback(
     (target: UcsdModalListing) => {
+      if (!canEditWorksheet) return;
       void toggleWorksheetListing(target).catch((error: unknown) =>
         Sentry.captureException(error),
       );
     },
-    [toggleWorksheetListing],
+    [canEditWorksheet, toggleWorksheetListing],
   );
 
   const activeGroup = modalCourse.groups.find(
@@ -1502,6 +1515,7 @@ export default function UcsdSnapshotCourseModal({
                       model={{
                         group,
                         active: activeFamily === group.familyPrefix,
+                        canEditWorksheet,
                         mappingEntry,
                         inWorksheet: Boolean(
                           mappingEntry &&

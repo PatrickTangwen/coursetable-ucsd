@@ -7,6 +7,7 @@ import {
   AddWorksheetButton,
   RemoveWorksheetButton,
 } from './WorksheetToggleControls';
+import { isWorksheetTerm } from '../../data/catalogSeasons';
 import { useWorksheetListingSelection } from '../../hooks/useWorksheetListingSelection';
 import type { CoursePlanningListing } from '../../queries/coursePlanningViewModels';
 import type { Season } from '../../queries/graphql-types';
@@ -34,6 +35,7 @@ export default function CoursePlanningWorksheetToggleButton({
     toggleListing,
   } = useWorksheetListingSelection();
   const term = listing.section.supportedTerm as Season;
+  const canEditWorksheet = isWorksheetTerm(term);
   const selectedWorksheet = getRelevantWorksheetNumber(term);
   const inWorksheet = hasListing(listing);
   const worksheetListing = useMemo(
@@ -51,6 +53,8 @@ export default function CoursePlanningWorksheetToggleButton({
     event.stopPropagation();
     await toggleListing(listing);
   };
+
+  if (!canEditWorksheet) return null;
 
   if (appearance === 'remove') {
     return (
