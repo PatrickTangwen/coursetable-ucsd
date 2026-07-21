@@ -47,6 +47,8 @@ try {
         coverage: result.snapshot.coverage,
         availability_supplement: result.availabilitySupplement,
         snapshot_path: result.snapshotPath,
+        manifest_path: result.manifestPath,
+        manifest_summary: result.manifest.summary,
         metadata_path: result.metadataPath,
       },
       null,

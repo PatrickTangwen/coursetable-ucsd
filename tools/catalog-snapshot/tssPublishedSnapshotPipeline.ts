@@ -10,8 +10,16 @@ import {
 import type { GeneralCatalogCourse } from './generalCatalog';
 import type { GradeArchiveRecord } from './instructorGradeArchive';
 import {
+  buildPublishedSnapshotImportManifest,
+  publishedSnapshotImportManifestPath,
+  type ImportManifestCell,
+  type PublishedSnapshotImportManifest,
+} from './publishedSnapshotPipeline';
+import { createFileSnapshotStorage } from './snapshotStorage';
+import {
   buildSupportedTermRegistry,
   readSupportedTermRegistry,
+  supportedTermManifestPath,
   supportedTermSnapshotPath,
   writeSupportedTermRegistry,
 } from './supportedTermRegistry';
@@ -28,12 +36,38 @@ import {
 const tssIdentitySchema = z.object({
   term: z.string().min(1),
   requested_course: z.string().min(1).optional(),
+  coverage: z.object({
+    complete: z.boolean(),
+    continuation_needed: z.boolean(),
+    omitted_courses: z.array(z.string().min(1)).optional(),
+  }),
   courses: z.array(
     z.object({
       tss_course_code: z.string().min(1),
     }),
   ),
 });
+
+type NamedJsonFile = { fileName: string; value: unknown };
+
+type ScheduleManifestOptions = {
+  term: string;
+  subjects: string[];
+  snapshot: CatalogSnapshot;
+  rawDirectory: string;
+  namedResponses: NamedJsonFile[];
+  availabilitySupplementPath: string | null;
+  availabilitySupplementSubjects: Set<string>;
+};
+
+type NormalizedManifestOptions<T> = {
+  term: string;
+  subjects: string[];
+  source: 'general_catalog' | 'instructor_grade_archive';
+  directory: string;
+  valuesBySubject: Map<string, T[]>;
+  rowCountName: 'courses' | 'records';
+};
 
 const termNames: { [prefix: string]: string } = {
   FA: 'Fall',
@@ -59,13 +93,15 @@ async function jsonFileNames(directory: string): Promise<string[]> {
     .sort();
 }
 
-async function readJsonFiles(directory: string): Promise<unknown[]> {
+async function readNamedJsonFiles(directory: string) {
   const fileNames = await jsonFileNames(directory);
   return Promise.all(
-    fileNames.map(async (fileName) => {
-      const contents = await readFile(path.join(directory, fileName), 'utf-8');
-      return JSON.parse(contents) as unknown;
-    }),
+    fileNames.map(async (fileName) => ({
+      fileName,
+      value: JSON.parse(
+        await readFile(path.join(directory, fileName), 'utf-8'),
+      ) as unknown,
+    })),
   );
 }
 
@@ -78,16 +114,18 @@ function tssTerm(responses: unknown[]): string {
   return terms.values().next().value!;
 }
 
+function tssResponseSubjects(response: unknown): string[] {
+  const parsed = tssIdentitySchema.parse(response);
+  return [
+    ...parseTssRequestedSubjects(parsed.requested_course),
+    ...parsed.courses.map((course) =>
+      course.tss_course_code.split('-', 1)[0]!.trim().toUpperCase(),
+    ),
+  ];
+}
+
 function tssSubjects(responses: unknown[]): string[] {
-  return responses.flatMap((response) => {
-    const parsed = tssIdentitySchema.parse(response);
-    return [
-      ...parseTssRequestedSubjects(parsed.requested_course),
-      ...parsed.courses.map((course) =>
-        course.tss_course_code.split('-', 1)[0]!.trim().toUpperCase(),
-      ),
-    ];
-  });
+  return responses.flatMap(tssResponseSubjects);
 }
 
 function uniqueSorted(values: string[]): string[] {
@@ -108,6 +146,8 @@ export type TssPublishedSnapshotPipelineResult = {
   snapshot: CatalogSnapshot;
   snapshotPath: string;
   metadataPath: string | null;
+  manifest: PublishedSnapshotImportManifest;
+  manifestPath: string;
   availabilitySupplement: {
     path: string;
     records: number;
@@ -128,11 +168,120 @@ async function optionalTextFile(filePath: string): Promise<string | null> {
   }
 }
 
+function isCompleteTssResponse(response: unknown): boolean {
+  const { coverage } = tssIdentitySchema.parse(response);
+  return (
+    coverage.complete &&
+    !coverage.continuation_needed &&
+    (coverage.omitted_courses?.length ?? 0) === 0
+  );
+}
+
+function scheduleRowCounts(snapshot: CatalogSnapshot, subject: string) {
+  const courses = snapshot.courses.filter(
+    (course) => course.subject === subject,
+  );
+  const sections = courses.flatMap((course) => course.sections);
+  return {
+    courses: courses.length,
+    sections: sections.length,
+    meetings: sections.reduce(
+      (count, section) => count + section.meetings.length,
+      0,
+    ),
+  };
+}
+
+function scheduleCellState(
+  matchingResponses: { value: unknown }[],
+  hasRows: boolean,
+): Pick<ImportManifestCell, 'status' | 'reason'> {
+  if (matchingResponses.length === 0)
+    return { status: 'failed', reason: 'no TSS response covers subject' };
+  if (matchingResponses.some(({ value }) => !isCompleteTssResponse(value))) {
+    return {
+      status: 'partial',
+      reason:
+        'batch-level TSS response reports incomplete coverage; subject completeness is unknown',
+    };
+  }
+  if (!hasRows) {
+    return {
+      status: 'empty',
+      reason: 'no TSS schedule rows for subject in term',
+    };
+  }
+  return { status: 'ok', reason: null };
+}
+
+function scheduleManifestCells(
+  options: ScheduleManifestOptions,
+): ImportManifestCell[] {
+  return options.subjects.map((subject) => {
+    const matchingResponses = options.namedResponses.filter(({ value }) =>
+      tssResponseSubjects(value).includes(subject),
+    );
+    const rowCounts = scheduleRowCounts(options.snapshot, subject);
+    const hasRows = Object.values(rowCounts).some((count) => count > 0);
+    const rawArtifacts = matchingResponses.map(({ fileName }) =>
+      path.join(options.rawDirectory, fileName),
+    );
+    if (
+      matchingResponses.length &&
+      options.availabilitySupplementPath &&
+      options.availabilitySupplementSubjects.has(subject)
+    )
+      rawArtifacts.push(options.availabilitySupplementPath);
+
+    const { status, reason } = scheduleCellState(matchingResponses, hasRows);
+
+    return {
+      term: options.term,
+      subject,
+      source: 'schedule_of_classes',
+      status,
+      reason,
+      attempts: matchingResponses.length ? 1 : 0,
+      row_counts: rowCounts,
+      raw_artifacts: rawArtifacts,
+      normalized_artifact: null,
+    };
+  });
+}
+
+function normalizedManifestCells<T>(
+  options: NormalizedManifestOptions<T>,
+): ImportManifestCell[] {
+  return options.subjects.map((subject) => {
+    const values = options.valuesBySubject.get(subject);
+    const artifactPath = path.join(options.directory, `${subject}.json`);
+    const status =
+      values === undefined ? 'failed' : values.length ? 'ok' : 'empty';
+    return {
+      term: options.term,
+      subject,
+      source: options.source,
+      status,
+      reason:
+        values === undefined
+          ? 'normalized metadata artifact is missing'
+          : values.length
+            ? null
+            : `no ${options.source === 'general_catalog' ? 'General Catalog rows' : 'Instructor Grade Archive rows'} for subject`,
+      attempts: values === undefined ? 0 : 1,
+      row_counts: { [options.rowCountName]: values?.length ?? 0 },
+      raw_artifacts: [],
+      normalized_artifact: values === undefined ? null : artifactPath,
+    };
+  });
+}
+
 /** Reads raw TSS files and normalized metadata, then publishes one artifact. */
 export async function runTssPublishedSnapshotPipeline(
   options: TssPublishedSnapshotPipelineOptions,
 ): Promise<TssPublishedSnapshotPipelineResult> {
-  let responses = await readJsonFiles(options.rawDirectory);
+  const namedResponses = await readNamedJsonFiles(options.rawDirectory);
+  let responses = namedResponses.map(({ value }) => value);
   if (responses.length === 0)
     throw new Error(`No TSS JSON files found in ${options.rawDirectory}`);
   const availabilitySupplementPath =
@@ -141,12 +290,12 @@ export async function runTssPublishedSnapshotPipeline(
   const availabilitySupplementContents = await optionalTextFile(
     availabilitySupplementPath,
   );
+  const availabilitySupplementRecords = availabilitySupplementContents
+    ? parseTssAvailabilitySupplement(availabilitySupplementContents)
+    : null;
   const availabilitySupplement =
-    availabilitySupplementContents !== null
-      ? applyTssAvailabilitySupplement(
-          responses,
-          parseTssAvailabilitySupplement(availabilitySupplementContents),
-        )
+    availabilitySupplementRecords !== null
+      ? applyTssAvailabilitySupplement(responses, availabilitySupplementRecords)
       : null;
   if (availabilitySupplement) ({ responses } = availabilitySupplement);
 
@@ -159,12 +308,24 @@ export async function runTssPublishedSnapshotPipeline(
     'instructor_grade_archive',
   );
   const generalCatalogFileNames = await jsonFileNames(generalCatalogDirectory);
-  const generalCatalogCourses = (
-    await readJsonFiles(generalCatalogDirectory)
-  ).flat() as GeneralCatalogCourse[];
-  const gradeArchiveRecords = (
-    await readJsonFiles(gradeArchiveDirectory)
-  ).flat() as GradeArchiveRecord[];
+  const generalCatalogValues = await readNamedJsonFiles(
+    generalCatalogDirectory,
+  );
+  const gradeArchiveValues = await readNamedJsonFiles(gradeArchiveDirectory);
+  const generalCatalogBySubject = new Map(
+    generalCatalogValues.map(({ fileName, value }) => [
+      path.basename(fileName, '.json').toUpperCase(),
+      value as GeneralCatalogCourse[],
+    ]),
+  );
+  const gradeArchiveBySubject = new Map(
+    gradeArchiveValues.map(({ fileName, value }) => [
+      path.basename(fileName, '.json').toUpperCase(),
+      value as GradeArchiveRecord[],
+    ]),
+  );
+  const generalCatalogCourses = [...generalCatalogBySubject.values()].flat();
+  const gradeArchiveRecords = [...gradeArchiveBySubject.values()].flat();
   const term = tssTerm(responses);
   const configuredSubjects = uniqueSorted([
     ...options.config.configured_subjects,
@@ -201,6 +362,47 @@ export async function runTssPublishedSnapshotPipeline(
   const published = await publishCatalogSnapshot(snapshot, config, {
     writeMetadata: false,
   });
+  const manifest = buildPublishedSnapshotImportManifest({
+    config,
+    runId: snapshot.run_id,
+    generatedAt: snapshot.generated_at,
+    systemicParserFailureThreshold: 0.5,
+    cells: [
+      ...scheduleManifestCells({
+        term,
+        subjects: configuredSubjects,
+        snapshot,
+        rawDirectory: options.rawDirectory,
+        namedResponses,
+        availabilitySupplementPath: availabilitySupplement
+          ? availabilitySupplementPath
+          : null,
+        availabilitySupplementSubjects: new Set(
+          availabilitySupplementRecords?.map(({ subject }) => subject) ?? [],
+        ),
+      }),
+      ...normalizedManifestCells({
+        term,
+        subjects: configuredSubjects,
+        source: 'general_catalog',
+        directory: generalCatalogDirectory,
+        valuesBySubject: generalCatalogBySubject,
+        rowCountName: 'courses',
+      }),
+      ...normalizedManifestCells({
+        term,
+        subjects: configuredSubjects,
+        source: 'instructor_grade_archive',
+        directory: gradeArchiveDirectory,
+        valuesBySubject: gradeArchiveBySubject,
+        rowCountName: 'records',
+      }),
+    ],
+  });
+  const manifestPath = await createFileSnapshotStorage().writeJson(
+    publishedSnapshotImportManifestPath(config),
+    manifest,
+  );
   const currentEntry = {
     term,
     label: config.term_label,
@@ -208,7 +410,7 @@ export async function runTssPublishedSnapshotPipeline(
     frozen: false,
     generated_at: snapshot.generated_at,
     snapshot_path: supportedTermSnapshotPath(term),
-    manifest_path: null,
+    manifest_path: supportedTermManifestPath(term),
   };
   const existingRegistry = await readSupportedTermRegistry(
     config.paths.metadata_path,
@@ -228,6 +430,8 @@ export async function runTssPublishedSnapshotPipeline(
     snapshot,
     snapshotPath: published.snapshotPath,
     metadataPath,
+    manifest,
+    manifestPath,
     availabilitySupplement: availabilitySupplement
       ? {
           path: availabilitySupplementPath,

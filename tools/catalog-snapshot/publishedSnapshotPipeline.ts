@@ -33,7 +33,7 @@ import {
 } from './snapshotStorage';
 
 type FetchAdapter = typeof fetch;
-type SourceKind =
+export type SourceKind =
   | 'schedule_of_classes'
   | 'general_catalog'
   | 'instructor_grade_archive';
@@ -105,7 +105,7 @@ type CollectedSource<T> = {
   data: T;
 };
 
-type ImportManifestCell = {
+export type ImportManifestCell = {
   term: string;
   subject: string;
   source: SourceKind;
@@ -326,7 +326,7 @@ function manifestSummary(cells: ImportManifestCell[]) {
   };
 }
 
-function buildManifest(options: {
+export function buildPublishedSnapshotImportManifest(options: {
   config: CatalogSnapshotConfig;
   runId: string;
   generatedAt: string;
@@ -616,7 +616,9 @@ function sourceReport(
   };
 }
 
-function sourcePublicManifestPath(config: CatalogSnapshotConfig): string {
+export function publishedSnapshotImportManifestPath(
+  config: CatalogSnapshotConfig,
+): string {
   return pathModule.join(
     pathModule.dirname(config.paths.public_catalog_dir),
     'import-manifests',
@@ -878,7 +880,7 @@ export async function runPublishedSnapshotPipeline(
       config.paths.reports_dir,
       `${runId}.import-report.json`,
     ),
-    manifestPath: sourcePublicManifestPath(config),
+    manifestPath: publishedSnapshotImportManifestPath(config),
   };
   const context: PublishedSnapshotSourceLoadContext = {
     config,
@@ -927,7 +929,7 @@ export async function runPublishedSnapshotPipeline(
     ...generalCatalogResult.cells,
     ...gradeArchiveResult.cells,
   ];
-  const manifest = buildManifest({
+  const manifest = buildPublishedSnapshotImportManifest({
     config,
     runId,
     generatedAt,

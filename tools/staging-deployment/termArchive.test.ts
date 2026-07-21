@@ -6,9 +6,20 @@ describe('staging Term Archive', () => {
   it('builds a complete content-addressed registry from accepted repository artifacts', async () => {
     const archive = await buildTermArchive();
 
-    expect(archive.registry.last_update).toBe('2026-07-02T01:57:13.859Z');
-    expect(archive.terms).toHaveLength(14);
-    expect(archive.registry.terms).toHaveLength(14);
+    expect(archive.registry.last_update).toBe('2026-07-21T19:45:02.612Z');
+    expect(archive.terms).toHaveLength(15);
+    expect(archive.registry.terms).toHaveLength(15);
+
+    const fall = archive.terms.find(({ term }) => term === 'FA26');
+    if (!fall) throw new Error('FA26 fixture is missing');
+    expect(fall).toMatchObject({
+      term: 'FA26',
+      label: 'Fall 2026',
+      dateRange: null,
+      generatedAt: '2026-07-21T19:45:02.612Z',
+    });
+    expect(fall.snapshot.sha256).toMatch(/^[a-f\d]{64}$/u);
+    expect(fall.manifest.sha256).toMatch(/^[a-f\d]{64}$/u);
 
     const spring = archive.terms.find(({ term }) => term === 'SP26');
     if (!spring) throw new Error('SP26 fixture is missing');

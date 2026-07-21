@@ -4,6 +4,7 @@ import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import type { CatalogSnapshotConfig } from './catalogSnapshot';
+import type { PublishedSnapshotImportManifest } from './publishedSnapshotPipeline';
 import { runTssPublishedSnapshotPipeline } from './tssPublishedSnapshotPipeline';
 
 const tempDirectories: string[] = [];
@@ -150,8 +151,15 @@ describe('TSS Published Snapshot entrypoint', () => {
       await readFile(result.snapshotPath, 'utf-8'),
     ) as { courses: { [key: string]: unknown }[] };
     const registry = JSON.parse(await readFile(metadataPath, 'utf-8')) as {
-      terms: { term: string; frozen: boolean }[];
+      terms: {
+        term: string;
+        frozen: boolean;
+        manifest_path: string | null;
+      }[];
     };
+    const manifest = JSON.parse(
+      await readFile(result.manifestPath, 'utf-8'),
+    ) as PublishedSnapshotImportManifest;
 
     expect(result.snapshot).toMatchObject({
       active_planning_term: 'FA26',
@@ -182,8 +190,48 @@ describe('TSS Published Snapshot entrypoint', () => {
       ],
     });
     expect(registry.terms).toMatchObject([
-      { term: 'FA26', frozen: false },
+      {
+        term: 'FA26',
+        frozen: false,
+        manifest_path: 'catalogs/import-manifests/FA26.json',
+      },
       { term: 'SP26', frozen: false },
     ]);
+    expect(manifest).toMatchObject({
+      active_planning_term: 'FA26',
+      summary: { ok: 2, empty: 3, failed: 4, partial: 0 },
+    });
+    expect(manifest.cells).toHaveLength(9);
+    const catSchedule = manifest.cells.find(
+      ({ source, subject }) =>
+        source === 'schedule_of_classes' && subject === 'CAT',
+    );
+    expect(catSchedule).toMatchObject({
+      status: 'ok',
+      reason: null,
+      attempts: 1,
+      row_counts: { courses: 1, sections: 1, meetings: 0 },
+      normalized_artifact: null,
+    });
+    expect(catSchedule?.raw_artifacts).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/CAT\.json$/u),
+        expect.stringMatching(/capacity_enrollment_supp\.txt$/u),
+      ]),
+    );
+    expect(manifest.cells).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: 'general_catalog',
+          subject: 'CSE',
+          status: 'failed',
+        }),
+        expect.objectContaining({
+          source: 'instructor_grade_archive',
+          subject: 'CAT',
+          status: 'empty',
+        }),
+      ]),
+    );
   });
 });
