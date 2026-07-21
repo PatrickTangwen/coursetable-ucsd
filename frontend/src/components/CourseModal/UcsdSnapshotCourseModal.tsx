@@ -737,7 +737,7 @@ function SectionMappingTable({
           </h2>
           <p className={styles.mappingDescription}>
             Choose a section to add to your Worksheet. SunGrid shows the section
-            name; UCSD uses the official TSS code.
+            name; UCSD uses the TSS section.
           </p>
         </div>
         <span className={styles.mappingCount}>
@@ -750,9 +750,7 @@ function SectionMappingTable({
             <tr>
               <th className={styles.mappingSelectHeader}>Add</th>
               <th className={styles.mappingNameHeader}>Section name</th>
-              <th className={styles.mappingOfficialHeader}>
-                Official TSS code
-              </th>
+              <th className={styles.mappingOfficialHeader}>TSS section</th>
               <th className={styles.mappingInstructorHeader}>Instructor</th>
               <th className={styles.mappingScheduleHeader}>Schedule</th>
             </tr>
@@ -787,7 +785,7 @@ function SectionMappingTable({
                       {entry.displayName}
                     </span>
                   </td>
-                  <td data-label="Official TSS code">
+                  <td data-label="TSS section">
                     <code className={styles.mappingOfficialCode}>
                       {entry.officialSectionCode}
                     </code>
@@ -1460,7 +1458,7 @@ export default function UcsdSnapshotCourseModal({
                       <button
                         type="button"
                         className={styles.sectionMappingButton}
-                        aria-label="View official TSS section codes"
+                        aria-label="View TSS sections"
                         aria-describedby={sectionMappingTooltipId}
                         onClick={() => {
                           bodyRef.current?.scrollTo({ top: 0 });
@@ -1474,8 +1472,8 @@ export default function UcsdSnapshotCourseModal({
                         className={styles.sectionMappingTooltip}
                         role="tooltip"
                       >
-                        View Section Mapping for the official TSS section codes
-                        used for enrollment.
+                        View Section Mapping for the TSS sections used for
+                        enrollment.
                       </span>
                     </span>
                   )}
