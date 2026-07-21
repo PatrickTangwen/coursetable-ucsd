@@ -203,6 +203,10 @@
   min-width: 0;
 }
 
+.toolbarMenu {
+  position: relative;
+}
+
 .sectionSelectButton {
   display: inline-flex;
   align-items: center;
@@ -252,15 +256,13 @@
   cursor: default;
 }
 
-.sectionMenu {
+.sectionMenu,
+.toolbarMenuPopover {
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
   z-index: 30;
-  min-width: 226px;
-  max-height: min(320px, 48vh);
   padding: 5px;
-  overflow-y: auto;
   border: 1px solid rgb(var(--ct-line-rgb) / 10%);
   border-radius: 10px;
   background: var(--ct-surface-raised);
@@ -269,10 +271,20 @@
     0 12px 32px rgb(11 11 11 / 12%);
 }
 
-.sectionMenuItem {
+.sectionMenu {
+  min-width: 226px;
+  max-height: min(320px, 48vh);
+  overflow-y: auto;
+}
+
+.toolbarMenuPopover {
+  min-width: 190px;
+}
+
+.sectionMenuItem,
+.toolbarMenuItem {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
   min-width: 0;
   width: 100%;
@@ -283,11 +295,30 @@
   cursor: pointer;
   font: inherit;
   text-align: left;
+  text-decoration: none;
   transition: background 0.12s ease;
 }
 
+.sectionMenuItem {
+  justify-content: space-between;
+}
+
+.toolbarMenuItem {
+  justify-content: flex-start;
+  color: var(--ct-text-strong);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.toolbarMenuItem svg {
+  flex-shrink: 0;
+  color: var(--ct-accent-text);
+}
+
 .sectionMenuItem:hover,
-.sectionMenuItem:focus-visible {
+.sectionMenuItem:focus-visible,
+.toolbarMenuItem:hover,
+.toolbarMenuItem:focus-visible {
   background: var(--ct-surface-soft);
 }
 

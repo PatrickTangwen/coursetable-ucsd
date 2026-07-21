@@ -51,6 +51,7 @@ import {
 import styles from './UcsdSnapshotCourseModal.module.css';
 
 type UcsdModalView = 'overview' | 'evals' | 'past-grades' | 'section-mapping';
+type UcsdModalHeaderMenu = 'section' | 'more';
 
 const courseActionToastDuration = 800;
 
@@ -214,26 +215,13 @@ function CheckIcon() {
   );
 }
 
-function CopyUrlButton() {
-  const copyUrl = () => {
-    navigator.clipboard.writeText(window.location.href).then(
-      () =>
-        toast.success('Course URL copied', {
-          duration: courseActionToastDuration,
-        }),
-      () => toast.error('Failed to copy course URL'),
-    );
-  };
-
-  return (
-    <button
-      type="button"
-      className={styles.iconButton}
-      onClick={copyUrl}
-      aria-label="Copy course URL"
-    >
-      <ShareIcon />
-    </button>
+function copyCourseUrl() {
+  navigator.clipboard.writeText(window.location.href).then(
+    () =>
+      toast.success('Course URL copied', {
+        duration: courseActionToastDuration,
+      }),
+    () => toast.error('Failed to copy course URL'),
   );
 }
 
@@ -795,9 +783,13 @@ export default function UcsdSnapshotCourseModal({
   const bodyRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<{ [family: string]: HTMLDivElement | null }>({});
   const sectionSelectButtonRef = useRef<HTMLButtonElement>(null);
-  const [sectionMenuOpen, setSectionMenuOpen] = useState(false);
-  const sectionMenuOpenRef = useRef(sectionMenuOpen);
-  sectionMenuOpenRef.current = sectionMenuOpen;
+  const moreMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const [openHeaderMenu, setOpenHeaderMenu] =
+    useState<UcsdModalHeaderMenu | null>(null);
+  const openHeaderMenuRef = useRef(openHeaderMenu);
+  openHeaderMenuRef.current = openHeaderMenu;
+  const sectionMenuOpen = openHeaderMenu === 'section';
+  const moreMenuOpen = openHeaderMenu === 'more';
   const [scrollTarget, setScrollTarget] = useState<{
     family: string;
     nonce: number;
@@ -891,9 +883,14 @@ export default function UcsdSnapshotCourseModal({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.stopPropagation();
-        if (sectionMenuOpenRef.current) {
-          setSectionMenuOpen(false);
-          sectionSelectButtonRef.current?.focus();
+        const openMenu = openHeaderMenuRef.current;
+        if (openMenu) {
+          setOpenHeaderMenu(null);
+          const trigger =
+            openMenu === 'section'
+              ? sectionSelectButtonRef.current
+              : moreMenuButtonRef.current;
+          trigger?.focus();
           return;
         }
         closeModal();
@@ -963,16 +960,20 @@ export default function UcsdSnapshotCourseModal({
     body.scrollTo({ top, behavior: 'smooth' });
   }, [scrollTarget]);
 
-  const closeSectionMenu = () => {
-    setSectionMenuOpen(false);
+  const closeHeaderMenu = (menu: UcsdModalHeaderMenu) => {
+    setOpenHeaderMenu(null);
+    const trigger =
+      menu === 'section'
+        ? sectionSelectButtonRef.current
+        : moreMenuButtonRef.current;
     // The menu unmounts with the focused item in it; return focus to the
     // trigger so Tab order and the dialog's Escape handler keep working.
-    sectionSelectButtonRef.current?.focus();
+    trigger?.focus();
   };
 
   const handleSelectFamily = (family: string) => {
     setCourseModalActiveFamily(family);
-    closeSectionMenu();
+    closeHeaderMenu('section');
     setView('overview');
     setScrollTarget((previous) => ({
       family,
@@ -1150,7 +1151,9 @@ export default function UcsdSnapshotCourseModal({
                       styles.sectionSelectButton,
                       sectionMenuOpen && styles.sectionSelectButtonOpen,
                     )}
-                    onClick={() => setSectionMenuOpen((open) => !open)}
+                    onClick={() => {
+                      setOpenHeaderMenu(sectionMenuOpen ? null : 'section');
+                    }}
                     aria-haspopup="menu"
                     aria-expanded={sectionMenuOpen}
                   >
@@ -1170,7 +1173,7 @@ export default function UcsdSnapshotCourseModal({
                       <button
                         type="button"
                         className={styles.sectionMenuBackdrop}
-                        onClick={closeSectionMenu}
+                        onClick={() => closeHeaderMenu('section')}
                         aria-label="Close section menu"
                         tabIndex={-1}
                       />
@@ -1260,44 +1263,59 @@ export default function UcsdSnapshotCourseModal({
                 </div>
               )}
               <div className={styles.toolbar}>
-                <button
-                  type="button"
-                  className={styles.iconButton}
-                  onClick={() =>
-                    activeSelected &&
-                    (isFall2026
-                      ? handleToggleWorksheet(activeSelected.listing)
-                      : handleAdd(activeSelected.listing))
-                  }
-                  disabled={isFall2026 && worksheetDisabled}
-                  aria-label={`${isFall2026 && activeSelected && worksheetHasListing(activeSelected.listing) ? 'Remove' : 'Add'} selected section ${isFall2026 && activeSelected && worksheetHasListing(activeSelected.listing) ? 'from' : 'to'} worksheet`}
-                >
-                  {isFall2026 &&
-                  activeSelected &&
-                  worksheetHasListing(activeSelected.listing) ? (
-                    <CheckIcon />
-                  ) : (
-                    <PlusIcon />
+                <div className={styles.toolbarMenu}>
+                  <button
+                    ref={moreMenuButtonRef}
+                    type="button"
+                    className={styles.iconButton}
+                    onClick={() => {
+                      setOpenHeaderMenu(moreMenuOpen ? null : 'more');
+                    }}
+                    aria-label="More actions"
+                    aria-haspopup="menu"
+                    aria-expanded={moreMenuOpen}
+                  >
+                    <MoreIcon />
+                  </button>
+                  {moreMenuOpen && (
+                    <>
+                      <button
+                        type="button"
+                        className={styles.sectionMenuBackdrop}
+                        onClick={() => closeHeaderMenu('more')}
+                        aria-label="Close more actions menu"
+                        tabIndex={-1}
+                      />
+                      <div className={styles.toolbarMenuPopover} role="menu">
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className={styles.toolbarMenuItem}
+                          onClick={() => {
+                            copyCourseUrl();
+                            closeHeaderMenu('more');
+                          }}
+                        >
+                          <ShareIcon />
+                          <span>Copy course URL</span>
+                        </button>
+                        {listing.course.catalogUrl && (
+                          <a
+                            role="menuitem"
+                            className={styles.toolbarMenuItem}
+                            href={listing.course.catalogUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={() => closeHeaderMenu('more')}
+                          >
+                            <ExternalIcon />
+                            <span>Open UCSD catalog</span>
+                          </a>
+                        )}
+                      </div>
+                    </>
                   )}
-                </button>
-                <CopyUrlButton />
-                <button
-                  type="button"
-                  className={styles.iconButton}
-                  disabled={!listing.course.catalogUrl}
-                  onClick={() => {
-                    if (listing.course.catalogUrl) {
-                      window.open(
-                        listing.course.catalogUrl,
-                        '_blank',
-                        'noreferrer',
-                      );
-                    }
-                  }}
-                  aria-label="Open UCSD catalog"
-                >
-                  <MoreIcon />
-                </button>
+                </div>
               </div>
             </div>
           </div>
