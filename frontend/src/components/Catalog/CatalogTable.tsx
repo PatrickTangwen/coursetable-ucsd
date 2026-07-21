@@ -636,12 +636,11 @@ function SubRow({
       <div className={styles.addCell}>
         <CatalogWorksheetToggleButton listing={groupListing} />
       </div>
-      <div className={styles.cell}>
+      <div className={clsx(styles.cell, styles.subSectionCell)}>
         <span className={styles.subSectionBadge}>
           {section.section_code ?? group.familyPrefix}
         </span>
       </div>
-      <div />
       <div className={clsx(styles.cell, styles.subMeta)}>
         {section.meeting_type && (
           <span className={styles.typeBadge}>

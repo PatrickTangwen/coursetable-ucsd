@@ -322,6 +322,12 @@
   width: max-content;
 }
 
+.subSectionCell {
+  /* Expanded rows have no separate section-count value, so the composite
+     section code can use both the Code and section-count tracks. */
+  grid-column: 2 / span 2;
+}
+
 .typeBadge {
   padding: 2px 7px;
   border-radius: 4px;

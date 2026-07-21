@@ -899,7 +899,9 @@ export default function UcsdSnapshotCourseModal({
                     aria-haspopup="menu"
                     aria-expanded={sectionMenuOpen}
                   >
-                    Section {activeFamily}
+                    <span className={styles.sectionSelectLabel}>
+                      Section {activeFamily}
+                    </span>
                     <ChevronIcon
                       open={sectionMenuOpen}
                       size={11}

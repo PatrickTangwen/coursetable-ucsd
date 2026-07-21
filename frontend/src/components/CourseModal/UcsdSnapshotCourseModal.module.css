@@ -207,7 +207,9 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
+  min-width: 0;
   max-width: 100%;
+  overflow: hidden;
   padding: 6px 10px 6px 12px;
   border: 1px solid rgb(var(--ct-line-rgb) / 12%);
   border-radius: 8px;
@@ -221,6 +223,13 @@
   transition: border-color 0.15s ease;
 }
 
+.sectionSelectLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .sectionSelectButtonOpen {
   border-color: rgb(40 113 190 / 40%);
 }
@@ -230,6 +239,7 @@
 }
 
 .selectChevron {
+  flex-shrink: 0;
   color: var(--ct-text-muted);
 }
 
@@ -264,6 +274,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  min-width: 0;
   width: 100%;
   padding: 8px 10px;
   border: 0;
@@ -288,16 +299,23 @@
 
 .sectionMenuText {
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: flex-start;
   min-width: 0;
+  overflow: hidden;
 }
 
 .sectionMenuTitle {
+  display: block;
+  width: 100%;
+  overflow: hidden;
   color: var(--ct-ink);
   font-size: 12.5px;
   font-weight: 700;
   line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sectionMenuItemActive .sectionMenuTitle {
@@ -918,7 +936,13 @@
   }
 
   .controlsRight {
+    flex: 1;
+    justify-content: flex-end;
     gap: 6px;
+  }
+
+  .sectionSelect {
+    flex: 1 1 auto;
   }
 
   .tabs,
@@ -938,8 +962,18 @@
   }
 
   .sectionSelectButton {
+    width: 100%;
     padding: 5px 8px 5px 10px;
     font-size: 12px;
+  }
+
+  .sectionMenu {
+    width: min(280px, calc(100vw - 40px));
+    min-width: min(226px, calc(100vw - 40px));
+  }
+
+  .toolbar {
+    flex-shrink: 0;
   }
 
   .separator {
