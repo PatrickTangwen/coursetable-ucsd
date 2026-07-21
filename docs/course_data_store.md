@@ -49,11 +49,10 @@ instructor, GPA, grade buckets, and raw record. The Course Data Store does not
 compute or expose a single course-level Average GPA.
 
 The Published Snapshot can mark conservatively inherited cross-listed rows with
-`matched_via: "cross_listed"`; see `grade_archive.md`. The current shadow
-importer retains the target Course ID and the archive row's original
-subject/course fields, but does not persist that explicit match field. Treat
-cross-listed provenance as a documented parity gap until the Course Data Store
-stores and validates an equivalent structured relationship.
+`matched_via: "cross_listed"`; see `grade_archive.md`. At commit `76fee87`, the
+shadow importer retained the target Course ID and the archive row's original
+subject/course fields but did not persist that explicit match field. The dated
+parity update below supersedes that historical limitation.
 
 Snapshot Availability Data is one observation per imported Section. Enrolled,
 capacity, and waitlist values are stored with the Snapshot generation timestamp
@@ -240,3 +239,18 @@ prove the comparator fails materially different projections. The same command
 smokes the unchanged static Catalog metadata and Published Snapshot endpoints,
 and its existing `finally` cleanup removes the disposable containers, volumes,
 gateway processes, and generated secrets on success or failure.
+
+## Cross-listed Grade Archive provenance parity — 2026-07-21
+
+The Course Data Store now persists the Published Snapshot's optional
+`matched_via` value on each Grade Archive Record and exposes it as `matchedVia`
+through the anonymous Hasura projection. The database constraint accepts only
+`cross_listed` or `null`, matching the current Published Snapshot schema rather
+than introducing a broader provenance vocabulary.
+
+`bun run validate:course-data-tracer` imports an explicitly labelled
+cross-listed boundary record and compares the complete source projection with
+the anonymous GraphQL result. The acceptance fails if the importer, migration,
+Hasura metadata, or parity query drops the provenance field. This closes the
+parity gap recorded at commit `76fee87`; it does not move the Catalog frontend
+off the static Published Snapshot path.

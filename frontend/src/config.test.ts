@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
 import { CUR_SEASON, resolveCurrentUcsdTerm } from './config';
+import supportedTerms from './generated/supported-terms.json';
 
 describe('active planning term', () => {
   it('defaults Catalog and Worksheet to Fall 2026', () => {
     expect(CUR_SEASON).toBe('FA26');
+  });
+
+  it('keeps the Active Planning Term in generated Catalog metadata', () => {
+    expect(supportedTerms).toContain(CUR_SEASON);
   });
 });
 

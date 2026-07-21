@@ -89,13 +89,14 @@ function multisetMap<T>(
   rows: T[],
   context: (row: T) => string,
   value: (row: T) => unknown,
+  identityValue: (row: T) => unknown = value,
 ) {
   const occurrences = new Map<string, number>();
   return new Map(
     rows.map((row) => {
       const rowValue = value(row);
       const digest = createHash('sha256')
-        .update(canonicalJson(rowValue))
+        .update(canonicalJson(identityValue(row)))
         .digest('hex')
         .slice(0, 16);
       const baseIdentity = `${context(row)}:${digest}`;
@@ -434,6 +435,10 @@ export async function importSnapshot(
     gradeRecords: multisetMap(
       gradeRecords,
       ({ courseId }) => courseId,
+      ({ record }) => ({
+        raw_record: record.raw,
+        matched_via: record.matched_via ?? null,
+      }),
       ({ record }) => ({ raw_record: record.raw }),
     ),
     availability: mapRows(
@@ -544,7 +549,10 @@ export async function importSnapshot(
         `,
         tx<StoredRow[]>`
           select course_id as identity,
-            jsonb_build_object('raw_record', raw_record) as value
+            jsonb_build_object(
+              'raw_record', raw_record,
+              'matched_via', matched_via
+            ) as value
           from grade_archive_records
           where term_code = ${snapshot.active_planning_term}
         `,
@@ -591,6 +599,9 @@ export async function importSnapshot(
           storedGradeRecords,
           ({ identity }) => identity,
           ({ value }) => value,
+          ({ value }) => ({
+            raw_record: (value as { raw_record: unknown }).raw_record,
+          }),
         ),
         availability: storedMap(storedAvailability),
         manifestCells: storedMap(storedManifestCells),
@@ -648,7 +659,20 @@ export async function importSnapshot(
         `;
         return summary;
       }
-      if (existingRun?.exists) return summary;
+      if (existingRun?.exists) {
+        for (const { courseId, record, recordIndex } of gradeRecords) {
+          if (record.matched_via !== 'cross_listed') continue;
+          await tx`
+            update grade_archive_records
+            set matched_via = ${record.matched_via}
+            where term_code = ${snapshot.active_planning_term}
+              and course_id = ${courseId}
+              and record_index = ${recordIndex}
+              and matched_via is distinct from ${record.matched_via}
+          `;
+        }
+        return summary;
+      }
 
       if (replacing) {
         await tx`delete from supported_terms where term_code = ${snapshot.active_planning_term}`;
@@ -788,6 +812,7 @@ export async function importSnapshot(
               p_percent: record.p,
               np_percent: record.np,
               raw_record: tx.json(record.raw),
+              matched_via: record.matched_via ?? null,
             })),
           )}
           on conflict (term_code, course_id, record_index) do nothing

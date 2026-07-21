@@ -32,13 +32,13 @@
       "term": "RELATIONSHIP-EDGE",
       "subject": "TEST",
       "source": "instructor_grade_archive",
-      "status": "empty",
+      "status": "ok",
       "reason": null,
       "attempts": 1,
-      "row_counts": { "records": 0 },
+      "row_counts": { "records": 1 },
       "raw_artifacts": [],
       "normalized_artifact": null
     }
   ],
-  "summary": { "ok": 1, "empty": 1, "failed": 0, "partial": 1 }
+  "summary": { "ok": 2, "empty": 0, "failed": 0, "partial": 1 }
 }

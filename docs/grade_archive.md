@@ -76,8 +76,12 @@ generation and Import Manifest behavior.
 ## Course Data Store boundary
 
 The static Published Snapshot and frontend preserve and display
-`matched_via: "cross_listed"`. The shadow Course Data Store currently retains
-the target Course ID and the archive row's original subject/course fields, but
-does not persist the explicit `matched_via` field. This is a known parity gap;
-do not claim cross-listed provenance parity through Hasura until that field or
-an equivalent structured relationship is stored and validated.
+`matched_via: "cross_listed"`. At commit `76fee87`, the shadow Course Data Store
+retained the target Course ID and the archive row's original subject/course
+fields but did not persist the explicit match field.
+
+The 2026-07-21 Course Data Store parity update supersedes that limitation. The
+importer now stores the optional provenance value, the anonymous Hasura schema
+exposes it as `matchedVia`, and the disposable Course Data tracer verifies the
+source-to-GraphQL round trip. The static Published Snapshot remains the Catalog
+source of truth.

@@ -353,7 +353,8 @@
               "w_percent": "wPercent",
               "p_percent": "pPercent",
               "np_percent": "npPercent",
-              "raw_record": "rawRecord"
+              "raw_record": "rawRecord",
+              "matched_via": "matchedVia"
             }
           },
           "select_permissions": [
@@ -379,7 +380,8 @@
                   "w_percent",
                   "p_percent",
                   "np_percent",
-                  "raw_record"
+                  "raw_record",
+                  "matched_via"
                 ],
                 "filter": {},
                 "limit": 200

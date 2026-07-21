@@ -163,6 +163,7 @@ export async function projectPublishedSnapshot(
           pPercent: record.p,
           npPercent: record.np,
           rawRecord: record.raw,
+          matchedVia: record.matched_via ?? null,
         })),
       ),
       'courseId',
@@ -259,7 +260,7 @@ const publicRoots = {
   },
   gradeArchiveRecords: {
     fields:
-      'termCode courseId recordIndex subject courseNumber year quarter title instructor gpa aPercent bPercent cPercent dPercent fPercent wPercent pPercent npPercent rawRecord',
+      'termCode courseId recordIndex subject courseNumber year quarter title instructor gpa aPercent bPercent cPercent dPercent fPercent wPercent pPercent npPercent rawRecord matchedVia',
     orderBy: '[{courseId: asc}, {recordIndex: asc}]',
     category: 'gradeArchiveRecords',
     identity: null,

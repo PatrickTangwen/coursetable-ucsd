@@ -21,9 +21,29 @@
       "prerequisites_text": null,
       "restrictions_text": null,
       "catalog_url": null,
-      "archive_avg_gpa": null,
-      "archive_record_count": 0,
-      "grade_archive_records": [],
+      "archive_avg_gpa": 3.5,
+      "archive_record_count": 1,
+      "grade_archive_records": [
+        {
+          "subject": "SOURCE",
+          "course": "0",
+          "year": "26",
+          "quarter": "FA",
+          "title": "Cross-listed provenance boundary",
+          "instructor": "Boundary Instructor",
+          "gpa": 3.5,
+          "a": 50,
+          "b": 50,
+          "c": 0,
+          "d": 0,
+          "f": 0,
+          "w": 0,
+          "p": 0,
+          "np": 0,
+          "raw": { "fixture": "cross-listed provenance" },
+          "matched_via": "cross_listed"
+        }
+      ],
       "ge_matches": [],
       "sections": [
         {

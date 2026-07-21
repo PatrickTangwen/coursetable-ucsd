@@ -70,6 +70,7 @@ describe('Course Data Store semantic parity comparator', () => {
       p: 0,
       np: 0,
       raw: { name },
+      matched_via: 'cross_listed',
     });
     const meeting = (room: string) => ({
       days: ['M'],
@@ -137,6 +138,12 @@ describe('Course Data Store semantic parity comparator', () => {
       projectPublishedSnapshot(leftPath, manifestPath),
       projectPublishedSnapshot(rightPath, manifestPath),
     ]);
+
+    expect([...left.gradeArchiveRecords!.values()]).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ matchedVia: 'cross_listed' }),
+      ]),
+    );
 
     expect(
       compareCourseDataParity(

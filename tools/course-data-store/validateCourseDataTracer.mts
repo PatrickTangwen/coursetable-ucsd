@@ -48,6 +48,7 @@ const tracer = {
   expectedGradeRecords: 318,
   expectedAvailabilityObservations: 275,
   expectedManifestCells: 117,
+  expectedBoundaryGradeRecords: 1,
   snapshotPath: 'api/static/catalogs/public/S326.json',
   manifestPath: 'api/static/catalogs/import-manifests/S326.json',
   zeroMeetingFixture:
@@ -455,6 +456,20 @@ export async function validateCourseDataTracer() {
       databaseUrl,
       tracer.partialManifestFixture,
     );
+    const upgradeProbeSql = postgres(databaseUrl, { max: 1 });
+    try {
+      await upgradeProbeSql`
+        update grade_archive_records set matched_via = null
+        where term_code = 'RELATIONSHIP-EDGE'
+      `;
+    } finally {
+      await upgradeProbeSql.end();
+    }
+    const provenanceRepair = await importSnapshot(
+      tracer.zeroMeetingFixture,
+      databaseUrl,
+      tracer.partialManifestFixture,
+    );
     const beforeFreeze = await queryAnonymous(`
       query BeforeFreeze {
         supportedTerms(where: {termCode: {_eq: "RELATIONSHIP-EDGE"}}) {
@@ -480,12 +495,22 @@ export async function validateCourseDataTracer() {
       zeroMeetingImport.sections.created !== 1 ||
       zeroMeetingImport.meetings.created !== 0 ||
       zeroMeetingImport.lifecycle !== 'published' ||
+      provenanceRepair.gradeRecords.updated !==
+        tracer.expectedBoundaryGradeRecords ||
+      provenanceRepair.importRun !== 'unchanged' ||
       frozenTransition.lifecycle !== 'frozen' ||
       frozenTransition.sections.unchanged !== 1 ||
       identicalFrozenImport.sections.unchanged !== 1 ||
       identicalFrozenImport.importRun !== 'unchanged'
     )
-      throw new Error('Frozen zero-Meeting fixture was not idempotent');
+      throw new Error(
+        `Frozen zero-Meeting fixture was not idempotent: ${JSON.stringify({
+          zeroMeetingImport,
+          provenanceRepair,
+          frozenTransition,
+          identicalFrozenImport,
+        })}`,
+      );
     const afterFreeze = await queryAnonymous(`
       query AfterFreeze {
         supportedTerms(where: {termCode: {_eq: "RELATIONSHIP-EDGE"}}) {
@@ -896,6 +921,16 @@ export async function validateCourseDataTracer() {
             rawRecord
           }
         }
+        provenanceCourse: courses(where: {
+          termCode: {_eq: "RELATIONSHIP-EDGE"},
+          courseId: {_eq: "TEST:0"}
+        }) {
+          gradeArchiveRecords(limit: 1) {
+            subject
+            courseNumber
+            matchedVia
+          }
+        }
         availabilitySection: sections(where: {
           termCode: {_eq: "${tracer.term}"},
           sectionId: {_eq: "S326:265969"}
@@ -939,6 +974,18 @@ export async function validateCourseDataTracer() {
       typeof grade.rawRecord !== 'object'
     )
       throw new Error('Grade Archive Record did not round-trip');
+    const provenanceCourse = context.data?.provenanceCourse as
+      | { gradeArchiveRecords: { [key: string]: unknown }[] }[]
+      | undefined;
+    const provenance = provenanceCourse?.[0]?.gradeArchiveRecords[0];
+    if (
+      provenance?.subject !== 'SOURCE' ||
+      provenance.courseNumber !== '0' ||
+      provenance.matchedVia !== 'cross_listed'
+    )
+      throw new Error(
+        'Cross-listed Grade Archive provenance did not round-trip',
+      );
     const availabilitySections = context.data?.availabilitySection as
       | { snapshotAvailability: { [key: string]: unknown } | null }[]
       | undefined;
@@ -1351,7 +1398,8 @@ export async function validateCourseDataTracer() {
         counts.meetings !== tracer.expectedMeetings - removedMeetingCount ||
         counts.gradeRecords !==
           tracer.expectedGradeRecords -
-            removedCourse.grade_archive_records.length ||
+            removedCourse.grade_archive_records.length +
+            tracer.expectedBoundaryGradeRecords ||
         counts.availability !==
           tracer.expectedAvailabilityObservations + 1 - removedSectionCount ||
         counts.manifestCells !== tracer.expectedManifestCells * 2 + 3
@@ -1386,6 +1434,8 @@ export async function validateCourseDataTracer() {
       teamTaughtRoundTrip: true,
       failedRelationshipPreservedProjection: true,
       rawGradeRecords: true,
+      crossListedGradeProvenance: true,
+      sameFingerprintProvenanceRepair: true,
       noAverageGpa: true,
       timestampedSnapshotAvailability: true,
       manifestStatusesQueryable: true,
