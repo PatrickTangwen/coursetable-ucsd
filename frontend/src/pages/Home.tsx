@@ -268,8 +268,8 @@ function WorksheetSection() {
                   <line x1="12" y1="15" x2="12" y2="3" />
                 </svg>
               }
-              title="Sync with your calendar"
-              desc="Push your worksheet to Apple, Google, or Outlook calendar — stays in sync as you make changes."
+              title="Export your calendar"
+              desc="Download an ICS file for Apple, Google, or Outlook, or save your weekly grid as a PNG."
             />
           </div>
         </div>

@@ -45,4 +45,14 @@ describe('Home public login entries', () => {
     expect(html).toContain('Search the catalog');
     expect(html).toContain('Browse without an account');
   });
+
+  it('describes worksheet calendar exports without promising live sync', () => {
+    const html = renderHome(true);
+
+    expect(html).toContain('Export your calendar');
+    expect(html).toContain('Download an ICS file');
+    expect(html).toContain('save your weekly grid as a PNG');
+    expect(html).not.toContain('Sync with your calendar');
+    expect(html).not.toContain('stays in sync');
+  });
 });

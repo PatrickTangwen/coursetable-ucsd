@@ -50,7 +50,6 @@ type DemoEvent = {
   height: number;
   pal: keyof typeof PAL;
   code: string;
-  sec?: string;
   kind?: string;
   time?: string;
   loc?: string;
@@ -69,7 +68,6 @@ const EVENTS: readonly (readonly DemoEvent[])[] = [
       height: 52,
       pal: 'purple',
       code: 'ECON 120A',
-      sec: 'A01',
       kind: 'Lecture',
       time: '8–9:20',
       loc: 'COA 130',
@@ -79,7 +77,6 @@ const EVENTS: readonly (readonly DemoEvent[])[] = [
       height: 46,
       pal: 'amber',
       code: 'ECE 15',
-      sec: 'A01',
       kind: 'Lab',
       time: '9:50–10:50',
       loc: 'WLH 2207',
@@ -89,7 +86,6 @@ const EVENTS: readonly (readonly DemoEvent[])[] = [
       height: 52,
       pal: 'green',
       code: 'DSC 20R',
-      sec: 'A01',
       kind: 'Discussion',
       time: '12–1:20',
       loc: 'RCLAS R115',
@@ -99,7 +95,6 @@ const EVENTS: readonly (readonly DemoEvent[])[] = [
       height: 52,
       pal: 'olive',
       code: 'MATH 20C',
-      sec: 'B01',
       kind: 'Lecture',
       time: '2–3:20',
       loc: 'PCYNH 109',
@@ -109,7 +104,6 @@ const EVENTS: readonly (readonly DemoEvent[])[] = [
       height: 52,
       pal: 'green',
       code: 'DSC 20R',
-      sec: 'A01',
       kind: 'Lecture',
       time: '5–6:20',
       loc: 'RCLAS R05',
@@ -122,7 +116,6 @@ const EVENTS: readonly (readonly DemoEvent[])[] = [
       height: 52,
       pal: 'amber',
       code: 'ECE 15',
-      sec: 'A01',
       kind: 'Lecture',
       time: '9:30–10:50',
       loc: 'WLH 2207',
@@ -132,7 +125,6 @@ const EVENTS: readonly (readonly DemoEvent[])[] = [
       height: 32,
       pal: 'amber',
       code: 'ECE 15',
-      sec: 'A01',
       kind: 'Discussion',
       time: '11–11:50',
       variant: 'disc',
@@ -142,7 +134,6 @@ const EVENTS: readonly (readonly DemoEvent[])[] = [
       height: 52,
       pal: 'red',
       code: 'COGS 108',
-      sec: 'A01',
       kind: 'Lecture',
       time: '3:30–4:50',
       loc: 'CENTR 115',
@@ -155,7 +146,6 @@ const EVENTS: readonly (readonly DemoEvent[])[] = [
       height: 52,
       pal: 'purple',
       code: 'ECON 120A',
-      sec: 'A01',
       kind: 'Lecture',
       time: '8–9:20',
       loc: 'COA 130',
@@ -165,7 +155,6 @@ const EVENTS: readonly (readonly DemoEvent[])[] = [
       height: 46,
       pal: 'amber',
       code: 'ECE 15',
-      sec: 'A01',
       kind: 'Lab',
       time: '9:50–10:50',
       loc: 'WLH 2207',
@@ -175,7 +164,6 @@ const EVENTS: readonly (readonly DemoEvent[])[] = [
       height: 52,
       pal: 'olive',
       code: 'MATH 20C',
-      sec: 'B01',
       kind: 'Lecture',
       time: '2–3:20',
       loc: 'PCYNH 109',
@@ -185,7 +173,6 @@ const EVENTS: readonly (readonly DemoEvent[])[] = [
       height: 52,
       pal: 'green',
       code: 'DSC 20R',
-      sec: 'A01',
       kind: 'Lecture',
       time: '5–6:20',
       loc: 'RCLAS R05',
@@ -198,7 +185,6 @@ const EVENTS: readonly (readonly DemoEvent[])[] = [
       height: 52,
       pal: 'amber',
       code: 'ECE 15',
-      sec: 'A01',
       kind: 'Lecture',
       time: '9:30–10:50',
       loc: 'WLH 2207',
@@ -208,7 +194,6 @@ const EVENTS: readonly (readonly DemoEvent[])[] = [
       height: 32,
       pal: 'amber',
       code: 'ECE 15',
-      sec: 'A01',
       kind: 'Discussion',
       time: '11–11:50',
       variant: 'disc',
@@ -241,7 +226,6 @@ const EVENTS: readonly (readonly DemoEvent[])[] = [
       height: 72,
       pal: 'red',
       code: 'COGS 108',
-      sec: 'A01',
       kind: 'Lab',
       time: '12–1:50',
       loc: 'CSB 002',
@@ -251,7 +235,6 @@ const EVENTS: readonly (readonly DemoEvent[])[] = [
       height: 52,
       pal: 'olive',
       code: 'MATH 20C',
-      sec: 'B01',
       kind: 'Lecture',
       time: '2–3:20',
       loc: 'PCYNH 109',
@@ -278,33 +261,28 @@ const COURSES = [
   {
     color: '#3B82F6',
     code: 'DSC 197',
-    sec: '001',
     title: 'Data Science Internship',
   },
   {
     color: '#17A277',
     code: 'DSC 20R',
-    sec: 'A01',
     title: 'Programming and Basic Dat…',
   },
   {
     color: '#D3871B',
     code: 'ECE 15',
-    sec: 'A01',
     title: 'Engineering Computation: In…',
   },
-  { color: '#8983E0', code: 'ECON 120A', sec: 'A01', title: 'Econometrics A' },
+  { color: '#8983E0', code: 'ECON 120A', title: 'Econometrics A' },
   {
     color: '#5E8A2B',
     code: 'MATH 20C',
-    sec: 'B01',
     title: 'Calculus and Analytic Geom…',
     warn: true,
   },
   {
     color: '#E0524D',
     code: 'COGS 108',
-    sec: 'A01',
     title: 'Data Science in Practice',
     warn: true,
   },
@@ -327,12 +305,7 @@ function EventBlock({ event }: { readonly event: DemoEvent }) {
       }}
     >
       <div className={styles.evCode} style={{ color: pal.strong }}>
-        {event.code}{' '}
-        {event.sec && (
-          <span className={styles.evSec} style={{ color: pal.sec }}>
-            {event.sec}
-          </span>
-        )}
+        {event.code}
       </div>
       {event.variant === 'disc' ? (
         <div className={styles.evMeta} style={{ color: pal.mid }}>
@@ -410,7 +383,7 @@ function StatTiles() {
             <span className={styles.tileIconLabel}>Busiest day</span>
           </div>
           <div className={styles.tileValueSm}>Mon</div>
-          <div className={styles.tileSub}>5 classes</div>
+          <div className={styles.tileSub}>5 classes ›</div>
         </div>
       </div>
     </>
@@ -515,13 +488,11 @@ export default function WorksheetDemo() {
                 />
                 <div className={styles.courseInfo}>
                   <div className={styles.courseCode}>
-                    {course.code}{' '}
-                    <span className={styles.courseSec}>{course.sec}</span>
+                    {course.code}
                     {course.warn && <WarnIcon />}
                   </div>
                   <div className={styles.courseTitle}>{course.title}</div>
                 </div>
-                <EyeIcon />
                 <ChevronDownIcon size={10} color="#C9C7C1" strokeWidth={2.4} />
               </div>
             ))}
