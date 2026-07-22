@@ -6,5 +6,5 @@ export function isPrivacyLinkEnabled(): boolean {
 }
 
 export function isSupportLinkEnabled(): boolean {
-  return false;
+  return true;
 }

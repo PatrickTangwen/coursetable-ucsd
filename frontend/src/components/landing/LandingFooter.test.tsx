@@ -44,11 +44,13 @@ describe('LandingFooter', () => {
     expect(html).not.toContain('Privacy Policy');
   });
 
-  it('hides the disabled Buy Me a Coffee support link', () => {
+  it('opens the sushi support button in a new Buy Me a Coffee tab', () => {
     const html = renderFooter('/');
 
-    expect(html).not.toContain('href="https://buymeacoffee.com/sungrid"');
-    expect(html).not.toContain('Buy me sushi');
+    expect(html).toContain('href="https://buymeacoffee.com/sungrid"');
+    expect(html).toContain('Buy me sushi');
+    expect(html).toContain('target="_blank"');
+    expect(html).toContain('rel="noopener noreferrer"');
     expect(html).not.toContain('button.prod.min.js');
   });
 });
