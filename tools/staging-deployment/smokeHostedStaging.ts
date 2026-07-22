@@ -70,11 +70,25 @@ export async function runHostedDeploymentSmoke(
   )
     throw new Error('Hosted smoke readiness policy is invalid');
 
-  const metadata = await waitForHostedOrigin(fetcher, origin, readiness);
+  const readinessDeadline = readiness.now() + readiness.overallTimeoutMs;
+  const metadata = await waitForHostedOrigin(
+    fetcher,
+    origin,
+    readiness,
+    readinessDeadline,
+  );
   const parsed = JSON.parse(metadata) as { terms?: { term?: unknown }[] };
   const term = parsed.terms?.[0]?.term;
   if (typeof term !== 'string' || !/^[A-Z\d]+$/u.test(term))
     throw new Error('Hosted Catalog metadata has no Supported Term');
+
+  await waitForHostedLoginBoundary(
+    fetcher,
+    origin,
+    contract.publicLoginEnabled,
+    readiness,
+    readinessDeadline,
+  );
 
   const checks: SmokeCheck[] = [
     { method: 'GET', pathname: '/', status: 200 },
@@ -122,13 +136,13 @@ async function waitForHostedOrigin(
   fetcher: Fetcher,
   origin: string,
   readiness: ReadinessOptions,
+  deadline: number,
 ) {
   const check = {
     method: 'GET',
     pathname: '/api/catalog/metadata',
     status: 200,
   };
-  const deadline = readiness.now() + readiness.overallTimeoutMs;
   while (readiness.now() < deadline) {
     const remainingMs = deadline - readiness.now();
     const attemptTimeoutMs = Math.max(
@@ -148,6 +162,51 @@ async function waitForHostedOrigin(
     await readiness.sleep(Math.min(readiness.delayMs, remainingAfterAttempt));
   }
   throw new Error('Hosted staging origin readiness timed out');
+}
+
+async function waitForHostedLoginBoundary(
+  fetcher: Fetcher,
+  origin: string,
+  publicLoginEnabled: boolean,
+  readiness: ReadinessOptions,
+  deadline: number,
+) {
+  const check: SmokeCheck = {
+    method: 'POST',
+    pathname: '/api/auth/ucsd/request-verification',
+    status: publicLoginEnabled ? 400 : 404,
+    body: { email: 'deployment-smoke@example.invalid' },
+  };
+  while (readiness.now() < deadline) {
+    const remainingMs = deadline - readiness.now();
+    const attemptTimeoutMs = Math.max(
+      1,
+      Math.ceil(Math.min(readiness.attemptTimeoutMs, remainingMs)),
+    );
+    const result = await fetchAttempt(
+      fetcher,
+      origin,
+      check,
+      AbortSignal.timeout(attemptTimeoutMs),
+    );
+    if (result.ok) {
+      if (result.response.status === check.status)
+        return validateResponse(result.response, check);
+      if (!isTransitionalLoginStatus(result.response.status, check.status))
+        return validateResponse(result.response, check);
+    }
+    const remainingAfterAttempt = deadline - readiness.now();
+    if (remainingAfterAttempt <= 0)
+      throw new Error('Hosted login boundary readiness timed out');
+    await readiness.sleep(Math.min(readiness.delayMs, remainingAfterAttempt));
+  }
+  throw new Error('Hosted login boundary readiness timed out');
+}
+
+function isTransitionalLoginStatus(actual: number, expected: number) {
+  return (
+    (actual === 400 && expected === 404) || (actual === 404 && expected === 400)
+  );
 }
 
 async function fetchAttempt(

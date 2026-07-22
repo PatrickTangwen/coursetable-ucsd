@@ -180,6 +180,58 @@ describe('hosted Production smoke', () => {
       expect.objectContaining({ pathname: '/api/savedSearches' }),
     );
   });
+
+  it('waits for the custom domain to serve the deployed login boundary', async () => {
+    const contract = createProductionContract({
+      DEPLOYMENT_TARGET: 'production',
+      CLOUDFLARE_PRODUCTION_HOSTNAME: 'sungridplanner.com',
+      CLOUDFLARE_WORKER_NAME: 'sungrid-production',
+      R2_CATALOG_BUCKET: 'sungrid-production-catalog',
+      VERIFICATION_EMAIL_SENDER_DOMAIN: 'mail.sungridplanner.com',
+      PRODUCTION_ISOLATION_VERIFIED_AT: '2026-07-13T20:00:00.000Z',
+    });
+    const delays: number[] = [];
+    let loginAttempts = 0;
+    const fetcher = (input: string | URL | Request, init?: RequestInit) => {
+      const request = new Request(input, init);
+      const { pathname } = new URL(request.url);
+      if (pathname === '/api/auth/ucsd/request-verification') {
+        loginAttempts += 1;
+        const status = loginAttempts <= 2 ? 400 : 404;
+        return Promise.resolve(
+          Response.json(
+            { error: status === 404 ? 'NOT_FOUND' : 'INVALID_EMAIL' },
+            { status },
+          ),
+        );
+      }
+      return smokeFetcher(
+        { authenticated: false, user: null },
+        false,
+        404,
+      )(input, init);
+    };
+
+    const evidence = await runHostedDeploymentSmoke(
+      'https://sungridplanner.com',
+      contract,
+      fetcher,
+      3,
+      {
+        overallTimeoutMs: 1_000,
+        attemptTimeoutMs: 100,
+        delayMs: 25,
+        sleep(delayMs: number) {
+          delays.push(delayMs);
+          return Promise.resolve();
+        },
+      },
+    );
+
+    expect(evidence.result).toBe('passed');
+    expect(loginAttempts).toBe(6);
+    expect(delays).toEqual([25, 25]);
+  });
 });
 
 function smokeFetcher(
