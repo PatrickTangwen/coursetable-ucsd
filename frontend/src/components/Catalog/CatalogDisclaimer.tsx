@@ -4,8 +4,15 @@ import { FaTimes } from 'react-icons/fa';
 import { FAQ_URL } from '../landing/links';
 import styles from './CatalogDisclaimer.module.css';
 
+let dismissedForPageLoad = false;
+
 export default function CatalogDisclaimer() {
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(dismissedForPageLoad);
+
+  const dismiss = () => {
+    dismissedForPageLoad = true;
+    setDismissed(true);
+  };
 
   if (dismissed) return null;
 
@@ -23,7 +30,7 @@ export default function CatalogDisclaimer() {
         type="button"
         className={styles.dismissButton}
         aria-label="Dismiss catalog notice"
-        onClick={() => setDismissed(true)}
+        onClick={dismiss}
       >
         <FaTimes aria-hidden="true" />
       </button>
