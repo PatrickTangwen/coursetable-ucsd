@@ -76,7 +76,7 @@ export const filterLabels: { [K in keyof Filters]: string } = {
   enrollBounds: '# Enrolled',
   numBounds: 'Course #',
   selectSchools: 'School',
-  selectCredits: 'Credit',
+  selectCredits: 'Units',
   selectCourseInfoAttributes: 'Info',
   searchDescription: 'Include descriptions in search',
   selectBuilding: 'Building',

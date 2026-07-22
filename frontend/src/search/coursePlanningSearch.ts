@@ -1,4 +1,5 @@
 import { catalogSearchValues } from './catalogSearchSuggestions';
+import { catalogUnitValues } from './catalogUnits';
 import { defaultFilters } from './searchConstants';
 import type { Filters, SortKeys } from './searchTypes';
 import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
@@ -10,12 +11,6 @@ export type CoursePlanningSearchContext = {
   isConflicting?: (listing: CoursePlanningListing) => boolean;
   quistPredicate?: (listing: CoursePlanningListing) => boolean;
 };
-
-function legacySearchCreditValue(units: string | null): number | null {
-  if (!units) return null;
-  const match = /\d+(?:\.\d+)?/u.exec(units);
-  return match ? Number(match[0]) : null;
-}
 
 // Persisted numBounds and Quist queries encode the inherited CourseTable
 // number scale. Keep that external behavior until a separate search-contract
@@ -314,8 +309,10 @@ export function coursePlanningQueryValue(
       return course.title;
     case 'description':
       return course.description;
-    case 'credits':
-      return legacySearchCreditValue(course.units);
+    case 'credits': {
+      const [primaryUnitValue = null] = catalogUnitValues(course.units);
+      return primaryUnitValue;
+    }
     case '*':
       return `${course.courseCode} ${course.subject} ${course.courseNumber} ${course.title} ${section.instructors.map(({ name }) => name).join(' ')}`;
     default:
@@ -401,11 +398,10 @@ export function filterAndSortCoursePlanningListings(
       .filter((day): day is number => day !== null);
     if (!matchesExactDays(daysSelected, days)) return false;
     if (filters.selectSkillsAreas.length > 0) return false;
-    const credits = legacySearchCreditValue(course.units);
+    const unitValues = catalogUnitValues(course.units);
     if (
       creditsSelected.length > 0 &&
-      credits !== null &&
-      !creditsSelected.includes(credits)
+      !unitValues.some((value) => creditsSelected.includes(value))
     )
       return false;
     if (

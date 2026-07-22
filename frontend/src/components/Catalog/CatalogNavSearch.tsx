@@ -84,6 +84,7 @@ function MobileFiltersButton() {
         s.searchFilters.selectSubjects.length +
         s.searchFilters.selectSeasons.length +
         s.searchFilters.selectDays.length +
+        s.searchFilters.selectCredits.length +
         s.catalogTypeFilters.length,
     ),
   );

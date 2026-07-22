@@ -6,7 +6,9 @@ import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
 import {
   buildCatalogListAdvancedFilterReset,
   extractCatalogSubjects,
+  extractCatalogUnitOptions,
 } from '../../search/catalogListFilters';
+import { toggleCatalogUnitSelection } from '../../search/catalogUnits';
 import { defaultFilters, seasonsOptions } from '../../search/searchConstants';
 import type { Option } from '../../search/searchTypes';
 import { useStore } from '../../store';
@@ -14,7 +16,7 @@ import { formatSubjectLabel } from '../../utilities/subjectLabels';
 import BottomSheet from '../BottomSheet';
 import styles from './MobileFilterSheet.module.css';
 
-type FilterView = 'main' | 'subject' | 'courseType' | 'term' | 'days';
+type FilterView = 'main' | 'subject' | 'courseType' | 'units' | 'term' | 'days';
 
 interface PickerConfig {
   title: string;
@@ -97,6 +99,7 @@ export default function MobileFilterSheet({
     selectedSubjects,
     selectedSeasons,
     selectedDays,
+    selectedUnits,
     setSearchFilter,
     patchSearchFilters,
     typeFilters,
@@ -107,6 +110,7 @@ export default function MobileFilterSheet({
       selectedSubjects: s.searchFilters.selectSubjects as Option[],
       selectedSeasons: s.searchFilters.selectSeasons,
       selectedDays: s.searchFilters.selectDays,
+      selectedUnits: s.searchFilters.selectCredits,
       setSearchFilter: s.setSearchFilter,
       patchSearchFilters: s.patchSearchFilters,
       typeFilters: s.catalogTypeFilters,
@@ -133,6 +137,10 @@ export default function MobileFilterSheet({
         value: s,
         label: formatSubjectLabel(s),
       })),
+    [courses, selectedSeasons],
+  );
+  const unitOptions = useMemo(
+    () => extractCatalogUnitOptions(courses, selectedSeasons),
     [courses, selectedSeasons],
   );
 
@@ -184,10 +192,22 @@ export default function MobileFilterSheet({
     [selectedDays, setSearchFilter],
   );
 
+  const toggleUnit = useCallback(
+    (v: string) => {
+      const value = Number(v);
+      setSearchFilter(
+        'selectCredits',
+        toggleCatalogUnitSelection(selectedUnits, unitOptions, value),
+      );
+    },
+    [selectedUnits, setSearchFilter, unitOptions],
+  );
+
   const resetAll = useCallback(() => {
     setSearchFilter('selectSubjects', []);
     setSearchFilter('selectSeasons', defaultFilters.selectSeasons);
     setSearchFilter('selectDays', []);
+    setSearchFilter('selectCredits', []);
     patchSearchFilters(buildCatalogListAdvancedFilterReset());
     clearTypeFilters();
   }, [setSearchFilter, patchSearchFilters, clearTypeFilters]);
@@ -209,6 +229,15 @@ export default function MobileFilterSheet({
       options: COURSE_TYPES.map((t) => ({ value: t.value, label: t.label })),
       selected: typeFilters,
       toggle: toggleTypeFilter,
+    },
+    units: {
+      title: 'Units',
+      options: unitOptions.map((option) => ({
+        value: String(option.value),
+        label: option.label,
+      })),
+      selected: selectedUnits.map((unit) => String(unit.value)),
+      toggle: toggleUnit,
     },
     term: {
       title: 'Term',
@@ -263,6 +292,11 @@ export default function MobileFilterSheet({
                 ),
               )}
               onOpen={() => setView('courseType')}
+            />
+            <CategoryRow
+              label="Units"
+              display={summarize(selectedUnits.map((unit) => unit.label))}
+              onOpen={() => setView('units')}
             />
             <CategoryRow
               label="Term"

@@ -1,7 +1,6 @@
 import { isEqual } from './common';
 import {
   courseInfoAttributes,
-  credits,
   schools,
   skillsAreas,
   weekdays,
@@ -9,6 +8,7 @@ import {
 import { toSeasonString } from './course';
 import { formatSubjectLabel } from './subjectLabels';
 import type { Season } from '../queries/graphql-types';
+import { formatCatalogUnitLabel } from '../search/catalogUnits';
 import {
   booleanAttributes,
   sortByOptions,
@@ -164,10 +164,10 @@ function handleSelectFilter<K extends keyof Filters>(
           return found ? { value: Number(val), label: found[0] } : null;
         }
         case 'selectCredits':
-          if (!credits.some((credit) => String(credit) === val)) return null;
+          if (!Number.isFinite(Number(val)) || Number(val) < 0) return null;
           return {
             value: Number(val),
-            label: val,
+            label: formatCatalogUnitLabel(Number(val)),
           };
         case 'selectCourseInfoAttributes':
           if (!courseInfoAttributes.includes(val)) return null;

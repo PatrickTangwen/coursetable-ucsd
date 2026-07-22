@@ -1,3 +1,4 @@
+import { catalogUnitValues, formatCatalogUnitLabel } from './catalogUnits';
 import { defaultFilters } from './searchConstants';
 import type { Filters, Option } from './searchTypes';
 import type { useCoursePlanningCatalog } from '../hooks/useCoursePlanning';
@@ -28,11 +29,36 @@ export function extractCatalogSubjects(
   return arr;
 }
 
+export function extractCatalogUnitOptions(
+  courses: CatalogCache,
+  selectedSeasons: Option<Season>[],
+): Option<number>[] {
+  const values = new Set<number>();
+  const seasonCodes =
+    selectedSeasons.length === 0
+      ? (Object.keys(courses) as Season[])
+      : selectedSeasons.map((season) => season.value);
+
+  for (const seasonCode of seasonCodes) {
+    const catalog = courses[seasonCode];
+    if (!catalog) continue;
+    for (const listing of catalog.listings.values()) {
+      for (const value of catalogUnitValues(listing.course.units))
+        values.add(value);
+    }
+  }
+
+  return [...values]
+    .toSorted((a, b) => a - b)
+    .map((value) => ({ value, label: formatCatalogUnitLabel(value) }));
+}
+
 const CATALOG_LIST_VISIBLE_FILTERS = new Set<keyof Filters>([
   'searchText',
   'selectSubjects',
   'selectSeasons',
   'selectDays',
+  'selectCredits',
 ]);
 
 const CATALOG_LIST_ADVANCED_FILTERS = (

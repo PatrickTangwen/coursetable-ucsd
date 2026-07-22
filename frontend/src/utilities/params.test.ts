@@ -26,4 +26,13 @@ describe('getFilterFromParams', () => {
 
     expect(result).toEqual([]);
   });
+
+  it('restores UCSD units selections from the catalog URL', () => {
+    expect(
+      getFilterFromParams('selectCredits', '2,4', defaultFilters.selectCredits),
+    ).toEqual([
+      { value: 2, label: '2 units' },
+      { value: 4, label: '4 units' },
+    ]);
+  });
 });

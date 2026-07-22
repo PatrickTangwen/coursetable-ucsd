@@ -9,8 +9,10 @@ import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
 import type { Season } from '../../queries/graphql-types';
 import {
   buildCatalogListAdvancedFilterReset,
+  extractCatalogUnitOptions,
   getActiveCatalogListAdvancedFilterKeys,
 } from '../../search/catalogListFilters';
+import { toggleCatalogUnitSelection } from '../../search/catalogUnits';
 import {
   defaultFilters,
   filterLabels,
@@ -138,6 +140,7 @@ export default function FilterBar({
     selectedSubjects,
     selectedSeasons,
     selectedDays,
+    selectedUnits,
     searchFilters,
     setSearchFilter,
     patchSearchFilters,
@@ -148,8 +151,9 @@ export default function FilterBar({
     useShallow((s) => ({
       isMobile: s.isMobile,
       selectedSubjects: s.searchFilters.selectSubjects as Option[],
-      selectedSeasons: s.searchFilters.selectSeasons as Option[],
+      selectedSeasons: s.searchFilters.selectSeasons,
       selectedDays: s.searchFilters.selectDays,
+      selectedUnits: s.searchFilters.selectCredits,
       searchFilters: s.searchFilters,
       setSearchFilter: s.setSearchFilter,
       patchSearchFilters: s.patchSearchFilters,
@@ -158,11 +162,13 @@ export default function FilterBar({
       clearTypeFilters: s.clearCatalogTypeFilters,
     })),
   );
+  const { courses } = useCoursePlanningCatalog();
 
   const subjectOptions = subjects.map((s) => ({
     value: s,
     label: formatSubjectLabel(s),
   }));
+  const unitOptions = extractCatalogUnitOptions(courses, selectedSeasons);
 
   const handleSubjectToggle = useCallback(
     (v: string) => {
@@ -217,6 +223,17 @@ export default function FilterBar({
     [selectedDays, setSearchFilter],
   );
 
+  const handleUnitToggle = useCallback(
+    (v: string) => {
+      const value = Number(v);
+      setSearchFilter(
+        'selectCredits',
+        toggleCatalogUnitSelection(selectedUnits, unitOptions, value),
+      );
+    },
+    [selectedUnits, setSearchFilter, unitOptions],
+  );
+
   const advancedFilterKeys =
     getActiveCatalogListAdvancedFilterKeys(searchFilters);
   const advancedFilterCount = advancedFilterKeys.length;
@@ -224,6 +241,7 @@ export default function FilterBar({
     selectedSubjects.length > 0 ||
     selectedSeasons.length > 0 ||
     selectedDays.length > 0 ||
+    selectedUnits.length > 0 ||
     typeFilters.length > 0 ||
     advancedFilterCount > 0;
 
@@ -231,6 +249,7 @@ export default function FilterBar({
     setSearchFilter('selectSubjects', []);
     setSearchFilter('selectSeasons', defaultFilters.selectSeasons);
     setSearchFilter('selectDays', []);
+    setSearchFilter('selectCredits', []);
     patchSearchFilters(buildCatalogListAdvancedFilterReset());
     clearTypeFilters();
   }, [patchSearchFilters, setSearchFilter, clearTypeFilters]);
@@ -272,6 +291,14 @@ export default function FilterBar({
       })),
     },
     {
+      label: 'Units',
+      items: selectedUnits.map((unit) => ({
+        id: String(unit.value),
+        label: unit.label,
+        onRemove: () => handleUnitToggle(String(unit.value)),
+      })),
+    },
+    {
       label: 'Course types',
       items: COURSE_TYPES.filter((type) =>
         typeFilters.includes(type.value),
@@ -303,9 +330,7 @@ export default function FilterBar({
       <div className={styles.mobileUpdatedRow}>
         <UpdatedLabel
           season={
-            selectedSeasons.length === 1
-              ? (selectedSeasons[0]!.value as Season)
-              : null
+            selectedSeasons.length === 1 ? selectedSeasons[0]!.value : null
           }
         />
       </div>
@@ -337,6 +362,20 @@ export default function FilterBar({
         options={COURSE_TYPES.map((t) => ({ value: t.value, label: t.label }))}
         selectedValues={typeFilters}
         onToggle={toggleTypeFilter}
+      />
+      <DropdownMenu
+        label="Units"
+        displayLabel={
+          selectedUnits.length > 0
+            ? `Units (${selectedUnits.length})`
+            : undefined
+        }
+        options={unitOptions.map((option) => ({
+          value: String(option.value),
+          label: option.label,
+        }))}
+        selectedValues={selectedUnits.map((unit) => String(unit.value))}
+        onToggle={handleUnitToggle}
       />
       <DropdownMenu
         label="Term"
@@ -384,11 +423,7 @@ export default function FilterBar({
 
       <div className={styles.spacer} />
       <UpdatedLabel
-        season={
-          selectedSeasons.length === 1
-            ? (selectedSeasons[0]!.value as Season)
-            : null
-        }
+        season={selectedSeasons.length === 1 ? selectedSeasons[0]!.value : null}
       />
     </div>
   );

@@ -241,7 +241,7 @@ describe('Course Planning Catalog search', () => {
 
     const results = filterAndSortCoursePlanningListings(listings, {
       ...defaultFilters,
-      selectCredits: [{ value: 2, label: '2' }],
+      selectCredits: [{ value: 4, label: '4 units' }],
       overallBounds: [4, 5],
       professorBounds: [4, 5],
       enrollBounds: [50, 100],
