@@ -433,6 +433,35 @@ as `not_captured`, so its artifact is intentionally `complete: false` even when
 module/event pagination is exhaustive. Empty arrays do not claim those TSS UI
 fields were observed to be empty.
 
+### Structural drift diagnostics (2026-07-21)
+
+Capture validation emits `tss-structural-drift-v1` when an approved endpoint,
+field path, value type, enum, Schedule grammar, response content type, JSON
+body, or OData envelope no longer matches the `tss-odata-capture-v1` contract.
+Each issue contains only a drift kind, structural path, and expected contract
+shape. Unknown field names may be listed as structural metadata, but received
+values, Zod messages, response bodies, URLs, and authenticated source objects
+are never copied into the report.
+
+The capture command writes the structural report to stderr as JSON. Unexpected
+non-structural failures use the value-free `tss-capture-diagnostic-v1` summary
+instead of echoing an arbitrary exception message. Sanitization completes
+before the output directory or artifact is written, and the private atomic
+writer removes its temporary file on failure. A drift therefore produces no
+sanitized artifact and cannot feed a later Catalog Candidate.
+
+Source freshness remains independent of these diagnostics. When TSS does not
+provide an accepted source-declared timestamp, the artifact retains
+`source_updated_at: null` with `source_updated_at_provenance: unavailable`;
+capture time is not substituted.
+
+Run the focused drift and output-boundary checks with:
+
+```bash
+bunx vitest run tools/catalog-snapshot/tssODataCapture.test.ts \
+  tools/catalog-snapshot/captureTssSchedule.test.ts
+```
+
 ## Schedule Parser and Modal Data Notes
 
 This section records Schedule of Classes parser and modal data-shape issues

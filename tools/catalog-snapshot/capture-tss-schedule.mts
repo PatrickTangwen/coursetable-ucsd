@@ -17,10 +17,15 @@ import { z } from 'zod';
 
 import { loadCatalogSnapshotConfig } from './catalogSnapshot.js';
 import {
+  assertApprovedTssResponseUrl,
   buildTssODataRequests,
   sanitizeTssODataCapture,
   type TssODataRequest,
 } from './tssODataCapture.js';
+import {
+  TssStructuralDriftError,
+  parseTssStructuralContract,
+} from './tssStructuralDrift.js';
 
 const SCHEDULE_URL =
   'https://tss.ucsd.edu/fiori#YSchedule-view?sap-app-origin-hint=';
@@ -56,26 +61,39 @@ function requestShape(urlValue: string | URL) {
   };
 }
 
-function validatedContinuationUrl(
+function throwContinuationDrift(): never {
+  throw new TssStructuralDriftError([
+    {
+      kind: 'endpoint',
+      path: ['response', 'continuation'],
+      expected: 'approved_paging_request',
+    },
+  ]);
+}
+
+function parseContinuationUrls(initialUrl: string, continuation: string) {
+  try {
+    const initial = new URL(initialUrl);
+    return { initial, next: new URL(continuation, initial) };
+  } catch {
+    return throwContinuationDrift();
+  }
+}
+
+export function validatedContinuationUrl(
   initialUrl: string,
   continuation: string,
 ): string {
-  const initial = new URL(initialUrl);
-  const next = new URL(continuation, initial);
+  const { initial, next } = parseContinuationUrls(initialUrl, continuation);
   if (
-    JSON.stringify(requestShape(initialUrl)) !==
-    JSON.stringify(requestShape(next))
+    JSON.stringify(requestShape(initial)) !== JSON.stringify(requestShape(next))
   )
-    throw new Error('TSS continuation changed the approved request shape');
+    return throwContinuationDrift();
 
   const paginationParameters = [...next.searchParams.keys()].filter(
     (name) => name === '$skiptoken' || name === '$skip',
   );
-  if (paginationParameters.length !== 1) {
-    throw new Error(
-      'TSS continuation did not contain one approved paging token',
-    );
-  }
+  if (paginationParameters.length !== 1) return throwContinuationDrift();
   return next.toString();
 }
 
@@ -96,12 +114,87 @@ const odataEnvelopeSchema = z
   .strict();
 
 export function parseODataEnvelope(value: unknown) {
-  return odataEnvelopeSchema.parse(value);
+  return parseTssStructuralContract(odataEnvelopeSchema, value, [
+    'response',
+    'envelope',
+  ]);
+}
+
+type TssODataPageResponse = {
+  body: string;
+  contentType: string | null;
+  responseUrl: string;
+  status: number;
+};
+
+function parseTssResponseBody(body: string): unknown {
+  try {
+    return JSON.parse(body) as unknown;
+  } catch {
+    throw new TssStructuralDriftError([
+      {
+        kind: 'type',
+        path: ['response', 'body'],
+        expected: 'json_object',
+      },
+    ]);
+  }
+}
+
+export function parseTssODataPage(
+  requestUrl: string,
+  result: TssODataPageResponse,
+) {
+  if ([401, 403, 429].includes(result.status)) {
+    throw new Error(
+      `TSS access stop (${result.status}); no retry was attempted`,
+    );
+  }
+  if (result.status < 200 || result.status >= 300) {
+    throw new Error(
+      `TSS request failed (${result.status}); no retry was attempted`,
+    );
+  }
+  if (!result.contentType?.toLowerCase().includes('application/json')) {
+    throw new TssStructuralDriftError([
+      {
+        kind: 'type',
+        path: ['response', 'content_type'],
+        expected: 'application/json',
+      },
+    ]);
+  }
+  assertApprovedTssResponseUrl(requestUrl, result.responseUrl);
+
+  const record = parseODataEnvelope(parseTssResponseBody(result.body));
+  return {
+    declaredTotal: record['@odata.count'] ?? null,
+    continuation: record['@odata.nextLink'] ?? null,
+    rows: record.value,
+  };
 }
 
 async function fetchPage(page: Page, url: string) {
-  if (new URL(page.url()).origin !== 'https://tss.ucsd.edu')
-    throw new Error('TSS capture page is outside the approved origin');
+  try {
+    if (new URL(page.url()).origin !== 'https://tss.ucsd.edu') {
+      throw new TssStructuralDriftError([
+        {
+          kind: 'endpoint',
+          path: ['browser', 'page', 'origin'],
+          expected: 'approved_tss_origin',
+        },
+      ]);
+    }
+  } catch (error) {
+    if (error instanceof TssStructuralDriftError) throw error;
+    throw new TssStructuralDriftError([
+      {
+        kind: 'endpoint',
+        path: ['browser', 'page', 'origin'],
+        expected: 'approved_tss_origin',
+      },
+    ]);
+  }
 
   const result = await page.evaluate(async (requestUrl) => {
     const response = await fetch(requestUrl, {
@@ -119,28 +212,7 @@ async function fetchPage(page: Page, url: string) {
     };
   }, url);
 
-  if ([401, 403, 429].includes(result.status)) {
-    throw new Error(
-      `TSS access stop (${result.status}); no retry was attempted`,
-    );
-  }
-  if (result.status < 200 || result.status >= 300) {
-    throw new Error(
-      `TSS request failed (${result.status}); no retry was attempted`,
-    );
-  }
-  if (!result.contentType?.toLowerCase().includes('application/json'))
-    throw new Error('TSS returned a non-JSON response; login may have expired');
-
-  if (new URL(result.responseUrl).toString() !== new URL(url).toString())
-    throw new Error('TSS response did not match the exact approved request');
-
-  const record = parseODataEnvelope(JSON.parse(result.body) as unknown);
-  return {
-    declaredTotal: record['@odata.count'] ?? null,
-    continuation: record['@odata.nextLink'] ?? null,
-    rows: record.value,
-  };
+  return parseTssODataPage(url, result);
 }
 
 async function fetchSet(
@@ -226,6 +298,74 @@ export async function writePrivateArtifact(pathname: string, value: unknown) {
   }
 }
 
+export async function persistSanitizedTssCapture(
+  pathname: string,
+  input: unknown,
+) {
+  const artifact = sanitizeTssODataCapture(input);
+  await mkdir(dirname(pathname), { recursive: true });
+  await writePrivateArtifact(pathname, artifact);
+  return artifact;
+}
+
+export function formatTssCaptureError(error: unknown) {
+  if (error instanceof TssStructuralDriftError)
+    return JSON.stringify(error.report, null, 2);
+  return JSON.stringify(
+    {
+      schema_version: 'tss-capture-diagnostic-v1',
+      outcome: 'failed',
+      reason: 'capture_failed',
+    },
+    null,
+    2,
+  );
+}
+
+export function writeTssCaptureError(
+  error: unknown,
+  write: (message: string) => void = (message) => console.error(message),
+) {
+  write(formatTssCaptureError(error));
+}
+
+type TssCaptureOutputPorts = {
+  stdout: (message: string) => void;
+  stderr: (message: string) => void;
+};
+
+const consoleOutputPorts: TssCaptureOutputPorts = {
+  stdout: (message) => console.log(message),
+  stderr: (message) => console.error(message),
+};
+
+export async function runTssCaptureOutputBoundary(
+  pathname: string,
+  input: unknown,
+  output: TssCaptureOutputPorts = consoleOutputPorts,
+) {
+  try {
+    const artifact = await persistSanitizedTssCapture(pathname, input);
+    output.stdout(
+      JSON.stringify(
+        {
+          output: pathname,
+          modules: artifact.coverage.source_counts.modules,
+          events: artifact.coverage.source_counts.events,
+          complete: artifact.coverage.complete,
+          source_updated_at: artifact.source_updated_at,
+        },
+        null,
+        2,
+      ),
+    );
+    return true;
+  } catch (error) {
+    writeTssCaptureError(error, output.stderr);
+    return false;
+  }
+}
+
 export async function secureProfileDirectory(profilePath: string) {
   await mkdir(profilePath, { recursive: true, mode: 0o700 });
   const profileStats = await lstat(profilePath);
@@ -288,7 +428,7 @@ async function main() {
       if (typeof course !== 'string' || !course.includes('-')) return [];
       return [course.split('-', 1)[0]!];
     });
-    const artifact = sanitizeTssODataCapture({
+    const succeeded = await runTssCaptureOutputBoundary(outputPath, {
       term,
       sourceTerm: { academicYear: '2026', academicPeriod: '2' },
       requestedSubjects: [
@@ -300,22 +440,7 @@ async function main() {
       modules,
       events,
     });
-
-    await mkdir(dirname(outputPath), { recursive: true });
-    await writePrivateArtifact(outputPath, artifact);
-    console.log(
-      JSON.stringify(
-        {
-          output: outputPath,
-          modules: artifact.coverage.source_counts.modules,
-          events: artifact.coverage.source_counts.events,
-          complete: artifact.coverage.complete,
-          source_updated_at: artifact.source_updated_at,
-        },
-        null,
-        2,
-      ),
-    );
+    if (!succeeded) process.exitCode = 1;
   } finally {
     await context.close();
   }
@@ -325,7 +450,7 @@ if (import.meta.main) {
   try {
     await main();
   } catch (error) {
-    console.error(error instanceof Error ? error.message : String(error));
+    writeTssCaptureError(error);
     process.exitCode = 1;
   }
 }

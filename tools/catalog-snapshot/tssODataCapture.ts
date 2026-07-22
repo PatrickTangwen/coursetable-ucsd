@@ -7,6 +7,16 @@ import {
   tssScheduleArtifactSchema,
   type TssScheduleArtifact,
 } from './tssSchedule';
+import {
+  TssStructuralDriftError,
+  parseTssStructuralContract,
+  type TssStructuralDriftIssue,
+} from './tssStructuralDrift';
+
+export {
+  TSS_STRUCTURAL_DRIFT_SCHEMA_VERSION,
+  TssStructuralDriftError,
+} from './tssStructuralDrift';
 
 const TSS_ORIGIN = 'https://tss.ucsd.edu';
 const TSS_SERVICE_PATH =
@@ -54,6 +64,25 @@ export type TssODataRequest = {
   method: 'GET';
   url: string;
 };
+
+export function assertApprovedTssResponseUrl(
+  approvedUrl: string,
+  responseUrl: string,
+) {
+  try {
+    if (new URL(approvedUrl).toString() === new URL(responseUrl).toString())
+      return;
+  } catch {
+    // Invalid or unexpected URLs are reported without echoing their values.
+  }
+  throw new TssStructuralDriftError([
+    {
+      kind: 'endpoint',
+      path: ['response', 'url'],
+      expected: 'exact_approved_request',
+    },
+  ]);
+}
 
 export function buildTssODataRequests(
   sourceTerm: { academicYear: string; academicPeriod: string },
@@ -226,10 +255,19 @@ function meetingTime(value: string): string {
   return value.replace(/\s+/gu, '').toLowerCase();
 }
 
+function throwScheduleGrammarDrift(): never {
+  throw new TssStructuralDriftError([
+    {
+      kind: 'type',
+      path: ['events', 'rows', 'Sched'],
+      expected: 'approved_schedule_grammar',
+    },
+  ]);
+}
+
 function isoDate(value: string): string {
   const [monthText, dayText, yearText] = value.split('/');
-  if (!monthText || !dayText || !yearText)
-    throw new Error('invalid TSS schedule date');
+  if (!monthText || !dayText || !yearText) throwScheduleGrammarDrift();
 
   const month = Number(monthText);
   const day = Number(dayText);
@@ -240,7 +278,7 @@ function isoDate(value: string): string {
     date.getUTCMonth() !== month - 1 ||
     date.getUTCDate() !== day
   )
-    throw new Error('invalid TSS schedule date');
+    throwScheduleGrammarDrift();
   return `${yearText}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
@@ -282,11 +320,10 @@ function parseSchedule(row: EventRow): ScheduleMeeting[] {
     }
 
     const scheduleParts = line.split(' @ ');
-    if (scheduleParts.length > 2)
-      throw new Error('unsupported TSS schedule line');
+    if (scheduleParts.length > 2) throwScheduleGrammarDrift();
 
     const [scheduleText, displayedLocation] = scheduleParts;
-    if (!scheduleText) throw new Error('unsupported TSS schedule line');
+    if (!scheduleText) throwScheduleGrammarDrift();
 
     const finalMatch = finalScheduleLine.exec(scheduleText);
     if (finalMatch?.groups) {
@@ -323,23 +360,46 @@ function parseSchedule(row: EventRow): ScheduleMeeting[] {
         is_arranged: false,
       };
     }
-    throw new Error('unsupported TSS schedule line');
+    return throwScheduleGrammarDrift();
   });
 }
 
 function assertSourceTerm(capture: Capture) {
   const { academicYear, academicPeriod } = capture.sourceTerm;
-  for (const row of capture.modules.rows) {
-    if (
-      row.AcademicYear !== academicYear ||
-      row.AcademicPeriod !== academicPeriod
-    )
-      throw new Error('module row does not match source term');
+  const issues: TssStructuralDriftIssue[] = [];
+  for (const [index, row] of capture.modules.rows.entries()) {
+    if (row.AcademicYear !== academicYear) {
+      issues.push({
+        kind: 'enum',
+        path: ['modules', 'rows', index, 'AcademicYear'],
+        expected: 'source_term',
+      });
+    }
+    if (row.AcademicPeriod !== academicPeriod) {
+      issues.push({
+        kind: 'enum',
+        path: ['modules', 'rows', index, 'AcademicPeriod'],
+        expected: 'source_term',
+      });
+    }
   }
-  for (const row of capture.events.rows) {
-    if (row.AcYear !== academicYear || row.AcPeriod !== academicPeriod)
-      throw new Error('event row does not match source term');
+  for (const [index, row] of capture.events.rows.entries()) {
+    if (row.AcYear !== academicYear) {
+      issues.push({
+        kind: 'enum',
+        path: ['events', 'rows', index, 'AcYear'],
+        expected: 'source_term',
+      });
+    }
+    if (row.AcPeriod !== academicPeriod) {
+      issues.push({
+        kind: 'enum',
+        path: ['events', 'rows', index, 'AcPeriod'],
+        expected: 'source_term',
+      });
+    }
   }
+  if (issues.length) throw new TssStructuralDriftError(issues);
 }
 
 function samePackageFields(left: EventRow, right: EventRow): boolean {
@@ -358,14 +418,28 @@ function samePackageFields(left: EventRow, right: EventRow): boolean {
 
 function courseFromModule(module: ModuleRow, events: EventRow[]) {
   const separator = module.CourseAbbr.indexOf('-');
-  if (separator < 1 || separator === module.CourseAbbr.length - 1)
-    throw new Error('unsupported TSS course abbreviation');
+  if (separator < 1 || separator === module.CourseAbbr.length - 1) {
+    throw new TssStructuralDriftError([
+      {
+        kind: 'type',
+        path: ['modules', 'rows', 'CourseAbbr'],
+        expected: 'subject_course_abbreviation',
+      },
+    ]);
+  }
   const packages = new Map<string, EventRow[]>();
   for (const event of events) {
     const packageEvents = packages.get(event.EventPkgObjid) ?? [];
     const [first] = packageEvents;
-    if (first && !samePackageFields(first, event))
-      throw new Error('inconsistent package-level TSS fields');
+    if (first && !samePackageFields(first, event)) {
+      throw new TssStructuralDriftError([
+        {
+          kind: 'path',
+          path: ['events', 'rows', 'package_fields'],
+          expected: 'consistent_package_fields',
+        },
+      ]);
+    }
     packageEvents.push(event);
     packages.set(event.EventPkgObjid, packageEvents);
   }
@@ -424,7 +498,7 @@ function courseFromModule(module: ModuleRow, events: EventRow[]) {
 }
 
 export function sanitizeTssODataCapture(input: unknown): TssScheduleArtifact {
-  const capture = captureSchema.parse(input);
+  const capture = parseTssStructuralContract(captureSchema, input);
   assertSourceTerm(capture);
 
   const requestedSubjects = new Set(capture.requestedSubjects);
@@ -439,16 +513,30 @@ export function sanitizeTssODataCapture(input: unknown): TssScheduleArtifact {
     capture.modules.rows.map((row) => row.ModuleID),
   );
   for (const moduleId of eventsByModule.keys()) {
-    if (!knownModuleIds.has(moduleId))
-      throw new Error('TSS event references an unknown module');
+    if (!knownModuleIds.has(moduleId)) {
+      throw new TssStructuralDriftError([
+        {
+          kind: 'path',
+          path: ['events', 'rows', 'ModuleID'],
+          expected: 'known_module_reference',
+        },
+      ]);
+    }
   }
 
   const courses = [...capture.modules.rows]
     .sort((left, right) => left.CourseAbbr.localeCompare(right.CourseAbbr))
     .map((module) => {
       const subject = module.CourseAbbr.split('-', 1)[0]!;
-      if (!requestedSubjects.has(subject))
-        throw new Error('TSS module subject was not requested');
+      if (!requestedSubjects.has(subject)) {
+        throw new TssStructuralDriftError([
+          {
+            kind: 'enum',
+            path: ['modules', 'rows', 'CourseAbbr'],
+            expected: 'requested_subject',
+          },
+        ]);
+      }
       return courseFromModule(
         module,
         eventsByModule.get(module.ModuleID) ?? [],
@@ -472,7 +560,7 @@ export function sanitizeTssODataCapture(input: unknown): TssScheduleArtifact {
     rowCoverageComplete &&
     Object.values(fieldCoverage).every((state) => state === 'captured');
 
-  return tssScheduleArtifactSchema.parse({
+  return parseTssStructuralContract(tssScheduleArtifactSchema, {
     schema_version: TSS_SCHEDULE_SCHEMA_VERSION,
     term: capture.term,
     captured_at: capture.capturedAt,
