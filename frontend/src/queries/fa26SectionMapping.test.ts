@@ -31,6 +31,7 @@ describe('Fall 2026 section naming mapping', () => {
     expect(mapping.bySectionId.get('pkg-a1')).toMatchObject({
       displaySection: 'Section A',
       displayOption: 'A01',
+      displayMeetingCode: 'A01',
       officialSectionCode: '001-000-LE + 001-001-DI',
       packageId: 'pkg-a1',
       tssSections: ['001-000-LE', '001-001-DI'],
@@ -70,6 +71,10 @@ describe('Fall 2026 section naming mapping', () => {
     expect(mapping.entries.map((entry) => entry.displayOption)).toEqual([
       null,
       null,
+    ]);
+    expect(mapping.entries.map((entry) => entry.displayMeetingCode)).toEqual([
+      'A00',
+      'B00',
     ]);
   });
 

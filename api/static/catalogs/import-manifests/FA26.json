@@ -1,6 +1,6 @@
 {
-  "run_id": "schedule-2026-07-21T22:34:56.410Z",
-  "generated_at": "2026-07-21T22:34:56.410Z",
+  "run_id": "schedule-2026-07-22T19:55:09.751Z",
+  "generated_at": "2026-07-22T19:55:09.751Z",
   "active_planning_term": "FA26",
   "term_label": "Fall 2026",
   "configured_subjects": [
@@ -43,6 +43,7 @@
     "CLX",
     "CMM",
     "COGR",
+    "COGS",
     "COMM",
     "COSE",
     "CSE",
@@ -102,6 +103,7 @@
     "LIGM",
     "LIGN",
     "LIHL",
+    "LIIT",
     "LILT",
     "LIPO",
     "LISL",
@@ -205,8 +207,8 @@
       "term": "FA26",
       "subject": "AAPI",
       "source": "schedule_of_classes",
-      "status": "empty",
-      "reason": "no TSS schedule rows for subject in term",
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
         "courses": 0,
@@ -214,7 +216,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-AAPI-AESE-ANBI.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -222,8 +224,8 @@
       "term": "FA26",
       "subject": "AAS",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
         "courses": 2,
@@ -231,7 +233,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-AAS-AIP-ANAR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -239,8 +241,8 @@
       "term": "FA26",
       "subject": "AESE",
       "source": "schedule_of_classes",
-      "status": "empty",
-      "reason": "no TSS schedule rows for subject in term",
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
         "courses": 0,
@@ -248,7 +250,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-AAPI-AESE-ANBI.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -256,8 +258,8 @@
       "term": "FA26",
       "subject": "AIP",
       "source": "schedule_of_classes",
-      "status": "empty",
-      "reason": "no TSS schedule rows for subject in term",
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
         "courses": 0,
@@ -265,7 +267,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-AAS-AIP-ANAR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -273,16 +275,16 @@
       "term": "FA26",
       "subject": "ANAR",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 6,
-        "sections": 6,
-        "meetings": 15
+        "courses": 1,
+        "sections": 1,
+        "meetings": 4
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-AAS-AIP-ANAR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -290,16 +292,16 @@
       "term": "FA26",
       "subject": "ANBI",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 5,
-        "sections": 6,
-        "meetings": 12
+        "courses": 0,
+        "sections": 0,
+        "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-AAPI-AESE-ANBI.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -307,16 +309,16 @@
       "term": "FA26",
       "subject": "ANES",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 8,
-        "sections": 9,
-        "meetings": 10
+        "courses": 0,
+        "sections": 0,
+        "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-ANES-ANSC-ANTH-ASTR-AUD.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -324,16 +326,16 @@
       "term": "FA26",
       "subject": "ANSC",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 9,
-        "sections": 9,
-        "meetings": 18
+        "courses": 0,
+        "sections": 0,
+        "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-ANES-ANSC-ANTH-ASTR-AUD.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -341,16 +343,16 @@
       "term": "FA26",
       "subject": "ANTH",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 19,
-        "sections": 33,
-        "meetings": 73
+        "courses": 24,
+        "sections": 107,
+        "meetings": 147
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-ANES-ANSC-ANTH-ASTR-AUD.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -358,16 +360,16 @@
       "term": "FA26",
       "subject": "ASTR",
       "source": "schedule_of_classes",
-      "status": "empty",
-      "reason": "no TSS schedule rows for subject in term",
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 0,
-        "sections": 0,
-        "meetings": 0
+        "courses": 13,
+        "sections": 13,
+        "meetings": 27
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-ANES-ANSC-ANTH-ASTR-AUD.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -375,16 +377,16 @@
       "term": "FA26",
       "subject": "AUD",
       "source": "schedule_of_classes",
-      "status": "empty",
-      "reason": "no TSS schedule rows for subject in term",
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 0,
-        "sections": 0,
-        "meetings": 0
+        "courses": 9,
+        "sections": 17,
+        "meetings": 22
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-ANES-ANSC-ANTH-ASTR-AUD.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -392,8 +394,8 @@
       "term": "FA26",
       "subject": "AWP",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
         "courses": 2,
@@ -401,7 +403,7 @@
         "meetings": 68
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-AWP.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -413,12 +415,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 3,
-        "sections": 4,
-        "meetings": 10
+        "courses": 26,
+        "sections": 58,
+        "meetings": 110
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-BENG-BGGN.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -430,12 +432,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 0,
-        "sections": 0,
-        "meetings": 0
+        "courses": 14,
+        "sections": 243,
+        "meetings": 248
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-BENG-BGGN.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -443,8 +445,8 @@
       "term": "FA26",
       "subject": "BGJC",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
         "courses": 2,
@@ -452,7 +454,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-BGJC-BGRD-BGSE-BIBC-BICD.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -460,8 +462,8 @@
       "term": "FA26",
       "subject": "BGRD",
       "source": "schedule_of_classes",
-      "status": "empty",
-      "reason": "no TSS schedule rows for subject in term",
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
         "courses": 0,
@@ -469,7 +471,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-BGJC-BGRD-BGSE-BIBC-BICD.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -477,8 +479,8 @@
       "term": "FA26",
       "subject": "BGSE",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
         "courses": 2,
@@ -486,7 +488,7 @@
         "meetings": 5
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-BGJC-BGRD-BGSE-BIBC-BICD.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -494,8 +496,8 @@
       "term": "FA26",
       "subject": "BIBC",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
         "courses": 2,
@@ -503,7 +505,7 @@
         "meetings": 64
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-BGJC-BGRD-BGSE-BIBC-BICD.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -511,8 +513,8 @@
       "term": "FA26",
       "subject": "BICD",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
         "courses": 6,
@@ -520,7 +522,7 @@
         "meetings": 83
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-BGJC-BGRD-BGSE-BIBC-BICD.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -528,8 +530,8 @@
       "term": "FA26",
       "subject": "BIEB",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
         "courses": 6,
@@ -537,7 +539,7 @@
         "meetings": 58
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-BIEB-BILD-BIMM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -545,16 +547,16 @@
       "term": "FA26",
       "subject": "BILD",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 1,
-        "sections": 4,
-        "meetings": 12
+        "courses": 8,
+        "sections": 63,
+        "meetings": 207
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-BIEB-BILD-BIMM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -562,16 +564,16 @@
       "term": "FA26",
       "subject": "BIMM",
       "source": "schedule_of_classes",
-      "status": "empty",
-      "reason": "no TSS schedule rows for subject in term",
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 0,
-        "sections": 0,
-        "meetings": 0
+        "courses": 5,
+        "sections": 19,
+        "meetings": 54
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-BIEB-BILD-BIMM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -579,16 +581,16 @@
       "term": "FA26",
       "subject": "BIOM",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
         "courses": 10,
-        "sections": 10,
-        "meetings": 14
+        "sections": 91,
+        "meetings": 95
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-BIOM-BIPN.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -596,16 +598,16 @@
       "term": "FA26",
       "subject": "BIPN",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 1,
-        "sections": 2,
-        "meetings": 6
+        "courses": 10,
+        "sections": 41,
+        "meetings": 128
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-BIOM-BIPN.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -613,8 +615,8 @@
       "term": "FA26",
       "subject": "BISP",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
         "courses": 3,
@@ -622,7 +624,7 @@
         "meetings": 9
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-BISP-BNFO.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -630,16 +632,16 @@
       "term": "FA26",
       "subject": "BNFO",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 5,
-        "sections": 68,
-        "meetings": 68
+        "courses": 4,
+        "sections": 42,
+        "meetings": 42
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-20-BISP-BNFO.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -653,11 +655,10 @@
       "row_counts": {
         "courses": 5,
         "sections": 88,
-        "meetings": 166
+        "meetings": 169
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-CAT-manual.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -665,8 +666,8 @@
       "term": "FA26",
       "subject": "CCE",
       "source": "schedule_of_classes",
-      "status": "ok",
-      "reason": null,
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
         "courses": 6,
@@ -674,8 +675,7 @@
         "meetings": 71
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-CCE-CCS-manual.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -683,8 +683,8 @@
       "term": "FA26",
       "subject": "CCS",
       "source": "schedule_of_classes",
-      "status": "empty",
-      "reason": "no TSS schedule rows for subject in term",
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
         "courses": 0,
@@ -692,7 +692,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-CCE-CCS-manual.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -704,12 +704,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 12,
-        "sections": 18,
-        "meetings": 45
+        "courses": 13,
+        "sections": 60,
+        "meetings": 88
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-CENG-CGS-manual.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -726,7 +726,7 @@
         "meetings": 28
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-CENG-CGS-manual.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -738,12 +738,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 2,
-        "sections": 43,
-        "meetings": 173
+        "courses": 44,
+        "sections": 347,
+        "meetings": 1066
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-CHEM-CHIN-CLAS-CLIN.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -760,7 +760,7 @@
         "meetings": 83
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-CHEM-CHIN-CLAS-CLIN.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -777,7 +777,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-CHEM-CHIN-CLAS-CLIN.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -794,7 +794,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-CHEM-CHIN-CLAS-CLIN.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -811,7 +811,7 @@
         "meetings": 20
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-CLRE-CLX-CMM-COGR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -828,7 +828,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-CLRE-CLX-CMM-COGR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -845,7 +845,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-CLRE-CLX-CMM-COGR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -862,7 +862,24 @@
         "meetings": 11
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-CLRE-CLX-CMM-COGR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
+      ],
+      "normalized_artifact": null
+    },
+    {
+      "term": "FA26",
+      "subject": "COGS",
+      "source": "schedule_of_classes",
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
+      "attempts": 1,
+      "row_counts": {
+        "courses": 37,
+        "sections": 152,
+        "meetings": 372
+      },
+      "raw_artifacts": [
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -876,10 +893,10 @@
       "row_counts": {
         "courses": 32,
         "sections": 57,
-        "meetings": 137
+        "meetings": 134
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-COMM-COSE.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -896,7 +913,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-COMM-COSE.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -909,11 +926,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 73,
-        "sections": 343,
-        "meetings": 513
+        "sections": 345,
+        "meetings": 500
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-CSE.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -925,12 +942,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 1,
-        "sections": 4,
-        "meetings": 8
+        "courses": 3,
+        "sections": 6,
+        "meetings": 11
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-CSS-DDPM-DERM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -947,7 +964,7 @@
         "meetings": 8
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-CSS-DDPM-DERM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -959,12 +976,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 4,
-        "sections": 4,
-        "meetings": 4
+        "courses": 7,
+        "sections": 10,
+        "meetings": 10
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-CSS-DDPM-DERM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -981,7 +998,7 @@
         "meetings": 131
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-DOC.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -993,12 +1010,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 25,
-        "sections": 44,
-        "meetings": 114
+        "courses": 26,
+        "sections": 45,
+        "meetings": 112
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-DSC.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1015,7 +1032,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-DSE-DSGN-EAP.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1032,7 +1049,7 @@
         "meetings": 13
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-DSE-DSGN-EAP.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1049,7 +1066,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-DSE-DSGN-EAP.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1061,12 +1078,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 32,
-        "sections": 67,
-        "meetings": 225
+        "courses": 65,
+        "sections": 238,
+        "meetings": 403
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-ECE-ECON.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1078,12 +1095,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 39,
-        "sections": 87,
-        "meetings": 236
+        "courses": 44,
+        "sections": 94,
+        "meetings": 243
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-ECE-ECON.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1097,10 +1114,10 @@
       "row_counts": {
         "courses": 41,
         "sections": 79,
-        "meetings": 103
+        "meetings": 100
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-EDS-EMED-ENG.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1117,7 +1134,7 @@
         "meetings": 14
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-EDS-EMED-ENG.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1134,7 +1151,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-EDS-EMED-ENG.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1151,7 +1168,7 @@
         "meetings": 20
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-ENVR-ERC-ESYS-ETHN.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1168,7 +1185,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-ENVR-ERC-ESYS-ETHN.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1182,10 +1199,10 @@
       "row_counts": {
         "courses": 3,
         "sections": 7,
-        "meetings": 15
+        "meetings": 17
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-ENVR-ERC-ESYS-ETHN.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1197,12 +1214,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 21,
-        "sections": 42,
-        "meetings": 76
+        "courses": 24,
+        "sections": 70,
+        "meetings": 104
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-ENVR-ERC-ESYS-ETHN.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1219,7 +1236,7 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-ETIM-EXPR-FILM-FMPH-FPM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1236,7 +1253,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-ETIM-EXPR-FILM-FMPH-FPM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1253,7 +1270,7 @@
         "meetings": 15
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-ETIM-EXPR-FILM-FMPH-FPM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1270,7 +1287,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-ETIM-EXPR-FILM-FMPH-FPM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1282,12 +1299,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 14,
-        "sections": 14,
-        "meetings": 17
+        "courses": 17,
+        "sections": 19,
+        "meetings": 22
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-ETIM-EXPR-FILM-FMPH-FPM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1304,7 +1321,7 @@
         "meetings": 28
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-GLBH-GPCO-GPEC-GPGN-GPIM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1321,7 +1338,7 @@
         "meetings": 10
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-GLBH-GPCO-GPEC-GPGN-GPIM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1338,7 +1355,7 @@
         "meetings": 10
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-GLBH-GPCO-GPEC-GPGN-GPIM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1355,7 +1372,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-GLBH-GPCO-GPEC-GPGN-GPIM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1372,7 +1389,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-GLBH-GPCO-GPEC-GPGN-GPIM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1389,7 +1406,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-GPLA-GPPA-GPPS-GSS-HDS-HIAF.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1406,7 +1423,7 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-GPLA-GPPA-GPPS-GSS-HDS-HIAF.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1423,7 +1440,7 @@
         "meetings": 5
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-GPLA-GPPA-GPPS-GSS-HDS-HIAF.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1440,7 +1457,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-GPLA-GPPA-GPPS-GSS-HDS-HIAF.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1457,7 +1474,7 @@
         "meetings": 40
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-GPLA-GPPA-GPPS-GSS-HDS-HIAF.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1474,7 +1491,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-GPLA-GPPA-GPPS-GSS-HDS-HIAF.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1491,7 +1508,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-HIEA-HIEU-HIGL-HIGR-HILA.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1508,7 +1525,7 @@
         "meetings": 8
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-HIEA-HIEU-HIGL-HIGR-HILA.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1525,7 +1542,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-HIEA-HIEU-HIGL-HIGR-HILA.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1542,7 +1559,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-HIEA-HIEU-HIGL-HIGR-HILA.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1559,7 +1576,7 @@
         "meetings": 9
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-HIEA-HIEU-HIGL-HIGR-HILA.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1576,7 +1593,7 @@
         "meetings": 84
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-HILD-HINE-HISA-HISC-HITO-HIUS.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1593,7 +1610,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-HILD-HINE-HISA-HISC-HITO-HIUS.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1610,7 +1627,7 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-HILD-HINE-HISA-HISC-HITO-HIUS.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1627,7 +1644,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-HILD-HINE-HISA-HISC-HITO-HIUS.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1644,7 +1661,7 @@
         "meetings": 24
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-HILD-HINE-HISA-HISC-HITO-HIUS.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1661,7 +1678,7 @@
         "meetings": 9
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-HILD-HINE-HISA-HISC-HITO-HIUS.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1673,12 +1690,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 4,
-        "sections": 46,
-        "meetings": 142
+        "courses": 5,
+        "sections": 47,
+        "meetings": 143
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-HUM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1695,7 +1712,7 @@
         "meetings": 26
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-INTL-JAPN-JWSP-LATI-LAWS.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1712,7 +1729,7 @@
         "meetings": 108
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-INTL-JAPN-JWSP-LATI-LAWS.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1729,7 +1746,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-INTL-JAPN-JWSP-LATI-LAWS.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1746,7 +1763,7 @@
         "meetings": 36
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-INTL-JAPN-JWSP-LATI-LAWS.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1763,7 +1780,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-INTL-JAPN-JWSP-LATI-LAWS.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1780,7 +1797,7 @@
         "meetings": 8
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LIAB-LIDS-LIFR-LIGM-LIGN-LIHL.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1797,7 +1814,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LIAB-LIDS-LIFR-LIGM-LIGN-LIHL.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1809,12 +1826,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 6,
-        "sections": 16,
-        "meetings": 22
+        "courses": 7,
+        "sections": 17,
+        "meetings": 23
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LIAB-LIDS-LIFR-LIGM-LIGN-LIHL.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1826,12 +1843,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 2,
-        "sections": 6,
-        "meetings": 8
+        "courses": 3,
+        "sections": 7,
+        "meetings": 9
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LIAB-LIDS-LIFR-LIGM-LIGN-LIHL.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1843,12 +1860,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 16,
-        "sections": 20,
-        "meetings": 42
+        "courses": 32,
+        "sections": 81,
+        "meetings": 105
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LIAB-LIDS-LIFR-LIGM-LIGN-LIHL.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1865,7 +1882,24 @@
         "meetings": 14
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LIAB-LIDS-LIFR-LIGM-LIGN-LIHL.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
+      ],
+      "normalized_artifact": null
+    },
+    {
+      "term": "FA26",
+      "subject": "LIIT",
+      "source": "schedule_of_classes",
+      "status": "partial",
+      "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
+      "attempts": 1,
+      "row_counts": {
+        "courses": 2,
+        "sections": 6,
+        "meetings": 8
+      },
+      "raw_artifacts": [
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1882,7 +1916,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LILT-LIPO-LISL-LISP-LTAF-LTAM-LTCH.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1899,7 +1933,7 @@
         "meetings": 9
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LILT-LIPO-LISL-LISP-LTAF-LTAM-LTCH.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1916,7 +1950,7 @@
         "meetings": 35
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LILT-LIPO-LISL-LISP-LTAF-LTAM-LTCH.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1933,7 +1967,7 @@
         "meetings": 58
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LILT-LIPO-LISL-LISP-LTAF-LTAM-LTCH.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1950,7 +1984,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LILT-LIPO-LISL-LISP-LTAF-LTAM-LTCH.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1967,7 +2001,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LILT-LIPO-LISL-LISP-LTAF-LTAM-LTCH.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1984,7 +2018,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LILT-LIPO-LISL-LISP-LTAF-LTAM-LTCH.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2001,7 +2035,7 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LTCO-LTCS-LTEA-LTEN-LTEU-LTFR-LTGK-LTGM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2018,7 +2052,7 @@
         "meetings": 11
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LTCO-LTCS-LTEA-LTEN-LTEU-LTFR-LTGK-LTGM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2035,7 +2069,7 @@
         "meetings": 7
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LTCO-LTCS-LTEA-LTEN-LTEU-LTFR-LTGK-LTGM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2052,7 +2086,7 @@
         "meetings": 44
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LTCO-LTCS-LTEA-LTEN-LTEU-LTFR-LTGK-LTGM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2069,7 +2103,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LTCO-LTCS-LTEA-LTEN-LTEU-LTFR-LTGK-LTGM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2086,7 +2120,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LTCO-LTCS-LTEA-LTEN-LTEU-LTFR-LTGK-LTGM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2103,7 +2137,7 @@
         "meetings": 3
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LTCO-LTCS-LTEA-LTEN-LTEU-LTFR-LTGK-LTGM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2120,7 +2154,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LTCO-LTCS-LTEA-LTEN-LTEU-LTFR-LTGK-LTGM.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2137,7 +2171,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LTIT-LTKO-LTLA-LTRU-LTSP-LTTH-LTWL-LTWR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2154,7 +2188,7 @@
         "meetings": 29
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LTIT-LTKO-LTLA-LTRU-LTSP-LTTH-LTWL-LTWR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2171,7 +2205,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LTIT-LTKO-LTLA-LTRU-LTSP-LTTH-LTWL-LTWR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2188,7 +2222,7 @@
         "meetings": 11
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LTIT-LTKO-LTLA-LTRU-LTSP-LTTH-LTWL-LTWR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2202,10 +2236,10 @@
       "row_counts": {
         "courses": 12,
         "sections": 15,
-        "meetings": 20
+        "meetings": 19
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LTIT-LTKO-LTLA-LTRU-LTSP-LTTH-LTWL-LTWR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2222,7 +2256,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LTIT-LTKO-LTLA-LTRU-LTSP-LTTH-LTWL-LTWR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2239,8 +2273,7 @@
         "meetings": 20
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LTIT-LTKO-LTLA-LTRU-LTSP-LTTH-LTWL-LTWR.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2253,11 +2286,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 12,
-        "sections": 20,
-        "meetings": 40
+        "sections": 18,
+        "meetings": 36
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-LTIT-LTKO-LTLA-LTRU-LTSP-LTTH-LTWL-LTWR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2269,12 +2302,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 49,
-        "sections": 74,
-        "meetings": 198
+        "courses": 50,
+        "sections": 138,
+        "meetings": 262
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-MAE.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2286,12 +2319,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 81,
-        "sections": 366,
-        "meetings": 1320
+        "courses": 82,
+        "sections": 418,
+        "meetings": 1354
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-MATH.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2308,7 +2341,7 @@
         "meetings": 65
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-MATS-MBC-MCWP.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2325,7 +2358,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-MATS-MBC-MCWP.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2342,7 +2375,7 @@
         "meetings": 45
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-MATS-MBC-MCWP.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2354,12 +2387,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 37,
-        "sections": 37,
-        "meetings": 38
+        "courses": 41,
+        "sections": 49,
+        "meetings": 50
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-MED.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2371,12 +2404,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 60,
-        "sections": 95,
-        "meetings": 173
+        "courses": 66,
+        "sections": 129,
+        "meetings": 207
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-MGT.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2393,7 +2426,7 @@
         "meetings": 15
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-MGTA-MGTF-MGTP.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2410,7 +2443,7 @@
         "meetings": 23
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-MGTA-MGTF-MGTP.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2427,7 +2460,7 @@
         "meetings": 13
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-MGTA-MGTF-MGTP.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2444,7 +2477,7 @@
         "meetings": 99
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-MMW.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2461,7 +2494,7 @@
         "meetings": 3
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-MSED-MUIR-MUS.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2478,7 +2511,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-MSED-MUIR-MUS.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2490,13 +2523,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 20,
-        "sections": 65,
-        "meetings": 156
+        "courses": 56,
+        "sections": 148,
+        "meetings": 261
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-MSED-MUIR-MUS.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2513,8 +2545,7 @@
         "meetings": 80
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-NANO-NEU-NEUG-OBG-OPTH-ORTH-PAE.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2531,8 +2562,7 @@
         "meetings": 7
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-NANO-NEU-NEUG-OBG-OPTH-ORTH-PAE.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2549,8 +2579,7 @@
         "meetings": 65
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-NANO-NEU-NEUG-OBG-OPTH-ORTH-PAE.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2563,12 +2592,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 6,
-        "sections": 12,
-        "meetings": 12
+        "sections": 13,
+        "meetings": 13
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-NANO-NEU-NEUG-OBG-OPTH-ORTH-PAE.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2581,12 +2609,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 8,
-        "sections": 11,
-        "meetings": 11
+        "sections": 14,
+        "meetings": 14
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-NANO-NEU-NEUG-OBG-OPTH-ORTH-PAE.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2603,8 +2630,7 @@
         "meetings": 15
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-NANO-NEU-NEUG-OBG-OPTH-ORTH-PAE.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2621,8 +2647,7 @@
         "meetings": 23
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-NANO-NEU-NEUG-OBG-OPTH-ORTH-PAE.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2639,8 +2664,7 @@
         "meetings": 14
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-PATH-PEDS-PH-PHAR-PHB-PHIL.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2653,12 +2677,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 21,
-        "sections": 24,
-        "meetings": 24
+        "sections": 25,
+        "meetings": 25
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-PATH-PEDS-PH-PHAR-PHB-PHIL.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2670,13 +2693,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 24,
-        "sections": 28,
-        "meetings": 49
+        "courses": 26,
+        "sections": 32,
+        "meetings": 55
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-PATH-PEDS-PH-PHAR-PHB-PHIL.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2693,8 +2715,7 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-PATH-PEDS-PH-PHAR-PHB-PHIL.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2711,8 +2732,7 @@
         "meetings": 10
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-PATH-PEDS-PH-PHAR-PHB-PHIL.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2729,8 +2749,7 @@
         "meetings": 246
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-PATH-PEDS-PH-PHAR-PHB-PHIL.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2747,7 +2766,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-PHYA-PHYS-POLI-PSY-PSYC.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2759,13 +2778,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 12,
-        "sections": 136,
-        "meetings": 316
+        "courses": 46,
+        "sections": 268,
+        "meetings": 504
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-PHYA-PHYS-POLI-PSY-PSYC.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2777,13 +2795,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 38,
-        "sections": 66,
-        "meetings": 149
+        "courses": 39,
+        "sections": 68,
+        "meetings": 151
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-PHYA-PHYS-POLI-PSY-PSYC.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2800,8 +2817,7 @@
         "meetings": 21
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-PHYA-PHYS-POLI-PSY-PSYC.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2818,8 +2834,7 @@
         "meetings": 233
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-PHYA-PHYS-POLI-PSY-PSYC.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2836,8 +2851,7 @@
         "meetings": 13
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-RAD-RELI-REV-RMAS-RMED.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2854,7 +2868,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-RAD-RELI-REV-RMAS-RMED.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2871,7 +2885,7 @@
         "meetings": 7
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-RAD-RELI-REV-RMAS-RMED.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2888,8 +2902,7 @@
         "meetings": 7
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-RAD-RELI-REV-RMAS-RMED.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2901,13 +2914,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 2,
-        "sections": 4,
-        "meetings": 4
+        "courses": 0,
+        "sections": 0,
+        "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-RAD-RELI-REV-RMAS-RMED.json",
-        "TSS_相关资料/chatbot-responses/raw/FA26/capacity_enrollment_supp.txt"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2919,12 +2931,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 26,
-        "sections": 42,
-        "meetings": 118
+        "courses": 28,
+        "sections": 92,
+        "meetings": 168
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SE-SEV-SIO-SIOB-SIOC-SIOG-SOCE.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2941,7 +2953,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SE-SEV-SIO-SIOB-SIOC-SIOG-SOCE.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2953,12 +2965,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 28,
-        "sections": 46,
-        "meetings": 122
+        "courses": 29,
+        "sections": 194,
+        "meetings": 270
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SE-SEV-SIO-SIOB-SIOC-SIOG-SOCE.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2975,7 +2987,7 @@
         "meetings": 16
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SE-SEV-SIO-SIOB-SIOC-SIOG-SOCE.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2992,7 +3004,7 @@
         "meetings": 24
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SE-SEV-SIO-SIOB-SIOC-SIOG-SOCE.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3009,7 +3021,7 @@
         "meetings": 11
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SE-SEV-SIO-SIOB-SIOC-SIOG-SOCE.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3026,7 +3038,7 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SE-SEV-SIO-SIOB-SIOC-SIOG-SOCE.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3043,7 +3055,7 @@
         "meetings": 8
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SOCG-SOCI-SOMC-SOMI-SPPH-SPPS-SURG.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3060,7 +3072,7 @@
         "meetings": 127
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SOCG-SOCI-SOMC-SOMI-SPPH-SPPS-SURG.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3072,12 +3084,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 20,
-        "sections": 20,
-        "meetings": 51
+        "courses": 21,
+        "sections": 21,
+        "meetings": 52
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SOCG-SOCI-SOMC-SOMI-SPPH-SPPS-SURG.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3089,12 +3101,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 1,
-        "sections": 1,
-        "meetings": 1
+        "courses": 2,
+        "sections": 3,
+        "meetings": 3
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SOCG-SOCI-SOMC-SOMI-SPPH-SPPS-SURG.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3111,7 +3123,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SOCG-SOCI-SOMC-SOMI-SPPH-SPPS-SURG.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3123,12 +3135,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 57,
-        "sections": 100,
-        "meetings": 106
+        "courses": 53,
+        "sections": 93,
+        "meetings": 99
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SOCG-SOCI-SOMC-SOMI-SPPH-SPPS-SURG.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3140,12 +3152,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 25,
-        "sections": 25,
-        "meetings": 25
+        "courses": 0,
+        "sections": 0,
+        "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SOCG-SOCI-SOMC-SOMI-SPPH-SPPS-SURG.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3162,7 +3174,7 @@
         "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SXTH-SYN-TDAC-TDDE-TDDM-TDDR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3174,12 +3186,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 3,
-        "sections": 65,
-        "meetings": 95
+        "courses": 0,
+        "sections": 0,
+        "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SXTH-SYN-TDAC-TDDE-TDDM-TDDR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3191,12 +3203,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 7,
-        "sections": 16,
-        "meetings": 25
+        "courses": 0,
+        "sections": 0,
+        "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SXTH-SYN-TDAC-TDDE-TDDM-TDDR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3208,12 +3220,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 5,
-        "sections": 10,
-        "meetings": 20
+        "courses": 0,
+        "sections": 0,
+        "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SXTH-SYN-TDAC-TDDE-TDDM-TDDR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3225,12 +3237,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 1,
-        "sections": 1,
-        "meetings": 1
+        "courses": 0,
+        "sections": 0,
+        "meetings": 0
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SXTH-SYN-TDAC-TDDE-TDDM-TDDR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3247,7 +3259,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-SXTH-SYN-TDAC-TDDE-TDDM-TDDR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3259,12 +3271,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 7,
-        "sections": 17,
-        "meetings": 38
+        "courses": 8,
+        "sections": 18,
+        "meetings": 39
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-TDGE-TDGR-TDHD-TDHT-TDMV-TDPF.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3276,12 +3288,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 29,
-        "sections": 40,
-        "meetings": 41
+        "courses": 32,
+        "sections": 56,
+        "meetings": 57
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-TDGE-TDGR-TDHD-TDHT-TDMV-TDPF.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3298,7 +3310,7 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-TDGE-TDGR-TDHD-TDHT-TDMV-TDPF.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3315,7 +3327,7 @@
         "meetings": 11
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-TDGE-TDGR-TDHD-TDHT-TDMV-TDPF.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3329,10 +3341,10 @@
       "row_counts": {
         "courses": 12,
         "sections": 19,
-        "meetings": 25
+        "meetings": 24
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-TDGE-TDGR-TDHD-TDHT-TDMV-TDPF.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3349,7 +3361,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-TDGE-TDGR-TDHD-TDHT-TDMV-TDPF.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3366,7 +3378,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-TDPR-TDPW-TDTR-TMC-UROL.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3383,7 +3395,7 @@
         "meetings": 5
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-TDPR-TDPW-TDTR-TMC-UROL.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3400,7 +3412,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-TDPR-TDPW-TDTR-TMC-UROL.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3417,7 +3429,7 @@
         "meetings": 5
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-TDPR-TDPW-TDTR-TMC-UROL.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3434,7 +3446,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-TDPR-TDPW-TDTR-TMC-UROL.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3451,7 +3463,7 @@
         "meetings": 91
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-USP-VIS-WARR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3463,12 +3475,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 56,
-        "sections": 116,
-        "meetings": 238
+        "courses": 57,
+        "sections": 117,
+        "meetings": 239
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-USP-VIS-WARR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3480,12 +3492,12 @@
       "reason": "batch-level TSS response reports incomplete coverage; subject completeness is unknown",
       "attempts": 1,
       "row_counts": {
-        "courses": 0,
-        "sections": 0,
-        "meetings": 0
+        "courses": 1,
+        "sections": 1,
+        "meetings": 1
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-USP-VIS-WARR.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3502,7 +3514,7 @@
         "meetings": 36
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-WCWP-WES.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3519,7 +3531,7 @@
         "meetings": 5
       },
       "raw_artifacts": [
-        "TSS_相关资料/chatbot-responses/raw/FA26/2026-07-21-WCWP-WES.json"
+        "TSS_相关资料/chatbot-responses/processed/FA26/2026-07-22-tritongpt-504c9287/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -4029,6 +4041,19 @@
       },
       "raw_artifacts": [],
       "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-WI26/general_catalog/COGR.json"
+    },
+    {
+      "term": "FA26",
+      "subject": "COGS",
+      "source": "general_catalog",
+      "status": "ok",
+      "reason": null,
+      "attempts": 1,
+      "row_counts": {
+        "courses": 138
+      },
+      "raw_artifacts": [],
+      "normalized_artifact": "data/normalized/multi-2026-06-29T14:30:40.925Z-5fb5c41d-1d24-42c9-b5c1-b5e209925094-S324/general_catalog/COGS.json"
     },
     {
       "term": "FA26",
@@ -4796,6 +4821,19 @@
       },
       "raw_artifacts": [],
       "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-WI26/general_catalog/LIHL.json"
+    },
+    {
+      "term": "FA26",
+      "subject": "LIIT",
+      "source": "general_catalog",
+      "status": "ok",
+      "reason": null,
+      "attempts": 1,
+      "row_counts": {
+        "courses": 12
+      },
+      "raw_artifacts": [],
+      "normalized_artifact": "data/normalized/multi-2026-06-29T14:30:40.925Z-5fb5c41d-1d24-42c9-b5c1-b5e209925094-S324/general_catalog/LIIT.json"
     },
     {
       "term": "FA26",
@@ -6554,6 +6592,19 @@
     },
     {
       "term": "FA26",
+      "subject": "COGS",
+      "source": "instructor_grade_archive",
+      "status": "ok",
+      "reason": null,
+      "attempts": 1,
+      "row_counts": {
+        "records": 742
+      },
+      "raw_artifacts": [],
+      "normalized_artifact": "data/normalized/multi-2026-06-29T14:30:40.925Z-5fb5c41d-1d24-42c9-b5c1-b5e209925094-S324/instructor_grade_archive/COGS.json"
+    },
+    {
+      "term": "FA26",
       "subject": "COMM",
       "source": "instructor_grade_archive",
       "status": "ok",
@@ -7318,6 +7369,19 @@
       },
       "raw_artifacts": [],
       "normalized_artifact": "data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-WI26/instructor_grade_archive/LIHL.json"
+    },
+    {
+      "term": "FA26",
+      "subject": "LIIT",
+      "source": "instructor_grade_archive",
+      "status": "ok",
+      "reason": null,
+      "attempts": 1,
+      "row_counts": {
+        "records": 52
+      },
+      "raw_artifacts": [],
+      "normalized_artifact": "data/normalized/multi-2026-06-29T14:30:40.925Z-5fb5c41d-1d24-42c9-b5c1-b5e209925094-S324/instructor_grade_archive/LIIT.json"
     },
     {
       "term": "FA26",
@@ -8569,9 +8633,9 @@
     }
   ],
   "summary": {
-    "ok": 295,
-    "empty": 73,
+    "ok": 281,
+    "empty": 65,
     "failed": 46,
-    "partial": 168
+    "partial": 196
   }
 }

@@ -6,9 +6,44 @@ export type TssSourceMeeting = {
   end_time: string | null;
   location_displayed: string | null;
   instructor: string | null;
+  is_remote: boolean;
   is_tba: boolean;
   is_arranged: boolean | null;
 };
+
+export function tssLocationDisplay(
+  buildingCode: string,
+  roomCode: string,
+  isRemote: boolean,
+) {
+  if (isRemote) return 'REMOTE';
+  const building = buildingCode.trim();
+  const room = roomCode.trim();
+  if (!room) return building || null;
+  if (!building) return room;
+  const normalizedBuilding = building.toUpperCase();
+  const normalizedRoom = room.toUpperCase();
+  return normalizedRoom === normalizedBuilding ||
+    normalizedRoom.startsWith(`${normalizedBuilding} `)
+    ? room
+    : `${building} ${room}`;
+}
+
+export function normalizeTssMeetingLocation(
+  meeting: Pick<TssSourceMeeting, 'is_remote' | 'location_displayed'>,
+) {
+  if (meeting.is_remote)
+    return { building: 'REMOTE', room: null, rawLocation: 'REMOTE' };
+  const location = meeting.location_displayed?.trim() ?? '';
+  if (!location || /^tba$/iu.test(location))
+    return { building: null, room: null, rawLocation: location || null };
+  const separator = location.indexOf(' ');
+  return {
+    building: separator < 0 ? location : location.slice(0, separator),
+    room: separator < 0 ? null : location.slice(separator + 1),
+    rawLocation: location,
+  };
+}
 
 const tssDayOrder = ['M', 'T', 'W', 'R', 'F', 'S', 'U'];
 
@@ -26,6 +61,7 @@ function meetingScheduleKey(meeting: TssSourceMeeting): string {
     startTime: meeting.start_time,
     endTime: meeting.end_time,
     location: meeting.location_displayed,
+    isRemote: meeting.is_remote,
     isTba: meeting.is_tba,
     isArranged: meeting.is_arranged,
   });

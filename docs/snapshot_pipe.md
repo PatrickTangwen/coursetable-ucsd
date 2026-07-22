@@ -268,6 +268,33 @@ Exact Course ID records always take precedence. Title similarity and
 graduate listings can have different grading populations and must not be merged
 without a separate authoritative archive relationship.
 
+### TritonGPT CSV section identity continuity (2026-07-22)
+
+The stable input contract and column reference live in
+[`tritongpt_schedule_csv.md`](tritongpt_schedule_csv.md).
+
+The TritonGPT CSV import reconstructs TSS booking choices from the numeric
+groups in `section_code`. A `000` component is shared by each nonzero option in
+the same class group, so a lecture plus each discussion or lab remains one
+Worksheet-selectable package rather than separate sections.
+
+When replacing an existing term snapshot, pass that snapshot to
+`import-tritongpt-schedule-csv.mts` before publishing:
+
+```bash
+bun tools/catalog-snapshot/import-tritongpt-schedule-csv.mts \
+  --csv-dir TSS_相关资料/chatbot-responses/raw/FA26/csv/<capture> \
+  --output-dir TSS_相关资料/chatbot-responses/processed/FA26/<capture> \
+  --captured-at <truthful ISO-8601 observation timestamp>
+```
+
+The importer automatically reads the published snapshot for the CSV term when
+it exists. It matches the prior package only by exact normalized TSS course code
+and event-ID set, then carries forward its section-ID suffix. This preserves
+anonymous Worksheets, Saved Worksheets, and shared Worksheet URLs across a data
+refresh without guessing when a package's actual components changed. The older
+`--transfer-json` plus `--raw-dir` capture path remains supported.
+
 ### Paired Snapshot and Import Manifest publication
 
 The TSS publisher produces one release candidate with matching identity across:

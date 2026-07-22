@@ -6,7 +6,10 @@ import type {
   CoursePlanningMeeting,
   CoursePlanningSection,
 } from './coursePlanningViewModels';
-import { normalizeTssMeetingDays } from '../../../shared/tssMeetingDays.js';
+import {
+  normalizeTssMeetingDays,
+  normalizeTssMeetingLocation,
+} from '../../../shared/tssMeetingDays.js';
 
 const tssMeetingSchema = z.object({
   meeting_kind: z.string(),
@@ -16,6 +19,7 @@ const tssMeetingSchema = z.object({
   end_time: z.string().nullable(),
   location_displayed: z.string().nullable(),
   instructor: z.string().nullable(),
+  is_remote: z.boolean().optional().default(false),
   is_tba: z
     .union([z.boolean(), z.literal(0), z.literal(1)])
     .transform((value) => Boolean(value)),
@@ -32,6 +36,7 @@ const tssEnrollmentSchema = z.object({
   waitlist: z.object({
     state: z.string(),
     count: z.number().nullable(),
+    available_spots: z.number().nullable().optional(),
   }),
 });
 
@@ -163,6 +168,7 @@ const meetingTypeLabels: { [type: string]: string } = {
   lecture: 'Lecture',
   pr: 'Practicum',
   se: 'Seminar',
+  studio: 'Studio',
   tu: 'Tutorial',
 };
 
@@ -207,18 +213,6 @@ function time24(value: string | null): string | null {
   return `${String(hour).padStart(2, '0')}:${minute}`;
 }
 
-function locationParts(value: string | null) {
-  const location = value?.trim() ?? '';
-  if (!location || /^tba$/iu.test(location))
-    return { building: null, room: null };
-  const separator = location.indexOf(' ');
-  if (separator < 0) return { building: location, room: null };
-  return {
-    building: location.slice(0, separator),
-    room: location.slice(separator + 1),
-  };
-}
-
 function toMeeting(
   component: TssBookingChoice['components'][number],
   meeting: TssBookingChoice['components'][number]['meetings'][number],
@@ -226,7 +220,7 @@ function toMeeting(
   const tokens = dayTokens(meeting.days);
   const startTime = time24(meeting.start_time);
   const endTime = time24(meeting.end_time);
-  const { building, room } = locationParts(meeting.location_displayed);
+  const { building, room, rawLocation } = normalizeTssMeetingLocation(meeting);
   const isTba =
     meeting.is_tba ||
     meeting.is_arranged === true ||
@@ -253,7 +247,7 @@ function toMeeting(
       meeting.start_time && meeting.end_time
         ? `${meeting.start_time}-${meeting.end_time}`
         : null,
-    rawLocation: meeting.location_displayed,
+    rawLocation,
   };
 }
 

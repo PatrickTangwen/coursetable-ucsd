@@ -9,6 +9,7 @@ export type SectionMappingSource = {
 export type Fa26SectionMappingEntry = {
   displaySection: string;
   displayOption: string | null;
+  displayMeetingCode: string;
   displayName: string;
   lectureGroupKey: string;
   officialSectionCode: string;
@@ -88,6 +89,7 @@ export function buildFa26SectionMapping(
         return {
           displaySection,
           displayOption,
+          displayMeetingCode: displayOption ?? `${letter}00`,
           displayName: displayOption
             ? `${displaySection} · ${displayOption}`
             : displaySection,

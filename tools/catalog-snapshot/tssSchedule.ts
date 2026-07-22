@@ -12,7 +12,10 @@ import {
   buildScheduleCatalogSnapshot,
   type ParsedScheduleOfClasses,
 } from './scheduleOfClasses';
-import { normalizeTssMeetingDays } from '../../shared/tssMeetingDays.js';
+import {
+  normalizeTssMeetingDays,
+  normalizeTssMeetingLocation,
+} from '../../shared/tssMeetingDays.js';
 
 const meetingSchema = z.object({
   meeting_kind: z.string(),
@@ -22,6 +25,7 @@ const meetingSchema = z.object({
   end_time: z.string().nullable(),
   location_displayed: z.string().nullable(),
   instructor: z.string().nullable(),
+  is_remote: z.boolean().optional().default(false),
   is_tba: z.union([z.boolean(), z.literal(0), z.literal(1)]).transform(Boolean),
   is_arranged: z.boolean().nullable(),
 });
@@ -42,6 +46,7 @@ const componentSchema = z.object({
     waitlist: z.object({
       state: z.string(),
       count: z.number().nullable(),
+      available_spots: z.number().nullable().optional(),
     }),
   }),
 });
@@ -59,6 +64,8 @@ const tssResponseSchema = z.object({
   requested_course: z.string().min(1).optional(),
   source_metadata: z.object({
     last_refreshed_displayed: z.string().nullable(),
+    captured_at: z.string().optional(),
+    availability_observed_at: z.string().optional(),
   }),
   coverage: z.object({
     complete: z.boolean(),
@@ -134,6 +141,7 @@ const meetingTypeLabels: { [type: string]: string } = {
   lecture: 'Lecture',
   pr: 'Practicum',
   se: 'Seminar',
+  studio: 'Studio',
   tu: 'Tutorial',
 };
 
@@ -227,18 +235,6 @@ function time24(value: string | null): string | null {
   return `${String(hour).padStart(2, '0')}:${minute}`;
 }
 
-function locationParts(value: string | null) {
-  const location = value?.trim() ?? '';
-  if (!location || /^tba$/iu.test(location))
-    return { building: null, room: null };
-  const separator = location.indexOf(' ');
-  if (separator < 0) return { building: location, room: null };
-  return {
-    building: location.slice(0, separator),
-    room: location.slice(separator + 1),
-  };
-}
-
 function toMeeting(
   component: TssComponent,
   meeting: TssMeeting,
@@ -246,7 +242,7 @@ function toMeeting(
   const tokens = dayTokens(meeting.days);
   const startTime = time24(meeting.start_time);
   const endTime = time24(meeting.end_time);
-  const { building, room } = locationParts(meeting.location_displayed);
+  const { building, room, rawLocation } = normalizeTssMeetingLocation(meeting);
   const meetingType =
     meeting.meeting_kind === 'final'
       ? 'Final'
@@ -272,7 +268,7 @@ function toMeeting(
       meeting.start_time && meeting.end_time
         ? `${meeting.start_time}-${meeting.end_time}`
         : null,
-    raw_location: meeting.location_displayed,
+    raw_location: rawLocation,
   };
 }
 
@@ -351,6 +347,10 @@ function toSection(
   choice: BookingChoice,
 ): SnapshotSection {
   const enrollment = choiceEnrollment(choice);
+  const availabilityTimestamp =
+    catalog.source_metadata.last_refreshed_displayed ??
+    catalog.source_metadata.availability_observed_at ??
+    null;
   const instructors = [
     ...new Set(
       choice.components.flatMap((component) =>
@@ -378,14 +378,18 @@ function toSection(
     reported_capacity: enrollment.reportedCapacity,
     reported_seats_available: enrollment.reportedSeatsAvailable,
     waitlist_count: enrollment.waitlistCount,
-    availability_verified: Boolean(
-      catalog.source_metadata.last_refreshed_displayed,
-    ),
-    availability_timestamp: catalog.source_metadata.last_refreshed_displayed,
+    availability_verified: Boolean(availabilityTimestamp),
+    availability_timestamp: availabilityTimestamp,
     raw: {
       source: 'ucsd_tss',
       tss_course_code: course.tss_course_code,
       tss_event_ids: choice.components.map((component) => component.event_id),
+      tss_waitlist_available: choice.components.flatMap((component) => {
+        const availableSpots = component.enrollment.waitlist.available_spots;
+        return availableSpots === null || availableSpots === undefined
+          ? []
+          : [{ event_id: component.event_id, available_spots: availableSpots }];
+      }),
     },
   };
 }
@@ -431,7 +435,10 @@ function parseTssResponse(
     term: catalog.term,
     source_url: 'tss-chatbot-v1',
     fetched_at: generatedAt,
-    source_timestamp: catalog.source_metadata.last_refreshed_displayed,
+    source_timestamp:
+      catalog.source_metadata.last_refreshed_displayed ??
+      catalog.source_metadata.availability_observed_at ??
+      null,
     courses: courses.map((course) => toCourse(catalog, course)),
   }));
 }

@@ -50,8 +50,9 @@ const tssResponse = {
                   days: 'M W F',
                   start_time: '11:00am',
                   end_time: '11:50am',
-                  location_displayed: 'PRICE THTRE',
+                  location_displayed: 'PRICE THTRE' as string | null,
                   instructor: 'Phoebe Bronstein',
+                  is_remote: false,
                   is_tba: false,
                   is_arranged: null,
                 },
@@ -60,7 +61,11 @@ const tssResponse = {
                 enrolled: 200,
                 capacity: 256,
                 seats_available: 56,
-                waitlist: { state: 'not_shown', count: null },
+                waitlist: {
+                  state: 'not_shown',
+                  count: null,
+                  available_spots: null as number | null,
+                },
               },
             },
           ],
@@ -176,6 +181,45 @@ describe('TSS Catalog Snapshot pipeline input', () => {
     ]);
   });
 
+  it('publishes remote meetings without treating available waitlist spots as demand', () => {
+    const response = structuredClone(tssResponse);
+    const component = response.courses[0]!.booking_choices[0]!.components[0]!;
+    component.meetings[0] = {
+      ...component.meetings[0]!,
+      location_displayed: null,
+      is_remote: true,
+    };
+    component.enrollment.waitlist = {
+      state: 'available_spots',
+      count: null,
+      available_spots: 4,
+    };
+
+    const snapshot = buildTssCatalogSnapshot(config, [response], {
+      runId: 'tss-fa26-remote-test',
+      generatedAt: '2026-07-21T12:00:00.000Z',
+      generalCatalog: { sourceTimestamp: null, courses: [] },
+      gradeArchive: { sourceTimestamp: null, records: [] },
+    });
+
+    expect(snapshot.courses[0]?.sections[0]).toMatchObject({
+      waitlist_count: null,
+      meetings: [
+        {
+          building: 'REMOTE',
+          room: null,
+          raw_location: 'REMOTE',
+          is_tba: false,
+        },
+      ],
+      raw: {
+        tss_waitlist_available: [
+          { event_id: 'E 00000665', available_spots: 4 },
+        ],
+      },
+    });
+  });
+
   it('publishes an FA26 display code while enriching by canonical Course ID', () => {
     const snapshot = buildTssCatalogSnapshot(config, [tssResponse], {
       runId: 'tss-fa26-test',
@@ -252,6 +296,34 @@ describe('TSS Catalog Snapshot pipeline input', () => {
       general_catalog: '2026-07-20T12:00:00.000Z',
       instructor_grade_archive: '2026-07-19T12:00:00.000Z',
     });
+    expect(validateCatalogSnapshot(snapshot, config)).toEqual({
+      success: true,
+      errors: [],
+    });
+  });
+
+  it('uses the observation time when the source shows no refresh time', () => {
+    const response = {
+      ...structuredClone(tssResponse),
+      source_metadata: {
+        last_refreshed_displayed: null,
+        availability_observed_at: '2026-07-22T19:06:00.000Z',
+      },
+    };
+    const snapshot = buildTssCatalogSnapshot(config, [response], {
+      runId: 'tss-fa26-observed-availability-test',
+      generatedAt: '2026-07-22T19:06:00.000Z',
+      generalCatalog: { sourceTimestamp: null, courses: [] },
+      gradeArchive: { sourceTimestamp: null, records: [] },
+    });
+
+    expect(snapshot.courses[0]?.sections[0]).toMatchObject({
+      availability_verified: true,
+      availability_timestamp: '2026-07-22T19:06:00.000Z',
+    });
+    expect(snapshot.source_timestamps.schedule_of_classes).toBe(
+      '2026-07-22T19:06:00.000Z',
+    );
     expect(validateCatalogSnapshot(snapshot, config)).toEqual({
       success: true,
       errors: [],

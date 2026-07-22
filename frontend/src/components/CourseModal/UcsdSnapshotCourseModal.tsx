@@ -337,12 +337,7 @@ function sectionShortLabel(
   section: UcsdModalSection,
   mapping?: Fa26SectionMappingEntry,
 ) {
-  return (
-    mapping?.displayOption ??
-    mapping?.displaySection ??
-    section.sectionCode ??
-    ''
-  );
+  return mapping?.displayMeetingCode ?? section.sectionCode ?? '';
 }
 
 function anchorSectionCode(group: UcsdModalOfferingGroup): string {
@@ -400,24 +395,54 @@ function selectedSectionForGroup(
 type MeetingRowData = {
   key: string;
   role: 'anchor' | 'selectable' | 'info';
-  meeting: UcsdModalSection['meetings'][number];
+  meetings: UcsdModalSection['meetings'];
   section: UcsdModalSection | null;
   sectionCode: string;
   usesFriendlySectionCode: boolean;
 };
 
+type MeetingRowCandidate = Omit<MeetingRowData, 'meetings'> & {
+  meeting: UcsdModalSection['meetings'][number];
+};
+
+function combineComponentRows(
+  candidates: MeetingRowCandidate[],
+): MeetingRowData[] {
+  const rows = new Map<string, MeetingRowData>();
+  for (const candidate of candidates) {
+    const componentKey =
+      candidate.role === 'info'
+        ? candidate.key
+        : [
+            candidate.role,
+            candidate.section?.sectionId ?? 'shared',
+            candidate.meeting.meetingType ?? '',
+          ].join('|');
+    const existing = rows.get(componentKey);
+    if (existing) {
+      existing.meetings.push(candidate.meeting);
+      continue;
+    }
+    const { meeting, ...row } = candidate;
+    rows.set(componentKey, { ...row, meetings: [meeting] });
+  }
+  return [...rows.values()];
+}
+
 function buildMeetingRows(
   group: UcsdModalOfferingGroup,
   sectionMapping?: ReadonlyMap<string, Fa26SectionMappingEntry>,
 ): MeetingRowData[] {
-  const rows: MeetingRowData[] = group.sharedMeetings.map((meeting, index) => ({
-    key: `${group.familyPrefix}-shared-${index}`,
-    role: isUcsdInfoMeeting(meeting.meetingType) ? 'info' : 'anchor',
-    meeting,
-    section: null,
-    sectionCode: anchorSectionCode(group),
-    usesFriendlySectionCode: false,
-  }));
+  const candidates: MeetingRowCandidate[] = group.sharedMeetings.map(
+    (meeting, index) => ({
+      key: `${group.familyPrefix}-shared-${index}`,
+      role: isUcsdInfoMeeting(meeting.meetingType) ? 'info' : 'anchor',
+      meeting,
+      section: null,
+      sectionCode: anchorSectionCode(group),
+      usesFriendlySectionCode: false,
+    }),
+  );
 
   for (const section of group.sections) {
     const meetings =
@@ -430,7 +455,7 @@ function buildMeetingRows(
         : group.sections.length > 1
           ? 'selectable'
           : 'anchor';
-      rows.push({
+      candidates.push({
         key: `${section.sectionId}-${index}`,
         role,
         meeting,
@@ -445,11 +470,11 @@ function buildMeetingRows(
     }
   }
 
-  return rows;
+  return combineComponentRows(candidates);
 }
 
 function separatorLabel(row: MeetingRowData): string {
-  return `Choose ${ucsdMeetingTypeLabel(row.meeting.meetingType).toLowerCase()}`;
+  return `Choose ${ucsdMeetingTypeLabel(row.meetings[0]?.meetingType).toLowerCase()}`;
 }
 
 function shouldShowSeparator(rows: MeetingRowData[], index: number): boolean {
@@ -473,7 +498,9 @@ function MeetingRow({
   readonly updatedLabel: string | null;
   readonly onSelect: (section: UcsdModalSection) => void;
 }) {
-  const code = ucsdMeetingTypeCode(row.meeting.meetingType);
+  const [primaryMeeting] = row.meetings;
+  if (!primaryMeeting) return null;
+  const code = ucsdMeetingTypeCode(primaryMeeting.meetingType);
   const availability =
     row.role !== 'info' && row.section
       ? formatUcsdAvailability(
@@ -484,7 +511,6 @@ function MeetingRow({
           row.section.availability.capacityKind,
         )
       : null;
-  const meetingTime = formatTime(row.meeting.startTime, row.meeting.endTime);
   const rowClassName = clsx(
     styles.meetingRow,
     row.usesFriendlySectionCode && styles.friendlyMeetingRow,
@@ -492,7 +518,7 @@ function MeetingRow({
     selected && styles.selectedRow,
   );
   const examDate =
-    row.role === 'info' ? formatExamRowDate(row.meeting.date) : null;
+    row.role === 'info' ? formatExamRowDate(primaryMeeting.date) : null;
 
   const content = (
     <>
@@ -518,7 +544,7 @@ function MeetingRow({
           {code}
         </span>
         <span className={styles.typeLabel}>
-          {ucsdMeetingTypeLabel(row.meeting.meetingType)}
+          {ucsdMeetingTypeLabel(primaryMeeting.meetingType)}
         </span>
       </div>
       <div
@@ -529,16 +555,29 @@ function MeetingRow({
       >
         {row.sectionCode}
       </div>
-      <div className={styles.meetingTime}>
-        {!row.meeting.isTba && (
-          <ModalDayDots
-            rawDays={row.meeting.rawDays}
-            allowWeekend={row.role === 'info'}
-          />
-        )}
-        <span className={styles.timeText}>{meetingTime}</span>
+      <div className={styles.meetingDetails}>
+        {row.meetings.map((meeting, index) => (
+          <div
+            key={`${meeting.rawDays ?? 'tba'}-${meeting.startTime ?? 'tba'}-${index}`}
+            className={styles.meetingDetail}
+          >
+            <div className={styles.meetingSchedule}>
+              {!meeting.isTba && (
+                <ModalDayDots
+                  rawDays={meeting.rawDays}
+                  allowWeekend={row.role === 'info'}
+                />
+              )}
+              <span className={styles.timeText}>
+                {formatTime(meeting.startTime, meeting.endTime)}
+              </span>
+            </div>
+            <div className={styles.meetingLocation}>
+              {locationText(meeting)}
+            </div>
+          </div>
+        ))}
       </div>
-      <div className={styles.location}>{locationText(row.meeting)}</div>
       <div
         className={clsx(
           styles.availability,
@@ -696,8 +735,8 @@ export function OfferingGroupCard({
           <div className={styles.noSelection}>
             Select a{' '}
             {ucsdMeetingTypeLabel(
-              rows.find((row) => row.role === 'selectable')?.meeting
-                .meetingType,
+              rows.find((row) => row.role === 'selectable')?.meetings[0]
+                ?.meetingType,
             ).toLowerCase()}{' '}
             section to add this group
           </div>

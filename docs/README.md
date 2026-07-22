@@ -51,6 +51,8 @@ Status: top-level navigation for stable project documentation.
 - `snapshot_pipe.md`: catalog snapshot pipeline notes, including General Catalog
   enrichment, FA26 TSS metadata and Import Manifest publication, Schedule parser
   edge cases, and raw HTML replay rules.
+- `tritongpt_schedule_csv.md`: stable TritonGPT schedule CSV column, row,
+  package-grouping, integrity, and CSV-first import contract.
 - `styling.md`: styling conventions.
 
 ## Historical SunGrid Records
