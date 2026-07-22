@@ -240,7 +240,7 @@ export default defineConfig(({ command, mode }) => ({
         entryFileNames: 'assets/entry-[name]-[hash:10].js',
       },
     },
-    sourcemap: process.env.NODE_ENV === 'production',
+    sourcemap: false,
   },
   server: {
     // CI builds and Vitest do not need local certificate material.
