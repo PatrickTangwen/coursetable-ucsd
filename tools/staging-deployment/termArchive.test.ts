@@ -6,7 +6,7 @@ describe('staging Term Archive', () => {
   it('builds a complete content-addressed registry from accepted repository artifacts', async () => {
     const archive = await buildTermArchive();
 
-    expect(archive.registry.last_update).toBe('2026-07-22T19:55:09.751Z');
+    expect(archive.registry.last_update).toBe('2026-07-22T21:02:15.288Z');
     expect(archive.terms).toHaveLength(15);
     expect(archive.registry.terms).toHaveLength(15);
 

@@ -1,6 +1,42 @@
 {
-  "last_update": "2026-07-22T19:55:09.751Z",
+  "last_update": "2026-07-22T21:02:15.288Z",
   "terms": [
+    {
+      "term": "S126",
+      "label": "Summer Session I 2026",
+      "date_range": {
+        "start": "2026-06-29",
+        "end": "2026-08-01"
+      },
+      "frozen": false,
+      "generated_at": "2026-07-22T21:02:15.288Z",
+      "snapshot_path": "catalogs/public/S126.json",
+      "manifest_path": "catalogs/import-manifests/S126.json"
+    },
+    {
+      "term": "S226",
+      "label": "Summer Session II 2026",
+      "date_range": {
+        "start": "2026-08-03",
+        "end": "2026-09-05"
+      },
+      "frozen": false,
+      "generated_at": "2026-07-22T21:02:15.288Z",
+      "snapshot_path": "catalogs/public/S226.json",
+      "manifest_path": "catalogs/import-manifests/S226.json"
+    },
+    {
+      "term": "S326",
+      "label": "Special Summer Session 2026",
+      "date_range": {
+        "start": "2026-06-15",
+        "end": "2026-09-19"
+      },
+      "frozen": false,
+      "generated_at": "2026-07-22T21:02:15.288Z",
+      "snapshot_path": "catalogs/public/S326.json",
+      "manifest_path": "catalogs/import-manifests/S326.json"
+    },
     {
       "term": "FA26",
       "label": "Fall 2026",
