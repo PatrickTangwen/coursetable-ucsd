@@ -5,6 +5,7 @@ import path from 'node:path';
 import {
   convertTritonGptCsvChunks,
   tritonGptPackageIdentity,
+  tritonGptSectionCodePackageIdentity,
 } from './tritonGptScheduleCsv.js';
 
 function argument(name: string) {
@@ -72,24 +73,34 @@ function stablePackageIdsFromSnapshot(value: unknown) {
       )
         continue;
       const { raw } = sectionValue;
-      if (
-        typeof raw.tss_course_code !== 'string' ||
-        !Array.isArray(raw.tss_event_ids) ||
-        raw.tss_event_ids.some((eventId) => typeof eventId !== 'string')
-      )
-        continue;
-      const identity = tritonGptPackageIdentity(
-        raw.tss_course_code,
-        raw.tss_event_ids as string[],
-      );
       const packageId = sectionValue.section_id.slice(termPrefix.length);
-      const existing = ids[identity];
-      if (existing && existing !== packageId) {
-        throw new Error(
-          `Previous snapshot has conflicting ids for ${identity}: ${existing}, ${packageId}`,
+      if (typeof raw.tss_course_code !== 'string') continue;
+      const identities: string[] = [];
+      if (
+        Array.isArray(raw.tss_event_ids) &&
+        raw.tss_event_ids.every((eventId) => typeof eventId === 'string')
+      ) {
+        identities.push(
+          tritonGptPackageIdentity(raw.tss_course_code, raw.tss_event_ids),
         );
       }
-      ids[identity] = packageId;
+      if (typeof sectionValue.section_code === 'string') {
+        identities.push(
+          tritonGptSectionCodePackageIdentity(
+            raw.tss_course_code,
+            sectionValue.section_code.split(/ \+ /u),
+          ),
+        );
+      }
+      for (const identity of identities) {
+        const existing = ids[identity];
+        if (existing && existing !== packageId) {
+          throw new Error(
+            `Previous snapshot has conflicting ids for ${identity}: ${existing}, ${packageId}`,
+          );
+        }
+        ids[identity] = packageId;
+      }
     }
   }
   return ids;

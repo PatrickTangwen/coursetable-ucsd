@@ -7,9 +7,19 @@ The CSV directory is now the preferred input to the FA26-and-later import
 pipeline. The older browser transfer JSON remains supported only as a capture
 adapter.
 
-## Required Header
+## Header Contract
 
-Every CSV file must repeat this exact header and column order:
+Every CSV file must have a header row, but columns may be reordered, omitted
+when unavailable, or extended with source-specific columns. The importer
+matches supported fields by normalized header name (case-insensitive; spaces
+and hyphens are treated as underscores) and ignores unknown columns. Each
+chunk may use a different column order or supported subset.
+
+The smallest useful row must provide `term_code`, `section_code`, and course
+identity as either `subject_code` plus `course_code`, or a parseable
+`module_code` such as `BENG-002`. Availability and meeting columns are optional.
+
+The original 23-column export remains supported:
 
 ```csv
 term_code,subject_code,course_code,class_name,course_title,academic_level,section_id,section_ref,section_code,instruction_type_name,instructors_text,seats_available,waitlist_available,meeting_kind,day_code,day_name,specific_date,start_time_display,end_time_display,building_code,room_code,is_remote,is_tba
@@ -32,6 +42,13 @@ term_code,subject_code,course_code,class_name,course_title,academic_level,sectio
 | `instructors_text`      | Instructor name or names displayed by the schedule source.                                                                                                                              |
 | `seats_available`       | Open seats observed for the component, when provided. This is snapshot data, not a live guarantee.                                                                                      |
 | `waitlist_available`    | Available waitlist spots, when the section supports a waitlist and the source provides the value.                                                                                       |
+| `module_code`           | Combined course identity, such as `BENG-002`. It replaces `subject_code` plus `course_code` when those columns are absent.                                                              |
+| `capacity`              | Component enrollment capacity.                                                                                                                                                          |
+| `enrolled`              | Current component enrollment.                                                                                                                                                           |
+| `waitlist_capacity`     | Component waitlist capacity.                                                                                                                                                            |
+| `waitlist_enrolled`     | Current number of students on the component waitlist.                                                                                                                                   |
+| `status`                | Source status. On publishable rows, blank is unknown and `AC`/`Active` normalize to `AC`; any other value fails conversion. Explicitly cancelled rows are excluded before publication.  |
+| `is_cancelled`          | Explicit cancellation flag. True values are `1`, `true`, `yes`, and `y`; a true value excludes all overlapping rows for that component and they are counted in the conversion report.   |
 | `meeting_kind`          | Meeting role: normally `class`, but may be `midterm` or `final`.                                                                                                                        |
 | `day_code`              | One-letter meeting day: `M`, `T`, `W`, `R`, `F`, `S`, or `U`.                                                                                                                           |
 | `day_name`              | Full day name, such as `Monday` or `Thursday`.                                                                                                                                          |
@@ -48,7 +65,12 @@ term_code,subject_code,course_code,class_name,course_title,academic_level,sectio
 Each row normally represents one meeting, not an entire course or selectable
 package. A component can therefore have separate rows for each recurring day,
 a midterm, and a final. Rows with the same `section_ref` are consolidated into
-one component while preserving distinct meetings.
+one component while preserving distinct meetings. If `section_id` and
+`section_ref` are absent, `section_code` is used as component identity. A prior
+snapshot is also matched by the package's section-code signature so its stable
+Worksheet ID can be retained. Sparse rows are matched by `section_code` only
+when that code maps to at most one source component ID; ambiguous sparse rows
+fail conversion rather than merging distinct components.
 
 `meeting_kind` and `specific_date` must remain separate:
 
@@ -73,18 +95,23 @@ publish each component as an independent selectable section.
 
 ## Producer Quirks And Integrity Rules
 
-TritonGPT exports observed so far use the `.csv` extension but may contain an
-unquoted comma inside `course_title` or `instructors_text`. The importer recovers
-these fields from the stable `academic_level`/`section_id` anchor and the fixed
-meeting tail. This is a producer-specific parser, not a general RFC 4180 CSV
-reader.
+Flexible exports support standard CSV quoting for single-line values that
+contain commas. Quoted multiline fields are not part of this input contract. The
+legacy exact 23-column export may contain an unquoted comma inside
+`course_title` or `instructors_text`; for that exact legacy header only, the
+importer retains its producer-specific recovery based on the stable
+`academic_level`/`section_id` anchor and fixed meeting tail.
 
 The importer may reuse a non-empty component-level availability value when one
 meeting row omits it. It may also derive a missing instructional type from a
-recognized `section_code` suffix. It must not fabricate missing meetings,
-courses, subjects, seats, waitlists, or TBA state. Malformed rows and expected
-subjects without rows keep coverage incomplete and are recorded in the
-conversion report.
+recognized `section_code` suffix. `seats_available` is authoritative; the
+importer does not require it to equal `capacity - enrolled`, and it does not
+infer one field from the others. It must not fabricate missing meetings,
+course titles, courses, subjects, seats, waitlists, or TBA state. An
+availability-only row therefore produces an empty meetings array while keeping
+`instructors_text` at component level. Malformed rows and expected subjects
+without rows keep coverage incomplete and are recorded in the conversion
+report.
 
 Exact duplicate rows across overlapping TritonGPT chunks are removed. Other
 rows are retained unless they fail structural validation.

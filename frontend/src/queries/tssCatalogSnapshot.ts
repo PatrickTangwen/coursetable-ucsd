@@ -36,6 +36,7 @@ const tssEnrollmentSchema = z.object({
   waitlist: z.object({
     state: z.string(),
     count: z.number().nullable(),
+    capacity: z.number().nullable().optional(),
     available_spots: z.number().nullable().optional(),
   }),
 });
@@ -45,6 +46,9 @@ const tssComponentSchema = z.object({
   section_code: z.string(),
   event_id: z.string(),
   requirement: z.string(),
+  instructors_text: z.string().nullable().optional(),
+  status: z.string().nullable().optional(),
+  is_cancelled: z.boolean().optional().default(false),
   meetings: z.array(tssMeetingSchema),
   enrollment: tssEnrollmentSchema,
 });
@@ -339,11 +343,12 @@ function toSection(
   const snapshotTimestamp = catalog.source_metadata.last_refreshed_displayed;
   const instructors = [
     ...new Set(
-      choice.components.flatMap((component) =>
-        component.meetings.flatMap((meeting) =>
+      choice.components.flatMap((component) => [
+        ...(component.instructors_text ? [component.instructors_text] : []),
+        ...component.meetings.flatMap((meeting) =>
           meeting.instructor ? [meeting.instructor] : [],
         ),
-      ),
+      ]),
     ),
   ];
   return {

@@ -35,6 +35,9 @@ const componentSchema = z.object({
   section_code: z.string(),
   event_id: z.string(),
   requirement: z.string(),
+  instructors_text: z.string().nullable().optional(),
+  status: z.string().nullable().optional(),
+  is_cancelled: z.boolean().optional().default(false),
   meetings: z.array(meetingSchema),
   enrollment: z.object({
     enrolled: z.number().nullable(),
@@ -46,6 +49,7 @@ const componentSchema = z.object({
     waitlist: z.object({
       state: z.string(),
       count: z.number().nullable(),
+      capacity: z.number().nullable().optional(),
       available_spots: z.number().nullable().optional(),
     }),
   }),
@@ -353,11 +357,12 @@ function toSection(
     null;
   const instructors = [
     ...new Set(
-      choice.components.flatMap((component) =>
-        component.meetings.flatMap((meeting) =>
+      choice.components.flatMap((component) => [
+        ...(component.instructors_text ? [component.instructors_text] : []),
+        ...component.meetings.flatMap((meeting) =>
           meeting.instructor ? [meeting.instructor] : [],
         ),
-      ),
+      ]),
     ),
   ];
   return {
@@ -384,6 +389,23 @@ function toSection(
       source: 'ucsd_tss',
       tss_course_code: course.tss_course_code,
       tss_event_ids: choice.components.map((component) => component.event_id),
+      tss_component_statuses: choice.components.flatMap((component) =>
+        component.status
+          ? [
+              {
+                event_id: component.event_id,
+                status: component.status,
+                is_cancelled: component.is_cancelled,
+              },
+            ]
+          : [],
+      ),
+      tss_waitlist_capacity: choice.components.flatMap((component) => {
+        const { capacity } = component.enrollment.waitlist;
+        return capacity === null || capacity === undefined
+          ? []
+          : [{ event_id: component.event_id, capacity }];
+      }),
       tss_waitlist_available: choice.components.flatMap((component) => {
         const availableSpots = component.enrollment.waitlist.available_spots;
         return availableSpots === null || availableSpots === undefined

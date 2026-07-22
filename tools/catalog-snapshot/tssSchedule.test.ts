@@ -220,6 +220,56 @@ describe('TSS Catalog Snapshot pipeline input', () => {
     });
   });
 
+  it('preserves availability-only component provenance and instructors', () => {
+    const response = {
+      ...tssResponse,
+      courses: tssResponse.courses.map((course) => ({
+        ...course,
+        booking_choices: course.booking_choices.map((choice) => ({
+          ...choice,
+          components: choice.components.map((component) => ({
+            ...component,
+            instructors_text: 'Xiaohua Huang',
+            status: 'AC',
+            is_cancelled: false,
+            meetings: [],
+            enrollment: {
+              ...component.enrollment,
+              waitlist: {
+                state: 'available_spots',
+                count: 4,
+                capacity: 10,
+                available_spots: 6,
+              },
+            },
+          })),
+        })),
+      })),
+    };
+
+    const snapshot = buildTssCatalogSnapshot(config, [response], {
+      runId: 'tss-fa26-availability-only-test',
+      generatedAt: '2026-07-22T19:06:00.000Z',
+      generalCatalog: { sourceTimestamp: null, courses: [] },
+      gradeArchive: { sourceTimestamp: null, records: [] },
+    });
+
+    expect(snapshot.courses[0]?.sections[0]).toMatchObject({
+      instructors: ['Xiaohua Huang'],
+      meetings: [],
+      waitlist_count: 4,
+      raw: {
+        tss_component_statuses: [
+          { event_id: 'E 00000665', status: 'AC', is_cancelled: false },
+        ],
+        tss_waitlist_capacity: [{ event_id: 'E 00000665', capacity: 10 }],
+        tss_waitlist_available: [
+          { event_id: 'E 00000665', available_spots: 6 },
+        ],
+      },
+    });
+  });
+
   it('publishes an FA26 display code while enriching by canonical Course ID', () => {
     const snapshot = buildTssCatalogSnapshot(config, [tssResponse], {
       runId: 'tss-fa26-test',

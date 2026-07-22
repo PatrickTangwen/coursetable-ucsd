@@ -5,6 +5,9 @@ import { convertTritonGptCsvChunks } from './tritonGptScheduleCsv';
 const header =
   'term_code,subject_code,course_code,class_name,course_title,academic_level,section_id,section_ref,section_code,instruction_type_name,instructors_text,seats_available,waitlist_available,meeting_kind,day_code,day_name,specific_date,start_time_display,end_time_display,building_code,room_code,is_remote,is_tba';
 
+const availabilityHeader =
+  'status,module_code,class_name,course_title,section_code,instruction_type_name,capacity,enrolled,seats_available,waitlist_capacity,waitlist_enrolled,waitlist_available,is_cancelled,instructors_text,term_code,source_note';
+
 describe('TritonGPT schedule CSV conversion', () => {
   it('reconstructs comma titles and removes exact overlap rows', () => {
     const row =
@@ -171,5 +174,172 @@ describe('TritonGPT schedule CSV conversion', () => {
       count: null,
       available_spots: 4,
     });
+  });
+
+  it('accepts reordered availability rows with module codes and extra columns', () => {
+    const row =
+      'AC,BENG-002,BENG 2,Biotechnology,001-000-LE,lecture,100,30,70,10,4,6,0,Xiaohua Huang,FA26,ignored';
+    const converted = convertTritonGptCsvChunks(
+      [`${availabilityHeader}\n${row}\n`],
+      { capturedAt: '2026-07-22T00:00:00.000Z', expectedSubjects: ['BENG'] },
+    );
+    const course = converted.response.courses[0]!;
+    const component = course.booking_choices[0]!.components[0]!;
+
+    expect(course).toMatchObject({
+      course_code: '002',
+      course_title: 'Biotechnology',
+      tss_course_code: 'BENG-002',
+    });
+    expect(component).toMatchObject({
+      type: 'lecture',
+      section_code: '001-000-LE',
+      event_id: '001-000-LE',
+      instructors_text: 'Xiaohua Huang',
+      status: 'AC',
+      is_cancelled: false,
+      meetings: [],
+      enrollment: {
+        capacity: 100,
+        enrolled: 30,
+        seats_available: 70,
+        waitlist: {
+          capacity: 10,
+          count: 4,
+          available_spots: 6,
+        },
+      },
+    });
+    expect(converted.report.malformed_rows).toEqual([]);
+  });
+
+  it('inherits a prior package id by section code when event ids are absent', () => {
+    const row =
+      'AC,BENG-002,BENG 2,Biotechnology,001-000-LE,lecture,100,30,70,10,4,6,0,Xiaohua Huang,FA26,ignored';
+    const converted = convertTritonGptCsvChunks(
+      [`${availabilityHeader}\n${row}\n`],
+      {
+        capturedAt: '2026-07-22T00:00:00.000Z',
+        expectedSubjects: ['BENG'],
+        stablePackageIds: {
+          'sections:BENG-002:001-000-LE': 'BENG-002:E00002597',
+        },
+      },
+    );
+
+    expect(
+      converted.response.courses[0]!.booking_choices[0]!.displayed_package_id,
+    ).toBe('BENG-002:E00002597');
+  });
+
+  it('keeps capacity sentinels out of bounded availability arithmetic', () => {
+    const row =
+      'AC,BENG-002,BENG 2,Biotechnology,001-000-LE,lecture,9999,30,9999,,,,false,Xiaohua Huang,FA26,active';
+    const converted = convertTritonGptCsvChunks(
+      [`${availabilityHeader}\n${row}\n`],
+      { capturedAt: '2026-07-22T00:00:00.000Z', expectedSubjects: ['BENG'] },
+    );
+
+    expect(
+      converted.response.courses[0]!.booking_choices[0]!.components[0]!
+        .enrollment,
+    ).toMatchObject({
+      capacity: null,
+      enrolled: null,
+      seats_available: null,
+      capacity_kind: 'effectively_unbounded',
+      reported_capacity: 9999,
+      reported_seats_available: 9999,
+    });
+  });
+
+  it('accepts different headers per chunk and excludes explicitly cancelled rows', () => {
+    const active =
+      'AC,BENG-002,BENG 2,Biotechnology,001-000-LE,lecture,100,30,70,10,4,6,false,Xiaohua Huang,FA26,active';
+    const cancelledHeader =
+      'term_code,module_code,class_name,course_title,section_code,instruction_type_name,capacity,enrolled,seats_available,waitlist_capacity,waitlist_enrolled,waitlist_available,status,is_cancelled,instructors_text';
+    const cancelled =
+      'FA26,BENG-003,BENG 3,Cancelled Course,001-000-LE,lecture,40,0,40,0,0,0,CA,true,Staff';
+    const converted = convertTritonGptCsvChunks(
+      [
+        `${availabilityHeader}\n${active}\n`,
+        `${cancelledHeader}\n${cancelled}\n`,
+      ],
+      { capturedAt: '2026-07-22T00:00:00.000Z', expectedSubjects: ['BENG'] },
+    );
+
+    expect(converted.response.courses).toHaveLength(1);
+    expect(converted.response.courses[0]!.tss_course_code).toBe('BENG-002');
+    expect(converted.report.cancelled_rows_excluded).toBe(1);
+  });
+
+  it('propagates cancellation across an overlapping chunk that omits the flag', () => {
+    const cancelled =
+      'CA,BENG-002,BENG 2,Biotechnology,001-000-LE,lecture,100,30,70,10,4,6,true,Xiaohua Huang,FA26,cancelled';
+    const reducedHeader =
+      'term_code,module_code,course_title,section_code,instruction_type_name,capacity,enrolled,seats_available,status';
+    const overlap =
+      'FA26,BENG-002,Biotechnology,001-000-LE,lecture,100,30,70,CA';
+    const converted = convertTritonGptCsvChunks(
+      [
+        `${availabilityHeader}\n${cancelled}\n`,
+        `${reducedHeader}\n${overlap}\n`,
+      ],
+      { capturedAt: '2026-07-22T00:00:00.000Z', expectedSubjects: ['BENG'] },
+    );
+
+    expect(converted.response.courses).toEqual([]);
+    expect(converted.report.cancelled_rows_excluded).toBe(2);
+  });
+
+  it('does not propagate cancellation across distinct source component ids', () => {
+    const identityHeader =
+      'term_code,module_code,course_title,section_id,section_ref,section_code,instruction_type_name,seats_available,status,is_cancelled';
+    const cancelled =
+      'FA26,BENG-002,Biotechnology,E 1,FA26:E 1,001-000-LE,lecture,0,CA,true';
+    const active =
+      'FA26,BENG-002,Biotechnology,E 2,FA26:E 2,001-000-LE,lecture,10,AC,false';
+    const converted = convertTritonGptCsvChunks(
+      [`${identityHeader}\n${cancelled}\n${active}\n`],
+      { capturedAt: '2026-07-22T00:00:00.000Z', expectedSubjects: ['BENG'] },
+    );
+    const { components } = converted.response.courses[0]!.booking_choices[0]!;
+    const [component] = components;
+
+    expect(components).toHaveLength(1);
+    expect(component!.event_id).toBe('E 2');
+    expect(converted.report.cancelled_rows_excluded).toBe(1);
+  });
+
+  it('merges overlapping chunks when optional columns are omitted', () => {
+    const full =
+      'AC,BENG-002,BENG 2,Biotechnology,001-000-LE,lecture,100,30,70,10,4,6,false,Xiaohua Huang,FA26,full';
+    const reducedHeader =
+      'term_code,module_code,class_name,section_code,instruction_type_name,capacity,enrolled,seats_available,waitlist_capacity,waitlist_enrolled,waitlist_available,is_cancelled';
+    const reduced =
+      'FA26,BENG-002,BENG 2,001-000-LE,lecture,100,30,70,10,4,6,false';
+    const converted = convertTritonGptCsvChunks(
+      [`${availabilityHeader}\n${full}\n`, `${reducedHeader}\n${reduced}\n`],
+      { capturedAt: '2026-07-22T00:00:00.000Z', expectedSubjects: ['BENG'] },
+    );
+    const course = converted.response.courses[0]!;
+    const component = course.booking_choices[0]!.components[0]!;
+
+    expect(course.course_title).toBe('Biotechnology');
+    expect(component).toMatchObject({
+      instructors_text: 'Xiaohua Huang',
+      status: 'AC',
+    });
+  });
+
+  it('rejects an explicit unsupported status instead of publishing it', () => {
+    const row =
+      'CA,BENG-002,BENG 2,Biotechnology,001-000-LE,lecture,100,30,70,10,4,6,false,Xiaohua Huang,FA26,inactive';
+    expect(() =>
+      convertTritonGptCsvChunks([`${availabilityHeader}\n${row}\n`], {
+        capturedAt: '2026-07-22T00:00:00.000Z',
+        expectedSubjects: ['BENG'],
+      }),
+    ).toThrow('unsupported status: CA');
   });
 });

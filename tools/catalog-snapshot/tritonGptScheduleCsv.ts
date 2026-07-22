@@ -1,6 +1,6 @@
 import { tssLocationDisplay } from '../../shared/tssMeetingDays.js';
 
-const expectedHeader = [
+const legacyHeader = [
   'term_code',
   'subject_code',
   'course_code',
@@ -26,10 +26,22 @@ const expectedHeader = [
   'is_tba',
 ] as const;
 
-type Column = (typeof expectedHeader)[number];
+const normalizedColumns = [
+  ...legacyHeader,
+  'module_code',
+  'capacity',
+  'enrolled',
+  'waitlist_capacity',
+  'waitlist_enrolled',
+  'status',
+  'is_cancelled',
+] as const;
+
+type Column = (typeof normalizedColumns)[number];
 type CsvRow = { [column in Column]: string } & {
   chunk: number;
   line: number;
+  componentKey?: string;
 };
 
 export type TritonGptCsvConversionOptions = {
@@ -52,6 +64,16 @@ export function tritonGptPackageIdentity(
   eventIds: string[],
 ) {
   return `${sourceIdentifier(tssCourseCode)}:${eventIds
+    .map(sourceIdentifier)
+    .sort(naturalCollator.compare)
+    .join('+')}`;
+}
+
+export function tritonGptSectionCodePackageIdentity(
+  tssCourseCode: string,
+  sectionCodes: string[],
+) {
+  return `sections:${sourceIdentifier(tssCourseCode)}:${sectionCodes
     .map(sourceIdentifier)
     .sort(naturalCollator.compare)
     .join('+')}`;
@@ -84,6 +106,55 @@ function parseInteger(value: string) {
   return Number(value);
 }
 
+function parseBoolean(value: string, field: string) {
+  const normalized = value.trim().toLowerCase();
+  if (!normalized || ['0', 'false', 'no', 'n'].includes(normalized))
+    return false;
+  if (['1', 'true', 'yes', 'y'].includes(normalized)) return true;
+  throw new Error(`Expected a boolean ${field}, got ${value}`);
+}
+
+class UnsupportedStatusError extends Error {}
+
+function parseStatus(value: string) {
+  const normalized = value.trim().toUpperCase();
+  if (!normalized) return '';
+  if (normalized === 'AC' || normalized === 'ACTIVE') return 'AC';
+  throw new UnsupportedStatusError(`unsupported status: ${value}`);
+}
+
+function parseCsvCells(line: string) {
+  const cells: string[] = [];
+  let cell = '';
+  let quoted = false;
+  for (let index = 0; index < line.length; index += 1) {
+    const character = line[index]!;
+    if (character === '"') {
+      if (quoted && line[index + 1] === '"') {
+        cell += '"';
+        index += 1;
+      } else {
+        quoted = !quoted;
+      }
+    } else if (character === ',' && !quoted) {
+      cells.push(cell);
+      cell = '';
+    } else {
+      cell += character;
+    }
+  }
+  if (quoted) throw new Error('row has an unterminated quoted field');
+  cells.push(cell);
+  return cells;
+}
+
+function canonicalHeader(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/gu, '_');
+}
+
 function academicLevelIndex(tokens: string[]) {
   return tokens.findIndex(
     (token, index) =>
@@ -93,7 +164,11 @@ function academicLevelIndex(tokens: string[]) {
   );
 }
 
-function parseLine(line: string, chunk: number, lineNumber: number): CsvRow {
+function parseLegacyLine(
+  line: string,
+  chunk: number,
+  lineNumber: number,
+): CsvRow {
   const tokens = line.split(',');
   const levelIndex = academicLevelIndex(tokens);
   const meetingIndex = tokens.length - 10;
@@ -134,20 +209,85 @@ function parseLine(line: string, chunk: number, lineNumber: number): CsvRow {
     waitlist,
     ...tokens.slice(meetingIndex),
   ];
-  if (values.length !== expectedHeader.length)
+  if (values.length !== legacyHeader.length)
     throw new Error(`row expanded to ${values.length} columns`);
-  return Object.assign(
+  return normalizeRow(
     Object.fromEntries(
-      expectedHeader.map((name, index) => [name, values[index] ?? '']),
+      legacyHeader.map((name, index) => [name, values[index] ?? '']),
     ),
-    {
-      chunk,
-      line: lineNumber,
-    },
-  ) as unknown as CsvRow;
+    chunk,
+    lineNumber,
+  );
 }
 
-function rowKey(row: CsvRow, columns: readonly Column[] = expectedHeader) {
+function courseParts(row: { [key: string]: string }) {
+  const directSubject = row.subject_code?.trim().toUpperCase();
+  const directCourse = row.course_code?.trim().toUpperCase();
+  if (directSubject && directCourse)
+    return { subject: directSubject, course: directCourse };
+
+  const moduleCode = row.module_code?.trim() ?? '';
+  const match =
+    /^(?<subject>[a-z][a-z\d]{1,7})[-:\s]+(?<course>\d[a-z\d-]*)$/iu.exec(
+      moduleCode,
+    );
+  const subject = match?.groups?.subject?.toUpperCase();
+  const course = match?.groups?.course?.toUpperCase();
+  if (!subject || !course) {
+    throw new Error(
+      'row requires subject_code + course_code or a parseable module_code',
+    );
+  }
+  return { subject, course };
+}
+
+function normalizeRow(
+  raw: { [key: string]: string },
+  chunk: number,
+  line: number,
+): CsvRow {
+  const row = Object.fromEntries(
+    normalizedColumns.map((column) => [column, raw[column]?.trim() ?? '']),
+  ) as { [column in Column]: string };
+  const { subject, course } = courseParts(row);
+  row.subject_code = subject;
+  row.course_code = course;
+  row.module_code ||= `${subject}-${course}`;
+  if (!row.term_code) throw new Error('row has no term_code');
+  if (!row.section_code) throw new Error('row has no section_code');
+  row.is_remote = String(parseBoolean(row.is_remote, 'is_remote'));
+  row.is_tba = String(parseBoolean(row.is_tba, 'is_tba'));
+  const cancellationValue = row.is_cancelled.trim();
+  const isCancelled = cancellationValue
+    ? parseBoolean(cancellationValue, 'is_cancelled')
+    : null;
+  row.is_cancelled = isCancelled === null ? '' : String(isCancelled);
+  row.status = row.status.trim().toUpperCase();
+  return { ...row, chunk, line };
+}
+
+function parseLine(
+  line: string,
+  headers: string[],
+  chunk: number,
+  lineNumber: number,
+): CsvRow {
+  const cells = parseCsvCells(line);
+  if (cells.length !== headers.length) {
+    if (headers.join(',') === legacyHeader.join(','))
+      return parseLegacyLine(line, chunk, lineNumber);
+    throw new Error(
+      `row has ${cells.length} columns but header has ${headers.length}`,
+    );
+  }
+  return normalizeRow(
+    Object.fromEntries(headers.map((header, index) => [header, cells[index]!])),
+    chunk,
+    lineNumber,
+  );
+}
+
+function rowKey(row: CsvRow, columns: readonly Column[] = normalizedColumns) {
   return columns.map((column) => row[column]).join('\u001f');
 }
 
@@ -183,7 +323,7 @@ function location(row: CsvRow) {
   return tssLocationDisplay(
     row.building_code,
     row.room_code,
-    row.is_remote === '1',
+    row.is_remote === 'true',
   );
 }
 
@@ -198,19 +338,69 @@ function toMeeting(row: CsvRow) {
     building: row.building_code || null,
     room: row.room_code || null,
     instructor: row.instructors_text || null,
-    is_remote: row.is_remote === '1',
-    is_tba: row.is_tba === '1',
+    is_remote: row.is_remote === 'true',
+    is_tba: row.is_tba === 'true',
     is_arranged: null,
   };
 }
 
-function sectionKey(row: CsvRow) {
+const meetingColumns = [
+  'meeting_kind',
+  'day_code',
+  'day_name',
+  'specific_date',
+  'start_time_display',
+  'end_time_display',
+  'building_code',
+  'room_code',
+  'is_remote',
+  'is_tba',
+] as const;
+
+function hasMeetingData(row: CsvRow) {
+  return meetingColumns.some((column) => !['false', ''].includes(row[column]));
+}
+
+function sectionCodeKey(row: CsvRow) {
   return [
     row.term_code,
     row.subject_code,
     row.course_code,
-    row.section_ref,
+    row.section_code,
   ].join('\u001f');
+}
+
+function sourceComponentId(row: CsvRow) {
+  if (row.section_id) return sourceIdentifier(row.section_id);
+  const termPrefix = `${row.term_code}:`;
+  const sectionRef = row.section_ref.startsWith(termPrefix)
+    ? row.section_ref.slice(termPrefix.length)
+    : row.section_ref;
+  return sourceIdentifier(sectionRef);
+}
+
+function resolveComponentKeys(rows: CsvRow[]) {
+  for (const [baseKey, matchingRows] of groupBy(rows, sectionCodeKey)) {
+    const sourceIds = uniqueSorted(matchingRows.map(sourceComponentId));
+    const rowsWithoutSourceId = matchingRows.filter(
+      (row) => !sourceComponentId(row),
+    );
+    if (sourceIds.length > 1 && rowsWithoutSourceId.length > 0) {
+      throw new Error(
+        `${matchingRows[0]!.section_code} has multiple source component ids; sparse rows cannot be matched safely`,
+      );
+    }
+    for (const row of matchingRows) {
+      const sourceId = sourceComponentId(row) || sourceIds[0];
+      row.componentKey = sourceId ? `${baseKey}\u001f${sourceId}` : baseKey;
+    }
+  }
+  return rows;
+}
+
+function sectionKey(row: CsvRow) {
+  if (!row.componentKey) throw new Error('component identity was not resolved');
+  return row.componentKey;
 }
 
 function courseKey(row: CsvRow) {
@@ -249,12 +439,16 @@ function parseChunks(chunks: string[]) {
   for (const [chunkIndex, chunk] of chunks.entries()) {
     const lines = chunk.replace(/\r\n/gu, '\n').split('\n');
     if (lines.at(-1) === '') lines.pop();
-    if (lines[0] !== expectedHeader.join(','))
-      throw new Error(`Chunk ${chunkIndex + 1} has an unexpected CSV header`);
+    const headers = parseCsvCells(lines[0] ?? '').map(canonicalHeader);
+    if (headers.length === 0 || headers.some((header) => !header))
+      throw new Error(`Chunk ${chunkIndex + 1} has an invalid CSV header`);
+    if (new Set(headers).size !== headers.length)
+      throw new Error(`Chunk ${chunkIndex + 1} has duplicate CSV columns`);
     for (const [lineIndex, line] of lines.slice(1).entries()) {
       try {
-        rows.push(parseLine(line, chunkIndex + 1, lineIndex + 2));
+        rows.push(parseLine(line, headers, chunkIndex + 1, lineIndex + 2));
       } catch (error) {
+        if (error instanceof UnsupportedStatusError) throw error;
         malformedRows.push({
           chunk: chunkIndex + 1,
           line: lineIndex + 2,
@@ -280,53 +474,71 @@ function toComponent(sectionRows: CsvRow[]) {
     'term_code',
     'subject_code',
     'course_code',
-    'course_title',
-    'academic_level',
-    'section_id',
-    'section_ref',
     'section_code',
-    'instructors_text',
   ] as const)
     stableValue(sectionRows, column);
+  const sectionId = optionalStableValue(sectionRows, 'section_id');
+  const sectionRef = optionalStableValue(sectionRows, 'section_ref');
+  const instructors = optionalStableValue(sectionRows, 'instructors_text');
+  const status = optionalStableValue(sectionRows, 'status');
+  const enrolled = optionalStableValue(sectionRows, 'enrolled');
+  const capacity = optionalStableValue(sectionRows, 'capacity');
   const seats = optionalStableValue(sectionRows, 'seats_available');
+  const waitlistCapacity = optionalStableValue(
+    sectionRows,
+    'waitlist_capacity',
+  );
+  const waitlistEnrolled = optionalStableValue(
+    sectionRows,
+    'waitlist_enrolled',
+  );
   const waitlist = optionalStableValue(sectionRows, 'waitlist_available');
-  const meetingColumns = expectedHeader.filter(
-    (column) =>
-      ![
-        'seats_available',
-        'waitlist_available',
-        'term_code',
-        'subject_code',
-        'course_code',
-        'class_name',
-        'course_title',
-        'academic_level',
-        'section_id',
-        'section_ref',
-        'section_code',
-        'instruction_type_name',
-        'instructors_text',
-      ].includes(column),
+  const parsedEnrolled = parseInteger(enrolled);
+  const parsedCapacity = parseInteger(capacity);
+  const parsedSeats = parseInteger(seats);
+  const parsedWaitlistCapacity = parseInteger(waitlistCapacity);
+  const parsedWaitlistEnrolled = parseInteger(waitlistEnrolled);
+  const parsedWaitlist = parseInteger(waitlist);
+  const sentinel = [parsedCapacity, parsedSeats].some(
+    (value) => value === 9999 || value === 99999,
   );
   const meetings = [
     ...new Map(
-      sectionRows.map((row) => [rowKey(row, meetingColumns), row]),
+      sectionRows
+        .filter(hasMeetingData)
+        .map((row) => [rowKey(row, meetingColumns), row]),
     ).values(),
   ].map(toMeeting);
   return {
     type: instructionType(sectionRows[0]!),
     section_code: sectionRows[0]!.section_code,
-    event_id: sectionRows[0]!.section_id,
+    event_id: sectionId || sectionRef || sectionRows[0]!.section_code,
     requirement: 'required',
+    instructors_text: instructors || null,
+    status: status || null,
+    is_cancelled: false,
     meetings,
     enrollment: {
-      enrolled: null,
-      capacity: null,
-      seats_available: parseInteger(seats),
+      enrolled: sentinel ? null : parsedEnrolled,
+      capacity: sentinel ? null : parsedCapacity,
+      seats_available: sentinel ? null : parsedSeats,
+      ...(sentinel
+        ? {
+            capacity_kind: 'effectively_unbounded' as const,
+            reported_capacity: parsedCapacity,
+            reported_seats_available: parsedSeats,
+          }
+        : parsedCapacity !== null || parsedSeats !== null
+          ? { capacity_kind: 'bounded' as const }
+          : {}),
       waitlist: {
-        state: waitlist ? 'available_spots' : 'not_shown',
-        count: null,
-        available_spots: parseInteger(waitlist),
+        state:
+          waitlist || waitlistEnrolled || waitlistCapacity
+            ? 'available_spots'
+            : 'not_shown',
+        count: parsedWaitlistEnrolled,
+        ...(waitlistCapacity ? { capacity: parsedWaitlistCapacity } : {}),
+        available_spots: parsedWaitlist,
       },
     },
   };
@@ -367,13 +579,19 @@ function toCourse(
   });
   const tssCourseCode = `${first.subject_code}-${first.course_code}`;
   const bookingChoices = packages.map((packageComponents, index) => {
-    const stablePackageId =
-      stablePackageIds[
-        tritonGptPackageIdentity(
-          tssCourseCode,
-          packageComponents.map((component) => component.event_id),
-        )
-      ];
+    const stablePackageId = [
+      tritonGptPackageIdentity(
+        tssCourseCode,
+        packageComponents.map((component) => component.event_id),
+      ),
+      tritonGptSectionCodePackageIdentity(
+        tssCourseCode,
+        packageComponents.map((component) => component.section_code),
+      ),
+    ].reduce<string | undefined>(
+      (packageId, identity) => packageId ?? stablePackageIds[identity],
+      undefined,
+    );
     return {
       booking_choice_ordinal: index + 1,
       displayed_package_section: null,
@@ -387,7 +605,7 @@ function toCourse(
   });
   return {
     course_code: first.course_code,
-    course_title: stableValue(rows, 'course_title'),
+    course_title: optionalStableValue(rows, 'course_title') || null,
     tss_course_code: tssCourseCode,
     booking_choices: bookingChoices,
   };
@@ -399,12 +617,22 @@ export function convertTritonGptCsvChunks(
 ) {
   if (chunks.length === 0) throw new Error('No TritonGPT CSV chunks supplied');
   const parsed = parseChunks(chunks);
-  const deduplicated = deduplicateRows(parsed.rows);
+  const resolvedRows = resolveComponentKeys(parsed.rows);
+  const cancelledSectionKeys = new Set(
+    resolvedRows.filter((row) => row.is_cancelled === 'true').map(sectionKey),
+  );
+  const cancelledRows = resolvedRows.filter((row) =>
+    cancelledSectionKeys.has(sectionKey(row)),
+  );
+  const publishableRows = resolvedRows
+    .filter((row) => !cancelledSectionKeys.has(sectionKey(row)))
+    .map((row) => ({ ...row, status: parseStatus(row.status) }));
+  const deduplicated = deduplicateRows(publishableRows);
   const { rows } = deduplicated;
-  const terms = uniqueSorted(rows.map((row) => row.term_code));
+  const terms = uniqueSorted(parsed.rows.map((row) => row.term_code));
   if (terms.length !== 1)
     throw new Error(`Expected one term, got ${terms.join(', ')}`);
-  const subjects = uniqueSorted(rows.map((row) => row.subject_code));
+  const subjects = uniqueSorted(parsed.rows.map((row) => row.subject_code));
   const expectedSubjects = uniqueSorted(options.expectedSubjects ?? subjects);
   const subjectsWithoutRows = expectedSubjects.filter(
     (subject) => !subjects.includes(subject),
@@ -442,6 +670,7 @@ export function convertTritonGptCsvChunks(
     raw_rows: parsed.rows.length,
     exact_duplicates_removed: deduplicated.duplicatesRemoved,
     converted_rows: rows.length,
+    cancelled_rows_excluded: cancelledRows.length,
     malformed_rows: parsed.malformedRows,
     subjects,
     expected_subjects_without_rows: subjectsWithoutRows,
