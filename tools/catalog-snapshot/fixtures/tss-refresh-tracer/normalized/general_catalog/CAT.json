@@ -1,0 +1,13 @@
+[
+  {
+    "course_id": "CAT:1",
+    "subject": "CAT",
+    "course_number": "1",
+    "title": "Culture, Art, and Technology 1",
+    "units": "4",
+    "description": "A credential-free tracer course.",
+    "prerequisites_text": null,
+    "restrictions_text": null,
+    "catalog_url": "https://catalog.ucsd.edu/courses/CAT.html#cat1"
+  }
+]

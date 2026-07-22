@@ -274,7 +274,7 @@ describe('TSS Published Snapshot entrypoint', () => {
     };
     const result = await runTssPublishedSnapshotPipeline({
       config,
-      rawDirectory,
+      scheduleArtifactDirectory: rawDirectory,
       metadataDirectory,
       metadataRootDirectory,
       metadataSourceTimestamp: '2026-06-29T08:02:01.606Z',

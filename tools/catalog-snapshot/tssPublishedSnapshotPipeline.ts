@@ -1,6 +1,5 @@
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { z } from 'zod';
 
 import {
   gradeArchiveCourseId,
@@ -30,25 +29,10 @@ import {
 } from './tssAvailabilitySupplement';
 import {
   buildTssCatalogSnapshot,
-  parseTssRequestedSubjects,
+  parseTssScheduleArtifact,
   tssCourseIds,
   type TssCatalogSnapshotSources,
 } from './tssSchedule';
-
-const tssIdentitySchema = z.object({
-  term: z.string().min(1),
-  requested_course: z.string().min(1).optional(),
-  coverage: z.object({
-    complete: z.boolean(),
-    continuation_needed: z.boolean(),
-    omitted_courses: z.array(z.string().min(1)).optional(),
-  }),
-  courses: z.array(
-    z.object({
-      tss_course_code: z.string().min(1),
-    }),
-  ),
-});
 
 type NamedJsonFile = { fileName: string; value: unknown };
 
@@ -56,7 +40,7 @@ type ScheduleManifestOptions = {
   term: string;
   subjects: string[];
   snapshot: CatalogSnapshot;
-  rawDirectory: string;
+  scheduleArtifactDirectory: string;
   namedResponses: NamedJsonFile[];
   availabilitySupplementPath: string | null;
   availabilitySupplementSubjects: Set<string>;
@@ -137,7 +121,7 @@ async function optionalNamedJsonFiles(directory: string) {
 
 function tssTerm(responses: unknown[]): string {
   const terms = new Set(
-    responses.map((response) => tssIdentitySchema.parse(response).term),
+    responses.map((response) => parseTssScheduleArtifact(response).term),
   );
   if (terms.size !== 1)
     throw new Error('TSS responses must contain exactly one term');
@@ -145,9 +129,9 @@ function tssTerm(responses: unknown[]): string {
 }
 
 function tssResponseSubjects(response: unknown): string[] {
-  const parsed = tssIdentitySchema.parse(response);
+  const parsed = parseTssScheduleArtifact(response);
   return [
-    ...parseTssRequestedSubjects(parsed.requested_course),
+    ...parsed.requested_subjects,
     ...parsed.courses.map((course) =>
       course.tss_course_code.split('-', 1)[0]!.trim().toUpperCase(),
     ),
@@ -164,7 +148,7 @@ function uniqueSorted(values: string[]): string[] {
 
 export type TssPublishedSnapshotPipelineOptions = {
   config: CatalogSnapshotConfig;
-  rawDirectory: string;
+  scheduleArtifactDirectory: string;
   metadataDirectory: string;
   metadataRootDirectory?: string;
   metadataSourceTimestamp: string;
@@ -309,7 +293,7 @@ async function selectNormalizedMetadata<T>(
 }
 
 function isCompleteTssResponse(response: unknown): boolean {
-  const { coverage } = tssIdentitySchema.parse(response);
+  const { coverage } = parseTssScheduleArtifact(response);
   return (
     coverage.complete &&
     !coverage.continuation_needed &&
@@ -364,7 +348,7 @@ function scheduleManifestCells(
     const rowCounts = scheduleRowCounts(options.snapshot, subject);
     const hasRows = Object.values(rowCounts).some((count) => count > 0);
     const rawArtifacts = matchingResponses.map(({ fileName }) =>
-      path.join(options.rawDirectory, fileName),
+      path.join(options.scheduleArtifactDirectory, fileName),
     );
     if (
       matchingResponses.length &&
@@ -416,17 +400,28 @@ function normalizedManifestCells<T>(
   });
 }
 
-/** Reads raw TSS files and normalized metadata, then publishes one artifact. */
+/**
+ * Reads sanitized TSS Schedule artifacts and normalized metadata, then
+ * publishes the paired Snapshot and Import Manifest.
+ */
 export async function runTssPublishedSnapshotPipeline(
   options: TssPublishedSnapshotPipelineOptions,
 ): Promise<TssPublishedSnapshotPipelineResult> {
-  const namedResponses = await readNamedJsonFiles(options.rawDirectory);
+  const namedResponses = await readNamedJsonFiles(
+    options.scheduleArtifactDirectory,
+  );
   let responses = namedResponses.map(({ value }) => value);
-  if (responses.length === 0)
-    throw new Error(`No TSS JSON files found in ${options.rawDirectory}`);
+  if (responses.length === 0) {
+    throw new Error(
+      `No TSS Schedule artifacts found in ${options.scheduleArtifactDirectory}`,
+    );
+  }
   const availabilitySupplementPath =
     options.availabilitySupplementPath ??
-    path.join(options.rawDirectory, 'capacity_enrollment_supp.txt');
+    path.join(
+      options.scheduleArtifactDirectory,
+      'capacity_enrollment_supp.txt',
+    );
   const availabilitySupplementContents = await optionalTextFile(
     availabilitySupplementPath,
   );
@@ -509,7 +504,7 @@ export async function runTssPublishedSnapshotPipeline(
         term,
         subjects: configuredSubjects,
         snapshot,
-        rawDirectory: options.rawDirectory,
+        scheduleArtifactDirectory: options.scheduleArtifactDirectory,
         namedResponses,
         availabilitySupplementPath: availabilitySupplement
           ? availabilitySupplementPath

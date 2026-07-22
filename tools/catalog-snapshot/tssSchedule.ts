@@ -14,69 +14,151 @@ import {
 } from './scheduleOfClasses';
 import { normalizeTssMeetingDays } from '../../shared/tssMeetingDays.js';
 
-const meetingSchema = z.object({
-  meeting_kind: z.string(),
-  specific_date: z.string().nullable(),
-  days: z.string().nullable(),
-  start_time: z.string().nullable(),
-  end_time: z.string().nullable(),
-  location_displayed: z.string().nullable(),
-  instructor: z.string().nullable(),
-  is_tba: z.union([z.boolean(), z.literal(0), z.literal(1)]).transform(Boolean),
-  is_arranged: z.boolean().nullable(),
-});
+function objectSchema<Shape extends z.ZodRawShape>(
+  shape: Shape,
+  rejectUnknownFields: boolean,
+) {
+  const schema = z.object(shape);
+  return rejectUnknownFields ? schema.strict() : schema;
+}
 
-const componentSchema = z.object({
-  type: z.string(),
-  section_code: z.string(),
-  event_id: z.string(),
-  requirement: z.string(),
-  meetings: z.array(meetingSchema),
-  enrollment: z.object({
-    enrolled: z.number().nullable(),
-    capacity: z.number().nullable(),
-    seats_available: z.number().nullable(),
-    capacity_kind: z.enum(['bounded', 'effectively_unbounded']).optional(),
-    reported_capacity: z.number().nullable().optional(),
-    reported_seats_available: z.number().nullable().optional(),
-    waitlist: z.object({
+function buildCourseSchema(rejectUnknownFields: boolean) {
+  const meetingSchema = objectSchema(
+    {
+      meeting_kind: z.string(),
+      specific_date: z.string().nullable(),
+      days: z.string().nullable(),
+      start_time: z.string().nullable(),
+      end_time: z.string().nullable(),
+      location_displayed: z.string().nullable(),
+      instructor: z.string().nullable(),
+      is_tba: z
+        .union([z.boolean(), z.literal(0), z.literal(1)])
+        .transform(Boolean),
+      is_arranged: z.boolean().nullable(),
+    },
+    rejectUnknownFields,
+  );
+  const waitlistSchema = objectSchema(
+    {
       state: z.string(),
       count: z.number().nullable(),
-    }),
-  }),
-});
-
-const bookingChoiceSchema = z.object({
-  booking_choice_ordinal: z.number().int().positive(),
-  displayed_package_section: z.string().nullable(),
-  displayed_package_id: z.string().nullable(),
-  components: z.array(componentSchema).min(1),
-});
-
-const tssResponseSchema = z.object({
-  schema_version: z.literal('tss-chatbot-v1'),
-  term: z.string().min(1),
-  requested_course: z.string().min(1).optional(),
-  source_metadata: z.object({
-    last_refreshed_displayed: z.string().nullable(),
-  }),
-  coverage: z.object({
-    complete: z.boolean(),
-    continuation_needed: z.boolean(),
-    omitted_courses: z.array(z.string().min(1)).optional(),
-  }),
-  courses: z.array(
-    z.object({
+    },
+    rejectUnknownFields,
+  );
+  const enrollmentSchema = objectSchema(
+    {
+      enrolled: z.number().nullable(),
+      capacity: z.number().nullable(),
+      seats_available: z.number().nullable(),
+      capacity_kind: z.enum(['bounded', 'effectively_unbounded']).optional(),
+      reported_capacity: z.number().nullable().optional(),
+      reported_seats_available: z.number().nullable().optional(),
+      waitlist: waitlistSchema,
+    },
+    rejectUnknownFields,
+  );
+  const componentSchema = objectSchema(
+    {
+      type: z.string(),
+      section_code: z.string(),
+      event_id: z.string(),
+      requirement: z.string(),
+      meetings: z.array(meetingSchema),
+      enrollment: enrollmentSchema,
+    },
+    rejectUnknownFields,
+  );
+  const bookingChoiceSchema = objectSchema(
+    {
+      booking_choice_ordinal: z.number().int().positive(),
+      displayed_package_section: z.string().nullable(),
+      displayed_package_id: z.string().nullable(),
+      components: z.array(componentSchema).min(1),
+    },
+    rejectUnknownFields,
+  );
+  return objectSchema(
+    {
       course_code: z.string().min(1),
       course_title: z.string().min(1).nullable(),
       tss_course_code: z.string().min(1),
       booking_choices: z.array(bookingChoiceSchema),
-    }),
-  ),
-});
+    },
+    rejectUnknownFields,
+  );
+}
 
-type TssResponse = z.infer<typeof tssResponseSchema>;
-type TssCourse = TssResponse['courses'][number];
+function buildCoverageSchema(rejectUnknownFields: boolean) {
+  return objectSchema(
+    {
+      complete: z.boolean(),
+      continuation_needed: z.boolean(),
+      omitted_courses: z.array(z.string().min(1)).optional(),
+    },
+    rejectUnknownFields,
+  );
+}
+
+const legacyCourseSchema = buildCourseSchema(false);
+const legacyCoverageSchema = buildCoverageSchema(false);
+const courseSchema = buildCourseSchema(true);
+
+const legacyTssResponseSchema = objectSchema(
+  {
+    schema_version: z.literal('tss-chatbot-v1'),
+    term: z.string().min(1),
+    requested_course: z.string().min(1).optional(),
+    source_metadata: z.object({
+      last_refreshed_displayed: z.string().nullable(),
+    }),
+    coverage: legacyCoverageSchema,
+    courses: z.array(legacyCourseSchema),
+  },
+  false,
+);
+
+export const TSS_SCHEDULE_SCHEMA_VERSION = 'tss-schedule-v1' as const;
+
+export const tssScheduleArtifactSchema = objectSchema(
+  {
+    schema_version: z.literal(TSS_SCHEDULE_SCHEMA_VERSION),
+    term: z.string().min(1),
+    captured_at: z.string().datetime({ offset: true }),
+    source_updated_at: z.string().min(1).nullable(),
+    coverage: objectSchema(
+      {
+        complete: z.boolean(),
+        continuation_needed: z.boolean(),
+        omitted_courses: z.array(z.string().min(1)).optional(),
+        requested_subjects: z.array(z.string().min(1)),
+      },
+      true,
+    ),
+    courses: z.array(courseSchema),
+  },
+  true,
+);
+
+export type TssScheduleArtifact = z.infer<typeof tssScheduleArtifactSchema>;
+
+export type NormalizedTssScheduleArtifact = {
+  schema_version: typeof TSS_SCHEDULE_SCHEMA_VERSION;
+  input_schema_version: 'tss-schedule-v1' | 'tss-chatbot-v1';
+  term: string;
+  captured_at: string | null;
+  source_updated_at: string | null;
+  requested_subjects: string[];
+  coverage: {
+    complete: boolean;
+    continuation_needed: boolean;
+    omitted_courses?: string[];
+  };
+  courses: z.infer<typeof courseSchema>[];
+};
+
+type TssScheduleInput = NormalizedTssScheduleArtifact;
+type TssCourse = z.infer<typeof courseSchema>;
 type BookingChoice = TssCourse['booking_choices'][number];
 type TssComponent = BookingChoice['components'][number];
 type TssMeeting = TssComponent['meetings'][number];
@@ -102,6 +184,42 @@ export function parseTssRequestedSubjects(value?: string): string[] {
     .split(/[^A-Za-z\d]+/u)
     .map((subject) => subject.trim().toUpperCase())
     .filter(Boolean);
+}
+
+/**
+ * Normalizes source-neutral sanitized artifacts and preserved chatbot-era
+ * evidence into one downstream Schedule contract. Legacy evidence has no
+ * trustworthy capture timestamp, so the adapter preserves that absence.
+ */
+export function parseTssScheduleArtifact(
+  value: unknown,
+): NormalizedTssScheduleArtifact {
+  const parsed = z
+    .discriminatedUnion('schema_version', [
+      tssScheduleArtifactSchema,
+      legacyTssResponseSchema,
+    ])
+    .parse(value);
+  if (parsed.schema_version === TSS_SCHEDULE_SCHEMA_VERSION) {
+    const { requested_subjects: requestedSubjects, ...coverage } =
+      parsed.coverage;
+    return {
+      ...parsed,
+      input_schema_version: parsed.schema_version,
+      requested_subjects: requestedSubjects,
+      coverage,
+    };
+  }
+  return {
+    schema_version: TSS_SCHEDULE_SCHEMA_VERSION,
+    input_schema_version: parsed.schema_version,
+    term: parsed.term,
+    captured_at: null,
+    source_updated_at: parsed.source_metadata.last_refreshed_displayed,
+    requested_subjects: parseTssRequestedSubjects(parsed.requested_course),
+    coverage: parsed.coverage,
+    courses: parsed.courses,
+  };
 }
 
 const dayNames: { [day: string]: string } = {
@@ -172,9 +290,9 @@ function courseIdentity(course: TssCourse) {
 export function tssCourseIds(responses: unknown[]): Set<string> {
   return new Set(
     responses.flatMap((response) =>
-      tssResponseSchema
-        .parse(response)
-        .courses.map((course) => courseIdentity(course).courseId),
+      parseTssScheduleArtifact(response).courses.map(
+        (course) => courseIdentity(course).courseId,
+      ),
     ),
   );
 }
@@ -346,7 +464,7 @@ function choiceEnrollment(choice: BookingChoice) {
 }
 
 function toSection(
-  catalog: TssResponse,
+  catalog: TssScheduleInput,
   course: TssCourse,
   choice: BookingChoice,
 ): SnapshotSection {
@@ -378,10 +496,8 @@ function toSection(
     reported_capacity: enrollment.reportedCapacity,
     reported_seats_available: enrollment.reportedSeatsAvailable,
     waitlist_count: enrollment.waitlistCount,
-    availability_verified: Boolean(
-      catalog.source_metadata.last_refreshed_displayed,
-    ),
-    availability_timestamp: catalog.source_metadata.last_refreshed_displayed,
+    availability_verified: Boolean(catalog.source_updated_at),
+    availability_timestamp: catalog.source_updated_at,
     raw: {
       source: 'ucsd_tss',
       tss_course_code: course.tss_course_code,
@@ -390,7 +506,10 @@ function toSection(
   };
 }
 
-function toCourse(catalog: TssResponse, course: TssCourse): SnapshotCourse {
+function toCourse(
+  catalog: TssScheduleInput,
+  course: TssCourse,
+): SnapshotCourse {
   const { subject, courseNumber, courseId } = courseIdentity(course);
   const courseCode =
     catalog.term === 'FA26'
@@ -421,7 +540,7 @@ function parseTssResponse(
   value: unknown,
   generatedAt: string,
 ): ParsedScheduleOfClasses[] {
-  const catalog = tssResponseSchema.parse(value);
+  const catalog = parseTssScheduleArtifact(value);
   const coursesBySubject = Map.groupBy(
     catalog.courses,
     (course) => courseIdentity(course).subject,
@@ -429,15 +548,20 @@ function parseTssResponse(
   return [...coursesBySubject].map(([subject, courses]) => ({
     subject,
     term: catalog.term,
-    source_url: 'tss-chatbot-v1',
+    source_url:
+      catalog.input_schema_version === 'tss-chatbot-v1'
+        ? 'tss-chatbot-v1'
+        : 'ucsd-tss-schedule',
     fetched_at: generatedAt,
-    source_timestamp: catalog.source_metadata.last_refreshed_displayed,
+    source_timestamp: catalog.source_updated_at,
     courses: courses.map((course) => toCourse(catalog, course)),
   }));
 }
 
 function snapshotCoverage(responses: unknown[], configuredSubjects: string[]) {
-  const parsed = responses.map((response) => tssResponseSchema.parse(response));
+  const parsed = responses.map((response) =>
+    parseTssScheduleArtifact(response),
+  );
   const coveredSubjects = new Set(
     parsed.flatMap((response) => {
       const isComplete =
@@ -447,7 +571,7 @@ function snapshotCoverage(responses: unknown[], configuredSubjects: string[]) {
       if (!isComplete) return [];
       return [
         ...response.courses.map((course) => courseIdentity(course).subject),
-        ...parseTssRequestedSubjects(response.requested_course),
+        ...response.requested_subjects,
       ];
     }),
   );

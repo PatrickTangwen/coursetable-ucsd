@@ -1,0 +1,57 @@
+{
+  "schema_version": "tss-schedule-v1",
+  "term": "FA26",
+  "captured_at": "2026-07-21T16:05:00.000Z",
+  "source_updated_at": "2026-07-21T09:00:00-07:00",
+  "coverage": {
+    "requested_subjects": ["CAT"],
+    "complete": true,
+    "continuation_needed": false,
+    "omitted_courses": []
+  },
+  "courses": [
+    {
+      "course_code": "001",
+      "course_title": "Culture, Art, and Technology 1",
+      "tss_course_code": "CAT-001",
+      "booking_choices": [
+        {
+          "booking_choice_ordinal": 1,
+          "displayed_package_section": null,
+          "displayed_package_id": null,
+          "components": [
+            {
+              "type": "lecture",
+              "section_code": "001-000-LE",
+              "event_id": "E 00000665",
+              "requirement": "required",
+              "meetings": [
+                {
+                  "meeting_kind": "class",
+                  "specific_date": null,
+                  "days": "T R",
+                  "start_time": "09:00am",
+                  "end_time": "10:20am",
+                  "location_displayed": "CENTR 101",
+                  "instructor": "Test Instructor",
+                  "is_tba": false,
+                  "is_arranged": false
+                }
+              ],
+              "enrollment": {
+                "enrolled": 40,
+                "capacity": 100,
+                "seats_available": 60,
+                "capacity_kind": "bounded",
+                "waitlist": {
+                  "state": "not_shown",
+                  "count": null
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

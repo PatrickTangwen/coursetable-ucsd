@@ -31,7 +31,7 @@ try {
   }
   const result = await runTssPublishedSnapshotPipeline({
     config,
-    rawDirectory,
+    scheduleArtifactDirectory: rawDirectory,
     metadataDirectory,
     metadataRootDirectory: process.argv.includes('--metadata-root')
       ? argument('--metadata-root')

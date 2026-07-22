@@ -311,6 +311,54 @@ Passing these checks proves that the repository artifacts are structurally
 publishable. It does not change `coverage.complete`, resolve `partial` or
 `failed` cells, or authorize a hosted Staging or Production deployment.
 
+## Source-neutral TSS Schedule refresh contract (2026-07-21)
+
+The credential-free refresh seam accepts a versioned, already sanitized TSS
+Schedule artifact with `schema_version: "tss-schedule-v1"`. The name identifies
+the Schedule data contract rather than the tool or authenticated session that
+produced it.
+
+The contract keeps these provenance and coverage concepts separate:
+
+- `term` identifies the UCSD term represented by the artifact.
+- `captured_at` is the time the sanitized artifact was captured. New
+  `tss-schedule-v1` producers must provide an offset-aware timestamp.
+- `source_updated_at` is the source-declared Schedule freshness, or `null` when
+  TSS does not declare one. Capture time never substitutes for source time.
+- `coverage.requested_subjects` records the subjects requested by the capture.
+- `coverage.complete`, `coverage.continuation_needed`, and
+  `coverage.omitted_courses` preserve the source coverage decision.
+- `courses` contains only the sanitized Course, Section/package, component,
+  meeting, instructor, and source-declared availability shape consumed by the
+  existing Snapshot pipeline.
+
+The parser expands this contract beside preserved `tss-chatbot-v1` evidence.
+The compatibility adapter maps the legacy `requested_course` text to requested
+subjects and `source_metadata.last_refreshed_displayed` to
+`source_updated_at`. It records legacy `captured_at` as unknown rather than
+inventing a historical capture time. Existing chatbot-era fixtures therefore
+remain replayable without making the legacy schema the permanent identity of
+attended TSS capture.
+
+The automated TSS refresh tracer runs this credential-free path:
+
+1. Read an already sanitized structured Schedule fixture.
+2. Generate and validate the Published Snapshot and Import Manifest.
+3. Publish their exact bytes to content-addressed local objects, then change
+   local catalog metadata last.
+4. Read metadata and the term Snapshot through the production Catalog API
+   response boundary.
+
+Run the focused tracer with:
+
+```bash
+bun vitest run tools/catalog-snapshot/tssRefreshTracer.test.ts
+```
+
+This seam does not log in to TSS, observe authenticated responses, sanitize raw
+account data, upload a Catalog Candidate, or mutate hosted Staging/Production.
+Those remain later, separately gated slices.
+
 ## Schedule Parser and Modal Data Notes
 
 This section records Schedule of Classes parser and modal data-shape issues
