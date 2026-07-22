@@ -289,11 +289,29 @@ bun tools/catalog-snapshot/import-tritongpt-schedule-csv.mts \
 ```
 
 The importer automatically reads the published snapshot for the CSV term when
-it exists. It matches the prior package only by exact normalized TSS course code
-and event-ID set, then carries forward its section-ID suffix. This preserves
-anonymous Worksheets, Saved Worksheets, and shared Worksheet URLs across a data
-refresh without guessing when a package's actual components changed. The older
-`--transfer-json` plus `--raw-dir` capture path remains supported.
+it exists. Package identity reconciliation follows these rules:
+
+1. Source `section_id` or `section_ref` remains the primary component identity.
+2. A prior package with the same normalized TSS course code and exact event-ID
+   set keeps its existing section-ID suffix.
+3. When the current CSV omits source event IDs, the importer may instead match
+   the prior package by its normalized `section_code` set.
+4. A sparse row is reconciled by `section_code` only when that code maps to at
+   most one source component ID. Ambiguous sparse rows fail conversion rather
+   than merging components or guessing which package the row belongs to.
+
+This preserves Anonymous Worksheets, Saved Worksheets, and shared Worksheet
+URLs across a data refresh while keeping distinct source components separate.
+
+CSV parsing is header-driven. Files and chunks may reorder supported columns,
+omit unavailable optional columns, or include unknown extra columns. Explicit
+cancellation propagates to overlapping rows for the same resolved component so
+an older or sparser chunk cannot republish it. Status validation runs after
+that reconciliation: cancelled components are excluded, while an unsupported
+status on a publishable row fails conversion. Availability-only rows keep an
+empty meeting list instead of inventing schedule data.
+
+The older `--transfer-json` plus `--raw-dir` capture path remains supported.
 
 ### Paired Snapshot and Import Manifest publication
 
