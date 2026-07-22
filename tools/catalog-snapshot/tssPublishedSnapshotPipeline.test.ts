@@ -31,6 +31,10 @@ describe('TSS Published Snapshot entrypoint', () => {
       metadataRootDirectory,
       'multi-2026-06-29T14:30:40.925Z-fallback-SP25',
     );
+    const futureMetadataDirectory = path.join(
+      metadataRootDirectory,
+      'multi-2026-07-23T00:00:00.000Z-future-S126',
+    );
     const generalDirectory = path.join(metadataDirectory, 'general_catalog');
     const gradeDirectory = path.join(
       metadataDirectory,
@@ -44,6 +48,10 @@ describe('TSS Published Snapshot entrypoint', () => {
       moreCompleteMetadataDirectory,
       'instructor_grade_archive',
     );
+    const futureGeneralDirectory = path.join(
+      futureMetadataDirectory,
+      'general_catalog',
+    );
     const publicDirectory = path.join(root, 'public');
     await Promise.all([
       mkdir(rawDirectory, { recursive: true }),
@@ -51,6 +59,7 @@ describe('TSS Published Snapshot entrypoint', () => {
       mkdir(gradeDirectory, { recursive: true }),
       mkdir(moreCompleteGeneralDirectory, { recursive: true }),
       mkdir(moreCompleteGradeDirectory, { recursive: true }),
+      mkdir(futureGeneralDirectory, { recursive: true }),
     ]);
 
     await writeFile(
@@ -236,6 +245,34 @@ describe('TSS Published Snapshot entrypoint', () => {
       ]),
       'utf-8',
     );
+    await writeFile(
+      path.join(futureGeneralDirectory, 'CAT.json'),
+      JSON.stringify([
+        {
+          course_id: 'CAT:1',
+          subject: 'CAT',
+          course_number: '1',
+          title: 'Culture, Art, and Technology 1',
+          units: '4',
+          description: 'Future metadata must be excluded by the cutoff.',
+          prerequisites_text: null,
+          restrictions_text: null,
+          catalog_url: 'https://catalog.ucsd.edu/courses/CAT.html#cat1',
+        },
+        {
+          course_id: 'CAT:2',
+          subject: 'CAT',
+          course_number: '2',
+          title: 'Culture, Art, and Technology 2',
+          units: '4',
+          description: 'Future metadata must be excluded by the cutoff.',
+          prerequisites_text: null,
+          restrictions_text: null,
+          catalog_url: 'https://catalog.ucsd.edu/courses/CAT.html#cat2',
+        },
+      ]),
+      'utf-8',
+    );
     const metadataPath = path.join(root, 'metadata.json');
     await writeFile(
       metadataPath,
@@ -277,6 +314,7 @@ describe('TSS Published Snapshot entrypoint', () => {
       rawDirectory,
       metadataDirectory,
       metadataRootDirectory,
+      metadataCutoffTimestamp: '2026-07-22T23:59:59.999Z',
       metadataSourceTimestamp: '2026-06-29T08:02:01.606Z',
       runId: 'tss-entrypoint-test',
       generatedAt: '2026-07-21T12:00:00.000Z',

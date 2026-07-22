@@ -36,6 +36,9 @@ try {
     metadataRootDirectory: process.argv.includes('--metadata-root')
       ? argument('--metadata-root')
       : undefined,
+    metadataCutoffTimestamp: process.argv.includes('--metadata-cutoff')
+      ? argument('--metadata-cutoff')
+      : undefined,
     metadataSourceTimestamp,
   });
   console.log(

@@ -1,6 +1,18 @@
 {
-  "last_update": "2026-07-22T21:02:15.288Z",
+  "last_update": "2026-07-22T21:35:00.817Z",
   "terms": [
+    {
+      "term": "FA26",
+      "label": "Fall 2026",
+      "date_range": {
+        "start": "2026-09-24",
+        "end": "2026-12-12"
+      },
+      "frozen": false,
+      "generated_at": "2026-07-22T21:35:00.817Z",
+      "snapshot_path": "catalogs/public/FA26.json",
+      "manifest_path": "catalogs/import-manifests/FA26.json"
+    },
     {
       "term": "S126",
       "label": "Summer Session I 2026",
@@ -36,18 +48,6 @@
       "generated_at": "2026-07-22T21:02:15.288Z",
       "snapshot_path": "catalogs/public/S326.json",
       "manifest_path": "catalogs/import-manifests/S326.json"
-    },
-    {
-      "term": "FA26",
-      "label": "Fall 2026",
-      "date_range": {
-        "start": "2026-09-24",
-        "end": "2026-12-12"
-      },
-      "frozen": false,
-      "generated_at": "2026-07-22T19:55:09.751Z",
-      "snapshot_path": "catalogs/public/FA26.json",
-      "manifest_path": "catalogs/import-manifests/FA26.json"
     }
   ]
 }

@@ -167,6 +167,7 @@ export type TssPublishedSnapshotPipelineOptions = {
   rawDirectory: string;
   metadataDirectory: string;
   metadataRootDirectory?: string;
+  metadataCutoffTimestamp?: string;
   metadataSourceTimestamp: string;
   runId?: string;
   generatedAt?: string;
@@ -211,14 +212,18 @@ export function inferredNormalizedRunTimestamp(
 async function normalizedRunDirectories(
   primaryDirectory: string,
   rootDirectory?: string,
+  cutoffTimestamp?: string,
 ): Promise<string[]> {
   const directories = new Set([primaryDirectory]);
   if (!rootDirectory) return [...directories];
 
   const entries = await readdir(rootDirectory, { withFileTypes: true });
   for (const entry of entries) {
-    if (entry.isDirectory())
-      directories.add(path.join(rootDirectory, entry.name));
+    if (!entry.isDirectory()) continue;
+    const directory = path.join(rootDirectory, entry.name);
+    const timestamp = inferredNormalizedRunTimestamp(directory);
+    if (cutoffTimestamp && timestamp && timestamp > cutoffTimestamp) continue;
+    directories.add(directory);
   }
   return [...directories].sort();
 }
@@ -442,6 +447,7 @@ export async function runTssPublishedSnapshotPipeline(
   const metadataDirectories = await normalizedRunDirectories(
     options.metadataDirectory,
     options.metadataRootDirectory,
+    options.metadataCutoffTimestamp,
   );
   const scheduledCourseIds = tssCourseIds(responses);
   const generalCatalog = await selectNormalizedMetadata<GeneralCatalogCourse>({
