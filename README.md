@@ -2,7 +2,7 @@
 
 SunGrid is a course discovery and schedule planning app for UCSD students. It
 helps students browse UCSD course offerings, compare sections, inspect historical
-grade context, and build worksheets across supported terms.
+grade context, and build worksheets within the current planning window.
 
 SunGrid is open source and can be used without an account. Signing in with a
 verified UCSD email adds account-backed features such as saved worksheets and
@@ -12,16 +12,17 @@ saved filters/searches.
 
 - Search UCSD courses by course code, title, instructor, subject, building,
   day/time, course number, enrollment range, and course attributes.
-- Browse multiple supported terms from Summer Session II 2024 through Summer
-  Session III 2026.
+- Browse multiple supported terms from Summer Session II 2024 through Fall 2026.
 - Open course details with descriptions, sections, meeting times, instructors,
   units, prerequisite text, restrictions, source catalog links, and section
   availability from the published snapshot.
 - Review historical GPA context from UCSD Instructor Grade Archive records in a
   course's Past Grades view.
-- Add sections to a worksheet and view them as a calendar or list.
+- Add sections from Summer Session I 2026 through Fall 2026 to a worksheet and
+  view them as a calendar or list. Earlier Catalog terms remain available for
+  browsing without worksheet add/remove controls.
 - Spot schedule conflicts, hide courses from the calendar, adjust course colors,
-  and switch between supported terms.
+  and switch between terms in the worksheet planning window.
 - Export a worksheet as an `.ics` calendar file or copy a shareable worksheet
   URL.
 - Use the app anonymously with browser-local worksheet storage.

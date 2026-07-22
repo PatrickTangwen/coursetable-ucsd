@@ -40,8 +40,10 @@ The validated Catalog Snapshot currently served from the app's static catalog pa
 _Avoid_: Partial snapshot, staging snapshot, generated draft
 
 **Active Planning Term**:
-The single UCSD term whose live schedule sections are included in the MVP-1 Catalog Snapshot.
-_Avoid_: Current term, selected term, default term
+The product-selected Supported Term used as the default Catalog term and the
+default or fallback Worksheet Viewed Term. It does not limit which terms remain
+available in the Catalog. The current Active Planning Term is Fall 2026 (`FA26`).
+_Avoid_: Current calendar term, selected term, only published term
 
 **Term Date Range**:
 The configured start and end dates used to expand recurring meeting times for calendar export.
@@ -68,10 +70,11 @@ ADR 0012.
 _Avoid_: All terms, historical terms, 2021-present range
 
 **Supported Term**:
-A term that has a Published or Frozen Snapshot and therefore appears in the term
-selector. The selector is driven by the metadata term registry, not the inherited
-numeric `seasons.json`.
-_Avoid_: Active planning term, configured term, Yale season code
+A term that has a Published or Frozen Snapshot and therefore appears in the
+Catalog term selector. The selector is driven by the metadata term registry, not
+the inherited numeric `seasons.json`. A Supported Term is not necessarily inside
+the Worksheet Planning Window.
+_Avoid_: Worksheet term, Active Planning Term, configured term, Yale season code
 
 **Frozen Snapshot**:
 The last Published Snapshot of a term after that term has left the Term Window.
@@ -185,26 +188,32 @@ _Avoid_: CourseTable, UCSD Course Planner
 
 **Worksheet**:
 A student-selected set of course sections for planning a schedule within a term.
-Worksheets are per-term-keyed: each Supported Term has its own course set,
-selected via the worksheet season dropdown (`viewedSeason`). Adding a section
-from another term affects only that term's set and never silently reassigns the
-current worksheet's term. Past / Frozen terms remain add-able but show a
-"semester has ended" warning; the plannable-vs-ended distinction is based on the
-term's date range, not a hard-coded current-term literal.
+Worksheets are per-term-keyed, but the Worksheet UI exposes only terms inside the
+Worksheet Planning Window. Adding a section from another operable term affects
+only that term's set and never silently reassigns the current worksheet's term.
+Existing browser-local or account-backed data outside the window is retained,
+but those terms are not exposed as operable Worksheet terms.
 _Avoid_: Cart, schedule cart, saved schedule, single flat cross-term list
 
+**Worksheet Planning Window**:
+The inclusive subset of Supported Terms that the Worksheet Calendar and List
+views can display and whose Catalog sections can be added or removed. The current
+window is Summer Session I 2026 through Fall 2026 (`S126`, `S226`, `S326`, and
+`FA26`). Supported Terms outside this window remain browsable in the Catalog,
+where worksheet add/remove controls are hidden. See ADR 0039.
+_Avoid_: Supported Terms, Catalog term range, Term Window, Term Archive
+
 **Worksheet Viewed Term**:
-The Supported Term whose worksheet the Worksheet page is currently showing
-(`viewedSeason`), chosen through the worksheet term selector. It is independent
-of the term the Catalog is browsing — switching the Catalog term never moves it,
-and it persists across navigation between Catalog and Worksheet (and across a
-page reload, once hydrated from the stored worksheet term). It defaults to the
-most recent Supported Term (or, across reloads, the last viewed Supported Term)
-and is never silently reassigned by adding a section from another term; courses
-sitting in other terms are surfaced through the empty-term "your courses are in …" prompt, not by auto-switching or add-time
-notifications. The selector exists for both signed-out and signed-in accounts;
-for a signed-in account it replaces the static term badge and selects that term's
-Active Saved Worksheet. See ADR 0015.
+A term inside the Worksheet Planning Window whose worksheet the Worksheet page is
+currently showing (`viewedSeason`), chosen through the worksheet term selector.
+It is independent of the term the Catalog is browsing — switching the Catalog
+term never moves it — and persists across navigation and page reloads. It
+defaults to the Active Planning Term; a persisted value outside the planning
+window normalizes to the Active Planning Term. Adding a section from another
+operable term never silently reassigns it; courses in other operable terms are
+surfaced through the empty-term "your courses are in …" prompt. The selector
+exists for both signed-out and signed-in accounts; for a signed-in account it
+selects that term's Active Saved Worksheet. See ADR 0015 and ADR 0039.
 _Avoid_: Catalog term, Active Planning Term, current term, auto-switch on add
 
 **Anonymous Worksheet**:

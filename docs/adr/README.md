@@ -135,6 +135,10 @@ logs, or transient setup notes directly in ADRs.
 - `0038-model-tss-unbounded-capacity-and-reported-seats.md`: preserve
   source-reported available seats, model TSS sentinel limits as effectively
   unbounded, and reject explicit non-active supplement status values.
+- `0039-separate-catalog-terms-from-worksheet-planning-window.md`: keep all
+  Supported Terms browsable in the Catalog while limiting Worksheet navigation
+  and Catalog add/remove actions to Summer Session I 2026 through Fall 2026,
+  refining ADR 0015.
 
 ## Editing Rule
 
