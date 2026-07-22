@@ -119,7 +119,7 @@ const sourceNeutralTssResponse = {
           package_id: '154333',
           package_display_id: 'SE00154333',
           package_display_text: 'CAT-001 (P-001-001)',
-          status_text: 'Entry successfully validated',
+          display_status_text: 'Entry successfully validated',
           disabled: false,
           enrollment: {
             capacity: 100,
@@ -234,7 +234,7 @@ describe('TSS Catalog Snapshot pipeline input', () => {
           section_code: 'CAT-001 (P-001-001)',
           source_package_id: '154333',
           source_package_display_id: 'SE00154333',
-          source_status: 'Entry successfully validated',
+          source_package_status_text: 'Entry successfully validated',
           source_disabled: false,
           enrolled: null,
           capacity: 100,

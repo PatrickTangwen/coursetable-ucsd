@@ -658,12 +658,15 @@ export function OfferingGroupCard({
             {sectionLabel(group, mappingEntry)}
           </div>
           <div className={styles.cardSubTitle}>{groupSubtitle(group)}</div>
-          {(packageDetails?.packageDisplayId || packageDetails?.status) && (
+          {(packageDetails?.packageDisplayId ||
+            packageDetails?.packageStatusText) && (
             <div className={styles.packageMeta}>
               {packageDetails.packageDisplayId && (
                 <span>{packageDetails.packageDisplayId}</span>
               )}
-              {packageDetails.status && <span>{packageDetails.status}</span>}
+              {packageDetails.packageStatusText && (
+                <span>{packageDetails.packageStatusText}</span>
+              )}
             </div>
           )}
         </div>

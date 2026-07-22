@@ -79,7 +79,7 @@ export type CoursePlanningSection = {
   meetingType: string | null;
   packageId?: string | null;
   packageDisplayId?: string | null;
-  status?: string | null;
+  packageStatusText?: string | null;
   disabled?: boolean | null;
   instructors: CoursePlanningInstructor[];
   meetings: CoursePlanningMeeting[];
@@ -292,7 +292,7 @@ const sectionSchema = z
     meeting_type: z.string().nullable(),
     source_package_id: z.string().nullable().optional(),
     source_package_display_id: z.string().nullable().optional(),
-    source_status: z.string().nullable().optional(),
+    source_package_status_text: z.string().nullable().optional(),
     source_disabled: z.boolean().nullable().optional(),
     instructors: z.array(z.string()),
     meetings: z.array(meetingSchema),
@@ -340,8 +340,8 @@ const sectionSchema = z
       ...(section.source_package_display_id !== undefined
         ? { packageDisplayId: section.source_package_display_id }
         : {}),
-      ...(section.source_status !== undefined
-        ? { status: section.source_status }
+      ...(section.source_package_status_text !== undefined
+        ? { packageStatusText: section.source_package_status_text }
         : {}),
       ...(section.source_disabled !== undefined
         ? { disabled: section.source_disabled }

@@ -391,7 +391,7 @@ function courseFromModule(module: ModuleRow, events: EventRow[]) {
           package_id: packageId,
           package_display_id: nullableText(source.EventPkgDisplayID),
           package_display_text: nullableText(source.EventPkgText),
-          status_text: nullableText(source.EventPkgStatusText),
+          display_status_text: nullableText(source.EventPkgStatusText),
           disabled: source.EventPkgDisable === 'X',
           enrollment: {
             capacity: source.EventPkgLimit,

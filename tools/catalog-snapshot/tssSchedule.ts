@@ -189,7 +189,7 @@ const schedulePackageSchema = objectSchema(
     package_id: z.string().min(1),
     package_display_id: z.string().min(1).nullable(),
     package_display_text: z.string().min(1).nullable(),
-    status_text: z.string().min(1).nullable(),
+    display_status_text: z.string().min(1).nullable(),
     disabled: z.boolean(),
     enrollment: scheduleEnrollmentSchema,
     components: z.array(scheduleComponentSchema).min(1),
@@ -473,7 +473,7 @@ type NormalizedBookingChoice = {
   package_id: string | null;
   package_display_id: string | null;
   package_display_text: string | null;
-  status_text: string | null;
+  display_status_text: string | null;
   disabled: boolean | null;
   enrollment: NormalizedEnrollment | null;
   components: NormalizedTssComponent[];
@@ -587,7 +587,7 @@ export function parseTssScheduleArtifact(
           package_id: choice.package_id,
           package_display_id: choice.package_display_id,
           package_display_text: choice.package_display_text,
-          status_text: choice.status_text,
+          display_status_text: choice.display_status_text,
           disabled: choice.disabled,
           enrollment: {
             enrolled: null,
@@ -638,7 +638,7 @@ export function parseTssScheduleArtifact(
         package_id: choice.displayed_package_id,
         package_display_id: choice.displayed_package_id,
         package_display_text: choice.displayed_package_section,
-        status_text: null,
+        display_status_text: null,
         disabled: null,
         enrollment: null,
         components: choice.components.map((component) => ({
@@ -964,7 +964,7 @@ function toSection(
     meeting_type: sectionMeetingType(choice),
     source_package_id: choice.package_id,
     source_package_display_id: choice.package_display_id,
-    source_status: choice.status_text,
+    source_package_status_text: choice.display_status_text,
     source_disabled: choice.disabled,
     instructors,
     meetings: choice.components.flatMap((component) =>

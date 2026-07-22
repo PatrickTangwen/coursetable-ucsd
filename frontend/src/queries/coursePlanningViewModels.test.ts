@@ -58,7 +58,7 @@ describe('Published Snapshot Course Planning view-model seam', () => {
               meeting_type: 'Package',
               source_package_id: '154333',
               source_package_display_id: 'SE00154333',
-              source_status: 'Entry successfully validated',
+              source_package_status_text: 'Entry successfully validated',
               source_disabled: false,
               instructors: ['Test Instructor'],
               meetings: [
@@ -108,7 +108,7 @@ describe('Published Snapshot Course Planning view-model seam', () => {
         {
           packageId: '154333',
           packageDisplayId: 'SE00154333',
-          status: 'Entry successfully validated',
+          packageStatusText: 'Entry successfully validated',
           disabled: false,
           meetings: [
             expect.objectContaining({

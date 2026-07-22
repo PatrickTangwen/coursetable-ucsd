@@ -88,7 +88,7 @@ describe('credential-free TSS refresh tracer', () => {
               section_id: 'FA26:154333',
               section_code: 'CAT-001 (P-001-001)',
               source_package_display_id: 'SE00154333',
-              source_status: 'Entry successfully validated',
+              source_package_status_text: 'Entry successfully validated',
               available_seats: 60,
             },
           ],

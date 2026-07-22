@@ -390,6 +390,8 @@ Capture behavior:
 - Playwright opens a headed, dedicated profile under the maintainer's local
   application-data directory. The maintainer completes UCSD SSO/Duo and opens
   Schedule of Classes before continuing the terminal command.
+- The profile must be a real, current-user-owned directory with no symlinked
+  path components; every run enforces mode `0700`, including existing profiles.
 - The profile is not the maintainer's daily Chrome profile. No `storageState`,
   cookie JSON, HAR, trace, video, download, or raw response file is produced.
 - Service workers are blocked, the Chromium network cache is disabled, each
@@ -406,6 +408,9 @@ Capture behavior:
   allowlisting complete. Only the resulting `tss-schedule-v1` artifact is
   written. Unknown fields, event states, schedule grammar, term values,
   continuations, redirects, or package conflicts stop the run.
+- `EventPkgStatusText` is retained only as package display text. It never drives
+  availability or worksheet behavior; semantic Event status is the strict
+  `Scheduled | Cancelled` enum, and package availability uses `disabled`.
 - `401`, `403`, and `429` are terminal access stops with no automatic retry.
   TLS verification remains enabled.
 

@@ -1,12 +1,14 @@
 import {
   chmod,
+  mkdir,
   mkdtemp,
   readFile,
   rm,
   stat,
+  symlink,
   writeFile,
 } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
@@ -29,5 +31,40 @@ describe('attended TSS capture output', () => {
     } finally {
       await rm(directory, { force: true, recursive: true });
     }
+  });
+
+  it('tightens an existing profile and rejects symlinked profile paths', async () => {
+    const { secureProfileDirectory } =
+      await import('./capture-tss-schedule.mjs');
+    const directory = await mkdtemp(
+      join(homedir(), '.sungrid-tss-profile-test-'),
+    );
+    const profile = join(directory, 'profile');
+    const linkedParent = join(directory, 'linked-parent');
+    try {
+      await mkdir(profile, { mode: 0o755 });
+      await chmod(profile, 0o755);
+      await secureProfileDirectory(profile);
+      expect((await stat(profile)).mode & 0o777).toBe(0o700);
+
+      await symlink(directory, linkedParent);
+      await expect(
+        secureProfileDirectory(join(linkedParent, 'nested-profile')),
+      ).rejects.toThrow(/symbolic links/u);
+    } finally {
+      await rm(directory, { force: true, recursive: true });
+    }
+  });
+
+  it('rejects unknown OData envelope fields', async () => {
+    const { parseODataEnvelope } = await import('./capture-tss-schedule.mjs');
+
+    expect(() =>
+      parseODataEnvelope({
+        '@odata.count': 0,
+        '@odata.deltaLink': 'unexpected',
+        value: [],
+      }),
+    ).toThrow(/unrecognized key/iu);
   });
 });

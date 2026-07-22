@@ -23,6 +23,10 @@ requirements, units, and meeting modality when those values pass the source
 allowlist. Student records, instructor email, and employee identifiers are not
 part of this contract.
 
+Package status text is display-only. Semantic behavior uses the allowlisted
+Event status and the package `disabled` boolean; free-form package text cannot
+enable or disable a choice.
+
 ## Constraints
 
 - The first term mapping is explicit: FA26 is TSS academic year `2026`, period

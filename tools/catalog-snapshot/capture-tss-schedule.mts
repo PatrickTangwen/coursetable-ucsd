@@ -1,5 +1,13 @@
 import { randomUUID } from 'node:crypto';
-import { chmod, mkdir, rename, rm, writeFile } from 'node:fs/promises';
+import {
+  chmod,
+  lstat,
+  mkdir,
+  realpath,
+  rename,
+  rm,
+  writeFile,
+} from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { createInterface } from 'node:readline/promises';
@@ -80,11 +88,16 @@ type ODataSet = {
 
 const odataEnvelopeSchema = z
   .object({
+    '@odata.context': z.string().min(1).optional(),
     '@odata.count': z.number().int().nonnegative().optional(),
     '@odata.nextLink': z.string().min(1).optional(),
     value: z.array(z.unknown()),
   })
-  .passthrough();
+  .strict();
+
+export function parseODataEnvelope(value: unknown) {
+  return odataEnvelopeSchema.parse(value);
+}
 
 async function fetchPage(page: Page, url: string) {
   if (new URL(page.url()).origin !== 'https://tss.ucsd.edu')
@@ -122,7 +135,7 @@ async function fetchPage(page: Page, url: string) {
   if (new URL(result.responseUrl).toString() !== new URL(url).toString())
     throw new Error('TSS response did not match the exact approved request');
 
-  const record = odataEnvelopeSchema.parse(JSON.parse(result.body) as unknown);
+  const record = parseODataEnvelope(JSON.parse(result.body) as unknown);
   return {
     declaredTotal: record['@odata.count'] ?? null,
     continuation: record['@odata.nextLink'] ?? null,
@@ -213,6 +226,24 @@ export async function writePrivateArtifact(pathname: string, value: unknown) {
   }
 }
 
+export async function secureProfileDirectory(profilePath: string) {
+  await mkdir(profilePath, { recursive: true, mode: 0o700 });
+  const profileStats = await lstat(profilePath);
+  if (!profileStats.isDirectory() || profileStats.isSymbolicLink())
+    throw new Error('TSS browser profile must be a real directory');
+
+  if (
+    typeof process.getuid === 'function' &&
+    profileStats.uid !== process.getuid()
+  )
+    throw new Error('TSS browser profile must be owned by the current user');
+
+  if ((await realpath(profilePath)) !== profilePath)
+    throw new Error('TSS browser profile path cannot contain symbolic links');
+
+  await chmod(profilePath, 0o700);
+}
+
 async function main() {
   const term = argument('--term', 'FA26');
   if (term !== 'FA26')
@@ -229,7 +260,7 @@ async function main() {
     Number(argument('--page-size', '250')),
   );
 
-  await mkdir(profilePath, { recursive: true, mode: 0o700 });
+  await secureProfileDirectory(profilePath);
   const context = await chromium.launchPersistentContext(profilePath, {
     acceptDownloads: false,
     headless: false,

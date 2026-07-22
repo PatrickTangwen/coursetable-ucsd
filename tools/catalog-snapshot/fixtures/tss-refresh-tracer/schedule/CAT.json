@@ -47,7 +47,7 @@
           "package_id": "154333",
           "package_display_id": "SE00154333",
           "package_display_text": "CAT-001 (P-001-001)",
-          "status_text": "Entry successfully validated",
+          "display_status_text": "Entry successfully validated",
           "disabled": false,
           "enrollment": {
             "capacity": 100,

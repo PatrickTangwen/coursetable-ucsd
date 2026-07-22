@@ -52,7 +52,7 @@ async function renderTssPackageCard() {
   const group = offeringGroup('FA26' as Season);
   const section = group.sections[0]!;
   section.packageDisplayId = 'SE00154333';
-  section.status = 'Entry successfully validated';
+  section.packageStatusText = 'Entry successfully validated';
   section.disabled = true;
   section.meetings.push({
     days: ['Tuesday', 'Thursday'],

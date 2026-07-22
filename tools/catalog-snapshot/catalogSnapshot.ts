@@ -105,7 +105,7 @@ const sectionSchema = z
     meeting_type: z.string().nullable(),
     source_package_id: z.string().nullable().optional(),
     source_package_display_id: z.string().nullable().optional(),
-    source_status: z.string().nullable().optional(),
+    source_package_status_text: z.string().nullable().optional(),
     source_disabled: z.boolean().nullable().optional(),
     instructors: z.array(z.string()),
     meetings: z.array(meetingSchema),
