@@ -19,6 +19,7 @@ import {
   busiestDay,
   creditLoad,
   firstExam,
+  formatHours,
   hasAnyExam,
 } from './worksheetInsights';
 import { worksheetExportMenuCopy } from './worksheetMenuCopy';
@@ -715,7 +716,7 @@ export default function WorksheetCalendarSidebar() {
               </span>
               <span className={styles.infoTileValue}>{busiest.label}</span>
               <span className={styles.infoTileSubRow}>
-                {busiest.count} {busiest.count === 1 ? 'class' : 'classes'}
+                {formatHours(busiest.minutes)}
                 <svg
                   width="9"
                   height="9"

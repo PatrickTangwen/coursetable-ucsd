@@ -22,6 +22,7 @@ import {
   busiestDay,
   creditLoad,
   firstExam,
+  formatHours,
   hasAnyExam,
 } from './worksheetInsights';
 import WorksheetListItem from './WorksheetListItem';
@@ -606,9 +607,7 @@ function WorksheetList() {
                   {busiest ? busiest.label : '—'}
                 </div>
                 <div className={styles.infoSub}>
-                  {busiest
-                    ? `${busiest.count} ${busiest.count === 1 ? 'class' : 'classes'}`
-                    : 'No weekly classes'}
+                  {busiest ? formatHours(busiest.minutes) : 'No weekly classes'}
                 </div>
               </div>
             </div>

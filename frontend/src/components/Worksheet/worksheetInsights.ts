@@ -73,29 +73,25 @@ export function hasAnyExam(courses: readonly WorksheetCourse[]) {
   );
 }
 
-const shortDayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const shortWeekdayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
-/** Mon–Fri weekday with the most weekly class meetings. */
+/** Mon–Fri weekday with the most weekly class time. */
 export function busiestDay(courses: readonly WorksheetCourse[]) {
-  const counts = [0, 0, 0, 0, 0, 0, 0];
-  for (const course of courses) {
-    for (const raw of course.listing.course.course_meetings) {
-      const meeting = raw as RawMeeting;
-      if (meeting.date || !raw.days_of_week) continue;
-      for (let day = 0; day < 7; day++)
-        if (raw.days_of_week & (1 << day)) counts[day]! += 1;
+  const { days } = buildWeeklyLoad(courses);
+  let bestDayIndex = 0;
+  let bestMinutes = 0;
+  for (let dayIndex = 0; dayIndex < days.length; dayIndex++) {
+    const { minutes } = days[dayIndex]!;
+    if (minutes > bestMinutes) {
+      bestMinutes = minutes;
+      bestDayIndex = dayIndex;
     }
   }
-  let bestDay = 0;
-  let bestCount = 0;
-  for (let day = 1; day <= 5; day++) {
-    if (counts[day]! > bestCount) {
-      bestCount = counts[day]!;
-      bestDay = day;
-    }
-  }
-  if (bestCount === 0) return null;
-  return { label: shortDayLabels[bestDay]!, count: bestCount };
+  if (bestMinutes === 0) return null;
+  return {
+    label: shortWeekdayLabels[bestDayIndex]!,
+    minutes: bestMinutes,
+  };
 }
 
 export type WeeklyLoadSegment = {
