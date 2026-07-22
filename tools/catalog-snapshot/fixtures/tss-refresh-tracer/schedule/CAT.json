@@ -3,28 +3,62 @@
   "term": "FA26",
   "captured_at": "2026-07-21T16:05:00.000Z",
   "source_updated_at": "2026-07-21T09:00:00-07:00",
+  "source_term": {
+    "academic_year": "2026",
+    "academic_period": "2"
+  },
   "coverage": {
     "requested_subjects": ["CAT"],
+    "confirmed_empty_subjects": [],
     "complete": true,
     "continuation_needed": false,
-    "omitted_courses": []
+    "omitted_courses": [],
+    "source_counts": {
+      "modules": { "received": 1, "declared_total": 1, "pages": 1 },
+      "events": { "received": 1, "declared_total": 1, "pages": 1 }
+    }
   },
   "courses": [
     {
+      "module_id": "8509",
       "course_code": "001",
       "course_title": "Culture, Art, and Technology 1",
       "tss_course_code": "CAT-001",
+      "units": "4",
+      "delivery_mode": { "code": "IP", "text": "In Person" },
+      "description": "TSS Schedule description.",
+      "department_notes": ["Department note."],
+      "course_notes": ["Course note."],
+      "enrollment_requirements": [
+        {
+          "id": "allowed-classifications",
+          "parent_id": null,
+          "text": "Allowed student classifications"
+        }
+      ],
       "booking_choices": [
         {
-          "booking_choice_ordinal": 1,
-          "displayed_package_section": null,
-          "displayed_package_id": null,
+          "package_id": "154333",
+          "package_display_id": "SE00154333",
+          "package_display_text": "CAT-001 (P-001-001)",
+          "status_text": "Entry successfully validated",
+          "disabled": false,
+          "enrollment": {
+            "capacity": 100,
+            "seats_available": 60,
+            "waitlist": { "state": "available", "count": 0 }
+          },
           "components": [
             {
-              "type": "lecture",
-              "section_code": "001-000-LE",
-              "event_id": "E 00000665",
-              "requirement": "required",
+              "teaching_method": { "code": "LE", "text": "Lecture" },
+              "section_code": "001-000",
+              "event_id": "00000665",
+              "event_object_id": "665",
+              "event_key": "001",
+              "status": "Scheduled",
+              "begin_date": "2026-09-24",
+              "end_date": "2026-12-12",
+              "schedule_display": "Tu, Th 09:00 AM - 10:20 AM In Person @ Center Hall Room 101",
               "meetings": [
                 {
                   "meeting_kind": "class",
@@ -32,22 +66,13 @@
                   "days": "T R",
                   "start_time": "09:00am",
                   "end_time": "10:20am",
-                  "location_displayed": "CENTR 101",
+                  "location_displayed": "Center Hall Room 101",
+                  "modality": "In Person",
                   "instructor": "Test Instructor",
                   "is_tba": false,
                   "is_arranged": false
                 }
-              ],
-              "enrollment": {
-                "enrolled": 40,
-                "capacity": 100,
-                "seats_available": 60,
-                "capacity_kind": "bounded",
-                "waitlist": {
-                  "state": "not_shown",
-                  "count": null
-                }
-              }
+              ]
             }
           ]
         }

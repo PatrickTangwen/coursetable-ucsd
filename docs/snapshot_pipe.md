@@ -359,6 +359,57 @@ This seam does not log in to TSS, observe authenticated responses, sanitize raw
 account data, upload a Catalog Candidate, or mutate hosted Staging/Production.
 Those remain later, separately gated slices.
 
+## Attended TSS OData capture prototype (2026-07-21)
+
+The first attended capture prototype adopts the Schedule OData service seam
+identified by `SahirSSharma/WebReg-Course-Planner`, but it does not reuse that
+project's cookie export, broad response recorder, TLS override, WebReg-style
+renumbering, or raw JSON persistence. The assessment and pinned upstream
+commits are recorded in
+`planning/archive/tss-webreg-course-planner-assessment-2026-07-21.md`.
+
+The local command is:
+
+```bash
+bunx playwright install chromium
+bun run snapshot:tss:capture -- \
+  --config config/catalog-snapshot.ucsd.yaml \
+  --term FA26 \
+  --output data/tss-capture/FA26.json
+```
+
+Capture behavior:
+
+- Playwright opens a headed, dedicated profile under the maintainer's local
+  application-data directory. The maintainer completes UCSD SSO/Duo and opens
+  Schedule of Classes before continuing the terminal command.
+- The profile is not the maintainer's daily Chrome profile. No `storageState`,
+  cookie JSON, HAR, trace, video, download, or raw response file is produced.
+- Requests are serial `GET`s to the exact `tss.ucsd.edu` Schedule service. They
+  use an FA26 source-term filter, a bounded page size, stable ordering, count,
+  and explicit field selection. Student entities and `InstructorEmail` are not
+  selected.
+- Each response exists only in memory until strict row validation and field
+  allowlisting complete. Only the resulting `tss-schedule-v1` artifact is
+  written. Unknown fields, event states, schedule grammar, term values,
+  continuations, redirects, or package conflicts stop the run.
+- `401`, `403`, and `429` are terminal access stops with no automatic retry.
+  TLS verification remains enabled.
+
+The browser profile intentionally does not move between computers. The code,
+config, and command do: on a different computer, install the pinned Bun
+dependencies and Playwright Chromium, then complete SSO/Duo once in that
+computer's dedicated profile. Copying the profile or cookies is neither needed
+nor supported.
+
+This prototype is not yet a publish authorization or parity proof. The current
+module/event selection does not prove every UI-only note and enrollment-rule
+navigation, and the service's source-declared freshness field has not been
+identified. The artifact therefore keeps `source_updated_at: null`; no capture
+may be called Production-ready until live request validation, complete
+pagination/count evidence, source freshness, UCSD access authorization, and the
+TSS UI parity matrix all pass.
+
 ## Schedule Parser and Modal Data Notes
 
 This section records Schedule of Classes parser and modal data-shape issues

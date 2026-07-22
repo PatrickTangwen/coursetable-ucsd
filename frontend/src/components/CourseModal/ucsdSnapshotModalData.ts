@@ -1,4 +1,5 @@
 import type {
+  CoursePlanningCourse,
   CoursePlanningListing,
   CoursePlanningMeeting,
   CoursePlanningPastGrade,
@@ -42,6 +43,60 @@ export type UcsdAvailabilityDisplay = {
   detail: string;
   status: UcsdAvailabilityStatus;
 };
+
+export type TssCourseDetailGroup = {
+  title: string;
+  items: { text: string; depth: number }[];
+};
+
+export function tssCourseDetailGroups(
+  course: CoursePlanningCourse,
+): TssCourseDetailGroup[] {
+  const groups: TssCourseDetailGroup[] = [];
+  if (course.deliveryMode) {
+    groups.push({
+      title: 'Delivery Mode',
+      items: [{ text: course.deliveryMode, depth: 0 }],
+    });
+  }
+  if (course.departmentNotes?.length) {
+    groups.push({
+      title: 'Department Notes',
+      items: course.departmentNotes.map((text) => ({ text, depth: 0 })),
+    });
+  }
+  if (course.courseNotes?.length) {
+    groups.push({
+      title: 'Course Notes',
+      items: course.courseNotes.map((text) => ({ text, depth: 0 })),
+    });
+  }
+  if (course.enrollmentRequirements?.length) {
+    const requirementsById = new Map(
+      course.enrollmentRequirements.map((requirement) => [
+        requirement.id,
+        requirement,
+      ]),
+    );
+    groups.push({
+      title: 'Enrollment Requirements',
+      items: course.enrollmentRequirements.map((requirement) => {
+        let depth = 0;
+        let { parentId } = requirement;
+        const seen = new Set([requirement.id]);
+        while (parentId && !seen.has(parentId)) {
+          seen.add(parentId);
+          const parent = requirementsById.get(parentId);
+          if (!parent) break;
+          depth += 1;
+          ({ parentId } = parent);
+        }
+        return { text: requirement.text, depth };
+      }),
+    });
+  }
+  return groups;
+}
 
 export function shouldShowUcsdSectionSelector(
   offeringGroups: readonly UcsdModalOfferingGroup[],

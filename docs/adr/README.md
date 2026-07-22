@@ -135,6 +135,9 @@ logs, or transient setup notes directly in ADRs.
 - `0038-model-tss-unbounded-capacity-and-reported-seats.md`: preserve
   source-reported available seats, model TSS sentinel limits as effectively
   unbounded, and reject explicit non-active supplement status values.
+- `0039-preserve-tss-package-identity-at-an-attended-capture-boundary.md`: use
+  an attended, privacy-minimized TSS OData capture and preserve real package and
+  Event identity instead of reconstructing WebReg section identifiers.
 
 ## Editing Rule
 

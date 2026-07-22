@@ -47,6 +47,10 @@ export type CoursePlanningMeeting = {
   rawDays: string | null;
   rawTime: string | null;
   rawLocation: string | null;
+  sourceSectionCode?: string | null;
+  sourceEventId?: string | null;
+  status?: string | null;
+  modality?: string | null;
 };
 
 export type CoursePlanningInstructor = {
@@ -73,6 +77,10 @@ export type CoursePlanningSection = {
   supportedTerm: string;
   sectionCode: string | null;
   meetingType: string | null;
+  packageId?: string | null;
+  packageDisplayId?: string | null;
+  status?: string | null;
+  disabled?: boolean | null;
   instructors: CoursePlanningInstructor[];
   meetings: CoursePlanningMeeting[];
   availability: CoursePlanningAvailability;
@@ -88,6 +96,14 @@ export type CoursePlanningCourse = {
   courseCode: string;
   title: string;
   units: string | null;
+  deliveryMode?: string | null;
+  departmentNotes?: string[];
+  courseNotes?: string[];
+  enrollmentRequirements?: {
+    id: string;
+    parentId: string | null;
+    text: string;
+  }[];
   description: string | null;
   prerequisites: string | null;
   restrictions: string | null;
@@ -237,6 +253,10 @@ const meetingSchema = z
     raw_days: z.string().nullable(),
     raw_time: z.string().nullable(),
     raw_location: z.string().nullable(),
+    source_section_code: z.string().nullable().optional(),
+    source_event_id: z.string().nullable().optional(),
+    source_event_status: z.string().nullable().optional(),
+    modality: z.string().nullable().optional(),
   })
   .transform(
     (meeting): CoursePlanningMeeting => ({
@@ -251,6 +271,16 @@ const meetingSchema = z
       rawDays: meeting.raw_days,
       rawTime: meeting.raw_time,
       rawLocation: meeting.raw_location,
+      ...(meeting.source_section_code !== undefined
+        ? { sourceSectionCode: meeting.source_section_code }
+        : {}),
+      ...(meeting.source_event_id !== undefined
+        ? { sourceEventId: meeting.source_event_id }
+        : {}),
+      ...(meeting.source_event_status !== undefined
+        ? { status: meeting.source_event_status }
+        : {}),
+      ...(meeting.modality !== undefined ? { modality: meeting.modality } : {}),
     }),
   );
 
@@ -260,6 +290,10 @@ const sectionSchema = z
     course_id: z.string(),
     section_code: z.string().nullable(),
     meeting_type: z.string().nullable(),
+    source_package_id: z.string().nullable().optional(),
+    source_package_display_id: z.string().nullable().optional(),
+    source_status: z.string().nullable().optional(),
+    source_disabled: z.boolean().nullable().optional(),
     instructors: z.array(z.string()),
     meetings: z.array(meetingSchema),
     enrolled: z
@@ -300,6 +334,18 @@ const sectionSchema = z
       courseId: section.course_id,
       sectionCode: section.section_code,
       meetingType: section.meeting_type,
+      ...(section.source_package_id !== undefined
+        ? { packageId: section.source_package_id }
+        : {}),
+      ...(section.source_package_display_id !== undefined
+        ? { packageDisplayId: section.source_package_display_id }
+        : {}),
+      ...(section.source_status !== undefined
+        ? { status: section.source_status }
+        : {}),
+      ...(section.source_disabled !== undefined
+        ? { disabled: section.source_disabled }
+        : {}),
       instructors: section.instructors.map((name) => ({ name })),
       meetings: dedupeMeetings(section.meetings),
       availability: {
@@ -341,6 +387,18 @@ const courseSchema = z
     display_course_code: z.string().min(1).nullable().optional(),
     title: z.string(),
     units: z.string().nullable(),
+    delivery_mode: z.string().nullable().optional(),
+    department_notes: z.array(z.string()).optional(),
+    course_notes: z.array(z.string()).optional(),
+    enrollment_requirements: z
+      .array(
+        z.object({
+          id: z.string(),
+          parent_id: z.string().nullable(),
+          text: z.string(),
+        }),
+      )
+      .optional(),
     description: z.string().nullable(),
     prerequisites_text: z.string().nullable(),
     restrictions_text: z.string().nullable(),
@@ -365,6 +423,26 @@ const courseSchema = z
         `${course.subject} ${course.course_number}`,
       title: course.title,
       units: course.units,
+      ...(course.delivery_mode !== undefined
+        ? { deliveryMode: course.delivery_mode }
+        : {}),
+      ...(course.department_notes !== undefined
+        ? { departmentNotes: course.department_notes }
+        : {}),
+      ...(course.course_notes !== undefined
+        ? { courseNotes: course.course_notes }
+        : {}),
+      ...(course.enrollment_requirements !== undefined
+        ? {
+            enrollmentRequirements: course.enrollment_requirements.map(
+              (requirement) => ({
+                id: requirement.id,
+                parentId: requirement.parent_id,
+                text: requirement.text,
+              }),
+            ),
+          }
+        : {}),
       description: course.description,
       prerequisites: course.prerequisites_text,
       restrictions: course.restrictions_text,

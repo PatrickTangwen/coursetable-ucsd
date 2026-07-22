@@ -435,6 +435,43 @@
   margin-bottom: 8px;
 }
 
+.tssDetails {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+  margin: 14px 0 18px;
+}
+
+.tssDetailGroup {
+  padding: 12px 14px;
+  border: 1px solid rgb(var(--ct-line-rgb) / 10%);
+  border-radius: 7px;
+  background: var(--ct-surface-soft);
+}
+
+.tssDetailGroup h3 {
+  margin: 0 0 7px;
+  color: var(--ct-text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tssDetailGroup ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tssDetailGroup li {
+  margin-top: 4px;
+  padding-left: calc(var(--tss-depth, 0) * 14px);
+  color: var(--ct-text-strong);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .chip,
 .chipButton,
 .chipLink {
@@ -695,6 +732,16 @@
   line-height: 1.35;
 }
 
+.packageMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin-top: 5px;
+  color: var(--ct-text-muted);
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+
 .cardInstructor {
   color: var(--ct-text-secondary);
   font-size: 13px;
@@ -838,11 +885,26 @@
   font-weight: 500;
 }
 
+.eventStatus {
+  color: var(--ct-text-faint);
+  font-size: 10px;
+  font-weight: 500;
+}
+
 .sectionCode {
   grid-column: 3;
   color: var(--ct-ink);
   font-size: 13px;
   font-weight: 600;
+}
+
+.eventId {
+  display: block;
+  margin-top: 1px;
+  color: var(--ct-text-faint);
+  font-size: 9.5px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .friendlySectionCode {
@@ -900,6 +962,13 @@
   color: var(--ct-text-secondary);
   font-size: 12.5px;
   overflow-wrap: anywhere;
+}
+
+.modality {
+  display: block;
+  margin-top: 1px;
+  color: var(--ct-text-faint);
+  font-size: 10px;
 }
 
 .availability {

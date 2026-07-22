@@ -8,6 +8,7 @@ import {
   formatUcsdAvailability,
   getSectionVaryingMeetings,
   shouldShowUcsdSectionSelector,
+  tssCourseDetailGroups,
   type UcsdModalListing,
 } from './ucsdSnapshotModalData';
 import type { CoursePlanningListing } from '../../queries/coursePlanningViewModels';
@@ -129,6 +130,43 @@ function listing({
 }
 
 describe('UCSD snapshot modal data', () => {
+  it('keeps TSS notes and enrollment requirement hierarchy visible', () => {
+    const { course } = listing({
+      crn: 101,
+      sectionCode: '001-000',
+      meetings: [meeting('Lecture', 'M', '10:00', '10:50')],
+      enrolled: 20,
+      capacity: 30,
+      supportedTerm: 'FA26',
+    });
+    course.deliveryMode = 'In Person';
+    course.departmentNotes = ['Department note.'];
+    course.courseNotes = ['Course note.'];
+    course.enrollmentRequirements = [
+      { id: 'root', parentId: null, text: 'Allowed classifications' },
+      { id: 'freshman', parentId: 'root', text: 'Freshman' },
+    ];
+
+    expect(tssCourseDetailGroups(course)).toEqual([
+      { title: 'Delivery Mode', items: [{ text: 'In Person', depth: 0 }] },
+      {
+        title: 'Department Notes',
+        items: [{ text: 'Department note.', depth: 0 }],
+      },
+      {
+        title: 'Course Notes',
+        items: [{ text: 'Course note.', depth: 0 }],
+      },
+      {
+        title: 'Enrollment Requirements',
+        items: [
+          { text: 'Allowed classifications', depth: 0 },
+          { text: 'Freshman', depth: 1 },
+        ],
+      },
+    ]);
+  });
+
   it('shows the section selector only when there are multiple offering groups', () => {
     const section = listing({
       crn: 101,

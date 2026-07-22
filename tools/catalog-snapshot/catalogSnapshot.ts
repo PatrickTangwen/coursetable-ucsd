@@ -90,6 +90,10 @@ const meetingSchema = z
     raw_days: z.string().nullable(),
     raw_time: z.string().nullable(),
     raw_location: z.string().nullable(),
+    source_section_code: z.string().nullable().optional(),
+    source_event_id: z.string().nullable().optional(),
+    source_event_status: z.string().nullable().optional(),
+    modality: z.string().nullable().optional(),
   })
   .strict();
 
@@ -99,6 +103,10 @@ const sectionSchema = z
     course_id: z.string().min(1),
     section_code: z.string().nullable(),
     meeting_type: z.string().nullable(),
+    source_package_id: z.string().nullable().optional(),
+    source_package_display_id: z.string().nullable().optional(),
+    source_status: z.string().nullable().optional(),
+    source_disabled: z.boolean().nullable().optional(),
     instructors: z.array(z.string()),
     meetings: z.array(meetingSchema),
     enrolled: z.number().int().nonnegative().nullable(),
@@ -151,6 +159,20 @@ const courseSchema = z
     display_course_code: z.string().min(1).nullable().optional(),
     title: z.string().min(1),
     units: z.string().nullable(),
+    delivery_mode: z.string().nullable().optional(),
+    department_notes: z.array(z.string()).optional(),
+    course_notes: z.array(z.string()).optional(),
+    enrollment_requirements: z
+      .array(
+        z
+          .object({
+            id: z.string(),
+            parent_id: z.string().nullable(),
+            text: z.string(),
+          })
+          .strict(),
+      )
+      .optional(),
     description: z.string().nullable(),
     prerequisites_text: z.string().nullable(),
     restrictions_text: z.string().nullable(),

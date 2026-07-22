@@ -4,7 +4,10 @@ import {
   validateCatalogSnapshot,
   type CatalogSnapshotConfig,
 } from './catalogSnapshot';
-import { buildTssCatalogSnapshot } from './tssSchedule';
+import {
+  buildTssCatalogSnapshot,
+  parseTssScheduleArtifact,
+} from './tssSchedule';
 
 const config: CatalogSnapshotConfig = {
   active_planning_term: 'FA26',
@@ -70,7 +73,192 @@ const tssResponse = {
   ],
 };
 
+const sourceNeutralTssResponse = {
+  schema_version: 'tss-schedule-v1',
+  term: 'FA26',
+  captured_at: '2026-07-21T16:05:00.000Z',
+  source_updated_at: '2026-07-21T09:00:00-07:00',
+  source_term: {
+    academic_year: '2026',
+    academic_period: '2',
+  },
+  coverage: {
+    requested_subjects: ['CAT'],
+    confirmed_empty_subjects: [],
+    complete: true,
+    continuation_needed: false,
+    omitted_courses: [],
+    source_counts: {
+      modules: { received: 1, declared_total: 1, pages: 1 },
+      events: { received: 2, declared_total: 2, pages: 1 },
+    },
+  },
+  courses: [
+    {
+      module_id: '8509',
+      course_code: '001',
+      course_title: 'Culture, Art, and Technology 1',
+      tss_course_code: 'CAT-001',
+      units: '4',
+      delivery_mode: { code: 'IP', text: 'In Person' },
+      description: 'TSS Schedule description.',
+      department_notes: ['Department note.'],
+      course_notes: ['Course note.'],
+      enrollment_requirements: [
+        { id: 'root', parent_id: null, text: 'Allowed classifications' },
+        { id: 'freshman', parent_id: 'root', text: 'Freshman' },
+      ],
+      booking_choices: [
+        {
+          package_id: '154333',
+          package_display_id: 'SE00154333',
+          package_display_text: 'CAT-001 (P-001-001)',
+          status_text: 'Entry successfully validated',
+          disabled: false,
+          enrollment: {
+            capacity: 100,
+            seats_available: 60,
+            waitlist: { state: 'available', count: 0 },
+          },
+          components: [
+            {
+              teaching_method: { code: 'LE', text: 'Lecture' },
+              section_code: '001-000',
+              event_id: '00000665',
+              event_object_id: '665',
+              event_key: '001',
+              status: 'Scheduled',
+              begin_date: '2026-09-24',
+              end_date: '2026-12-12',
+              schedule_display:
+                'Tu, Th 09:00 AM - 10:20 AM In Person @ Center Hall Room 101',
+              meetings: [
+                {
+                  meeting_kind: 'class',
+                  specific_date: null,
+                  days: 'T R',
+                  start_time: '09:00am',
+                  end_time: '10:20am',
+                  location_displayed: 'Center Hall Room 101',
+                  modality: 'In Person',
+                  instructor: 'Test Instructor',
+                  is_tba: false,
+                  is_arranged: false,
+                },
+                {
+                  meeting_kind: 'final',
+                  specific_date: '2026-12-10',
+                  days: null,
+                  start_time: '08:00am',
+                  end_time: '10:59am',
+                  location_displayed: null,
+                  modality: 'In Person',
+                  instructor: 'Test Instructor',
+                  is_tba: false,
+                  is_arranged: false,
+                },
+              ],
+            },
+            {
+              teaching_method: { code: 'DI', text: 'Discussion' },
+              section_code: '001-001',
+              event_id: '00003991',
+              event_object_id: '3991',
+              event_key: '001',
+              status: 'Scheduled',
+              begin_date: '2026-09-24',
+              end_date: '2026-12-12',
+              schedule_display:
+                'W 01:00 PM - 01:50 PM In Person @ Center Hall Room 214',
+              meetings: [
+                {
+                  meeting_kind: 'class',
+                  specific_date: null,
+                  days: 'W',
+                  start_time: '01:00pm',
+                  end_time: '01:50pm',
+                  location_displayed: 'Center Hall Room 214',
+                  modality: 'In Person',
+                  instructor: 'Test Instructor',
+                  is_tba: false,
+                  is_arranged: false,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 describe('TSS Catalog Snapshot pipeline input', () => {
+  it('preserves TSS package and event identity without WebReg renumbering', () => {
+    const snapshot = buildTssCatalogSnapshot(
+      config,
+      [sourceNeutralTssResponse],
+      {
+        runId: 'tss-fa26-source-package-test',
+        generatedAt: '2026-07-21T16:10:00.000Z',
+        generalCatalog: {
+          sourceTimestamp: '2026-07-20T12:00:00.000Z',
+          courses: [],
+        },
+        gradeArchive: {
+          sourceTimestamp: '2026-07-19T12:00:00.000Z',
+          records: [],
+        },
+      },
+    );
+
+    expect(snapshot.courses[0]).toMatchObject({
+      course_id: 'CAT:1',
+      units: '4',
+      description: 'TSS Schedule description.',
+      delivery_mode: 'In Person',
+      department_notes: ['Department note.'],
+      course_notes: ['Course note.'],
+      enrollment_requirements: [
+        { id: 'root', parent_id: null, text: 'Allowed classifications' },
+        { id: 'freshman', parent_id: 'root', text: 'Freshman' },
+      ],
+      sections: [
+        {
+          section_id: 'FA26:154333',
+          section_code: 'CAT-001 (P-001-001)',
+          source_package_id: '154333',
+          source_package_display_id: 'SE00154333',
+          source_status: 'Entry successfully validated',
+          source_disabled: false,
+          enrolled: null,
+          capacity: 100,
+          available_seats: 60,
+          waitlist_count: 0,
+          meetings: [
+            expect.objectContaining({
+              source_section_code: '001-000',
+              source_event_id: '00000665',
+              source_event_status: 'Scheduled',
+              modality: 'In Person',
+              meeting_type: 'Lecture',
+            }),
+            expect.objectContaining({
+              source_section_code: '001-000',
+              source_event_id: '00000665',
+              meeting_type: 'Final',
+              date: '2026-12-10',
+            }),
+            expect.objectContaining({
+              source_section_code: '001-001',
+              source_event_id: '00003991',
+              meeting_type: 'Discussion',
+            }),
+          ],
+        },
+      ],
+    });
+  });
+
   it('combines matching TSS component meetings across weekdays', () => {
     const response = structuredClone(tssResponse);
     const lecture = response.courses[0]!.booking_choices[0]!.components[0]!;
@@ -427,5 +615,14 @@ describe('TSS Catalog Snapshot pipeline input', () => {
       complete: false,
       continuation_needed: true,
     });
+  });
+
+  it('rejects a source term that does not map to FA26', () => {
+    const response = structuredClone(sourceNeutralTssResponse);
+    response.source_term.academic_period = '3';
+
+    expect(() => parseTssScheduleArtifact(response)).toThrow(
+      /FA26 source term/u,
+    );
   });
 });

@@ -5,6 +5,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
 } from 'react';
 import * as Sentry from '@sentry/react';
 import clsx from 'clsx';
@@ -24,6 +25,7 @@ import {
   formatUcsdAvailability,
   getSectionVaryingMeetings,
   shouldShowUcsdSectionSelector,
+  tssCourseDetailGroups,
   type UcsdModalListing,
   type UcsdModalOfferingGroup,
   type UcsdModalSection,
@@ -520,6 +522,9 @@ function MeetingRow({
         <span className={styles.typeLabel}>
           {ucsdMeetingTypeLabel(row.meeting.meetingType)}
         </span>
+        {row.meeting.status && (
+          <span className={styles.eventStatus}>{row.meeting.status}</span>
+        )}
       </div>
       <div
         className={clsx(
@@ -527,7 +532,12 @@ function MeetingRow({
           row.usesFriendlySectionCode && styles.friendlySectionCode,
         )}
       >
-        {row.sectionCode}
+        {row.meeting.sourceSectionCode ?? row.sectionCode}
+        {row.meeting.sourceEventId && (
+          <span className={styles.eventId}>
+            Event {row.meeting.sourceEventId}
+          </span>
+        )}
       </div>
       <div className={styles.meetingTime}>
         {!row.meeting.isTba && (
@@ -538,7 +548,12 @@ function MeetingRow({
         )}
         <span className={styles.timeText}>{meetingTime}</span>
       </div>
-      <div className={styles.location}>{locationText(row.meeting)}</div>
+      <div className={styles.location}>
+        {locationText(row.meeting)}
+        {row.meeting.modality && (
+          <span className={styles.modality}>{row.meeting.modality}</span>
+        )}
+      </div>
       <div
         className={clsx(
           styles.availability,
@@ -619,6 +634,8 @@ export function OfferingGroupCard({
       ? group.sections[0]
       : selectedSectionForGroup(group, selectedCode);
   const selectedForAdd = selectedSection ?? null;
+  const packageDetails = selectedForAdd ?? group.sections[0] ?? null;
+  const sourceUnavailable = packageDetails?.disabled === true;
 
   return (
     <div
@@ -641,6 +658,14 @@ export function OfferingGroupCard({
             {sectionLabel(group, mappingEntry)}
           </div>
           <div className={styles.cardSubTitle}>{groupSubtitle(group)}</div>
+          {(packageDetails?.packageDisplayId || packageDetails?.status) && (
+            <div className={styles.packageMeta}>
+              {packageDetails.packageDisplayId && (
+                <span>{packageDetails.packageDisplayId}</span>
+              )}
+              {packageDetails.status && <span>{packageDetails.status}</span>}
+            </div>
+          )}
         </div>
         <div className={styles.cardInstructor}>{groupInstructor(group)}</div>
       </div>
@@ -673,23 +698,31 @@ export function OfferingGroupCard({
                 styles.addButton,
                 inWorksheet && styles.removeButton,
               )}
-              disabled={Boolean(mappingEntry && worksheetDisabled)}
+              disabled={
+                sourceUnavailable || Boolean(mappingEntry && worksheetDisabled)
+              }
               onClick={() =>
                 mappingEntry
                   ? onToggleWorksheet(selectedForAdd.listing)
                   : onAdd(selectedForAdd.listing)
               }
             >
-              {inWorksheet ? (
-                <span aria-hidden="true">✓</span>
+              {sourceUnavailable ? (
+                'Unavailable in TSS'
               ) : (
-                <PlusIcon size={14} />
+                <>
+                  {inWorksheet ? (
+                    <span aria-hidden="true">✓</span>
+                  ) : (
+                    <PlusIcon size={14} />
+                  )}
+                  {inWorksheet ? 'Remove' : 'Add'}{' '}
+                  {mappingEntry?.displayName ??
+                    selectedForAdd.sectionCode ??
+                    group.familyPrefix}{' '}
+                  {inWorksheet ? 'from' : 'to'} Worksheet
+                </>
               )}
-              {inWorksheet ? 'Remove' : 'Add'}{' '}
-              {mappingEntry?.displayName ??
-                selectedForAdd.sectionCode ??
-                group.familyPrefix}{' '}
-              {inWorksheet ? 'from' : 'to'} Worksheet
             </button>
           </div>
         ) : (
@@ -985,6 +1018,7 @@ export default function UcsdSnapshotCourseModal({
   const units = unitsLabel(listing.course);
   const level = courseLevelLabel(listing.course.courseNumber);
   const hasRestrictions = Boolean(listing.course.restrictions);
+  const tssDetails = tssCourseDetailGroups(listing.course);
   const titleSection =
     modalCourse.sectionMapping.bySectionId.get(listing.section.sectionId)
       ?.displayName ??
@@ -1443,6 +1477,31 @@ export default function UcsdSnapshotCourseModal({
                   </a>
                 )}
               </div>
+
+              {tssDetails.length > 0 && (
+                <div className={styles.tssDetails}>
+                  {tssDetails.map((group) => (
+                    <section
+                      key={group.title}
+                      className={styles.tssDetailGroup}
+                    >
+                      <h3>{group.title}</h3>
+                      <ul>
+                        {group.items.map((item, index) => (
+                          <li
+                            key={`${group.title}-${index}`}
+                            style={
+                              { '--tss-depth': item.depth } as CSSProperties
+                            }
+                          >
+                            {item.text}
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  ))}
+                </div>
+              )}
 
               {listing.course.prerequisites && prereqExpanded && (
                 <div className={styles.prereqPanel}>

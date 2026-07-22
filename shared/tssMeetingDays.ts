@@ -20,21 +20,12 @@ function dayTokens(value: string | null): string[] {
 }
 
 function meetingScheduleKey(meeting: TssSourceMeeting): string {
-  return JSON.stringify({
-    kind: meeting.meeting_kind,
-    date: meeting.specific_date,
-    startTime: meeting.start_time,
-    endTime: meeting.end_time,
-    location: meeting.location_displayed,
-    isTba: meeting.is_tba,
-    isArranged: meeting.is_arranged,
-  });
+  const { days: _days, instructor: _instructor, ...schedule } = meeting;
+  return JSON.stringify(schedule);
 }
 
-function combineTssMeetingDays(
-  meetings: TssSourceMeeting[],
-): TssSourceMeeting[] {
-  const combined = new Map<string, TssSourceMeeting>();
+function combineTssMeetingDays<T extends TssSourceMeeting>(meetings: T[]): T[] {
+  const combined = new Map<string, T>();
   for (const meeting of meetings) {
     const key = meetingScheduleKey(meeting);
     const existing = combined.get(key);
@@ -53,9 +44,9 @@ function combineTssMeetingDays(
   return [...combined.values()];
 }
 
-export function normalizeTssMeetingDays(
+export function normalizeTssMeetingDays<T extends TssSourceMeeting>(
   term: string,
-  meetings: TssSourceMeeting[],
-): TssSourceMeeting[] {
+  meetings: T[],
+): T[] {
   return term === 'FA26' ? combineTssMeetingDays(meetings) : meetings;
 }

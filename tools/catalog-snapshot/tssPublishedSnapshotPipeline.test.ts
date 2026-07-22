@@ -337,16 +337,17 @@ describe('TSS Published Snapshot entrypoint', () => {
     )!;
     expect(catTwo.description).toContain('Cross-listed with CAT 1');
     expect(catOne.grade_archive_records).toHaveLength(1);
-    expect(
-      catTwo.sections.map(({ instructors, meetings }) => ({
+    const comparableSchedule = (sections: typeof catOne.sections) =>
+      sections.map(({ instructors, meetings }) => ({
         instructors,
-        meetings,
-      })),
-    ).toEqual(
-      catOne.sections.map(({ instructors, meetings }) => ({
-        instructors,
-        meetings,
-      })),
+        meetings: meetings.map((meeting) => ({
+          ...meeting,
+          source_event_id: undefined,
+          source_section_code: undefined,
+        })),
+      }));
+    expect(comparableSchedule(catTwo.sections)).toEqual(
+      comparableSchedule(catOne.sections),
     );
     expect(catTwo).toMatchObject({
       archive_record_count: 1,

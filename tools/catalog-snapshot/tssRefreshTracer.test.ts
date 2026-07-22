@@ -85,7 +85,10 @@ describe('credential-free TSS refresh tracer', () => {
           title: 'Culture, Art, and Technology 1',
           sections: [
             {
-              section_id: 'FA26:CAT-001:E00000665',
+              section_id: 'FA26:154333',
+              section_code: 'CAT-001 (P-001-001)',
+              source_package_display_id: 'SE00154333',
+              source_status: 'Entry successfully validated',
               available_seats: 60,
             },
           ],

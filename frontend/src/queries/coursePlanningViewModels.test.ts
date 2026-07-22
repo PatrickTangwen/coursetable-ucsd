@@ -11,6 +11,118 @@ import { coursePlanningListingToWorksheetCourse } from '../types/worksheetCourse
 import { getCalendarExport } from '../utilities/calendar';
 
 describe('Published Snapshot Course Planning view-model seam', () => {
+  it('carries TSS package, event, notes, and modality into the frontend model', () => {
+    const catalog = normalizePublishedSnapshot({
+      run_id: 'run-tss-package-fixture',
+      generated_at: '2026-07-21T16:10:00.000Z',
+      active_planning_term: 'FA26',
+      term_label: 'Fall 2026',
+      term_date_range: null,
+      configured_subjects: ['CAT'],
+      source_timestamps: {
+        schedule_of_classes: '2026-07-21T09:00:00-07:00',
+        general_catalog: null,
+        instructor_grade_archive: null,
+      },
+      courses: [
+        {
+          course_id: 'CAT:1',
+          subject: 'CAT',
+          course_number: '1',
+          display_course_code: 'CAT-001',
+          title: 'Culture, Art, and Technology 1',
+          units: '4',
+          delivery_mode: 'In Person',
+          department_notes: ['Department note.'],
+          course_notes: ['Course note.'],
+          enrollment_requirements: [
+            {
+              id: 'allowed-classifications',
+              parent_id: null,
+              text: 'Allowed student classifications',
+            },
+          ],
+          description: 'TSS Schedule description.',
+          prerequisites_text: null,
+          restrictions_text: null,
+          catalog_url: null,
+          archive_avg_gpa: null,
+          archive_record_count: 0,
+          grade_archive_records: [],
+          ge_matches: [],
+          sections: [
+            {
+              section_id: 'FA26:154333',
+              course_id: 'CAT:1',
+              section_code: 'CAT-001 (P-001-001)',
+              meeting_type: 'Package',
+              source_package_id: '154333',
+              source_package_display_id: 'SE00154333',
+              source_status: 'Entry successfully validated',
+              source_disabled: false,
+              instructors: ['Test Instructor'],
+              meetings: [
+                {
+                  days: ['Tuesday', 'Thursday'],
+                  date: null,
+                  start_time: '09:00',
+                  end_time: '10:20',
+                  building: 'Center',
+                  room: 'Hall Room 101',
+                  is_tba: false,
+                  meeting_type: 'Lecture',
+                  raw_days: 'TuTh',
+                  raw_time: '09:00am-10:20am',
+                  raw_location: 'Center Hall Room 101',
+                  source_section_code: '001-000',
+                  source_event_id: '00000665',
+                  source_event_status: 'Scheduled',
+                  modality: 'In Person',
+                },
+              ],
+              enrolled: null,
+              capacity: 100,
+              available_seats: 60,
+              waitlist_count: 0,
+              availability_verified: true,
+              availability_timestamp: '2026-07-21T09:00:00-07:00',
+              raw: { source: 'ucsd_tss' },
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(catalog?.courses[0]).toMatchObject({
+      deliveryMode: 'In Person',
+      departmentNotes: ['Department note.'],
+      courseNotes: ['Course note.'],
+      enrollmentRequirements: [
+        {
+          id: 'allowed-classifications',
+          parentId: null,
+          text: 'Allowed student classifications',
+        },
+      ],
+      sections: [
+        {
+          packageId: '154333',
+          packageDisplayId: 'SE00154333',
+          status: 'Entry successfully validated',
+          disabled: false,
+          meetings: [
+            expect.objectContaining({
+              sourceSectionCode: '001-000',
+              sourceEventId: '00000665',
+              status: 'Scheduled',
+              modality: 'In Person',
+            }),
+          ],
+        },
+      ],
+    });
+  });
+
   it('normalizes canonical Course Planning data without inherited transport fields', () => {
     const catalog = normalizePublishedSnapshot({
       run_id: 'run-view-model-fixture',
