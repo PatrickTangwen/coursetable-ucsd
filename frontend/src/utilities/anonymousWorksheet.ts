@@ -24,6 +24,11 @@ export type AnonymousWorksheetShare = {
   sectionIds: string[];
 };
 
+export type WorksheetSectionIdMigration = {
+  from: string;
+  to: string;
+};
+
 export type CoursePlanningWorksheetListing = {
   section: {
     sectionId: string;
@@ -330,20 +335,88 @@ export function createAnonymousWorksheetShareUrl(
   return `${origin}/worksheet?${params.toString()}`;
 }
 
+function packageSectionIdentity(sectionId: string) {
+  const [term, course, rawComponents, ...rest] = sectionId.split(':');
+  if (!term || !course || !rawComponents || rest.length > 0) return null;
+  const components = rawComponents.split('+');
+  if (components.some((component) => component.length === 0)) return null;
+  return { namespace: `${term}:${course}`, components };
+}
+
+function findUniqueExpandedSectionId(
+  sectionId: string,
+  listingsBySectionId: Map<string, CoursePlanningListing>,
+) {
+  const storedIdentity = packageSectionIdentity(sectionId);
+  if (!storedIdentity) return null;
+
+  const storedComponents = new Set(storedIdentity.components);
+  const matches: string[] = [];
+  for (const candidateId of listingsBySectionId.keys()) {
+    const candidateIdentity = packageSectionIdentity(candidateId);
+    if (
+      !candidateIdentity ||
+      candidateIdentity.namespace !== storedIdentity.namespace ||
+      candidateIdentity.components.length <= storedComponents.size ||
+      ![...storedComponents].every((component) =>
+        candidateIdentity.components.includes(component),
+      )
+    )
+      continue;
+    matches.push(candidateId);
+    if (matches.length > 1) return null;
+  }
+  return matches[0] ?? null;
+}
+
+export function migrateWorksheetSectionIds(
+  sections: AnonymousWorksheetCourse[],
+  migrations: WorksheetSectionIdMigration[],
+): AnonymousWorksheetCourse[] {
+  if (migrations.length === 0) return sections;
+  const migratedIds = new Map(
+    migrations.map((migration) => [migration.from, migration.to]),
+  );
+  const seen = new Set<string>();
+  return sections.flatMap((section) => {
+    const sectionId = migratedIds.get(section.sectionId) ?? section.sectionId;
+    if (seen.has(sectionId)) return [];
+    seen.add(sectionId);
+    return [{ ...section, sectionId }];
+  });
+}
+
 export function resolveAnonymousWorksheetCourses(
   worksheet: AnonymousWorksheetState,
   listingsBySectionId: Map<string, CoursePlanningListing> | undefined,
   term: Season = worksheet.term,
-): { courses: WorksheetCourse[]; missingSectionIds: string[] } {
-  if (!listingsBySectionId) return { courses: [], missingSectionIds: [] };
+): {
+  courses: WorksheetCourse[];
+  missingSectionIds: string[];
+  sectionIdMigrations: WorksheetSectionIdMigration[];
+} {
+  if (!listingsBySectionId)
+    return { courses: [], missingSectionIds: [], sectionIdMigrations: [] };
 
   const missingSectionIds: string[] = [];
+  const sectionIdMigrations: WorksheetSectionIdMigration[] = [];
   const courses = getAnonymousWorksheetCourses(worksheet, term).flatMap(
     (course) => {
-      const listing = listingsBySectionId.get(course.sectionId);
-      if (!listing) {
+      const resolvedSectionId =
+        (listingsBySectionId.has(course.sectionId) && course.sectionId) ||
+        findUniqueExpandedSectionId(course.sectionId, listingsBySectionId);
+      const listing = resolvedSectionId
+        ? listingsBySectionId.get(resolvedSectionId)
+        : undefined;
+      if (!resolvedSectionId || !listing) {
         missingSectionIds.push(course.sectionId);
         return [];
+      }
+      if (resolvedSectionId !== course.sectionId) {
+        sectionIdMigrations.push({
+          from: course.sectionId,
+          to: resolvedSectionId,
+        });
       }
       return [
         coursePlanningListingToWorksheetCourse(
@@ -360,5 +433,6 @@ export function resolveAnonymousWorksheetCourses(
       a.listing.course_code.localeCompare(b.listing.course_code, 'en-US'),
     ),
     missingSectionIds,
+    sectionIdMigrations,
   };
 }

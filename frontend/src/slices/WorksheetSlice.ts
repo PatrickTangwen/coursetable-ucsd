@@ -41,6 +41,8 @@ import {
   anonymousWorksheetFromShare,
   getListingSectionId,
   getListingTerm,
+  getAnonymousWorksheetCourses,
+  migrateWorksheetSectionIds,
   readAnonymousWorksheetStorage,
   removeListingFromAnonymousWorksheet,
   resolveAnonymousWorksheetCourses,
@@ -1070,6 +1072,8 @@ export const useWorksheetEffects = () => {
     setWorksheetInfo,
     setAnonymousWorksheetMissingSectionIds,
     setWorksheetMissingSectionIds,
+    restoreActiveSavedWorksheetSections,
+    restoreAnonymousWorksheetCourses,
   } = useStore(
     useShallow((state) => ({
       exoticWorksheet: state.exoticWorksheet,
@@ -1083,6 +1087,9 @@ export const useWorksheetEffects = () => {
       setAnonymousWorksheetMissingSectionIds:
         state.setAnonymousWorksheetMissingSectionIds,
       setWorksheetMissingSectionIds: state.setWorksheetMissingSectionIds,
+      restoreActiveSavedWorksheetSections:
+        state.restoreActiveSavedWorksheetSections,
+      restoreAnonymousWorksheetCourses: state.restoreAnonymousWorksheetCourses,
     })),
   );
 
@@ -1146,6 +1153,43 @@ export const useWorksheetEffects = () => {
       ? displayedMissingSectionIds.join('\n')
       : '';
   const lastWarnedMissingKey = useRef('');
+
+  useEffect(() => {
+    if (isAnonymousWorksheet) {
+      if (anonymousResolved.sectionIdMigrations.length === 0) return;
+      restoreAnonymousWorksheetCourses(
+        migrateWorksheetSectionIds(
+          getAnonymousWorksheetCourses(anonymousWorksheet, viewedSeason),
+          anonymousResolved.sectionIdMigrations,
+        ),
+      );
+      return;
+    }
+
+    if (
+      !activeSavedWorksheet ||
+      !activeSavedWorksheetResolved ||
+      activeSavedWorksheetResolved.sectionIdMigrations.length === 0
+    )
+      return;
+    void restoreActiveSavedWorksheetSections(
+      migrateWorksheetSectionIds(
+        activeSavedWorksheet.sections,
+        activeSavedWorksheetResolved.sectionIdMigrations,
+      ),
+    ).catch(() =>
+      toast.error('Unable to update saved worksheet section identifiers.'),
+    );
+  }, [
+    activeSavedWorksheet,
+    activeSavedWorksheetResolved,
+    anonymousResolved,
+    anonymousWorksheet,
+    isAnonymousWorksheet,
+    restoreActiveSavedWorksheetSections,
+    restoreAnonymousWorksheetCourses,
+    viewedSeason,
+  ]);
 
   useEffect(() => {
     setWorksheetMissingSectionIds(displayedMissingSectionIds);

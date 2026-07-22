@@ -5,6 +5,7 @@ import {
   anonymousWorksheetHasListing,
   createAnonymousWorksheetShareUrl,
   getAnonymousWorksheetCourses,
+  migrateWorksheetSectionIds,
   parseAnonymousWorksheetShare,
   readAnonymousWorksheetStorage,
   removeListingFromAnonymousWorksheet,
@@ -297,5 +298,73 @@ describe('anonymous worksheet behavior', () => {
         course_code: 'CSE 3',
       },
     });
+  });
+
+  it('migrates a legacy component Section ID to one unique package Section ID', () => {
+    const oldSectionId = 'FA26:BENG-002:E00002597';
+    const packageListing = createCoursePlanningListingFixture(
+      'FA26:BENG-002:E00002597+EL00002326',
+      'BENG 2',
+    );
+    const worksheet = anonymousWorksheetFromShare(
+      { term: 'FA26' as Season, sectionIds: [oldSectionId] },
+      () => '#123456',
+    );
+
+    const restored = resolveAnonymousWorksheetCourses(
+      worksheet,
+      new Map([[packageListing.section.sectionId, packageListing]]),
+    );
+
+    expect(restored.missingSectionIds).toEqual([]);
+    expect(restored.sectionIdMigrations).toEqual([
+      {
+        from: oldSectionId,
+        to: packageListing.section.sectionId,
+      },
+    ]);
+    expect(restored.courses[0]?.listing.section_id).toBe(
+      packageListing.section.sectionId,
+    );
+    expect(
+      migrateWorksheetSectionIds(
+        getAnonymousWorksheetCourses(worksheet),
+        restored.sectionIdMigrations,
+      ),
+    ).toEqual([
+      {
+        sectionId: packageListing.section.sectionId,
+        color: '#123456',
+        hidden: false,
+      },
+    ]);
+  });
+
+  it('does not guess when one legacy component belongs to multiple packages', () => {
+    const oldSectionId = 'FA26:BENG-161A:E00000498';
+    const firstPackage = createCoursePlanningListingFixture(
+      'FA26:BENG-161A:E00000498+E00000499',
+      'BENG 161A',
+    );
+    const secondPackage = createCoursePlanningListingFixture(
+      'FA26:BENG-161A:E00000498+E00000500',
+      'BENG 161A',
+    );
+    const worksheet = anonymousWorksheetFromShare(
+      { term: 'FA26' as Season, sectionIds: [oldSectionId] },
+      () => '#123456',
+    );
+
+    const restored = resolveAnonymousWorksheetCourses(
+      worksheet,
+      new Map([
+        [firstPackage.section.sectionId, firstPackage],
+        [secondPackage.section.sectionId, secondPackage],
+      ]),
+    );
+
+    expect(restored.courses).toEqual([]);
+    expect(restored.missingSectionIds).toEqual([oldSectionId]);
+    expect(restored.sectionIdMigrations).toEqual([]);
   });
 });

@@ -156,4 +156,29 @@ describe('saved worksheet helpers', () => {
       },
     });
   });
+
+  it('restores a saved legacy component through one unique package Section', () => {
+    const oldSectionId = 'FA26:BENG-002:E00002597';
+    const packageListing = createCoursePlanningListingFixture(
+      'FA26:BENG-002:E00002597+EL00002326',
+      'BENG 2',
+    );
+    const restored = resolveSavedWorksheetCourses(
+      {
+        term: testTerm,
+        sections: [
+          { sectionId: oldSectionId, color: '#55aaff', hidden: false },
+        ],
+      },
+      new Map([[packageListing.section.sectionId, packageListing]]),
+    );
+
+    expect(restored.missingSectionIds).toEqual([]);
+    expect(restored.sectionIdMigrations).toEqual([
+      { from: oldSectionId, to: packageListing.section.sectionId },
+    ]);
+    expect(restored.courses[0]?.listing.section_id).toBe(
+      packageListing.section.sectionId,
+    );
+  });
 });
