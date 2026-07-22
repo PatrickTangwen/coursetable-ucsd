@@ -68,9 +68,9 @@ export function parseModuleCapacityCsv(contents: string) {
     if (cells.length !== 2)
       throw new Error(`line ${line} must contain exactly two columns`);
     const moduleCode = cells[0]!.toUpperCase();
-    if (!/^[A-Z][A-Z\d]{1,7}-\d[A-Z\d-]*$/u.test(moduleCode)) 
+    if (!/^[A-Z][A-Z\d]{1,7}-\d[A-Z\d-]*$/u.test(moduleCode))
       throw new Error(`line ${line} has invalid module_code: ${moduleCode}`);
-    
+
     if (!/^\d+$/u.test(cells[1]!))
       throw new Error(`line ${line} has invalid capacity: ${cells[1]}`);
     rows.push({ moduleCode, capacity: Number(cells[1]), line });

@@ -109,23 +109,15 @@ function MobileFiltersButton() {
 export default function CatalogNavSearch() {
   const { filters, setStartTime } = useSearch();
   const { courses } = useCoursePlanningCatalog();
-  const {
-    isMobile,
-    isTablet,
-    isSmDesktop,
-    selectedSeasons,
-    searchSelection,
-    setSearchSelection,
-  } = useStore(
-    useShallow((s) => ({
-      isMobile: s.isMobile,
-      isTablet: s.isTablet,
-      isSmDesktop: s.isSmDesktop,
-      selectedSeasons: s.searchFilters.selectSeasons,
-      searchSelection: s.catalogSearchSelection,
-      setSearchSelection: s.setCatalogSearchSelection,
-    })),
-  );
+  const { isMobile, selectedSeasons, searchSelection, setSearchSelection } =
+    useStore(
+      useShallow((s) => ({
+        isMobile: s.isMobile,
+        selectedSeasons: s.searchFilters.selectSeasons,
+        searchSelection: s.catalogSearchSelection,
+        setSearchSelection: s.setCatalogSearchSelection,
+      })),
+    );
   const { searchText } = filters;
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
   const [activeSuggestion, setActiveSuggestion] = useState(-1);
@@ -155,13 +147,7 @@ export default function CatalogNavSearch() {
     if (searchSelection && searchSelection.value !== searchText.value)
       setSearchSelection(null);
   }, [searchSelection, searchText.value, setSearchSelection]);
-  const searchPrompt = isMobile
-    ? 'Search'
-    : isTablet
-      ? 'Search any column'
-      : isSmDesktop
-        ? 'Search any column'
-        : 'Search any column: code, title, instructor, time, or location';
+  const searchPrompt = 'Search';
 
   const selectSuggestion = (index: number) => {
     const suggestion = suggestions[index];

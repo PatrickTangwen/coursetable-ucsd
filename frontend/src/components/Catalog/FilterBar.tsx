@@ -294,7 +294,7 @@ export default function FilterBar({
     (count, group) => count + group.items.length,
     0,
   );
-  const collapseSelectedFilters = selectedFilterCount > 3;
+  const collapseSelectedFilters = selectedFilterCount > 2;
 
   // On mobile the dropdowns/chips live in the filter bottom sheet (opened
   // from the navbar's Filters button); only the freshness label remains here.
