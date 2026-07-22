@@ -15,6 +15,8 @@ Status: top-level navigation for stable project documentation.
   importer, Hasura metadata, and tracer validation.
 - `grade_archive.md`: current Instructor Grade Archive matching, explicit
   cross-listed inheritance, provenance, and Past Grades display contract.
+- `worksheet_section_id_compatibility.md`: unique package-ID migration for
+  persisted worksheet Sections, including ambiguity and warning behavior.
 - `local_server.md`: local frontend/backend/auth startup and login smoke
   runbook.
 - `local_server_endpoints.md`: current local frontend/backend URLs, Docker
