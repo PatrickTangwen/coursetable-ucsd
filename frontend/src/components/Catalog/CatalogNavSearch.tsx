@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
+import clsx from 'clsx';
 import { useShallow } from 'zustand/react/shallow';
 
 import MobileFilterSheet from './MobileFilterSheet';
+import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
 import { useSearch } from '../../hooks/useSearch';
+import type { Season } from '../../queries/graphql-types';
+import { buildCatalogSearchSuggestions } from '../../search/catalogSearchSuggestions';
 import { useStore } from '../../store';
 import styles from './CatalogNavSearch.module.css';
 
@@ -79,6 +83,7 @@ function MobileFiltersButton() {
       (s) =>
         s.searchFilters.selectSubjects.length +
         s.searchFilters.selectSeasons.length +
+        s.searchFilters.selectDays.length +
         s.catalogTypeFilters.length,
     ),
   );
@@ -103,21 +108,70 @@ function MobileFiltersButton() {
 
 export default function CatalogNavSearch() {
   const { filters, setStartTime } = useSearch();
-  const { isMobile, isTablet, isSmDesktop } = useStore(
+  const { courses } = useCoursePlanningCatalog();
+  const {
+    isMobile,
+    isTablet,
+    isSmDesktop,
+    selectedSeasons,
+    searchSelection,
+    setSearchSelection,
+  } = useStore(
     useShallow((s) => ({
       isMobile: s.isMobile,
       isTablet: s.isTablet,
       isSmDesktop: s.isSmDesktop,
+      selectedSeasons: s.searchFilters.selectSeasons,
+      searchSelection: s.catalogSearchSelection,
+      setSearchSelection: s.setCatalogSearchSelection,
     })),
   );
   const { searchText } = filters;
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false);
+  const [activeSuggestion, setActiveSuggestion] = useState(-1);
+  const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const listboxId = useId();
+  const listings = useMemo(() => {
+    const seasons =
+      selectedSeasons.length > 0
+        ? selectedSeasons.map(({ value }) => value)
+        : (Object.keys(courses) as Season[]);
+    return seasons.flatMap((season) => [
+      ...(courses[season]?.listings.values() ?? []),
+    ]);
+  }, [courses, selectedSeasons]);
+  const suggestions = useMemo(
+    () => buildCatalogSearchSuggestions(listings, searchText.value),
+    [listings, searchText.value],
+  );
+  const showSuggestions = suggestionsOpen && suggestions.length > 0;
+  useEffect(
+    () => () => {
+      if (blurTimer.current) clearTimeout(blurTimer.current);
+    },
+    [],
+  );
+  useEffect(() => {
+    if (searchSelection && searchSelection.value !== searchText.value)
+      setSearchSelection(null);
+  }, [searchSelection, searchText.value, setSearchSelection]);
   const searchPrompt = isMobile
     ? 'Search'
     : isTablet
-      ? 'Search courses'
+      ? 'Search any column'
       : isSmDesktop
-        ? 'Course code, title, or instructor'
-        : 'Search by course code, title, instructor, or description';
+        ? 'Search any column'
+        : 'Search any column: code, title, instructor, time, or location';
+
+  const selectSuggestion = (index: number) => {
+    const suggestion = suggestions[index];
+    if (!suggestion) return;
+    setSearchSelection(suggestion);
+    searchText.set(suggestion.value);
+    setStartTime(Date.now());
+    setSuggestionsOpen(false);
+    setActiveSuggestion(-1);
+  };
 
   return (
     <div className={styles.container}>
@@ -129,10 +183,50 @@ export default function CatalogNavSearch() {
           type="text"
           className={styles.input}
           aria-label="Search courses"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-controls={listboxId}
+          aria-expanded={showSuggestions}
+          aria-activedescendant={
+            showSuggestions && activeSuggestion >= 0
+              ? `${listboxId}-${activeSuggestion}`
+              : undefined
+          }
           value={searchText.value}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            setSearchSelection(null);
             searchText.set(e.target.value);
             setStartTime(Date.now());
+            setSuggestionsOpen(true);
+            setActiveSuggestion(-1);
+          }}
+          onFocus={() => {
+            if (blurTimer.current) clearTimeout(blurTimer.current);
+            setSuggestionsOpen(true);
+          }}
+          onBlur={() => {
+            blurTimer.current = setTimeout(() => setSuggestionsOpen(false), 0);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === 'ArrowDown' && suggestions.length > 0) {
+              event.preventDefault();
+              setSuggestionsOpen(true);
+              setActiveSuggestion((current) =>
+                current >= suggestions.length - 1 ? 0 : current + 1,
+              );
+            } else if (event.key === 'ArrowUp' && suggestions.length > 0) {
+              event.preventDefault();
+              setSuggestionsOpen(true);
+              setActiveSuggestion((current) =>
+                current <= 0 ? suggestions.length - 1 : current - 1,
+              );
+            } else if (event.key === 'Enter' && activeSuggestion >= 0) {
+              event.preventDefault();
+              selectSuggestion(activeSuggestion);
+            } else if (event.key === 'Escape') {
+              setSuggestionsOpen(false);
+              setActiveSuggestion(-1);
+            }
           }}
         />
         {!searchText.value && (
@@ -145,13 +239,51 @@ export default function CatalogNavSearch() {
             type="button"
             className={styles.clearBtn}
             onClick={() => {
+              setSearchSelection(null);
               searchText.resetToEmpty();
               setStartTime(Date.now());
+              setSuggestionsOpen(false);
+              setActiveSuggestion(-1);
             }}
             aria-label="Clear search"
           >
             <ClearIcon />
           </button>
+        )}
+        {showSuggestions && (
+          // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- editable combobox suggestions require a custom listbox so selecting a value can preserve the search input's display and URL contract
+          <div
+            id={listboxId}
+            className={styles.suggestions}
+            role="listbox"
+            aria-label="Search suggestions"
+          >
+            {suggestions.map((suggestion, index) => (
+              // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- interactive custom combobox option, not a native select option
+              <button
+                key={`${suggestion.column}:${suggestion.label}`}
+                id={`${listboxId}-${index}`}
+                type="button"
+                role="option"
+                aria-selected={activeSuggestion === index}
+                className={clsx(
+                  styles.suggestion,
+                  activeSuggestion === index && styles.suggestionActive,
+                )}
+                onMouseDown={(event) => event.preventDefault()}
+                onMouseEnter={() => setActiveSuggestion(index)}
+                onFocus={() => setActiveSuggestion(index)}
+                onClick={() => selectSuggestion(index)}
+              >
+                <span className={styles.suggestionLabel}>
+                  {suggestion.label}
+                </span>
+                <span className={styles.suggestionColumn}>
+                  {suggestion.column}
+                </span>
+              </button>
+            ))}
+          </div>
         )}
       </div>
       {isMobile && <MobileFiltersButton />}

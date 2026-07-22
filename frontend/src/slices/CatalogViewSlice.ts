@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 
+import type { CatalogSearchSuggestion } from '../search/catalogSearchSuggestions';
 import type { Store } from '../store';
 
 export type CatalogSortKey = 'code' | 'title' | 'term' | 'meets';
@@ -9,6 +10,7 @@ export interface CatalogViewSliceState {
   catalogSortKey: CatalogSortKey;
   catalogSortAsc: boolean;
   catalogTypeFilters: string[];
+  catalogSearchSelection: CatalogSearchSuggestion | null;
 }
 
 export interface CatalogViewSliceActions {
@@ -16,6 +18,9 @@ export interface CatalogViewSliceActions {
   setCatalogSort: (key: CatalogSortKey) => void;
   toggleCatalogTypeFilter: (type: string) => void;
   clearCatalogTypeFilters: () => void;
+  setCatalogSearchSelection: (
+    selection: CatalogSearchSuggestion | null,
+  ) => void;
 }
 
 export interface CatalogViewSlice
@@ -31,6 +36,7 @@ export const createCatalogViewSlice: StateCreator<
   catalogSortKey: 'code',
   catalogSortAsc: true,
   catalogTypeFilters: [],
+  catalogSearchSelection: null,
 
   toggleCatalogExpanded: (courseId) =>
     set((state) => {
@@ -56,4 +62,6 @@ export const createCatalogViewSlice: StateCreator<
     })),
 
   clearCatalogTypeFilters: () => set({ catalogTypeFilters: [] }),
+  setCatalogSearchSelection: (selection) =>
+    set({ catalogSearchSelection: selection }),
 });

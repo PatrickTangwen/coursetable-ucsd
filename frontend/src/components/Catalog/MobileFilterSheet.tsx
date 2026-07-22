@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { useShallow } from 'zustand/react/shallow';
-import { COURSE_TYPES } from './FilterBar';
+import { COURSE_TYPES, DAY_OPTIONS } from './FilterBar';
 import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
 import {
   buildCatalogListAdvancedFilterReset,
@@ -14,7 +14,7 @@ import { formatSubjectLabel } from '../../utilities/subjectLabels';
 import BottomSheet from '../BottomSheet';
 import styles from './MobileFilterSheet.module.css';
 
-type FilterView = 'main' | 'subject' | 'courseType' | 'term';
+type FilterView = 'main' | 'subject' | 'courseType' | 'term' | 'days';
 
 interface PickerConfig {
   title: string;
@@ -96,6 +96,7 @@ export default function MobileFilterSheet({
   const {
     selectedSubjects,
     selectedSeasons,
+    selectedDays,
     setSearchFilter,
     patchSearchFilters,
     typeFilters,
@@ -105,6 +106,7 @@ export default function MobileFilterSheet({
     useShallow((s) => ({
       selectedSubjects: s.searchFilters.selectSubjects as Option[],
       selectedSeasons: s.searchFilters.selectSeasons,
+      selectedDays: s.searchFilters.selectDays,
       setSearchFilter: s.setSearchFilter,
       patchSearchFilters: s.patchSearchFilters,
       typeFilters: s.catalogTypeFilters,
@@ -160,9 +162,32 @@ export default function MobileFilterSheet({
     [selectedSeasons, setSearchFilter],
   );
 
+  const toggleDay = useCallback(
+    (v: string) => {
+      const day = Number(v);
+      const isSelected = selectedDays.some((option) => option.value === day);
+      setSearchFilter(
+        'selectDays',
+        isSelected
+          ? selectedDays.filter((option) => option.value !== day)
+          : [
+              ...selectedDays,
+              {
+                value: day,
+                label:
+                  DAY_OPTIONS.find((option) => option.value === day)?.label ??
+                  v,
+              },
+            ],
+      );
+    },
+    [selectedDays, setSearchFilter],
+  );
+
   const resetAll = useCallback(() => {
     setSearchFilter('selectSubjects', []);
     setSearchFilter('selectSeasons', defaultFilters.selectSeasons);
+    setSearchFilter('selectDays', []);
     patchSearchFilters(buildCatalogListAdvancedFilterReset());
     clearTypeFilters();
   }, [setSearchFilter, patchSearchFilters, clearTypeFilters]);
@@ -190,6 +215,15 @@ export default function MobileFilterSheet({
       options: seasonsOptions,
       selected: selectedSeasons.map((s) => s.value),
       toggle: toggleTerm,
+    },
+    days: {
+      title: 'Days',
+      options: DAY_OPTIONS.map((day) => ({
+        value: String(day.value),
+        label: day.label,
+      })),
+      selected: selectedDays.map((day) => String(day.value)),
+      toggle: toggleDay,
     },
   };
 
@@ -234,6 +268,11 @@ export default function MobileFilterSheet({
               label="Term"
               display={summarize(selectedSeasons.map((s) => s.label))}
               onOpen={() => setView('term')}
+            />
+            <CategoryRow
+              label="Days"
+              display={summarize(selectedDays.map((day) => day.label))}
+              onOpen={() => setView('days')}
             />
           </div>
 

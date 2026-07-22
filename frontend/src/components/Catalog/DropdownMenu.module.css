@@ -119,6 +119,10 @@
   transition: background 0.1s;
 }
 
+.dropdownItem + .dropdownItem {
+  margin-top: 3px;
+}
+
 .dropdownItem:hover {
   background: rgb(var(--ct-line-rgb) / 4%);
 }

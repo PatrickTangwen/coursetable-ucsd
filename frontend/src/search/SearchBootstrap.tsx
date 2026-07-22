@@ -10,6 +10,7 @@ import * as Sentry from '@sentry/react';
 import debounce from 'lodash.debounce';
 import { buildEvaluator } from 'quist';
 import { useShallow } from 'zustand/react/shallow';
+import { matchesCatalogSearchSuggestion } from './catalogSearchSuggestions';
 import { getCatalogConflictCourses } from './catalogWorksheetContext';
 import {
   coursePlanningQueryValue,
@@ -211,6 +212,7 @@ export function SearchBootstrap({
   const searchFilters = useStore((s) => s.searchFilters);
   const searchTimingStartMs = useStore((s) => s.searchTimingStartMs);
   const catalogTypeFilters = useStore((s) => s.catalogTypeFilters);
+  const catalogSearchSelection = useStore((s) => s.catalogSearchSelection);
   const {
     worksheets,
     friends,
@@ -364,8 +366,13 @@ export function SearchBootstrap({
     const listings = processedSeasons.flatMap((season) =>
       Array.from(courseData[season]?.listings.values() ?? []),
     );
+    const scopedListings = catalogSearchSelection
+      ? listings.filter((listing) =>
+          matchesCatalogSearchSuggestion(listing, catalogSearchSelection),
+        )
+      : listings;
     setSearchData(
-      filterAndSortCoursePlanningListings(listings, searchFilters, {
+      filterAndSortCoursePlanningListings(scopedListings, searchFilters, {
         friendCount,
         isConflicting,
         quistPredicate,
@@ -373,6 +380,7 @@ export function SearchBootstrap({
     );
   }, [
     courseData,
+    catalogSearchSelection,
     friendCount,
     isConflicting,
     processedSeasons,

@@ -148,6 +148,22 @@ describe('Course Planning Catalog search', () => {
     expect(results.map(({ course }) => course.courseCode)).toEqual(['CAT-001']);
   });
 
+  it.each([
+    ['section', 'A00'],
+    ['term', 'Fall 2026'],
+    ['instructor', 'Lovelace'],
+    ['meeting time', '9:00 – 9:50 AM'],
+    ['location room', 'CENTR 101'],
+  ])('matches the visible %s column value', (_column, searchText) => {
+    const listings = flattenCoursePlanningCatalog(catalog);
+    const results = filterAndSortCoursePlanningListings(listings, {
+      ...defaultFilters,
+      searchText,
+    });
+
+    expect(results).toHaveLength(listings.length);
+  });
+
   it('filters owned listings and preserves numeric course-code ordering', () => {
     const listings = flattenCoursePlanningCatalog(catalog);
     const results = filterAndSortCoursePlanningListings(listings, {
@@ -162,6 +178,35 @@ describe('Course Planning Catalog search', () => {
 
     expect(results.map(({ course }) => course.courseCode)).toEqual([
       'CSE 2',
+      'CSE 10',
+    ]);
+  });
+
+  it('matches the selected meeting days as an exact set', () => {
+    const listings = flattenCoursePlanningCatalog(structuredClone(catalog));
+    listings[0]!.section.meetings[0]!.days = ['Monday', 'Tuesday'];
+    listings[0]!.section.meetings.push({
+      ...listings[0]!.section.meetings[0]!,
+      days: ['Wednesday'],
+      meetingType: 'Final',
+    });
+
+    const mondayOnly = filterAndSortCoursePlanningListings(listings, {
+      ...defaultFilters,
+      selectDays: [{ value: 1, label: 'Monday' }],
+    });
+    const mondayTuesdayOnly = filterAndSortCoursePlanningListings(listings, {
+      ...defaultFilters,
+      selectDays: [
+        { value: 1, label: 'Monday' },
+        { value: 2, label: 'Tuesday' },
+      ],
+    });
+
+    expect(mondayOnly.map(({ course }) => course.courseCode)).not.toContain(
+      'CSE 10',
+    );
+    expect(mondayTuesdayOnly.map(({ course }) => course.courseCode)).toEqual([
       'CSE 10',
     ]);
   });

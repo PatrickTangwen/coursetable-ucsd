@@ -4,6 +4,7 @@ import {
   buildCatalogListAdvancedFilterReset,
   buildCatalogListFilterCleanup,
   countCatalogListAdvancedFilters,
+  getActiveCatalogListAdvancedFilterKeys,
 } from './catalogListFilters';
 import { defaultFilters } from './searchConstants';
 import { sortByOptions, type Filters } from './searchTypes';
@@ -16,6 +17,7 @@ describe('catalog list filter cleanup', () => {
       ...defaultFilters,
       searchText: 'systems',
       selectSubjects: visibleSubjects,
+      selectDays: [{ value: 1, label: 'Monday' }],
       selectSkillsAreas: [
         { value: 'QR', label: 'QR - Quantitative Reasoning' },
       ],
@@ -37,6 +39,7 @@ describe('catalog list filter cleanup', () => {
       searchText: 'systems',
       selectSubjects: [{ value: 'CSE', label: 'CSE' }],
       selectSeasons: [{ value: 'FA26' as Season, label: 'Fall 2026' }],
+      selectDays: [{ value: 1, label: 'Monday' }],
       selectSkillsAreas: [
         { value: 'QR', label: 'QR - Quantitative Reasoning' },
       ],
@@ -45,6 +48,11 @@ describe('catalog list filter cleanup', () => {
     };
 
     expect(countCatalogListAdvancedFilters(filters)).toBe(3);
+    expect(getActiveCatalogListAdvancedFilterKeys(filters)).toEqual([
+      'selectSkillsAreas',
+      'selectBuilding',
+      'hideConflicting',
+    ]);
   });
 
   it('builds a reset patch for Advanced chip filters only', () => {
@@ -53,8 +61,17 @@ describe('catalog list filter cleanup', () => {
     expect(reset.searchText).toBeUndefined();
     expect(reset.selectSubjects).toBeUndefined();
     expect(reset.selectSeasons).toBeUndefined();
+    expect(reset.selectDays).toBeUndefined();
     expect(reset.selectSkillsAreas).toEqual(defaultFilters.selectSkillsAreas);
     expect(reset.selectBuilding).toEqual(defaultFilters.selectBuilding);
     expect(reset.hideConflicting).toBe(defaultFilters.hideConflicting);
+  });
+
+  it('builds a reset patch for one selected Advanced menu item', () => {
+    const reset = buildCatalogListAdvancedFilterReset(['selectBuilding']);
+
+    expect(reset).toEqual({
+      selectBuilding: defaultFilters.selectBuilding,
+    });
   });
 });

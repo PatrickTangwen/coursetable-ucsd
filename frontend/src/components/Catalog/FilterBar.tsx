@@ -2,13 +2,20 @@ import { useCallback } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 import { DropdownMenu } from './DropdownMenu';
+import SelectedFiltersMenu, {
+  type SelectedFilterGroup,
+} from './SelectedFiltersMenu';
 import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
 import type { Season } from '../../queries/graphql-types';
 import {
   buildCatalogListAdvancedFilterReset,
-  countCatalogListAdvancedFilters,
+  getActiveCatalogListAdvancedFilterKeys,
 } from '../../search/catalogListFilters';
-import { defaultFilters, seasonsOptions } from '../../search/searchConstants';
+import {
+  defaultFilters,
+  filterLabels,
+  seasonsOptions,
+} from '../../search/searchConstants';
 import type { Option } from '../../search/searchTypes';
 import { useStore } from '../../store';
 import {
@@ -52,6 +59,16 @@ const COURSE_TYPES = [
     label: 'Remote',
     matches: (number: string) => number.trim().toUpperCase().endsWith('R'),
   },
+] as const;
+
+const DAY_OPTIONS = [
+  { value: 1, label: 'Monday' },
+  { value: 2, label: 'Tuesday' },
+  { value: 3, label: 'Wednesday' },
+  { value: 4, label: 'Thursday' },
+  { value: 5, label: 'Friday' },
+  { value: 6, label: 'Saturday' },
+  { value: 0, label: 'Sunday' },
 ] as const;
 
 function FilterChip({
@@ -120,6 +137,7 @@ export default function FilterBar({
     isMobile,
     selectedSubjects,
     selectedSeasons,
+    selectedDays,
     searchFilters,
     setSearchFilter,
     patchSearchFilters,
@@ -131,6 +149,7 @@ export default function FilterBar({
       isMobile: s.isMobile,
       selectedSubjects: s.searchFilters.selectSubjects as Option[],
       selectedSeasons: s.searchFilters.selectSeasons as Option[],
+      selectedDays: s.searchFilters.selectDays,
       searchFilters: s.searchFilters,
       setSearchFilter: s.setSearchFilter,
       patchSearchFilters: s.patchSearchFilters,
@@ -176,23 +195,106 @@ export default function FilterBar({
     [selectedSeasons, setSearchFilter],
   );
 
-  const advancedFilterCount = countCatalogListAdvancedFilters(searchFilters);
+  const handleDayToggle = useCallback(
+    (v: string) => {
+      const day = Number(v);
+      const isSelected = selectedDays.some((option) => option.value === day);
+      setSearchFilter(
+        'selectDays',
+        isSelected
+          ? selectedDays.filter((option) => option.value !== day)
+          : [
+              ...selectedDays,
+              {
+                value: day,
+                label:
+                  DAY_OPTIONS.find((option) => option.value === day)?.label ??
+                  v,
+              },
+            ],
+      );
+    },
+    [selectedDays, setSearchFilter],
+  );
+
+  const advancedFilterKeys =
+    getActiveCatalogListAdvancedFilterKeys(searchFilters);
+  const advancedFilterCount = advancedFilterKeys.length;
   const hasActiveFilters =
     selectedSubjects.length > 0 ||
     selectedSeasons.length > 0 ||
+    selectedDays.length > 0 ||
     typeFilters.length > 0 ||
     advancedFilterCount > 0;
 
   const resetAll = useCallback(() => {
     setSearchFilter('selectSubjects', []);
     setSearchFilter('selectSeasons', defaultFilters.selectSeasons);
+    setSearchFilter('selectDays', []);
     patchSearchFilters(buildCatalogListAdvancedFilterReset());
     clearTypeFilters();
   }, [patchSearchFilters, setSearchFilter, clearTypeFilters]);
 
-  const resetAdvancedFilters = useCallback(() => {
-    patchSearchFilters(buildCatalogListAdvancedFilterReset());
-  }, [patchSearchFilters]);
+  const removeAdvancedFilter = useCallback(
+    (key: keyof typeof searchFilters) => {
+      patchSearchFilters(buildCatalogListAdvancedFilterReset([key]));
+    },
+    [patchSearchFilters],
+  );
+
+  const selectedFilterGroups: SelectedFilterGroup[] = [
+    {
+      label: 'Terms',
+      items: selectedSeasons.map((season) => ({
+        id: season.value,
+        label: season.label,
+        onRemove: () => handleTermToggle(season.value),
+      })),
+    },
+    {
+      label: 'Subjects',
+      items: selectedSubjects.map((subject) => ({
+        id: subject.value,
+        label: subject.label,
+        onRemove: () =>
+          setSearchFilter(
+            'selectSubjects',
+            selectedSubjects.filter((item) => item.value !== subject.value),
+          ),
+      })),
+    },
+    {
+      label: 'Days',
+      items: selectedDays.map((day) => ({
+        id: String(day.value),
+        label: day.label,
+        onRemove: () => handleDayToggle(String(day.value)),
+      })),
+    },
+    {
+      label: 'Course types',
+      items: COURSE_TYPES.filter((type) =>
+        typeFilters.includes(type.value),
+      ).map((type) => ({
+        id: type.value,
+        label: type.label,
+        onRemove: () => toggleTypeFilter(type.value),
+      })),
+    },
+    {
+      label: 'Advanced filters',
+      items: advancedFilterKeys.map((key) => ({
+        id: key,
+        label: filterLabels[key],
+        onRemove: () => removeAdvancedFilter(key),
+      })),
+    },
+  ].filter((group) => group.items.length > 0);
+  const selectedFilterCount = selectedFilterGroups.reduce(
+    (count, group) => count + group.items.length,
+    0,
+  );
+  const collapseSelectedFilters = selectedFilterCount > 3;
 
   // On mobile the dropdowns/chips live in the filter bottom sheet (opened
   // from the navbar's Filters button); only the freshness label remains here.
@@ -247,38 +349,31 @@ export default function FilterBar({
         selectedValues={selectedSeasons.map((s) => s.value)}
         onToggle={handleTermToggle}
       />
+      <DropdownMenu
+        label="Days"
+        displayLabel={
+          selectedDays.length > 0 ? `Days (${selectedDays.length})` : undefined
+        }
+        options={DAY_OPTIONS.map((day) => ({
+          value: String(day.value),
+          label: day.label,
+        }))}
+        selectedValues={selectedDays.map((day) => String(day.value))}
+        onToggle={handleDayToggle}
+      />
 
-      {selectedSeasons.map((s) => (
-        <FilterChip
-          key={s.value}
-          label={s.label}
-          onRemove={() => handleTermToggle(s.value)}
-        />
-      ))}
-      {selectedSubjects.map((s) => (
-        <FilterChip
-          key={s.value}
-          label={s.value}
-          onRemove={() =>
-            setSearchFilter(
-              'selectSubjects',
-              selectedSubjects.filter((x) => x.value !== s.value),
-            )
-          }
-        />
-      ))}
-      {COURSE_TYPES.filter((t) => typeFilters.includes(t.value)).map((t) => (
-        <FilterChip
-          key={t.value}
-          label={t.label}
-          onRemove={() => toggleTypeFilter(t.value)}
-        />
-      ))}
-      {advancedFilterCount > 0 && (
-        <FilterChip
-          label={`Advanced: ${advancedFilterCount}`}
-          onRemove={resetAdvancedFilters}
-        />
+      {collapseSelectedFilters ? (
+        <SelectedFiltersMenu groups={selectedFilterGroups} />
+      ) : (
+        selectedFilterGroups.flatMap((group) =>
+          group.items.map((item) => (
+            <FilterChip
+              key={`${group.label}-${item.id}`}
+              label={item.label}
+              onRemove={item.onRemove}
+            />
+          )),
+        )
       )}
 
       {hasActiveFilters && (
@@ -299,4 +394,4 @@ export default function FilterBar({
   );
 }
 
-export { COURSE_TYPES };
+export { COURSE_TYPES, DAY_OPTIONS };

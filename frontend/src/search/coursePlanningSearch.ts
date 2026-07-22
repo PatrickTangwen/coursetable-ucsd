@@ -1,3 +1,4 @@
+import { catalogSearchValues } from './catalogSearchSuggestions';
 import { defaultFilters } from './searchConstants';
 import type { Filters, SortKeys } from './searchTypes';
 import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
@@ -68,7 +69,10 @@ function matchesSearchText(
 ): boolean {
   const { course, section } = listing;
   const first = course.courseNumber.charAt(0);
-  return tokens.every(
+  const catalogValues = catalogSearchValues(listing).map((value) =>
+    value.toLowerCase(),
+  );
+  const matchesLegacySearch = tokens.every(
     (token) =>
       course.courseCode.toLowerCase().startsWith(token) ||
       course.subject.toLowerCase().startsWith(token) ||
@@ -88,6 +92,14 @@ function matchesSearchText(
         building?.toLowerCase().startsWith(token),
       ),
   );
+  const matchesOneCatalogValue = catalogValues.some((value) =>
+    tokens.every((token) =>
+      /^\d+$/u.test(token)
+        ? (value.match(/\d+/gu)?.includes(token) ?? false)
+        : value.includes(token),
+    ),
+  );
+  return matchesLegacySearch || matchesOneCatalogValue;
 }
 
 function applySelectedValues<T>(
@@ -99,6 +111,16 @@ function applySelectedValues<T>(
   return intersecting
     ? selected.every((value) => values.includes(value))
     : selected.some((value) => values.includes(value));
+}
+
+function matchesExactDays(selectedDays: number[], meetingDays: number[]) {
+  if (selectedDays.length === 0) return true;
+  const selected = new Set(selectedDays);
+  const actual = new Set(meetingDays);
+  return (
+    selected.size === actual.size &&
+    [...selected].every((day) => actual.has(day))
+  );
 }
 
 function listingLocation(listing: CoursePlanningListing): string {
@@ -374,16 +396,10 @@ export function filterAndSortCoursePlanningListings(
     )
       return false;
     const days = section.meetings
+      .filter(({ meetingType }) => meetingType?.toLowerCase() !== 'final')
       .flatMap(({ days: meetingDays }) => meetingDays.map(meetingDayValue))
       .filter((day): day is number => day !== null);
-    if (
-      !applySelectedValues(
-        daysSelected,
-        days,
-        filters.intersectingFilters.includes('selectDays'),
-      )
-    )
-      return false;
+    if (!matchesExactDays(daysSelected, days)) return false;
     if (filters.selectSkillsAreas.length > 0) return false;
     const credits = legacySearchCreditValue(course.units);
     if (

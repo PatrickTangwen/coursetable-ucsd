@@ -32,6 +32,7 @@ const CATALOG_LIST_VISIBLE_FILTERS = new Set<keyof Filters>([
   'searchText',
   'selectSubjects',
   'selectSeasons',
+  'selectDays',
 ]);
 
 const CATALOG_LIST_ADVANCED_FILTERS = (
@@ -55,13 +56,21 @@ export function buildCatalogListFilterCleanup(
 }
 
 export function countCatalogListAdvancedFilters(filters: Filters): number {
-  return CATALOG_LIST_ADVANCED_FILTERS.filter(
-    (key) => !isEqual(filters[key], defaultFilters[key]),
-  ).length;
+  return getActiveCatalogListAdvancedFilterKeys(filters).length;
 }
 
-export function buildCatalogListAdvancedFilterReset(): Partial<Filters> {
+export function getActiveCatalogListAdvancedFilterKeys(
+  filters: Filters,
+): (keyof Filters)[] {
+  return CATALOG_LIST_ADVANCED_FILTERS.filter(
+    (key) => !isEqual(filters[key], defaultFilters[key]),
+  );
+}
+
+export function buildCatalogListAdvancedFilterReset(
+  keys: (keyof Filters)[] = CATALOG_LIST_ADVANCED_FILTERS,
+): Partial<Filters> {
   return Object.fromEntries(
-    CATALOG_LIST_ADVANCED_FILTERS.map((key) => [key, defaultFilters[key]]),
+    keys.map((key) => [key, defaultFilters[key]]),
   ) as Partial<Filters>;
 }
