@@ -12,6 +12,7 @@ const capture = {
   requestedSubjects: ['CAT'],
   capturedAt: '2026-07-21T16:05:00.000Z',
   sourceUpdatedAt: null,
+  sourceUpdatedAtProvenance: 'unavailable',
   modules: {
     declaredTotal: 1,
     pages: 1,
@@ -129,6 +130,14 @@ describe('TSS OData capture boundary', () => {
   it('sanitizes rows in memory while preserving real package and event identity', () => {
     const artifact = sanitizeTssODataCapture(capture);
 
+    expect(artifact.coverage).toMatchObject({
+      complete: false,
+      field_coverage: {
+        department_notes: 'not_captured',
+        course_notes: 'not_captured',
+        enrollment_requirements: 'not_captured',
+      },
+    });
     expect(parseTssScheduleArtifact(artifact)).toMatchObject({
       term: 'FA26',
       courses: [

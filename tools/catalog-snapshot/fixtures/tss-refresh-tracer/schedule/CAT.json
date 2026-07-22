@@ -3,6 +3,7 @@
   "term": "FA26",
   "captured_at": "2026-07-21T16:05:00.000Z",
   "source_updated_at": "2026-07-21T09:00:00-07:00",
+  "source_updated_at_provenance": "source_declared",
   "source_term": {
     "academic_year": "2026",
     "academic_period": "2"
@@ -10,6 +11,11 @@
   "coverage": {
     "requested_subjects": ["CAT"],
     "confirmed_empty_subjects": [],
+    "field_coverage": {
+      "department_notes": "captured",
+      "course_notes": "captured",
+      "enrollment_requirements": "captured"
+    },
     "complete": true,
     "continuation_needed": false,
     "omitted_courses": [],

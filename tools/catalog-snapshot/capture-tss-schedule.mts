@@ -1,4 +1,5 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+import { chmod, mkdir, rename, rm, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { createInterface } from 'node:readline/promises';
@@ -22,6 +23,8 @@ const DEFAULT_PROFILE = resolve(
   'sungrid',
   'tss-browser-profile',
 );
+const MAX_CAPTURE_PAGES = 100;
+const MAX_CAPTURE_ROWS = 25_000;
 
 function argument(name: string, fallback?: string): string {
   const index = process.argv.indexOf(name);
@@ -84,11 +87,16 @@ const odataEnvelopeSchema = z
   .passthrough();
 
 async function fetchPage(page: Page, url: string) {
+  if (new URL(page.url()).origin !== 'https://tss.ucsd.edu')
+    throw new Error('TSS capture page is outside the approved origin');
+
   const result = await page.evaluate(async (requestUrl) => {
     const response = await fetch(requestUrl, {
+      cache: 'no-store',
       credentials: 'include',
       headers: { Accept: 'application/json' },
       method: 'GET',
+      redirect: 'error',
     });
     return {
       body: await response.text(),
@@ -111,9 +119,8 @@ async function fetchPage(page: Page, url: string) {
   if (!result.contentType?.toLowerCase().includes('application/json'))
     throw new Error('TSS returned a non-JSON response; login may have expired');
 
-  const responseUrl = new URL(result.responseUrl);
-  if (responseUrl.origin !== 'https://tss.ucsd.edu')
-    throw new Error('TSS request redirected outside the approved origin');
+  if (new URL(result.responseUrl).toString() !== new URL(url).toString())
+    throw new Error('TSS response did not match the exact approved request');
 
   const record = odataEnvelopeSchema.parse(JSON.parse(result.body) as unknown);
   return {
@@ -128,26 +135,43 @@ async function fetchSet(
   request: TssODataRequest,
 ): Promise<ODataSet> {
   const rows: unknown[] = [];
+  const pageSize = Number(new URL(request.url).searchParams.get('$top'));
   let declaredTotal: number | null = null;
   let pages = 0;
   let nextUrl: string | null = request.url;
   const visited = new Set<string>();
   while (nextUrl) {
+    if (pages >= MAX_CAPTURE_PAGES)
+      throw new Error('TSS capture exceeded the approved page budget');
+
     if (visited.has(nextUrl)) throw new Error('TSS continuation loop detected');
     visited.add(nextUrl);
     const result = await fetchPage(page, nextUrl);
     const { declaredTotal: pageDeclaredTotal } = result;
     pages += 1;
     rows.push(...result.rows);
+    if (rows.length > MAX_CAPTURE_ROWS)
+      throw new Error('TSS capture exceeded the approved row budget');
+
     if (pageDeclaredTotal !== null) {
+      if (pageDeclaredTotal > MAX_CAPTURE_ROWS)
+        throw new Error('TSS declared count exceeds the approved row budget');
+
       if (declaredTotal !== null && declaredTotal !== pageDeclaredTotal)
         throw new Error('TSS declared count changed during pagination');
 
       declaredTotal = pageDeclaredTotal;
+      if (rows.length > declaredTotal)
+        throw new Error('TSS returned more rows than its declared count');
     }
     nextUrl = result.continuation
       ? validatedContinuationUrl(request.url, result.continuation)
       : null;
+    if (nextUrl && declaredTotal !== null) {
+      const expectedPages = Math.max(1, Math.ceil(declaredTotal / pageSize));
+      if (pages >= expectedPages || rows.length >= declaredTotal)
+        throw new Error('TSS continued beyond its declared result set');
+    }
     if (nextUrl) {
       await new Promise<void>((done) => {
         setTimeout(done, 1_000);
@@ -173,6 +197,22 @@ async function waitForOperator() {
   input.close();
 }
 
+export async function writePrivateArtifact(pathname: string, value: unknown) {
+  const temporaryPath = `${pathname}.${process.pid}-${randomUUID()}.tmp`;
+  try {
+    await writeFile(temporaryPath, `${JSON.stringify(value, null, 2)}\n`, {
+      encoding: 'utf8',
+      flag: 'wx',
+      mode: 0o600,
+    });
+    await chmod(temporaryPath, 0o600);
+    await rename(temporaryPath, pathname);
+  } catch (error) {
+    await rm(temporaryPath, { force: true });
+    throw error;
+  }
+}
+
 async function main() {
   const term = argument('--term', 'FA26');
   if (term !== 'FA26')
@@ -193,11 +233,17 @@ async function main() {
   const context = await chromium.launchPersistentContext(profilePath, {
     acceptDownloads: false,
     headless: false,
+    serviceWorkers: 'block',
   });
   try {
     const page = context.pages()[0] ?? (await context.newPage());
+    const cdp = await context.newCDPSession(page);
+    await cdp.send('Network.enable');
+    await cdp.send('Network.setCacheDisabled', { cacheDisabled: true });
     await page.goto(SCHEDULE_URL);
     await waitForOperator();
+    if (new URL(page.url()).origin !== 'https://tss.ucsd.edu')
+      throw new Error('Schedule of Classes is not open on the approved origin');
 
     const [modulesRequest, eventsRequest] = requests;
     if (!modulesRequest || !eventsRequest)
@@ -219,15 +265,13 @@ async function main() {
       ].sort(),
       capturedAt: new Date().toISOString(),
       sourceUpdatedAt: null,
+      sourceUpdatedAtProvenance: 'unavailable',
       modules,
       events,
     });
 
     await mkdir(dirname(outputPath), { recursive: true });
-    await writeFile(outputPath, `${JSON.stringify(artifact, null, 2)}\n`, {
-      encoding: 'utf8',
-      mode: 0o600,
-    });
+    await writePrivateArtifact(outputPath, artifact);
     console.log(
       JSON.stringify(
         {
@@ -246,9 +290,11 @@ async function main() {
   }
 }
 
-try {
-  await main();
-} catch (error) {
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exitCode = 1;
+if (import.meta.main) {
+  try {
+    await main();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  }
 }

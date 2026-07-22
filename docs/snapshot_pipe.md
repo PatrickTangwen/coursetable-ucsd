@@ -325,9 +325,15 @@ The contract keeps these provenance and coverage concepts separate:
   `tss-schedule-v1` producers must provide an offset-aware timestamp.
 - `source_updated_at` is the source-declared Schedule freshness, or `null` when
   TSS does not declare one. Capture time never substitutes for source time.
+- `source_updated_at_provenance` must be `source_declared` when that timestamp
+  exists and `unavailable` when it does not. Arbitrary display text cannot
+  unlock availability as verified freshness.
 - `coverage.requested_subjects` records the subjects requested by the capture.
 - `coverage.complete`, `coverage.continuation_needed`, and
   `coverage.omitted_courses` preserve the source coverage decision.
+- `coverage.field_coverage` distinguishes captured-empty notes/requirements
+  from fields the capture did not request. `complete: true` requires every
+  declared UI-parity field to be captured.
 - `courses` contains only the sanitized Course, Section/package, component,
   meeting, instructor, and source-declared availability shape consumed by the
   existing Snapshot pipeline.
@@ -335,7 +341,8 @@ The contract keeps these provenance and coverage concepts separate:
 The parser expands this contract beside preserved `tss-chatbot-v1` evidence.
 The compatibility adapter maps the legacy `requested_course` text to requested
 subjects and `source_metadata.last_refreshed_displayed` to
-`source_updated_at`. It records legacy `captured_at` as unknown rather than
+`source_updated_at` only when it is an offset-aware datetime; other display text
+stays unverified. It records legacy `captured_at` as unknown rather than
 inventing a historical capture time. Existing chatbot-era fixtures therefore
 remain replayable without making the legacy schema the permanent identity of
 attended TSS capture.
@@ -385,10 +392,16 @@ Capture behavior:
   Schedule of Classes before continuing the terminal command.
 - The profile is not the maintainer's daily Chrome profile. No `storageState`,
   cookie JSON, HAR, trace, video, download, or raw response file is produced.
+- Service workers are blocked, the Chromium network cache is disabled, each
+  request uses `cache: no-store` and rejects redirects, and the current page
+  plus final response must match the approved TSS origin/request.
 - Requests are serial `GET`s to the exact `tss.ucsd.edu` Schedule service. They
   use an FA26 source-term filter, a bounded page size, stable ordering, count,
   and explicit field selection. Student entities and `InstructorEmail` are not
   selected.
+- A run stops at 100 pages or 25,000 rows, rejects counts above that budget,
+  and rejects continuation beyond the declared count. These are safety
+  ceilings, not completeness heuristics.
 - Each response exists only in memory until strict row validation and field
   allowlisting complete. Only the resulting `tss-schedule-v1` artifact is
   written. Unknown fields, event states, schedule grammar, term values,
@@ -409,6 +422,11 @@ identified. The artifact therefore keeps `source_updated_at: null`; no capture
 may be called Production-ready until live request validation, complete
 pagination/count evidence, source freshness, UCSD access authorization, and the
 TSS UI parity matrix all pass.
+
+The prototype marks department notes, course notes, and enrollment requirements
+as `not_captured`, so its artifact is intentionally `complete: false` even when
+module/event pagination is exhaustive. Empty arrays do not claim those TSS UI
+fields were observed to be empty.
 
 ## Schedule Parser and Modal Data Notes
 

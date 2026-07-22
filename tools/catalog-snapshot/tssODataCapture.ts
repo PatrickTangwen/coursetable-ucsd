@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 import {
   TSS_SCHEDULE_SCHEMA_VERSION,
+  tssEventStatusSchema,
+  tssMeetingModalitySchema,
   tssScheduleArtifactSchema,
   type TssScheduleArtifact,
 } from './tssSchedule';
@@ -140,7 +142,7 @@ const eventRowSchema = z
     EventKey: z.string().min(1),
     InstructorName: z.string(),
     LocationText: z.string(),
-    Status: z.enum(['Scheduled', 'Cancelled']),
+    Status: tssEventStatusSchema,
     EventAbbr: z.string().min(1),
     Sched: z.string(),
     EventPkgObjid: z.string().min(1),
@@ -175,7 +177,8 @@ const captureSchema = z
       .strict(),
     requestedSubjects: z.array(z.string().regex(/^[A-Z][A-Z\d ]*$/u)).min(1),
     capturedAt: z.string().datetime({ offset: true }),
-    sourceUpdatedAt: z.string().min(1).nullable(),
+    sourceUpdatedAt: z.string().datetime({ offset: true }).nullable(),
+    sourceUpdatedAtProvenance: z.enum(['source_declared', 'unavailable']),
     modules: captureSetSchema(moduleRowSchema),
     events: captureSetSchema(eventRowSchema),
   })
@@ -294,7 +297,7 @@ function parseSchedule(row: EventRow): ScheduleMeeting[] {
         start_time: meetingTime(finalMatch.groups.start!),
         end_time: meetingTime(finalMatch.groups.end!),
         location_displayed: nullableText(displayedLocation ?? ''),
-        modality: finalMatch.groups.modality!,
+        modality: tssMeetingModalitySchema.parse(finalMatch.groups.modality),
         instructor: nullableText(row.InstructorName),
         is_tba: false,
         is_arranged: false,
@@ -314,7 +317,7 @@ function parseSchedule(row: EventRow): ScheduleMeeting[] {
         start_time: meetingTime(meetingMatch.groups.start!),
         end_time: meetingTime(meetingMatch.groups.end!),
         location_displayed: nullableText(displayedLocation ?? row.LocationText),
-        modality: meetingMatch.groups.modality!,
+        modality: tssMeetingModalitySchema.parse(meetingMatch.groups.modality),
         instructor: nullableText(row.InstructorName),
         is_tba: false,
         is_arranged: false,
@@ -454,18 +457,27 @@ export function sanitizeTssODataCapture(input: unknown): TssScheduleArtifact {
   const representedSubjects = new Set(
     courses.map((course) => course.tss_course_code.split('-', 1)[0]!),
   );
-  const complete = [capture.modules, capture.events].every(
+  const rowCoverageComplete = [capture.modules, capture.events].every(
     (set) =>
       !set.continuationNeeded &&
       set.declaredTotal !== null &&
       set.declaredTotal === set.rows.length,
   );
+  const fieldCoverage: TssScheduleArtifact['coverage']['field_coverage'] = {
+    department_notes: 'not_captured',
+    course_notes: 'not_captured',
+    enrollment_requirements: 'not_captured',
+  };
+  const complete =
+    rowCoverageComplete &&
+    Object.values(fieldCoverage).every((state) => state === 'captured');
 
   return tssScheduleArtifactSchema.parse({
     schema_version: TSS_SCHEDULE_SCHEMA_VERSION,
     term: capture.term,
     captured_at: capture.capturedAt,
     source_updated_at: capture.sourceUpdatedAt,
+    source_updated_at_provenance: capture.sourceUpdatedAtProvenance,
     source_term: {
       academic_year: capture.sourceTerm.academicYear,
       academic_period: capture.sourceTerm.academicPeriod,
@@ -479,6 +491,7 @@ export function sanitizeTssODataCapture(input: unknown): TssScheduleArtifact {
       confirmed_empty_subjects: capture.requestedSubjects.filter(
         (subject) => !representedSubjects.has(subject),
       ),
+      field_coverage: fieldCoverage,
       source_counts: {
         modules: {
           received: capture.modules.rows.length,

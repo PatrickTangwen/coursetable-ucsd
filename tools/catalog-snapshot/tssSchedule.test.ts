@@ -78,6 +78,7 @@ const sourceNeutralTssResponse = {
   term: 'FA26',
   captured_at: '2026-07-21T16:05:00.000Z',
   source_updated_at: '2026-07-21T09:00:00-07:00',
+  source_updated_at_provenance: 'source_declared',
   source_term: {
     academic_year: '2026',
     academic_period: '2',
@@ -85,6 +86,11 @@ const sourceNeutralTssResponse = {
   coverage: {
     requested_subjects: ['CAT'],
     confirmed_empty_subjects: [],
+    field_coverage: {
+      department_notes: 'captured',
+      course_notes: 'captured',
+      enrollment_requirements: 'captured',
+    },
     complete: true,
     continuation_needed: false,
     omitted_courses: [],
@@ -624,5 +630,31 @@ describe('TSS Catalog Snapshot pipeline input', () => {
     expect(() => parseTssScheduleArtifact(response)).toThrow(
       /FA26 source term/u,
     );
+  });
+
+  it('rejects semantic status, freshness, and parity-coverage drift at the artifact boundary', () => {
+    const statusDrift = structuredClone(sourceNeutralTssResponse);
+    statusDrift.courses[0]!.booking_choices[0]!.components[0]!.status =
+      'Mystery';
+    expect(() => parseTssScheduleArtifact(statusDrift)).toThrow();
+
+    const freshnessDrift = structuredClone(sourceNeutralTssResponse) as {
+      source_updated_at: string;
+    };
+    freshnessDrift.source_updated_at = 'today';
+    expect(() => parseTssScheduleArtifact(freshnessDrift)).toThrow();
+
+    const parityGap = structuredClone(sourceNeutralTssResponse);
+    parityGap.coverage.field_coverage.course_notes = 'not_captured';
+    expect(() => parseTssScheduleArtifact(parityGap)).toThrow(
+      /UI parity field/u,
+    );
+  });
+
+  it('does not treat legacy display text as verified source freshness', () => {
+    const response = structuredClone(tssResponse);
+    response.source_metadata.last_refreshed_displayed = 'today';
+
+    expect(parseTssScheduleArtifact(response).source_updated_at).toBeNull();
   });
 });

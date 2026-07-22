@@ -29,10 +29,14 @@ part of this contract.
   `2`. Any row outside that mapping fails capture.
 - Unknown source fields, status values, schedule display grammar, pagination
   shapes, or package-level conflicts fail closed.
+- Browser caching, service workers, and redirects are disabled for authenticated
+  OData requests, and hard page/row budgets cap a capture run.
 - Capture time and source freshness remain separate. A missing source-declared
-  freshness value stays `null` and cannot be replaced with local capture time.
+  freshness value stays `null` with `unavailable` provenance and cannot be
+  replaced with local capture time or arbitrary text.
 - Complete coverage requires source-declared module/event totals, exhausted
-  continuation, and requested-subject empty/non-empty accounting.
+  continuation, requested-subject empty/non-empty accounting, and explicit
+  captured/not-captured coverage for Schedule UI fields.
 - A working authenticated endpoint does not itself grant authorization to
   automate capture or republish UCSD data.
 

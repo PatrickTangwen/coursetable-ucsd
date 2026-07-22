@@ -118,6 +118,13 @@ const legacyTssResponseSchema = objectSchema(
 );
 
 export const TSS_SCHEDULE_SCHEMA_VERSION = 'tss-schedule-v1' as const;
+export const tssEventStatusSchema = z.enum(['Scheduled', 'Cancelled']);
+export const tssMeetingModalitySchema = z.enum([
+  'In Person',
+  'Online',
+  'Remote',
+  'Hybrid',
+]);
 
 const scheduleWaitlistSchema = objectSchema(
   {
@@ -138,7 +145,7 @@ const scheduleEnrollmentSchema = objectSchema(
 
 const scheduleMeetingSchema = objectSchema(
   {
-    meeting_kind: z.string().min(1),
+    meeting_kind: z.enum(['class', 'final', 'midterm']),
     specific_date: z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/u)
@@ -147,7 +154,7 @@ const scheduleMeetingSchema = objectSchema(
     start_time: z.string().nullable(),
     end_time: z.string().nullable(),
     location_displayed: z.string().nullable(),
-    modality: z.string().nullable(),
+    modality: tssMeetingModalitySchema.nullable(),
     instructor: z.string().nullable(),
     is_tba: z.boolean(),
     is_arranged: z.boolean().nullable(),
@@ -168,7 +175,7 @@ const scheduleComponentSchema = objectSchema(
     event_id: z.string().min(1),
     event_object_id: z.string().min(1),
     event_key: z.string().min(1),
-    status: z.string().min(1),
+    status: tssEventStatusSchema,
     begin_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u),
     end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u),
     schedule_display: z.string().nullable(),
@@ -238,6 +245,14 @@ const scheduleCoverageSchema = objectSchema(
     omitted_courses: z.array(z.string().min(1)),
     requested_subjects: z.array(z.string().min(1)),
     confirmed_empty_subjects: z.array(z.string().min(1)),
+    field_coverage: objectSchema(
+      {
+        department_notes: z.enum(['captured', 'not_captured']),
+        course_notes: z.enum(['captured', 'not_captured']),
+        enrollment_requirements: z.enum(['captured', 'not_captured']),
+      },
+      true,
+    ),
     source_counts: objectSchema(
       {
         modules: sourceCountSchema,
@@ -254,7 +269,8 @@ export const tssScheduleArtifactSchema = objectSchema(
     schema_version: z.literal(TSS_SCHEDULE_SCHEMA_VERSION),
     term: z.string().min(1),
     captured_at: z.string().datetime({ offset: true }),
-    source_updated_at: z.string().min(1).nullable(),
+    source_updated_at: z.string().datetime({ offset: true }).nullable(),
+    source_updated_at_provenance: z.enum(['source_declared', 'unavailable']),
     source_term: objectSchema(
       {
         academic_year: z.string().min(1),
@@ -268,6 +284,20 @@ export const tssScheduleArtifactSchema = objectSchema(
   true,
 ).superRefine((artifact, context) => {
   const { coverage, courses } = artifact;
+  const hasSourceFreshness = artifact.source_updated_at !== null;
+  if (
+    (hasSourceFreshness &&
+      artifact.source_updated_at_provenance !== 'source_declared') ||
+    (!hasSourceFreshness &&
+      artifact.source_updated_at_provenance !== 'unavailable')
+  ) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['source_updated_at_provenance'],
+      message:
+        'source freshness provenance must match the presence of a source-declared timestamp',
+    });
+  }
   if (
     artifact.term === 'FA26' &&
     (artifact.source_term.academic_year !== '2026' ||
@@ -303,6 +333,18 @@ export const tssScheduleArtifactSchema = objectSchema(
     });
   }
   if (coverage.complete) {
+    if (
+      Object.values(coverage.field_coverage).some(
+        (state) => state !== 'captured',
+      )
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['coverage', 'field_coverage'],
+        message:
+          'complete coverage requires every UI parity field to be captured',
+      });
+    }
     if (coverage.continuation_needed || coverage.omitted_courses.length) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
@@ -498,6 +540,11 @@ export function parseTssRequestedSubjects(value?: string): string[] {
     .filter(Boolean);
 }
 
+function legacySourceUpdatedAt(value: string | null): string | null {
+  const parsed = z.string().datetime({ offset: true }).safeParse(value);
+  return parsed.success ? parsed.data : null;
+}
+
 /**
  * Normalizes source-neutral sanitized artifacts and preserved chatbot-era
  * evidence into one downstream Schedule contract. Legacy evidence has no
@@ -514,6 +561,7 @@ export function parseTssScheduleArtifact(
       requested_subjects: requestedSubjects,
       confirmed_empty_subjects: _confirmedEmptySubjects,
       source_counts: _sourceCounts,
+      field_coverage: _fieldCoverage,
       ...coverage
     } = parsed.coverage;
     return {
@@ -570,7 +618,9 @@ export function parseTssScheduleArtifact(
     input_schema_version: parsed.schema_version,
     term: parsed.term,
     captured_at: null,
-    source_updated_at: parsed.source_metadata.last_refreshed_displayed,
+    source_updated_at: legacySourceUpdatedAt(
+      parsed.source_metadata.last_refreshed_displayed,
+    ),
     requested_subjects: parseTssRequestedSubjects(parsed.requested_course),
     coverage: parsed.coverage,
     courses: parsed.courses.map((course) => ({
