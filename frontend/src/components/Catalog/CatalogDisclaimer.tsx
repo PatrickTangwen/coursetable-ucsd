@@ -1,16 +1,11 @@
+import { useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 
-import { usePersistentDismissal } from '../../utilities/browserStorage';
 import { FAQ_URL } from '../landing/links';
 import styles from './CatalogDisclaimer.module.css';
 
-const NOTICE_VERSION = 1;
-
 export default function CatalogDisclaimer() {
-  const { dismissed, dismiss } = usePersistentDismissal(
-    'dismissedCatalogDisclaimer',
-    NOTICE_VERSION,
-  );
+  const [dismissed, setDismissed] = useState(false);
 
   if (dismissed) return null;
 
@@ -28,7 +23,7 @@ export default function CatalogDisclaimer() {
         type="button"
         className={styles.dismissButton}
         aria-label="Dismiss catalog notice"
-        onClick={dismiss}
+        onClick={() => setDismissed(true)}
       >
         <FaTimes aria-hidden="true" />
       </button>

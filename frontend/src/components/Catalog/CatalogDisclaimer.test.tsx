@@ -1,15 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import CatalogDisclaimer from './CatalogDisclaimer';
-
-vi.hoisted(() => {
-  const storage = {
-    getItem: () => null,
-    setItem: () => undefined,
-    removeItem: () => undefined,
-  };
-  Object.assign(globalThis, { localStorage: storage });
-});
 
 describe('CatalogDisclaimer', () => {
   it('summarizes the independent planner and enrollment limitations', () => {
