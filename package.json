@@ -2,7 +2,7 @@
   "name": "coursetable-root",
   "private": true,
   "version": "0.0.0",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "workspaces": [
     "api",
     "frontend"

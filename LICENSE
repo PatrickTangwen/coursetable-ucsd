@@ -1,3 +1,31 @@
+All Rights Reserved Notice
+
+Original contributions first published in the repository revision that
+introduced this notice or in a later revision:
+
+Copyright (c) 2026 Wenhua Tang. All rights reserved.
+
+Except for portions expressly covered by another license, no permission is
+granted to use, copy, reproduce, modify, adapt, translate, publish, distribute,
+sublicense, sell, host, deploy, reverse engineer, create derivative works from,
+or otherwise exploit these original contributions, in whole or in part,
+without prior written permission from the copyright holder.
+
+Access to or possession of these original contributions does not grant any
+license or other rights except those expressly provided in a separate written
+agreement signed by the copyright holder.
+
+This notice applies prospectively from the repository revision that introduced
+it. It does not revoke or restrict rights that were granted for earlier
+versions under the license applicable when those versions were released.
+
+Third-Party and CourseTable-Derived Code
+----------------------------------------
+
+This repository contains code derived from CourseTable. That code remains
+available under the following MIT License, and the copyright and permission
+notice are preserved as required:
+
 Copyright (c) CourseTable
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -10,10 +38,13 @@ furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
-OR OTHER DEALINGS IN THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Other third-party components remain governed by their respective license
+terms. Nothing in this notice limits rights granted under those licenses.
