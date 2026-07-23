@@ -410,8 +410,6 @@
 
 /* ── Mobile cards ── */
 .mobileCard {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 170px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -582,8 +580,6 @@
 
 /* ── Mobile expandable group ── */
 .mobileGroup {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 140px;
   border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 10px;
   overflow: hidden;
