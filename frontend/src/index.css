@@ -123,6 +123,12 @@
   --ct-calendar-illustration-blend-mode: multiply;
   --ct-calendar-illustration-filter: none;
 
+  /* Segmented controls: the raised pill needs its own pair because dark mode
+     cannot rely on drop shadows for elevation — there it gets a visibly
+     lighter surface plus a hairline outline instead. */
+  --ct-segment-pill: #fff;
+  --ct-segment-pill-outline: transparent;
+
   /* Lines: alpha borders/fills via rgb(var(--ct-line-rgb) / X%) */
   --ct-line-rgb: 11 11 11;
   --ct-line: #e7e5e1;
@@ -217,6 +223,10 @@
   --ct-surface-soft: #2d2b27;
   --ct-calendar-illustration-blend-mode: screen;
   --ct-calendar-illustration-filter: invert(1) hue-rotate(180deg) contrast(1.08);
+
+  /* Segmented controls */
+  --ct-segment-pill: #3a3833;
+  --ct-segment-pill-outline: rgb(255 255 255 / 10%);
 
   /* Lines */
   --ct-line-rgb: 255 255 255;
