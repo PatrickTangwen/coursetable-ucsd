@@ -43,6 +43,11 @@ type BaseFetchOptions = {
   };
   cacheBust?: boolean;
   /**
+   * Background data loads whose failures are surfaced by the requesting UI
+   * through state instead of a global toast. Sentry reporting is unaffected.
+   */
+  suppressErrorToast?: boolean;
+  /**
    * Receives the parsed error code. If it returns true, the error is considered
    * handled and no further reporting is done. Only HTTP errors can be handled.
    */
@@ -81,6 +86,7 @@ function parseWithWarning<T extends z.ZodSchema<unknown>>(
     message: string;
     category: string;
   },
+  suppressErrorToast?: boolean,
 ): z.infer<T> | undefined {
   const res = schema.safeParse(data);
   if (res.success) return res.data;
@@ -89,9 +95,11 @@ function parseWithWarning<T extends z.ZodSchema<unknown>>(
     ...breadcrumb,
   });
   Sentry.captureException(res.error);
-  toast.error(
-    `The server returned a response we cannot understand while ${breadcrumb.message.toLowerCase()}. Please try refreshing the page and/or reopening in a new tab.`,
-  );
+  if (!suppressErrorToast) {
+    toast.error(
+      `The server returned a response we cannot understand while ${breadcrumb.message.toLowerCase()}. Please try refreshing the page and/or reopening in a new tab.`,
+    );
+  }
   return undefined;
 }
 
@@ -142,6 +150,7 @@ async function fetchAPI(
     handleErrorCode,
     mapHttpError,
     cacheBust,
+    suppressErrorToast,
   } = options;
   const payload = JSON.stringify(body);
   const isCatalogRequest = isCatalogEndpoint(endpointSuffix);
@@ -203,7 +212,7 @@ async function fetchAPI(
       const rawData: unknown = await res.json();
       // Only parse if a schema is provided
       if (!schema) return rawData;
-      return parseWithWarning(schema, rawData, breadcrumb);
+      return parseWithWarning(schema, rawData, breadcrumb, suppressErrorToast);
     } catch (err) {
       if (isCatalogRequest && !shouldCacheBust && isJsonParseError(err)) {
         return await fetchAPI(endpointSuffix, {
@@ -220,9 +229,11 @@ async function fetchAPI(
       message: body ? `${breadcrumb.message} ${payload}` : breadcrumb.message,
     });
     Sentry.captureException(err);
-    toast.error(
-      `Failed while ${breadcrumb.message.toLowerCase()}: ${String(err)}`,
-    );
+    if (!suppressErrorToast) {
+      toast.error(
+        `Failed while ${breadcrumb.message.toLowerCase()}: ${String(err)}`,
+      );
+    }
     return noResExpected ? false : undefined;
   }
 }
@@ -433,6 +444,7 @@ export function fetchCatalogMetadata() {
       message: 'Fetching catalog metadata',
     },
     schema: catalogMetadataSchema,
+    suppressErrorToast: true,
   });
 }
 
@@ -445,6 +457,7 @@ export async function fetchCatalog(season: Season) {
   };
   const res = await fetchAPI(`/catalog/public/${season}`, {
     breadcrumb,
+    suppressErrorToast: true,
   });
   if (!res) return undefined;
   return catalogResponseToCatalogData(res);

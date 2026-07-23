@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/react';
-import { toast } from 'sonner';
 import type { StateCreator } from 'zustand';
 
 import { seasons } from '../data/catalogSeasons';
@@ -18,7 +17,9 @@ type GlobalWithFerryCatalogListener = typeof globalThis & {
 
 interface FerrySliceState {
   ferryRequests: number;
-  ferryErrors: object[];
+  // Load failures per season. Background loads never toast; surfaces that
+  // requested a season derive their error state from this map.
+  ferrySeasonErrors: { [season: Season]: object };
   ferryCatalogRevision: number;
 }
 
@@ -43,34 +44,43 @@ export const createFerrySlice: StateCreator<Store, [], [], FerrySlice> = (
 
   return {
     ferryRequests: 0,
-    ferryErrors: [],
+    ferrySeasonErrors: {},
     ferryCatalogRevision: 0,
 
     async requestSeasons(requestedSeasons) {
-      set({ ferryErrors: [] });
-      const fetches = requestedSeasons.map(async (season) => {
-        if (!seasons.includes(season)) return;
-        const includeEvals = false;
-        if (shouldSkipCatalogRequest(season, includeEvals)) return;
-
-        set({ ferryRequests: get().ferryRequests + 1 });
-        try {
-          await loadCatalogSeason(season, includeEvals);
-        } finally {
-          set({ ferryRequests: get().ferryRequests - 1 });
-        }
+      set((state) => {
+        const cleared = { ...state.ferrySeasonErrors };
+        for (const season of requestedSeasons) delete cleared[season];
+        return { ferrySeasonErrors: cleared };
       });
-      const results = await Promise.allSettled(fetches);
-      const errors = results
-        .filter(
-          (result): result is PromiseRejectedResult =>
-            result.status === 'rejected',
-        )
-        .map((result) => result.reason as object);
+      const failures = await Promise.all(
+        requestedSeasons.map(async (season) => {
+          if (!seasons.includes(season)) return null;
+          const includeEvals = false;
+          if (shouldSkipCatalogRequest(season, includeEvals)) return null;
+
+          set({ ferryRequests: get().ferryRequests + 1 });
+          try {
+            await loadCatalogSeason(season, includeEvals);
+            return null;
+          } catch (err) {
+            return { season, error: err as object };
+          } finally {
+            set({ ferryRequests: get().ferryRequests - 1 });
+          }
+        }),
+      );
+      const errors = failures.filter((failure) => failure !== null);
       if (errors.length > 0) {
-        for (const err of errors) Sentry.captureException(err);
-        toast.error('Failed to fetch course information');
-        set({ ferryErrors: errors });
+        for (const { error } of errors) Sentry.captureException(error);
+        set((state) => ({
+          ferrySeasonErrors: {
+            ...state.ferrySeasonErrors,
+            ...Object.fromEntries(
+              errors.map(({ season, error }) => [season, error]),
+            ),
+          },
+        }));
       }
     },
   };

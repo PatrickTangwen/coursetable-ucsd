@@ -1093,13 +1093,21 @@ export const useWorksheetEffects = () => {
     })),
   );
 
+  // Only worksheets with saved sections need the season catalog to resolve
+  // them; an empty worksheet must not trigger a catalog download.
   const anonymousRequestedSeasons = useMemo(
-    () => (isAnonymousWorksheet ? [viewedSeason] : []),
-    [isAnonymousWorksheet, viewedSeason],
+    () =>
+      isAnonymousWorksheet &&
+      getAnonymousWorksheetCourses(anonymousWorksheet, viewedSeason).length > 0
+        ? [viewedSeason]
+        : [],
+    [anonymousWorksheet, isAnonymousWorksheet, viewedSeason],
   );
   const savedWorksheetRequestedSeasons = useMemo(
     () =>
-      !isAnonymousWorksheet && activeSavedWorksheet
+      !isAnonymousWorksheet &&
+      activeSavedWorksheet &&
+      activeSavedWorksheet.sections.length > 0
         ? [activeSavedWorksheet.term]
         : [],
     [activeSavedWorksheet, isAnonymousWorksheet],

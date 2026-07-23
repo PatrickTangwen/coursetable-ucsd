@@ -8,23 +8,37 @@ import type { Season } from '../queries/graphql-types';
 import { useStore } from '../store';
 
 /**
+ * First load failure among the given seasons. Errors are season-scoped so a
+ * failure only surfaces on views that actually requested that season.
+ */
+export function getSeasonScopedError(
+  seasonErrors: { [season: Season]: object },
+  requestedSeasons: Season[],
+): object | null {
+  for (const season of requestedSeasons) {
+    const error = seasonErrors[season];
+    if (error) return error;
+  }
+  return null;
+}
+
+/**
  * Active UCSD Catalog state. This boundary never exposes GraphQL query hooks.
  */
 export function useCoursePlanningCatalog() {
   const requests = useStore((state) => state.ferryRequests);
-  const errors = useStore((state) => state.ferryErrors);
+  const seasonErrors = useStore((state) => state.ferrySeasonErrors);
   useStore((state) => state.ferryCatalogRevision);
   const requestSeasons = useStore((state) => state.requestSeasons);
 
-  const error = errors[0] ?? null;
-  const loading = requests !== 0 && !error;
+  const loading = requests !== 0;
   const courses = getCourseData();
 
-  return { requests, loading, error, courses, requestSeasons };
+  return { requests, loading, seasonErrors, courses, requestSeasons };
 }
 
 export function useCoursePlanningRequest(requestedSeasons: Season[]) {
-  const { error, courses, requestSeasons } = useCoursePlanningCatalog();
+  const { seasonErrors, courses, requestSeasons } = useCoursePlanningCatalog();
   const includeEvals = false;
 
   useEffect(() => {
@@ -38,6 +52,7 @@ export function useCoursePlanningRequest(requestedSeasons: Season[]) {
     void requestSeasons(requestedSeasons);
   }, [includeEvals, requestSeasons, requestedSeasons]);
 
+  const error = getSeasonScopedError(seasonErrors, requestedSeasons);
   return { error, courses };
 }
 
