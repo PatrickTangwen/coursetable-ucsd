@@ -634,6 +634,10 @@
   padding: 8px 12px;
   transition: background-color 0.12s ease;
   cursor: pointer;
+
+  /* The row is a click target (expand toggle); taps and double clicks must
+     not select the course title text. */
+  user-select: none;
 }
 
 .cardMain:hover {
@@ -670,7 +674,19 @@
 }
 
 .cardCode {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
   font-weight: 700;
+  cursor: pointer;
+}
+
+.cardCode:hover,
+.cardCode:focus-visible {
+  color: var(--ct-accent-text);
+  text-decoration: underline;
 }
 
 .cardSection {

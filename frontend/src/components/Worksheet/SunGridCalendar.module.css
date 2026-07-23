@@ -171,35 +171,6 @@
   max-width: 100%;
 }
 
-.eventButtons {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  opacity: 0;
-  transition: opacity 0.2s ease-in-out;
-}
-
-.eventBlock:hover .eventButtons,
-.eventBlock:focus-within .eventButtons {
-  opacity: 1;
-}
-
-.eventHideButton {
-  background: transparent;
-  border: none;
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  color: inherit;
-}
-
 .nowLine {
   position: absolute;
   left: 0;

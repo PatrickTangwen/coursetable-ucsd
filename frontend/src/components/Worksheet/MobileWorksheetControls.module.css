@@ -1,0 +1,97 @@
+/* Second navbar row on the mobile worksheet: icon view toggle on the left,
+   Finals chip on the right. */
+.controlsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 12px 10px;
+}
+
+/* ── Icon view toggle (Calendar / List) ── */
+.viewToggle {
+  position: relative;
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 10px;
+  background: rgb(var(--ct-line-rgb) / 6%);
+}
+
+.viewPill {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: 44px;
+  border-radius: 8px;
+  background: var(--ct-segment-pill);
+  box-shadow:
+    0 0 0 1px var(--ct-segment-pill-outline),
+    0 1px 3px rgb(11 11 11 / 10%);
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.viewPillRight {
+  transform: translateX(44px);
+}
+
+.viewButton {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ct-text-muted);
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+
+.viewButtonActive {
+  color: var(--ct-ink);
+}
+
+/* ── Finals chip (off = regular weeks) ── */
+.finalsChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid rgb(var(--ct-line-rgb) / 10%);
+  border-radius: 999px;
+  background: var(--ct-surface);
+  color: var(--ct-text-secondary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.finalsChipActive {
+  border-color: var(--ct-accent-border);
+  background: var(--ct-accent-tint);
+  color: var(--ct-accent-text);
+}
+
+.finalsBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  background: var(--ct-accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+}

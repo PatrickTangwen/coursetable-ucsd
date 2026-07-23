@@ -1,4 +1,54 @@
+.swipeShell {
+  position: relative;
+}
+
+/* Mobile: the card can slide right to reveal the Remove zone underneath;
+   the shell clips the translated card so it never widens the page. */
+.swipeShellTouch {
+  overflow: hidden;
+  border-radius: 8px;
+  touch-action: pan-y;
+}
+
+/* Hidden while the card is at rest so no red bleeds through the card's
+   antialiased corners; it fades out alongside the card's snap-back. */
+.swipeUnderlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  border-radius: 8px;
+  background: var(--ct-danger-accent);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.swipeUnderlayVisible {
+  opacity: 1;
+}
+
+/* Width mirrors swipeRevealFraction in WorksheetListItem.tsx. */
+.swipeRemoveButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 20%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .card {
+  /* Positioned so it always paints above the absolutely positioned swipe
+     underlay, even before any transform is applied. */
+  position: relative;
   overflow: hidden;
   border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 8px;
@@ -6,7 +56,9 @@
   box-shadow:
     0 1px 2px rgb(11 11 11 / 8%),
     0 1px 4px rgb(11 11 11 / 4%);
-  transition: box-shadow 0.25s ease;
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.22s ease;
 }
 
 .card:hover {
@@ -27,6 +79,10 @@
   padding: 14px 16px;
   cursor: pointer;
   transition: background 0.15s ease;
+
+  /* The header is a click target (expand toggle); taps and double clicks
+     must not select the course title text. */
+  user-select: none;
 }
 
 .header:hover {

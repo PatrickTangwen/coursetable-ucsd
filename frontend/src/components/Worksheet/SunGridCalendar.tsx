@@ -11,7 +11,6 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { chooseCalendarEventFontSize } from './calendarEventFit';
 import CalendarQuickModal from './CalendarQuickModal';
-import { useToggleCourseHidden } from './WorksheetHideButton';
 import type { Theme } from '../../slices/ThemeSlice';
 import { useStore } from '../../store';
 import {
@@ -247,7 +246,6 @@ function EventBlock({
       theme: s.theme,
     })),
   );
-  const toggleCourseHidden = useToggleCourseHidden();
   const blockRef = useRef<HTMLDivElement>(null);
   const fitRef = useRef<HTMLDivElement>(null);
   const [isNarrow, setIsNarrow] = useState(false);
@@ -346,7 +344,7 @@ function EventBlock({
   };
 
   return (
-    // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- absolutely positioned grid block hosting a nested hide button
+    // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- absolutely positioned grid block
     <div
       ref={blockRef}
       className={styles.eventBlock}
@@ -437,32 +435,6 @@ function EventBlock({
           )}
         </div>
       </div>
-      {toggleCourseHidden && (
-        <div className={styles.eventButtons}>
-          <button
-            type="button"
-            className={styles.eventHideButton}
-            aria-label="Hide from calendar"
-            onClick={(e) => {
-              e.stopPropagation();
-              void toggleCourseHidden(crn, false);
-            }}
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden="true"
-            >
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-          </button>
-        </div>
-      )}
     </div>
   );
 }

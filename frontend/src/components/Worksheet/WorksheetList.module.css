@@ -373,12 +373,6 @@
   background: rgb(var(--ct-line-rgb) / 4%);
 }
 
-.settingsMenuDivider {
-  height: 1px;
-  background: rgb(var(--ct-line-rgb) / 8%);
-  margin: 6px 4px;
-}
-
 .settingsMenuDanger,
 .settingsMenuRestore {
   width: 100%;

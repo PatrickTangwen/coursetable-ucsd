@@ -191,28 +191,11 @@
   }
 }
 
-/* ── Worksheet mobile navbar (finalized calendar design) ── */
-.mobileWorksheetOptionsButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 38px;
-  padding: 0 14px;
-  border: 0;
-  background: transparent;
-  font-size: 14px;
-  font-family: inherit;
-  font-weight: 500;
-  color: var(--ct-text-secondary);
-  border-radius: 6px;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
-}
+/* ── Worksheet mobile navbar ── */
 
-.mobileWorksheetOptionsButton:hover {
-  background: rgb(var(--ct-line-rgb) / 4%);
-  color: var(--ct-text-secondary);
+/* The term dropdown sits right of the logo; keep it from growing and let
+   its label ellipsize on narrow screens. */
+.mobileTermSlot {
+  min-width: 0;
+  flex-shrink: 1;
 }

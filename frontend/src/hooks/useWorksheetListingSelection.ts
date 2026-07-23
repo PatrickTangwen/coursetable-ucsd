@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
 
 import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
@@ -11,8 +10,6 @@ import {
 } from '../utilities/anonymousWorksheet';
 import { getNextWorksheetColor } from '../utilities/constants';
 import { savedWorksheetHasListing } from '../utilities/savedWorksheet';
-
-const toastDuration = 800;
 
 export function useWorksheetListingSelection() {
   const {
@@ -79,14 +76,7 @@ export function useWorksheetListingSelection() {
         : inWorksheet
           ? removeAnonymousWorksheetListing(listing)
           : addAnonymousWorksheetListing(listing, color);
-      if (!changed) return false;
-      toast.success(
-        inWorksheet
-          ? 'Removed from worksheet'
-          : `Added ${listing.course.courseCode} to worksheet`,
-        { duration: toastDuration },
-      );
-      return true;
+      return changed;
     },
     [
       activeSavedWorksheet,

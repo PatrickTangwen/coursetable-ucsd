@@ -5,13 +5,7 @@ import { RemoveWorksheetButton } from './WorksheetToggleControls';
 import { useStore } from '../../store';
 import type { WorksheetListingViewModel } from '../../types/worksheetCourse';
 
-export default function WorksheetViewModelRemoveButton({
-  listing,
-  className,
-}: {
-  readonly listing: WorksheetListingViewModel;
-  readonly className?: string;
-}) {
+export function useRemoveWorksheetListing(listing: WorksheetListingViewModel) {
   const {
     isAnonymousWorksheet,
     removeActiveSavedWorksheetListing,
@@ -27,22 +21,32 @@ export default function WorksheetViewModelRemoveButton({
     })),
   );
   const hasSavedWorksheetAccount = Boolean(user);
-  const remove = async () => {
-    const changed = isAnonymousWorksheet
-      ? removeAnonymousWorksheetListing(listing)
-      : hasSavedWorksheetAccount
-        ? await removeActiveSavedWorksheetListing(listing)
-        : false;
-    if (changed) toast.success('Removed from worksheet', { duration: 800 });
+  const canRemove = isAnonymousWorksheet || hasSavedWorksheetAccount;
+  const remove = () => {
+    const removeInternal = async () => {
+      if (isAnonymousWorksheet) removeAnonymousWorksheetListing(listing);
+      else if (hasSavedWorksheetAccount)
+        await removeActiveSavedWorksheetListing(listing);
+    };
+    removeInternal().catch(() => toast.error('Unable to remove course'));
   };
+  return { remove, canRemove };
+}
+
+export default function WorksheetViewModelRemoveButton({
+  listing,
+  className,
+}: {
+  readonly listing: WorksheetListingViewModel;
+  readonly className?: string;
+}) {
+  const { remove, canRemove } = useRemoveWorksheetListing(listing);
 
   return (
     <RemoveWorksheetButton
       className={className}
-      onClick={() => {
-        remove().catch(() => toast.error('Unable to remove course'));
-      }}
-      disabled={!isAnonymousWorksheet && !hasSavedWorksheetAccount}
+      onClick={remove}
+      disabled={!canRemove}
       ariaLabel="Remove from worksheet"
     />
   );

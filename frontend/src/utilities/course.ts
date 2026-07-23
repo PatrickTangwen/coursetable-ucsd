@@ -665,11 +665,15 @@ export function formatSectionSuffix(course: { section: string }): string {
 
 export function formatWorksheetSectionSuffix(
   listing: { school: string } & {
-    course: { section: string };
+    course: { section: string; section_display?: string };
   },
 ): string {
-  if (listing.school === 'UCSD' && listing.course.section.length > 0)
-    return ` ${listing.course.section}`;
+  if (listing.school === 'UCSD') {
+    // Prefer the SunGrid-assigned section name (e.g. "A00") so worksheet
+    // cards match the course modal's section labels.
+    const display = listing.course.section_display ?? listing.course.section;
+    if (display.length > 0) return ` ${display}`;
+  }
   return formatSectionSuffix(listing.course);
 }
 

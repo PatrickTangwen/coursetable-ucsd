@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import clsx from 'clsx';
-import { FaBars, FaGear } from 'react-icons/fa6';
+import { FaBars } from 'react-icons/fa6';
 
 import DarkModeButton from './DarkModeButton';
 import Logo from './Logo';
@@ -13,11 +13,14 @@ import { createCatalogLink } from '../../utilities/navigation';
 import CatalogNavSearch, {
   CatalogResultCount,
 } from '../Catalog/CatalogNavSearch';
+import {
+  MobileWorksheetTermSelector,
+  MobileWorksheetViewControls,
+} from '../Worksheet/MobileWorksheetControls';
 import { NavbarWorksheetSearch } from '../Worksheet/NavbarWorksheetSearch';
-import WorksheetOptionsSheet from '../Worksheet/WorksheetOptionsSheet';
 import styles from './TopNav.module.css';
 
-type MobileSheet = 'navigation' | 'worksheet-options' | null;
+type MobileSheet = 'navigation' | null;
 
 export default function TopNav() {
   const isMobile = useStore((state) => state.isMobile);
@@ -47,6 +50,14 @@ export default function TopNav() {
           <Logo className={isPrivacyPage ? styles.privacyLogo : undefined} />
         </NavLink>
 
+        {/* Mirrors the desktop navbar: the term selector sits right of the
+            logo. */}
+        {isWorksheetMobile && (
+          <div className={styles.mobileTermSlot}>
+            <MobileWorksheetTermSelector />
+          </div>
+        )}
+
         {showCatalogSearch && <CatalogNavSearch />}
         {isWorksheetPage && !isMobile && (
           <div className={styles.searchArea}>
@@ -59,19 +70,6 @@ export default function TopNav() {
         )}
 
         {showCatalogSearch && <CatalogResultCount />}
-
-        {isWorksheetMobile && (
-          <button
-            type="button"
-            className={styles.mobileWorksheetOptionsButton}
-            onClick={() => setMobileSheet('worksheet-options')}
-            aria-haspopup="dialog"
-            aria-expanded={mobileSheet === 'worksheet-options'}
-          >
-            <FaGear aria-hidden="true" />
-            Options
-          </button>
-        )}
 
         <button
           type="button"
@@ -119,14 +117,8 @@ export default function TopNav() {
             <MeDropdown />
           </div>
         )}
-
-        {isWorksheetMobile && (
-          <WorksheetOptionsSheet
-            open={mobileSheet === 'worksheet-options'}
-            onClose={() => setMobileSheet(null)}
-          />
-        )}
       </nav>
+      {isWorksheetMobile && <MobileWorksheetViewControls />}
     </header>
   );
 }

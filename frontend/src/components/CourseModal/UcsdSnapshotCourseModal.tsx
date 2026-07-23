@@ -1104,26 +1104,11 @@ export default function UcsdSnapshotCourseModal({
         '#E91E63',
       ];
       const color = colors[Math.floor(Math.random() * colors.length)]!;
-      const label =
-        `${target.course.courseCode} ${target.section.sectionCode ?? ''}`.trim();
       if (authStatus === 'authenticated') {
-        void addActiveSavedWorksheetListing(target, color).then(
-          (savedAdded) => {
-            if (savedAdded) {
-              toast.success(`Added ${label} to worksheet`, {
-                duration: courseActionToastDuration,
-              });
-            }
-          },
-        );
+        void addActiveSavedWorksheetListing(target, color);
         return;
       }
-      const added = addAnonymousWorksheetListing(target, color);
-      if (added) {
-        toast.success(`Added ${label} to worksheet`, {
-          duration: courseActionToastDuration,
-        });
-      }
+      addAnonymousWorksheetListing(target, color);
     },
     [
       addActiveSavedWorksheetListing,

@@ -22,6 +22,7 @@ import {
   formatHours,
   hasAnyExam,
 } from './worksheetInsights';
+import WorksheetListItem from './WorksheetListItem';
 import { worksheetExportMenuCopy } from './worksheetMenuCopy';
 import WorksheetPicker, { useCloseOnOutsideClick } from './WorksheetPicker';
 import type { SavedWorksheetSection } from '../../queries/api';
@@ -35,7 +36,10 @@ import {
 import { getWorksheetColorAppearance } from '../../utilities/constants';
 import { getWorksheetCourseStats } from '../../utilities/course';
 import { createCatalogLink } from '../../utilities/navigation';
-import { getScheduleConflicts } from '../../utilities/scheduleConflicts';
+import {
+  getScheduleConflicts,
+  groupConflictsByCrn,
+} from '../../utilities/scheduleConflicts';
 import EmptyCalendarIllustration from '../EmptyCalendarIllustration';
 import styles from './WorksheetCalendarSidebar.module.css';
 
@@ -44,12 +48,8 @@ type ClearedSnapshot =
   | { kind: 'anonymous'; courses: AnonymousWorksheetCourse[] };
 
 function sectionOf(course: WorksheetCourse) {
-  const details = (
-    course.listing.course as {
-      ucsd_calendar?: { section_code?: string | null };
-    }
-  ).ucsd_calendar;
-  return details?.section_code ?? course.listing.course.section;
+  const { course: courseInfo } = course.listing;
+  return courseInfo.section_display ?? courseInfo.section;
 }
 
 function MenuCheckIcon() {
@@ -174,9 +174,10 @@ function CourseCard({
         className={styles.cardMain}
         role="button"
         tabIndex={0}
-        onClick={openModal}
+        aria-expanded={expanded}
+        onClick={onToggleExpand}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') openModal();
+          if (e.key === 'Enter' || e.key === ' ') onToggleExpand();
         }}
         onMouseEnter={() => setHoverCourse(crn)}
         onMouseLeave={() => setHoverCourse(null)}
@@ -190,9 +191,18 @@ function CourseCard({
         />
         <div className={styles.cardInfo}>
           <span className={styles.cardCodeLine}>
-            <strong className={styles.cardCode}>
+            {/* Only the course code opens the modal; the rest of the card
+                toggles the details panel. */}
+            <button
+              type="button"
+              className={styles.cardCode}
+              onClick={(e) => {
+                e.stopPropagation();
+                openModal();
+              }}
+            >
               {course.listing.course_code}
-            </strong>
+            </button>
             {section && <span className={styles.cardSection}> {section}</span>}
             {hasConflict && (
               <span
@@ -459,6 +469,10 @@ export default function WorksheetCalendarSidebar() {
   const visibleConflicts = useMemo(
     () => getScheduleConflicts(visibleCourses),
     [visibleCourses],
+  );
+  const conflictsByCrn = useMemo(
+    () => groupConflictsByCrn(visibleConflicts),
+    [visibleConflicts],
   );
   const conflictPartners = useMemo(() => {
     const sectionByCrn = new Map(
@@ -1152,6 +1166,28 @@ export default function WorksheetCalendarSidebar() {
       <div className={styles.courseListRegion}>
         <div className={styles.courseList}>
           {visibleCourses.map((course) => {
+            // Mobile reuses the List view card: taller tap targets and the
+            // same expand/preview behavior as the list view.
+            if (isMobile) {
+              return (
+                <WorksheetListItem
+                  key={course.listing.crn}
+                  course={course}
+                  expanded={expandedCards.has(course.listing.crn)}
+                  colorMenuOpen={openColorMenuCrn === course.listing.crn}
+                  colorPickerInSheet
+                  conflicts={
+                    hideConflictWarnings
+                      ? []
+                      : (conflictsByCrn.get(course.listing.crn) ?? [])
+                  }
+                  onToggleExpand={() => toggleCardExpanded(course.listing.crn)}
+                  onColorMenuOpenChange={(open) =>
+                    setOpenColorMenuCrn(open ? course.listing.crn : null)
+                  }
+                />
+              );
+            }
             const partners = conflictPartners.get(course.listing.crn);
             return (
               <CourseCard

@@ -736,10 +736,6 @@ function WorksheetList() {
                         {!isReadonlyWorksheet &&
                           (courses.length > 0 || clearedSnapshot) && (
                             <>
-                              <div
-                                className={styles.settingsMenuDivider}
-                                aria-hidden="true"
-                              />
                               {confirmClear ? (
                                 <div className={styles.confirmBlock}>
                                   <div className={styles.confirmText}>

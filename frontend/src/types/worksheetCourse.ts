@@ -3,6 +3,7 @@ import {
   type CoursePlanningListing,
   type CoursePlanningMeeting,
 } from '../queries/coursePlanningViewModels';
+import { buildFa26SectionMapping } from '../queries/fa26SectionMapping';
 import type { Crn, Season } from '../queries/graphql-types';
 
 export type WorksheetMeeting = {
@@ -28,6 +29,8 @@ export type WorksheetListingViewModel = {
   course: {
     season_code: Season;
     section: string;
+    /** SunGrid-assigned section name (e.g. "A00"), as shown in the modal. */
+    section_display?: string;
     title: string;
     credits: number | null;
     last_updated?: string;
@@ -110,6 +113,12 @@ export function coursePlanningListingToWorksheetCourse(
   hidden: boolean | null,
 ): WorksheetCourse {
   const crn = coursePlanningSectionModalId(listing.section.sectionId) as Crn;
+  const sectionDisplay =
+    buildFa26SectionMapping(listing.course.sections).bySectionId.get(
+      listing.section.sectionId,
+    )?.displayMeetingCode ??
+    listing.section.sectionCode ??
+    '';
   return {
     crn,
     color,
@@ -124,6 +133,7 @@ export function coursePlanningListingToWorksheetCourse(
       course: {
         season_code: listing.section.supportedTerm as Season,
         section: listing.section.sectionCode ?? '',
+        section_display: sectionDisplay,
         title: listing.course.title,
         credits: courseCredits(listing.course.units),
         last_updated: listing.generatedAt,
