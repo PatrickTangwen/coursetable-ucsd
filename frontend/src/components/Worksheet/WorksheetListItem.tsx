@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { type ReactNode, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 import { FiChevronDown } from 'react-icons/fi';
@@ -11,6 +11,7 @@ import {
   listDayLabels,
   type ListDayFlags,
   type WorksheetDatedMeeting,
+  type WorksheetItemMeetings,
 } from './worksheetListMeetings';
 import WorksheetViewModelRemoveButton, {
   useRemoveWorksheetListing,
@@ -102,6 +103,101 @@ function datedKindClass(meeting: WorksheetDatedMeeting): string | false {
   if (meeting.tone === 'midterm') return styles.kindMidterm!;
   if (meeting.tone === 'final') return styles.kindFinal!;
   return false;
+}
+
+export function WorksheetMeetingDetails({
+  meetings,
+  primaryColor,
+  conflicts,
+  footer,
+}: {
+  readonly meetings: WorksheetItemMeetings;
+  readonly primaryColor: string;
+  readonly conflicts: readonly CourseConflict[];
+  readonly footer?: ReactNode;
+}) {
+  const { weekly, dated } = meetings;
+  const conflictsByMeetingIndex = useMemo(() => {
+    const map = new Map<number, CourseConflict[]>();
+    for (const conflict of conflicts) {
+      const list = map.get(conflict.own.meetingIndex) ?? [];
+      list.push(conflict);
+      map.set(conflict.own.meetingIndex, list);
+    }
+    return map;
+  }, [conflicts]);
+
+  return (
+    <div className={styles.expandPanel}>
+      {weekly.map((meeting, index) => (
+        <div key={`weekly-${index}`} className={styles.meetingRow}>
+          <span
+            className={styles.meetingDot}
+            style={{ backgroundColor: primaryColor }}
+            aria-hidden="true"
+          />
+          <div>
+            <div className={styles.meetingKindRow}>
+              <span className={styles.meetingKind}>{meeting.kind}</span>
+            </div>
+            <div className={styles.meetingDate}>
+              <ListDayDots days={meeting.days} />
+            </div>
+            {meetingMeta(meeting) && (
+              <div className={styles.meetingMeta}>{meetingMeta(meeting)}</div>
+            )}
+            {(conflictsByMeetingIndex.get(meeting.meetingIndex) ?? []).map(
+              (conflict, conflictIndex) => (
+                <div key={conflictIndex} className={styles.meetingConflict}>
+                  <ConflictTriangle size={11} />
+                  Overlaps {conflict.other.courseCode}{' '}
+                  {conflict.other.meetingType} ·{' '}
+                  {describeConflictSlot(conflict)}
+                </div>
+              ),
+            )}
+          </div>
+        </div>
+      ))}
+      {dated.map((meeting, index) => (
+        <div key={`dated-${index}`} className={styles.meetingRow}>
+          <span
+            className={styles.meetingDot}
+            style={{ backgroundColor: primaryColor }}
+            aria-hidden="true"
+          />
+          <div>
+            <div className={styles.meetingKindRow}>
+              <span
+                className={clsx(styles.meetingKind, datedKindClass(meeting))}
+              >
+                {meeting.kind}
+              </span>
+              <CountdownBadge daysUntil={meeting.daysUntil} />
+            </div>
+            <div className={styles.meetingDate}>{meeting.dateLabel}</div>
+            {meetingMeta(meeting) && (
+              <div className={styles.meetingMeta}>{meetingMeta(meeting)}</div>
+            )}
+            {(conflictsByMeetingIndex.get(meeting.meetingIndex) ?? []).map(
+              (conflict, conflictIndex) => (
+                <div key={conflictIndex} className={styles.meetingConflict}>
+                  <ConflictTriangle size={11} />
+                  Overlaps {conflict.other.courseCode}{' '}
+                  {conflict.other.meetingType} ·{' '}
+                  {describeConflictSlot(conflict)}
+                </div>
+              ),
+            )}
+          </div>
+        </div>
+      ))}
+      {weekly.length === 0 && dated.length === 0 && (
+        <div className={styles.noMeetings}>No meetings listed</div>
+      )}
+      {footer && <div className={styles.panelFooter}>{footer}</div>}
+    </div>
+  );
 }
 
 export default function WorksheetListItem({
@@ -237,22 +333,13 @@ export default function WorksheetListItem({
     () => getWorksheetColorAppearance(color, theme).primary,
     [color, theme],
   );
-  const { weekly, dated } = useMemo(
+  const meetings = useMemo(
     () => buildWorksheetItemMeetings(listing),
     [listing],
   );
+  const { weekly } = meetings;
   const preview = weekly.find((meeting) => meeting.time !== 'TBA') ?? null;
   const { credits } = listing.course;
-
-  const conflictsByMeetingIndex = useMemo(() => {
-    const map = new Map<number, CourseConflict[]>();
-    for (const conflict of conflicts) {
-      const list = map.get(conflict.own.meetingIndex) ?? [];
-      list.push(conflict);
-      map.set(conflict.own.meetingIndex, list);
-    }
-    return map;
-  }, [conflicts]);
   const conflictingCourseCount = new Set(
     conflicts.map((conflict) => conflict.other.crn),
   ).size;
@@ -441,87 +528,17 @@ export default function WorksheetListItem({
         </div>
 
         {expanded && (
-          <div className={styles.expandPanel}>
-            {weekly.map((meeting, index) => (
-              <div key={`weekly-${index}`} className={styles.meetingRow}>
-                <span
-                  className={styles.meetingDot}
-                  style={{ backgroundColor: primaryColor }}
-                  aria-hidden="true"
-                />
-                <div>
-                  <div className={styles.meetingKindRow}>
-                    <span className={styles.meetingKind}>{meeting.kind}</span>
-                  </div>
-                  <div className={styles.meetingDate}>
-                    <ListDayDots days={meeting.days} />
-                  </div>
-                  {meetingMeta(meeting) && (
-                    <div className={styles.meetingMeta}>
-                      {meetingMeta(meeting)}
-                    </div>
-                  )}
-                  {(
-                    conflictsByMeetingIndex.get(meeting.meetingIndex) ?? []
-                  ).map((conflict, conflictIndex) => (
-                    <div key={conflictIndex} className={styles.meetingConflict}>
-                      <ConflictTriangle size={11} />
-                      Overlaps {conflict.other.courseCode}{' '}
-                      {conflict.other.meetingType} ·{' '}
-                      {describeConflictSlot(conflict)}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-            {dated.map((meeting, index) => (
-              <div key={`dated-${index}`} className={styles.meetingRow}>
-                <span
-                  className={styles.meetingDot}
-                  style={{ backgroundColor: primaryColor }}
-                  aria-hidden="true"
-                />
-                <div>
-                  <div className={styles.meetingKindRow}>
-                    <span
-                      className={clsx(
-                        styles.meetingKind,
-                        datedKindClass(meeting),
-                      )}
-                    >
-                      {meeting.kind}
-                    </span>
-                    <CountdownBadge daysUntil={meeting.daysUntil} />
-                  </div>
-                  <div className={styles.meetingDate}>{meeting.dateLabel}</div>
-                  {meetingMeta(meeting) && (
-                    <div className={styles.meetingMeta}>
-                      {meetingMeta(meeting)}
-                    </div>
-                  )}
-                  {(
-                    conflictsByMeetingIndex.get(meeting.meetingIndex) ?? []
-                  ).map((conflict, conflictIndex) => (
-                    <div key={conflictIndex} className={styles.meetingConflict}>
-                      <ConflictTriangle size={11} />
-                      Overlaps {conflict.other.courseCode}{' '}
-                      {conflict.other.meetingType} ·{' '}
-                      {describeConflictSlot(conflict)}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-            {weekly.length === 0 && dated.length === 0 && (
-              <div className={styles.noMeetings}>No meetings listed</div>
-            )}
-            <div className={styles.panelFooter}>
+          <WorksheetMeetingDetails
+            meetings={meetings}
+            primaryColor={primaryColor}
+            conflicts={conflicts}
+            footer={
               <WorksheetViewModelRemoveButton
                 listing={listing}
                 className={styles.removeButton}
               />
-            </div>
-          </div>
+            }
+          />
         )}
       </div>
     </div>

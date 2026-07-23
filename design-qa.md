@@ -34,6 +34,50 @@ final result: passed
 
 ---
 
+# Worksheet Desktop Expanded Course Details QA — 2026-07-23
+
+- Source visual truth: `/var/folders/pl/ftltwy057lsgp0vvzr8r96b80000gn/T/codex-clipboard-ab341e73-55bf-464f-b15f-04cc430c5545.png`
+- Browser-rendered implementation: `/tmp/coursetable-desktop-card-details-light.png`
+- Focused implementation crop: `/tmp/coursetable-desktop-card-details-crop.png`
+- Full target/focused comparison: `/tmp/coursetable-card-details-comparison.png`
+- Viewport: 1440 × 900 CSS pixels
+- State: desktop Worksheet, Calendar view, Regular weeks, CSE-100 card expanded, light theme
+- Source pixels: 674 × 580; source CSS size and density are unknown because the supplied reference is a standalone crop
+- Implementation pixels: 1440 × 900 at device scale factor 1; the 292 × 326 card crop was scaled uniformly to 584 × 652 for readable side-by-side inspection without changing its aspect ratio
+
+## Evidence
+
+The component-level source is itself the complete visual target, so the focused comparison also serves as the full-target comparison. It confirms the requested expanded information hierarchy: weekly Lecture and Discussion rows, colored dots, weekday chips, time and location metadata, and a dated Final Exam row with semantic color and countdown badge.
+
+The implementation intentionally keeps the existing desktop card header, live course data, and Remove footer. These are outside the requested expanded-information replacement and preserve existing behavior.
+
+## Required fidelity surfaces
+
+- Fonts and typography: existing SunGrid font tokens, weights, line heights, and numeric formatting are reused through the shared Worksheet meeting component; hierarchy matches the reference.
+- Spacing and layout rhythm: rows, dot alignment, weekday-chip spacing, metadata gaps, and divider rhythm match the existing Figure 2 component. The desktop sidebar is narrower than the standalone crop but remains readable without overflow.
+- Colors and visual tokens: course dots inherit each course color; Final Exam and countdown use existing semantic danger/green tokens in both light and dark themes.
+- Image quality and assets: no raster assets or replacement drawings were introduced; the target contains only interface typography and existing controls.
+- Copy and content: meeting labels, full exam date, countdown, time, and location are derived from the same worksheet meeting model used by the reference component.
+
+## Interactions tested
+
+- Expanded CSE-100 from its desktop Calendar sidebar card.
+- Confirmed Lecture, Discussion, and Final Exam details render together.
+- Confirmed the expand control changes to the collapse state.
+- Confirmed the existing Remove action remains available.
+- Checked light and dark themes.
+- Browser console warnings and errors checked: none.
+
+## Findings and comparison history
+
+- First comparison: no actionable P0, P1, or P2 visual differences in the requested expanded-information region.
+- No post-comparison visual fix was required.
+- P3 follow-up: none.
+
+final result: passed
+
+---
+
 # Worksheet Mobile Header And Navigation QA — 2026-07-20
 
 - Source visual truth (header): `/var/folders/pl/ftltwy057lsgp0vvzr8r96b80000gn/T/codex-clipboard-bafc8288-b72f-4f4c-b25c-20f6e26041e2.png`

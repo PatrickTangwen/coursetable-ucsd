@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import clsx from 'clsx';
+import { TbWriting } from 'react-icons/tb';
 import { useShallow } from 'zustand/react/shallow';
 
 import { countCoursesWithFinals } from './NavbarWorksheetSearch';
@@ -48,25 +49,6 @@ function ListViewIcon() {
       <line x1="3" y1="6" x2="3.01" y2="6" />
       <line x1="3" y1="12" x2="3.01" y2="12" />
       <line x1="3" y1="18" x2="3.01" y2="18" />
-    </svg>
-  );
-}
-
-function FinalsIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M22 10L12 5 2 10l10 5 10-5z" />
-      <path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5" />
     </svg>
   );
 }
@@ -159,7 +141,7 @@ export function MobileWorksheetViewControls() {
           aria-pressed={finals}
           onClick={() => setCalendarMode(finals ? 'week' : 'finals')}
         >
-          <FinalsIcon />
+          <TbWriting size={16} aria-hidden="true" />
           Finals
           {finals && finalsCount > 0 && (
             <span className={styles.finalsBadge}>{finalsCount}</span>

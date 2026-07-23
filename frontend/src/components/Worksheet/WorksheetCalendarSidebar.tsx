@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useShallow } from 'zustand/react/shallow';
 
-import { getQuickModalData } from './CalendarQuickModal';
 import ConflictModal from './ConflictModal';
 import ExamsModal from './ExamsModal';
 import { useICSExport } from './ICSExportButton';
@@ -22,7 +21,10 @@ import {
   formatHours,
   hasAnyExam,
 } from './worksheetInsights';
-import WorksheetListItem from './WorksheetListItem';
+import WorksheetListItem, {
+  WorksheetMeetingDetails,
+} from './WorksheetListItem';
+import { buildWorksheetItemMeetings } from './worksheetListMeetings';
 import { worksheetExportMenuCopy } from './worksheetMenuCopy';
 import WorksheetPicker, { useCloseOnOutsideClick } from './WorksheetPicker';
 import type { SavedWorksheetSection } from '../../queries/api';
@@ -37,6 +39,7 @@ import { getWorksheetColorAppearance } from '../../utilities/constants';
 import { getWorksheetCourseStats } from '../../utilities/course';
 import { createCatalogLink } from '../../utilities/navigation';
 import {
+  type CourseConflict,
   getScheduleConflicts,
   groupConflictsByCrn,
 } from '../../utilities/scheduleConflicts';
@@ -112,6 +115,7 @@ function WorksheetHeader({
 function CourseCard({
   course,
   canEdit,
+  conflicts,
   hasConflict,
   conflictTooltip,
   expanded,
@@ -123,6 +127,7 @@ function CourseCard({
 }: {
   readonly course: WorksheetCourse;
   readonly canEdit: boolean;
+  readonly conflicts: readonly CourseConflict[];
   readonly hasConflict: boolean;
   readonly conflictTooltip: string | null;
   readonly expanded: boolean;
@@ -142,8 +147,8 @@ function CourseCard({
   const [, setSearchParams] = useSearchParams();
 
   const { crn } = course.listing;
-  const { exams } = useMemo(
-    () => getQuickModalData(course.listing, null),
+  const meetings = useMemo(
+    () => buildWorksheetItemMeetings(course.listing),
     [course.listing],
   );
   const section = sectionOf(course);
@@ -245,7 +250,7 @@ function CourseCard({
           type="button"
           className={styles.cardExpandButton}
           aria-label={
-            expanded ? 'Collapse exam details' : 'Expand exam details'
+            expanded ? 'Collapse course details' : 'Expand course details'
           }
           aria-expanded={expanded}
           onClick={(e) => {
@@ -271,54 +276,12 @@ function CourseCard({
         </button>
       </div>
       {expanded && (
-        <div className={styles.cardDetails}>
-          {exams.length === 0 && (
-            <div className={styles.examEntry}>
-              <span
-                className={styles.examDot}
-                style={{ background: primaryColor }}
-                aria-hidden="true"
-              />
-              <div className={styles.examEntryBody}>
-                <span className={styles.examKindNone}>No exams</span>
-                <div className={styles.examEntryDate}>
-                  No final or midterm scheduled
-                </div>
-              </div>
-            </div>
-          )}
-          {exams.map((exam) => (
-            <div key={exam.key} className={styles.examEntry}>
-              <span
-                className={styles.examDot}
-                style={{ background: primaryColor }}
-                aria-hidden="true"
-              />
-              <div className={styles.examEntryBody}>
-                <div className={styles.examEntryKindRow}>
-                  <span
-                    className={
-                      exam.typeCode === 'FI'
-                        ? styles.examKindFinal
-                        : styles.examKindMidterm
-                    }
-                  >
-                    {exam.kind}
-                  </span>
-                  <span
-                    className={styles.examBadge}
-                    data-tone={exam.badge.tone}
-                  >
-                    {exam.badge.label}
-                  </span>
-                </div>
-                <div className={styles.examEntryDate}>{exam.date}</div>
-                <div className={styles.examEntryMeta}>{exam.meta}</div>
-              </div>
-            </div>
-          ))}
-          {canEdit && (
-            <div className={styles.cardDetailsFooter}>
+        <WorksheetMeetingDetails
+          meetings={meetings}
+          primaryColor={primaryColor}
+          conflicts={conflicts}
+          footer={
+            canEdit ? (
               <button
                 type="button"
                 className={styles.removeButton}
@@ -343,9 +306,9 @@ function CourseCard({
                 </svg>
                 Remove
               </button>
-            </div>
-          )}
-        </div>
+            ) : undefined
+          }
+        />
       )}
     </div>
   );
@@ -870,38 +833,40 @@ export default function WorksheetCalendarSidebar() {
                 </span>
                 {hideConflictWarnings && <MenuCheckIcon />}
               </button>
-              <button
-                type="button"
-                role="menuitemcheckbox"
-                aria-checked={showCalendarColorPalette}
-                className={styles.menuItem}
-                onClick={() => {
-                  const nextShow = !showCalendarColorPalette;
-                  setShowCalendarColorPalette(nextShow);
-                  if (!nextShow) setOpenColorMenuCrn(null);
-                }}
-              >
-                <span className={styles.menuItemLabel}>
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M12 3a9 9 0 0 0 0 18h1.5a1.8 1.8 0 0 0 1.1-3.22 1.8 1.8 0 0 1 1.1-3.22H18A3 3 0 0 0 21 11.5 8.6 8.6 0 0 0 12 3Z" />
-                    <circle cx="8" cy="10" r="1" fill="currentColor" />
-                    <circle cx="11" cy="7" r="1" fill="currentColor" />
-                    <circle cx="15" cy="7.5" r="1" fill="currentColor" />
-                  </svg>
-                  Show color palette
-                </span>
-                {showCalendarColorPalette && <MenuCheckIcon />}
-              </button>
+              {!isMobile && (
+                <button
+                  type="button"
+                  role="menuitemcheckbox"
+                  aria-checked={showCalendarColorPalette}
+                  className={styles.menuItem}
+                  onClick={() => {
+                    const nextShow = !showCalendarColorPalette;
+                    setShowCalendarColorPalette(nextShow);
+                    if (!nextShow) setOpenColorMenuCrn(null);
+                  }}
+                >
+                  <span className={styles.menuItemLabel}>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M12 3a9 9 0 0 0 0 18h1.5a1.8 1.8 0 0 0 1.1-3.22 1.8 1.8 0 0 1 1.1-3.22H18A3 3 0 0 0 21 11.5 8.6 8.6 0 0 0 12 3Z" />
+                      <circle cx="8" cy="10" r="1" fill="currentColor" />
+                      <circle cx="11" cy="7" r="1" fill="currentColor" />
+                      <circle cx="15" cy="7.5" r="1" fill="currentColor" />
+                    </svg>
+                    Show color palette
+                  </span>
+                  {showCalendarColorPalette && <MenuCheckIcon />}
+                </button>
+              )}
               <button
                 type="button"
                 role="menuitemcheckbox"
@@ -1189,14 +1154,20 @@ export default function WorksheetCalendarSidebar() {
               );
             }
             const partners = conflictPartners.get(course.listing.crn);
+            const courseConflicts = hideConflictWarnings
+              ? []
+              : (conflictsByCrn.get(course.listing.crn) ?? []);
             return (
               <CourseCard
                 key={course.listing.crn}
                 course={course}
                 canEdit={canEdit}
-                hasConflict={Boolean(partners) && !hideConflictWarnings}
+                conflicts={courseConflicts}
+                hasConflict={courseConflicts.length > 0}
                 conflictTooltip={
-                  partners ? `Conflicts with ${[...partners].join(', ')}` : null
+                  partners && courseConflicts.length > 0
+                    ? `Conflicts with ${[...partners].join(', ')}`
+                    : null
                 }
                 expanded={expandedCards.has(course.listing.crn)}
                 colorMenuOpen={openColorMenuCrn === course.listing.crn}
