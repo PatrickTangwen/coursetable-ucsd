@@ -1,5 +1,6 @@
 import AsyncLock from 'async-lock';
 
+import { resetCatalogDetailsCache } from './ferryCatalogDetailsCache';
 import {
   fetchCatalogMetadata,
   fetchCatalog,
@@ -62,6 +63,7 @@ export const resetCatalogCache = () => {
   courseData = {};
   catalogLoadAttempted.clear();
   evalsLoadAttempted.clear();
+  resetCatalogDetailsCache();
   notifyCatalogCacheUpdated();
 };
 

@@ -1178,6 +1178,34 @@
   text-align: center;
 }
 
+.detailStatus {
+  min-height: 180px;
+  padding: 36px 18px;
+  border: 1px solid rgb(var(--ct-line-rgb) / 8%);
+  border-radius: 12px;
+  color: var(--ct-text-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.detailStatus p {
+  margin: 0 0 14px;
+}
+
+.retryButton {
+  padding: 7px 14px;
+  border: 1px solid rgb(var(--ct-line-rgb) / 18%);
+  border-radius: 8px;
+  background: var(--ct-surface);
+  color: var(--ct-ink);
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+.retryButton:hover {
+  background: var(--ct-surface-soft);
+}
+
 @keyframes modal-fade-in {
   from {
     opacity: 0;

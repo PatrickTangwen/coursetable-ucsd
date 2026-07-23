@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { fetchCatalog } from './api';
+import { fetchCatalog, fetchCatalogDetails } from './api';
 import { flattenCoursePlanningCatalog } from './coursePlanningViewModels';
 import type { Season } from './graphql-types';
 import {
@@ -71,6 +71,25 @@ const snapshot = {
       ],
     },
   ],
+};
+
+const gradeRecord = {
+  subject: 'CSE',
+  course: '1',
+  year: '2025',
+  quarter: 'FA',
+  title: 'Tracer Course',
+  instructor: 'Ada Lovelace',
+  gpa: 3.8,
+  a: 50,
+  b: 30,
+  c: 10,
+  d: 2,
+  f: 1,
+  w: 2,
+  p: 4,
+  np: 1,
+  raw: { source: 'fixture' },
 };
 
 describe('Catalog network boundary', () => {
@@ -146,5 +165,63 @@ describe('Catalog network boundary', () => {
       listing: { section_id: 'FA26:123456' },
     });
     expect(requestUrls).toHaveLength(1);
+  });
+
+  it('loads Past Grades from the term detail payload only when requested', async () => {
+    const requestUrls: string[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: string | URL | Request) => {
+        const url =
+          typeof input === 'string'
+            ? input
+            : input instanceof URL
+              ? input.toString()
+              : input.url;
+        requestUrls.push(url);
+        const body = url.includes('/catalog/details/')
+          ? {
+              run_id: snapshot.run_id,
+              generated_at: snapshot.generated_at,
+              active_planning_term: 'FA26',
+              courses: [
+                {
+                  course_id: 'CSE:1',
+                  grade_archive_records: [gradeRecord],
+                },
+              ],
+            }
+          : {
+              ...snapshot,
+              courses: snapshot.courses.map(
+                ({ grade_archive_records: _records, ...course }) => ({
+                  ...course,
+                  archive_record_count: 1,
+                }),
+              ),
+            };
+        return Promise.resolve(
+          new Response(JSON.stringify(body), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          }),
+        );
+      }),
+    );
+
+    const catalog = await fetchCatalog('FA26' as Season);
+
+    expect(catalog?.coursePlanningCatalog?.courses[0]?.pastGrades).toEqual([]);
+    expect(requestUrls).toEqual([
+      'https://localhost:3001/api/catalog/public/FA26',
+    ]);
+
+    const details = await fetchCatalogDetails('FA26' as Season);
+
+    expect(details?.get('CSE:1')).toEqual([gradeRecord]);
+    expect(requestUrls).toEqual([
+      'https://localhost:3001/api/catalog/public/FA26',
+      'https://localhost:3001/api/catalog/details/FA26',
+    ]);
   });
 });

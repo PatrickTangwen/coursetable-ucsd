@@ -1,5 +1,4 @@
 import dns from 'node:dns';
-import fs from 'node:fs';
 import path from 'node:path';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import mdx from '@mdx-js/rollup';
@@ -14,6 +13,8 @@ import { visit } from 'unist-util-visit';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig } from 'vitest/config';
+import { createFilesystemPublishedSnapshotStore } from '../api/src/catalog/publishedSnapshot.filesystem.js';
+import { createPublishedSnapshotResponse } from '../api/src/catalog/publishedSnapshot.response.js';
 import { readLocalHttpsCredentials } from '../shared/localHttps.js';
 
 dns.setDefaultResultOrder('verbatim');
@@ -90,6 +91,7 @@ function remarkPluginAddHeadingId(): Transformer {
 
 function staticCatalogPlugin(): import('vite').Plugin {
   const staticDir = path.resolve(__dirname, '../api/static');
+  const store = createFilesystemPublishedSnapshotStore(staticDir);
   return {
     name: 'static-catalog',
     configureServer(server) {
@@ -99,34 +101,35 @@ function staticCatalogPlugin(): import('vite').Plugin {
           res: import('node:http').ServerResponse,
           next: () => void,
         ) => {
-          const url = req.url ?? '';
-          if (url.startsWith('/api/catalog/metadata')) {
-            const file = path.join(staticDir, 'metadata.json');
-            if (fs.existsSync(file)) {
-              res.setHeader('Content-Type', 'application/json');
-              res.setHeader('Cache-Control', 'no-store');
-              res.end(fs.readFileSync(file));
-              return;
-            }
+          const headers = new Headers();
+          for (const [name, value] of Object.entries(req.headers)) {
+            if (Array.isArray(value))
+              for (const item of value) headers.append(name, item);
+            else if (value !== undefined) headers.set(name, value);
           }
-          const publicMatch = /^\/api\/catalog\/public\/(?<season>\w+)/u.exec(
-            url,
-          );
-          if (publicMatch?.groups?.season) {
-            const file = path.join(
-              staticDir,
-              'catalogs',
-              'public',
-              `${publicMatch.groups.season}.json`,
-            );
-            if (fs.existsSync(file)) {
-              res.setHeader('Content-Type', 'application/json');
-              res.setHeader('Cache-Control', 'no-store');
-              res.end(fs.readFileSync(file));
-              return;
-            }
-          }
-          next();
+          const { pathname } = new URL(req.url ?? '/', 'http://localhost');
+          void createPublishedSnapshotResponse(
+            req.method ?? 'GET',
+            pathname,
+            headers,
+            store,
+          )
+            .then(async (response) => {
+              if (!response) {
+                next();
+                return;
+              }
+              res.statusCode = response.status;
+              response.headers.forEach((value, name) =>
+                res.setHeader(name, value),
+              );
+              res.end(
+                response.body
+                  ? Buffer.from(await response.arrayBuffer())
+                  : undefined,
+              );
+            })
+            .catch(next);
         },
       );
     },

@@ -593,3 +593,33 @@ jq -r '
   | @tsv
 ' api/static/catalogs/public/FA25.json
 ```
+
+## Catalog List And Detail Payload Boundary (2026-07-22)
+
+The checked-in `api/static/catalogs/public/*.json` files remain the canonical,
+self-contained generation artifacts. They retain
+`grade_archive_records` so snapshot validation, archive replay, and enrichment
+do not depend on a second source file.
+
+The HTTP and R2 publication boundary now derives two payloads from that
+canonical artifact:
+
+- `GET /api/catalog/public/:term` serves the Catalog list payload. Course rows
+  keep `archive_record_count` and all list/detail-modal fields except
+  `grade_archive_records`.
+- `GET /api/catalog/details/:term` serves term identity plus Course ID and
+  `grade_archive_records` only.
+
+The frontend fetches the list during Catalog loading. It fetches and caches one
+term detail payload only when a user opens a Past Grades tab for a course whose
+list row reports archive records. Opening a Course modal on Overview does not
+request the detail payload. A failed detail request is not cached and can be
+retried.
+
+Local Express and Vite derive and cache both responses from the canonical file.
+Worker publication writes separate immutable
+`published-snapshots/:term/:digest.json` and
+`published-details/:term/:digest.json` objects, verifies both, and then writes
+`metadata.json` with `snapshot_path` and `detail_path`. Existing Frozen registry
+entries may have `detail_path: null`; their already-published list object remains
+valid and can continue to carry embedded records.

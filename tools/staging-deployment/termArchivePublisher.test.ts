@@ -31,6 +31,7 @@ describe('staging Term Archive publisher', () => {
     const store = new MemoryStore();
     const progress: string[] = [];
     const snapshot = encoder.encode('{"accepted":true}\n');
+    const details = encoder.encode('{"details":true}\n');
     const manifest = encoder.encode('{"manifest":true}\n');
 
     await publishTermArchive(
@@ -46,6 +47,11 @@ describe('staging Term Archive publisher', () => {
               body: snapshot,
               sha256:
                 'b1b367dc6a7d077581f77f16169a6696bac3d68ffd5c93189ac60fac027e57a3',
+            },
+            details: {
+              body: details,
+              sha256:
+                '3f3b714342310f987623675a421a116d8e5642be7e3713fe98ce18ed810259e2',
             },
             manifest: {
               body: manifest,
@@ -73,6 +79,11 @@ describe('staging Term Archive publisher', () => {
     ]);
     expect(progress.join('\n')).not.toContain('accepted');
     expect(progress.join('\n')).not.toContain('manifest');
+    expect(
+      store.objects.get(
+        'published-details/FA26/3f3b714342310f987623675a421a116d8e5642be7e3713fe98ce18ed810259e2.json',
+      ),
+    ).toEqual(details);
   });
 
   it('preserves the accepted metadata pointer when object verification fails', async () => {
@@ -96,6 +107,11 @@ describe('staging Term Archive publisher', () => {
                 body: encoder.encode('{"accepted":true}\n'),
                 sha256:
                   'b1b367dc6a7d077581f77f16169a6696bac3d68ffd5c93189ac60fac027e57a3',
+              },
+              details: {
+                body: encoder.encode('{"details":true}\n'),
+                sha256:
+                  '3f3b714342310f987623675a421a116d8e5642be7e3713fe98ce18ed810259e2',
               },
               manifest: {
                 body: encoder.encode('{"manifest":true}\n'),
@@ -141,6 +157,7 @@ describe('staging Term Archive publisher', () => {
               frozen: true,
               generated_at: '2025-01-01T00:00:00.000Z',
               snapshot_path: `published-snapshots/FA24/${snapshotDigest}.json`,
+              detail_path: null,
               manifest_path: `published-manifests/FA24/${manifestDigest}.json`,
             },
           ],
@@ -151,7 +168,7 @@ describe('staging Term Archive publisher', () => {
     );
 
     expect(evidence.terms).toEqual([
-      { term: 'FA24', snapshotDigest, manifestDigest },
+      { term: 'FA24', snapshotDigest, detailDigest: null, manifestDigest },
     ]);
   });
 });

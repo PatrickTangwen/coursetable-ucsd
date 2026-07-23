@@ -132,7 +132,20 @@ async function startMemoryCompositionRoot() {
         createMemoryPublishedSnapshotStore({
           metadata: JSON.stringify({ currentTerm: 'FA26' }),
           snapshots: {
-            FA26: JSON.stringify([{ course_id: 'CSE-100' }]),
+            FA26: JSON.stringify({
+              run_id: 'contract-run',
+              generated_at: '2026-07-11T00:00:00.000Z',
+              active_planning_term: 'FA26',
+              courses: [{ course_id: 'CSE-100' }],
+            }),
+          },
+          details: {
+            FA26: JSON.stringify({
+              run_id: 'contract-run',
+              generated_at: '2026-07-11T00:00:00.000Z',
+              active_planning_term: 'FA26',
+              courses: [{ course_id: 'CSE-100', grade_archive_records: [] }],
+            }),
           },
         }),
       ),
@@ -154,7 +167,17 @@ async function startNodeFilesystemCompositionRoot() {
   );
   await writeFile(
     path.join(staticDirectory, 'catalogs/public/FA26.json'),
-    JSON.stringify([{ course_id: 'CSE-100' }]),
+    JSON.stringify({
+      run_id: 'contract-run',
+      generated_at: '2026-07-11T00:00:00.000Z',
+      active_planning_term: 'FA26',
+      courses: [
+        {
+          course_id: 'CSE-100',
+          grade_archive_records: [],
+        },
+      ],
+    }),
   );
 
   const app = express();
@@ -210,7 +233,21 @@ export async function exerciseCoreHttpContract(client: CoreHttpContractClient) {
 
   const snapshot = await client.get('/api/catalog/public/FA26');
   expect(snapshot.status).toBe(200);
-  expect(await snapshot.json()).toEqual([{ course_id: 'CSE-100' }]);
+  expect(await snapshot.json()).toEqual({
+    run_id: 'contract-run',
+    generated_at: '2026-07-11T00:00:00.000Z',
+    active_planning_term: 'FA26',
+    courses: [{ course_id: 'CSE-100' }],
+  });
+
+  const details = await client.get('/api/catalog/details/FA26');
+  expect(details.status).toBe(200);
+  expect(await details.json()).toEqual({
+    run_id: 'contract-run',
+    generated_at: '2026-07-11T00:00:00.000Z',
+    active_planning_term: 'FA26',
+    courses: [{ course_id: 'CSE-100', grade_archive_records: [] }],
+  });
 
   for (const pathname of [
     '/ferry/v1/graphql',

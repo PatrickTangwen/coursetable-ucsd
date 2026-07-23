@@ -19,6 +19,7 @@ type Archive = {
   terms: {
     term: string;
     snapshot: { body: Uint8Array; sha256: string };
+    details: { body: Uint8Array; sha256: string };
     manifest: { body: Uint8Array; sha256: string };
   }[];
 };
@@ -40,7 +41,7 @@ export async function publishTermArchive(
     );
   const previousMetadata = await store.get('metadata.json');
 
-  for (const { term, snapshot, manifest } of archive.terms) {
+  for (const { term, snapshot, details, manifest } of archive.terms) {
     report('term-start', term);
     await putAndVerify(
       store,
@@ -51,6 +52,18 @@ export async function publishTermArchive(
         cacheControl: 'public, max-age=3600',
         contentType: 'application/json; charset=utf-8',
         metadata: { sha256: snapshot.sha256, term },
+        storageClass: 'STANDARD',
+      },
+    );
+    await putAndVerify(
+      store,
+      'Catalog details',
+      `published-details/${term}/${details.sha256}.json`,
+      details,
+      {
+        cacheControl: 'public, max-age=3600',
+        contentType: 'application/json; charset=utf-8',
+        metadata: { sha256: details.sha256, term },
         storageClass: 'STANDARD',
       },
     );
@@ -73,6 +86,9 @@ export async function publishTermArchive(
   const evidenceTerms = await Promise.all(
     archive.registry.terms.map(async (entry) => {
       const snapshotDigest = digestFromPath(entry.snapshot_path);
+      const detailDigest = entry.detail_path
+        ? digestFromPath(entry.detail_path)
+        : null;
       const manifestDigest = digestFromPath(entry.manifest_path);
       await verifyExisting(
         store,
@@ -80,13 +96,26 @@ export async function publishTermArchive(
         entry.snapshot_path,
         snapshotDigest,
       );
+      if (entry.detail_path && detailDigest) {
+        await verifyExisting(
+          store,
+          'Catalog details',
+          entry.detail_path,
+          detailDigest,
+        );
+      }
       await verifyExisting(
         store,
         'Import Manifest',
         entry.manifest_path,
         manifestDigest,
       );
-      return { term: entry.term, snapshotDigest, manifestDigest };
+      return {
+        term: entry.term,
+        snapshotDigest,
+        detailDigest,
+        manifestDigest,
+      };
     }),
   );
   report('registry-verify-complete');

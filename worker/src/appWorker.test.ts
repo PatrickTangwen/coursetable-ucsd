@@ -44,12 +44,17 @@ function catalogBucket(): R2CatalogBucket {
         {
           term: 'FA26',
           snapshot_path: 'published-snapshots/FA26/snapshot.json',
+          detail_path: 'published-details/FA26/details.json',
         },
       ],
     }),
     'published-snapshots/FA26/snapshot.json': JSON.stringify([
       { course_id: 'CSE:100' },
     ]),
+    'published-details/FA26/details.json': JSON.stringify({
+      active_planning_term: 'FA26',
+      courses: [{ course_id: 'CSE:100', grade_archive_records: [] }],
+    }),
   };
   return {
     get: (key) =>
@@ -673,6 +678,19 @@ describe('hosted App Worker composition', () => {
       );
       expect(snapshot.status).toBe(200);
       expect(await snapshot.json()).toEqual([{ course_id: 'CSE:100' }]);
+
+      const details = await handleAppWorkerRequest(
+        new Request(
+          'https://staging.sungridplanner.com/api/catalog/details/FA26',
+        ),
+        environment as unknown as AppWorkerEnv,
+        context,
+      );
+      expect(details.status).toBe(200);
+      expect(await details.json()).toEqual({
+        active_planning_term: 'FA26',
+        courses: [{ course_id: 'CSE:100', grade_archive_records: [] }],
+      });
     },
   );
 });

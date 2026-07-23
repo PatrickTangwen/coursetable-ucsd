@@ -30,6 +30,7 @@ import {
 } from './ucsdSnapshotModalData';
 import { isWorksheetTerm } from '../../data/catalogSeasons';
 import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
+import { useCoursePlanningPastGrades } from '../../hooks/useCoursePlanningDetails';
 import { useModalHistory } from '../../hooks/useModalHistory';
 import { useWorksheetListingSelection } from '../../hooks/useWorksheetListingSelection';
 import type { CoursePlanningCourse } from '../../queries/coursePlanningViewModels';
@@ -49,6 +50,7 @@ import {
   toSeasonString,
   truncatedText,
 } from '../../utilities/course';
+import LoadSpinner from '../Spinner';
 import styles from './UcsdSnapshotCourseModal.module.css';
 
 type UcsdModalView = 'overview' | 'evals' | 'past-grades' | 'section-mapping';
@@ -1018,6 +1020,13 @@ export default function UcsdSnapshotCourseModal({
     view === 'past-grades' || (view === 'section-mapping' && isFall2026)
       ? view
       : 'overview';
+  const pastGrades = useCoursePlanningPastGrades({
+    season,
+    courseId: listing.course.courseId,
+    initialRecords: listing.course.pastGrades,
+    archiveRecordCount: listing.course.archiveRecordCount,
+    enabled: currentView === 'past-grades',
+  });
   const updatedLabel = formatSnapshotUpdatedLabel(
     listing.section.availability.snapshotTimestamp ?? listing.generatedAt,
   );
@@ -1423,9 +1432,24 @@ export default function UcsdSnapshotCourseModal({
 
         <div ref={bodyRef} className={styles.body}>
           {currentView === 'past-grades' ? (
-            <UcsdSnapshotGradeDistribution
-              records={listing.course.pastGrades}
-            />
+            pastGrades.loading ? (
+              <div className={styles.detailStatus} aria-live="polite">
+                <LoadSpinner message="Loading Past Grades…" />
+              </div>
+            ) : pastGrades.error ? (
+              <div className={styles.detailStatus} role="alert">
+                <p>Past Grades could not be loaded.</p>
+                <button
+                  type="button"
+                  className={styles.retryButton}
+                  onClick={pastGrades.retry}
+                >
+                  Retry
+                </button>
+              </div>
+            ) : (
+              <UcsdSnapshotGradeDistribution records={pastGrades.records} />
+            )
           ) : currentView === 'section-mapping' ? (
             <SectionMappingTable
               entries={modalCourse.sectionMapping.entries}

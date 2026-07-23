@@ -1,3 +1,8 @@
+import {
+  encodeCatalogPayload,
+  splitPublishedCatalogPayload,
+} from '../../shared/catalogPayload.js';
+
 export interface CatalogPublicationStore {
   putObject: (
     key: string,
@@ -33,6 +38,7 @@ interface SupportedTermRegistry {
     frozen: boolean;
     generated_at: string;
     snapshot_path: string;
+    detail_path: string | null;
     manifest_path: string | null;
   }[];
 }
@@ -59,8 +65,12 @@ export async function publishAcceptedCatalog(
   const entry = registry.terms.find(({ term }) => term === publication.term);
   if (!entry)
     throw new Error(`Unsupported Published Snapshot term: ${publication.term}`);
+  const { listPayload, detailPayload } = splitPublishedCatalogPayload(snapshot);
+  const listArtifact = await jsonArtifact(listPayload);
+  const detailArtifact = await jsonArtifact(detailPayload);
 
-  const snapshotKey = `published-snapshots/${publication.term}/${publication.snapshot.sha256}.json`;
+  const snapshotKey = `published-snapshots/${publication.term}/${listArtifact.sha256}.json`;
+  const detailKey = `published-details/${publication.term}/${detailArtifact.sha256}.json`;
   const manifestKey = `published-manifests/${publication.term}/${publication.manifest.sha256}.json`;
   const metadata = encoder.encode(
     `${JSON.stringify({
@@ -70,6 +80,7 @@ export async function publishAcceptedCatalog(
           ? {
               ...termEntry,
               snapshot_path: snapshotKey,
+              detail_path: detailKey,
               manifest_path: manifestKey,
             }
           : termEntry,
@@ -77,10 +88,15 @@ export async function publishAcceptedCatalog(
     })}\n`,
   );
 
-  await store.putObject(snapshotKey, publication.snapshot.body, {
+  await store.putObject(snapshotKey, listArtifact.body, {
     contentType: 'application/json; charset=utf-8',
     cacheControl: 'public, max-age=3600',
-    customMetadata: { sha256: publication.snapshot.sha256 },
+    customMetadata: { sha256: listArtifact.sha256 },
+  });
+  await store.putObject(detailKey, detailArtifact.body, {
+    contentType: 'application/json; charset=utf-8',
+    cacheControl: 'public, max-age=3600',
+    customMetadata: { sha256: detailArtifact.sha256 },
   });
   await store.putObject(manifestKey, publication.manifest.body, {
     contentType: 'application/json; charset=utf-8',
@@ -93,7 +109,7 @@ export async function publishAcceptedCatalog(
     customMetadata: { term: publication.term },
   });
 
-  return { snapshotKey, manifestKey };
+  return { snapshotKey, detailKey, manifestKey };
 }
 
 async function validateArtifact(label: string, artifact: AcceptedArtifact) {
@@ -107,6 +123,18 @@ async function validateArtifact(label: string, artifact: AcceptedArtifact) {
     .map((byte) => byte.toString(16).padStart(2, '0'))
     .join('');
   if (actual !== artifact.sha256) throw new Error(`${label} digest mismatch`);
+}
+
+async function jsonArtifact(value: unknown): Promise<AcceptedArtifact> {
+  const body = encodeCatalogPayload(value);
+  const digest = await crypto.subtle.digest(
+    'SHA-256',
+    Uint8Array.from(body).buffer,
+  );
+  const sha256 = [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+  return { body, size: body.byteLength, sha256 };
 }
 
 function parseArtifact(label: string, artifact: AcceptedArtifact) {
@@ -183,6 +211,9 @@ function normalizeSupportedTerm(
     typeof value.frozen !== 'boolean' ||
     typeof value.generated_at !== 'string' ||
     !isPrivateObjectPath(value.snapshot_path) ||
+    (value.detail_path !== undefined &&
+      value.detail_path !== null &&
+      !isPrivateObjectPath(value.detail_path)) ||
     (value.manifest_path !== null && !isPrivateObjectPath(value.manifest_path))
   )
     throw new Error('Supported Term entry is invalid');
@@ -194,6 +225,8 @@ function normalizeSupportedTerm(
     frozen: value.frozen,
     generated_at: value.generated_at,
     snapshot_path: value.snapshot_path,
+    detail_path:
+      typeof value.detail_path === 'string' ? value.detail_path : null,
     manifest_path: value.manifest_path,
   };
 }

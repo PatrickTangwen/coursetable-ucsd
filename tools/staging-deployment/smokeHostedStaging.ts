@@ -93,7 +93,18 @@ export async function runHostedDeploymentSmoke(
   const checks: SmokeCheck[] = [
     { method: 'GET', pathname: '/', status: 200 },
     { method: 'GET', pathname: '/api/catalog/metadata', status: 200 },
-    { method: 'GET', pathname: `/api/catalog/public/${term}`, status: 200 },
+    {
+      method: 'GET',
+      pathname: `/api/catalog/public/${term}`,
+      status: 200,
+      validate: assertLightweightCatalogList,
+    },
+    {
+      method: 'GET',
+      pathname: `/api/catalog/details/${term}`,
+      status: 200,
+      validate: assertCatalogDetails,
+    },
     {
       method: 'GET',
       pathname: '/api/auth/current-user',
@@ -280,4 +291,30 @@ function assertUnauthenticatedSession(body: string) {
       'Hosted smoke observed an unexpected authenticated Session',
     );
   }
+}
+
+function assertLightweightCatalogList(body: string) {
+  const parsed: unknown = JSON.parse(body);
+  if (
+    !isObject(parsed) ||
+    !Array.isArray(parsed.courses) ||
+    parsed.courses.some(
+      (course) =>
+        isObject(course) && Object.hasOwn(course, 'grade_archive_records'),
+    )
+  )
+    throw new Error('Hosted Catalog list is not a lightweight payload');
+}
+
+function assertCatalogDetails(body: string) {
+  const parsed: unknown = JSON.parse(body);
+  if (
+    !isObject(parsed) ||
+    !Array.isArray(parsed.courses) ||
+    parsed.courses.some(
+      (course) =>
+        !isObject(course) || !Array.isArray(course.grade_archive_records),
+    )
+  )
+    throw new Error('Hosted Catalog details payload is invalid');
 }

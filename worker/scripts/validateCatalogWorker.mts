@@ -79,8 +79,15 @@ try {
   const snapshot = encoder.encode(
     JSON.stringify({
       active_planning_term: 'FA26',
+      run_id: 'local-worker-validation',
       generated_at: '2026-07-11T00:00:00.000Z',
-      courses: [{ course_id: 'CSE:100', title: 'Advanced Data Structures' }],
+      courses: [
+        {
+          course_id: 'CSE:100',
+          title: 'Advanced Data Structures',
+          grade_archive_records: [{ year: '2025', quarter: 'FA' }],
+        },
+      ],
     }),
   );
   const manifest = encoder.encode(
@@ -196,6 +203,21 @@ try {
         .active_planning_term === 'FA26',
     'Published Snapshot returned the wrong term',
   );
+  assert(
+    JSON.stringify(snapshotBody).includes('grade_archive_records') === false,
+    'Published Snapshot list exposed grade archive records',
+  );
+  const detailResponse = await fetch(`${origin}/api/catalog/details/FA26`);
+  assert(detailResponse.status === 200, 'Catalog details did not return 200');
+  assertJson(detailResponse, 'Catalog details');
+  const detailBody: unknown = await detailResponse.json();
+  assert(
+    detailBody !== null &&
+      typeof detailBody === 'object' &&
+      !Array.isArray(detailBody) &&
+      JSON.stringify(detailBody).includes('grade_archive_records'),
+    'Catalog details did not contain grade archive records',
+  );
   const notModified = await fetch(`${origin}/api/catalog/public/FA26`, {
     headers: { 'if-none-match': etag },
   });
@@ -222,6 +244,7 @@ try {
       surface: 'local Worker single origin',
       term: 'FA26',
       snapshotKey: publication.snapshotKey,
+      detailKey: publication.detailKey,
       manifestKey: publication.manifestKey,
       providerResourcesCreated: false,
     }),

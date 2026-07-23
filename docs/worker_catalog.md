@@ -60,3 +60,22 @@ publication algorithm.
 - `worker/src/catalogPublication.ts`: validation and metadata-pointer switch.
 - `worker/wrangler.jsonc`: local/staging binding names and public-route safety
   settings.
+
+## List/detail publication update (2026-07-22)
+
+Catalog publication now derives two public payloads from each accepted
+self-contained Snapshot before writing R2:
+
+- the list object omits per-course `grade_archive_records`;
+- the term detail object contains Course IDs and their grade records.
+
+Both objects are immutable and content-addressed. Publication writes and
+verifies the list, detail, and Import Manifest before switching
+`metadata.json`. The runtime serves details only from the private R2 path named
+by `detail_path` at `/api/catalog/details/:term`; it never derives provider URLs
+or exposes the R2 bucket. Frozen metadata created before this change may omit
+`detail_path`, in which case the detail route returns not found and the legacy
+list payload remains the compatibility source.
+
+`bun run validate:worker-catalog` verifies that the list response excludes the
+grade-record field and the details response contains it.

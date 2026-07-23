@@ -51,6 +51,12 @@ export function registerPublishedSnapshotRoutes(
       await sendResponse(req, res, await responseFor(req, store), next);
     }),
   );
+  app.get(
+    '/api/catalog/details/:term',
+    asyncHandler(async (req, res, next) => {
+      await sendResponse(req, res, await responseFor(req, store), next);
+    }),
+  );
 }
 
 function responseFor(req: express.Request, store: PublishedSnapshotStore) {

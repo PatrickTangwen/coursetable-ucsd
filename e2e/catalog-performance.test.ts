@@ -2,6 +2,8 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
+import { splitPublishedCatalogPayload } from '../shared/catalogPayload.js';
+
 const maximumMountedCourseRows = 24;
 const maximumDraftPaintMedianMs = 250;
 const catalogFixturePath = path.resolve(
@@ -18,6 +20,29 @@ async function installCatalogApiFixture(page: Page) {
     readFile(catalogFixturePath, 'utf8'),
     readFile(metadataFixturePath, 'utf8'),
   ]);
+  const canonical = JSON.parse(catalogBody) as {
+    courses: {
+      subject: string;
+      course_number: string;
+      title: string;
+      archive_record_count: number;
+      grade_archive_records: unknown[];
+      sections: unknown[];
+    }[];
+  };
+  const { listPayload, detailPayload } =
+    splitPublishedCatalogPayload(canonical);
+  const listBody = JSON.stringify(listPayload);
+  const detailBody = JSON.stringify(detailPayload);
+  const courseWithDetails = canonical.courses.find(
+    (course) =>
+      course.archive_record_count > 0 &&
+      course.grade_archive_records.length > 0 &&
+      course.sections.length === 1,
+  );
+  if (!courseWithDetails)
+    throw new Error('Catalog fixture has no single-section Past Grades course');
+  let detailRequestCount = 0;
 
   await page.route('**/api/**', async (route) => {
     const { pathname } = new URL(route.request().url());
@@ -30,7 +55,15 @@ async function installCatalogApiFixture(page: Page) {
     }
     if (pathname === '/api/catalog/public/FA26') {
       await route.fulfill({
-        body: catalogBody,
+        body: listBody,
+        contentType: 'application/json',
+      });
+      return;
+    }
+    if (pathname === '/api/catalog/details/FA26') {
+      detailRequestCount += 1;
+      await route.fulfill({
+        body: detailBody,
         contentType: 'application/json',
       });
       return;
@@ -41,6 +74,11 @@ async function installCatalogApiFixture(page: Page) {
       body: JSON.stringify({ error: 'NOT_FOUND' }),
     });
   });
+
+  return {
+    courseWithDetails,
+    detailRequestCount: () => detailRequestCount,
+  };
 }
 
 async function expectBoundedCourseRows(page: Page) {
@@ -195,4 +233,39 @@ test('keeps mobile Catalog input responsive and the result DOM virtualized', asy
       ),
     )
     .toBe(true);
+});
+
+test('loads and caches Past Grades only after the detail tab opens', async ({
+  page,
+}) => {
+  const fixture = await installCatalogApiFixture(page);
+  await page.goto('/catalog');
+
+  const search = page.getByRole('combobox', { name: 'Search courses' });
+  const { courseWithDetails } = fixture;
+  await search.fill(
+    `${courseWithDetails.subject} ${courseWithDetails.course_number}`,
+  );
+  await search.press('Enter');
+
+  const courseRow = page
+    .getByTestId('catalog-course-row')
+    .filter({ hasText: courseWithDetails.title })
+    .first();
+  await expect(courseRow).toBeVisible();
+  expect(fixture.detailRequestCount()).toBe(0);
+
+  await courseRow.locator('[role="button"]').first().click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  expect(fixture.detailRequestCount()).toBe(0);
+
+  await dialog.getByRole('button', { name: 'Past Grades' }).click();
+  await expect.poll(fixture.detailRequestCount).toBe(1);
+  await expect(dialog.getByText('Grade Distribution')).toBeVisible();
+
+  await dialog.getByRole('button', { name: 'Overview' }).click();
+  await dialog.getByRole('button', { name: 'Past Grades' }).click();
+  await expect(dialog.getByText('Grade Distribution')).toBeVisible();
+  expect(fixture.detailRequestCount()).toBe(1);
 });

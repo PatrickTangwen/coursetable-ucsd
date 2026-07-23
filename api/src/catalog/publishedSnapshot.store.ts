@@ -10,4 +10,5 @@ export interface PublishedSnapshotAsset {
 export interface PublishedSnapshotStore {
   openMetadata: () => Promise<PublishedSnapshotAsset | null>;
   openSnapshot: (term: string) => Promise<PublishedSnapshotAsset | null>;
+  openDetails: (term: string) => Promise<PublishedSnapshotAsset | null>;
 }

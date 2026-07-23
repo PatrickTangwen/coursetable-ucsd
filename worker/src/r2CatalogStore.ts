@@ -24,31 +24,48 @@ export interface R2CatalogBucket {
 export function createR2PublishedSnapshotStore(
   bucket: R2CatalogBucket,
 ): PublishedSnapshotStore {
+  async function openCatalogAsset(
+    term: string,
+    field: 'snapshot_path' | 'detail_path',
+    prefix: string,
+  ) {
+    const metadata = await bucket.get('metadata.json');
+    if (!metadata) return null;
+    const registry: unknown = JSON.parse(
+      await new Response(metadata.body).text(),
+    ) as unknown;
+    const key = pathForTerm(registry, term, field);
+    if (!key || !isCatalogKeyForTerm(key, term, prefix)) return null;
+    return toAsset(await bucket.get(key));
+  }
+
   return {
     openMetadata: async () => toAsset(await bucket.get('metadata.json')),
-    async openSnapshot(term) {
-      const metadata = await bucket.get('metadata.json');
-      if (!metadata) return null;
-      const registry: unknown = JSON.parse(
-        await new Response(metadata.body).text(),
-      ) as unknown;
-      const key = snapshotKeyForTerm(registry, term);
-      if (!key || !isSnapshotKeyForTerm(key, term)) return null;
-      return toAsset(await bucket.get(key));
-    },
+    openSnapshot: (term) =>
+      openCatalogAsset(term, 'snapshot_path', 'published-snapshots'),
+    openDetails: (term) =>
+      openCatalogAsset(term, 'detail_path', 'published-details'),
   };
 }
 
-function snapshotKeyForTerm(registry: unknown, term: string) {
+function pathForTerm(
+  registry: unknown,
+  term: string,
+  field: 'snapshot_path' | 'detail_path',
+) {
   if (!registry || typeof registry !== 'object' || Array.isArray(registry))
     return null;
   const { terms } = registry as { terms?: unknown };
   if (!Array.isArray(terms)) return null;
   for (const entry of terms) {
     if (!entry || typeof entry !== 'object' || Array.isArray(entry)) continue;
-    const candidate = entry as { term?: unknown; snapshot_path?: unknown };
-    if (candidate.term === term && typeof candidate.snapshot_path === 'string')
-      return candidate.snapshot_path;
+    const candidate = entry as {
+      term?: unknown;
+      snapshot_path?: unknown;
+      detail_path?: unknown;
+    };
+    if (candidate.term === term && typeof candidate[field] === 'string')
+      return candidate[field];
   }
   return null;
 }
@@ -83,9 +100,9 @@ function toAsset(object: R2CatalogObject | null) {
   };
 }
 
-function isSnapshotKeyForTerm(key: string, term: string) {
+function isCatalogKeyForTerm(key: string, term: string, prefix: string) {
   return (
-    key.startsWith(`published-snapshots/${term}/`) &&
+    key.startsWith(`${prefix}/${term}/`) &&
     key.endsWith('.json') &&
     !key.includes('..')
   );

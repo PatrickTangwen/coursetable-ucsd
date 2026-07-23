@@ -85,3 +85,13 @@ importer now stores the optional provenance value, the anonymous Hasura schema
 exposes it as `matchedVia`, and the disposable Course Data tracer verifies the
 source-to-GraphQL round trip. The static Published Snapshot remains the Catalog
 source of truth.
+
+## Catalog delivery boundary (2026-07-22)
+
+The canonical static Published Snapshot still contains the complete matched
+Grade Archive Records described above. Catalog delivery now separates that
+artifact into a lightweight list response and a term-scoped details response.
+The Past Grades tab loads the details response on demand and caches it by term;
+ordinary Catalog search, filtering, card rendering, and Course Overview do not
+transfer Grade Archive Records. See `snapshot_pipe.md` for the payload and
+Frozen Snapshot compatibility contract.

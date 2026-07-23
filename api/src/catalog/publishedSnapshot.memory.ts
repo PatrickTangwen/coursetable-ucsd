@@ -6,6 +6,7 @@ import type {
 interface MemoryPublishedSnapshotInput {
   metadata: string;
   snapshots: { [key: string]: string };
+  details?: { [key: string]: string };
 }
 
 function createAsset(content: string): PublishedSnapshotAsset {
@@ -26,12 +27,17 @@ function createAsset(content: string): PublishedSnapshotAsset {
 export function createMemoryPublishedSnapshotStore({
   metadata,
   snapshots,
+  details = {},
 }: MemoryPublishedSnapshotInput): PublishedSnapshotStore {
   return {
     openMetadata: () => Promise.resolve(createAsset(metadata)),
     openSnapshot: (term) =>
       Promise.resolve(
         Object.hasOwn(snapshots, term) ? createAsset(snapshots[term]!) : null,
+      ),
+    openDetails: (term) =>
+      Promise.resolve(
+        Object.hasOwn(details, term) ? createAsset(details[term]!) : null,
       ),
   };
 }

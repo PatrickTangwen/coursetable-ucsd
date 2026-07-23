@@ -3,6 +3,10 @@ import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { isObject } from './stagingContract.js';
+import {
+  encodeCatalogPayload,
+  splitPublishedCatalogPayload,
+} from '../../shared/catalogPayload.js';
 
 type Artifact = {
   body: Uint8Array;
@@ -18,6 +22,7 @@ export type TermArchiveRegistryEntry = {
   frozen: boolean;
   generated_at: string;
   snapshot_path: string;
+  detail_path: string | null;
   manifest_path: string;
 };
 
@@ -59,15 +64,19 @@ export async function buildTermArchive(
   const terms = await Promise.all(
     snapshotTerms.map(async (term) => {
       if (priorByTerm.get(term)?.frozen) return null;
-      const snapshot = await artifact(
-        path.join(snapshotDirectory, `${term}.json`),
-        root,
+      const canonicalSnapshotPath = path.join(
+        snapshotDirectory,
+        `${term}.json`,
       );
+      const canonicalSnapshotBody = await readFile(canonicalSnapshotPath);
       const manifest = await artifact(
         path.join(manifestDirectory, `${term}.json`),
         root,
       );
-      const snapshotJson = parseObject('Published Snapshot', snapshot.body);
+      const snapshotJson = parseObject(
+        'Published Snapshot',
+        canonicalSnapshotBody,
+      );
       const manifestJson = parseObject('Import Manifest', manifest.body);
       assertTerm('Published Snapshot', snapshotJson, term);
       assertTerm('Import Manifest', manifestJson, term);
@@ -77,6 +86,16 @@ export async function buildTermArchive(
         typeof snapshotJson.generated_at !== 'string'
       )
         throw new Error(`Published Snapshot identity is invalid for ${term}`);
+      const { listPayload, detailPayload } =
+        splitPublishedCatalogPayload(snapshotJson);
+      const snapshot = jsonArtifact(
+        listPayload,
+        path.relative(root, canonicalSnapshotPath),
+      );
+      const details = jsonArtifact(
+        detailPayload,
+        path.join('catalogs', 'details', `${term}.json`),
+      );
 
       return {
         term,
@@ -85,6 +104,7 @@ export async function buildTermArchive(
         frozen: false,
         generatedAt: snapshotJson.generated_at,
         snapshot,
+        details,
         manifest,
       };
     }),
@@ -102,13 +122,23 @@ export async function buildTermArchive(
   );
 
   const currentRegistryEntries = currentTerms.map(
-    ({ term, label, dateRange, frozen, generatedAt, snapshot, manifest }) => ({
+    ({
+      term,
+      label,
+      dateRange,
+      frozen,
+      generatedAt,
+      snapshot,
+      details,
+      manifest,
+    }) => ({
       term,
       label,
       date_range: dateRange,
       frozen,
       generated_at: generatedAt,
       snapshot_path: `published-snapshots/${term}/${snapshot.sha256}.json`,
+      detail_path: `published-details/${term}/${details.sha256}.json`,
       manifest_path: `published-manifests/${term}/${manifest.sha256}.json`,
     }),
   ) satisfies TermArchiveRegistryEntry[];
@@ -162,6 +192,10 @@ function parsePriorEntry(value: unknown): TermArchiveRegistryEntry {
     'published-manifests',
     value.term,
   );
+  const detailPath =
+    typeof value.detail_path === 'string' ? value.detail_path : null;
+  if (detailPath)
+    assertContentAddressedPath(detailPath, 'published-details', value.term);
   return {
     term: value.term,
     label: value.label,
@@ -169,6 +203,7 @@ function parsePriorEntry(value: unknown): TermArchiveRegistryEntry {
     frozen: value.frozen,
     generated_at: value.generated_at,
     snapshot_path: value.snapshot_path,
+    detail_path: detailPath,
     manifest_path: value.manifest_path,
   };
 }
@@ -198,6 +233,16 @@ async function artifact(filename: string, root: string): Promise<Artifact> {
   return {
     body,
     path: path.relative(root, filename),
+    sha256: createHash('sha256').update(body).digest('hex'),
+    size: body.byteLength,
+  };
+}
+
+function jsonArtifact(value: unknown, artifactPath: string): Artifact {
+  const body = encodeCatalogPayload(value);
+  return {
+    body,
+    path: artifactPath,
     sha256: createHash('sha256').update(body).digest('hex'),
     size: body.byteLength,
   };

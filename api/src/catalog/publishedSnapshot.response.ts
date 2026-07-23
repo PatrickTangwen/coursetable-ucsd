@@ -4,6 +4,7 @@ import type {
 } from './publishedSnapshot.store.js';
 
 const snapshotPathPattern = /^\/api\/catalog\/public\/(?<term>[\w-]+)$/u;
+const detailPathPattern = /^\/api\/catalog\/details\/(?<term>[\w-]+)$/u;
 
 export async function createPublishedSnapshotResponse(
   method: string,
@@ -23,9 +24,10 @@ export async function createPublishedSnapshotResponse(
 
 async function resolveAsset(pathname: string, store: PublishedSnapshotStore) {
   if (pathname === '/api/catalog/metadata') return await store.openMetadata();
-  const match = snapshotPathPattern.exec(pathname);
-  const term = match?.groups?.term;
-  return term ? await store.openSnapshot(term) : null;
+  const snapshotTerm = snapshotPathPattern.exec(pathname)?.groups?.term;
+  if (snapshotTerm) return await store.openSnapshot(snapshotTerm);
+  const detailTerm = detailPathPattern.exec(pathname)?.groups?.term;
+  return detailTerm ? await store.openDetails(detailTerm) : null;
 }
 
 function assetHeaders(asset: PublishedSnapshotAsset) {

@@ -198,7 +198,7 @@ describe('Published Snapshot Course Planning view-model seam', () => {
     );
   });
 
-  it('ignores the TSS display field outside FA26', () => {
+  it('normalizes a lightweight list payload without Past Grades records', () => {
     const catalog = normalizePublishedSnapshot({
       run_id: 'run-legacy-display-fixture',
       generated_at: '2026-07-17T12:00:00.000Z',
@@ -225,7 +225,6 @@ describe('Published Snapshot Course Planning view-model seam', () => {
           catalog_url: null,
           archive_avg_gpa: null,
           archive_record_count: 0,
-          grade_archive_records: [],
           ge_matches: [],
           sections: [],
         },
@@ -235,6 +234,7 @@ describe('Published Snapshot Course Planning view-model seam', () => {
     expect(catalog?.courses[0]).toMatchObject({
       courseId: 'CAT:1',
       courseCode: 'CAT 1',
+      pastGrades: [],
     });
   });
 

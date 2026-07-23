@@ -347,7 +347,10 @@ const courseSchema = z
     catalog_url: z.string().nullable(),
     archive_avg_gpa: z.number().nullable(),
     archive_record_count: z.number(),
-    grade_archive_records: z.array(coursePlanningPastGradeSchema),
+    grade_archive_records: z
+      .array(coursePlanningPastGradeSchema)
+      .optional()
+      .default([]),
     ge_matches: z.array(z.unknown()),
     sections: z.array(sectionSchema),
   })

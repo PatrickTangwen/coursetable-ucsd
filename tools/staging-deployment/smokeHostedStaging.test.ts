@@ -20,6 +20,8 @@ describe('hosted staging smoke', () => {
       }
       if (pathname === '/api/catalog/public/SP26')
         return Promise.resolve(Response.json({ courses: [] }, { status: 200 }));
+      if (pathname === '/api/catalog/details/SP26')
+        return Promise.resolve(Response.json({ courses: [] }, { status: 200 }));
       if (pathname === '/')
         return Promise.resolve(new Response('<html></html>', { status: 200 }));
       if (pathname === '/api/auth/current-user') {
@@ -56,6 +58,11 @@ describe('hosted staging smoke', () => {
     ).toHaveLength(3);
     expect(
       requests.filter(({ pathname }) => pathname === '/api/savedWorksheets'),
+    ).toHaveLength(3);
+    expect(
+      requests.filter(
+        ({ pathname }) => pathname === '/api/catalog/details/SP26',
+      ),
     ).toHaveLength(3);
   });
 
@@ -251,6 +258,10 @@ function smokeFetcher(
     }
     if (pathname === '/api/catalog/metadata')
       return Promise.resolve(Response.json({ terms: [{ term: 'SP26' }] }));
+    if (pathname === '/api/catalog/public/SP26')
+      return Promise.resolve(Response.json({ courses: [] }));
+    if (pathname === '/api/catalog/details/SP26')
+      return Promise.resolve(Response.json({ courses: [] }));
     if (pathname === '/api/auth/current-user')
       return Promise.resolve(Response.json(currentUser));
     if (pathname === '/api/auth/ucsd/request-verification') {

@@ -19,7 +19,31 @@ describe('staging Term Archive', () => {
       generatedAt: '2026-07-22T21:35:00.817Z',
     });
     expect(fall.snapshot.sha256).toMatch(/^[a-f\d]{64}$/u);
+    expect(fall.details.sha256).toMatch(/^[a-f\d]{64}$/u);
     expect(fall.manifest.sha256).toMatch(/^[a-f\d]{64}$/u);
+    const fallList = JSON.parse(
+      new TextDecoder().decode(fall.snapshot.body),
+    ) as {
+      courses: { grade_archive_records?: unknown }[];
+    };
+    expect(
+      fallList.courses.every(
+        (course) => !Object.hasOwn(course, 'grade_archive_records'),
+      ),
+    ).toBe(true);
+    const fallDetails = JSON.parse(
+      new TextDecoder().decode(fall.details.body),
+    ) as {
+      active_planning_term: string;
+      courses: { course_id: string; grade_archive_records: unknown[] }[];
+    };
+    expect(fallDetails.active_planning_term).toBe('FA26');
+    expect(fallDetails.courses).toHaveLength(1998);
+    expect(
+      fallDetails.courses.some(
+        (course) => course.grade_archive_records.length > 0,
+      ),
+    ).toBe(true);
 
     const spring = archive.terms.find(({ term }) => term === 'SP26');
     if (!spring) throw new Error('SP26 fixture is missing');
@@ -45,6 +69,9 @@ describe('staging Term Archive', () => {
     expect(registryEntry?.snapshot_path).toBe(
       `published-snapshots/SP26/${spring.snapshot.sha256}.json`,
     );
+    expect(registryEntry?.detail_path).toBe(
+      `published-details/SP26/${spring.details.sha256}.json`,
+    );
     expect(registryEntry?.manifest_path).toBe(
       `published-manifests/SP26/${spring.manifest.sha256}.json`,
     );
@@ -65,6 +92,7 @@ describe('staging Term Archive', () => {
           frozen: true,
           generated_at: '2025-01-01T00:00:00.000Z',
           snapshot_path: `published-snapshots/FA24/${frozenSnapshotDigest}.json`,
+          detail_path: null,
           manifest_path: `published-manifests/FA24/${frozenManifestDigest}.json`,
         },
         {
@@ -74,6 +102,7 @@ describe('staging Term Archive', () => {
           frozen: false,
           generated_at: '2024-06-15T00:00:00.000Z',
           snapshot_path: `published-snapshots/SP24/${r2OnlySnapshotDigest}.json`,
+          detail_path: null,
           manifest_path: `published-manifests/SP24/${r2OnlyManifestDigest}.json`,
         },
       ],
@@ -88,6 +117,7 @@ describe('staging Term Archive', () => {
           frozen: true,
           generated_at: '2025-01-01T00:00:00.000Z',
           snapshot_path: `published-snapshots/FA24/${frozenSnapshotDigest}.json`,
+          detail_path: null,
           manifest_path: `published-manifests/FA24/${frozenManifestDigest}.json`,
         },
         {
@@ -97,6 +127,7 @@ describe('staging Term Archive', () => {
           frozen: true,
           generated_at: '2024-06-15T00:00:00.000Z',
           snapshot_path: `published-snapshots/SP24/${r2OnlySnapshotDigest}.json`,
+          detail_path: null,
           manifest_path: `published-manifests/SP24/${r2OnlyManifestDigest}.json`,
         },
       ]),

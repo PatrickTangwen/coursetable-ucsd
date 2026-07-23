@@ -39,6 +39,7 @@ function createEnvironment(): CatalogWorkerEnv {
               {
                 term: 'FA26',
                 snapshot_path: 'published-snapshots/FA26/snapshot.json',
+                detail_path: 'published-details/FA26/details.json',
                 manifest_path: 'published-manifests/FA26/manifest.json',
               },
             ],
@@ -49,6 +50,22 @@ function createEnvironment(): CatalogWorkerEnv {
     [
       'published-snapshots/FA26/snapshot.json',
       () => object(JSON.stringify([{ course_id: 'CSE:100' }]), 'snapshot-etag'),
+    ],
+    [
+      'published-details/FA26/details.json',
+      () =>
+        object(
+          JSON.stringify({
+            active_planning_term: 'FA26',
+            courses: [
+              {
+                course_id: 'CSE:100',
+                grade_archive_records: [{ year: '25', quarter: 'FA' }],
+              },
+            ],
+          }),
+          'details-etag',
+        ),
     ],
   ]);
   const bucket: R2CatalogBucket = {
@@ -115,9 +132,27 @@ describe('single-origin Catalog Worker', () => {
     expect(head.status).toBe(200);
     expect(head.headers.get('content-length')).not.toBeNull();
     expect(await head.text()).toBe('');
+    const details = await handleCatalogWorkerRequest(
+      new Request(
+        'https://staging.sungridplanner.com/api/catalog/details/FA26',
+      ),
+      environment,
+    );
+    expect(details.status).toBe(200);
+    expect(details.headers.get('etag')).toBe('"details-etag"');
+    expect(await details.json()).toMatchObject({
+      active_planning_term: 'FA26',
+      courses: [
+        {
+          course_id: 'CSE:100',
+          grade_archive_records: [{ year: '25', quarter: 'FA' }],
+        },
+      ],
+    });
 
     for (const pathname of [
       '/api/catalog/public/NOPE',
+      '/api/catalog/details/NOPE',
       '/api/catalog/refresh',
       '/api/sitemaps/index.xml',
       '/ferry/v1/graphql',
@@ -142,6 +177,7 @@ describe('single-origin Catalog Worker', () => {
     for (const pathname of [
       '/api/catalog/metadata',
       '/api/catalog/public/FA26',
+      '/api/catalog/details/FA26',
     ]) {
       const response = await handleCatalogWorkerRequest(
         new Request(`https://staging.sungridplanner.com${pathname}`),

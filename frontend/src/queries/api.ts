@@ -6,6 +6,10 @@ import { toast } from 'sonner';
 import z from 'zod';
 
 import {
+  coursePlanningPastGradeSchema,
+  type CoursePlanningPastGrade,
+} from './coursePlanningViewModels';
+import {
   seasonSchema,
   crnSchema,
   type Season,
@@ -408,6 +412,7 @@ const supportedTermSchema = z.object({
   frozen: z.boolean(),
   generated_at: z.string(),
   snapshot_path: z.string(),
+  detail_path: z.string().nullable().optional(),
   manifest_path: z.string().nullable(),
 });
 
@@ -443,6 +448,35 @@ export async function fetchCatalog(season: Season) {
   });
   if (!res) return undefined;
   return catalogResponseToCatalogData(res);
+}
+
+const catalogDetailsSchema = z.object({
+  run_id: z.string(),
+  generated_at: z.string(),
+  active_planning_term: z.string(),
+  courses: z.array(
+    z.object({
+      course_id: z.string(),
+      grade_archive_records: z.array(coursePlanningPastGradeSchema),
+    }),
+  ),
+});
+
+export async function fetchCatalogDetails(season: Season) {
+  const res = await fetchAPI(`/catalog/details/${season}`, {
+    breadcrumb: {
+      category: 'catalog',
+      message: `Fetching catalog details ${season}`,
+    },
+    schema: catalogDetailsSchema,
+  });
+  if (!res || res.active_planning_term !== season) return undefined;
+  return new Map<string, CoursePlanningPastGrade[]>(
+    res.courses.map((course) => [
+      course.course_id,
+      course.grade_archive_records,
+    ]),
+  );
 }
 
 type CourseEvals = EvalsBySeasonQuery['courses'][number];

@@ -36,9 +36,16 @@ async function sha256(body: Uint8Array) {
 async function acceptedInput() {
   const snapshot = encoder.encode(
     JSON.stringify({
+      run_id: 'run-catalog-publication',
       active_planning_term: 'FA26',
       generated_at: '2026-07-11T00:00:00.000Z',
-      courses: [],
+      courses: [
+        {
+          course_id: 'CSE:100',
+          title: 'Advanced Data Structures',
+          grade_archive_records: [{ year: '25', quarter: 'FA', gpa: 3.8 }],
+        },
+      ],
     }),
   );
   const manifest = encoder.encode(
@@ -98,16 +105,48 @@ describe('private R2 Catalog publication', () => {
   it('writes immutable accepted objects before switching the metadata pointer', async () => {
     const store = new MemoryPublicationStore();
     const input = await acceptedInput();
+    const expectedList = encoder.encode(
+      `${JSON.stringify({
+        run_id: 'run-catalog-publication',
+        active_planning_term: 'FA26',
+        generated_at: '2026-07-11T00:00:00.000Z',
+        courses: [
+          {
+            course_id: 'CSE:100',
+            title: 'Advanced Data Structures',
+          },
+        ],
+      })}\n`,
+    );
+    const expectedDetails = encoder.encode(
+      `${JSON.stringify({
+        run_id: 'run-catalog-publication',
+        generated_at: '2026-07-11T00:00:00.000Z',
+        active_planning_term: 'FA26',
+        courses: [
+          {
+            course_id: 'CSE:100',
+            grade_archive_records: [{ year: '25', quarter: 'FA', gpa: 3.8 }],
+          },
+        ],
+      })}\n`,
+    );
+    const expectedListDigest = await sha256(expectedList);
+    const expectedDetailDigest = await sha256(expectedDetails);
 
     const result = await publishAcceptedCatalog(input, store);
 
     expect([...store.objects.keys()]).toEqual([
-      `published-snapshots/FA26/${input.snapshot.sha256}.json`,
+      `published-snapshots/FA26/${expectedListDigest}.json`,
+      `published-details/FA26/${expectedDetailDigest}.json`,
       `published-manifests/FA26/${input.manifest.sha256}.json`,
       'metadata.json',
     ]);
     expect(result.snapshotKey).toBe(
-      `published-snapshots/FA26/${input.snapshot.sha256}.json`,
+      `published-snapshots/FA26/${expectedListDigest}.json`,
+    );
+    expect(result.detailKey).toBe(
+      `published-details/FA26/${expectedDetailDigest}.json`,
     );
     expect(result.manifestKey).toBe(
       `published-manifests/FA26/${input.manifest.sha256}.json`,
@@ -115,12 +154,19 @@ describe('private R2 Catalog publication', () => {
     const publishedRegistry = JSON.parse(
       decoder.decode(store.objects.get('metadata.json')),
     ) as {
-      terms: { snapshot_path: string; manifest_path: string }[];
+      terms: {
+        snapshot_path: string;
+        detail_path: string;
+        manifest_path: string;
+      }[];
     };
     expect(publishedRegistry.terms[0]).toMatchObject({
       snapshot_path: result.snapshotKey,
+      detail_path: result.detailKey,
       manifest_path: result.manifestKey,
     });
+    expect(store.objects.get(result.snapshotKey)).toEqual(expectedList);
+    expect(store.objects.get(result.detailKey)).toEqual(expectedDetails);
   });
 
   it('publishes only the strict public registry shape', async () => {
