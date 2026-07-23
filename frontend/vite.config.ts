@@ -180,8 +180,8 @@ export default defineConfig(({ command, mode }) => ({
       },
       injectRegister: 'auto',
       manifest: {
-        name: 'CourseTable',
-        short_name: 'CourseTable',
+        name: 'SunGrid',
+        short_name: 'SunGrid',
         start_url: '/',
         icons: [
           {
