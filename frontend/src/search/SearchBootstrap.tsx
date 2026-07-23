@@ -115,13 +115,13 @@ function useSearchUrlSync(
       defaultFilters,
       searchParams,
     );
-    if (nextParams.toString() === searchParams.toString()) return;
-
     const nextSearch = nextParams.toString();
     sessionStorage.setItem(
       'lastCatalogSearch',
       nextSearch ? `?${nextSearch}` : '',
     );
+    if (nextSearch === searchParams.toString()) return;
+
     setSearchParams(nextParams);
   }, [
     clearPendingHydration,
