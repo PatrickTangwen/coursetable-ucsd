@@ -30,6 +30,22 @@ type CatalogSearchSuggestionIndexEntry = {
 export type CatalogSearchSuggestionIndex =
   readonly CatalogSearchSuggestionIndexEntry[];
 
+export function mergeCatalogSearchSuggestionIndexes(
+  indexes: readonly CatalogSearchSuggestionIndex[],
+): CatalogSearchSuggestionIndex {
+  if (indexes.length === 0) return [];
+  if (indexes.length === 1) return indexes[0]!;
+
+  const unique = new Map<string, CatalogSearchSuggestionIndexEntry>();
+  for (const index of indexes) {
+    for (const entry of index) {
+      const key = `${entry.suggestion.column}:${entry.normalizedLabel}`;
+      if (!unique.has(key)) unique.set(key, entry);
+    }
+  }
+  return [...unique.values()];
+}
+
 const columnOrder: CatalogSearchColumn[] = [
   'Subject',
   'Code',

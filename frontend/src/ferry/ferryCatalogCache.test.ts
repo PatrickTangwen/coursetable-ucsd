@@ -11,6 +11,9 @@ import {
 } from '../queries/coursePlanningViewModels';
 import type { Season } from '../queries/graphql-types';
 import { adaptCoursePlanningCatalog } from '../queries/ucsdCatalogSnapshot';
+import { searchCatalogSearchSuggestions } from '../search/catalogSearchSuggestions';
+import { filterCoursePlanningSearchIndex } from '../search/coursePlanningSearch';
+import { defaultFilters } from '../search/searchConstants';
 
 const api = vi.hoisted(() => ({
   fetchCatalog: vi.fn(),
@@ -117,6 +120,19 @@ describe('Catalog cache', () => {
       course: {
         title: 'Tracer Course',
       },
+    });
+    expect(
+      filterCoursePlanningSearchIndex(cached.searchIndex, {
+        ...defaultFilters,
+        searchText: 'tracer',
+      }),
+    ).toEqual([cached.listings.get('FA26:123456')]);
+    expect(
+      searchCatalogSearchSuggestions(cached.searchIndex.suggestions, 'tracer'),
+    ).toContainEqual({
+      column: 'Title',
+      label: 'Tracer Course',
+      value: 'Tracer Course',
     });
   });
 

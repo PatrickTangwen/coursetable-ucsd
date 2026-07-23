@@ -1,10 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
-import { filterAndSortCoursePlanningListings } from './coursePlanningSearch';
+import {
+  createCoursePlanningSearchIndex,
+  filterCoursePlanningSearchIndex,
+  type CoursePlanningSearchContext,
+} from './coursePlanningSearch';
 import { defaultFilters } from './searchConstants';
+import type { Filters } from './searchTypes';
 import {
   flattenCoursePlanningCatalog,
   type CoursePlanningCatalog,
+  type CoursePlanningListing,
 } from '../queries/coursePlanningViewModels';
 
 const catalog: CoursePlanningCatalog = {
@@ -137,10 +143,55 @@ for (const course of catalog.courses) {
   });
 }
 
+function filterListings(
+  listings: CoursePlanningListing[],
+  filters: Filters,
+  context: CoursePlanningSearchContext = {},
+) {
+  return filterCoursePlanningSearchIndex(
+    createCoursePlanningSearchIndex(listings),
+    filters,
+    context,
+  );
+}
+
 describe('Course Planning Catalog search', () => {
+  it('reuses indexed search fields across submitted queries', () => {
+    const [listing] = flattenCoursePlanningCatalog(structuredClone(catalog));
+    let currentTitle = listing!.course.title;
+    let titleReads = 0;
+    Object.defineProperty(listing!.course, 'title', {
+      configurable: true,
+      get() {
+        titleReads += 1;
+        return currentTitle;
+      },
+      set(value: string) {
+        currentTitle = value;
+      },
+    });
+
+    const index = createCoursePlanningSearchIndex([listing!]);
+    titleReads = 0;
+
+    expect(
+      filterCoursePlanningSearchIndex(index, {
+        ...defaultFilters,
+        searchText: 'computing',
+      }),
+    ).toEqual([listing]);
+    expect(
+      filterCoursePlanningSearchIndex(index, {
+        ...defaultFilters,
+        searchText: 'missing',
+      }),
+    ).toEqual([]);
+    expect(titleReads).toBe(0);
+  });
+
   it('matches the FA26 TSS display code', () => {
     const listings = flattenCoursePlanningCatalog(catalog);
-    const results = filterAndSortCoursePlanningListings(listings, {
+    const results = filterListings(listings, {
       ...defaultFilters,
       searchText: 'CAT-001',
     });
@@ -156,7 +207,7 @@ describe('Course Planning Catalog search', () => {
     ['location room', 'CENTR 101'],
   ])('matches the visible %s column value', (_column, searchText) => {
     const listings = flattenCoursePlanningCatalog(catalog);
-    const results = filterAndSortCoursePlanningListings(listings, {
+    const results = filterListings(listings, {
       ...defaultFilters,
       searchText,
     });
@@ -164,9 +215,9 @@ describe('Course Planning Catalog search', () => {
     expect(results).toHaveLength(listings.length);
   });
 
-  it('filters owned listings and preserves numeric course-code ordering', () => {
+  it('filters owned listings without imposing a second Catalog sort', () => {
     const listings = flattenCoursePlanningCatalog(catalog);
-    const results = filterAndSortCoursePlanningListings(listings, {
+    const results = filterListings(listings, {
       ...defaultFilters,
       searchText: 'course',
       selectSubjects: [{ value: 'CSE', label: 'CSE' }],
@@ -177,9 +228,30 @@ describe('Course Planning Catalog search', () => {
     });
 
     expect(results.map(({ course }) => course.courseCode)).toEqual([
-      'CSE 2',
       'CSE 10',
+      'CSE 2',
     ]);
+  });
+
+  it('scopes results to the exact selected suggestion', () => {
+    const listings = flattenCoursePlanningCatalog(catalog);
+    const results = filterListings(
+      listings,
+      {
+        ...defaultFilters,
+        searchText: 'cse',
+        excludeAttributes: [],
+      },
+      {
+        catalogSearchSelection: {
+          column: 'Code',
+          label: 'CSE 10',
+          value: 'CSE 10',
+        },
+      },
+    );
+
+    expect(results.map(({ course }) => course.courseCode)).toEqual(['CSE 10']);
   });
 
   it('matches the selected meeting days as an exact set', () => {
@@ -191,11 +263,11 @@ describe('Course Planning Catalog search', () => {
       meetingType: 'Final',
     });
 
-    const mondayOnly = filterAndSortCoursePlanningListings(listings, {
+    const mondayOnly = filterListings(listings, {
       ...defaultFilters,
       selectDays: [{ value: 1, label: 'Monday' }],
     });
-    const mondayTuesdayOnly = filterAndSortCoursePlanningListings(listings, {
+    const mondayTuesdayOnly = filterListings(listings, {
       ...defaultFilters,
       selectDays: [
         { value: 1, label: 'Monday' },
@@ -213,7 +285,7 @@ describe('Course Planning Catalog search', () => {
 
   it('preserves persisted numeric and graduate filter semantics', () => {
     const listings = flattenCoursePlanningCatalog(catalog);
-    const graduateResults = filterAndSortCoursePlanningListings(listings, {
+    const graduateResults = filterListings(listings, {
       ...defaultFilters,
       includeAttributes: ['graduate'],
       excludeAttributes: [],
@@ -239,7 +311,7 @@ describe('Course Planning Catalog search', () => {
       enrollment: 80,
     };
 
-    const results = filterAndSortCoursePlanningListings(listings, {
+    const results = filterListings(listings, {
       ...defaultFilters,
       selectCredits: [{ value: 4, label: '4 units' }],
       overallBounds: [4, 5],

@@ -13,10 +13,8 @@ import MobileFilterSheet from './MobileFilterSheet';
 import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
 import { useSearch } from '../../hooks/useSearch';
 import type { Season } from '../../queries/graphql-types';
-import {
-  createCatalogSearchSuggestionIndex,
-  searchCatalogSearchSuggestions,
-} from '../../search/catalogSearchSuggestions';
+import { searchCatalogSearchSuggestions } from '../../search/catalogSearchSuggestions';
+import { mergeCoursePlanningSearchIndexesForSeasons } from '../../search/coursePlanningSearch';
 import { useStore } from '../../store';
 import styles from './CatalogNavSearch.module.css';
 
@@ -136,22 +134,23 @@ export default function CatalogNavSearch() {
   const [activeSuggestion, setActiveSuggestion] = useState(-1);
   const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const listboxId = useId();
-  const listings = useMemo(() => {
+  const searchIndex = useMemo(() => {
     const seasons =
       selectedSeasons.length > 0
         ? selectedSeasons.map(({ value }) => value)
         : (Object.keys(courses) as Season[]);
-    return seasons.flatMap((season) => [
-      ...(courses[season]?.listings.values() ?? []),
-    ]);
+    return mergeCoursePlanningSearchIndexesForSeasons(
+      seasons,
+      (season) => courses[season]?.searchIndex,
+    );
   }, [courses, selectedSeasons]);
-  const suggestionIndex = useMemo(
-    () => createCatalogSearchSuggestionIndex(listings),
-    [listings],
-  );
   const suggestions = useMemo(
-    () => searchCatalogSearchSuggestions(suggestionIndex, deferredSearchText),
-    [deferredSearchText, suggestionIndex],
+    () =>
+      searchCatalogSearchSuggestions(
+        searchIndex.suggestions,
+        deferredSearchText,
+      ),
+    [deferredSearchText, searchIndex.suggestions],
   );
   const showSuggestions = suggestionsOpen && suggestions.length > 0;
   useEffect(

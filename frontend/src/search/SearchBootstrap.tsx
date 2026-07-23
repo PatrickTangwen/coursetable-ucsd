@@ -10,11 +10,11 @@ import * as Sentry from '@sentry/react';
 import debounce from 'lodash.debounce';
 import { buildEvaluator } from 'quist';
 import { useShallow } from 'zustand/react/shallow';
-import { matchesCatalogSearchSuggestion } from './catalogSearchSuggestions';
 import { getCatalogConflictCourses } from './catalogWorksheetContext';
 import {
   coursePlanningQueryValue,
-  filterAndSortCoursePlanningListings,
+  filterCoursePlanningSearchIndex,
+  mergeCoursePlanningSearchIndexesForSeasons,
 } from './coursePlanningSearch';
 import { defaultFilters, SEARCH_FILTER_KEYS } from './searchConstants';
 import { getSearchSeasonScope } from './searchSeasonScope';
@@ -324,15 +324,6 @@ export function SearchBootstrap({
       legacyWorksheetInfo,
     ],
   );
-  const friendCount = useCallback(
-    (listing: CoursePlanningListing) => {
-      const legacy = legacyListing(listing);
-      if (!legacy) return 0;
-      return numFriends[`${legacy.course.season_code}${legacy.crn}`]?.size ?? 0;
-    },
-    [legacyListing, numFriends],
-  );
-
   const queryEvaluator = useMemo(
     () =>
       buildEvaluator(targetTypes, (listing: CoursePlanningListing, key) => {
@@ -362,28 +353,27 @@ export function SearchBootstrap({
     }
   }, [queryEvaluator, searchFilters.enableQuist, searchFilters.searchText]);
 
+  const catalogSearchIndex = useMemo(
+    () =>
+      mergeCoursePlanningSearchIndexesForSeasons(
+        processedSeasons,
+        (season) => courseData[season]?.searchIndex,
+      ),
+    [courseData, processedSeasons],
+  );
+
   const updateSearchData = useCallback(() => {
-    const listings = processedSeasons.flatMap((season) =>
-      Array.from(courseData[season]?.listings.values() ?? []),
-    );
-    const scopedListings = catalogSearchSelection
-      ? listings.filter((listing) =>
-          matchesCatalogSearchSuggestion(listing, catalogSearchSelection),
-        )
-      : listings;
     setSearchData(
-      filterAndSortCoursePlanningListings(scopedListings, searchFilters, {
-        friendCount,
+      filterCoursePlanningSearchIndex(catalogSearchIndex, searchFilters, {
+        catalogSearchSelection,
         isConflicting,
         quistPredicate,
       }),
     );
   }, [
-    courseData,
+    catalogSearchIndex,
     catalogSearchSelection,
-    friendCount,
     isConflicting,
-    processedSeasons,
     quistPredicate,
     searchFilters,
     setSearchData,

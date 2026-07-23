@@ -4,6 +4,7 @@ import {
   createCatalogSearchSuggestionIndex,
   catalogSearchValues,
   matchesCatalogSearchSuggestion,
+  mergeCatalogSearchSuggestionIndexes,
   searchCatalogSearchSuggestions,
 } from './catalogSearchSuggestions';
 import { createCoursePlanningListingFixture } from '../testFixtures/coursePlanningListing';
@@ -79,6 +80,34 @@ describe('Catalog search suggestions', () => {
       column: 'Title',
       label: 'Advanced Data Structures',
       value: 'Advanced Data Structures',
+    });
+  });
+
+  it('merges term indexes without duplicating shared suggestions', () => {
+    const fall = listing();
+    const winter = listing();
+    winter.section.supportedTerm = 'WI27';
+    winter.course.title = 'Winter Calculus';
+
+    const index = mergeCatalogSearchSuggestionIndexes([
+      createCatalogSearchSuggestionIndex([fall]),
+      createCatalogSearchSuggestionIndex([winter]),
+    ]);
+    const mathSubjects = searchCatalogSearchSuggestions(index, 'math').filter(
+      ({ column }) => column === 'Subject',
+    );
+
+    expect(mathSubjects).toEqual([
+      {
+        column: 'Subject',
+        label: 'MATH / Mathematics',
+        value: 'MATH',
+      },
+    ]);
+    expect(searchCatalogSearchSuggestions(index, 'winter')[0]).toEqual({
+      column: 'Title',
+      label: 'Winter Calculus',
+      value: 'Winter Calculus',
     });
   });
 

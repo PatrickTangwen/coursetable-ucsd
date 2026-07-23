@@ -1,13 +1,21 @@
-import { catalogSearchValues } from './catalogSearchSuggestions';
+import {
+  catalogSearchValues,
+  createCatalogSearchSuggestionIndex,
+  matchesCatalogSearchSuggestion,
+  mergeCatalogSearchSuggestionIndexes,
+  type CatalogSearchSuggestion,
+  type CatalogSearchSuggestionIndex,
+} from './catalogSearchSuggestions';
 import { catalogUnitValues } from './catalogUnits';
 import { defaultFilters } from './searchConstants';
-import type { Filters, SortKeys } from './searchTypes';
+import type { Filters } from './searchTypes';
 import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
+import type { Season } from '../queries/graphql-types';
 import { isEqual } from '../utilities/common';
 import { subjects } from '../utilities/constants';
 
 export type CoursePlanningSearchContext = {
-  friendCount?: (listing: CoursePlanningListing) => number;
+  catalogSearchSelection?: CatalogSearchSuggestion | null;
   isConflicting?: (listing: CoursePlanningListing) => boolean;
   quistPredicate?: (listing: CoursePlanningListing) => boolean;
 };
@@ -57,49 +65,137 @@ function attributeValues(
   return values;
 }
 
-function matchesSearchText(
+type IndexedCatalogSearchValue = {
+  readonly text: string;
+  readonly numericParts: readonly string[];
+};
+
+type CoursePlanningSearchRecord = {
+  readonly listing: CoursePlanningListing;
+  readonly prefixSearchValues: readonly string[];
+  readonly containsSearchValues: readonly string[];
+  readonly description: string;
+  readonly catalogValues: readonly IndexedCatalogSearchValue[];
+  readonly courseNumberValue: number;
+  readonly meetingDays: readonly number[];
+  readonly unitValues: readonly number[];
+  readonly buildingCodes: readonly string[];
+  readonly attributes: ReturnType<typeof attributeValues>;
+};
+
+export type CoursePlanningSearchIndex = {
+  readonly records: readonly CoursePlanningSearchRecord[];
+  readonly suggestions: CatalogSearchSuggestionIndex;
+};
+
+function createCoursePlanningSearchRecord(
   listing: CoursePlanningListing,
+): CoursePlanningSearchRecord {
+  const { course, section } = listing;
+  const normalizedCourseNumber = course.courseNumber.toLowerCase();
+  const [firstCourseNumberCharacter] = normalizedCourseNumber;
+  const buildingCodes = section.meetings.flatMap(({ building }) =>
+    building ? [building] : [],
+  );
+  const meetingDays = [
+    ...new Set(
+      section.meetings
+        .filter(({ meetingType }) => meetingType?.toLowerCase() !== 'final')
+        .flatMap(({ days }) => days.map(meetingDayValue))
+        .filter((day): day is number => day !== null),
+    ),
+  ];
+  const prefixSearchValues = [
+    course.courseCode,
+    course.subject,
+    course.courseNumber,
+    ...buildingCodes,
+  ].map((value) => value.toLowerCase());
+  if (firstCourseNumberCharacter && /\D/u.test(firstCourseNumberCharacter))
+    prefixSearchValues.push(normalizedCourseNumber.slice(1));
+
+  return {
+    listing,
+    prefixSearchValues,
+    containsSearchValues: [
+      course.title,
+      subjects[course.subject] ?? '',
+      ...section.instructors.map(({ name }) => name),
+    ]
+      .filter(Boolean)
+      .map((value) => value.toLowerCase()),
+    description: course.description?.toLowerCase() ?? '',
+    catalogValues: catalogSearchValues(listing).map((value) => {
+      const text = value.toLowerCase();
+      return { text, numericParts: text.match(/\d+/gu) ?? [] };
+    }),
+    courseNumberValue: legacySearchCourseNumberValue(course.courseNumber),
+    meetingDays,
+    unitValues: catalogUnitValues(course.units),
+    buildingCodes,
+    attributes: attributeValues(listing),
+  };
+}
+
+export function createCoursePlanningSearchIndex(
+  listings: CoursePlanningListing[],
+): CoursePlanningSearchIndex {
+  return {
+    records: listings.map(createCoursePlanningSearchRecord),
+    suggestions: createCatalogSearchSuggestionIndex(listings),
+  };
+}
+
+function mergeCoursePlanningSearchIndexes(
+  indexes: readonly CoursePlanningSearchIndex[],
+): CoursePlanningSearchIndex {
+  if (indexes.length === 0) return { records: [], suggestions: [] };
+  if (indexes.length === 1) return indexes[0]!;
+  return {
+    records: indexes.flatMap(({ records }) => records),
+    suggestions: mergeCatalogSearchSuggestionIndexes(
+      indexes.map(({ suggestions }) => suggestions),
+    ),
+  };
+}
+
+export function mergeCoursePlanningSearchIndexesForSeasons(
+  seasons: readonly Season[],
+  indexForSeason: (season: Season) => CoursePlanningSearchIndex | undefined,
+): CoursePlanningSearchIndex {
+  return mergeCoursePlanningSearchIndexes(
+    seasons.flatMap((season) => {
+      const index = indexForSeason(season);
+      return index ? [index] : [];
+    }),
+  );
+}
+
+function matchesSearchText(
+  record: CoursePlanningSearchRecord,
   tokens: string[],
   searchDescription: boolean,
 ): boolean {
-  const { course, section } = listing;
-  const first = course.courseNumber.charAt(0);
-  const catalogValues = catalogSearchValues(listing).map((value) =>
-    value.toLowerCase(),
-  );
+  if (tokens.length === 0) return true;
   const matchesLegacySearch = tokens.every(
     (token) =>
-      course.courseCode.toLowerCase().startsWith(token) ||
-      course.subject.toLowerCase().startsWith(token) ||
-      course.courseNumber.toLowerCase().startsWith(token) ||
-      (/\D/u.test(first) &&
-        course.courseNumber
-          .toLowerCase()
-          .startsWith(first.toLowerCase() + token)) ||
-      (searchDescription &&
-        Boolean(course.description?.toLowerCase().includes(token))) ||
-      course.title.toLowerCase().includes(token) ||
-      Boolean(subjects[course.subject]?.toLowerCase().includes(token)) ||
-      section.instructors.some(({ name }) =>
-        name.toLowerCase().includes(token),
-      ) ||
-      section.meetings.some(({ building }) =>
-        building?.toLowerCase().startsWith(token),
-      ),
+      record.prefixSearchValues.some((value) => value.startsWith(token)) ||
+      record.containsSearchValues.some((value) => value.includes(token)) ||
+      (searchDescription && record.description.includes(token)),
   );
-  const matchesOneCatalogValue = catalogValues.some((value) =>
+  const matchesOneCatalogValue = record.catalogValues.some((value) =>
     tokens.every((token) =>
       /^\d+$/u.test(token)
-        ? (value.match(/\d+/gu)?.includes(token) ?? false)
-        : value.includes(token),
+        ? value.numericParts.includes(token)
+        : value.text.includes(token),
     ),
   );
   return matchesLegacySearch || matchesOneCatalogValue;
 }
 
 function applySelectedValues<T>(
-  selected: T[],
-  values: T[],
+  selected: readonly T[],
+  values: readonly T[],
   intersecting: boolean,
 ): boolean {
   if (selected.length === 0) return true;
@@ -108,7 +204,10 @@ function applySelectedValues<T>(
     : selected.some((value) => values.includes(value));
 }
 
-function matchesExactDays(selectedDays: number[], meetingDays: number[]) {
+function matchesExactDays(
+  selectedDays: readonly number[],
+  meetingDays: readonly number[],
+) {
   if (selectedDays.length === 0) return true;
   const selected = new Set(selectedDays);
   const actual = new Set(meetingDays);
@@ -123,108 +222,6 @@ function listingLocation(listing: CoursePlanningListing): string {
     .map(({ building, room }) => [building, room].filter(Boolean).join(' '))
     .filter(Boolean)
     .join(', ');
-}
-
-function firstMeetingScore(listing: CoursePlanningListing): number | null {
-  const meeting = listing.section.meetings.find(
-    ({ startTime }) => startTime !== null,
-  );
-  if (!meeting?.startTime) return null;
-  const days = meeting.days
-    .map(meetingDayValue)
-    .filter((day): day is number => day !== null);
-  const firstDay = Math.min(...days);
-  if (!Number.isFinite(firstDay)) return null;
-  return firstDay * 10000 + Number(meeting.startTime.replace(':', ''));
-}
-
-function comparableValue(
-  listing: CoursePlanningListing,
-  key: SortKeys | 'term' | 'section',
-  context: CoursePlanningSearchContext,
-): string | number | Date | null {
-  switch (key) {
-    case 'course_code':
-      return listing.course.courseCode;
-    case 'title':
-      return listing.course.title;
-    case 'friend':
-      return context.friendCount?.(listing) ?? 0;
-    case 'added':
-      return new Date(listing.generatedAt);
-    case 'last_modified':
-      return new Date(
-        listing.section.availability.snapshotTimestamp ?? listing.generatedAt,
-      );
-    case 'time':
-      return firstMeetingScore(listing);
-    case 'location':
-      return listingLocation(listing);
-    case 'overall':
-      return listing.evaluation.overallRating;
-    case 'average_professor_rating':
-      return listing.evaluation.professorRating;
-    case 'workload':
-      return listing.evaluation.workload;
-    case 'average_gut_rating':
-      return listing.evaluation.gutRating;
-    case 'enrollment':
-      return listing.evaluation.enrollment;
-    case 'term':
-      return listing.section.supportedTerm;
-    case 'section':
-      return listing.section.sectionCode;
-    default:
-      return null;
-  }
-}
-
-function compareValues(
-  a: string | number | Date | null,
-  b: string | number | Date | null,
-  order: 'asc' | 'desc',
-): number {
-  if (a === null && b === null) return 0;
-  if (a === null) return 1;
-  if (b === null) return -1;
-  const direction = order === 'asc' ? 1 : -1;
-  if (typeof a === 'number' && typeof b === 'number')
-    return (a - b) * direction;
-  if (a instanceof Date && b instanceof Date)
-    return (a.getTime() - b.getTime()) * direction;
-  return (
-    String(a).localeCompare(String(b), 'en-US', { numeric: true }) * direction
-  );
-}
-
-function compareListings(
-  a: CoursePlanningListing,
-  b: CoursePlanningListing,
-  filters: Filters,
-  context: CoursePlanningSearchContext,
-): number {
-  return (
-    compareValues(
-      comparableValue(a, filters.selectSortBy.value, context),
-      comparableValue(b, filters.selectSortBy.value, context),
-      filters.sortOrder,
-    ) ||
-    compareValues(
-      comparableValue(a, 'term', context),
-      comparableValue(b, 'term', context),
-      'desc',
-    ) ||
-    compareValues(
-      comparableValue(a, 'course_code', context),
-      comparableValue(b, 'course_code', context),
-      'asc',
-    ) ||
-    compareValues(
-      comparableValue(a, 'section', context),
-      comparableValue(b, 'section', context),
-      'asc',
-    )
-  );
 }
 
 function isWithinTimeBounds(
@@ -320,8 +317,8 @@ export function coursePlanningQueryValue(
   }
 }
 
-export function filterAndSortCoursePlanningListings(
-  listings: CoursePlanningListing[],
+export function filterCoursePlanningSearchIndex(
+  index: CoursePlanningSearchIndex,
   filters: Filters,
   context: CoursePlanningSearchContext = {},
 ): CoursePlanningListing[] {
@@ -330,14 +327,22 @@ export function filterAndSortCoursePlanningListings(
     .filter(Boolean)
     .map((token) => token.toLowerCase());
   const subjectsSelected = filters.selectSubjects.map(({ value }) => value);
-  const daysSelected = filters.selectDays.map(({ value }) => value);
+  const daysSelected = [
+    ...new Set(filters.selectDays.map(({ value }) => value)),
+  ];
   const buildingsSelected = filters.selectBuilding.map(({ value }) => value);
   const creditsSelected = filters.selectCredits.map(({ value }) => value);
   const schoolsSelected = filters.selectSchools.map(({ value }) => value);
   const courseNumbers = filters.numBounds;
-  const filtered = listings.filter((listing) => {
-    const { course, section } = listing;
+  const filtered = index.records.filter((record) => {
+    const { listing } = record;
+    const { course } = listing;
     const { evaluation } = listing;
+    if (
+      context.catalogSearchSelection &&
+      !matchesCatalogSearchSuggestion(listing, context.catalogSearchSelection)
+    )
+      return false;
     const ratingBounds: [number | null, [number, number], [number, number]][] =
       [
         [
@@ -372,7 +377,7 @@ export function filterAndSortCoursePlanningListings(
       !isWithinTimeBounds(listing, filters.timeBounds)
     )
       return false;
-    const number = legacySearchCourseNumberValue(course.courseNumber);
+    const number = record.courseNumberValue;
     if (
       number < courseNumbers[0] ||
       (courseNumbers[1] < 10000 && number > courseNumbers[1])
@@ -392,47 +397,33 @@ export function filterAndSortCoursePlanningListings(
       )
     )
       return false;
-    const days = section.meetings
-      .filter(({ meetingType }) => meetingType?.toLowerCase() !== 'final')
-      .flatMap(({ days: meetingDays }) => meetingDays.map(meetingDayValue))
-      .filter((day): day is number => day !== null);
-    if (!matchesExactDays(daysSelected, days)) return false;
+    if (!matchesExactDays(daysSelected, record.meetingDays)) return false;
     if (filters.selectSkillsAreas.length > 0) return false;
-    const unitValues = catalogUnitValues(course.units);
     if (
       creditsSelected.length > 0 &&
-      !unitValues.some((value) => creditsSelected.includes(value))
+      !record.unitValues.some((value) => creditsSelected.includes(value))
     )
       return false;
-    if (
-      !applySelectedValues(
-        buildingsSelected,
-        section.meetings.flatMap(({ building }) =>
-          building ? [building] : [],
-        ),
-        false,
-      )
-    )
+    if (!applySelectedValues(buildingsSelected, record.buildingCodes, false))
       return false;
     if (filters.selectCourseInfoAttributes.length > 0) return false;
     if (!applySelectedValues(schoolsSelected, ['UCSD'], false)) return false;
-    const attributes = attributeValues(listing);
     if (
       filters.includeAttributes.length > 0 &&
       !filters.includeAttributes.some((attribute) =>
-        attributes.includes(attribute),
+        record.attributes.includes(attribute),
       )
     )
       return false;
     if (
       filters.excludeAttributes.some((attribute) =>
-        attributes.includes(attribute),
+        record.attributes.includes(attribute),
       )
     )
       return false;
     if (context.quistPredicate) return context.quistPredicate(listing);
-    return matchesSearchText(listing, tokens, filters.searchDescription);
+    return matchesSearchText(record, tokens, filters.searchDescription);
   });
 
-  return filtered.toSorted((a, b) => compareListings(a, b, filters, context));
+  return filtered.map(({ listing }) => listing);
 }

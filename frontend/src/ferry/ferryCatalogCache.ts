@@ -18,6 +18,10 @@ import {
   getUcsdSectionId,
   legacyCourseToPlanningEvaluation,
 } from '../queries/ucsdCatalogSnapshot';
+import {
+  createCoursePlanningSearchIndex,
+  type CoursePlanningSearchIndex,
+} from '../search/coursePlanningSearch';
 
 const courseDataLock = new AsyncLock();
 const catalogLoadAttempted = new Set<Season>();
@@ -29,6 +33,7 @@ type CourseData = {
     catalog: CoursePlanningCatalog | null;
     listings: Map<string, CoursePlanningListing>;
     listingsByModalId: Map<Crn, CoursePlanningListing>;
+    searchIndex: CoursePlanningSearchIndex;
     data: Map<Crn, CatalogListing>;
     legacyBySectionId: Map<string, CatalogListing>;
   };
@@ -112,6 +117,7 @@ const loadCatalog = (season: Season, includeEvals: boolean): Promise<void> =>
           catalog: data.coursePlanningCatalog,
           listings,
           listingsByModalId,
+          searchIndex: createCoursePlanningSearchIndex([...listings.values()]),
           data: catalogOldFormat,
           legacyBySectionId,
         };
