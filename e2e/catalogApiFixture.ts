@@ -66,6 +66,13 @@ export async function installCatalogApiFixture(page: Page) {
       });
       return;
     }
+    if (pathname === '/api/auth/current-user') {
+      await route.fulfill({
+        body: JSON.stringify({ authenticated: false, user: null }),
+        contentType: 'application/json',
+      });
+      return;
+    }
     await route.fulfill({
       status: 404,
       contentType: 'application/json',
