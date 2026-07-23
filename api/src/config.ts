@@ -219,10 +219,11 @@ export const SITEMAP_DIR = `${STATIC_FILE_DIR}/sitemaps`;
 // Latest number of seasons to refresh the static files for
 export const NUM_SEASONS = isDev ? 0 : 4;
 
-export const COURSETABLE_ORIGINS = [
+// Origins allowed to make credentialed CORS requests and to be used as
+// post-login redirect targets. Only SunGrid's own hosts belong here.
+export const TRUSTED_APP_ORIGINS = [
   FRONTEND_ENDPOINT,
-  'https://coursetable.com',
-  'https://www.coursetable.com',
-  /^https:\/\/.+\.coursetable\.com$/u,
-  /^https:\/\/.+\.coursetable\.pages\.dev$/u,
+  'https://sungridplanner.com',
+  'https://www.sungridplanner.com',
+  /^https:\/\/.+\.sungridplanner\.com$/u,
 ];

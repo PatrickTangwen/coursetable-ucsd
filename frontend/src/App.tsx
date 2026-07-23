@@ -29,7 +29,6 @@ const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
 const SignIn = suspended(() => import('./pages/SignIn'));
 const Privacy = suspended(() => import('./pages/Privacy.mdx'));
 const NotFound = suspended(() => import('./pages/NotFound'));
-const Graphiql = suspended(() => import('./pages/Graphiql'));
 
 // Wraps every real route with the shared footer; the 404 catch-all stays
 // outside so unknown URLs render without it.
@@ -125,7 +124,6 @@ function App() {
             loading screen */}
             <Route path="/catalog" element={<CatalogListView />} />
             <Route path="/worksheet" element={<Worksheet />} />
-            <Route path="/graphiql" element={<Graphiql />} />
             <Route path="/login" element={<SignIn />} />
           </Route>
 

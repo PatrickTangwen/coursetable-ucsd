@@ -167,10 +167,14 @@ export default defineConfig(({ command, mode }) => ({
     visualizer({
       filename: 'build/bundle-map.html',
     }),
+    // Sourcemap upload is opt-in per deployment; the inherited config pointed
+    // at upstream CourseTable's Sentry org.
     process.env.NODE_ENV === 'production' &&
+      Boolean(process.env.SENTRY_AUTH_TOKEN) &&
+      Boolean(process.env.SENTRY_ORG) &&
       sentryVitePlugin({
-        org: 'coursetable',
-        project: 'frontend',
+        org: process.env.SENTRY_ORG,
+        project: process.env.SENTRY_PROJECT ?? 'frontend',
         authToken: process.env.SENTRY_AUTH_TOKEN,
       }),
     VitePWA({

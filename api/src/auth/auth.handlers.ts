@@ -9,7 +9,7 @@ import {
   YALIES_API_KEY,
   db,
   FRONTEND_ENDPOINT,
-  COURSETABLE_ORIGINS,
+  TRUSTED_APP_ORIGINS,
   isDev,
 } from '../config.js';
 import winston from '../logging/winston.js';
@@ -207,7 +207,7 @@ const postAuth = (req: express.Request, res: express.Response): void => {
   try {
     const parsed = new URL(redirect, FRONTEND_ENDPOINT);
     if (
-      COURSETABLE_ORIGINS.some(
+      TRUSTED_APP_ORIGINS.some(
         (x) =>
           (typeof x === 'string' && parsed.origin === x) ||
           (x instanceof RegExp && x.test(parsed.origin)),

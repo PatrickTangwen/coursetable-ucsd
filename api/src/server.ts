@@ -31,7 +31,7 @@ import {
   redisClient,
   OVERWRITE_CATALOG,
   GRAPHQL_ENDPOINT,
-  COURSETABLE_ORIGINS,
+  TRUSTED_APP_ORIGINS,
   NUM_SEASONS,
   verificationEmailDelivery,
   VERIFICATION_REQUEST_COOLDOWN_MS,
@@ -75,7 +75,7 @@ app.use(express.urlencoded({ extended: true }));
 // (i.e. let the frontend call the API when it's on a different domain)
 app.use(
   cors({
-    origin: COURSETABLE_ORIGINS,
+    origin: TRUSTED_APP_ORIGINS,
     credentials: true,
     optionsSuccessStatus: 200, // Some legacy browsers (IE11, various SmartTVs) choke on 204
   }),

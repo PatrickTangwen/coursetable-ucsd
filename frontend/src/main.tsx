@@ -19,9 +19,14 @@ import { scrubBrowserTelemetry } from './telemetry/sentryPrivacy';
 enableMapSet();
 setAutoFreeze(false);
 
+// Error reporting is opt-in per deployment: without VITE_SENTRY_DSN no
+// telemetry leaves the browser. (The inherited hardcoded DSN pointed at
+// upstream CourseTable's Sentry project.)
+const sentryDsn = import.meta.env.VITE_SENTRY_DSN as string | undefined;
+
 Sentry.init({
-  enabled: !isDev,
-  dsn: 'https://53e6511b51074b35a273d0d47d615927@o476134.ingest.sentry.io/5515218',
+  enabled: !isDev && Boolean(sentryDsn),
+  dsn: sentryDsn,
   sendDefaultPii: false,
   beforeSend: scrubBrowserTelemetry,
   beforeSendTransaction: scrubBrowserTelemetry,

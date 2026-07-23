@@ -1,5 +1,5 @@
 /** Non-production hosts that must not appear in search indexes. */
-const STAGING_HOSTNAMES = new Set(['staging.coursetable.com']);
+const STAGING_HOSTNAMES = new Set(['staging.sungridplanner.com']);
 
 /**
  * True when this deployment should not be indexed (staging, previews, etc.).

@@ -24,10 +24,10 @@ const html = (strings: TemplateStringsArray, ...values: unknown[]): string =>
   );
 
 const defaultMetadata = {
-  title: 'CourseTable',
+  title: 'SunGrid',
   description:
-    'CourseTable offers a clean and effective way for Yale students to find the courses they want, bringing together course information, student evaluations, and course demand statistics in an intuitive interface. It is run by a small team of volunteers within the Yale Computer Society and is completely open source.',
-  image: 'https://coursetable.com/favicon.png',
+    'SunGrid is a UCSD catalog search and worksheet planner: browse courses from the published catalog snapshot and build a schedule before you enroll.',
+  image: 'https://sungridplanner.com/icon200x200.png',
 };
 
 function renderTemplate({

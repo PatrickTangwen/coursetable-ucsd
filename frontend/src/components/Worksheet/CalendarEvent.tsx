@@ -508,11 +508,11 @@ function WalkDetailsModal({
             </h3>
             <div id={howItWorksContentId} hidden={!showHowItWorksContent}>
               <p className={styles.walkModalDisclaimer}>
-                CourseTable uses Google Maps to predict walking times between
-                your classes. Estimates are pre-calculated and not definitive.
+                SunGrid uses Google Maps to predict walking times between your
+                classes. Estimates are pre-calculated and not definitive.
               </p>
               <p className={styles.walkModalDisclaimer}>
-                When multiple classes share the same gap, CourseTable shows the
+                When multiple classes share the same gap, SunGrid shows the
                 combination with the longest estimated walk. You can hide or
                 remove classes to change which are used for walking-time
                 estimates. To hide walking times entirely, visit Worksheet

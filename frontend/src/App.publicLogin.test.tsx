@@ -58,17 +58,17 @@ describe('public login route policy', () => {
   });
 
   it('redirects protected routes according to availability', () => {
-    expect(renderRoute('/graphiql', true)).toContain(
+    expect(renderRoute('/profile', true)).toContain(
       'data-redirect-to="/login"',
     );
-    expect(renderRoute('/graphiql', false)).toContain(
+    expect(renderRoute('/profile', false)).toContain(
       'data-redirect-to="/catalog"',
     );
   });
 
   it('keeps authenticated protected routes available while public login is off', () => {
-    expect(renderRoute('/graphiql', false, true)).toContain(
-      'data-route-allowed="/graphiql"',
+    expect(renderRoute('/profile', false, true)).toContain(
+      'data-route-allowed="/profile"',
     );
   });
 });
