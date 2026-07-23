@@ -44,6 +44,19 @@ export type BooleanOptions =
 
 export type BooleanAttributes = keyof typeof booleanAttributes;
 
+export const catalogSearchColumns = [
+  'Subject',
+  'Code',
+  'Section',
+  'Title',
+  'Term',
+  'Instructor',
+  'Meets',
+  'Location',
+] as const;
+
+export type CatalogSearchColumn = (typeof catalogSearchColumns)[number];
+
 export interface CategoricalFilters {
   selectSubjects: string;
   selectSkillsAreas: string;
@@ -80,6 +93,7 @@ export type Filters = {
   [P in NumericFilters]: [number, number];
 } & {
   searchText: string;
+  searchColumn: CatalogSearchColumn | '';
   selectSortBy: Option<SortKeys>;
   sortOrder: SortOrderType;
   intersectingFilters: IntersectableFilters[];

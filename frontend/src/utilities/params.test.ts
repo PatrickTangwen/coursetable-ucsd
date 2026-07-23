@@ -35,4 +35,21 @@ describe('getFilterFromParams', () => {
       { value: 4, label: '4 units' },
     ]);
   });
+
+  it('restores only supported Catalog search columns from the URL', () => {
+    expect(
+      getFilterFromParams(
+        'searchColumn',
+        'Subject',
+        defaultFilters.searchColumn,
+      ),
+    ).toBe('Subject');
+    expect(
+      getFilterFromParams(
+        'searchColumn',
+        'Unsupported',
+        defaultFilters.searchColumn,
+      ),
+    ).toBe('');
+  });
 });

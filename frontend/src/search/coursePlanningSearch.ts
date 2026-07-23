@@ -3,7 +3,6 @@ import {
   createCatalogSearchSuggestionIndex,
   matchesCatalogSearchSuggestion,
   mergeCatalogSearchSuggestionIndexes,
-  type CatalogSearchSuggestion,
   type CatalogSearchSuggestionIndex,
 } from './catalogSearchSuggestions';
 import { catalogUnitValues } from './catalogUnits';
@@ -15,7 +14,6 @@ import { isEqual } from '../utilities/common';
 import { subjects } from '../utilities/constants';
 
 export type CoursePlanningSearchContext = {
-  catalogSearchSelection?: CatalogSearchSuggestion | null;
   isConflicting?: (listing: CoursePlanningListing) => boolean;
   quistPredicate?: (listing: CoursePlanningListing) => boolean;
 };
@@ -339,8 +337,11 @@ export function filterCoursePlanningSearchIndex(
     const { course } = listing;
     const { evaluation } = listing;
     if (
-      context.catalogSearchSelection &&
-      !matchesCatalogSearchSuggestion(listing, context.catalogSearchSelection)
+      filters.searchColumn &&
+      !matchesCatalogSearchSuggestion(listing, {
+        column: filters.searchColumn,
+        value: filters.searchText,
+      })
     )
       return false;
     const ratingBounds: [number | null, [number, number], [number, number]][] =

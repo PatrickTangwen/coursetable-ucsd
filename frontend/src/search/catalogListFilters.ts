@@ -55,6 +55,7 @@ export function extractCatalogUnitOptions(
 
 const CATALOG_LIST_VISIBLE_FILTERS = new Set<keyof Filters>([
   'searchText',
+  'searchColumn',
   'selectSubjects',
   'selectSeasons',
   'selectDays',

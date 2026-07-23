@@ -192,7 +192,6 @@ export function SearchBootstrap({
   const searchFilters = useStore((s) => s.searchFilters);
   const searchTimingStartMs = useStore((s) => s.searchTimingStartMs);
   const catalogTypeFilters = useStore((s) => s.catalogTypeFilters);
-  const catalogSearchSelection = useStore((s) => s.catalogSearchSelection);
   const catalogResultsEnabled = hasCatalogResultCondition(
     searchFilters,
     catalogTypeFilters,
@@ -350,7 +349,6 @@ export function SearchBootstrap({
     }
     setSearchData(
       filterCoursePlanningSearchIndex(catalogSearchIndex, searchFilters, {
-        catalogSearchSelection,
         isConflicting,
         quistPredicate,
       }),
@@ -358,7 +356,6 @@ export function SearchBootstrap({
   }, [
     catalogSearchIndex,
     catalogResultsEnabled,
-    catalogSearchSelection,
     isConflicting,
     quistPredicate,
     searchFilters,

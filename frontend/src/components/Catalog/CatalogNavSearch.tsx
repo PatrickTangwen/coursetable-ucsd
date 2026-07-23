@@ -122,17 +122,15 @@ function MobileFiltersButton() {
 }
 
 export default function CatalogNavSearch() {
-  const { filters, setStartTime } = useSearch();
+  const { filters } = useSearch();
   const { courses } = useCoursePlanningCatalog();
-  const { isMobile, selectedSeasons, searchSelection, setSearchSelection } =
-    useStore(
-      useShallow((s) => ({
-        isMobile: s.isMobile,
-        selectedSeasons: s.searchFilters.selectSeasons,
-        searchSelection: s.catalogSearchSelection,
-        setSearchSelection: s.setCatalogSearchSelection,
-      })),
-    );
+  const { isMobile, selectedSeasons, patchSearchFilters } = useStore(
+    useShallow((s) => ({
+      isMobile: s.isMobile,
+      selectedSeasons: s.searchFilters.selectSeasons,
+      patchSearchFilters: s.patchSearchFilters,
+    })),
+  );
   const { searchText } = filters;
   const [draftSearchText, setDraftSearchText] = useState(searchText.value);
   const deferredSearchText = useDeferredValue(draftSearchText);
@@ -166,10 +164,6 @@ export default function CatalogNavSearch() {
     [],
   );
   useEffect(() => {
-    if (searchSelection && searchSelection.value !== searchText.value)
-      setSearchSelection(null);
-  }, [searchSelection, searchText.value, setSearchSelection]);
-  useEffect(() => {
     setDraftSearchText(searchText.value);
   }, [searchText.value]);
   const searchPrompt = 'Search';
@@ -178,9 +172,10 @@ export default function CatalogNavSearch() {
     const suggestion = suggestions[index];
     if (!suggestion) return;
     setDraftSearchText(suggestion.value);
-    setSearchSelection(suggestion);
-    searchText.set(suggestion.value);
-    setStartTime(Date.now());
+    patchSearchFilters({
+      searchText: suggestion.value,
+      searchColumn: suggestion.column,
+    });
     setSuggestionsOpen(false);
     setActiveSuggestion(-1);
   };
@@ -237,9 +232,10 @@ export default function CatalogNavSearch() {
               event.preventDefault();
               const nextSearchText = draftSearchText.trim();
               setDraftSearchText(nextSearchText);
-              setSearchSelection(null);
-              searchText.set(nextSearchText);
-              setStartTime(Date.now());
+              patchSearchFilters({
+                searchText: nextSearchText,
+                searchColumn: '',
+              });
               setSuggestionsOpen(false);
               setActiveSuggestion(-1);
             } else if (event.key === 'Escape') {
@@ -259,9 +255,7 @@ export default function CatalogNavSearch() {
             className={styles.clearBtn}
             onClick={() => {
               setDraftSearchText('');
-              setSearchSelection(null);
-              searchText.resetToEmpty();
-              setStartTime(Date.now());
+              patchSearchFilters({ searchText: '', searchColumn: '' });
               setSuggestionsOpen(false);
               setActiveSuggestion(-1);
             }}

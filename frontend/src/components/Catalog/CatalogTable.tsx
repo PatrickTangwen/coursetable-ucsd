@@ -1028,9 +1028,9 @@ function DesktopVirtualCatalogRows({
   expandedCourses,
   showTermColumn,
   onOpenModal,
-  scrollElementRef,
+  scrollElement,
 }: VirtualCatalogRowsProps & {
-  readonly scrollElementRef: React.RefObject<HTMLDivElement | null>;
+  readonly scrollElement: HTMLDivElement;
 }) {
   const getItemKey = useCallback(
     (index: number) => rows[index]?.rowId ?? index,
@@ -1038,7 +1038,7 @@ function DesktopVirtualCatalogRows({
   );
   const virtualizer = useVirtualizer({
     count: rows.length,
-    getScrollElement: () => scrollElementRef.current,
+    getScrollElement: () => scrollElement,
     estimateSize: (index) => courseRowHeight(rows[index]!, expandedCourses),
     getItemKey,
     overscan: overscanRows,
@@ -1172,7 +1172,7 @@ export default function CatalogTable({
   readonly onOpenModal: (listing: CoursePlanningListing) => void;
 }) {
   const viewMode = useViewMode();
-  const rowsRef = useRef<HTMLDivElement>(null);
+  const [rowsElement, setRowsElement] = useState<HTMLDivElement | null>(null);
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
 
   const { sortKey, sortAsc, expandedCourses } = useStore(
@@ -1223,7 +1223,7 @@ export default function CatalogTable({
   // The fixed table header compensates for the rows container's vertical
   // scrollbar so the header columns stay aligned with the row columns.
   useEffect(() => {
-    const el = rowsRef.current;
+    const el = rowsElement;
     if (!el) return undefined;
 
     const update = () => setScrollbarWidth(el.offsetWidth - el.clientWidth);
@@ -1231,7 +1231,7 @@ export default function CatalogTable({
     const observer = new ResizeObserver(update);
     observer.observe(el);
     return () => observer.disconnect();
-  }, [viewMode, courseRows.length]);
+  }, [viewMode, courseRows.length, rowsElement]);
 
   return (
     <>
@@ -1256,7 +1256,7 @@ export default function CatalogTable({
         )}
       </div>
       <div
-        ref={rowsRef}
+        ref={setRowsElement}
         className={clsx(
           styles.rowsContainer,
           viewMode === 'mobile' && styles.rowsContainerMobile,
@@ -1276,15 +1276,15 @@ export default function CatalogTable({
             showTermColumn={showTermColumn}
             onOpenModal={onOpenModal}
           />
-        ) : (
+        ) : rowsElement ? (
           <DesktopVirtualCatalogRows
             rows={courseRows}
             expandedCourses={expandedCourses}
             showTermColumn={showTermColumn}
             onOpenModal={onOpenModal}
-            scrollElementRef={rowsRef}
+            scrollElement={rowsElement}
           />
-        )}
+        ) : null}
       </div>
     </>
   );

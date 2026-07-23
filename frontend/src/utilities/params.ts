@@ -11,6 +11,7 @@ import type { Season } from '../queries/graphql-types';
 import { formatCatalogUnitLabel } from '../search/catalogUnits';
 import {
   booleanAttributes,
+  catalogSearchColumns,
   sortByOptions,
   type BooleanAttributes,
   type Filters,
@@ -59,6 +60,9 @@ export function getFilterFromParams<K extends keyof Filters>(
         case 'searchText':
           return value as Filters[K];
 
+        case 'searchColumn':
+          return handleCatalogSearchColumnFilter(value, fallback);
+
         case 'selectSortBy':
           return handleSortByFilter(value, fallback);
 
@@ -99,7 +103,7 @@ function getEmptyFilterFromParams<K extends keyof Filters>(
   fallback: Filters[K],
 ): Filters[K] {
   if (EMPTY_ARRAY_PARAM_KEYS.has(key)) return [] as unknown as Filters[K];
-  if (key === 'searchText') return '' as Filters[K];
+  if (key === 'searchText' || key === 'searchColumn') return '' as Filters[K];
   return fallback;
 }
 
@@ -123,6 +127,14 @@ function handleBooleanFilter<K extends keyof Filters>(
 ): Filters[K] {
   if (value !== 'true' && value !== 'false') return fallback;
   return (value === 'true') as Filters[K];
+}
+
+function handleCatalogSearchColumnFilter<K extends keyof Filters>(
+  value: string,
+  fallback: Filters[K],
+): Filters[K] {
+  if (!catalogSearchColumns.some((column) => column === value)) return fallback;
+  return value as Filters[K];
 }
 
 function handleSortByFilter<K extends keyof Filters>(
@@ -206,6 +218,7 @@ function handleSelectFilter<K extends keyof Filters>(
         case 'enrollBounds':
         case 'numBounds':
         case 'searchText':
+        case 'searchColumn':
         case 'selectSortBy':
         case 'sortOrder':
         case 'intersectingFilters':

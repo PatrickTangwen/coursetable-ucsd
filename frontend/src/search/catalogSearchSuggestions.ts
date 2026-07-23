@@ -1,18 +1,11 @@
+import { catalogSearchColumns, type CatalogSearchColumn } from './searchTypes';
 import type { CoursePlanningListing } from '../queries/coursePlanningViewModels';
 import type { Season } from '../queries/graphql-types';
 import { formatTime } from '../utilities/catalogView';
 import { toSeasonString } from '../utilities/course';
 import { getSubjectFullName } from '../utilities/subjectLabels';
 
-export type CatalogSearchColumn =
-  | 'Subject'
-  | 'Code'
-  | 'Section'
-  | 'Title'
-  | 'Term'
-  | 'Instructor'
-  | 'Meets'
-  | 'Location';
+export type { CatalogSearchColumn } from './searchTypes';
 
 export type CatalogSearchSuggestion = {
   column: CatalogSearchColumn;
@@ -45,17 +38,6 @@ export function mergeCatalogSearchSuggestionIndexes(
   }
   return [...unique.values()];
 }
-
-const columnOrder: CatalogSearchColumn[] = [
-  'Subject',
-  'Code',
-  'Section',
-  'Title',
-  'Term',
-  'Instructor',
-  'Meets',
-  'Location',
-];
 
 function normalized(value: string) {
   return value.trim().toLocaleLowerCase();
@@ -214,7 +196,7 @@ function suggestionScore(
 ) {
   const { suggestion, normalizedValue: value } = entry;
   const prefixScore = value === query ? 0 : value.startsWith(query) ? 1 : 2;
-  return columnOrder.indexOf(suggestion.column) * 10 + prefixScore;
+  return catalogSearchColumns.indexOf(suggestion.column) * 10 + prefixScore;
 }
 
 function compareSuggestions(

@@ -235,22 +235,32 @@ describe('Course Planning Catalog search', () => {
 
   it('scopes results to the exact selected suggestion', () => {
     const listings = flattenCoursePlanningCatalog(catalog);
-    const results = filterListings(
-      listings,
-      {
-        ...defaultFilters,
-        searchText: 'cse',
-        excludeAttributes: [],
-      },
-      {
-        catalogSearchSelection: {
-          column: 'Code',
-          label: 'CSE 10',
-          value: 'CSE 10',
-        },
-      },
+    const decoy = structuredClone(
+      listings.find(({ course }) => course.courseCode === 'MATH 20A')!,
     );
+    decoy.course.courseId = 'MATH:99';
+    decoy.course.courseNumber = '99';
+    decoy.course.courseCode = 'MATH 99';
+    decoy.course.title = 'Topics mentioning CSE 10';
+    decoy.section.sectionId = 'FA26:MATH:99';
+    listings.push(decoy);
 
+    const freeTextResults = filterListings(listings, {
+      ...defaultFilters,
+      searchText: 'CSE 10',
+      excludeAttributes: [],
+    });
+    const results = filterListings(listings, {
+      ...defaultFilters,
+      searchText: 'CSE 10',
+      searchColumn: 'Code',
+      excludeAttributes: [],
+    });
+
+    expect(freeTextResults.map(({ course }) => course.courseCode)).toEqual([
+      'CSE 10',
+      'MATH 99',
+    ]);
     expect(results.map(({ course }) => course.courseCode)).toEqual(['CSE 10']);
   });
 

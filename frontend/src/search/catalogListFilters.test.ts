@@ -17,6 +17,7 @@ describe('catalog list filter cleanup', () => {
     const filters: Filters = {
       ...defaultFilters,
       searchText: 'systems',
+      searchColumn: 'Subject',
       selectSubjects: visibleSubjects,
       selectDays: [{ value: 1, label: 'Monday' }],
       selectCredits: [{ value: 4, label: '4 units' }],
@@ -61,6 +62,7 @@ describe('catalog list filter cleanup', () => {
     const reset = buildCatalogListAdvancedFilterReset();
 
     expect(reset.searchText).toBeUndefined();
+    expect(reset.searchColumn).toBeUndefined();
     expect(reset.selectSubjects).toBeUndefined();
     expect(reset.selectSeasons).toBeUndefined();
     expect(reset.selectDays).toBeUndefined();

@@ -65,6 +65,7 @@ export const courseInfoAttributesOptions = courseInfoAttributes.map(
 
 export const filterLabels: { [K in keyof Filters]: string } = {
   searchText: 'Search',
+  searchColumn: 'Search column',
   selectSubjects: 'Subject',
   selectSkillsAreas: 'Areas/Skills',
   overallBounds: 'Overall',
@@ -92,6 +93,7 @@ export const filterLabels: { [K in keyof Filters]: string } = {
 
 export const defaultFilters: Filters = {
   searchText: '',
+  searchColumn: '',
   selectSubjects: [],
   selectSkillsAreas: [],
   overallBounds: [1, 5],
