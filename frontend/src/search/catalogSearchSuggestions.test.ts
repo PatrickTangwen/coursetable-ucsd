@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  buildCatalogSearchSuggestions,
+  createCatalogSearchSuggestionIndex,
   catalogSearchValues,
   matchesCatalogSearchSuggestion,
+  searchCatalogSearchSuggestions,
 } from './catalogSearchSuggestions';
 import { createCoursePlanningListingFixture } from '../testFixtures/coursePlanningListing';
 
@@ -43,7 +44,8 @@ describe('Catalog search suggestions', () => {
     const msed = listing();
     msed.course.subject = 'MSED';
     msed.course.courseCode = 'MSED 295';
-    const suggestions = buildCatalogSearchSuggestions([math, msed], 'math');
+    const index = createCatalogSearchSuggestionIndex([math, msed]);
+    const suggestions = searchCatalogSearchSuggestions(index, 'math');
 
     expect(suggestions.slice(0, 2)).toEqual([
       {
@@ -57,6 +59,27 @@ describe('Catalog search suggestions', () => {
         value: 'MSED',
       },
     ]);
+  });
+
+  it('queries a reusable suggestion index without rebuilding listing values', () => {
+    const math = listing();
+    const cse = listing();
+    cse.course.subject = 'CSE';
+    cse.course.courseCode = 'CSE 100';
+    cse.course.title = 'Advanced Data Structures';
+
+    const index = createCatalogSearchSuggestionIndex([math, cse]);
+
+    expect(searchCatalogSearchSuggestions(index, 'math')[0]).toEqual({
+      column: 'Subject',
+      label: 'MATH / Mathematics',
+      value: 'MATH',
+    });
+    expect(searchCatalogSearchSuggestions(index, 'data')[0]).toEqual({
+      column: 'Title',
+      label: 'Advanced Data Structures',
+      value: 'Advanced Data Structures',
+    });
   });
 
   it('builds searchable values for every supported catalog data column', () => {
@@ -73,13 +96,15 @@ describe('Catalog search suggestions', () => {
   });
 
   it('returns matching suggestions from non-code columns', () => {
-    expect(
-      buildCatalogSearchSuggestions([listing()], 'lovelace')[0]?.column,
-    ).toBe('Instructor');
-    expect(buildCatalogSearchSuggestions([listing()], 'centr')[0]?.column).toBe(
+    const index = createCatalogSearchSuggestionIndex([listing()]);
+
+    expect(searchCatalogSearchSuggestions(index, 'lovelace')[0]?.column).toBe(
+      'Instructor',
+    );
+    expect(searchCatalogSearchSuggestions(index, 'centr')[0]?.column).toBe(
       'Location',
     );
-    expect(buildCatalogSearchSuggestions([listing()], '20 left')).toEqual([]);
+    expect(searchCatalogSearchSuggestions(index, '20 left')).toEqual([]);
   });
 
   it('matches a selected subject by exact subject code', () => {

@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useMemo,
   useEffect,
   useLayoutEffect,
@@ -8,6 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import clsx from 'clsx';
+import { useVirtualizer, useWindowVirtualizer } from '@tanstack/react-virtual';
 import { useShallow } from 'zustand/react/shallow';
 
 import DayDots from './DayDots';
@@ -54,11 +56,15 @@ type ViewMode = 'full' | 'compact' | 'mobile';
 const mobileBreakpoint = 900;
 const compactBreakpoint = 1320;
 
-// Heights must stay in sync with the CSS row heights.
+// Desktop heights mirror the CSS contracts. Mobile values are initial
+// estimates; measureElement replaces them with each card's rendered height.
 const baseRowHeight = 55;
 const subRowHeight = 42;
 const subRowsMaxHeight = 190;
 const overscanRows = 8;
+const estimatedMobileFlatRowHeight = 170;
+const estimatedMobileGroupRowHeight = 140;
+const estimatedMobileSubRowHeight = 88;
 const minCourseCodeWidthCh = 9;
 const courseCodeWidthBufferCh = 2;
 const sectionCountWidthBufferCh = 9;
@@ -254,50 +260,16 @@ function courseRowHeight(row: CourseRow, expandedCourses: Set<string>): number {
     : baseRowHeight;
 }
 
-function prefixOffsets(heights: number[]): number[] {
-  const offsets = [0];
-  for (const height of heights)
-    offsets.push(offsets[offsets.length - 1]! + height);
-  return offsets;
-}
-
-function firstVisibleIndex(offsets: number[], scrollTop: number): number {
-  let low = 0;
-  let high = offsets.length - 1;
-  while (low < high) {
-    const mid = Math.floor((low + high) / 2);
-    if (offsets[mid + 1]! <= scrollTop) low = mid + 1;
-    else high = mid;
-  }
-  return low;
-}
-
-function lastVisibleIndex(offsets: number[], viewportBottom: number): number {
-  let low = 0;
-  let high = offsets.length - 1;
-  while (low < high) {
-    const mid = Math.ceil((low + high) / 2);
-    if (offsets[mid]! < viewportBottom) low = mid;
-    else high = mid - 1;
-  }
-  return Math.max(0, low);
-}
-
-function useElementHeight(ref: React.RefObject<HTMLElement | null>): number {
-  const [height, setHeight] = useState(0);
-
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return undefined;
-
-    const updateHeight = () => setHeight(element.clientHeight);
-    updateHeight();
-    const observer = new ResizeObserver(updateHeight);
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [ref]);
-
-  return height;
+function estimateMobileCourseRowHeight(
+  row: CourseRow,
+  expandedCourses: Set<string>,
+): number {
+  if (row.totalSections <= 1) return estimatedMobileFlatRowHeight;
+  if (!expandedCourses.has(row.rowId)) return estimatedMobileGroupRowHeight;
+  return (
+    estimatedMobileGroupRowHeight +
+    row.totalSections * estimatedMobileSubRowHeight
+  );
 }
 
 function computeViewMode(): ViewMode {
@@ -1031,6 +1003,148 @@ function MobileExpandableCard({
   );
 }
 
+type VirtualCatalogRowsProps = {
+  readonly rows: CourseRow[];
+  readonly expandedCourses: Set<string>;
+  readonly showTermColumn: boolean;
+  readonly onOpenModal: (listing: CoursePlanningListing) => void;
+};
+
+function DesktopVirtualCatalogRows({
+  rows,
+  expandedCourses,
+  showTermColumn,
+  onOpenModal,
+  scrollElementRef,
+}: VirtualCatalogRowsProps & {
+  readonly scrollElementRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const getItemKey = useCallback(
+    (index: number) => rows[index]?.rowId ?? index,
+    [rows],
+  );
+  const virtualizer = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => scrollElementRef.current,
+    estimateSize: (index) => courseRowHeight(rows[index]!, expandedCourses),
+    getItemKey,
+    overscan: overscanRows,
+    useFlushSync: false,
+  });
+
+  return (
+    <div
+      className={styles.virtualRows}
+      style={{ height: virtualizer.getTotalSize() }}
+    >
+      {virtualizer.getVirtualItems().map((virtualRow) => {
+        const row = rows[virtualRow.index]!;
+        return (
+          <div
+            key={virtualRow.key}
+            ref={virtualizer.measureElement}
+            data-index={virtualRow.index}
+            data-testid="catalog-course-row"
+            className={styles.virtualRow}
+            style={{ transform: `translateY(${virtualRow.start}px)` }}
+          >
+            {row.totalSections > 1 ? (
+              <ExpandableRow
+                row={row}
+                showTermColumn={showTermColumn}
+                onOpenModal={onOpenModal}
+              />
+            ) : (
+              <FlatRow
+                row={row}
+                showTermColumn={showTermColumn}
+                onOpenModal={onOpenModal}
+              />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function MobileVirtualCatalogRows({
+  rows,
+  expandedCourses,
+  showTermColumn,
+  onOpenModal,
+}: VirtualCatalogRowsProps) {
+  const listRef = useRef<HTMLDivElement>(null);
+  const [scrollMargin, setScrollMargin] = useState(0);
+  const getItemKey = useCallback(
+    (index: number) => rows[index]?.rowId ?? index,
+    [rows],
+  );
+
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    if (!list) return undefined;
+    const updateScrollMargin = () => {
+      const next = list.getBoundingClientRect().top + window.scrollY;
+      setScrollMargin((current) => (current === next ? current : next));
+    };
+    updateScrollMargin();
+    window.addEventListener('resize', updateScrollMargin);
+    return () => {
+      window.removeEventListener('resize', updateScrollMargin);
+    };
+  }, [rows.length]);
+
+  const virtualizer = useWindowVirtualizer({
+    count: rows.length,
+    estimateSize: (index) =>
+      estimateMobileCourseRowHeight(rows[index]!, expandedCourses),
+    getItemKey,
+    overscan: overscanRows,
+    scrollMargin,
+    gap: 10,
+    useFlushSync: false,
+  });
+
+  return (
+    <div
+      ref={listRef}
+      className={styles.virtualRows}
+      style={{ height: virtualizer.getTotalSize() }}
+    >
+      {virtualizer.getVirtualItems().map((virtualRow) => {
+        const row = rows[virtualRow.index]!;
+        return (
+          <div
+            key={virtualRow.key}
+            ref={virtualizer.measureElement}
+            data-index={virtualRow.index}
+            data-testid="catalog-course-row"
+            className={styles.virtualRow}
+            style={{
+              transform: `translateY(${virtualRow.start - scrollMargin}px)`,
+            }}
+          >
+            {row.totalSections > 1 ? (
+              <MobileExpandableCard
+                row={row}
+                showTermColumn={showTermColumn}
+                onOpenModal={onOpenModal}
+              />
+            ) : (
+              <MobileFlatCard
+                row={row}
+                showTermColumn={showTermColumn}
+                onOpenModal={onOpenModal}
+              />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function CatalogTable({
   data,
   loading,
@@ -1044,8 +1158,6 @@ export default function CatalogTable({
 }) {
   const viewMode = useViewMode();
   const rowsRef = useRef<HTMLDivElement>(null);
-  const viewportHeight = useElementHeight(rowsRef);
-  const [scrollTop, setScrollTop] = useState(0);
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
 
   const { sortKey, sortAsc, expandedCourses } = useStore(
@@ -1106,71 +1218,6 @@ export default function CatalogTable({
     return () => observer.disconnect();
   }, [viewMode, courseRows.length]);
 
-  const rowHeights = useMemo(
-    () => courseRows.map((row) => courseRowHeight(row, expandedCourses)),
-    [courseRows, expandedCourses],
-  );
-  const rowOffsets = useMemo(() => prefixOffsets(rowHeights), [rowHeights]);
-  const totalRowsHeight = rowOffsets[rowOffsets.length - 1] ?? 0;
-  const visibleStart = courseRows.length
-    ? Math.max(0, firstVisibleIndex(rowOffsets, scrollTop) - overscanRows)
-    : 0;
-  const visibleEnd = courseRows.length
-    ? Math.min(
-        courseRows.length - 1,
-        lastVisibleIndex(rowOffsets, scrollTop + viewportHeight) + overscanRows,
-      )
-    : -1;
-  const visibleRows =
-    visibleEnd >= visibleStart
-      ? courseRows.slice(visibleStart, visibleEnd + 1)
-      : [];
-  const topSpacerHeight = rowOffsets[visibleStart] ?? 0;
-  const bottomSpacerHeight =
-    totalRowsHeight - (rowOffsets[visibleEnd + 1] ?? topSpacerHeight);
-
-  const renderDesktopRow = (row: CourseRow) => {
-    if (row.totalSections > 1) {
-      return (
-        <ExpandableRow
-          key={row.rowId}
-          row={row}
-          showTermColumn={showTermColumn}
-          onOpenModal={onOpenModal}
-        />
-      );
-    }
-    return (
-      <FlatRow
-        key={row.rowId}
-        row={row}
-        showTermColumn={showTermColumn}
-        onOpenModal={onOpenModal}
-      />
-    );
-  };
-
-  const renderMobileRow = (row: CourseRow) => {
-    if (row.totalSections > 1) {
-      return (
-        <MobileExpandableCard
-          key={row.rowId}
-          row={row}
-          showTermColumn={showTermColumn}
-          onOpenModal={onOpenModal}
-        />
-      );
-    }
-    return (
-      <MobileFlatCard
-        key={row.rowId}
-        row={row}
-        showTermColumn={showTermColumn}
-        onOpenModal={onOpenModal}
-      />
-    );
-  };
-
   return (
     <>
       <div className={styles.controlCard} style={gridVars}>
@@ -1200,29 +1247,26 @@ export default function CatalogTable({
           viewMode === 'mobile' && styles.rowsContainerMobile,
         )}
         style={gridVars}
-        onScroll={
-          viewMode === 'mobile'
-            ? undefined
-            : (event) => setScrollTop(event.currentTarget.scrollTop)
-        }
       >
         {loading ? (
           <div className={styles.empty}>Loading courses...</div>
         ) : courseRows.length === 0 ? (
           <div className={styles.empty}>No courses match your filters.</div>
         ) : viewMode === 'mobile' ? (
-          courseRows.map(renderMobileRow)
+          <MobileVirtualCatalogRows
+            rows={courseRows}
+            expandedCourses={expandedCourses}
+            showTermColumn={showTermColumn}
+            onOpenModal={onOpenModal}
+          />
         ) : (
-          <div
-            className={styles.virtualRows}
-            style={{ minHeight: totalRowsHeight }}
-          >
-            {topSpacerHeight > 0 && <div style={{ height: topSpacerHeight }} />}
-            {visibleRows.map(renderDesktopRow)}
-            {bottomSpacerHeight > 0 && (
-              <div style={{ height: bottomSpacerHeight }} />
-            )}
-          </div>
+          <DesktopVirtualCatalogRows
+            rows={courseRows}
+            expandedCourses={expandedCourses}
+            showTermColumn={showTermColumn}
+            onOpenModal={onOpenModal}
+            scrollElementRef={rowsRef}
+          />
         )}
       </div>
     </>

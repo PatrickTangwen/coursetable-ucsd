@@ -1,4 +1,11 @@
-import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
+import React, {
+  useDeferredValue,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import clsx from 'clsx';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -6,7 +13,10 @@ import MobileFilterSheet from './MobileFilterSheet';
 import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
 import { useSearch } from '../../hooks/useSearch';
 import type { Season } from '../../queries/graphql-types';
-import { buildCatalogSearchSuggestions } from '../../search/catalogSearchSuggestions';
+import {
+  createCatalogSearchSuggestionIndex,
+  searchCatalogSearchSuggestions,
+} from '../../search/catalogSearchSuggestions';
 import { useStore } from '../../store';
 import styles from './CatalogNavSearch.module.css';
 
@@ -120,6 +130,8 @@ export default function CatalogNavSearch() {
       })),
     );
   const { searchText } = filters;
+  const [draftSearchText, setDraftSearchText] = useState(searchText.value);
+  const deferredSearchText = useDeferredValue(draftSearchText);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
   const [activeSuggestion, setActiveSuggestion] = useState(-1);
   const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -133,9 +145,13 @@ export default function CatalogNavSearch() {
       ...(courses[season]?.listings.values() ?? []),
     ]);
   }, [courses, selectedSeasons]);
+  const suggestionIndex = useMemo(
+    () => createCatalogSearchSuggestionIndex(listings),
+    [listings],
+  );
   const suggestions = useMemo(
-    () => buildCatalogSearchSuggestions(listings, searchText.value),
-    [listings, searchText.value],
+    () => searchCatalogSearchSuggestions(suggestionIndex, deferredSearchText),
+    [deferredSearchText, suggestionIndex],
   );
   const showSuggestions = suggestionsOpen && suggestions.length > 0;
   useEffect(
@@ -148,11 +164,15 @@ export default function CatalogNavSearch() {
     if (searchSelection && searchSelection.value !== searchText.value)
       setSearchSelection(null);
   }, [searchSelection, searchText.value, setSearchSelection]);
+  useEffect(() => {
+    setDraftSearchText(searchText.value);
+  }, [searchText.value]);
   const searchPrompt = 'Search';
 
   const selectSuggestion = (index: number) => {
     const suggestion = suggestions[index];
     if (!suggestion) return;
+    setDraftSearchText(suggestion.value);
     setSearchSelection(suggestion);
     searchText.set(suggestion.value);
     setStartTime(Date.now());
@@ -179,11 +199,9 @@ export default function CatalogNavSearch() {
               ? `${listboxId}-${activeSuggestion}`
               : undefined
           }
-          value={searchText.value}
+          value={draftSearchText}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            setSearchSelection(null);
-            searchText.set(e.target.value);
-            setStartTime(Date.now());
+            setDraftSearchText(e.target.value);
             setSuggestionsOpen(true);
             setActiveSuggestion(-1);
           }}
@@ -210,22 +228,32 @@ export default function CatalogNavSearch() {
             } else if (event.key === 'Enter' && activeSuggestion >= 0) {
               event.preventDefault();
               selectSuggestion(activeSuggestion);
+            } else if (event.key === 'Enter') {
+              event.preventDefault();
+              const nextSearchText = draftSearchText.trim();
+              setDraftSearchText(nextSearchText);
+              setSearchSelection(null);
+              searchText.set(nextSearchText);
+              setStartTime(Date.now());
+              setSuggestionsOpen(false);
+              setActiveSuggestion(-1);
             } else if (event.key === 'Escape') {
               setSuggestionsOpen(false);
               setActiveSuggestion(-1);
             }
           }}
         />
-        {!searchText.value && (
+        {!draftSearchText && (
           <span className={styles.placeholder} aria-hidden="true">
             {searchPrompt}
           </span>
         )}
-        {searchText.value && (
+        {draftSearchText && (
           <button
             type="button"
             className={styles.clearBtn}
             onClick={() => {
+              setDraftSearchText('');
               setSearchSelection(null);
               searchText.resetToEmpty();
               setStartTime(Date.now());

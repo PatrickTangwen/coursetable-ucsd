@@ -20,6 +20,16 @@ export type CatalogSearchSuggestion = {
   value: string;
 };
 
+type CatalogSearchSuggestionIndexEntry = {
+  suggestion: CatalogSearchSuggestion;
+  normalizedLabel: string;
+  normalizedValue: string;
+  numericLabelParts: string[];
+};
+
+export type CatalogSearchSuggestionIndex =
+  readonly CatalogSearchSuggestionIndexEntry[];
+
 const columnOrder: CatalogSearchColumn[] = [
   'Subject',
   'Code',
@@ -35,15 +45,15 @@ function normalized(value: string) {
   return value.trim().toLocaleLowerCase();
 }
 
-function textMatchesQuery(value: string, query: string) {
-  const haystack = normalized(value);
-  return query
-    .split(/\s+/u)
-    .every((token) =>
-      /^\d+$/u.test(token)
-        ? (haystack.match(/\d+/gu)?.includes(token) ?? false)
-        : haystack.includes(token),
-    );
+function textMatchesQuery(
+  entry: CatalogSearchSuggestionIndexEntry,
+  tokens: string[],
+) {
+  return tokens.every((token) =>
+    /^\d+$/u.test(token)
+      ? entry.numericLabelParts.includes(token)
+      : entry.normalizedLabel.includes(token),
+  );
 }
 
 function meetingLabel(
@@ -182,35 +192,70 @@ export function matchesCatalogSearchSuggestion(
   }
 }
 
-function suggestionScore(suggestion: CatalogSearchSuggestion, query: string) {
-  const value = normalized(suggestion.value);
+function suggestionScore(
+  entry: CatalogSearchSuggestionIndexEntry,
+  query: string,
+) {
+  const { suggestion, normalizedValue: value } = entry;
   const prefixScore = value === query ? 0 : value.startsWith(query) ? 1 : 2;
   return columnOrder.indexOf(suggestion.column) * 10 + prefixScore;
 }
 
-export function buildCatalogSearchSuggestions(
+function compareSuggestions(
+  a: CatalogSearchSuggestionIndexEntry,
+  b: CatalogSearchSuggestionIndexEntry,
+  query: string,
+) {
+  const score = suggestionScore(a, query) - suggestionScore(b, query);
+  return (
+    score ||
+    a.suggestion.label.localeCompare(b.suggestion.label, undefined, {
+      numeric: true,
+    })
+  );
+}
+
+export function createCatalogSearchSuggestionIndex(
   listings: CoursePlanningListing[],
+): CatalogSearchSuggestionIndex {
+  const unique = new Map<string, CatalogSearchSuggestionIndexEntry>();
+  for (const listing of listings) {
+    for (const suggestion of suggestionsForListing(listing)) {
+      const normalizedLabel = normalized(suggestion.label);
+      const key = `${suggestion.column}:${normalizedLabel}`;
+      if (unique.has(key)) continue;
+      unique.set(key, {
+        suggestion,
+        normalizedLabel,
+        normalizedValue: normalized(suggestion.value),
+        numericLabelParts: normalizedLabel.match(/\d+/gu) ?? [],
+      });
+    }
+  }
+
+  return [...unique.values()];
+}
+
+export function searchCatalogSearchSuggestions(
+  index: CatalogSearchSuggestionIndex,
   query: string,
   limit = 8,
 ): CatalogSearchSuggestion[] {
   const needle = normalized(query);
   if (!needle) return [];
-
-  const unique = new Map<string, CatalogSearchSuggestion>();
-  for (const listing of listings) {
-    for (const suggestion of suggestionsForListing(listing)) {
-      if (!textMatchesQuery(suggestion.label, needle)) continue;
-      const key = `${suggestion.column}:${normalized(suggestion.label)}`;
-      if (!unique.has(key)) unique.set(key, suggestion);
+  const tokens = needle.split(/\s+/u);
+  const best: CatalogSearchSuggestionIndexEntry[] = [];
+  for (const entry of index) {
+    if (!textMatchesQuery(entry, tokens)) continue;
+    const insertAt = best.findIndex(
+      (candidate) => compareSuggestions(entry, candidate, needle) < 0,
+    );
+    if (insertAt < 0) {
+      if (best.length < limit) best.push(entry);
+      continue;
     }
+    best.splice(insertAt, 0, entry);
+    if (best.length > limit) best.pop();
   }
-
-  return [...unique.values()]
-    .sort((a, b) => {
-      const score = suggestionScore(a, needle) - suggestionScore(b, needle);
-      return (
-        score || a.label.localeCompare(b.label, undefined, { numeric: true })
-      );
-    })
-    .slice(0, limit);
+  return best.map(({ suggestion }) => suggestion);
 }

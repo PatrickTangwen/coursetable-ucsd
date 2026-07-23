@@ -83,6 +83,13 @@
   position: relative;
 }
 
+.virtualRow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
 /* ── Desktop rows ── */
 .row {
   display: grid;
@@ -372,7 +379,6 @@
   flex-direction: column;
   gap: 12px;
   padding: 15px 16px;
-  margin-bottom: 10px;
   border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 12px;
   background: var(--ct-surface);
@@ -519,7 +525,6 @@
 .mobileGroup {
   content-visibility: auto;
   contain-intrinsic-size: auto 140px;
-  margin-bottom: 10px;
   border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   border-radius: 10px;
   overflow: hidden;
