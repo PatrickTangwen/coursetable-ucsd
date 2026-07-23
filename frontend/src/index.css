@@ -216,7 +216,7 @@
   --ct-surface-hover: #232221;
   --ct-surface-soft: #2d2b27;
   --ct-calendar-illustration-blend-mode: screen;
-  --ct-calendar-illustration-filter: invert(1) hue-rotate(180deg);
+  --ct-calendar-illustration-filter: invert(1) hue-rotate(180deg) contrast(1.08);
 
   /* Lines */
   --ct-line-rgb: 255 255 255;

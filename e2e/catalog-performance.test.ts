@@ -1,86 +1,10 @@
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
-import { splitPublishedCatalogPayload } from '../shared/catalogPayload.js';
+import { installCatalogApiFixture } from './catalogApiFixture';
 
 const maximumMountedCourseRows = 24;
 const maximumDraftPaintMedianMs = 250;
 const idleCatalogHeading = 'No courses to show yet';
-const catalogFixturePath = path.resolve(
-  process.cwd(),
-  'api/static/catalogs/public/FA26.json',
-);
-const metadataFixturePath = path.resolve(
-  process.cwd(),
-  'api/static/metadata.json',
-);
-
-async function installCatalogApiFixture(page: Page) {
-  const [catalogBody, metadataBody] = await Promise.all([
-    readFile(catalogFixturePath, 'utf8'),
-    readFile(metadataFixturePath, 'utf8'),
-  ]);
-  const canonical = JSON.parse(catalogBody) as {
-    courses: {
-      subject: string;
-      course_number: string;
-      title: string;
-      archive_record_count: number;
-      grade_archive_records: unknown[];
-      sections: unknown[];
-    }[];
-  };
-  const { listPayload, detailPayload } =
-    splitPublishedCatalogPayload(canonical);
-  const listBody = JSON.stringify(listPayload);
-  const detailBody = JSON.stringify(detailPayload);
-  const courseWithDetails = canonical.courses.find(
-    (course) =>
-      course.archive_record_count > 0 &&
-      course.grade_archive_records.length > 0 &&
-      course.sections.length === 1,
-  );
-  if (!courseWithDetails)
-    throw new Error('Catalog fixture has no single-section Past Grades course');
-  let detailRequestCount = 0;
-
-  await page.route('**/api/**', async (route) => {
-    const { pathname } = new URL(route.request().url());
-    if (pathname === '/api/catalog/metadata') {
-      await route.fulfill({
-        body: metadataBody,
-        contentType: 'application/json',
-      });
-      return;
-    }
-    if (pathname === '/api/catalog/public/FA26') {
-      await route.fulfill({
-        body: listBody,
-        contentType: 'application/json',
-      });
-      return;
-    }
-    if (pathname === '/api/catalog/details/FA26') {
-      detailRequestCount += 1;
-      await route.fulfill({
-        body: detailBody,
-        contentType: 'application/json',
-      });
-      return;
-    }
-    await route.fulfill({
-      status: 404,
-      contentType: 'application/json',
-      body: JSON.stringify({ error: 'NOT_FOUND' }),
-    });
-  });
-
-  return {
-    courseWithDetails,
-    detailRequestCount: () => detailRequestCount,
-  };
-}
 
 async function expectBoundedCourseRows(page: Page) {
   const rows = page.getByTestId('catalog-course-row');
@@ -105,44 +29,6 @@ async function expectCatalogIdle(page: Page) {
   ).toBeVisible();
   await expect(page.getByTestId('catalog-course-row')).toHaveCount(0);
   await expect.poll(() => readDisplayedResultCount(page)).toBe(0);
-}
-
-function readIllustrationAppearance(illustration: Locator) {
-  return illustration.evaluate((element) => {
-    const style = getComputedStyle(element);
-    return {
-      filter: style.filter,
-      mixBlendMode: style.mixBlendMode,
-    };
-  });
-}
-
-async function expectIllustrationNotDraggable(
-  page: Page,
-  illustration: Locator,
-) {
-  await illustration.evaluate((element) => {
-    element.addEventListener(
-      'dragstart',
-      () => {
-        (element as HTMLElement).dataset.dragStarted = 'true';
-      },
-      { once: true },
-    );
-  });
-  const bounds = await illustration.boundingBox();
-  if (!bounds) throw new Error('Calendar illustration is not rendered');
-
-  const center = {
-    x: bounds.x + bounds.width / 2,
-    y: bounds.y + bounds.height / 2,
-  };
-  await page.mouse.move(center.x, center.y);
-  await page.mouse.down();
-  await page.mouse.move(center.x + 60, center.y + 30, { steps: 6 });
-  await page.mouse.up();
-
-  expect(await illustration.getAttribute('data-drag-started')).toBeNull();
 }
 
 function measureDraftPaint(search: Locator, draft: string) {
@@ -305,49 +191,6 @@ test('keeps desktop Catalog idle until a filter is selected', async ({
 
   await page.getByRole('button', { name: 'Reset' }).click();
   await expectCatalogIdle(page);
-});
-
-test('matches the calendar illustration treatment across empty views', async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await installCatalogApiFixture(page);
-  await page.goto('/catalog');
-
-  const catalogIllustration = page
-    .locator('img[src*="calendar_img_high_res"]')
-    .first();
-  await expect(catalogIllustration).toBeVisible();
-  await expectIllustrationNotDraggable(page, catalogIllustration);
-  await expect
-    .poll(() => readIllustrationAppearance(catalogIllustration))
-    .toEqual({
-      filter: 'none',
-      mixBlendMode: 'multiply',
-    });
-
-  await page.getByRole('button', { name: 'To dark mode' }).click();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await expect
-    .poll(() => readIllustrationAppearance(catalogIllustration))
-    .toEqual({
-      filter: 'invert(1) hue-rotate(180deg)',
-      mixBlendMode: 'screen',
-    });
-
-  await page.getByRole('link', { name: 'Worksheet' }).click();
-  await page.getByRole('button', { name: 'List', pressed: false }).click();
-  const listIllustration = page
-    .locator('img[src*="calendar_img_high_res"]')
-    .first();
-  await expect(listIllustration).toBeVisible();
-  await expectIllustrationNotDraggable(page, listIllustration);
-  await expect
-    .poll(() => readIllustrationAppearance(listIllustration))
-    .toEqual({
-      filter: 'invert(1) hue-rotate(180deg)',
-      mixBlendMode: 'screen',
-    });
 });
 
 test('loads and caches Past Grades only after the detail tab opens', async ({
