@@ -365,6 +365,7 @@ async function r2ReadFailureCheck() {
 async function r2PublicationFailureCheck() {
   const snapshot = encoder.encode(
     JSON.stringify({
+      run_id: 'failure-safety-publication',
       active_planning_term: 'FA26',
       generated_at: '2026-07-11T00:00:00.000Z',
       courses: [],
