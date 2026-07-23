@@ -36,11 +36,27 @@ export function mergeCatalogSearchSuggestionIndexes(
       if (!unique.has(key)) unique.set(key, entry);
     }
   }
-  return [...unique.values()];
+  return [...unique.values()].sort(compareIndexEntries);
 }
 
 function normalized(value: string) {
   return value.trim().toLocaleLowerCase();
+}
+
+const suggestionCollator = new Intl.Collator(undefined, { numeric: true });
+
+// Index entries are kept sorted by column rank, then label. Query-time
+// ranking only reorders by match quality, so it can stay a stable O(n)
+// bucket pass over an unbounded result set.
+function compareIndexEntries(
+  a: CatalogSearchSuggestionIndexEntry,
+  b: CatalogSearchSuggestionIndexEntry,
+) {
+  return (
+    catalogSearchColumns.indexOf(a.suggestion.column) -
+      catalogSearchColumns.indexOf(b.suggestion.column) ||
+    suggestionCollator.compare(a.suggestion.label, b.suggestion.label)
+  );
 }
 
 function textMatchesQuery(
@@ -199,20 +215,6 @@ function suggestionScore(
   return catalogSearchColumns.indexOf(suggestion.column) * 10 + prefixScore;
 }
 
-function compareSuggestions(
-  a: CatalogSearchSuggestionIndexEntry,
-  b: CatalogSearchSuggestionIndexEntry,
-  query: string,
-) {
-  const score = suggestionScore(a, query) - suggestionScore(b, query);
-  return (
-    score ||
-    a.suggestion.label.localeCompare(b.suggestion.label, undefined, {
-      numeric: true,
-    })
-  );
-}
-
 export function createCatalogSearchSuggestionIndex(
   listings: CoursePlanningListing[],
 ): CatalogSearchSuggestionIndex {
@@ -231,29 +233,26 @@ export function createCatalogSearchSuggestionIndex(
     }
   }
 
-  return [...unique.values()];
+  return [...unique.values()].sort(compareIndexEntries);
 }
 
+/**
+ * Every matching suggestion, ranked by column, then match quality (exact /
+ * prefix / contains), then label. The caller virtualizes the rendered list,
+ * so the result is intentionally unbounded.
+ */
 export function searchCatalogSearchSuggestions(
   index: CatalogSearchSuggestionIndex,
   query: string,
-  limit = 8,
 ): CatalogSearchSuggestion[] {
   const needle = normalized(query);
   if (!needle) return [];
   const tokens = needle.split(/\s+/u);
-  const best: CatalogSearchSuggestionIndexEntry[] = [];
+  const buckets: CatalogSearchSuggestion[][] = [];
   for (const entry of index) {
     if (!textMatchesQuery(entry, tokens)) continue;
-    const insertAt = best.findIndex(
-      (candidate) => compareSuggestions(entry, candidate, needle) < 0,
-    );
-    if (insertAt < 0) {
-      if (best.length < limit) best.push(entry);
-      continue;
-    }
-    best.splice(insertAt, 0, entry);
-    if (best.length > limit) best.pop();
+    const score = suggestionScore(entry, needle);
+    (buckets[score] ??= []).push(entry.suggestion);
   }
-  return best.map(({ suggestion }) => suggestion);
+  return buckets.flat();
 }

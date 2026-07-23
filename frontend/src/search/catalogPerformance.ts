@@ -233,7 +233,9 @@ export function assertCatalogPerformance(report: CatalogPerformanceReport) {
     emptyFilter: expectedScale.listings,
     textFilter: cseResultCount,
     subjectFilter: cseResultCount,
-    typeahead: 8,
+    // Typeahead is unbounded (the dropdown virtualizes all matches); this is
+    // every "cse" suggestion at the accepted FA26 fixture scale.
+    typeahead: 334,
   } as const;
   const budgets = {
     emptyFilter: { floorMs: 15, buildShare: 0.15, ceilingMs: 60 },

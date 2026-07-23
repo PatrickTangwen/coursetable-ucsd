@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import clsx from 'clsx';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { useShallow } from 'zustand/react/shallow';
 
 import MobileFilterSheet from './MobileFilterSheet';
@@ -18,6 +19,10 @@ import { searchCatalogSearchSuggestions } from '../../search/catalogSearchSugges
 import { mergeCoursePlanningSearchIndexesForSeasons } from '../../search/coursePlanningSearch';
 import { useStore } from '../../store';
 import styles from './CatalogNavSearch.module.css';
+
+// Must match the fixed .suggestion height in CatalogNavSearch.module.css so
+// the virtualized rows need no runtime measurement.
+const suggestionRowHeight = 37;
 
 function SearchIcon() {
   return (
@@ -157,6 +162,19 @@ export default function CatalogNavSearch() {
     [deferredSearchText, searchIndex.suggestions],
   );
   const showSuggestions = suggestionsOpen && suggestions.length > 0;
+  const [listboxElement, setListboxElement] = useState<HTMLDivElement | null>(
+    null,
+  );
+  const suggestionVirtualizer = useVirtualizer({
+    count: suggestions.length,
+    getScrollElement: () => listboxElement,
+    estimateSize: () => suggestionRowHeight,
+    overscan: 8,
+  });
+  useEffect(() => {
+    if (showSuggestions && activeSuggestion >= 0)
+      suggestionVirtualizer.scrollToIndex(activeSuggestion);
+  }, [activeSuggestion, showSuggestions, suggestionVirtualizer]);
   useEffect(
     () => () => {
       if (blurTimer.current) clearTimeout(blurTimer.current);
@@ -268,35 +286,48 @@ export default function CatalogNavSearch() {
           // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- editable combobox suggestions require a custom listbox so selecting a value can preserve the search input's display and URL contract
           <div
             id={listboxId}
+            ref={setListboxElement}
             className={styles.suggestions}
             role="listbox"
             aria-label="Search suggestions"
           >
-            {suggestions.map((suggestion, index) => (
-              // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- interactive custom combobox option, not a native select option
-              <button
-                key={`${suggestion.column}:${suggestion.label}`}
-                id={`${listboxId}-${index}`}
-                type="button"
-                role="option"
-                aria-selected={activeSuggestion === index}
-                className={clsx(
-                  styles.suggestion,
-                  activeSuggestion === index && styles.suggestionActive,
-                )}
-                onMouseDown={(event) => event.preventDefault()}
-                onMouseEnter={() => setActiveSuggestion(index)}
-                onFocus={() => setActiveSuggestion(index)}
-                onClick={() => selectSuggestion(index)}
-              >
-                <span className={styles.suggestionLabel}>
-                  {suggestion.label}
-                </span>
-                <span className={styles.suggestionColumn}>
-                  {suggestion.column}
-                </span>
-              </button>
-            ))}
+            <div
+              className={styles.suggestionRows}
+              style={{ height: suggestionVirtualizer.getTotalSize() }}
+            >
+              {suggestionVirtualizer.getVirtualItems().map((virtualRow) => {
+                const { index } = virtualRow;
+                const suggestion = suggestions[index]!;
+                return (
+                  // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- interactive custom combobox option, not a native select option
+                  <button
+                    key={`${suggestion.column}:${suggestion.label}`}
+                    id={`${listboxId}-${index}`}
+                    type="button"
+                    role="option"
+                    aria-selected={activeSuggestion === index}
+                    className={clsx(
+                      styles.suggestion,
+                      activeSuggestion === index && styles.suggestionActive,
+                    )}
+                    style={{
+                      transform: `translateY(${virtualRow.start}px)`,
+                    }}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onMouseEnter={() => setActiveSuggestion(index)}
+                    onFocus={() => setActiveSuggestion(index)}
+                    onClick={() => selectSuggestion(index)}
+                  >
+                    <span className={styles.suggestionLabel}>
+                      {suggestion.label}
+                    </span>
+                    <span className={styles.suggestionColumn}>
+                      {suggestion.column}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

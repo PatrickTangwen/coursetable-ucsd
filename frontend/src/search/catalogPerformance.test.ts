@@ -16,7 +16,7 @@ describe('Catalog search performance contract', () => {
     expect(report.operations.emptyFilter.resultCount).toBe(6104);
     expect(report.operations.textFilter.resultCount).toBe(1018);
     expect(report.operations.subjectFilter.resultCount).toBe(1018);
-    expect(report.operations.typeahead.resultCount).toBe(8);
+    expect(report.operations.typeahead.resultCount).toBe(334);
   });
 
   it('accepts a fixed-scale report inside the performance budgets', () => {
@@ -27,7 +27,7 @@ describe('Catalog search performance contract', () => {
         emptyFilter: { medianMs: 2, resultCount: 6104 },
         textFilter: { medianMs: 8, resultCount: 1018 },
         subjectFilter: { medianMs: 2, resultCount: 1018 },
-        typeahead: { medianMs: 22, resultCount: 8 },
+        typeahead: { medianMs: 22, resultCount: 334 },
       },
     };
 
@@ -42,7 +42,7 @@ describe('Catalog search performance contract', () => {
         emptyFilter: { medianMs: 80, resultCount: 6104 },
         textFilter: { medianMs: 50, resultCount: 1018 },
         subjectFilter: { medianMs: 45, resultCount: 1018 },
-        typeahead: { medianMs: 100, resultCount: 8 },
+        typeahead: { medianMs: 100, resultCount: 334 },
       },
     };
 
@@ -59,7 +59,7 @@ describe('Catalog search performance contract', () => {
         emptyFilter: { medianMs: 2, resultCount: 6104 },
         textFilter: { medianMs: 7, resultCount: 1018 },
         subjectFilter: { medianMs: 2, resultCount: 1018 },
-        typeahead: { medianMs: 22, resultCount: 8 },
+        typeahead: { medianMs: 22, resultCount: 334 },
       },
     };
 
