@@ -12,6 +12,7 @@ import {
   buildCatalogListFilterCleanup,
   extractCatalogSubjects,
 } from '../search/catalogListFilters';
+import { hasCatalogResultCondition } from '../search/catalogResultVisibility';
 import { useStore } from '../store';
 import { createCoursePlanningModalLink } from '../utilities/display';
 import styles from './CatalogListView.module.css';
@@ -24,6 +25,7 @@ export default function CatalogListView() {
   const patchSearchFilters = useStore((s) => s.patchSearchFilters);
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useStore((s) => s.navigate);
+  const resultsEnabled = hasCatalogResultCondition(searchFilters, typeFilters);
 
   const subjects = useMemo(
     () => extractCatalogSubjects(courses, searchFilters.selectSeasons),
@@ -70,6 +72,7 @@ export default function CatalogListView() {
       <CatalogTable
         data={filteredData}
         loading={coursesLoading}
+        resultsEnabled={resultsEnabled}
         filterBar={<FilterBar subjects={subjects} />}
         onOpenModal={handleOpenModal}
       />

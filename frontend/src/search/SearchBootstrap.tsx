@@ -10,6 +10,7 @@ import * as Sentry from '@sentry/react';
 import debounce from 'lodash.debounce';
 import { buildEvaluator } from 'quist';
 import { useShallow } from 'zustand/react/shallow';
+import { hasCatalogResultCondition } from './catalogResultVisibility';
 import { getCatalogConflictCourses } from './catalogWorksheetContext';
 import {
   coursePlanningQueryValue,
@@ -177,27 +178,6 @@ const targetTypes = {
   ] as const),
 };
 
-function hasActiveCatalogFilter(filters: Filters): boolean {
-  return (
-    filters.searchText.trim().length > 0 ||
-    filters.selectSubjects.length > 0 ||
-    filters.selectSkillsAreas.length > 0 ||
-    filters.selectDays.length > 0 ||
-    filters.selectSchools.length > 0 ||
-    filters.selectCredits.length > 0 ||
-    filters.selectBuilding.length > 0 ||
-    filters.selectCourseInfoAttributes.length > 0 ||
-    filters.includeAttributes.length > 0 ||
-    filters.hideConflicting ||
-    !isEqual(filters.overallBounds, defaultFilters.overallBounds) ||
-    !isEqual(filters.workloadBounds, defaultFilters.workloadBounds) ||
-    !isEqual(filters.professorBounds, defaultFilters.professorBounds) ||
-    !isEqual(filters.timeBounds, defaultFilters.timeBounds) ||
-    !isEqual(filters.enrollBounds, defaultFilters.enrollBounds) ||
-    !isEqual(filters.numBounds, defaultFilters.numBounds)
-  );
-}
-
 export function SearchBootstrap({
   children,
 }: {
@@ -213,6 +193,10 @@ export function SearchBootstrap({
   const searchTimingStartMs = useStore((s) => s.searchTimingStartMs);
   const catalogTypeFilters = useStore((s) => s.catalogTypeFilters);
   const catalogSearchSelection = useStore((s) => s.catalogSearchSelection);
+  const catalogResultsEnabled = hasCatalogResultCondition(
+    searchFilters,
+    catalogTypeFilters,
+  );
   const {
     worksheets,
     friends,
@@ -239,11 +223,8 @@ export function SearchBootstrap({
 
   const processedSeasons = useMemo(
     () =>
-      getSearchSeasonScope(
-        searchFilters.selectSeasons,
-        hasActiveCatalogFilter(searchFilters) || catalogTypeFilters.length > 0,
-      ),
-    [catalogTypeFilters.length, searchFilters],
+      getSearchSeasonScope(searchFilters.selectSeasons, catalogResultsEnabled),
+    [catalogResultsEnabled, searchFilters.selectSeasons],
   );
   const {
     loading: coursesLoading,
@@ -363,6 +344,10 @@ export function SearchBootstrap({
   );
 
   const updateSearchData = useCallback(() => {
+    if (!catalogResultsEnabled) {
+      setSearchData([]);
+      return;
+    }
     setSearchData(
       filterCoursePlanningSearchIndex(catalogSearchIndex, searchFilters, {
         catalogSearchSelection,
@@ -372,6 +357,7 @@ export function SearchBootstrap({
     );
   }, [
     catalogSearchIndex,
+    catalogResultsEnabled,
     catalogSearchSelection,
     isConflicting,
     quistPredicate,

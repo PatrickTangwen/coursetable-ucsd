@@ -13,6 +13,7 @@ import MobileFilterSheet from './MobileFilterSheet';
 import { useCoursePlanningCatalog } from '../../hooks/useCoursePlanning';
 import { useSearch } from '../../hooks/useSearch';
 import type { Season } from '../../queries/graphql-types';
+import { hasCatalogResultCondition } from '../../search/catalogResultVisibility';
 import { searchCatalogSearchSuggestions } from '../../search/catalogSearchSuggestions';
 import { mergeCoursePlanningSearchIndexesForSeasons } from '../../search/coursePlanningSearch';
 import { useStore } from '../../store';
@@ -57,11 +58,16 @@ function ClearIcon() {
 
 export function CatalogResultCount() {
   const { searchData, coursesLoading } = useSearch();
+  const resultsEnabled = useStore((state) =>
+    hasCatalogResultCondition(state.searchFilters, state.catalogTypeFilters),
+  );
   return (
     <div className={styles.resultCount}>
-      {coursesLoading
-        ? 'Searching…'
-        : `Showing ${searchData?.length ?? 0} results`}
+      {!resultsEnabled
+        ? 'Showing 0 results'
+        : coursesLoading
+          ? 'Searching…'
+          : `Showing ${searchData?.length ?? 0} results`}
     </div>
   );
 }

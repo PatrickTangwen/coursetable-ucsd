@@ -6,6 +6,7 @@ import { splitPublishedCatalogPayload } from '../shared/catalogPayload.js';
 
 const maximumMountedCourseRows = 24;
 const maximumDraftPaintMedianMs = 250;
+const idleCatalogHeading = 'No courses to show yet';
 const catalogFixturePath = path.resolve(
   process.cwd(),
   'api/static/catalogs/public/FA26.json',
@@ -98,6 +99,14 @@ async function readDisplayedResultCount(page: Page) {
   return Number(match.groups.count);
 }
 
+async function expectCatalogIdle(page: Page) {
+  await expect(
+    page.getByRole('heading', { name: idleCatalogHeading }),
+  ).toBeVisible();
+  await expect(page.getByTestId('catalog-course-row')).toHaveCount(0);
+  await expect.poll(() => readDisplayedResultCount(page)).toBe(0);
+}
+
 function measureDraftPaint(search: Locator, draft: string) {
   return search.evaluate((element, nextValue) => {
     const input = element as HTMLInputElement;
@@ -149,11 +158,8 @@ test('keeps mobile Catalog input responsive and the result DOM virtualized', asy
 
   const search = page.getByRole('combobox', { name: 'Search courses' });
   expect(page.viewportSize()).toEqual({ width: 390, height: 844 });
-  await expect
-    .poll(() => page.getByText(/^Showing \d+ results$/u).count())
-    .toBeGreaterThan(0);
-  const initialResultCount = await readDisplayedResultCount(page);
-  if (initialResultCount > 0) await expectBoundedCourseRows(page);
+  await expectCatalogIdle(page);
+  const initialResultCount = 0;
 
   const catalogUrl = page.url();
   const draftPaintMedians = await measureDraftPaintMedians(search);
@@ -167,6 +173,7 @@ test('keeps mobile Catalog input responsive and the result DOM virtualized', asy
   await expect
     .poll(() => readDisplayedResultCount(page))
     .toBe(initialResultCount);
+  await expectCatalogIdle(page);
 
   await search.press('Enter');
   await expect(page).toHaveURL(/searchText=cse/u);
@@ -213,6 +220,7 @@ test('keeps mobile Catalog input responsive and the result DOM virtualized', asy
   await expect
     .poll(() => readDisplayedResultCount(page))
     .toBe(initialResultCount);
+  await expectCatalogIdle(page);
   await search.fill('cse');
 
   const subjectSuggestion = page
@@ -233,6 +241,32 @@ test('keeps mobile Catalog input responsive and the result DOM virtualized', asy
       ),
     )
     .toBe(true);
+});
+
+test('keeps desktop Catalog idle until a filter is selected', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await installCatalogApiFixture(page);
+  await page.goto('/catalog');
+
+  await expectCatalogIdle(page);
+
+  await page.getByRole('button', { name: 'Subject' }).click();
+  const cseOption = page.getByRole('menuitemcheckbox', {
+    name: /CSE.*Computer Science & Engineering/u,
+  });
+  await expect(cseOption).toBeVisible();
+  await cseOption.click();
+
+  await expect(
+    page.getByRole('heading', { name: idleCatalogHeading }),
+  ).toHaveCount(0);
+  await expect.poll(() => readDisplayedResultCount(page)).toBeGreaterThan(0);
+  await expectBoundedCourseRows(page);
+
+  await page.getByRole('button', { name: 'Reset' }).click();
+  await expectCatalogIdle(page);
 });
 
 test('loads and caches Past Grades only after the detail tab opens', async ({
