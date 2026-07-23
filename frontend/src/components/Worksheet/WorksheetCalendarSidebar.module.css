@@ -555,7 +555,8 @@
   margin: 0 auto 16px;
 
   /* Blend the illustration's white background into the off-white panel */
-  mix-blend-mode: multiply;
+  mix-blend-mode: var(--ct-calendar-illustration-blend-mode);
+  filter: var(--ct-calendar-illustration-filter);
 }
 
 .emptyListTitle {
@@ -867,9 +868,4 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-:global([data-theme='dark']) .emptyListImage {
-  mix-blend-mode: screen;
-  filter: invert(1) hue-rotate(180deg);
 }

@@ -107,6 +107,16 @@ async function expectCatalogIdle(page: Page) {
   await expect.poll(() => readDisplayedResultCount(page)).toBe(0);
 }
 
+function readIllustrationAppearance(illustration: Locator) {
+  return illustration.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      filter: style.filter,
+      mixBlendMode: style.mixBlendMode,
+    };
+  });
+}
+
 function measureDraftPaint(search: Locator, draft: string) {
   return search.evaluate((element, nextValue) => {
     const input = element as HTMLInputElement;
@@ -267,6 +277,47 @@ test('keeps desktop Catalog idle until a filter is selected', async ({
 
   await page.getByRole('button', { name: 'Reset' }).click();
   await expectCatalogIdle(page);
+});
+
+test('matches the calendar illustration treatment across empty views', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await installCatalogApiFixture(page);
+  await page.goto('/catalog');
+
+  const catalogIllustration = page
+    .locator('img[src*="calendar_img_high_res"]')
+    .first();
+  await expect(catalogIllustration).toBeVisible();
+  await expect
+    .poll(() => readIllustrationAppearance(catalogIllustration))
+    .toEqual({
+      filter: 'none',
+      mixBlendMode: 'multiply',
+    });
+
+  await page.getByRole('button', { name: 'To dark mode' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect
+    .poll(() => readIllustrationAppearance(catalogIllustration))
+    .toEqual({
+      filter: 'invert(1) hue-rotate(180deg)',
+      mixBlendMode: 'screen',
+    });
+
+  await page.getByRole('link', { name: 'Worksheet' }).click();
+  await page.getByRole('button', { name: 'List', pressed: false }).click();
+  const listIllustration = page
+    .locator('img[src*="calendar_img_high_res"]')
+    .first();
+  await expect(listIllustration).toBeVisible();
+  await expect
+    .poll(() => readIllustrationAppearance(listIllustration))
+    .toEqual({
+      filter: 'invert(1) hue-rotate(180deg)',
+      mixBlendMode: 'screen',
+    });
 });
 
 test('loads and caches Past Grades only after the detail tab opens', async ({

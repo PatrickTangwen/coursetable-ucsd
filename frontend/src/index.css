@@ -120,6 +120,8 @@
   --ct-surface-tint: #f9f8f6;
   --ct-surface-hover: #fdfcfb;
   --ct-surface-soft: #f3f2ef;
+  --ct-calendar-illustration-blend-mode: multiply;
+  --ct-calendar-illustration-filter: none;
 
   /* Lines: alpha borders/fills via rgb(var(--ct-line-rgb) / X%) */
   --ct-line-rgb: 11 11 11;
@@ -213,6 +215,8 @@
   --ct-surface-tint: #252420;
   --ct-surface-hover: #232221;
   --ct-surface-soft: #2d2b27;
+  --ct-calendar-illustration-blend-mode: screen;
+  --ct-calendar-illustration-filter: invert(1) hue-rotate(180deg);
 
   /* Lines */
   --ct-line-rgb: 255 255 255;

@@ -388,7 +388,8 @@
   max-width: 58%;
   height: auto;
   margin-bottom: 22px;
-  mix-blend-mode: multiply;
+  mix-blend-mode: var(--ct-calendar-illustration-blend-mode);
+  filter: var(--ct-calendar-illustration-filter);
 }
 
 .idleHeading {
