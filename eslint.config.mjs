@@ -60,6 +60,7 @@ export default defineConfig(
           devDependencies: [
             './tools/**/*',
             './frontend/vite.config.ts',
+            './playwright.config.ts',
             './eslint.config.mjs',
             '**/vite.config.ts',
             '**/*.test.ts',

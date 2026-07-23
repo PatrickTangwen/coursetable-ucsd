@@ -8,7 +8,7 @@
     "frontend"
   ],
   "scripts": {
-    "checks": "bun run depcheck && bun run format:check && bun run lint:check && bun run lint:css:check && bun run resize-image:check && bun run typecheck && bun run test:snapshot && bun run test:worker && bun run validate:worker-catalog && bun run --cwd api test && bun run --cwd frontend test",
+    "checks": "bun run depcheck && bun run format:check && bun run lint:check && bun run lint:css:check && bun run resize-image:check && bun run typecheck && bun run validate:catalog-performance && bun run test:snapshot && bun run test:worker && bun run validate:worker-catalog && bun run --cwd api test && bun run --cwd frontend test",
     "checks:fix": "bun run format && bun run lint && bun run lint:css && bun run resize-image",
     "typecheck": "tsc && tsc -p frontend && tsc -p api && tsc -p worker",
     "depcheck": "bunx depcheck . --ignore-patterns=api,frontend && bunx depcheck api && bunx depcheck frontend",
@@ -28,8 +28,10 @@
     "snapshot:schedule": "bun tools/catalog-snapshot/generate-schedule-snapshot.mts --config config/catalog-snapshot.ucsd.yaml",
     "test:snapshot": "vitest run tools/**/*.test.ts",
     "test:worker": "vitest run worker",
+    "test:catalog-browser": "playwright test",
     "build:worker": "bun run --cwd frontend build && wrangler deploy --dry-run --config worker/wrangler.jsonc",
     "validate:worker-catalog": "VITE_API_ENDPOINT= bun run --cwd frontend build && bun worker/scripts/validateCatalogWorker.mts",
+    "validate:catalog-performance": "bun frontend/src/search/validateCatalogPerformance.ts",
     "validate:failure-safety": "bun worker/scripts/validateFailureSafety.mts",
     "validate:staging-deployment": "bun tools/staging-deployment/validateStagingDeployment.mts",
     "validate:production-deployment": "bun tools/staging-deployment/validateProductionDeployment.mts",
@@ -56,6 +58,7 @@
     "@graphql-codegen/typescript-graphql-request": "^6.2.0",
     "@graphql-codegen/typescript-operations": "^4.4.0",
     "@graphql-codegen/typescript-react-apollo": "^4.3.2",
+    "@playwright/test": "^1.61.1",
     "@types/image-size": "^0.8.0",
     "commander": "^13.0.0",
     "eslint": "^10.2.0",

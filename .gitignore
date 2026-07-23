@@ -47,5 +47,6 @@ worker/wrangler.staging.generated.jsonc
 
 frontend/build
 frontend/dev-dist
+/test-results/
 
 !**/.keep
