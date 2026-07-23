@@ -24,7 +24,6 @@ import {
 } from './worksheetInsights';
 import { worksheetExportMenuCopy } from './worksheetMenuCopy';
 import WorksheetPicker, { useCloseOnOutsideClick } from './WorksheetPicker';
-import noCoursesImg from '../../images/calendar_img_high_res.png';
 import type { SavedWorksheetSection } from '../../queries/api';
 import type { Crn } from '../../queries/graphql-types';
 import type { WorksheetCourse } from '../../slices/WorksheetSlice';
@@ -37,6 +36,7 @@ import { getWorksheetColorAppearance } from '../../utilities/constants';
 import { getWorksheetCourseStats } from '../../utilities/course';
 import { createCatalogLink } from '../../utilities/navigation';
 import { getScheduleConflicts } from '../../utilities/scheduleConflicts';
+import EmptyCalendarIllustration from '../EmptyCalendarIllustration';
 import styles from './WorksheetCalendarSidebar.module.css';
 
 type ClearedSnapshot =
@@ -1177,12 +1177,7 @@ export default function WorksheetCalendarSidebar() {
           })}
           {courses.length === 0 && (
             <div className={styles.emptyList}>
-              <img
-                alt=""
-                aria-hidden="true"
-                src={noCoursesImg}
-                className={styles.emptyListImage}
-              />
+              <EmptyCalendarIllustration className={styles.emptyListImage} />
               <p className={styles.emptyListTitle}>Nothing planned yet</p>
               <p className={styles.emptyListHint}>
                 Courses you add from the catalog will show up here.

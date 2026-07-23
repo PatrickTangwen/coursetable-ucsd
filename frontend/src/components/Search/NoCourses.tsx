@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
-import noCoursesImg from '../../images/calendar_img_high_res.png';
 import { useStore } from '../../store';
 import { toSeasonString } from '../../utilities/course';
 import { createCatalogLink } from '../../utilities/navigation';
+import EmptyCalendarIllustration from '../EmptyCalendarIllustration';
 import styles from './NoCourses.module.css';
 
 function NoCourses({
@@ -18,12 +18,7 @@ function NoCourses({
 
   return (
     <div className={styles.container}>
-      <img
-        alt=""
-        aria-hidden="true"
-        src={noCoursesImg}
-        className={styles.illustration}
-      />
+      <EmptyCalendarIllustration className={styles.illustration} />
       <h3 className={styles.heading}>
         {heading ?? `Nothing planned for ${toSeasonString(viewedSeason)} yet`}
       </h3>

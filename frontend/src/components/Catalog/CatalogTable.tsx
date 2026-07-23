@@ -14,7 +14,6 @@ import { useShallow } from 'zustand/react/shallow';
 
 import DayDots from './DayDots';
 import SeatsDisplay from './SeatsDisplay';
-import noCoursesImg from '../../images/calendar_img_high_res.png';
 import type { CoursePlanningListing } from '../../queries/coursePlanningViewModels';
 import {
   buildFa26SectionMapping,
@@ -32,6 +31,7 @@ import {
 } from '../../utilities/catalogView';
 import { toSeasonString } from '../../utilities/course';
 import { savedWorksheetHasListing } from '../../utilities/savedWorksheet';
+import EmptyCalendarIllustration from '../EmptyCalendarIllustration';
 import CoursePlanningWorksheetToggleButton from '../Worksheet/CoursePlanningWorksheetToggleButton';
 import styles from './CatalogTable.module.css';
 
@@ -264,12 +264,7 @@ function courseRowHeight(row: CourseRow, expandedCourses: Set<string>): number {
 function CatalogIdleState() {
   return (
     <div className={styles.idleState}>
-      <img
-        alt=""
-        aria-hidden="true"
-        src={noCoursesImg}
-        className={styles.idleIllustration}
-      />
+      <EmptyCalendarIllustration className={styles.idleIllustration} />
       <h2 className={styles.idleHeading}>No courses to show yet</h2>
       <p className={styles.idleHint}>
         Search for a course or choose a filter to display matching courses.

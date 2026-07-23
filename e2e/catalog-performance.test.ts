@@ -117,6 +117,34 @@ function readIllustrationAppearance(illustration: Locator) {
   });
 }
 
+async function expectIllustrationNotDraggable(
+  page: Page,
+  illustration: Locator,
+) {
+  await illustration.evaluate((element) => {
+    element.addEventListener(
+      'dragstart',
+      () => {
+        (element as HTMLElement).dataset.dragStarted = 'true';
+      },
+      { once: true },
+    );
+  });
+  const bounds = await illustration.boundingBox();
+  if (!bounds) throw new Error('Calendar illustration is not rendered');
+
+  const center = {
+    x: bounds.x + bounds.width / 2,
+    y: bounds.y + bounds.height / 2,
+  };
+  await page.mouse.move(center.x, center.y);
+  await page.mouse.down();
+  await page.mouse.move(center.x + 60, center.y + 30, { steps: 6 });
+  await page.mouse.up();
+
+  expect(await illustration.getAttribute('data-drag-started')).toBeNull();
+}
+
 function measureDraftPaint(search: Locator, draft: string) {
   return search.evaluate((element, nextValue) => {
     const input = element as HTMLInputElement;
@@ -290,6 +318,7 @@ test('matches the calendar illustration treatment across empty views', async ({
     .locator('img[src*="calendar_img_high_res"]')
     .first();
   await expect(catalogIllustration).toBeVisible();
+  await expectIllustrationNotDraggable(page, catalogIllustration);
   await expect
     .poll(() => readIllustrationAppearance(catalogIllustration))
     .toEqual({
@@ -312,6 +341,7 @@ test('matches the calendar illustration treatment across empty views', async ({
     .locator('img[src*="calendar_img_high_res"]')
     .first();
   await expect(listIllustration).toBeVisible();
+  await expectIllustrationNotDraggable(page, listIllustration);
   await expect
     .poll(() => readIllustrationAppearance(listIllustration))
     .toEqual({
