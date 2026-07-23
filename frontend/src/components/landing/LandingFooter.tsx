@@ -11,8 +11,10 @@ import styles from './LandingFooter.module.css';
 
 export default function LandingFooter({
   publicLoginEnabled = PUBLIC_LOGIN_ENABLED,
+  onCatalogSelect,
 }: {
   readonly publicLoginEnabled?: boolean;
+  readonly onCatalogSelect?: () => void;
 }) {
   const location = useLocation();
   const onLandingPage = location.pathname === '/';
@@ -25,9 +27,19 @@ export default function LandingFooter({
             SunGrid
           </a>
           <nav className={styles.footerNav} aria-label="Footer">
-            <Link to={createCatalogLink()} className={styles.footerLink}>
-              Catalog
-            </Link>
+            {onLandingPage ? (
+              <a
+                href="#top"
+                className={styles.footerLink}
+                onClick={onCatalogSelect}
+              >
+                Catalog
+              </a>
+            ) : (
+              <Link to={createCatalogLink()} className={styles.footerLink}>
+                Catalog
+              </Link>
+            )}
             <a
               href={onLandingPage ? '#worksheet' : '/#worksheet'}
               className={styles.footerLink}

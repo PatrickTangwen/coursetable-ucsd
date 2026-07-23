@@ -24,6 +24,7 @@ describe('LandingFooter', () => {
   it('uses local section links on the landing page', () => {
     const html = renderFooter('/');
 
+    expect(html.match(/href="#top"/gu)).toHaveLength(2);
     expect(html).toContain('href="#worksheet"');
     expect(html).toContain('href="#how"');
   });
@@ -33,6 +34,7 @@ describe('LandingFooter', () => {
 
     expect(html).toContain('href="/#worksheet"');
     expect(html).toContain('href="/#how"');
+    expect(html).toContain('href="/catalog"');
     expect(html).not.toContain('href="/privacypolicy"');
     expect(html).toContain('href="https://tally.so/r/q47EA8"');
   });

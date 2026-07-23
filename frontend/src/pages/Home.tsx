@@ -764,7 +764,10 @@ export default function Home({
       <HowSection publicLoginEnabled={publicLoginEnabled} />
       <CtaSection publicLoginEnabled={publicLoginEnabled} />
 
-      <LandingFooter publicLoginEnabled={publicLoginEnabled} />
+      <LandingFooter
+        publicLoginEnabled={publicLoginEnabled}
+        onCatalogSelect={() => setHeroSlide(1)}
+      />
     </div>
   );
 }
