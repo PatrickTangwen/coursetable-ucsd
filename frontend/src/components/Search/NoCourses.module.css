@@ -17,6 +17,16 @@
   filter: var(--ct-calendar-illustration-filter);
 }
 
+.pageContainer {
+  padding: 0;
+}
+
+.pageIllustration {
+  width: clamp(244px, 20vw, 280px);
+  max-width: min(72vw, 280px);
+  margin-bottom: 18px;
+}
+
 .heading {
   margin: 0 0 6px;
   font-size: 18px;
@@ -53,4 +63,11 @@
   color: var(--ct-ink);
   text-decoration: none;
   box-shadow: 0 2px 5px rgb(11 11 11 / 12%);
+}
+
+@media (max-width: 639px) {
+  .pageIllustration {
+    width: 224px;
+    max-width: 72vw;
+  }
 }

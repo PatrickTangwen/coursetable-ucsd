@@ -926,6 +926,7 @@ function WorksheetList() {
             </div>
           )}
           <NoCourses
+            presentation="page"
             heading={
               anonymousEmptyTermChips.length > 0 ||
               savedWorksheetEmptyTermChips.length > 0

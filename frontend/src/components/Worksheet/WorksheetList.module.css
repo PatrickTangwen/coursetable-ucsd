@@ -548,9 +548,14 @@
 
 /* Empty worksheet: no sidebar, hint centered on the page */
 .emptyState {
+  box-sizing: border-box;
+  min-height: calc(100dvh - var(--height-navbar));
   max-width: 720px;
   margin: 0 auto;
-  padding: min(12vh, 120px) 24px 64px;
+  padding: 48px 24px 92px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .emptyRestoreWrap {
@@ -621,6 +626,10 @@
 }
 
 @media (max-width: 639px) {
+  .emptyState {
+    padding: 32px 16px 72px;
+  }
+
   .sidebar {
     padding: 16px;
   }

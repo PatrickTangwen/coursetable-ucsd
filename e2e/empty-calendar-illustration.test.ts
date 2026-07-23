@@ -18,6 +18,15 @@ function readIllustrationAppearance(illustration: Locator) {
   });
 }
 
+async function requireIllustrationBounds(
+  illustration: Locator,
+  label = 'Calendar',
+) {
+  const bounds = await illustration.boundingBox();
+  if (!bounds) throw new Error(`${label} illustration is not rendered`);
+  return bounds;
+}
+
 async function expectIllustrationNotDraggable(
   page: Page,
   illustration: Locator,
@@ -31,8 +40,7 @@ async function expectIllustrationNotDraggable(
       { once: true },
     );
   });
-  const bounds = await illustration.boundingBox();
-  if (!bounds) throw new Error('Calendar illustration is not rendered');
+  const bounds = await requireIllustrationBounds(illustration);
 
   const center = {
     x: bounds.x + bounds.width / 2,
@@ -50,8 +58,7 @@ async function measureIllustrationBackgroundDelta(
   page: Page,
   illustration: Locator,
 ) {
-  const bounds = await illustration.boundingBox();
-  if (!bounds) throw new Error('Calendar illustration is not rendered');
+  const bounds = await requireIllustrationBounds(illustration);
 
   const padding = 12;
   const clipX = Math.max(0, Math.floor(bounds.x) - padding);
@@ -117,4 +124,24 @@ test('keeps empty calendar illustrations seamless and inert', async ({
   await expect
     .poll(() => readIllustrationAppearance(listIllustration))
     .toEqual(darkIllustrationAppearance);
+
+  const desktopListBounds = await requireIllustrationBounds(
+    listIllustration,
+    'Desktop List View calendar',
+  );
+  expect(desktopListBounds.width).toBeGreaterThanOrEqual(260);
+  expect(
+    desktopListBounds.y + desktopListBounds.height / 2,
+  ).toBeGreaterThanOrEqual(900 * 0.42);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobileListBounds = await requireIllustrationBounds(
+    listIllustration,
+    'Mobile List View calendar',
+  );
+  expect(mobileListBounds.width).toBeGreaterThanOrEqual(210);
+  expect(mobileListBounds.width).toBeLessThanOrEqual(230);
+  expect(
+    mobileListBounds.y + mobileListBounds.height / 2,
+  ).toBeGreaterThanOrEqual(844 * 0.38);
 });

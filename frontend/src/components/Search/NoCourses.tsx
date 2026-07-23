@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import clsx from 'clsx';
 
 import { useStore } from '../../store';
 import { toSeasonString } from '../../utilities/course';
@@ -10,15 +11,28 @@ import styles from './NoCourses.module.css';
 function NoCourses({
   heading,
   children,
+  presentation = 'inline',
 }: {
   readonly heading?: ReactNode;
   readonly children?: ReactNode;
+  readonly presentation?: 'inline' | 'page';
 }) {
   const viewedSeason = useStore((state) => state.viewedSeason);
+  const isPagePresentation = presentation === 'page';
 
   return (
-    <div className={styles.container}>
-      <EmptyCalendarIllustration className={styles.illustration} />
+    <div
+      className={clsx(
+        styles.container,
+        isPagePresentation && styles.pageContainer,
+      )}
+    >
+      <EmptyCalendarIllustration
+        className={clsx(
+          styles.illustration,
+          isPagePresentation && styles.pageIllustration,
+        )}
+      />
       <h3 className={styles.heading}>
         {heading ?? `Nothing planned for ${toSeasonString(viewedSeason)} yet`}
       </h3>
