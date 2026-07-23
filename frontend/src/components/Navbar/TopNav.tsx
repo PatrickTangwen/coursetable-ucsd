@@ -9,7 +9,7 @@ import MeDropdown from './MeDropdown';
 import MobileNavSheet from './MobileNavSheet';
 import { useStore } from '../../store';
 import { scrollToTop } from '../../utilities/display';
-import { createCatalogLink } from '../../utilities/navigation';
+import { createCatalogLink, createLogoLink } from '../../utilities/navigation';
 import CatalogNavSearch, {
   CatalogResultCount,
 } from '../Catalog/CatalogNavSearch';
@@ -42,10 +42,10 @@ export default function TopNav() {
         )}
       >
         <NavLink
-          to="/"
+          to={createLogoLink(location.pathname)}
           className={styles.logoLink}
           onClick={scrollToTop}
-          aria-label="SunGrid home"
+          aria-label={isWorksheetPage ? 'Return to catalog' : 'SunGrid home'}
         >
           <Logo className={isPrivacyPage ? styles.privacyLogo : undefined} />
         </NavLink>

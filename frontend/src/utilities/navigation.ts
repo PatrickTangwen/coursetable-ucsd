@@ -13,3 +13,7 @@ export function createCatalogLink(path = '/catalog'): string {
   const cleanedSearch = params.toString();
   return cleanedSearch ? `${path}?${cleanedSearch}` : path;
 }
+
+export function createLogoLink(pathname: string): string {
+  return pathname === '/worksheet' ? createCatalogLink() : '/';
+}
