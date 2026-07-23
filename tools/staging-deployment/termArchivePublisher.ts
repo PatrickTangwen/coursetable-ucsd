@@ -25,6 +25,7 @@ type Archive = {
 };
 
 const encoder = new TextEncoder();
+const registryVerificationBatchSize = 4;
 
 export async function publishTermArchive(
   archive: Archive,
@@ -83,41 +84,53 @@ export async function publishTermArchive(
   }
 
   report('registry-verify-start');
-  const evidenceTerms = await Promise.all(
-    archive.registry.terms.map(async (entry) => {
-      const snapshotDigest = digestFromPath(entry.snapshot_path);
-      const detailDigest = entry.detail_path
-        ? digestFromPath(entry.detail_path)
-        : null;
-      const manifestDigest = digestFromPath(entry.manifest_path);
-      await verifyExisting(
-        store,
-        'Published Snapshot',
-        entry.snapshot_path,
-        snapshotDigest,
-      );
-      if (entry.detail_path && detailDigest) {
+  const evidenceTerms = [];
+  for (
+    let start = 0;
+    start < archive.registry.terms.length;
+    start += registryVerificationBatchSize
+  ) {
+    const batch = archive.registry.terms.slice(
+      start,
+      start + registryVerificationBatchSize,
+    );
+    const batchEvidence = await Promise.all(
+      batch.map(async (entry) => {
+        const snapshotDigest = digestFromPath(entry.snapshot_path);
+        const detailDigest = entry.detail_path
+          ? digestFromPath(entry.detail_path)
+          : null;
+        const manifestDigest = digestFromPath(entry.manifest_path);
         await verifyExisting(
           store,
-          'Catalog details',
-          entry.detail_path,
-          detailDigest,
+          'Published Snapshot',
+          entry.snapshot_path,
+          snapshotDigest,
         );
-      }
-      await verifyExisting(
-        store,
-        'Import Manifest',
-        entry.manifest_path,
-        manifestDigest,
-      );
-      return {
-        term: entry.term,
-        snapshotDigest,
-        detailDigest,
-        manifestDigest,
-      };
-    }),
-  );
+        if (entry.detail_path && detailDigest) {
+          await verifyExisting(
+            store,
+            'Catalog details',
+            entry.detail_path,
+            detailDigest,
+          );
+        }
+        await verifyExisting(
+          store,
+          'Import Manifest',
+          entry.manifest_path,
+          manifestDigest,
+        );
+        return {
+          term: entry.term,
+          snapshotDigest,
+          detailDigest,
+          manifestDigest,
+        };
+      }),
+    );
+    evidenceTerms.push(...batchEvidence);
+  }
   report('registry-verify-complete');
 
   const metadataBody = encoder.encode(`${JSON.stringify(archive.registry)}\n`);

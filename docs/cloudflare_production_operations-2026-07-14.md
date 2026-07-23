@@ -264,3 +264,29 @@ unavailable.
 This supersedes the red-test status above for later local work. It does not
 change the recorded state of commit `1a775ad`, certify FA26 source completeness,
 authorize a hosted deployment, or grant provider-mutation permission.
+
+## Bounded R2 publication retries (2026-07-23)
+
+[Production run 30047986664](https://github.com/PatrickTangwen/coursetable-ucsd/actions/runs/30047986664)
+published and verified every repository term object, then timed out while
+reading an existing FA24 details object during the parallel Term Archive
+registry verification. The 20-second request deadline failed the complete
+deployment immediately; no new Worker was built or deployed. Automatic recovery
+restored the accepted Catalog metadata, confirmed that a Worker rollback was
+not required, and retained accepted Production commit `868e4ac`.
+
+This was the second same-phase transient R2 timeout on 2026-07-23. The earlier
+failure stopped on a different object, and an unchanged-commit retry succeeded,
+so the evidence does not identify a corrupt object, credential failure, or
+candidate-code regression. It identifies two weaknesses in the deployment
+client: registry verification issued one term-level chain per archive term at
+once, and the client did not retry its own outer deadline after aborting an AWS
+SDK operation.
+
+Later deployment code bounds registry verification to four concurrent
+term-level chains. Complete S3-compatible R2 operations retain a 20-second
+per-attempt deadline and retry only that explicit timeout, at most three total
+attempts, with exponential backoff and jitter. Digest mismatches, authorization
+failures, not-found results, and other provider failures are not converted into
+retryable success. Publication still switches `metadata.json` only after every
+current and Frozen Snapshot object passes full-body SHA-256 verification.
