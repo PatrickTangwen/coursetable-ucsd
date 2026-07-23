@@ -39,12 +39,14 @@ function readIllustrationCornerAlphas(illustration: Locator) {
     if (!context) throw new Error('Could not inspect calendar illustration');
 
     context.drawImage(element, 0, 0);
-    return [
-      [0, 0],
-      [canvas.width - 1, 0],
-      [0, canvas.height - 1],
-      [canvas.width - 1, canvas.height - 1],
-    ].map(([x, y]) => context.getImageData(x, y, 1, 1).data[3]);
+    return (
+      [
+        [0, 0],
+        [canvas.width - 1, 0],
+        [0, canvas.height - 1],
+        [canvas.width - 1, canvas.height - 1],
+      ] as const
+    ).map(([x, y]) => context.getImageData(x, y, 1, 1).data[3]);
   });
 }
 
