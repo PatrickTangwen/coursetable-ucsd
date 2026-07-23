@@ -218,7 +218,9 @@
   background: var(--ct-surface-tint);
   color: var(--ct-ink);
   font-family: inherit;
-  font-size: 13.5px;
+
+  /* 16px minimum so iOS Safari does not auto-zoom on focus */
+  font-size: 16px;
 }
 
 .searchInput::placeholder {

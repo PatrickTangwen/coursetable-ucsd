@@ -195,14 +195,16 @@
     background: var(--ct-surface-tint);
   }
 
+  /* 16px minimum: any smaller and iOS Safari auto-zooms the page when the
+     input gains focus (and leaves it zoomed after blur). */
   .input {
     padding: 12px 36px 12px 38px;
     border-radius: 12px;
-    font-size: 13.5px;
+    font-size: 16px;
   }
 
   .placeholder {
     left: 38px;
-    font-size: 13.5px;
+    font-size: 16px;
   }
 }

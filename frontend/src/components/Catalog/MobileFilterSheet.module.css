@@ -184,7 +184,9 @@
   border-radius: 10px;
   border: 1px solid rgb(var(--ct-line-rgb) / 8%);
   background: var(--ct-surface-tint);
-  font-size: 13.5px;
+
+  /* 16px minimum so iOS Safari does not auto-zoom on focus */
+  font-size: 16px;
   font-family: inherit;
   color: var(--ct-ink);
   outline: none;
