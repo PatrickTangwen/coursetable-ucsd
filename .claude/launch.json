@@ -37,6 +37,27 @@
         "--strictPort"
       ],
       "port": 3002
+    },
+    {
+      "name": "frontend-test-3003",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "VITE_API_ENDPOINT=",
+        "VITE_PUBLIC_LOGIN_ENABLED=false",
+        "bun",
+        "run",
+        "--cwd",
+        "frontend",
+        "start",
+        "--mode",
+        "test",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "3003",
+        "--strictPort"
+      ],
+      "port": 3003
     }
   ]
 }
