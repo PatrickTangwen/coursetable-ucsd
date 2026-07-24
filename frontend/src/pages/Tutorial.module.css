@@ -108,6 +108,13 @@
   background: #fff;
 }
 
+/* From 1080px up the sticky side nav takes over as the table of contents. */
+@media (min-width: 1080px) {
+  .toc {
+    display: none;
+  }
+}
+
 .tocLabel {
   margin: 0 0 15px;
   color: var(--ink);
