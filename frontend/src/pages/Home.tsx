@@ -765,6 +765,14 @@ export default function Home({
         )}
       </header>
 
+      <div className={styles.tutorialNotice}>
+        <p className={styles.tutorialNoticeCard}>
+          <strong>First time here?</strong> Take a quick look at the{' '}
+          <Link to="/tutorial">tutorial</Link> before you start — it shows how
+          to browse the catalog, read grade history, and build your worksheet.
+        </p>
+      </div>
+
       <Hero slide={heroSlide} onSelect={setHeroSlide} />
       <DeptStrip />
       <WorksheetSection />

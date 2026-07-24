@@ -196,6 +196,42 @@
 
 /* ═══ Hero ═══ */
 
+.tutorialNotice {
+  max-width: var(--content-max);
+  margin: 20px auto 0;
+  padding: 0 40px;
+}
+
+.tutorialNoticeCard {
+  margin: 0;
+  padding: 11px 18px;
+  border: 1px solid rgb(40 113 190 / 24%);
+  border-radius: 12px;
+  background: rgb(238 246 255 / 72%);
+  color: #34495f;
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+.tutorialNoticeCard strong {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.tutorialNoticeCard a {
+  color: var(--accent-strong);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgb(24 95 165 / 35%);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.tutorialNoticeCard a:hover {
+  color: #104d87;
+  text-decoration-color: currentcolor;
+}
+
 .hero {
   max-width: var(--content-max);
   margin: 0 auto;
@@ -829,6 +865,10 @@
     font-size: 17px;
   }
 
+  .tutorialNotice {
+    padding: 0 56px;
+  }
+
   .hero {
     grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.38fr);
     padding: 68px 56px 88px;
@@ -985,6 +1025,16 @@
     background: #fff;
     border-bottom: 1px solid var(--line);
     box-shadow: 0 18px 30px -22px rgb(11 11 11 / 45%);
+  }
+
+  .tutorialNotice {
+    margin-top: 14px;
+    padding: 0 18px;
+  }
+
+  .tutorialNoticeCard {
+    padding: 10px 14px;
+    font-size: 13.5px;
   }
 
   .hero {
