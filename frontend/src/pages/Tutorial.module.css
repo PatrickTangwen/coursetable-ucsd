@@ -22,6 +22,25 @@
   -webkit-font-smoothing: antialiased;
 }
 
+/* The shared MDX wrapper pins content to a 900px column. On viewports wide
+   enough for a side nav, break out of it and lay out nav + content as a
+   centered two-column grid so the nav never overlaps the article. */
+@media (min-width: 1080px) {
+  .guide {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    display: grid;
+    grid-template-columns: 200px minmax(0, 900px);
+    justify-content: center;
+    column-gap: 32px;
+    padding: 0 20px;
+  }
+}
+
+.contentCol {
+  min-width: 0;
+}
+
 .hero {
   position: relative;
   overflow: hidden;

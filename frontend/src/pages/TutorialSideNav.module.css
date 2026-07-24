@@ -1,9 +1,8 @@
 .sideNav {
-  position: fixed;
-  top: 140px;
-  left: calc((100vw - 900px) / 2 - 224px);
-  width: 192px;
-  max-height: calc(100vh - 180px);
+  position: sticky;
+  top: 120px;
+  align-self: start;
+  max-height: calc(100vh - 160px);
   display: none;
   overflow-y: auto;
 }
@@ -50,7 +49,7 @@
   font-weight: 650;
 }
 
-@media (min-width: 1400px) {
+@media (min-width: 1080px) {
   .sideNav {
     display: block;
   }
