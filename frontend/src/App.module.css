@@ -2,14 +2,14 @@
   --height-navbar: 72px;
 }
 
-/* Catalog uses a single-row top nav (logo + search + tabs); the filter bar
-   and table header stay fixed below the nav and only the rows area scrolls,
-   so the whole layout is a viewport-height flex column. */
+/* Catalog uses a single-row top nav (logo + search + tabs). The whole page
+   scrolls with the browser's own scrollbar (no inner scroll container); the
+   sticky top nav and control card stay pinned while the rows scroll by. */
 .catalogLayout {
   --height-navbar: 72px;
 
-  height: 100vh;
-  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }
@@ -21,17 +21,5 @@
 
   .catalogLayout {
     --height-navbar: 72px;
-  }
-}
-
-/* Mobile (must stay in sync with the 900px view-mode breakpoint in
-   CatalogTable): the card list scrolls with the page itself, so the
-   browser's own scrollbar is used instead of an inner-container one.
-   The sticky top nav keeps the search bar available while scrolling. */
-@media (max-width: calc(900px - 0.5px)) {
-  .catalogLayout {
-    height: auto;
-    min-height: 100vh;
-    min-height: 100dvh;
   }
 }

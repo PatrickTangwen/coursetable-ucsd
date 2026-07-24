@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import clsx from 'clsx';
-import { useVirtualizer, useWindowVirtualizer } from '@tanstack/react-virtual';
+import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { useShallow } from 'zustand/react/shallow';
 
 import DayDots from './DayDots';
@@ -1023,30 +1023,55 @@ type VirtualCatalogRowsProps = {
   readonly onOpenModal: (listing: CoursePlanningListing) => void;
 };
 
+// Both desktop and mobile lists scroll with the page (window virtualizer),
+// so the virtualizer needs the list's offset from the top of the document.
+function useWindowScrollMargin(
+  listRef: React.RefObject<HTMLDivElement | null>,
+  itemCount: number,
+) {
+  const [scrollMargin, setScrollMargin] = useState(0);
+
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    if (!list) return undefined;
+    const updateScrollMargin = () => {
+      const next = list.getBoundingClientRect().top + window.scrollY;
+      setScrollMargin((current) => (current === next ? current : next));
+    };
+    updateScrollMargin();
+    window.addEventListener('resize', updateScrollMargin);
+    return () => {
+      window.removeEventListener('resize', updateScrollMargin);
+    };
+  }, [listRef, itemCount]);
+
+  return scrollMargin;
+}
+
 function DesktopVirtualCatalogRows({
   rows,
   expandedCourses,
   showTermColumn,
   onOpenModal,
-  scrollElement,
-}: VirtualCatalogRowsProps & {
-  readonly scrollElement: HTMLDivElement;
-}) {
+}: VirtualCatalogRowsProps) {
+  const listRef = useRef<HTMLDivElement>(null);
+  const scrollMargin = useWindowScrollMargin(listRef, rows.length);
   const getItemKey = useCallback(
     (index: number) => rows[index]?.rowId ?? index,
     [rows],
   );
-  const virtualizer = useVirtualizer({
+  const virtualizer = useWindowVirtualizer({
     count: rows.length,
-    getScrollElement: () => scrollElement,
     estimateSize: (index) => courseRowHeight(rows[index]!, expandedCourses),
     getItemKey,
     overscan: overscanRows,
+    scrollMargin,
     useFlushSync: false,
   });
 
   return (
     <div
+      ref={listRef}
       className={styles.virtualRows}
       style={{ height: virtualizer.getTotalSize() }}
     >
@@ -1059,7 +1084,9 @@ function DesktopVirtualCatalogRows({
             data-index={virtualRow.index}
             data-testid="catalog-course-row"
             className={styles.virtualRow}
-            style={{ transform: `translateY(${virtualRow.start}px)` }}
+            style={{
+              transform: `translateY(${virtualRow.start - scrollMargin}px)`,
+            }}
           >
             {row.totalSections > 1 ? (
               <ExpandableRow
@@ -1088,25 +1115,11 @@ function MobileVirtualCatalogRows({
   onOpenModal,
 }: VirtualCatalogRowsProps) {
   const listRef = useRef<HTMLDivElement>(null);
-  const [scrollMargin, setScrollMargin] = useState(0);
+  const scrollMargin = useWindowScrollMargin(listRef, rows.length);
   const getItemKey = useCallback(
     (index: number) => rows[index]?.rowId ?? index,
     [rows],
   );
-
-  useLayoutEffect(() => {
-    const list = listRef.current;
-    if (!list) return undefined;
-    const updateScrollMargin = () => {
-      const next = list.getBoundingClientRect().top + window.scrollY;
-      setScrollMargin((current) => (current === next ? current : next));
-    };
-    updateScrollMargin();
-    window.addEventListener('resize', updateScrollMargin);
-    return () => {
-      window.removeEventListener('resize', updateScrollMargin);
-    };
-  }, [rows.length]);
 
   const virtualizer = useWindowVirtualizer({
     count: rows.length,
@@ -1172,8 +1185,6 @@ export default function CatalogTable({
   readonly onOpenModal: (listing: CoursePlanningListing) => void;
 }) {
   const viewMode = useViewMode();
-  const [rowsElement, setRowsElement] = useState<HTMLDivElement | null>(null);
-  const [scrollbarWidth, setScrollbarWidth] = useState(0);
 
   const { sortKey, sortAsc, expandedCourses } = useStore(
     useShallow((s) => ({
@@ -1215,23 +1226,9 @@ export default function CatalogTable({
           codeSlotCh,
           sectionSlotCh,
         ),
-        '--ct-scrollbar-w': `${scrollbarWidth}px`,
       }) as CSSProperties,
-    [viewMode, showTermColumn, codeSlotCh, sectionSlotCh, scrollbarWidth],
+    [viewMode, showTermColumn, codeSlotCh, sectionSlotCh],
   );
-
-  // The fixed table header compensates for the rows container's vertical
-  // scrollbar so the header columns stay aligned with the row columns.
-  useEffect(() => {
-    const el = rowsElement;
-    if (!el) return undefined;
-
-    const update = () => setScrollbarWidth(el.offsetWidth - el.clientWidth);
-    update();
-    const observer = new ResizeObserver(update);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [viewMode, courseRows.length, rowsElement]);
 
   return (
     <>
@@ -1256,7 +1253,6 @@ export default function CatalogTable({
         )}
       </div>
       <div
-        ref={setRowsElement}
         className={clsx(
           styles.rowsContainer,
           viewMode === 'mobile' && styles.rowsContainerMobile,
@@ -1276,15 +1272,14 @@ export default function CatalogTable({
             showTermColumn={showTermColumn}
             onOpenModal={onOpenModal}
           />
-        ) : rowsElement ? (
+        ) : (
           <DesktopVirtualCatalogRows
             rows={courseRows}
             expandedCourses={expandedCourses}
             showTermColumn={showTermColumn}
             onOpenModal={onOpenModal}
-            scrollElement={rowsElement}
           />
-        ) : null}
+        )}
       </div>
     </>
   );

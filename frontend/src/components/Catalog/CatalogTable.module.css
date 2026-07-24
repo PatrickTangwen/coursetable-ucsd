@@ -14,13 +14,23 @@
   box-shadow: 0 4px 12px rgb(11 11 11 / 12%);
 }
 
+/* Desktop scrolls with the page (browser scrollbar), so the filter bar and
+   column header pin below the sticky top nav instead of the rows scrolling
+   inside a container. Breakpoint stays in sync with the 900px view-mode
+   breakpoint in CatalogTable.tsx. */
+@media (min-width: 900px) {
+  .controlCard {
+    position: sticky;
+    top: var(--height-navbar);
+  }
+}
+
 .header {
   display: grid;
   grid-template-columns: var(--ct-grid-cols);
   column-gap: var(--ct-gap);
   align-items: center;
-  padding: 12px calc(var(--ct-side-pad) + var(--ct-scrollbar-w, 0px)) 12px
-    var(--ct-side-pad);
+  padding: 12px var(--ct-side-pad);
   background: var(--ct-surface-tint);
   border-top: 1px solid rgb(var(--ct-line-rgb) / 8%);
 }
@@ -62,11 +72,9 @@
   color: var(--ct-accent-text);
 }
 
-/* ── Rows container: the only scrolling area ── */
+/* ── Rows container: grows with content; the page itself scrolls ── */
 .rowsContainer {
   flex: 1;
-  min-height: 0;
-  overflow: auto;
   background: var(--ct-surface);
 }
 
