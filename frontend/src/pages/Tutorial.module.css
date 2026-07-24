@@ -294,6 +294,13 @@
   text-align: center;
 }
 
+/* Portrait phone screenshots: keep them phone-sized and centered. */
+.shotNarrow {
+  max-width: 400px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
 @media (max-width: calc(768px - 0.5px)) {
   .guide {
     margin-top: 24px;
