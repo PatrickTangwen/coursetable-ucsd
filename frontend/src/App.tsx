@@ -28,6 +28,7 @@ const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
 
 const SignIn = suspended(() => import('./pages/SignIn'));
 const Privacy = suspended(() => import('./pages/Privacy.mdx'));
+const Tutorial = suspended(() => import('./pages/Tutorial.mdx'));
 const NotFound = suspended(() => import('./pages/NotFound'));
 
 // Wraps every real route with the shared footer; the 404 catch-all stays
@@ -42,7 +43,8 @@ function FooterLayout() {
     location.pathname === '/login' ||
     location.pathname === '/catalog' ||
     location.pathname === '/worksheet';
-  const useLandingFooter = location.pathname === '/privacypolicy';
+  const useLandingFooter =
+    location.pathname === '/privacypolicy' || location.pathname === '/tutorial';
   return (
     <>
       <Outlet />
@@ -129,6 +131,7 @@ function App() {
 
           {/* Static pages that don't need login */}
           <Route path="/privacypolicy" element={<Privacy />} />
+          <Route path="/tutorial" element={<Tutorial />} />
         </Route>
         {/* Catch-all route to NotFound page; outside FooterLayout so the 404
         page renders without the footer */}

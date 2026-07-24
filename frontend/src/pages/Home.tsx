@@ -668,6 +668,9 @@ export default function Home({
             <a href="#how" className={styles.navLink}>
               How it works
             </a>
+            <Link to="/tutorial" className={styles.navLink}>
+              Tutorial
+            </Link>
             <a
               href={FAQ_URL}
               className={styles.navLink}
@@ -741,6 +744,13 @@ export default function Home({
               >
                 How it works
               </a>
+              <Link
+                to="/tutorial"
+                className={styles.mobileMenuLink}
+                onClick={closeMenu}
+              >
+                Tutorial
+              </Link>
               <a
                 href={FAQ_URL}
                 className={styles.mobileMenuLink}

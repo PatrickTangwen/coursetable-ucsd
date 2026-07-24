@@ -1,0 +1,408 @@
+import { Helmet } from 'react-helmet';
+import TutorialSideNav from './TutorialSideNav';
+import styles from './Tutorial.module.css';
+
+export const sideNavSections = [
+  { id: 'filter-search', label: '1. Start with a filter or a search' },
+  { id: 'course-list', label: '2. Read the course list' },
+  { id: 'course-modal', label: '3. Open the course modal' },
+  { id: 'past-grades', label: '4. Check past grade distributions' },
+  { id: 'multi-section', label: '5. Multi-section courses' },
+  { id: 'section-mapping', label: '6. Match sections to TSS' },
+  { id: 'add-to-worksheet', label: '7. Add a course to your Worksheet' },
+  { id: 'worksheet-page', label: '8. See it on the Worksheet page' },
+];
+
+import catalogEmpty from '../images/tutorial/catalog-empty.jpg';
+import subjectFilter from '../images/tutorial/subject-filter.jpg';
+import catalogList from '../images/tutorial/catalog-list.jpg';
+import rowClick from '../images/tutorial/row-click.jpg';
+import sectionsExpanded from '../images/tutorial/sections-expanded.jpg';
+import modalOverview from '../images/tutorial/modal-overview.jpg';
+import modalGrades from '../images/tutorial/modal-grades.jpg';
+import modalSectionMapping from '../images/tutorial/modal-section-mapping.jpg';
+import addButton from '../images/tutorial/add-button.jpg';
+import addedState from '../images/tutorial/added-state.jpg';
+import catalogAfterAdd from '../images/tutorial/catalog-after-add.jpg';
+import worksheet from '../images/tutorial/worksheet.jpg';
+import catConflictWarning from '../images/tutorial/cat-conflict-warning.jpg';
+import wsCardExpanded from '../images/tutorial/ws-card-expanded.jpg';
+import wsCodeHint from '../images/tutorial/ws-code-hint.jpg';
+import wsConflictCard from '../images/tutorial/ws-conflict-card.jpg';
+import wsConflictView from '../images/tutorial/ws-conflict-view.jpg';
+import wsCourseModal from '../images/tutorial/ws-course-modal.jpg';
+import wsExamsOverlay from '../images/tutorial/ws-exams-overlay.jpg';
+import wsListView from '../images/tutorial/ws-list-view.jpg';
+import sectionRowClick from '../images/tutorial/section-row-click.jpg';
+
+<Helmet>
+  <title>Catalog Tutorial | SunGrid</title>
+  <meta
+    name="description"
+    content="A visual tour of the SunGrid catalog: open the course modal, read grade distributions, check schedules, and build your worksheet."
+  />
+</Helmet>
+
+<article className={styles.guide}>
+  <TutorialSideNav sections={sideNavSections} />
+  <section className={styles.hero}>
+
+# Catalog Tutorial
+
+A quick visual tour of the catalog page — how to browse courses, open the course modal, read grade distributions, check schedules, and build your worksheet.
+
+> **The one thing most people miss:** every course row in the catalog is clickable. One click opens a detail modal with the full schedule, past grade distributions, and TSS section mapping.
+
+  </section>
+
+<nav className={styles.toc} aria-label="Tutorial sections">
+  <p className={styles.tocLabel}>On this page</p>
+  <div className={styles.tocLinks}>
+    <a href="#filter-search">1. Start with a filter or a search</a>
+    <a href="#course-list">2. Read the course list</a>
+    <a href="#course-modal">3. Open the course modal</a>
+    <a href="#past-grades">4. Check past grade distributions</a>
+    <a href="#multi-section">5. Multi-section courses</a>
+    <a href="#section-mapping">6. Match sections to TSS</a>
+    <a href="#add-to-worksheet">7. Add a course to your Worksheet</a>
+    <a href="#worksheet-page">8. See it on the Worksheet page</a>
+  </div>
+</nav>
+
+  <div className={styles.body}>
+
+## 1. Start with a Filter or a Search (#filter-search)
+
+The catalog opens empty on purpose — with thousands of courses, it waits for you to narrow things down first. Use the `Search` bar at the top, or any of the filter buttons: `Subject`, `Course Type`, `Units`, `Term`, or `Days`.
+
+<figure className={styles.shot}>
+  <img
+    src={catalogEmpty}
+    alt="Empty catalog page with the Subject filter highlighted"
+    loading="lazy"
+  />
+  <figcaption>
+    Nothing shows until you search or filter — start with the Subject button.
+  </figcaption>
+</figure>
+
+Open `Subject`, type a few letters, and check the department you want. Active filters appear as blue chips next to the filter bar; click the `×` on a chip to remove it, or hit `Reset` to clear everything.
+
+<figure className={styles.shot}>
+  <img
+    src={subjectFilter}
+    alt="Subject dropdown open with CSE selected and the results list populated"
+    loading="lazy"
+  />
+  <figcaption>
+    Selecting a subject instantly fills the list — here, 345 CSE results for
+    Fall 2026.
+  </figcaption>
+</figure>
+
+## 2. Read the Course List (#course-list)
+
+Each row shows the course code, title, instructors, meeting days and times, location, and seat counts. Two kinds of rows exist, and they behave differently:
+
+- **Single-section courses** (e.g. one lecture only) show `Section A` in gray and a blue `+` on the far left. The `+` adds that section to your worksheet in one click, without opening anything.
+- **Multi-section courses** show a badge like `9 sections` instead. These expand in place — more on that in step 5.
+
+<figure className={styles.shot}>
+  <img
+    src={catalogList}
+    alt="Catalog list showing single-section rows with plus buttons and multi-section rows with section badges"
+    loading="lazy"
+  />
+  <figcaption>
+    Rows with a + are single-section; rows with a “N sections” badge expand.
+  </figcaption>
+</figure>
+
+> **Tip:** the `Code`, `Title`, and `Meets` column headers are sort toggles — click them to re-order the list.
+
+## 3. Open the Course Modal (#course-modal)
+
+**The whole row is clickable.** Click anywhere on a course row (except the `+` button) and a detail modal opens on top of the catalog.
+
+<figure className={styles.shot}>
+  <img
+    src={rowClick}
+    alt="A course row highlighted to show it is clickable"
+    loading="lazy"
+  />
+  <figcaption>
+    Click anywhere on the row — title, instructor, times — to open the course
+    modal.
+  </figcaption>
+</figure>
+
+The modal's `Overview` tab gives you everything at a glance:
+
+- The full catalog description, units, and course level.
+- A `Prerequisites` dropdown and a `Catalog ↗` link to the official UCSD General Catalog entry.
+- **Schedule Options** — every meeting for the section: lecture, discussion, lab, and the final exam, each with days, times, room, and seats left.
+
+<figure className={styles.shot}>
+  <img
+    src={modalOverview}
+    alt="Course modal Overview tab with description, badges, and schedule options"
+    loading="lazy"
+  />
+  <figcaption>
+    CSE-100's Overview: description, units, prerequisites, and the full weekly
+    schedule including the final exam date.
+  </figcaption>
+</figure>
+
+> The modal updates the page URL, so you can copy the link from your browser's address bar and share a course directly. Press `Esc` or click `×` to close it and return to your filtered list — your filters stay put.
+
+## 4. Check Past Grade Distributions (#past-grades)
+
+Switch to the `Past Grades` tab to see how the course has been graded historically — one row per term, going back years. Each row shows the instructor, the average GPA (color-coded), and the percentage of students earning each grade: A, B, C, D, F, plus W (withdraw), P (pass), and NP (no pass).
+
+<figure className={styles.shot}>
+  <img
+    src={modalGrades}
+    alt="Past Grades tab showing a grade distribution table across many terms"
+    loading="lazy"
+  />
+  <figcaption>
+    32 terms of history for CSE-100 — compare instructors before you pick a
+    section.
+  </figcaption>
+</figure>
+
+> **Tip:** the same course can grade very differently under different instructors. Scan the GPA column next to the instructor names before deciding which section to take.
+
+## 5. Multi-Section Courses (#multi-section)
+
+For courses with a `N sections` badge, clicking the row doesn't open the modal — it **expands the row** to list every section inline, each with its own instructor, time, location, enrollment bar, and `+` button.
+
+<figure className={styles.shot}>
+  <img
+    src={sectionsExpanded}
+    alt="A multi-section course expanded inline showing individual sections"
+    loading="lazy"
+  />
+  <figcaption>
+    Click the badge to expand; each section gets its own row and its own +.
+  </figcaption>
+</figure>
+
+**The whole row is clickable here too.** Click any _section_ row — anywhere except the `+` button — to open the modal for that specific section.
+
+<figure className={styles.shot}>
+  <img
+    src={sectionRowClick}
+    alt="An expanded section row highlighted to show the clickable area, excluding the plus button"
+    loading="lazy"
+  />
+  <figcaption>
+    Everything inside the outline opens the section's modal; the + on the left
+    adds it to your worksheet instead.
+  </figcaption>
+</figure>
+
+## 6. Match Sections to TSS (#section-mapping)
+
+The third tab, `Section Mapping`, translates SunGrid's section names into the exact TSS section numbers UCSD uses for enrollment (e.g. `001-000-PR + 001-001-OT`). When registration opens, this is the tab that tells you precisely what to enroll in on TSS.
+
+<figure className={styles.shot}>
+  <img
+    src={modalSectionMapping}
+    alt="Section Mapping tab showing SunGrid section names next to TSS section numbers"
+    loading="lazy"
+  />
+  <figcaption>
+    SunGrid section name on the left, the TSS sections it corresponds to on the
+    right.
+  </figcaption>
+</figure>
+
+## 7. Add a Course to Your Worksheet (#add-to-worksheet)
+
+From the modal, hit the big blue `+ Add Section … to Worksheet` button at the bottom of any offering group. (For single-section courses, the `+` on the catalog row does the same thing in one click.)
+
+<figure className={styles.shot}>
+  <img
+    src={addButton}
+    alt="The Add Section to Worksheet button highlighted in the course modal"
+    loading="lazy"
+  />
+  <figcaption>
+    One click adds the whole section — lecture, discussion, and final exam
+    together.
+  </figcaption>
+</figure>
+
+The button flips to `Remove Section … from Worksheet` so you can undo just as easily:
+
+<figure className={styles.shot}>
+  <img
+    src={addedState}
+    alt="The modal after adding, with the button now offering to remove the section"
+    loading="lazy"
+  />
+  <figcaption>Added! Click again anytime to remove it.</figcaption>
+</figure>
+
+Back in the catalog, the row reflects your pick: the `+` becomes a `−` and the row is outlined. Your selection is saved automatically.
+
+<figure className={styles.shot}>
+  <img
+    src={catalogAfterAdd}
+    alt="Catalog list showing the added course outlined, with the Worksheet nav link highlighted"
+    loading="lazy"
+  />
+  <figcaption>
+    The added course stays marked in the list — and the Worksheet link in the
+    top-right corner is where to go next.
+  </figcaption>
+</figure>
+
+## 8. See It on the Worksheet Page (#worksheet-page)
+
+Click `Worksheet` in the top-right navigation. Every course you added lands here, laid out as a weekly calendar:
+
+- **Calendar / List** toggle — see your week visually or as a compact list.
+- **Regular / Finals** toggle — switch between the weekly schedule and finals week.
+- **Stats panel** — planned courses, total credits with a workload label, and a conflict checker that flags overlapping times.
+- **Extras** — days until your first exam, your busiest day, and the full course list with per-course details.
+
+<figure className={styles.shot}>
+  <img
+    src={worksheet}
+    alt="Worksheet page showing the weekly calendar, stats cards, and course list"
+    loading="lazy"
+  />
+  <figcaption>
+    CSE-100 on the worksheet: lecture and discussion on the calendar, credits
+    and conflict status on the right.
+  </figcaption>
+</figure>
+
+### Expand a course card
+
+In Calendar view, the course cards on the right are collapsible. Click the `⌄` chevron on a card (or `Expand all` above the list) to see the full schedule for that course — lecture, discussion, and the final exam with its countdown — plus a `Remove` button.
+
+<figure className={styles.shot}>
+  <img
+    src={wsCardExpanded}
+    alt="Worksheet course card expanded to show lecture, discussion, and final exam details"
+    loading="lazy"
+  />
+  <figcaption>
+    An expanded card shows every meeting, the final exam date, and a quick
+    Remove action.
+  </figcaption>
+</figure>
+
+### Open the course modal
+
+The course code on each card is a link. Click it (e.g. `CSE-100`) to jump back into the full course modal — the same one you know from the catalog.
+
+<figure className={styles.shot}>
+  <img
+    src={wsCodeHint}
+    alt="A worksheet course card with the course code link highlighted"
+    loading="lazy"
+  />
+  <figcaption>
+    The underlined course code on a card is the clickable part.
+  </figcaption>
+</figure>
+
+From there you can re-read the description, revisit `Past Grades` and `Section Mapping`, or remove the section — all without losing your place on the Worksheet.
+
+<figure className={styles.shot}>
+  <img
+    src={wsCourseModal}
+    alt="The regular course modal opened from a worksheet card"
+    loading="lazy"
+  />
+  <figcaption>
+    Clicking the code reopens the regular course modal with all three tabs.
+  </figcaption>
+</figure>
+
+### Spot schedule conflicts
+
+SunGrid checks your picks for overlaps the moment you add them. It starts in the catalog: once a course is on your worksheet, any other course that overlaps it gets a red `!` next to its `+` — hover it to see exactly which course it collides with.
+
+<figure className={styles.shot}>
+  <img
+    src={catConflictWarning}
+    alt="Catalog row with a conflict warning icon and a tooltip naming the conflicting course"
+    loading="lazy"
+  />
+  <figcaption>
+    CSE-020 overlaps CSE-100, so its add button carries a warning — hover to see
+    the details.
+  </figcaption>
+</figure>
+
+You can still add the course (conflicts never block you). On the Worksheet, the `Conflicts` card lights up with the issue count, the affected cards get a `⚠` badge, and the overlapping blocks sit side by side on the calendar.
+
+<figure className={styles.shot}>
+  <img
+    src={wsConflictCard}
+    alt="Worksheet with the Conflicts stat card highlighted showing two conflicts"
+    loading="lazy"
+  />
+  <figcaption>
+    Two conflicts detected: the stat card flips from “all clear” to a count with
+    a red dot.
+  </figcaption>
+</figure>
+
+Click `View` on the card to see every issue spelled out — time conflicts and final-exam clashes, each with the exact days and overlapping window.
+
+<figure className={styles.shot}>
+  <img
+    src={wsConflictView}
+    alt="Schedule conflicts overlay listing a time conflict and a final exam clash with overlap windows"
+    loading="lazy"
+  />
+  <figcaption>
+    CSE-020 and CSE-100 share both a lecture slot (MWF 9–9:50 AM) and a final
+    exam slot.
+  </figcaption>
+</figure>
+
+### Check your finals
+
+The `Exam` card counts down to your first final. Click it to open the `Exams` overlay — every final on your worksheet with its date, time, and room, sortable by date or by course. (The `Regular / Finals` toggle at the top shows the same thing on the calendar.)
+
+<figure className={styles.shot}>
+  <img
+    src={wsExamsOverlay}
+    alt="Exams overlay listing every final exam with dates, times, and locations"
+    loading="lazy"
+  />
+  <figcaption>
+    One click on the Exam card shows all your finals in one place.
+  </figcaption>
+</figure>
+
+### List view and weekly load
+
+Switch to `List` in the top navigation for a compact list of your courses — and a **Weekly load** chart that stacks class hours per day, color-coded by course. It makes lopsided schedules obvious at a glance, so you can balance heavy and light days before enrollment.
+
+<figure className={styles.shot}>
+  <img
+    src={wsListView}
+    alt="Worksheet list view with a weekly load bar chart of class hours per day"
+    loading="lazy"
+  />
+  <figcaption>
+    The Weekly load chart breaks down class hours by day and course — here
+    Monday and Wednesday are the busiest.
+  </figcaption>
+</figure>
+
+> **Tip:** the term selector in the top-left of the Worksheet lets you plan multiple quarters — each term keeps its own worksheet.
+
+SunGrid is not affiliated with UC San Diego. Seat counts are snapshots, not live data — always confirm enrollment in TSS.
+
+  </div>
+</article>

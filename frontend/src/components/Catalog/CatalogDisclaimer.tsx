@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { FaTimes } from 'react-icons/fa';
 
 import { FAQ_URL } from '../landing/links';
@@ -24,7 +25,7 @@ export default function CatalogDisclaimer() {
         <a href={FAQ_URL} target="_blank" rel="noopener noreferrer">
           FAQ
         </a>
-        .
+        . New here? Read the <Link to="/tutorial">tutorial</Link>.
       </p>
       <button
         type="button"
