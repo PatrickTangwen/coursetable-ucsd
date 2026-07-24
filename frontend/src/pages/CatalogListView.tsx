@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import CatalogDisclaimer from '../components/Catalog/CatalogDisclaimer';
 import CatalogTable from '../components/Catalog/CatalogTable';
 import FilterBar, { COURSE_TYPES } from '../components/Catalog/FilterBar';
+import FloatingWorksheetCalendar from '../components/Catalog/FloatingWorksheetCalendar';
 import { DataLoadErrorPage } from '../components/PageStatus';
 import { CUR_SEASON } from '../config';
 import {
@@ -97,6 +98,7 @@ export default function CatalogListView() {
         filterBar={<FilterBar subjects={subjects} />}
         onOpenModal={handleOpenModal}
       />
+      <FloatingWorksheetCalendar />
     </div>
   );
 }
