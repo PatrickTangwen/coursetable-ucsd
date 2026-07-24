@@ -1,6 +1,8 @@
 import { useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
+import { useShallow } from 'zustand/react/shallow';
 
+import { useToggleCourseHidden } from './WorksheetHideButton';
 import { useStore } from '../../store';
 import type {
   WorksheetListingViewModel,
@@ -224,7 +226,25 @@ export default function CalendarQuickModal({
   readonly conflicts?: readonly CourseConflict[];
   readonly onClose: () => void;
 }) {
-  const theme = useStore((state) => state.theme);
+  const {
+    theme,
+    user,
+    isAnonymousWorksheet,
+    removeAnonymousWorksheetListing,
+    removeActiveSavedWorksheetListing,
+  } = useStore(
+    useShallow((state) => ({
+      theme: state.theme,
+      user: state.user,
+      isAnonymousWorksheet: state.worksheetMemo.getIsAnonymousWorksheet(state),
+      removeAnonymousWorksheetListing: state.removeAnonymousWorksheetListing,
+      removeActiveSavedWorksheetListing:
+        state.removeActiveSavedWorksheetListing,
+    })),
+  );
+  // Same editability gate as the sidebar course list: read-only, shared, and
+  // exotic worksheets get no remove action.
+  const canEdit = useToggleCourseHidden() !== null;
   const { meetings, exams } = useMemo(
     () => getQuickModalData(listing, viewingKey),
     [listing, viewingKey],
@@ -253,6 +273,12 @@ export default function CalendarQuickModal({
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [onClose]);
+
+  const removeCourse = async () => {
+    if (isAnonymousWorksheet) removeAnonymousWorksheetListing(listing);
+    else if (user) await removeActiveSavedWorksheetListing(listing);
+    onClose();
+  };
 
   return createPortal(
     <div className={styles.backdrop}>
@@ -405,6 +431,33 @@ export default function CalendarQuickModal({
             ))}
           </div>
         </div>
+        {canEdit && (
+          <div className={styles.footerRow}>
+            <button
+              type="button"
+              className={styles.removeButton}
+              onClick={() => {
+                void removeCourse();
+              }}
+            >
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+              Remove from worksheet
+            </button>
+          </div>
+        )}
       </div>
     </div>,
     document.body,
