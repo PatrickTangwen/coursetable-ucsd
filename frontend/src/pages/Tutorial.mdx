@@ -11,6 +11,7 @@ export const sideNavSections = [
   { id: 'section-mapping', label: '6. Match sections to TSS' },
   { id: 'add-to-worksheet', label: '7. Add a course to your Worksheet' },
   { id: 'worksheet-page', label: '8. See it on the Worksheet page' },
+  { id: 'multi-terms', label: '9. Plan multiple quarters' },
 ];
 
 import catalogEmpty from '../images/tutorial/catalog-empty.jpg';
@@ -33,6 +34,7 @@ import wsConflictView from '../images/tutorial/ws-conflict-view.jpg';
 import wsCourseModal from '../images/tutorial/ws-course-modal.jpg';
 import wsExamsOverlay from '../images/tutorial/ws-exams-overlay.jpg';
 import wsSwipeRemove from '../images/tutorial/ws-swipe-remove.jpg';
+import wsTermSelector from '../images/tutorial/ws-term-selector.jpg';
 import wsListView from '../images/tutorial/ws-list-view.jpg';
 import sectionRowClick from '../images/tutorial/section-row-click.jpg';
 
@@ -68,6 +70,7 @@ A quick visual tour of the catalog page — how to browse courses, open the cour
     <a href="#section-mapping">6. Match sections to TSS</a>
     <a href="#add-to-worksheet">7. Add a course to your Worksheet</a>
     <a href="#worksheet-page">8. See it on the Worksheet page</a>
+    <a href="#multi-terms">9. Plan multiple quarters</a>
   </div>
 </nav>
 
@@ -415,7 +418,23 @@ On a phone, the cards in List view are also swipeable — drag a course card to 
   </figcaption>
 </figure>
 
-> **Tip:** the term selector in the top-left of the Worksheet lets you plan multiple quarters — each term keeps its own worksheet.
+## 9. Plan Multiple Quarters (#multi-terms)
+
+The term selector in the top-left corner of the Worksheet switches between quarters — Fall, Summer Sessions, and whatever else the catalog snapshot covers. **Each term keeps its own worksheet**, so your Fall plan and your Summer plan never mix.
+
+<figure className={styles.shot}>
+  <img
+    src={wsTermSelector}
+    alt="Worksheet term selector open, listing Fall and Summer Session terms"
+    loading="lazy"
+  />
+  <figcaption>
+    Pick a term from the dropdown — courses you add land on that term's
+    worksheet.
+  </figcaption>
+</figure>
+
+The same applies in the catalog: the `Term` filter controls which quarter you're browsing, and the `+` buttons add sections to that quarter's worksheet. Switch terms any time — nothing is lost when you flip back.
 
 SunGrid is not affiliated with UC San Diego. Seat counts are snapshots, not live data — always confirm enrollment in TSS.
 
