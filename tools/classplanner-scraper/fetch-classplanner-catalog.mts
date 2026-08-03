@@ -12,7 +12,7 @@
  * Output (under --out, default data/raw/classplanner/<TERM>/<timestamp>/):
  *   terms.json    raw /api/v1/planner/terms response
  *   filters.json  raw /api/v1/catalog/filters response for the term
- *   pages/page-<offset>.json  each raw paginated /api/v1/catalog/courses response
+ *   pages/page-<offset>.json  raw paginated /api/v1/catalog/courses pages
  *   courses.json  merged course list with fetch metadata
  */
 
@@ -20,7 +20,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const BASE_URL = 'https://classplanner.apps.ucsd.edu/api/v1';
-const PAGE_LIMIT = 48; // server-enforced maximum
+const PAGE_LIMIT = 48; // Server-enforced maximum.
 const REQUEST_DELAY_MS = 250;
 
 function argument(name: string, fallback?: string): string {
@@ -47,13 +47,15 @@ async function fetchJson(url: string): Promise<unknown> {
 }
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
 
 const term = argument('--term', 'FA26').toUpperCase();
 const outRoot = argument('--out', 'data/raw/classplanner');
 const fetchedAt = new Date().toISOString();
-const runDirectory = join(outRoot, term, fetchedAt.replace(/[:.]/g, '-'));
+const runDirectory = join(outRoot, term, fetchedAt.replace(/[:.]/gu, '-'));
 const pagesDirectory = join(runDirectory, 'pages');
 await mkdir(pagesDirectory, { recursive: true });
 
@@ -89,7 +91,7 @@ while (offset < total) {
       `term mismatch on page offset=${offset}: got ${page.term_code}`,
     );
   }
-  total = page.total;
+  ({ total } = page);
   await writeFile(
     join(pagesDirectory, `page-${String(offset).padStart(5, '0')}.json`),
     JSON.stringify(page, null, 2),
@@ -100,9 +102,8 @@ while (offset < total) {
   if (offset < total) await sleep(REQUEST_DELAY_MS);
 }
 
-if (courses.length !== total) {
+if (courses.length !== total)
   throw new Error(`expected ${total} courses, merged ${courses.length}`);
-}
 
 const merged = {
   schema_version: 'classplanner-catalog-v1',

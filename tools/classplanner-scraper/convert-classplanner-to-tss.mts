@@ -40,31 +40,79 @@ function argument(name: string, fallback?: string): string {
   return value;
 }
 
-async function readJson(path: string): Promise<any> {
-  return JSON.parse(await readFile(path, 'utf-8'));
+type PlannerMeeting = {
+  meeting_kind: string;
+  specific_date: string | null;
+  day_code: string | null;
+  start_time_display: string | null;
+  end_time_display: string | null;
+  building_code: string | null;
+  room_code: string | null;
+  is_remote: boolean | null;
+  is_tba: boolean | null;
+};
+
+type PlannerSection = {
+  section_id: string;
+  section_ref: string;
+  section_code: string;
+  instruction_type_name: string;
+  status: string | null;
+  event_package_ids: string[] | null;
+  instructors: string[];
+  capacity: number | null;
+  enrolled: number | null;
+  seats_available: number | null;
+  waitlist_capacity: number | null;
+  waitlist_enrolled: number | null;
+  waitlist_available: number | null;
+  meetings: PlannerMeeting[];
+};
+
+type PlannerCourse = {
+  module_code: string;
+  module_name: string;
+  sections: PlannerSection[];
+};
+
+type PlannerScrape = {
+  schema_version: string;
+  term_code: string;
+  fetched_at: string;
+  courses: PlannerCourse[];
+};
+
+type PlannerTerms = {
+  terms: { term_code: string; last_full_refresh_at: string }[];
+};
+
+type PlannerFilters = { subjects: { value: string }[] };
+
+async function readJson<T>(path: string): Promise<T> {
+  return JSON.parse(await readFile(path, 'utf-8')) as T;
 }
 
 const runDirectory = argument('--run-dir');
 const outDirectory = argument('--out', join(runDirectory, 'tss'));
 
-const scrape = await readJson(join(runDirectory, 'courses.json'));
-const terms = await readJson(join(runDirectory, 'terms.json'));
-const filters = await readJson(join(runDirectory, 'filters.json'));
+const scrape = await readJson<PlannerScrape>(
+  join(runDirectory, 'courses.json'),
+);
+const terms = await readJson<PlannerTerms>(join(runDirectory, 'terms.json'));
+const filters = await readJson<PlannerFilters>(
+  join(runDirectory, 'filters.json'),
+);
 
-if (scrape.schema_version !== 'classplanner-catalog-v1') {
+if (scrape.schema_version !== 'classplanner-catalog-v1')
   throw new Error(`unexpected scrape schema: ${scrape.schema_version}`);
-}
-const term: string = scrape.term_code;
+const term = scrape.term_code;
 
-const termEntry = terms.terms.find((entry: any) => entry.term_code === term);
+const termEntry = terms.terms.find((entry) => entry.term_code === term);
 if (!termEntry) throw new Error(`term ${term} missing from terms.json`);
-// "2026-08-02 11:24:07+00" -> "2026-08-02T11:24:07.000Z"
+// The source formats "2026-08-02 11:24:07+00"; normalize to ISO-8601.
 const availabilityObservedAt = new Date(
   termEntry.last_full_refresh_at,
 ).toISOString();
-
-type PlannerSection = any;
-type PlannerMeeting = any;
 
 function toMeeting(meeting: PlannerMeeting) {
   return {
@@ -123,7 +171,7 @@ function sectionFamily(sectionCode: string): string {
 function sectionFamilyIndex(sectionCode: string): string {
   const trimmed = sectionCode.trim();
   const parts = trimmed.split('-');
-  if (parts.length >= 3) return `${parts[0]}-${parts[1]}`.toLowerCase();
+  if (parts.length >= 3) return `${parts[0]!}-${parts[1]!}`.toLowerCase();
   return trimmed.toLowerCase();
 }
 
@@ -188,9 +236,8 @@ function bookingChoiceGroups(sections: PlannerSection[]): PlannerSection[][] {
     );
     if (familyPackages.length === 0) {
       // Only standalone family packages: the group joins each of them.
-      for (const members of allFamilyPackages) {
+      for (const members of allFamilyPackages)
         candidates.push([...members, ...group]);
-      }
       continue;
     }
     // Combine with the sections shared by every package of the family (e.g.
@@ -225,7 +272,7 @@ function bookingChoiceGroups(sections: PlannerSection[]): PlannerSection[][] {
         [...candidate.ids].every((id) => other.ids.has(id)),
     );
     if (isStrictSubset) continue;
-    const key = [...candidate.ids].sort().join('|');
+    const key = [...candidate.ids].sort((a, b) => a.localeCompare(b)).join('|');
     if (seen.has(key)) continue;
     seen.add(key);
     groups.push(
@@ -259,11 +306,11 @@ for (const course of scrape.courses) {
   existing.sections.push(...course.sections);
   // Deterministic title pick: the entry whose first section code sorts first.
   const firstCode = (sections: PlannerSection[]) =>
-    sections.map((section: PlannerSection) => section.section_code).sort()[0] ??
-    '';
-  if (firstCode(course.sections) < firstCode(existing.sections)) {
+    sections
+      .map((section) => section.section_code)
+      .sort((a, b) => a.localeCompare(b))[0] ?? '';
+  if (firstCode(course.sections) < firstCode(existing.sections))
     existing.name = course.module_name;
-  }
 }
 
 const courses = [...byModule.entries()]
@@ -284,7 +331,7 @@ const courses = [...byModule.entries()]
     };
   });
 
-const requestedSubjects = filters.subjects.map((subject: any) => subject.value);
+const requestedSubjects = filters.subjects.map((subject) => subject.value);
 
 const output = {
   schema_version: 'tss-chatbot-v1',
