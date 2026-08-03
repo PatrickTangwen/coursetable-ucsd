@@ -6,7 +6,7 @@ describe('staging Term Archive', () => {
   it('builds a complete content-addressed registry from accepted repository artifacts', async () => {
     const archive = await buildTermArchive();
 
-    expect(archive.registry.last_update).toBe('2026-08-03T16:32:21.789Z');
+    expect(archive.registry.last_update).toBe('2026-08-03T18:41:58.508Z');
     expect(archive.terms).toHaveLength(15);
     expect(archive.registry.terms).toHaveLength(15);
 
@@ -16,7 +16,7 @@ describe('staging Term Archive', () => {
       term: 'FA26',
       label: 'Fall 2026',
       dateRange: { start: '2026-09-24', end: '2026-12-12' },
-      generatedAt: '2026-08-03T16:32:21.789Z',
+      generatedAt: '2026-08-03T18:41:58.508Z',
     });
     expect(fall.snapshot.sha256).toMatch(/^[a-f\d]{64}$/u);
     expect(fall.details.sha256).toMatch(/^[a-f\d]{64}$/u);
@@ -51,7 +51,7 @@ describe('staging Term Archive', () => {
       term: 'SP26',
       label: 'Spring 2026',
       dateRange: { start: '2026-03-30', end: '2026-06-12' },
-      generatedAt: '2026-06-29T08:02:01.606Z',
+      generatedAt: '2026-08-03T17:30:51.813Z',
     });
     expect(spring.snapshot.sha256).toMatch(/^[a-f\d]{64}$/u);
     expect(spring.manifest.sha256).toMatch(/^[a-f\d]{64}$/u);
@@ -64,7 +64,7 @@ describe('staging Term Archive', () => {
       label: 'Spring 2026',
       date_range: { start: '2026-03-30', end: '2026-06-12' },
       frozen: false,
-      generated_at: '2026-06-29T08:02:01.606Z',
+      generated_at: '2026-08-03T17:30:51.813Z',
     });
     expect(registryEntry?.snapshot_path).toBe(
       `published-snapshots/SP26/${spring.snapshot.sha256}.json`,
