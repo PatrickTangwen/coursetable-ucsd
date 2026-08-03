@@ -139,6 +139,10 @@ logs, or transient setup notes directly in ADRs.
   Supported Terms browsable in the Catalog while limiting Worksheet navigation
   and Catalog add/remove actions to Summer Session I 2026 through Fall 2026,
   refining ADR 0015.
+- `0040-use-public-class-planner-api-as-schedule-source.md`: acquire FA26+
+  schedule data from the unauthenticated Class Planner API and convert it to
+  the existing tss-chatbot-v1 contract, replacing login-gated TSS exports and
+  demoting TritonGPT CSV capture to a fallback.
 
 ## Editing Rule
 

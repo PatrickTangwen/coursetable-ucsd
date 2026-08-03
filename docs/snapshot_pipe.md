@@ -238,11 +238,13 @@ subject files span multiple capture timestamps, or a selected non-primary run
 has no timestamp in its directory name, the corresponding snapshot-level source
 timestamp is `null` rather than claiming one misleading shared timestamp.
 
-Example:
+Example (any raw directory of tss-chatbot-v1 files works; since 2026-08-03 the
+current raw source is the Class Planner conversion output, see the Class
+Planner Catalog Source section):
 
 ```bash
 bun tools/catalog-snapshot/generate-tss-published-snapshot.mts \
-  --raw-dir TSS_相关资料/chatbot-responses/raw/FA26 \
+  --raw-dir data/raw/classplanner/FA26/<timestamp>/tss \
   --metadata-dir data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-SP26 \
   --metadata-root data/normalized
 ```
@@ -269,6 +271,10 @@ graduate listings can have different grading populations and must not be merged
 without a separate authoritative archive relationship.
 
 ### TritonGPT CSV section identity continuity (2026-07-22)
+
+Superseded as the preferred source on 2026-08-03: FA26+ schedule data now
+comes from the Class Planner API (see the Class Planner Catalog Source
+section and ADR 0040). The CSV import below remains a supported fallback.
 
 The stable input contract and column reference live in
 [`tritongpt_schedule_csv.md`](tritongpt_schedule_csv.md).
@@ -623,3 +629,61 @@ Worker publication writes separate immutable
 `metadata.json` with `snapshot_path` and `detail_path`. Existing Frozen registry
 entries may have `detail_path: null`; their already-published list object remains
 valid and can continue to carry embedded records.
+
+## Class Planner Catalog Source (2026-08-03)
+
+UCSD Class Planner (`https://classplanner.apps.ucsd.edu`) exposes the TSS
+schedule data behind a public JSON API that needs no SSO login. Its section
+ids (`E 00000972`, `EL00002329`) are the same TSS event ids stored in
+published snapshot `raw.tss_event_ids`, so it replaces the authenticated TSS
+OData export as the schedule source.
+
+Endpoints:
+
+- `GET /api/v1/planner/terms` — term registry with course/section/meeting
+  counts and `last_full_refresh_at` (used as the availability timestamp).
+- `GET /api/v1/catalog/filters?term_code=FA26` — subjects with course counts
+  (used as the `requested_course` subject universe).
+- `GET /api/v1/catalog/courses?term_code=FA26&limit=48&offset=N` — paginated
+  full catalog with sections and meetings. `limit` is capped at 48 by the
+  server.
+
+Pipeline:
+
+```bash
+bun tools/classplanner-scraper/fetch-classplanner-catalog.mts --term FA26
+bun tools/classplanner-scraper/convert-classplanner-to-tss.mts \
+  --run-dir data/raw/classplanner/FA26/<timestamp>
+bun tools/catalog-snapshot/generate-tss-published-snapshot.mts \
+  --raw-dir data/raw/classplanner/FA26/<timestamp>/tss \
+  --metadata-dir data/normalized/multi-2026-06-29T08:02:01.606Z-198ee9a5-ad5c-428b-be61-71951c951b8f-SP26 \
+  --metadata-root data/normalized
+```
+
+The fetch step preserves every raw page response under
+`data/raw/classplanner/<TERM>/<timestamp>/pages/` (gitignored with the rest of
+`/data`), plus the merged `courses.json` (`schema_version:
+classplanner-catalog-v1`).
+
+The convert step rebuilds tss-chatbot-v1 booking choices from
+`event_package_ids`:
+
+- Within one module, a package id is one bookable combination. Ids that repeat
+  an instruction type are planner-internal groupings (the Class Planner
+  frontend enforces one section per type), and ids whose member set is a
+  strict subset of another package are display artifacts; both are dropped.
+- Sections without package ids are TSS linked events resolved through the
+  `FAMILY-INDEX-TYPE` section-code hierarchy: a `001-001-OT` group joins the
+  packages of its `001-001-*` packaged sibling; a group with no packaged
+  sibling combines with the sections shared by every multi-member package of
+  its family (an overflow lab joins the family lecture); a family with no
+  packages at all books as one group.
+- Duplicate module entries (topic courses such as `BGSE-205`) merge into one
+  course per module before grouping.
+
+Validated on 2026-08-03 against the previous OData-derived FA26 snapshot: the
+reconstruction reproduces the booking-choice grouping exactly for 1973 of the
+1998 shared courses; every remaining difference traces to a real source change
+(events added to or removed from packages after 2026-07-22), not to the
+grouping rules. Class Planner also carries live `enrolled` counts, so the
+regenerated snapshot no longer needs `capacity_enrollment_supp.txt`.

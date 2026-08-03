@@ -48,11 +48,13 @@ Status: top-level navigation for stable project documentation.
   direct Neon migration separation.
 - `worker_planning_data.md`: Worker Saved Search and Saved Worksheet ownership,
   shared HTTP contract, and account-service failure isolation.
-- `snapshot_pipe.md`: catalog snapshot pipeline notes, including General Catalog
-  enrichment, FA26 TSS metadata and Import Manifest publication, Schedule parser
-  edge cases, and raw HTML replay rules.
-- `tritongpt_schedule_csv.md`: stable TritonGPT schedule CSV column, row,
-  package-grouping, integrity, and CSV-first import contract.
+- `snapshot_pipe.md`: catalog snapshot pipeline notes, including the Class
+  Planner API schedule source and booking-choice reconstruction, General
+  Catalog enrichment, FA26 TSS metadata and Import Manifest publication,
+  Schedule parser edge cases, and raw HTML replay rules.
+- `tritongpt_schedule_csv.md`: TritonGPT schedule CSV column, row,
+  package-grouping, and integrity contract; fallback import path behind the
+  Class Planner API scraper since 2026-08-03.
 - `styling.md`: styling conventions.
 
 ## Historical SunGrid Records

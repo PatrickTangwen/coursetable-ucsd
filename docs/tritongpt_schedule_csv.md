@@ -1,11 +1,13 @@
 # TritonGPT Schedule CSV Reference
 
-Status: stable input contract for SunGrid catalog snapshot imports.
+Status: stable fallback input contract for SunGrid catalog snapshot imports.
+Since 2026-08-03 the preferred FA26-and-later source is the public Class
+Planner API scraper (`tools/classplanner-scraper/`, see
+`snapshot_pipe.md` Class Planner Catalog Source and ADR 0040).
 
-Use this document when raw schedule data was extracted from TritonGPT as CSV.
-The CSV directory is now the preferred input to the FA26-and-later import
-pipeline. The older browser transfer JSON remains supported only as a capture
-adapter.
+Use this document when raw schedule data was extracted from TritonGPT as CSV,
+for example if the Class Planner API becomes unavailable. The older browser
+transfer JSON remains supported only as a capture adapter.
 
 ## Header Contract
 
