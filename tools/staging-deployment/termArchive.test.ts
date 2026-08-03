@@ -6,7 +6,7 @@ describe('staging Term Archive', () => {
   it('builds a complete content-addressed registry from accepted repository artifacts', async () => {
     const archive = await buildTermArchive();
 
-    expect(archive.registry.last_update).toBe('2026-07-22T21:35:00.817Z');
+    expect(archive.registry.last_update).toBe('2026-08-03T16:32:21.789Z');
     expect(archive.terms).toHaveLength(15);
     expect(archive.registry.terms).toHaveLength(15);
 
@@ -16,7 +16,7 @@ describe('staging Term Archive', () => {
       term: 'FA26',
       label: 'Fall 2026',
       dateRange: { start: '2026-09-24', end: '2026-12-12' },
-      generatedAt: '2026-07-22T21:35:00.817Z',
+      generatedAt: '2026-08-03T16:32:21.789Z',
     });
     expect(fall.snapshot.sha256).toMatch(/^[a-f\d]{64}$/u);
     expect(fall.details.sha256).toMatch(/^[a-f\d]{64}$/u);
@@ -38,7 +38,7 @@ describe('staging Term Archive', () => {
       courses: { course_id: string; grade_archive_records: unknown[] }[];
     };
     expect(fallDetails.active_planning_term).toBe('FA26');
-    expect(fallDetails.courses).toHaveLength(1998);
+    expect(fallDetails.courses).toHaveLength(2109);
     expect(
       fallDetails.courses.some(
         (course) => course.grade_archive_records.length > 0,

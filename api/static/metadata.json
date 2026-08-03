@@ -1,5 +1,5 @@
 {
-  "last_update": "2026-07-22T21:35:00.817Z",
+  "last_update": "2026-08-03T16:32:21.789Z",
   "terms": [
     {
       "term": "FA26",
@@ -9,7 +9,7 @@
         "end": "2026-12-12"
       },
       "frozen": false,
-      "generated_at": "2026-07-22T21:35:00.817Z",
+      "generated_at": "2026-08-03T16:32:21.789Z",
       "snapshot_path": "catalogs/public/FA26.json",
       "manifest_path": "catalogs/import-manifests/FA26.json"
     },
