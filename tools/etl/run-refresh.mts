@@ -4,10 +4,14 @@
  *
  * Usage:
  *   bun tools/etl/run-refresh.mts [--config config/catalog-snapshot.ucsd.yaml]
+ *     [--result-path <file>]
  *
+ * --result-path writes the machine-readable run summary to a file so callers
+ * (the scheduled-refresh wrapper) do not have to parse mixed stdout.
  * Traces are exported when OTEL_EXPORTER_OTLP_ENDPOINT is set.
  */
 
+import { writeFile } from 'node:fs/promises';
 import { runEtlRefresh } from './runRefresh.js';
 import { startEtlTelemetry } from './telemetry.js';
 import { loadCatalogSnapshotConfig } from '../catalog-snapshot/catalogSnapshot.js';
@@ -29,20 +33,22 @@ try {
     argument('--config', 'config/catalog-snapshot.ucsd.yaml'),
   );
   const result = await runEtlRefresh({ config });
-  console.log(
-    JSON.stringify(
-      {
-        generated_at: result.generatedAt,
-        schedule_of_classes_terms: result.scheduleOfClassesTerms,
-        classplanner_terms: result.classplannerTerms,
-        supported_terms: result.supportedTerms,
-        report_json: result.reportPaths.jsonPath,
-        report_markdown: result.reportPaths.markdownPath,
-      },
-      null,
-      2,
-    ),
-  );
+  const summary = {
+    generated_at: result.generatedAt,
+    schedule_of_classes_terms: result.scheduleOfClassesTerms,
+    classplanner_terms: result.classplannerTerms,
+    supported_terms: result.supportedTerms,
+    totals: result.report.totals,
+    report_json: result.reportPaths.jsonPath,
+    report_markdown: result.reportPaths.markdownPath,
+  };
+  if (process.argv.includes('--result-path')) {
+    await writeFile(
+      argument('--result-path'),
+      `${JSON.stringify(summary, null, 2)}\n`,
+    );
+  }
+  console.log(JSON.stringify(summary, null, 2));
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
