@@ -143,6 +143,10 @@ logs, or transient setup notes directly in ADRs.
   schedule data from the unauthenticated Class Planner API and convert it to
   the existing tss-chatbot-v1 contract, replacing login-gated TSS exports and
   demoting TritonGPT CSV capture to a fallback.
+- `0041-one-command-etl-refresh-orchestrator.md`: encode the full data-refresh
+  sequence (SoC window, then Class Planner terms, validators, DuckDB refresh
+  report) behind `bun run etl:refresh`, with source conflicts as hard errors
+  and commit/deploy/acceptance kept manual.
 
 ## Editing Rule
 
