@@ -24,7 +24,6 @@ const uid = process.getuid?.();
 if (uid === undefined) throw new Error('Cannot determine the current uid');
 const domain = `gui/${String(uid)}`;
 const plistPath = join(homedir(), 'Library/LaunchAgents', `${label}.plist`);
-const logDirectory = join(homedir(), 'Library/Logs/coursetable-etl');
 
 function repositoryDirectory(): string {
   const index = process.argv.indexOf('--repo');
@@ -50,6 +49,8 @@ if (process.argv.includes('--uninstall')) {
   console.log(`Removed ${label} (${plistPath})`);
 } else {
   const repo = repositoryDirectory();
+  // Inside the repository's gitignored data/ archive, next to reports.
+  const logDirectory = join(repo, 'data', 'logs');
   const bun = process.execPath;
   const path = [
     dirname(bun),

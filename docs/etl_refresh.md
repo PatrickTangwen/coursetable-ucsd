@@ -93,8 +93,9 @@ bun tools/etl/install-launchd.mts --uninstall
 launchctl kickstart gui/$(id -u)/com.sungrid.coursetable-etl  # run now
 ```
 
-Logs: `~/Library/Logs/coursetable-etl/refresh.log` and `refresh.err.log`.
-Outcomes (PR URL, quiet run, failure) also arrive as macOS notifications.
+Logs: `data/logs/refresh.log` and `data/logs/refresh.err.log` in the main
+clone (gitignored with the rest of `data/`). Outcomes (PR URL, quiet run,
+failure) also arrive as macOS notifications.
 
 After a PR opens, the remaining flow is unchanged and deliberately manual:
 review the report in the PR, merge, dispatch `cloudflare-staging-deploy`,

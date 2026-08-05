@@ -26,7 +26,7 @@ Key mechanics:
 - **Fail fast, fail loudly.** A report/diff mismatch, tracked changes outside
   the artifact paths, or any failed step aborts the run before pushing; the
   outcome (PR URL, quiet run, or failure) is posted as a macOS notification
-  and captured in `~/Library/Logs/coursetable-etl/`.
+  and captured in the repository's gitignored `data/logs/`.
 - **A pid-checked lock** prevents overlapping runs; a crashed run's stale
   lock is reclaimed.
 
