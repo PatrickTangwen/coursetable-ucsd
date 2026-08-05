@@ -64,13 +64,42 @@ The underlying CLIs remain runnable on their own; see `snapshot_pipe.md`
 (Class Planner Catalog Source) for the three-command Class Planner sequence
 and the TSS publisher flags.
 
-## Scheduling (Next Slice, Not Yet Wired)
+## Scheduled Runs (ADR 0042)
 
-Two options, in preference order:
+A launchd agent (`com.sungrid.coursetable-etl`, Monday and Thursday 07:00
+local) runs `tools/etl/run-scheduled-refresh.mts`:
 
-1. Local launchd/cron on the machine that holds `data/raw` and
-   `data/normalized` history, invoking `bun run etl:refresh` and opening a
-   review PR.
-2. Cloudflare Workers Cron + Workflows with `data/raw` and `data/normalized`
-   archived to R2. Blocked on persisting that state off-machine first;
-   without it a runner cannot consolidate historical normalized metadata.
+1. Resets the dedicated worktree `~/.coursetable-etl/worktree` to
+   `origin/main` (the operator's working copy is never touched; the
+   worktree's `data/` symlinks to the main clone's durable archive).
+2. Installs dependencies and runs `etl:refresh` there.
+3. If the refresh report shows no material change (header timestamps alone
+   do not count), it exits quietly with a notification and no PR.
+4. Otherwise it commits `api/static/catalogs`, `api/static/metadata.json`,
+   and `frontend/src/generated/supported-terms.json` to a
+   `data-refresh/<date>` branch, pushes that branch (never `main`), and
+   opens a review PR with the refresh report as its body.
+
+Because the worktree checks out `origin/main`, the schedule runs merged
+pipeline code only: pushing pipeline changes to `main` is what deploys them
+to the automation.
+
+Operations:
+
+```bash
+bun tools/etl/run-scheduled-refresh.mts   # manual run of the same flow
+bun tools/etl/install-launchd.mts         # (re)install the agent
+bun tools/etl/install-launchd.mts --uninstall
+launchctl kickstart gui/$(id -u)/com.sungrid.coursetable-etl  # run now
+```
+
+Logs: `~/Library/Logs/coursetable-etl/refresh.log` and `refresh.err.log`.
+Outcomes (PR URL, quiet run, failure) also arrive as macOS notifications.
+
+After a PR opens, the remaining flow is unchanged and deliberately manual:
+review the report in the PR, merge, dispatch `cloudflare-staging-deploy`,
+accept Staging, dispatch `cloudflare-production-deploy`.
+
+The hosted alternative (Cloudflare Workers Cron + Workflows) stays deferred
+until `data/raw` and `data/normalized` are archived to R2; without that
+state a hosted runner cannot consolidate historical normalized metadata.

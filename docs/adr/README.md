@@ -147,6 +147,9 @@ logs, or transient setup notes directly in ADRs.
   sequence (SoC window, then Class Planner terms, validators, DuckDB refresh
   report) behind `bun run etl:refresh`, with source conflicts as hard errors
   and commit/deploy/acceptance kept manual.
+- `0042-scheduled-refresh-with-review-prs.md`: launchd runs the refresh in an
+  isolated worktree twice a week and opens a review PR only on material
+  change; merge, deploy dispatch, and Staging acceptance stay human.
 
 ## Editing Rule
 

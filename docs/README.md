@@ -49,7 +49,8 @@ Status: top-level navigation for stable project documentation.
 - `worker_planning_data.md`: Worker Saved Search and Saved Worksheet ownership,
   shared HTTP contract, and account-service failure isolation.
 - `etl_refresh.md`: one-command ETL refresh runbook (`bun run etl:refresh`),
-  source-conflict rules, refresh-report contract, and telemetry notes.
+  source-conflict rules, refresh-report contract, telemetry notes, and the
+  launchd-scheduled review-PR flow.
 - `snapshot_pipe.md`: catalog snapshot pipeline notes, including the Class
   Planner API schedule source and booking-choice reconstruction, General
   Catalog enrichment, FA26 TSS metadata and Import Manifest publication,
