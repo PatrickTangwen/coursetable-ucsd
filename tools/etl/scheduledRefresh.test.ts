@@ -112,6 +112,29 @@ function makeSteps(
 }
 
 describe('runScheduledRefresh', () => {
+  it('bootstraps when the worktree parent directory does not exist yet', async () => {
+    const fixture = await makeFixture();
+    const steps = makeSteps(fixture, { termsChanged: 1 });
+
+    // First-ever scheduled run: neither the shared parent directory nor the
+    // worktree exists (the regression behind the failed 07:00 launchd run).
+    const result = await runScheduledRefresh({
+      repositoryDirectory: fixture.repositoryDirectory,
+      worktreeDirectory: join(
+        fixture.worktreeDirectory,
+        '..',
+        'never-created-parent',
+        'worktree',
+      ),
+      branchName: 'data-refresh/bootstrap',
+      artifactPaths: ['api/static/catalogs'],
+      steps,
+      log() {},
+    });
+
+    expect(result.status).toBe('opened');
+  }, 60_000);
+
   it('pushes a review branch and opens a PR when the report shows changes', async () => {
     const fixture = await makeFixture();
     const steps = makeSteps(fixture, { termsChanged: 2 });

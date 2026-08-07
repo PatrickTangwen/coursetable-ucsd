@@ -126,12 +126,19 @@ async function pathState(
 async function acquireRunLock(worktreeDirectory: string): Promise<string> {
   const lockDirectory = `${worktreeDirectory}.lock`;
   const pidPath = join(lockDirectory, 'pid');
+  // The worktree itself is created after the lock, so on the very first run
+  // the shared parent directory does not exist yet.
+  await mkdir(dirname(lockDirectory), { recursive: true });
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
       await mkdir(lockDirectory, { recursive: false });
       await writeFile(pidPath, `${String(process.pid)}\n`);
       return lockDirectory;
-    } catch {
+    } catch (mkdirError) {
+      // Only "the lock directory already exists" means the lock is held;
+      // anything else is a real failure and must surface as itself.
+      if ((mkdirError as NodeJS.ErrnoException).code !== 'EEXIST')
+        throw mkdirError;
       const holder = Number.parseInt(
         await readFile(pidPath, 'utf-8').catch(() => ''),
         10,
@@ -141,6 +148,7 @@ async function acquireRunLock(worktreeDirectory: string): Promise<string> {
           process.kill(holder, 0);
           throw new Error(
             `Another scheduled refresh (pid ${String(holder)}) is running`,
+            { cause: mkdirError },
           );
         } catch (error) {
           if (error instanceof Error && error.message.includes('scheduled'))
