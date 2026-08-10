@@ -51,3 +51,22 @@ empty values even after the called job passes its Environment approval gate.
 Both the Staging and Production calls declare inheritance; their respective
 Environment protections still control when each called job can access its own
 secrets.
+
+## Single-Approval Automation Correction (2026-08-10)
+
+The accepted Monday/Thursday operating contract now treats the repository
+owner's merge of a generated `data-refresh/*` PR as the only human release
+gate. The automatic chain additionally rejects refresh PRs that contain files
+outside the generated catalog artifact allowlist, then requires green `main`
+CI, Staging smoke and durable acceptance before Production can start.
+
+The `Staging` and `Production` GitHub Environments retain their branch policies
+and environment-scoped credentials, but no longer require separate reviewer
+clicks for this chain. This setting also means a manually dispatched deployment
+does not pause for an Environment reviewer; its exact-main-SHA, Staging
+acceptance, recovery, smoke, rollback, and evidence checks remain in force.
+
+The reusable Production workflow still defaults to public login disabled for
+manual dispatch. Only the qualified scheduled-refresh caller passes the
+login-enabled input, so routine catalog publication preserves the live site's
+login state without requiring a second login-toggle approval.

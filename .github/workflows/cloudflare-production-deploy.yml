@@ -1,4 +1,4 @@
-name: Deploy Cloudflare Production With Login Disabled
+name: Deploy Cloudflare Production
 
 on:
   workflow_dispatch:
@@ -40,6 +40,11 @@ on:
         required: false
         type: string
         default: ''
+      public_login_enabled:
+        description: Preserve public login for the merged scheduled-refresh path
+        required: false
+        type: boolean
+        default: false
       prove_rollback_after_smoke:
         required: true
         type: boolean
@@ -143,7 +148,7 @@ jobs:
     environment: Production
     env:
       DEPLOYMENT_TARGET: production
-      PUBLIC_LOGIN_ENABLED: 'false'
+      PUBLIC_LOGIN_ENABLED: ${{ inputs.public_login_enabled && 'true' || 'false' }}
       DEPLOY_COMMIT: ${{ needs.preflight.outputs.commit }}
       STAGING_ACCEPTED_COMMIT: ${{ inputs.staging_accepted_commit || vars.STAGING_ACCEPTED_COMMIT }}
       CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
@@ -214,9 +219,9 @@ jobs:
           R2_CATALOG_SECRET_ACCESS_KEY: ${{ secrets.R2_CATALOG_SECRET_ACCESS_KEY }}
         run: bun tools/staging-deployment/catalogR2.mts publish
 
-      - name: Build Worker and static assets with login disabled
+      - name: Build Worker and static assets with selected login state
         env:
-          VITE_PUBLIC_LOGIN_ENABLED: 'false'
+          VITE_PUBLIC_LOGIN_ENABLED: ${{ inputs.public_login_enabled && 'true' || 'false' }}
         run: |
           bun tools/staging-deployment/prepareWorkerDeployment.mts
           bun run --cwd frontend build
@@ -241,7 +246,7 @@ jobs:
             --config worker/wrangler.production.generated.jsonc \
             --secrets-file artifacts/production-deployment/worker-secrets.json \
             --tag "commit-${DEPLOY_COMMIT:0:12}" \
-            --message "audited Production deployment with login disabled ${DEPLOY_COMMIT}"
+            --message "audited Production deployment with login ${PUBLIC_LOGIN_ENABLED} ${DEPLOY_COMMIT}"
 
       - name: Capture post-attempt Worker identity
         if: always()
@@ -249,7 +254,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: bun tools/staging-deployment/workerDeployment.mts record-current
 
-      - name: Run hosted Production disabled-login smoke
+      - name: Run hosted Production login-state smoke
         run: bun tools/staging-deployment/smokeHostedDeployment.mts
 
       - name: Deliberately exercise application rollback

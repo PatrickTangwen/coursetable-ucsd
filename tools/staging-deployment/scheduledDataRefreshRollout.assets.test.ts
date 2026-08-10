@@ -59,7 +59,11 @@ describe('scheduled data refresh rollout assets', () => {
       "github.event.workflow_run.event == 'push'",
     );
     expect(source).toContain('startswith("data-refresh/")');
+    expect(source).toContain('.merged_by.login == $owner');
     expect(source).toContain('.merge_commit_sha == $commit');
+    expect(source).toContain('api/static/catalogs/');
+    expect(source).toContain('api/static/metadata.json');
+    expect(source).toContain('frontend/src/generated/supported-terms.json');
 
     expect(workflow.jobs.staging).toMatchObject({
       needs: 'qualify',
@@ -79,6 +83,7 @@ describe('scheduled data refresh rollout assets', () => {
       secrets: 'inherit',
       with: {
         target: 'production',
+        public_login_enabled: true,
         prove_rollback_after_smoke: false,
         recover_unaccepted_first_deployment: false,
       },
