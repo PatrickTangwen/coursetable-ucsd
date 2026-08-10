@@ -28,6 +28,28 @@ on:
         required: false
         type: string
         default: ''
+  workflow_call:
+    inputs:
+      target:
+        required: true
+        type: string
+      commit:
+        required: true
+        type: string
+      staging_accepted_commit:
+        required: false
+        type: string
+        default: ''
+      prove_rollback_after_smoke:
+        required: true
+        type: boolean
+      recover_unaccepted_first_deployment:
+        required: true
+        type: boolean
+      recover_unaccepted_worker_version:
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -123,7 +145,7 @@ jobs:
       DEPLOYMENT_TARGET: production
       PUBLIC_LOGIN_ENABLED: 'false'
       DEPLOY_COMMIT: ${{ needs.preflight.outputs.commit }}
-      STAGING_ACCEPTED_COMMIT: ${{ vars.STAGING_ACCEPTED_COMMIT }}
+      STAGING_ACCEPTED_COMMIT: ${{ inputs.staging_accepted_commit || vars.STAGING_ACCEPTED_COMMIT }}
       CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_PRODUCTION_HOSTNAME: ${{ vars.CLOUDFLARE_PRODUCTION_HOSTNAME }}
       CLOUDFLARE_WORKER_NAME: ${{ vars.CLOUDFLARE_WORKER_NAME }}

@@ -1,0 +1,75 @@
+name: Roll Out Merged Scheduled Data Refresh
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: scheduled-data-refresh-rollout
+  cancel-in-progress: false
+
+jobs:
+  qualify:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' }}
+    runs-on: ubuntu-latest
+    outputs:
+      commit: ${{ steps.pr.outputs.commit }}
+      eligible: ${{ steps.pr.outputs.eligible }}
+    steps:
+      - name: Require a merged scheduled-refresh PR
+        id: pr
+        env:
+          DEPLOY_COMMIT: ${{ github.event.workflow_run.head_sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          [[ "$DEPLOY_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          pull_requests=$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            "repos/${GITHUB_REPOSITORY}/commits/${DEPLOY_COMMIT}/pulls")
+          match=$(jq -c --arg commit "$DEPLOY_COMMIT" '
+            first(.[] | select(
+              .merged_at != null and
+              .base.ref == "main" and
+              (.head.ref | startswith("data-refresh/")) and
+              .merge_commit_sha == $commit
+            )) // empty
+          ' <<<"$pull_requests")
+          if [[ -z "$match" ]]; then
+            printf 'eligible=false\n' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          printf 'commit=%s\n' "$DEPLOY_COMMIT" >> "$GITHUB_OUTPUT"
+          printf 'eligible=true\n' >> "$GITHUB_OUTPUT"
+
+  staging:
+    needs: qualify
+    if: ${{ needs.qualify.outputs.eligible == 'true' }}
+    uses: ./.github/workflows/cloudflare-staging-deploy.yml
+    with:
+      target: staging
+      commit: ${{ needs.qualify.outputs.commit }}
+      recover_unaccepted_first_deployment: false
+      recover_unaccepted_worker_version: ''
+
+  production:
+    needs:
+      - qualify
+      - staging
+    uses: ./.github/workflows/cloudflare-production-deploy.yml
+    with:
+      target: production
+      commit: ${{ needs.qualify.outputs.commit }}
+      staging_accepted_commit: ${{ needs.qualify.outputs.commit }}
+      prove_rollback_after_smoke: false
+      recover_unaccepted_first_deployment: false
+      recover_unaccepted_worker_version: ''

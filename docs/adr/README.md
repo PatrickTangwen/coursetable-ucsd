@@ -150,6 +150,10 @@ logs, or transient setup notes directly in ADRs.
 - `0042-scheduled-refresh-with-review-prs.md`: launchd runs the refresh in an
   isolated worktree twice a week and opens a review PR only on material
   change; merge, deploy dispatch, and Staging acceptance stay human.
+- `0043-roll-out-merged-scheduled-refreshes-through-protected-environments.md`:
+  after a scheduled refresh PR is merged and `main` CI succeeds, automatically
+  enter the protected Staging then Production workflow while preserving both
+  Environment approvals and keeping Production login disabled.
 
 ## Editing Rule
 
