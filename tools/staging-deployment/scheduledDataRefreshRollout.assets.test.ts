@@ -26,11 +26,13 @@ describe('scheduled data refresh rollout assets', () => {
         staging: {
           if: string;
           needs: string;
+          secrets: string;
           uses: string;
           with: { [key: string]: unknown };
         };
         production: {
           needs: string[];
+          secrets: string;
           uses: string;
           with: { [key: string]: unknown };
         };
@@ -62,6 +64,7 @@ describe('scheduled data refresh rollout assets', () => {
     expect(workflow.jobs.staging).toMatchObject({
       needs: 'qualify',
       uses: './.github/workflows/cloudflare-staging-deploy.yml',
+      secrets: 'inherit',
       with: {
         target: 'staging',
         recover_unaccepted_first_deployment: false,
@@ -73,6 +76,7 @@ describe('scheduled data refresh rollout assets', () => {
     expect(workflow.jobs.production).toMatchObject({
       needs: ['qualify', 'staging'],
       uses: './.github/workflows/cloudflare-production-deploy.yml',
+      secrets: 'inherit',
       with: {
         target: 'production',
         prove_rollback_after_smoke: false,
