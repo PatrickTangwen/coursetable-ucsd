@@ -1,22 +1,40 @@
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { buildTermArchive } from './termArchive.js';
 
 describe('staging Term Archive', () => {
   it('builds a complete content-addressed registry from accepted repository artifacts', async () => {
+    const metadata = JSON.parse(
+      await readFile(
+        path.join(process.cwd(), 'api/static/metadata.json'),
+        'utf8',
+      ),
+    ) as {
+      last_update: string;
+      terms: {
+        term: string;
+        label: string;
+        date_range: { start: string; end: string } | null;
+        generated_at: string;
+      }[];
+    };
     const archive = await buildTermArchive();
 
-    expect(archive.registry.last_update).toBe('2026-08-07T03:18:54.573Z');
-    expect(archive.terms).toHaveLength(15);
-    expect(archive.registry.terms).toHaveLength(15);
+    expect(archive.registry.last_update).toBe(metadata.last_update);
+    expect(archive.terms).toHaveLength(metadata.terms.length);
+    expect(archive.registry.terms).toHaveLength(metadata.terms.length);
 
     const fall = archive.terms.find(({ term }) => term === 'FA26');
+    const fallMetadata = metadata.terms.find(({ term }) => term === 'FA26');
     if (!fall) throw new Error('FA26 fixture is missing');
+    if (!fallMetadata) throw new Error('FA26 metadata is missing');
     expect(fall).toMatchObject({
       term: 'FA26',
-      label: 'Fall 2026',
-      dateRange: { start: '2026-09-24', end: '2026-12-12' },
-      generatedAt: '2026-08-07T03:18:54.573Z',
+      label: fallMetadata.label,
+      dateRange: fallMetadata.date_range,
+      generatedAt: fallMetadata.generated_at,
     });
     expect(fall.snapshot.sha256).toMatch(/^[a-f\d]{64}$/u);
     expect(fall.details.sha256).toMatch(/^[a-f\d]{64}$/u);
@@ -38,7 +56,7 @@ describe('staging Term Archive', () => {
       courses: { course_id: string; grade_archive_records: unknown[] }[];
     };
     expect(fallDetails.active_planning_term).toBe('FA26');
-    expect(fallDetails.courses).toHaveLength(2120);
+    expect(fallDetails.courses).toHaveLength(fallList.courses.length);
     expect(
       fallDetails.courses.some(
         (course) => course.grade_archive_records.length > 0,
@@ -46,12 +64,14 @@ describe('staging Term Archive', () => {
     ).toBe(true);
 
     const spring = archive.terms.find(({ term }) => term === 'SP26');
+    const springMetadata = metadata.terms.find(({ term }) => term === 'SP26');
     if (!spring) throw new Error('SP26 fixture is missing');
+    if (!springMetadata) throw new Error('SP26 metadata is missing');
     expect(spring).toMatchObject({
       term: 'SP26',
-      label: 'Spring 2026',
-      dateRange: { start: '2026-03-30', end: '2026-06-12' },
-      generatedAt: '2026-08-07T03:18:54.573Z',
+      label: springMetadata.label,
+      dateRange: springMetadata.date_range,
+      generatedAt: springMetadata.generated_at,
     });
     expect(spring.snapshot.sha256).toMatch(/^[a-f\d]{64}$/u);
     expect(spring.manifest.sha256).toMatch(/^[a-f\d]{64}$/u);
@@ -61,10 +81,10 @@ describe('staging Term Archive', () => {
     );
     expect(registryEntry).toMatchObject({
       term: 'SP26',
-      label: 'Spring 2026',
-      date_range: { start: '2026-03-30', end: '2026-06-12' },
+      label: springMetadata.label,
+      date_range: springMetadata.date_range,
       frozen: false,
-      generated_at: '2026-08-07T03:18:54.573Z',
+      generated_at: springMetadata.generated_at,
     });
     expect(registryEntry?.snapshot_path).toBe(
       `published-snapshots/SP26/${spring.snapshot.sha256}.json`,

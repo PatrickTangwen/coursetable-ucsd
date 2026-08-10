@@ -6,13 +6,16 @@ import { parse } from 'yaml';
 const root = path.resolve(process.cwd());
 
 describe('Cloudflare staging deployment assets', () => {
-  it('declares the manual, main-reachable, protected staging workflow contract', async () => {
+  it('declares the manual and reusable main-reachable protected staging workflow contract', async () => {
     const source = await readFile(
       path.join(root, '.github/workflows/cloudflare-staging-deploy.yml'),
       'utf8',
     );
     const workflow = parse(source) as {
-      on: { workflow_dispatch: { inputs: { [key: string]: unknown } } };
+      on: {
+        workflow_dispatch: { inputs: { [key: string]: unknown } };
+        workflow_call: { inputs: { [key: string]: unknown } };
+      };
       permissions: { [key: string]: string };
       concurrency: { group: string; 'cancel-in-progress': boolean };
       jobs: {
@@ -30,7 +33,10 @@ describe('Cloudflare staging deployment assets', () => {
       };
     };
 
-    expect(Object.keys(workflow.on)).toEqual(['workflow_dispatch']);
+    expect(Object.keys(workflow.on)).toEqual([
+      'workflow_dispatch',
+      'workflow_call',
+    ]);
     expect(workflow.on.workflow_dispatch.inputs).toMatchObject({
       target: { required: true, type: 'choice', options: ['staging'] },
       commit: { required: true, type: 'string' },
@@ -38,6 +44,19 @@ describe('Cloudflare staging deployment assets', () => {
         required: true,
         type: 'boolean',
         default: false,
+      },
+      recover_unaccepted_worker_version: {
+        required: false,
+        type: 'string',
+        default: '',
+      },
+    });
+    expect(workflow.on.workflow_call.inputs).toMatchObject({
+      target: { required: true, type: 'string' },
+      commit: { required: true, type: 'string' },
+      recover_unaccepted_first_deployment: {
+        required: true,
+        type: 'boolean',
       },
       recover_unaccepted_worker_version: {
         required: false,

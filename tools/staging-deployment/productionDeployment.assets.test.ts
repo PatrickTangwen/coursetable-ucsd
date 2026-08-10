@@ -6,13 +6,16 @@ import { parse } from 'yaml';
 const root = path.resolve(process.cwd());
 
 describe('Cloudflare Production deployment assets', () => {
-  it('declares a manual protected first deployment with public login forced off', async () => {
+  it('declares manual and reusable protected deployment with public login forced off', async () => {
     const source = await readFile(
       path.join(root, '.github/workflows/cloudflare-production-deploy.yml'),
       'utf8',
     );
     const workflow = parse(source) as {
-      on: { workflow_dispatch: { inputs: { [key: string]: unknown } } };
+      on: {
+        workflow_dispatch: { inputs: { [key: string]: unknown } };
+        workflow_call: { inputs: { [key: string]: unknown } };
+      };
       permissions: { [key: string]: string };
       concurrency: { group: string; 'cancel-in-progress': boolean };
       jobs: {
@@ -30,7 +33,10 @@ describe('Cloudflare Production deployment assets', () => {
       };
     };
 
-    expect(Object.keys(workflow.on)).toEqual(['workflow_dispatch']);
+    expect(Object.keys(workflow.on)).toEqual([
+      'workflow_dispatch',
+      'workflow_call',
+    ]);
     expect(workflow.on.workflow_dispatch.inputs).toMatchObject({
       target: { required: true, type: 'choice', options: ['production'] },
       commit: { required: true, type: 'string' },
@@ -43,6 +49,19 @@ describe('Cloudflare Production deployment assets', () => {
     expect(JSON.stringify(workflow.on.workflow_dispatch.inputs)).not.toMatch(
       /login|enable/iu,
     );
+    expect(workflow.on.workflow_call.inputs).toMatchObject({
+      target: { required: true, type: 'string' },
+      commit: { required: true, type: 'string' },
+      staging_accepted_commit: {
+        required: false,
+        type: 'string',
+        default: '',
+      },
+      prove_rollback_after_smoke: {
+        required: true,
+        type: 'boolean',
+      },
+    });
     expect(workflow.permissions).toEqual({ contents: 'read' });
     expect(workflow.concurrency).toEqual({
       group: 'sungrid-production-deployment',
@@ -57,7 +76,7 @@ describe('Cloudflare Production deployment assets', () => {
     expect(deploy.env).toMatchObject({
       DEPLOYMENT_TARGET: 'production',
       PUBLIC_LOGIN_ENABLED: 'false',
-      STAGING_ACCEPTED_COMMIT: `${'$'}{{ vars.STAGING_ACCEPTED_COMMIT }}`,
+      STAGING_ACCEPTED_COMMIT: `${'$'}{{ inputs.staging_accepted_commit || vars.STAGING_ACCEPTED_COMMIT }}`,
     });
     expect(source).toContain(
       'git merge-base --is-ancestor "$SELECTED_COMMIT" origin/main',

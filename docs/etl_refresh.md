@@ -104,3 +104,18 @@ accept Staging, dispatch `cloudflare-production-deploy`.
 The hosted alternative (Cloudflare Workers Cron + Workflows) stays deferred
 until `data/raw` and `data/normalized` are archived to R2; without that
 state a hosted runner cannot consolidate historical normalized metadata.
+
+## Post-Merge Protected Rollout (2026-08-10, ADR 0043)
+
+This section supersedes the earlier statement that deployment dispatch remains
+manual. Review and merge of the Monday/Thursday `data-refresh/*` PR remain
+manual. After merge, `.github/workflows/scheduled-data-refresh-rollout.yml`
+waits for the resulting `main` CI run to succeed, proves that the commit came
+from a merged scheduled-refresh PR, and then enters the existing protected
+Staging-to-Production sequence.
+
+The Staging and Production GitHub Environments keep their required-reviewer
+gates. Staging must be approved, deployed, smoked, and accepted before the same
+commit can queue for Production approval. Production deploys with public login
+disabled; the separate login-toggle approval path is unchanged. Failed CI,
+non-refresh commits, failed Staging, and unapproved environments do not advance.

@@ -23,6 +23,21 @@ on:
         required: false
         type: string
         default: ''
+  workflow_call:
+    inputs:
+      target:
+        required: true
+        type: string
+      commit:
+        required: true
+        type: string
+      recover_unaccepted_first_deployment:
+        required: true
+        type: boolean
+      recover_unaccepted_worker_version:
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
