@@ -6,7 +6,7 @@ import { parse } from 'yaml';
 const root = path.resolve(process.cwd());
 
 describe('Cloudflare Production deployment assets', () => {
-  it('declares manual and reusable protected deployment with public login forced off', async () => {
+  it('keeps manual login off while allowing the reviewed refresh caller to preserve login', async () => {
     const source = await readFile(
       path.join(root, '.github/workflows/cloudflare-production-deploy.yml'),
       'utf8',
@@ -57,6 +57,11 @@ describe('Cloudflare Production deployment assets', () => {
         type: 'string',
         default: '',
       },
+      public_login_enabled: {
+        required: false,
+        type: 'boolean',
+        default: false,
+      },
       prove_rollback_after_smoke: {
         required: true,
         type: 'boolean',
@@ -75,7 +80,7 @@ describe('Cloudflare Production deployment assets', () => {
     expect(deploy.if).toContain("github.ref == 'refs/heads/main'");
     expect(deploy.env).toMatchObject({
       DEPLOYMENT_TARGET: 'production',
-      PUBLIC_LOGIN_ENABLED: 'false',
+      PUBLIC_LOGIN_ENABLED: `${'$'}{{ inputs.public_login_enabled && 'true' || 'false' }}`,
       STAGING_ACCEPTED_COMMIT: `${'$'}{{ inputs.staging_accepted_commit || vars.STAGING_ACCEPTED_COMMIT }}`,
     });
     expect(source).toContain(
@@ -89,7 +94,9 @@ describe('Cloudflare Production deployment assets', () => {
     expect(
       source.indexOf('Deliberately exercise application rollback'),
     ).toBeLessThan(source.indexOf('Record accepted deployment'));
-    expect(source).not.toContain("VITE_PUBLIC_LOGIN_ENABLED: 'true'");
+    expect(source).toContain(
+      `VITE_PUBLIC_LOGIN_ENABLED: ${'$'}{{ inputs.public_login_enabled && 'true' || 'false' }}`,
+    );
     expect(source).not.toContain('doppler');
 
     const restore = deploy.steps.find(
