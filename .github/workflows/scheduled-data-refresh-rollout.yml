@@ -55,6 +55,7 @@ jobs:
     needs: qualify
     if: ${{ needs.qualify.outputs.eligible == 'true' }}
     uses: ./.github/workflows/cloudflare-staging-deploy.yml
+    secrets: inherit
     with:
       target: staging
       commit: ${{ needs.qualify.outputs.commit }}
@@ -66,6 +67,7 @@ jobs:
       - qualify
       - staging
     uses: ./.github/workflows/cloudflare-production-deploy.yml
+    secrets: inherit
     with:
       target: production
       commit: ${{ needs.qualify.outputs.commit }}

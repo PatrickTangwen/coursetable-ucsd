@@ -119,3 +119,7 @@ gates. Staging must be approved, deployed, smoked, and accepted before the same
 commit can queue for Production approval. Production deploys with public login
 disabled; the separate login-toggle approval path is unchanged. Failed CI,
 non-refresh commits, failed Staging, and unapproved environments do not advance.
+
+Implementation correction, 2026-08-10: both reusable deployment calls include
+`secrets: inherit`. This is required for the called workflow's secret context;
+the Staging and Production Environment approvals remain the access gates.

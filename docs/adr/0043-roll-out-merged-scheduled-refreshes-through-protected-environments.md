@@ -42,3 +42,12 @@ important release judgment and safety boundaries.
   workflow is not part of this chain.
 - Recovery flags remain off; a stranded unaccepted first deployment still
   requires separate explicit authorization.
+
+## Implementation Correction (2026-08-10)
+
+Reusable workflow calls must declare `secrets: inherit`. Without that caller
+contract, GitHub resolves the called deployment workflow's secret references to
+empty values even after the called job passes its Environment approval gate.
+Both the Staging and Production calls declare inheritance; their respective
+Environment protections still control when each called job can access its own
+secrets.
