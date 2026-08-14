@@ -70,3 +70,17 @@ The reusable Production workflow still defaults to public login disabled for
 manual dispatch. Only the qualified scheduled-refresh caller passes the
 login-enabled input, so routine catalog publication preserves the live site's
 login state without requiring a second login-toggle approval.
+
+## Large-Refresh Qualification Correction (2026-08-14)
+
+The commit-associated Pull Requests endpoint is used only to identify the
+candidate `data-refresh/*` PR. Its abbreviated response may omit the merge
+actor, so the qualifier fetches the complete PR resource before requiring the
+repository owner as `merged_by`.
+
+File qualification no longer depends on GitHub's Pull Request files endpoint,
+which can return HTTP 422 while generating large catalog diffs. The workflow
+checks out trusted tooling from `main` with commit history and validates the
+merged commit against its first parent using local Git paths. The generated
+artifact allowlist and all subsequent Staging and Production gates are
+unchanged.
