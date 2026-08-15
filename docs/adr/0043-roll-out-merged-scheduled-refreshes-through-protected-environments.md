@@ -84,3 +84,17 @@ checks out trusted tooling from `main` with commit history and validates the
 merged commit against its first parent using local Git paths. The generated
 artifact allowlist and all subsequent Staging and Production gates are
 unchanged.
+
+## Scheduled Login Authorization Correction (2026-08-15)
+
+The reusable Production contract requires a separate authorization signal
+whenever public login is enabled. The qualified scheduled-refresh caller now
+passes an explicit, default-off `workflow_call` input, and the reusable
+workflow maps it to the contract only for a `workflow_run` event. Manual
+Production dispatch still exposes no login-enablement input and defaults to
+public login disabled.
+
+This signal does not replace refresh qualification, green CI, the exact
+Staging-accepted commit check, hosted smoke, or durable accepted evidence. It
+only carries the repository owner's already-established scheduled-refresh
+authorization across the reusable workflow boundary.

@@ -110,6 +110,7 @@ describe('scheduled data refresh rollout assets', () => {
       with: {
         target: 'production',
         public_login_enabled: true,
+        scheduled_refresh_login_authorized: true,
         prove_rollback_after_smoke: false,
         recover_unaccepted_first_deployment: false,
       },
