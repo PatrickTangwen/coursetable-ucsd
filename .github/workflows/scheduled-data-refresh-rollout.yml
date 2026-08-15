@@ -25,49 +25,23 @@ jobs:
       commit: ${{ steps.pr.outputs.commit }}
       eligible: ${{ steps.pr.outputs.eligible }}
     steps:
+      - name: Check out trusted rollout tooling and commit history
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.6
+
       - name: Require a merged scheduled-refresh PR
         id: pr
         env:
           DEPLOY_COMMIT: ${{ github.event.workflow_run.head_sha }}
           GH_TOKEN: ${{ github.token }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
-        run: |
-          set -euo pipefail
-          [[ "$DEPLOY_COMMIT" =~ ^[0-9a-f]{40}$ ]]
-          pull_requests=$(gh api \
-            -H 'Accept: application/vnd.github+json' \
-            "repos/${GITHUB_REPOSITORY}/commits/${DEPLOY_COMMIT}/pulls")
-          match=$(jq -c --arg commit "$DEPLOY_COMMIT" --arg owner "$REPOSITORY_OWNER" '
-            first(.[] | select(
-              .merged_at != null and
-              .base.ref == "main" and
-              (.head.ref | startswith("data-refresh/")) and
-              .merged_by.login == $owner and
-              .merge_commit_sha == $commit
-            )) // empty
-          ' <<<"$pull_requests")
-          if [[ -z "$match" ]]; then
-            printf 'eligible=false\n' >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          pr_number=$(jq -r .number <<<"$match")
-          changed_files=$(gh api --paginate --slurp \
-            -H 'Accept: application/vnd.github+json' \
-            "repos/${GITHUB_REPOSITORY}/pulls/${pr_number}/files")
-          unexpected=$(jq -r '
-            flatten | .[].filename | select(
-              (startswith("api/static/catalogs/") or
-               . == "api/static/metadata.json" or
-               . == "frontend/src/generated/supported-terms.json") | not
-            )
-          ' <<<"$changed_files")
-          if [[ -n "$unexpected" ]]; then
-            printf 'Scheduled refresh PR contains files outside the generated artifact allowlist:\n%s\n' \
-              "$unexpected" >&2
-            exit 1
-          fi
-          printf 'commit=%s\n' "$DEPLOY_COMMIT" >> "$GITHUB_OUTPUT"
-          printf 'eligible=true\n' >> "$GITHUB_OUTPUT"
+        run: bun tools/staging-deployment/qualifyScheduledRefresh.mts
 
   staging:
     needs: qualify

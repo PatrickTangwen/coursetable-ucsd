@@ -6,6 +6,17 @@ import { parse } from 'yaml';
 const root = path.resolve(process.cwd());
 
 describe('scheduled data refresh rollout assets', () => {
+  it('qualifies the full PR details and local merge diff', async () => {
+    const source = await readFile(
+      path.join(root, 'tools/staging-deployment/qualifyScheduledRefresh.mts'),
+      'utf8',
+    );
+
+    expect(source).toContain('requireOwnerMergedPullRequest');
+    expect(source).toContain("'diff', '--name-only'");
+    expect(source).not.toContain('/files');
+  });
+
   it('gates the protected staging-to-Production chain on merged refresh PR and green main CI', async () => {
     const source = await readFile(
       path.join(root, '.github/workflows/scheduled-data-refresh-rollout.yml'),
@@ -22,7 +33,16 @@ describe('scheduled data refresh rollout assets', () => {
       permissions: { [key: string]: string };
       concurrency: { group: string; 'cancel-in-progress': boolean };
       jobs: {
-        qualify: { if: string };
+        qualify: {
+          if: string;
+          steps: {
+            id?: string;
+            name?: string;
+            uses?: string;
+            with?: { [key: string]: unknown };
+            run?: string;
+          }[];
+        };
         staging: {
           if: string;
           needs: string;
@@ -58,12 +78,18 @@ describe('scheduled data refresh rollout assets', () => {
     expect(workflow.jobs.qualify.if).toContain(
       "github.event.workflow_run.event == 'push'",
     );
-    expect(source).toContain('startswith("data-refresh/")');
-    expect(source).toContain('.merged_by.login == $owner');
-    expect(source).toContain('.merge_commit_sha == $commit');
-    expect(source).toContain('api/static/catalogs/');
-    expect(source).toContain('api/static/metadata.json');
-    expect(source).toContain('frontend/src/generated/supported-terms.json');
+    expect(workflow.jobs.qualify.steps).toMatchObject([
+      {
+        uses: 'actions/checkout@v4',
+        with: { ref: 'main', 'fetch-depth': 0 },
+      },
+      { uses: 'oven-sh/setup-bun@v2' },
+      {
+        id: 'pr',
+        run: 'bun tools/staging-deployment/qualifyScheduledRefresh.mts',
+      },
+    ]);
+    expect(source).not.toContain('gh api --paginate');
 
     expect(workflow.jobs.staging).toMatchObject({
       needs: 'qualify',
