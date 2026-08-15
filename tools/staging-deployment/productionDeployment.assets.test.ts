@@ -62,6 +62,11 @@ describe('Cloudflare Production deployment assets', () => {
         type: 'boolean',
         default: false,
       },
+      scheduled_refresh_login_authorized: {
+        required: false,
+        type: 'boolean',
+        default: false,
+      },
       prove_rollback_after_smoke: {
         required: true,
         type: 'boolean',
@@ -81,6 +86,7 @@ describe('Cloudflare Production deployment assets', () => {
     expect(deploy.env).toMatchObject({
       DEPLOYMENT_TARGET: 'production',
       PUBLIC_LOGIN_ENABLED: `${'$'}{{ inputs.public_login_enabled && 'true' || 'false' }}`,
+      PRODUCTION_LOGIN_TOGGLE_AUTHORIZED: `${'$'}{{ inputs.scheduled_refresh_login_authorized && github.event_name == 'workflow_run' && 'true' || 'false' }}`,
       STAGING_ACCEPTED_COMMIT: `${'$'}{{ inputs.staging_accepted_commit || vars.STAGING_ACCEPTED_COMMIT }}`,
     });
     expect(source).toContain(

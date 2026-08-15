@@ -45,6 +45,11 @@ on:
         required: false
         type: boolean
         default: false
+      scheduled_refresh_login_authorized:
+        description: Authorize login preservation for the qualified scheduled-refresh caller
+        required: false
+        type: boolean
+        default: false
       prove_rollback_after_smoke:
         required: true
         type: boolean
@@ -149,6 +154,7 @@ jobs:
     env:
       DEPLOYMENT_TARGET: production
       PUBLIC_LOGIN_ENABLED: ${{ inputs.public_login_enabled && 'true' || 'false' }}
+      PRODUCTION_LOGIN_TOGGLE_AUTHORIZED: ${{ inputs.scheduled_refresh_login_authorized && github.event_name == 'workflow_run' && 'true' || 'false' }}
       DEPLOY_COMMIT: ${{ needs.preflight.outputs.commit }}
       STAGING_ACCEPTED_COMMIT: ${{ inputs.staging_accepted_commit || vars.STAGING_ACCEPTED_COMMIT }}
       CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}

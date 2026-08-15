@@ -65,6 +65,7 @@ jobs:
       commit: ${{ needs.qualify.outputs.commit }}
       staging_accepted_commit: ${{ needs.qualify.outputs.commit }}
       public_login_enabled: true
+      scheduled_refresh_login_authorized: true
       prove_rollback_after_smoke: false
       recover_unaccepted_first_deployment: false
       recover_unaccepted_worker_version: ''
