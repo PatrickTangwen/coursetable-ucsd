@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300" role="img" aria-labelledby="t d">
+  <title id="t">Published term snapshot</title>
+  <desc id="d">Seat and waitlist numbers come from the snapshot, not from live WebReg.</desc>
+
+  <rect x="0.5" y="0.5" width="1199" height="299" rx="14" fill="#f9f8f6" stroke="#e7e5e1"/>
+
+  <g id="sources">
+    <g>
+      <rect x="56.5" y="40.5" width="295" height="63" rx="10" fill="#fff" stroke="#e7e5e1"/>
+      <text x="76" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" fill="#3d3b37">Schedule of Classes</text>
+      <text x="76" y="90" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" fill="#9f9d97">sections · times · seats</text>
+    </g>
+    <g>
+      <rect x="56.5" y="116.5" width="295" height="63" rx="10" fill="#fff" stroke="#e7e5e1"/>
+      <text x="76" y="144" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" fill="#3d3b37">General Catalog</text>
+      <text x="76" y="166" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" fill="#9f9d97">descriptions · prereqs</text>
+    </g>
+    <g>
+      <rect x="56.5" y="192.5" width="295" height="63" rx="10" fill="#fff" stroke="#e7e5e1"/>
+      <text x="76" y="220" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" fill="#3d3b37">Instructor Grade Archive</text>
+      <text x="76" y="242" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" fill="#9f9d97">past grade distributions</text>
+    </g>
+  </g>
+
+  <g fill="none" stroke="#85b7eb" stroke-width="1.5">
+    <path d="M352 72h40"/>
+    <path d="M352 148h40"/>
+    <path d="M352 224h40"/>
+    <path d="M392 72v152"/>
+    <path d="M392 148h24m-7-5 7 5-7 5"/>
+  </g>
+
+  <g id="snapshot">
+    <rect x="424.5" y="92.5" width="303" height="111" rx="10" fill="#e6f1fb" stroke="#85b7eb"/>
+    <text x="448" y="130" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="22" fill="#185fa5">Published term snapshot</text>
+    <text x="448" y="158" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" fill="#185fa5">one JSON per supported term</text>
+    <text x="448" y="180" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" fill="#185fa5">with a generated_at time</text>
+  </g>
+
+  <g fill="none" stroke="#85b7eb" stroke-width="1.5">
+    <path d="M728 148h32"/>
+    <path d="M760 148V112h40m-7-5 7 5-7 5"/>
+    <path d="M760 148v36h40m-7-5 7 5-7 5"/>
+  </g>
+
+  <g id="surfaces">
+    <g>
+      <rect x="808.5" y="80.5" width="335" height="63" rx="10" fill="#fff" stroke="#e7e5e1"/>
+      <text x="828" y="108" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" fill="#3d3b37">Catalog search</text>
+      <text x="828" y="130" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" fill="#9f9d97">code, title, instructor, time</text>
+    </g>
+    <g>
+      <rect x="808.5" y="152.5" width="335" height="63" rx="10" fill="#fff" stroke="#e7e5e1"/>
+      <text x="828" y="180" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" fill="#3d3b37">Worksheet planning</text>
+      <text x="828" y="202" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" fill="#9f9d97">calendar · conflicts · export</text>
+    </g>
+  </g>
+
+  <text x="600" y="270" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" fill="#9f9d97">Seat and waitlist numbers come from the snapshot, not from live WebReg.</text>
+</svg>

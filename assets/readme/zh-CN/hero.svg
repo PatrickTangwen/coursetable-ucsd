@@ -1,46 +1,52 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
-  <title id="title">找得到课，看得清一周</title>
-  <desc id="desc">UCSD 课程搜索界面连接到带课程时间块的一周课表工作区。</desc>
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbfcff"/><stop offset="1" stop-color="#edf3ff"/></linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#17233c" flood-opacity=".13"/></filter>
-    <clipPath id="frame"><rect width="1200" height="560" rx="28"/></clipPath>
-  </defs>
-  <g clip-path="url(#frame)">
-    <rect width="1200" height="560" fill="url(#bg)"/>
-    <circle cx="1080" cy="-15" r="180" fill="#dbe8ff" opacity=".65"/><circle cx="470" cy="565" r="150" fill="#e7f8f3" opacity=".75"/>
-    <path d="M0 447C154 406 298 449 457 421s268-101 430-71 240 48 313 23v187H0Z" fill="#f8fbff"/>
-    <g transform="translate(72 58)">
-      <rect width="36" height="44" rx="4" fill="none" stroke="#1a56db" stroke-width="3"/><path d="M10 0v44M14 8h14M14 15h10" stroke="#1a56db" stroke-width="3" stroke-linecap="round"/>
-      <text x="52" y="18" fill="#1a56db" font-family="Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" font-weight="700" letter-spacing="2.4">UCSD 课程规划</text>
-      <text x="52" y="40" fill="#62708a" font-family="Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="13" letter-spacing=".8">搜索 · 比较 · 排课</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="hero-title hero-desc">
+  <title id="hero-title">SunGrid — 搜索 UCSD 课程目录，在选课前排出可用的一周</title>
+  <desc id="hero-desc">SunGrid 标识旁是一个五列的一周网格，其中若干格子被填色，代表一周里被课程占掉的时段。</desc>
+
+  <rect x="0.5" y="0.5" width="1199" height="419" rx="18" fill="#f9f8f6" stroke="#e7e5e1"/>
+
+  <g id="week-grid">
+    <g fill="none" stroke="#e7e5e1">
+      <path d="M676 84h460"/>
+      <path d="M676 130h460"/>
+      <path d="M676 176h460"/>
+      <path d="M676 222h460"/>
+      <path d="M676 268h460"/>
+      <path d="M676 314h460"/>
+      <path d="M676 360h460"/>
+      <path d="M676 84v276"/>
+      <path d="M768 84v276"/>
+      <path d="M860 84v276"/>
+      <path d="M952 84v276"/>
+      <path d="M1044 84v276"/>
+      <path d="M1136 84v276"/>
     </g>
-    <text x="72" y="162" fill="#17233c" font-family="'PingFang SC', 'Microsoft YaHei', Arial, sans-serif" font-size="55" font-weight="700"><tspan x="72">找得到课，</tspan><tspan x="72" dy="68">看得清一周。</tspan></text>
-    <text x="74" y="280" fill="#52617b" font-family="Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="18"><tspan x="74">搜索真实 UCSD 开课信息、比较 Section，</tspan><tspan x="74" dy="28">在正式选课前发现时间冲突。</tspan></text>
-    <g transform="translate(72 336)" font-family="Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif">
-      <rect width="160" height="48" rx="12" fill="#1a56db"/><text x="26" y="30" fill="#fff" font-size="15" font-weight="700">打开课程规划工具</text>
-      <rect x="176" width="148" height="48" rx="12" fill="#fff" stroke="#ccd6e7"/><text x="201" y="30" fill="#26334d" font-size="15" font-weight="700">无需登录即可浏览</text>
+    <g>
+      <rect x="684" y="92" width="76" height="30" rx="6" fill="#fcebeb" stroke="#f3d6d6"/>
+      <rect x="868" y="92" width="76" height="30" rx="6" fill="#fcebeb" stroke="#f3d6d6"/>
+      <rect x="1052" y="92" width="76" height="30" rx="6" fill="#fcebeb" stroke="#f3d6d6"/>
+      <rect x="776" y="184" width="76" height="76" rx="6" fill="#faeeda" stroke="#ecd8b8"/>
+      <rect x="960" y="184" width="76" height="76" rx="6" fill="#faeeda" stroke="#ecd8b8"/>
+      <rect x="868" y="276" width="76" height="30" rx="6" fill="#eaf3de" stroke="#cfe1b6"/>
+      <rect x="684" y="322" width="76" height="30" rx="6" fill="#e6f1fb" stroke="#85b7eb"/>
     </g>
-    <g transform="translate(72 432)" font-family="Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif">
-      <text y="0" fill="#17233c" font-size="25" font-weight="700">8,500+</text><text y="23" fill="#69768c" font-size="12" letter-spacing=".7">已收录 SECTION</text><line x1="112" y1="-16" x2="112" y2="25" stroke="#d4dce9"/>
-      <text x="138" y="0" fill="#17233c" font-size="25" font-weight="700">185+</text><text x="138" y="23" fill="#69768c" font-size="12" letter-spacing=".7">院系与学科</text><line x1="236" y1="-16" x2="236" y2="25" stroke="#d4dce9"/>
-      <text x="262" y="0" fill="#0f766e" font-size="25" font-weight="700">免费</text><text x="262" y="23" fill="#69768c" font-size="12" letter-spacing=".7">基础浏览</text>
-    </g>
-    <g transform="translate(588 58)" filter="url(#shadow)" font-family="Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif">
-      <rect width="516" height="280" rx="18" fill="#fff" stroke="#dce3ee"/><path d="M0 52h516" stroke="#e7ebf2"/>
-      <text x="22" y="33" fill="#17233c" font-size="16" font-weight="700">课程目录</text>
-      <rect x="105" y="12" width="280" height="30" rx="9" fill="#f5f7fa" stroke="#e1e5ec"/><circle cx="122" cy="27" r="5" fill="none" stroke="#8b95a7" stroke-width="1.5"/><path d="m126 31 5 5" stroke="#8b95a7" stroke-width="1.5"/><text x="140" y="31" fill="#8791a4" font-size="11">搜索代码、课程名、教师……</text><text x="408" y="31" fill="#6c778a" font-size="11">17 条结果</text>
-      <g transform="translate(18 66)" font-size="11" font-weight="700"><rect width="78" height="28" rx="8" fill="#fff" stroke="#dce2eb"/><text x="14" y="18" fill="#46536a">学科</text><rect x="88" width="90" height="28" rx="8" fill="#fff" stroke="#dce2eb"/><text x="102" y="18" fill="#46536a">课程级别</text><rect x="188" width="126" height="28" rx="8" fill="#eef3ff" stroke="#bdd0f5"/><text x="202" y="18" fill="#1e4fa3">2026 秋季</text><rect x="324" width="60" height="28" rx="8" fill="#fff1f2"/><text x="337" y="18" fill="#ad334c">重置</text></g>
-      <g transform="translate(0 108)"><rect width="516" height="24" fill="#f7f8fa"/><text x="46" y="16" fill="#7a8496" font-size="9" font-weight="700">代码</text><text x="150" y="16" fill="#7a8496" font-size="9" font-weight="700">课程名称</text><text x="315" y="16" fill="#7a8496" font-size="9" font-weight="700">教师</text><text x="430" y="16" fill="#7a8496" font-size="9" font-weight="700">上课日</text></g>
-      <g font-size="11"><g transform="translate(0 132)"><rect width="516" height="48" fill="#fff"/><path d="M0 48h516" stroke="#edf0f4"/><circle cx="24" cy="24" r="10" fill="#edf4ff"/><text x="20" y="28" fill="#1a56db" font-size="15">+</text><text x="46" y="21" fill="#17233c" font-weight="700">CSE 11</text><text x="46" y="35" fill="#8a94a6" font-size="9">A00</text><text x="150" y="27" fill="#29364d">编程导论</text><text x="315" y="27" fill="#62708a">Politz, J.</text><text x="430" y="27" fill="#29364d" font-weight="700">MWF</text></g>
-      <g transform="translate(0 180)"><rect width="516" height="48" fill="#fbfcfe"/><path d="M0 48h516" stroke="#edf0f4"/><circle cx="24" cy="24" r="10" fill="#edf4ff"/><text x="20" y="28" fill="#1a56db" font-size="15">+</text><text x="46" y="21" fill="#17233c" font-weight="700">COGS 108</text><text x="46" y="35" fill="#8a94a6" font-size="9">A01</text><text x="150" y="27" fill="#29364d">数据科学实践</text><text x="315" y="27" fill="#62708a">Staff</text><text x="430" y="27" fill="#29364d" font-weight="700">TuTh</text></g>
-      <g transform="translate(0 228)"><rect width="516" height="48" rx="0 0 18 18" fill="#fff"/><circle cx="24" cy="24" r="10" fill="#edf4ff"/><text x="20" y="28" fill="#1a56db" font-size="15">+</text><text x="46" y="21" fill="#17233c" font-weight="700">MATH 20C</text><text x="46" y="35" fill="#8a94a6" font-size="9">B01</text><text x="150" y="27" fill="#29364d">微积分与解析几何</text><text x="315" y="27" fill="#62708a">Staff</text><text x="430" y="27" fill="#29364d" font-weight="700">MWF</text></g></g>
-    </g>
-    <g transform="translate(670 300)" filter="url(#shadow)" font-family="Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif">
-      <rect width="450" height="208" rx="18" fill="#fff" stroke="#dce3ee"/><text x="20" y="31" fill="#17233c" font-size="14" font-weight="700">主 Worksheet</text><text x="354" y="31" fill="#0f766e" font-size="10" font-weight="700">无时间冲突</text><path d="M0 45h450" stroke="#e7ebf2"/>
-      <g fill="#7a8496" font-size="9" font-weight="700" text-anchor="middle"><text x="95" y="64">周一</text><text x="163" y="64">周二</text><text x="231" y="64">周三</text><text x="299" y="64">周四</text><text x="367" y="64">周五</text></g>
-      <g stroke="#edf0f4"><path d="M61 72h365M61 111h365M61 150h365M61 189h365"/><path d="M61 72v117M129 72v117M197 72v117M265 72v117M333 72v117M401 72v117"/></g><g fill="#98a2b3" font-size="8"><text x="20" y="91">9 AM</text><text x="16" y="130">11 AM</text><text x="20" y="169">1 PM</text></g>
-      <g font-size="8" font-weight="700"><rect x="68" y="78" width="54" height="28" rx="5" fill="#dbeafe"/><text x="75" y="90" fill="#1e40af">CSE 11</text><text x="75" y="100" fill="#52617b" font-size="7">9:00–9:50</text><rect x="204" y="78" width="54" height="28" rx="5" fill="#dbeafe"/><text x="211" y="90" fill="#1e40af">CSE 11</text><text x="211" y="100" fill="#52617b" font-size="7">9:00–9:50</text><rect x="340" y="78" width="54" height="28" rx="5" fill="#dbeafe"/><text x="347" y="90" fill="#1e40af">CSE 11</text><text x="347" y="100" fill="#52617b" font-size="7">9:00–9:50</text><rect x="136" y="117" width="54" height="28" rx="5" fill="#dcfce7"/><text x="142" y="129" fill="#166534">COGS 108</text><text x="142" y="139" fill="#52617b" font-size="7">11:00–12:20</text><rect x="272" y="117" width="54" height="28" rx="5" fill="#dcfce7"/><text x="278" y="129" fill="#166534">COGS 108</text><text x="278" y="139" fill="#52617b" font-size="7">11:00–12:20</text><rect x="68" y="156" width="54" height="28" rx="5" fill="#f5f3ff"/><text x="74" y="168" fill="#5b21b6">MATH 20C</text><text x="74" y="178" fill="#52617b" font-size="7">1:00–1:50</text><rect x="204" y="156" width="54" height="28" rx="5" fill="#f5f3ff"/><text x="210" y="168" fill="#5b21b6">MATH 20C</text><text x="210" y="178" fill="#52617b" font-size="7">1:00–1:50</text><rect x="340" y="156" width="54" height="28" rx="5" fill="#f5f3ff"/><text x="346" y="168" fill="#5b21b6">MATH 20C</text><text x="346" y="178" fill="#52617b" font-size="7">1:00–1:50</text></g>
+  </g>
+
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Roboto, sans-serif">
+    <text x="64" y="98" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Roboto, sans-serif" font-size="18" letter-spacing="2.6" fill="#9f9d97">UC SAN DIEGO &#183; 选课规划</text>
+
+    <text x="62" y="196" font-family="Georgia, 'Songti SC', serif" font-size="78" font-weight="700" fill="#0b0b0b">SunGrid</text>
+
+    <text x="64" y="246" font-size="27" fill="#3d3b37">搜索 UCSD 课程目录，</text>
+    <text x="64" y="281" font-size="27" fill="#3d3b37">在选课前排出可用的一周。</text>
+
+    <path d="M64 322h472" stroke="#e7e5e1"/>
+
+    <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Roboto, sans-serif">
+      <text x="64" y="354" font-size="16" letter-spacing="1.4" fill="#185fa5">数据来源</text>
+      <text x="64" y="378" font-size="18" fill="#3d3b37">公开 UCSD 数据</text>
+      <path d="M244 336v46" stroke="#e7e5e1"/>
+      <text x="272" y="354" font-size="16" letter-spacing="1.4" fill="#185fa5">时间背景</text>
+      <text x="272" y="378" font-size="18" fill="#3d3b37">显示快照发布时间</text>
     </g>
   </g>
 </svg>

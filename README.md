@@ -4,72 +4,116 @@
 
 <p align="center">
   <a href="https://sungridplanner.com/catalog">
-    <img src="./assets/readme/en/hero.svg" width="100%" alt="UCSD course planning illustrated as a catalog search flowing into a weekly worksheet.">
+    <img src="./assets/readme/en/hero.svg" width="100%" alt="SunGrid: search the UCSD catalog and settle a workable week before enrollment. A five-column week grid sits beside the title, with a few cells filled in.">
   </a>
 </p>
 
 <p align="center">
-  <strong>Search the UCSD catalog, compare real section details, and shape a workable week before enrollment.</strong><br>
+  <strong>Search the UCSD catalog, compare real section details, and settle a workable week before enrollment.</strong><br>
   Free to browse. No account required.
 </p>
 
 <p align="center">
   <a href="https://sungridplanner.com/catalog">Open the planner</a> ·
   <a href="https://sungridplanner.com/tutorial">View the tutorial</a> ·
-  <a href="https://tally.so/r/q47EA8">Read the FAQ</a>
+  <a href="https://tally.so/r/q47EA8">Send feedback</a>
 </p>
 
-## From course search to a workable week
-
-The planner keeps discovery and schedule building in one loop. Search across the
-UCSD catalog, inspect the offering you actually want, add its section to a
-worksheet, then resolve collisions before they reach your enrollment window.
+Every screenshot below is the running product on Fall 2026 data.
 
 <p align="center">
-  <img src="./assets/readme/en/planning-flow.svg" width="100%" alt="Four steps: search the catalog, inspect course details, build a worksheet, then check conflicts and export.">
+  <img src="./assets/readme/shots/catalog.jpg" width="100%" alt="Catalog view filtered to Fall 2026 CSE courses, showing meeting days, times, rooms, and remaining seats for each section.">
 </p>
 
-## What you can do
+Filters narrow 345 results down to the sections that could actually fit. Meeting
+days, times, rooms, and seats sit on the row itself, so comparing offerings does
+not mean opening fifteen tabs.
 
-| Find the right course                                                                                                   | Understand the offering                                                                                                                                   | See the whole week                                                                                                                                | Keep or share the plan                                                                                                     |
-| ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Search by code, title, instructor, subject, building, day, time, level, units, enrollment range, and course attributes. | Review descriptions, prerequisites, restrictions, instructors, meeting patterns, source links, snapshot availability, and historical grade distributions. | Build a calendar or list, switch supported worksheet terms, see credits and exams, flag time or final conflicts, hide courses, and adjust colors. | Copy a shareable worksheet URL, export an `.ics` calendar for Apple, Google, or Outlook, or save the weekly grid as a PNG. |
+<p align="center">
+  <img src="./assets/readme/shots/worksheet.jpg" width="100%" alt="Worksheet calendar for Fall 2026 with CSE-012 and CSE-030 blocks across the week, plus a summary showing 2 courses, 8 credits, and no conflicts.">
+</p>
 
-## Browse first. Sign in when it helps.
+Sections you add land on a five-day grid, with credits, the first exam date, and
+a conflict count next to it.
 
-Basic course discovery and planning work without an account. While signed out,
-the worksheet stays in the current browser and supported share URLs can restore
-the selected sections.
+<p align="center">
+  <img src="./assets/readme/en/section-plan.svg" width="100%" alt="01 From catalog search to a week that holds up.">
+</p>
 
-Students who verify a `@ucsd.edu` address can keep account-owned worksheets and
-saved filters across sessions. Account data is separate from the browser-local
-worksheet: signing in does not silently import, merge, or erase the local plan.
+Discovery and schedule building stay in the same loop. You search, open the
+offering you actually want, add one of its sections, and keep going until the
+week either works or clearly does not.
 
-## Data with its context attached
+| Step    | What the product gives you                                                                                                                  |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Search  | Code, title, instructor, subject, building, day, time, level, units, enrollment range, and course attributes                                |
+| Inspect | Descriptions, prerequisites, restrictions, instructors, meeting patterns, source links, snapshot availability, and past grade distributions |
+| Build   | Calendar or list view, supported worksheet terms, credits and exam dates, hidden courses, adjustable colors                                 |
+| Keep    | A shareable worksheet URL, an `.ics` export for Apple, Google, or Outlook, and the weekly grid as a PNG                                     |
 
-Course information is assembled from public UCSD sources:
+<p align="center">
+  <img src="./assets/readme/shots/course-detail.jpg" width="100%" alt="Course modal for CSE-012 on the Past Grades tab, listing GPA and grade-bucket percentages per term and instructor across 40 terms on record.">
+</p>
 
-- UCSD Schedule of Classes
-- UCSD General Catalog
-- UCSD Instructor Grade Archive
+The course modal keeps the decision material in one place: what the course
+covers, who teaches which section, how the sections map to each other, and how
+past terms actually graded.
 
-Published catalog snapshots make search fast and keep each supported term
-reproducible. Availability surfaces show when their snapshot was published so
-you can distinguish fresh planning context from historical records.
+<p align="center">
+  <img src="./assets/readme/shots/conflicts.jpg" width="100%" alt="Schedule conflicts dialog listing one time conflict and one final exam conflict between CSE-020 and CSE-100, with the overlapping days and hours.">
+</p>
 
-> Enrollment, capacity, seat, and waitlist values are snapshot-based—not live
-> WebReg data. Always confirm official course information and availability in
-> UCSD systems before enrolling.
+Conflicts are named rather than implied. Both lecture overlap and shared final
+exam slots are reported, with the days and hours that collide.
 
-## Know the boundary
+<p align="center">
+  <img src="./assets/readme/en/section-data.svg" width="100%" alt="02 Public UCSD data, with its timestamp attached.">
+</p>
 
-This planner does not enroll students, scrape personal UCSD accounts, provide
-real-time seat or demand tracking, publish SET/CAPE results, write directly to
-Google Calendar, or add social/friend permission controls to worksheets.
+<p align="center">
+  <img src="./assets/readme/en/data-flow.svg" width="100%" alt="Schedule of Classes, General Catalog, and Instructor Grade Archive feed one published term snapshot, which serves catalog search and worksheet planning.">
+</p>
 
-It is an independent service and is not an official UC San Diego product or
-service. UC San Diego names and source links identify the institution and the
-public information sources only.
+Course information is assembled from three public UCSD sources: the Schedule of
+Classes, the General Catalog, and the Instructor Grade Archive. They become one
+published snapshot per supported term, which is what keeps search fast and each
+term reproducible.
+
+Anything tied to a snapshot shows when the snapshot was published, so a number
+from last night reads differently from a number kept for a term that has already
+closed.
+
+> Enrollment, capacity, seat, and waitlist values are snapshot-based, not live
+> WebReg data. Confirm official course information and availability in UCSD
+> systems before you enroll.
+
+<p align="center">
+  <img src="./assets/readme/en/section-start.svg" width="100%" alt="03 Open it and start planning.">
+</p>
+
+Open the catalog and start adding sections. Nothing in basic course discovery or
+planning waits behind a sign-up form. While signed out, the worksheet lives in
+the current browser, and a supported share URL can restore the sections it
+holds.
+
+Students who verify a `@ucsd.edu` address keep account-owned worksheets and
+saved filters across sessions. Account data stays separate from the
+browser-local worksheet: signing in does not silently import, merge, or erase
+the local plan.
+
+<p align="center">
+  <a href="https://sungridplanner.com/catalog"><strong>sungridplanner.com/catalog</strong></a>
+</p>
+
+## Where the boundary is
+
+This planner does not enroll students, scrape personal UCSD accounts, track
+seats or demand in real time, publish SET/CAPE results, write directly to Google
+Calendar, or add social permission controls to worksheets.
+
+It is an independent service and not an official UC San Diego product. UC San
+Diego names and source links identify the institution and the public information
+sources only.
 
 New original contributions first published with or after the current license
 change are not licensed for public reuse. Third-party and previously released

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="112" viewBox="0 0 1200 112" role="img" aria-labelledby="t d">
+  <title id="t">01 From catalog search to a week that holds up</title>
+  <desc id="d">Search, open the section you actually want, add it, then find the collisions early.</desc>
+
+  <rect x="0.5" y="0.5" width="1199" height="111" rx="14" fill="#f9f8f6" stroke="#e7e5e1"/>
+
+  <text x="48" y="66" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="34" font-weight="700" fill="#2871be">01</text>
+  <path d="M112 30v52" stroke="#e7e5e1"/>
+
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+    <text x="142" y="58" font-size="32" fill="#0b0b0b">From catalog search to a week that holds up</text>
+    <text x="142" y="88" font-size="19" fill="#6f6d67">Search, open the section you actually want, add it, then find the collisions early.</text>
+  </g>
+
+  <g>
+    <rect x="1044.5" y="38.5" width="13" height="35" rx="4" fill="#fff" stroke="#e7e5e1"/>
+    <rect x="1066.5" y="38.5" width="13" height="35" rx="4" fill="#fff" stroke="#e7e5e1"/>
+    <rect x="1088.5" y="38.5" width="13" height="35" rx="4" fill="#e6f1fb" stroke="#85b7eb"/>
+    <rect x="1110.5" y="38.5" width="13" height="35" rx="4" fill="#fff" stroke="#e7e5e1"/>
+    <rect x="1132.5" y="38.5" width="13" height="35" rx="4" fill="#fff" stroke="#e7e5e1"/>
+  </g>
+</svg>
