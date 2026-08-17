@@ -1,5 +1,5 @@
 {
-  "last_update": "2026-08-13T11:00:06.839Z",
+  "last_update": "2026-08-17T11:00:06.870Z",
   "terms": [
     {
       "term": "FA26",
@@ -9,7 +9,7 @@
         "end": "2026-12-12"
       },
       "frozen": false,
-      "generated_at": "2026-08-13T11:00:06.839Z",
+      "generated_at": "2026-08-17T11:00:06.870Z",
       "snapshot_path": "catalogs/public/FA26.json",
       "manifest_path": "catalogs/import-manifests/FA26.json"
     },
@@ -21,7 +21,7 @@
         "end": "2024-09-07"
       },
       "frozen": false,
-      "generated_at": "2026-08-13T11:00:06.839Z",
+      "generated_at": "2026-08-17T11:00:06.870Z",
       "snapshot_path": "catalogs/public/S224.json",
       "manifest_path": "catalogs/import-manifests/S224.json"
     },
@@ -33,7 +33,7 @@
         "end": "2024-09-21"
       },
       "frozen": false,
-      "generated_at": "2026-08-13T11:00:06.839Z",
+      "generated_at": "2026-08-17T11:00:06.870Z",
       "snapshot_path": "catalogs/public/S324.json",
       "manifest_path": "catalogs/import-manifests/S324.json"
     },
@@ -45,7 +45,7 @@
         "end": "2024-12-14"
       },
       "frozen": false,
-      "generated_at": "2026-08-13T11:00:06.839Z",
+      "generated_at": "2026-08-17T11:00:06.870Z",
       "snapshot_path": "catalogs/public/FA24.json",
       "manifest_path": "catalogs/import-manifests/FA24.json"
     },
@@ -57,7 +57,7 @@
         "end": "2025-03-22"
       },
       "frozen": false,
-      "generated_at": "2026-08-13T11:00:06.839Z",
+      "generated_at": "2026-08-17T11:00:06.870Z",
       "snapshot_path": "catalogs/public/WI25.json",
       "manifest_path": "catalogs/import-manifests/WI25.json"
     },
@@ -69,7 +69,7 @@
         "end": "2025-06-13"
       },
       "frozen": false,
-      "generated_at": "2026-08-13T11:00:06.839Z",
+      "generated_at": "2026-08-17T11:00:06.870Z",
       "snapshot_path": "catalogs/public/SP25.json",
       "manifest_path": "catalogs/import-manifests/SP25.json"
     },
@@ -81,7 +81,7 @@
         "end": "2025-08-02"
       },
       "frozen": false,
-      "generated_at": "2026-08-13T11:00:06.839Z",
+      "generated_at": "2026-08-17T11:00:06.870Z",
       "snapshot_path": "catalogs/public/S125.json",
       "manifest_path": "catalogs/import-manifests/S125.json"
     },
@@ -93,7 +93,7 @@
         "end": "2025-09-06"
       },
       "frozen": false,
-      "generated_at": "2026-08-13T11:00:06.839Z",
+      "generated_at": "2026-08-17T11:00:06.870Z",
       "snapshot_path": "catalogs/public/S225.json",
       "manifest_path": "catalogs/import-manifests/S225.json"
     },
@@ -105,7 +105,7 @@
         "end": "2025-09-20"
       },
       "frozen": false,
-      "generated_at": "2026-08-13T11:00:06.839Z",
+      "generated_at": "2026-08-17T11:00:06.870Z",
       "snapshot_path": "catalogs/public/S325.json",
       "manifest_path": "catalogs/import-manifests/S325.json"
     },
@@ -117,7 +117,7 @@
         "end": "2025-12-13"
       },
       "frozen": false,
-      "generated_at": "2026-08-13T11:00:06.839Z",
+      "generated_at": "2026-08-17T11:00:06.870Z",
       "snapshot_path": "catalogs/public/FA25.json",
       "manifest_path": "catalogs/import-manifests/FA25.json"
     },
@@ -129,7 +129,7 @@
         "end": "2026-03-21"
       },
       "frozen": false,
-      "generated_at": "2026-08-13T11:00:06.839Z",
+      "generated_at": "2026-08-17T11:00:06.870Z",
       "snapshot_path": "catalogs/public/WI26.json",
       "manifest_path": "catalogs/import-manifests/WI26.json"
     },
@@ -141,7 +141,7 @@
         "end": "2026-06-12"
       },
       "frozen": false,
-      "generated_at": "2026-08-13T11:00:06.839Z",
+      "generated_at": "2026-08-17T11:00:06.870Z",
       "snapshot_path": "catalogs/public/SP26.json",
       "manifest_path": "catalogs/import-manifests/SP26.json"
     },
@@ -153,7 +153,7 @@
         "end": "2026-08-01"
       },
       "frozen": false,
-      "generated_at": "2026-08-13T11:00:06.839Z",
+      "generated_at": "2026-08-17T11:00:06.870Z",
       "snapshot_path": "catalogs/public/S126.json",
       "manifest_path": "catalogs/import-manifests/S126.json"
     },
@@ -165,7 +165,7 @@
         "end": "2026-09-05"
       },
       "frozen": false,
-      "generated_at": "2026-08-13T11:00:06.839Z",
+      "generated_at": "2026-08-17T11:00:06.870Z",
       "snapshot_path": "catalogs/public/S226.json",
       "manifest_path": "catalogs/import-manifests/S226.json"
     },
@@ -177,7 +177,7 @@
         "end": "2026-09-19"
       },
       "frozen": false,
-      "generated_at": "2026-08-13T11:00:06.839Z",
+      "generated_at": "2026-08-17T11:00:06.870Z",
       "snapshot_path": "catalogs/public/S326.json",
       "manifest_path": "catalogs/import-manifests/S326.json"
     }
