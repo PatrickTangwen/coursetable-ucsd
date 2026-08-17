@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 230" role="img" aria-labelledby="title desc">
+  <title id="title">课程规划流程</title>
+  <desc id="desc">搜索课程、查看详情、建立课表，然后检查冲突并导出。</desc>
+  <defs><linearGradient id="line" gradientUnits="userSpaceOnUse" x1="162" x2="1038"><stop stop-color="#1a56db"/><stop offset=".52" stop-color="#0f766e"/><stop offset="1" stop-color="#6d28d9"/></linearGradient></defs>
+  <rect width="1200" height="230" rx="22" fill="#f8faff" stroke="#dce5f3"/>
+  <path d="M162 72h876" stroke="url(#line)" stroke-width="4" stroke-linecap="round"/>
+  <g font-family="Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif">
+    <g transform="translate(142 72)"><circle r="28" fill="#1a56db"/><text y="7" fill="#fff" font-size="18" font-weight="700" text-anchor="middle">01</text><text y="70" fill="#17233c" font-size="17" font-weight="700" text-anchor="middle">搜索课程目录</text><text y="94" fill="#68758a" font-size="12" text-anchor="middle">代码 · 课程名 · 教师 · 筛选</text></g>
+    <g transform="translate(447 72)"><circle r="28" fill="#297e9a"/><text y="7" fill="#fff" font-size="18" font-weight="700" text-anchor="middle">02</text><text y="70" fill="#17233c" font-size="17" font-weight="700" text-anchor="middle">查看课程详情</text><text y="94" fill="#68758a" font-size="12" text-anchor="middle">时间 · 先修要求 · 历史成绩</text></g>
+    <g transform="translate(752 72)"><circle r="28" fill="#0f766e"/><text y="7" fill="#fff" font-size="18" font-weight="700" text-anchor="middle">03</text><text y="70" fill="#17233c" font-size="17" font-weight="700" text-anchor="middle">建立 Worksheet</text><text y="94" fill="#68758a" font-size="12" text-anchor="middle">日历 · 列表 · 学期切换</text></g>
+    <g transform="translate(1057 72)"><circle r="28" fill="#6d28d9"/><text y="7" fill="#fff" font-size="18" font-weight="700" text-anchor="middle">04</text><text y="70" fill="#17233c" font-size="17" font-weight="700" text-anchor="middle">检查并带走计划</text><text y="94" fill="#68758a" font-size="12" text-anchor="middle">冲突 · 分享链接 · ICS · PNG</text></g>
+  </g>
+</svg>
