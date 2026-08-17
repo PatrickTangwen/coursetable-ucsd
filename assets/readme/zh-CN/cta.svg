@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="112" viewBox="0 0 480 112" role="img" aria-labelledby="cta-title cta-desc">
+  <title id="cta-title">打开 SunGrid</title>
+  <desc id="cta-desc">指向 SunGrid 首页 sungridplanner.com 的按钮。</desc>
+
+  <rect width="480" height="72" rx="12" fill="#0b0b0b"/>
+  <text x="212" y="46" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Roboto, sans-serif" font-size="28" font-weight="600" fill="#fff">打开 SunGrid</text>
+  <path d="M392 36h32m-11-11 11 11-11 11" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <text x="240" y="102" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" letter-spacing="1" fill="#6f6d67">sungridplanner.com</text>
+</svg>

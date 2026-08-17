@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://sungridplanner.com/catalog">
+  <a href="https://sungridplanner.com/">
     <img src="./assets/readme/zh-CN/hero.svg" width="100%" alt="SunGrid：搜索 UCSD 课程目录，在选课前排出可用的一周。标题旁是一个五列的一周网格，其中若干格子被填色。">
   </a>
 </p>
@@ -14,7 +14,12 @@
 </p>
 
 <p align="center">
-  <a href="https://sungridplanner.com/catalog">打开课程规划工具</a> ·
+  <a href="https://sungridplanner.com/">
+    <img src="./assets/readme/zh-CN/cta.svg" width="340" alt="打开 SunGrid（sungridplanner.com）">
+  </a>
+</p>
+
+<p align="center">
   <a href="https://sungridplanner.com/tutorial">查看使用教程</a> ·
   <a href="https://tally.so/r/q47EA8">反馈问题</a>
 </p>
@@ -77,12 +82,14 @@
   <img src="./assets/readme/zh-CN/section-start.svg" width="100%" alt="03 打开就能开始排课。">
 </p>
 
-打开课程目录就可以直接开始加课。基础的找课和排课不会卡在注册表单后面。未登录时，Worksheet 保存在当前浏览器中，受支持的分享链接可以恢复其中选择的 Section。
+打开 SunGrid 就可以直接开始加课。基础的找课和排课不会卡在注册表单后面。未登录时，Worksheet 保存在当前浏览器中，受支持的分享链接可以恢复其中选择的 Section。
 
 通过 `@ucsd.edu` 邮箱验证之后，账号所属的 Worksheet 和搜索筛选可以跨会话保留。账号数据与浏览器本地课表彼此独立：登录不会悄悄导入、合并或清空本地计划。
 
 <p align="center">
-  <a href="https://sungridplanner.com/catalog"><strong>sungridplanner.com/catalog</strong></a>
+  <a href="https://sungridplanner.com/">
+    <img src="./assets/readme/zh-CN/cta.svg" width="340" alt="打开 SunGrid（sungridplanner.com）">
+  </a>
 </p>
 
 ## 使用边界

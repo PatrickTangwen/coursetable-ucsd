@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://sungridplanner.com/catalog">
+  <a href="https://sungridplanner.com/">
     <img src="./assets/readme/en/hero.svg" width="100%" alt="SunGrid: search the UCSD catalog and settle a workable week before enrollment. A five-column week grid sits beside the title, with a few cells filled in.">
   </a>
 </p>
@@ -14,7 +14,12 @@
 </p>
 
 <p align="center">
-  <a href="https://sungridplanner.com/catalog">Open the planner</a> ·
+  <a href="https://sungridplanner.com/">
+    <img src="./assets/readme/en/cta.svg" width="340" alt="Open SunGrid at sungridplanner.com">
+  </a>
+</p>
+
+<p align="center">
   <a href="https://sungridplanner.com/tutorial">View the tutorial</a> ·
   <a href="https://tally.so/r/q47EA8">Send feedback</a>
 </p>
@@ -91,7 +96,7 @@ closed.
   <img src="./assets/readme/en/section-start.svg" width="100%" alt="03 Open it and start planning.">
 </p>
 
-Open the catalog and start adding sections. Nothing in basic course discovery or
+Open SunGrid and start adding sections. Nothing in basic course discovery or
 planning waits behind a sign-up form. While signed out, the worksheet lives in
 the current browser, and a supported share URL can restore the sections it
 holds.
@@ -102,7 +107,9 @@ browser-local worksheet: signing in does not silently import, merge, or erase
 the local plan.
 
 <p align="center">
-  <a href="https://sungridplanner.com/catalog"><strong>sungridplanner.com/catalog</strong></a>
+  <a href="https://sungridplanner.com/">
+    <img src="./assets/readme/en/cta.svg" width="340" alt="Open SunGrid at sungridplanner.com">
+  </a>
 </p>
 
 ## Where the boundary is
