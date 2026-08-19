@@ -2,7 +2,7 @@ import { defaultFilters } from './searchConstants';
 import type { Filters } from './searchTypes';
 import { isEqual } from '../utilities/common';
 
-const courseResultFilterKeys = [
+const courseSearchFilterKeys = [
   'selectSubjects',
   'selectSkillsAreas',
   'overallBounds',
@@ -23,14 +23,14 @@ const courseResultFilterKeys = [
   'excludeAttributes',
 ] as const satisfies readonly (keyof Filters)[];
 
-export function hasCatalogResultCondition(
+export function hasCatalogSearchCondition(
   filters: Filters,
   typeFilters: readonly string[],
 ): boolean {
   return (
     filters.searchText.trim().length > 0 ||
     typeFilters.length > 0 ||
-    courseResultFilterKeys.some(
+    courseSearchFilterKeys.some(
       (key) => !isEqual(filters[key], defaultFilters[key]),
     )
   );

@@ -109,23 +109,24 @@ async function measureIllustrationBackgroundDelta(
   );
 }
 
-test('keeps empty calendar illustrations seamless and inert', async ({
+test('keeps the empty Worksheet illustration seamless and inert', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await installCatalogApiFixture(page);
-  await page.goto('/catalog');
+  await page.goto('/worksheet');
+  await page.getByRole('button', { name: 'List', pressed: false }).click();
 
-  const catalogIllustration = page
+  const listIllustration = page
     .locator('img[src*="calendar_img_high_res"]')
     .first();
-  await expect(catalogIllustration).toBeVisible();
-  expect(await readIllustrationCornerAlphas(catalogIllustration)).toEqual([
+  await expect(listIllustration).toBeVisible();
+  expect(await readIllustrationCornerAlphas(listIllustration)).toEqual([
     0, 0, 0, 0,
   ]);
-  await expectIllustrationNotDraggable(page, catalogIllustration);
+  await expectIllustrationNotDraggable(page, listIllustration);
   await expect
-    .poll(() => readIllustrationAppearance(catalogIllustration))
+    .poll(() => readIllustrationAppearance(listIllustration))
     .toEqual({
       filter: 'none',
       mixBlendMode: 'multiply',
@@ -134,22 +135,11 @@ test('keeps empty calendar illustrations seamless and inert', async ({
   await page.getByRole('button', { name: 'To dark mode' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect
-    .poll(() => readIllustrationAppearance(catalogIllustration))
-    .toEqual(darkIllustrationAppearance);
-  expect(
-    await measureIllustrationBackgroundDelta(page, catalogIllustration),
-  ).toBe(0);
-
-  await page.getByRole('link', { name: 'Worksheet' }).click();
-  await page.getByRole('button', { name: 'List', pressed: false }).click();
-  const listIllustration = page
-    .locator('img[src*="calendar_img_high_res"]')
-    .first();
-  await expect(listIllustration).toBeVisible();
-  await expectIllustrationNotDraggable(page, listIllustration);
-  await expect
     .poll(() => readIllustrationAppearance(listIllustration))
     .toEqual(darkIllustrationAppearance);
+  expect(await measureIllustrationBackgroundDelta(page, listIllustration)).toBe(
+    0,
+  );
 
   const desktopListBounds = await requireIllustrationBounds(
     listIllustration,

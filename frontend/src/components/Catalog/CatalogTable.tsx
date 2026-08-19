@@ -31,7 +31,6 @@ import {
 } from '../../utilities/catalogView';
 import { toSeasonString } from '../../utilities/course';
 import { savedWorksheetHasListing } from '../../utilities/savedWorksheet';
-import EmptyCalendarIllustration from '../EmptyCalendarIllustration';
 import CoursePlanningWorksheetToggleButton from '../Worksheet/CoursePlanningWorksheetToggleButton';
 import styles from './CatalogTable.module.css';
 
@@ -259,18 +258,6 @@ function courseRowHeight(row: CourseRow, expandedCourses: Set<string>): number {
   return expandedCourses.has(row.rowId)
     ? expandedRowHeight(row)
     : baseRowHeight;
-}
-
-function CatalogIdleState() {
-  return (
-    <div className={styles.idleState}>
-      <EmptyCalendarIllustration className={styles.idleIllustration} />
-      <h2 className={styles.idleHeading}>No courses to show yet</h2>
-      <p className={styles.idleHint}>
-        Search for a course or choose a filter to display matching courses.
-      </p>
-    </div>
-  );
 }
 
 function estimateMobileCourseRowHeight(
@@ -1174,13 +1161,11 @@ function MobileVirtualCatalogRows({
 export default function CatalogTable({
   data,
   loading,
-  resultsEnabled,
   filterBar,
   onOpenModal,
 }: {
   readonly data: CoursePlanningListing[] | null;
   readonly loading: boolean;
-  readonly resultsEnabled: boolean;
   readonly filterBar: ReactNode;
   readonly onOpenModal: (listing: CoursePlanningListing) => void;
 }) {
@@ -1195,9 +1180,9 @@ export default function CatalogTable({
   );
 
   const courseRows = useMemo(() => {
-    if (!resultsEnabled || !data) return [];
+    if (!data) return [];
     return sortRows(groupListingsByCourse(data), sortKey, sortAsc);
-  }, [data, resultsEnabled, sortKey, sortAsc]);
+  }, [data, sortKey, sortAsc]);
   const showTermColumn = useMemo(
     () => new Set(courseRows.map((row) => row.seasonCode)).size > 1,
     [courseRows],
@@ -1259,9 +1244,7 @@ export default function CatalogTable({
         )}
         style={gridVars}
       >
-        {!resultsEnabled ? (
-          <CatalogIdleState />
-        ) : loading ? (
+        {loading ? (
           <div className={styles.empty}>Loading courses...</div>
         ) : courseRows.length === 0 ? (
           <div className={styles.empty}>No courses match your filters.</div>
