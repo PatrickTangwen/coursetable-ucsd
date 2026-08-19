@@ -12,11 +12,19 @@
  * 5. Rewrite the generated supported-terms list from the final registry.
  * 6. Run the credential-free deployment validators.
  * 7. Diff before/after published JSON into the refresh report.
+ * 8. Prune dated local inputs not reached by the before/after manifests or an
+ *    explicit replay/audit pin.
  */
 
 import { spawn } from 'node:child_process';
 import { mkdir, readdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import {
+  applyDataRetention,
+  readManifestArtifactPaths,
+  type DataRetentionPolicy,
+  type DataRetentionResult,
+} from './dataRetention';
 import {
   planClassplannerTerms,
   selectPrimaryMetadataDirectory,
@@ -66,6 +74,7 @@ export type EtlRefreshOptions = {
   classplannerRequestDelayMs?: number;
   runValidators?: () => Promise<void>;
   generatedAt?: string;
+  retentionPolicy?: DataRetentionPolicy;
   log?: (line: string) => void;
 };
 
@@ -77,6 +86,7 @@ export type EtlRefreshResult = {
   report: EtlRefreshReport;
   reportDirectory: string;
   reportPaths: { jsonPath: string; markdownPath: string };
+  retention: DataRetentionResult;
 };
 
 function defaultCandidateYears(): number[] {
@@ -117,6 +127,10 @@ export async function runEtlRefresh(
     options.classplannerOutRoot ?? join(config.paths.raw_dir, 'classplanner');
   const supportedTermsPath =
     options.supportedTermsPath ?? defaultSupportedTermsPath;
+  const manifestDirectory = join(
+    dirname(config.paths.public_catalog_dir),
+    'import-manifests',
+  );
 
   // 1. Discover both source windows before mutating anything, so a source
   // conflict aborts with the repository untouched.
@@ -150,6 +164,11 @@ export async function runEtlRefresh(
   );
   const classplannerTerms = classplannerPlan.map((entry) => entry.term);
   log(`Class Planner terms: ${classplannerTerms.join(', ') || '(none)'}`);
+
+  // Capture the currently published provenance before the refresh overwrites
+  // manifests. The final retention pass keeps both this accepted baseline and
+  // the newly generated candidate reachable during review.
+  const baselineArtifacts = await readManifestArtifactPaths(manifestDirectory);
 
   // 2. Preserve the before-state for the refresh report.
   const reportDirectory = join(
@@ -265,6 +284,26 @@ export async function runEtlRefresh(
   const reportPaths = await writeRefreshReport(report, reportDirectory);
   log(renderRefreshReportMarkdown(report));
 
+  // 8. Cleanup runs only after acquisition, publication, validators, and the
+  // report all succeeded. A failed refresh therefore keeps its evidence for
+  // diagnosis; the next successful refresh removes it if no manifest or pin
+  // reaches it.
+  const refreshedArtifacts = await readManifestArtifactPaths(manifestDirectory);
+  const retention = await withSpan('etl.retention', {}, () =>
+    applyDataRetention({
+      rawDirectory: config.paths.raw_dir,
+      normalizedDirectory: config.paths.normalized_dir,
+      reportsDirectory: config.paths.reports_dir,
+      referencedArtifacts: [...baselineArtifacts, ...refreshedArtifacts],
+      policy: options.retentionPolicy,
+    }),
+  );
+  log(
+    `Retention: removed ${String(retention.removedRawRuns.length)} raw and ` +
+      `${String(retention.removedNormalizedRuns.length)} normalized runs; ` +
+      `kept ${String(retention.retainedRuns.length)} reachable or pinned runs.`,
+  );
+
   return {
     generatedAt,
     scheduleOfClassesTerms,
@@ -273,5 +312,6 @@ export async function runEtlRefresh(
     report,
     reportDirectory,
     reportPaths,
+    retention,
   };
 }

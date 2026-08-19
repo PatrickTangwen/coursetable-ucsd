@@ -154,6 +154,10 @@ logs, or transient setup notes directly in ADRs.
   after a scheduled refresh PR is merged and `main` CI succeeds, automatically
   enter the protected Staging then Production workflow while preserving both
   Environment approvals and keeping Production login disabled.
+- `0044-bound-local-etl-history-by-manifest-reachability.md`: retain dated
+  local raw/normalized runs only while the accepted baseline, refresh
+  candidate, or an explicit parser-replay/audit pin reaches them, without
+  changing the durable Published/Frozen Snapshot Term Archive.
 
 ## Editing Rule
 

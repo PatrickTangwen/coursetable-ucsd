@@ -123,3 +123,49 @@ non-refresh commits, failed Staging, and unapproved environments do not advance.
 Implementation correction, 2026-08-10: both reusable deployment calls include
 `secrets: inherit`. This is required for the called workflow's secret context;
 the Staging and Production Environment approvals remain the access gates.
+
+## Bounded Local Data Retention (2026-08-19, ADR 0044)
+
+This section supersedes the earlier ADR 0042 wording that described every raw
+and normalized run as permanently accumulating in the shared local archive.
+The `data/` symlink remains shared between the scheduled worktree and main
+clone, but a fully successful refresh now applies `config/etl-retention.json`.
+
+The retention closure keeps whole dated run directories reached by the Import
+Manifests from both sides of the refresh:
+
+- the accepted pre-refresh baseline;
+- the newly generated candidate; and
+- any explicitly pinned parser-replay or audit run with a non-empty reason.
+
+Everything else under the recognized dated `data/raw/multi-*`,
+`data/raw/classplanner/<TERM>/<timestamp>`, and `data/normalized/multi-*`
+boundaries is removed. Unknown/manual directories are never inferred to be
+disposable. A successful pass also removes superseded runs' import reports,
+rebuildable `catalog_snapshot.staging.json` files, and every completed ETL
+report's `before/` copy while keeping `refresh-report.json` and
+`refresh-report.md`.
+
+Retention runs only after source acquisition, publication, validators, and
+report generation all succeed. A failed refresh leaves its raw and normalized
+evidence untouched for diagnosis. The next successful run removes that evidence
+only when neither a manifest nor a pin still reaches it.
+
+Add a pin before relying on a dated run for future parser work:
+
+```json
+{
+  "version": 1,
+  "pinned_directories": [
+    {
+      "directory": "data/raw/multi-<timestamp>-<id>-<term>",
+      "reason": "Parser replay case and the behavior it proves"
+    }
+  ]
+}
+```
+
+Pins may name only a managed dated raw, Class Planner, or normalized run. A
+missing pinned directory is reported because a fresh machine may keep that
+evidence only in cold storage; a broad or malformed pin fails closed before any
+retention deletion.

@@ -1,4 +1,12 @@
-import { mkdir, mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
+import {
+  access,
+  mkdir,
+  mkdtemp,
+  readFile,
+  readdir,
+  rm,
+  writeFile,
+} from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -300,6 +308,11 @@ describe('runEtlRefresh', () => {
     await expect(
       readFile(result.reportPaths.markdownPath, 'utf-8'),
     ).resolves.toContain('# ETL Refresh Report');
+    expect(result.retention.removedRawRuns).toEqual([]);
+    expect(result.retention.removedNormalizedRuns).toEqual([]);
+    await expect(
+      access(join(result.reportDirectory, 'before')),
+    ).rejects.toThrow();
 
     // Raw planner pages are preserved before conversion.
     const rawRuns = await readdir(
@@ -335,5 +348,39 @@ describe('runEtlRefresh', () => {
 
     expect(validatorCalls).toEqual([]);
     await expect(readdir(config.paths.public_catalog_dir)).resolves.toEqual([]);
+  }, 60_000);
+
+  it('does not prune diagnostic history when validation fails', async () => {
+    const config = await makeConfig();
+    const staleRun = join(
+      config.paths.raw_dir,
+      'multi-2026-08-01T12:00:00.000Z-diagnostic-SP26',
+    );
+    await mkdir(staleRun, { recursive: true });
+    await writeFile(join(staleRun, 'failure-evidence.json'), '{}');
+
+    await expect(
+      runEtlRefresh({
+        config,
+        generatedAt,
+        terms: [{ term: 'SP26', label: 'Spring 2026' }],
+        sourceLoaders: makeLoaders(),
+        fetch: makePlannerFetch({ plannerTermCode: 'FA26' }),
+        classplannerBaseUrl: plannerBaseUrl,
+        classplannerRequestDelayMs: 0,
+        supportedTermsPath: join(
+          config.paths.reports_dir,
+          'supported-terms.json',
+        ),
+        runValidators() {
+          return Promise.reject(new Error('validator rejected candidate'));
+        },
+        log() {},
+      }),
+    ).rejects.toThrow('validator rejected candidate');
+
+    await expect(
+      access(join(staleRun, 'failure-evidence.json')),
+    ).resolves.toBeUndefined();
   }, 60_000);
 });

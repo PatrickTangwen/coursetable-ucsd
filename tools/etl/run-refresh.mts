@@ -12,6 +12,7 @@
  */
 
 import { writeFile } from 'node:fs/promises';
+import { loadDataRetentionPolicy } from './dataRetention.js';
 import { runEtlRefresh } from './runRefresh.js';
 import { startEtlTelemetry } from './telemetry.js';
 import { loadCatalogSnapshotConfig } from '../catalog-snapshot/catalogSnapshot.js';
@@ -32,7 +33,10 @@ try {
   const config = await loadCatalogSnapshotConfig(
     argument('--config', 'config/catalog-snapshot.ucsd.yaml'),
   );
-  const result = await runEtlRefresh({ config });
+  const retentionPolicy = await loadDataRetentionPolicy(
+    argument('--retention-config', 'config/etl-retention.json'),
+  );
+  const result = await runEtlRefresh({ config, retentionPolicy });
   const summary = {
     generated_at: result.generatedAt,
     schedule_of_classes_terms: result.scheduleOfClassesTerms,
@@ -41,6 +45,12 @@ try {
     totals: result.report.totals,
     report_json: result.reportPaths.jsonPath,
     report_markdown: result.reportPaths.markdownPath,
+    retention: {
+      raw_runs_removed: result.retention.removedRawRuns.length,
+      normalized_runs_removed: result.retention.removedNormalizedRuns.length,
+      runs_retained: result.retention.retainedRuns.length,
+      missing_pins: result.retention.missingPinnedRuns,
+    },
   };
   if (process.argv.includes('--result-path')) {
     await writeFile(

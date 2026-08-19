@@ -5,10 +5,10 @@
  * docs/etl_refresh.md.
  *
  * The worktree is reset to the remote base branch on every run, its `data/`
- * directory is a symlink to the main clone's gitignored `data/` so raw and
- * normalized history stays on one durable archive, and only the published
- * artifact paths are staged. Merging the PR and dispatching deployments stay
- * human decisions.
+ * directory is a symlink to the main clone's gitignored `data/`. Successful
+ * refreshes bound dated raw/normalized history by manifest reachability and
+ * explicit replay pins; only the published artifact paths are staged. Merging
+ * the PR and dispatching deployments stay human decisions.
  */
 
 import { spawn } from 'node:child_process';
@@ -196,8 +196,9 @@ export async function runScheduledRefresh(
       cwd: worktreeDirectory,
     });
 
-    // 2. Shared durable data archive: worktree data/ points at the main
-    // clone's gitignored data/ (raw runs, normalized history, reports).
+    // 2. Shared local ETL state: worktree data/ points at the main clone's
+    // gitignored data/. The refresh applies the bounded retention policy only
+    // after validators and report generation succeed.
     const dataLink = join(worktreeDirectory, 'data');
     const linkState = await pathState(dataLink);
     if (linkState === 'other') {
