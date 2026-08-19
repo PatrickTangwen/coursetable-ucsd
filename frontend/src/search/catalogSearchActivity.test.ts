@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { hasCatalogResultCondition } from './catalogResultVisibility';
+import { hasCatalogSearchCondition } from './catalogSearchActivity';
 import { defaultFilters } from './searchConstants';
 import type { Season } from '../queries/graphql-types';
 
-describe('Catalog result visibility', () => {
-  it('keeps results idle for the default filter state and sort-only changes', () => {
-    expect(hasCatalogResultCondition(defaultFilters, [])).toBe(false);
+describe('Catalog search activity', () => {
+  it('stays inactive outside Catalog for the default filters and sort-only changes', () => {
+    expect(hasCatalogSearchCondition(defaultFilters, [])).toBe(false);
     expect(
-      hasCatalogResultCondition(
+      hasCatalogSearchCondition(
         {
           ...defaultFilters,
           selectSortBy: {
@@ -22,11 +22,11 @@ describe('Catalog result visibility', () => {
     ).toBe(false);
   });
 
-  it('activates results for a committed search or course type selection', () => {
+  it('activates for a committed search or course type selection', () => {
     expect(
-      hasCatalogResultCondition({ ...defaultFilters, searchText: 'cse' }, []),
+      hasCatalogSearchCondition({ ...defaultFilters, searchText: 'cse' }, []),
     ).toBe(true);
-    expect(hasCatalogResultCondition(defaultFilters, ['upper'])).toBe(true);
+    expect(hasCatalogSearchCondition(defaultFilters, ['upper'])).toBe(true);
   });
 
   it.each([
@@ -50,9 +50,9 @@ describe('Catalog result visibility', () => {
       },
     ],
     ['advanced course constraint', { hideConflicting: true }],
-  ])('activates results for a selected %s filter', (_label, overrides) => {
+  ])('activates for a selected %s filter', (_label, overrides) => {
     expect(
-      hasCatalogResultCondition({ ...defaultFilters, ...overrides }, []),
+      hasCatalogSearchCondition({ ...defaultFilters, ...overrides }, []),
     ).toBe(true);
   });
 });

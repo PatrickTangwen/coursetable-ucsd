@@ -18,7 +18,6 @@ import {
   buildCatalogListFilterCleanup,
   extractCatalogSubjects,
 } from '../search/catalogListFilters';
-import { hasCatalogResultCondition } from '../search/catalogResultVisibility';
 import { getSearchSeasonScope } from '../search/searchSeasonScope';
 import { useStore } from '../store';
 import { createCoursePlanningModalLink } from '../utilities/display';
@@ -32,10 +31,7 @@ export default function CatalogListView() {
   const patchSearchFilters = useStore((s) => s.patchSearchFilters);
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useStore((s) => s.navigate);
-  const resultsEnabled = hasCatalogResultCondition(searchFilters, typeFilters);
-  // The Catalog page renders results from the selected terms, so it loads
-  // their catalogs as soon as it mounts — even while idle, so the first
-  // search resolves instantly. Errors only surface once results are shown.
+  // The Catalog page renders every course from the selected terms by default.
   const selectedSeasons = useMemo(
     () =>
       searchFilters.selectSeasons.length > 0
@@ -46,7 +42,7 @@ export default function CatalogListView() {
   useCoursePlanningRequest(selectedSeasons);
   const courseLoadError = getSeasonScopedError(
     seasonErrors,
-    getSearchSeasonScope(searchFilters.selectSeasons, resultsEnabled),
+    getSearchSeasonScope(searchFilters.selectSeasons),
   );
 
   const subjects = useMemo(
@@ -94,7 +90,6 @@ export default function CatalogListView() {
       <CatalogTable
         data={filteredData}
         loading={coursesLoading}
-        resultsEnabled={resultsEnabled}
         filterBar={<FilterBar subjects={subjects} />}
         onOpenModal={handleOpenModal}
       />
