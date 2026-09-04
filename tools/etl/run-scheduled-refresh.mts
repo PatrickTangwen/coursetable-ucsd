@@ -102,6 +102,8 @@ try {
             'tools/etl/run-refresh.mts',
             '--config',
             'config/catalog-snapshot.ucsd.yaml',
+            '--grade-archive',
+            'reuse',
             '--result-path',
             resultPath,
           ],

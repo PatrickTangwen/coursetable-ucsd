@@ -50,12 +50,35 @@ type ParsedSource<T> = {
   data: T;
 };
 
-type SourceLoad<T> = {
+type FetchedSourceLoad<T> = {
   subject: string;
   fetched_at: string;
   raw_files: RawSourceFile[];
   parse: () => ParsedSource<T> | Promise<ParsedSource<T>>;
 };
+
+/**
+ * A source served from a prior run's normalized artifact instead of a live
+ * fetch. Nothing is written for it: the Import Manifest cell points at the
+ * prior artifact, which keeps that run reachable for retention (ADR 0044),
+ * and the source timestamp stays the original fetch time.
+ */
+export type ReusedSourceLoad<T> = {
+  reused: true;
+  subject: string;
+  fetched_at: string;
+  source_timestamp: string | null;
+  normalized_artifact: string;
+  data: T;
+};
+
+type SourceLoad<T> = FetchedSourceLoad<T> | ReusedSourceLoad<T>;
+
+function isReusedSourceLoad<T>(
+  load: SourceLoad<T>,
+): load is ReusedSourceLoad<T> {
+  return Object.hasOwn(load, 'reused');
+}
 
 type SourceLoader<T> = (
   subject: string,
@@ -394,6 +417,32 @@ async function collectSources<T>(
       continue;
     }
     const sourceLoad = sourceLoadResult.value;
+
+    if (isReusedSourceLoad(sourceLoad)) {
+      const reusedRowCounts = rowCountsForData(sourceLoad.data);
+      const reusedEmptyReason = emptyReason(source, reusedRowCounts);
+      collected.push({
+        source,
+        subject: sourceLoad.subject,
+        fetched_at: sourceLoad.fetched_at,
+        source_timestamp: sourceLoad.source_timestamp,
+        raw_artifacts: [],
+        normalized_artifact: sourceLoad.normalized_artifact,
+        data: sourceLoad.data,
+      });
+      cells.push({
+        term: context.config.active_planning_term,
+        subject: sourceLoad.subject,
+        source,
+        status: reusedEmptyReason ? 'empty' : 'ok',
+        reason: reusedEmptyReason,
+        attempts: sourceLoadResult.attempts,
+        row_counts: reusedRowCounts,
+        raw_artifacts: [],
+        normalized_artifact: sourceLoad.normalized_artifact,
+      });
+      continue;
+    }
 
     const rawArtifactsResult = await runStep(
       { source, subject, phase: 'write' },

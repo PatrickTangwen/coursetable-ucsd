@@ -45,8 +45,16 @@ export type TermRefreshDelta = {
   manifest: ManifestSummary | null;
 };
 
+/** Where this run's Instructor Grade Archive data came from (ADR 0045). */
+export type InstructorGradeArchiveProvenance = {
+  mode: 'live' | 'reused';
+  /** Distinct original fetch timestamps, ascending. */
+  source_timestamps: string[];
+};
+
 export type EtlRefreshReport = {
   generated_at: string;
+  instructor_grade_archive: InstructorGradeArchiveProvenance;
   terms: TermRefreshDelta[];
   totals: {
     terms_changed: number;
@@ -128,6 +136,7 @@ export type BuildRefreshReportOptions = {
   generatedAt: string;
   /** Import Manifest summaries for the terms this run published. */
   manifestSummaries: { [term: string]: ManifestSummary };
+  instructorGradeArchive: InstructorGradeArchiveProvenance;
 };
 
 /** Diff the preserved before-state against the refreshed published files. */
@@ -194,6 +203,7 @@ export async function buildRefreshReport(
 
     return {
       generated_at: options.generatedAt,
+      instructor_grade_archive: options.instructorGradeArchive,
       terms: deltas,
       totals: {
         terms_changed: deltas.filter((delta) => delta.status !== 'unchanged')
@@ -224,6 +234,15 @@ function manifestCell(summary: ManifestSummary | null): string {
 }
 
 /** Human summary suitable as commit-message and PR-description material. */
+function instructorGradeArchiveLine(
+  provenance: InstructorGradeArchiveProvenance,
+): string {
+  const fetched = provenance.source_timestamps.join(', ') || 'unknown time';
+  return provenance.mode === 'live'
+    ? `Instructor Grade Archive: fetched live at ${fetched}.`
+    : `Instructor Grade Archive: reused from prior runs fetched at ${fetched}.`;
+}
+
 export function renderRefreshReportMarkdown(report: EtlRefreshReport): string {
   const lines = [
     `# ETL Refresh Report`,
@@ -233,6 +252,8 @@ export function renderRefreshReportMarkdown(report: EtlRefreshReport): string {
     `Totals: ${report.totals.terms_changed} terms changed, ` +
       `+${report.totals.courses_added}/-${report.totals.courses_removed} courses, ` +
       `${report.totals.courses_changed} courses changed in place.`,
+    ``,
+    instructorGradeArchiveLine(report.instructor_grade_archive),
     ``,
     `| Term | Status | Courses | +/- | Changed | Sections | Missing desc | Manifest ok/empty/failed/partial |`,
     `| --- | --- | --- | --- | --- | --- | --- | --- |`,

@@ -27,8 +27,51 @@ export type RawInstructorGradeArchiveSource = {
 
 const instructorGradeArchiveUrl =
   'https://qa-as.ucsd.edu/Home/InstructorGradeArchive';
+const instructorGradeArchiveHost = new URL(instructorGradeArchiveUrl).host;
 
 type FetchAdapter = typeof fetch;
+
+function requestHost(input: Parameters<typeof fetch>[0]): string {
+  if (typeof input === 'string') return new URL(input).host;
+  if (input instanceof URL) return input.host;
+  return new URL(input.url).host;
+}
+
+/**
+ * Since 2026-09 the Instructor Grade Archive sits behind UCSD Single Sign-On.
+ * The operator establishes the session in a browser and hands the resulting
+ * `Cookie` header value to the ETL; this adapter attaches it to requests for
+ * the archive host only, so the credential never reaches any other source.
+ */
+export function withInstructorGradeArchiveSession(
+  sessionCookie: string,
+  baseFetch: FetchAdapter = fetch,
+): FetchAdapter {
+  return (input, init) => {
+    if (requestHost(input) !== instructorGradeArchiveHost)
+      return baseFetch(input, init);
+    const headers = new Headers(init?.headers);
+    headers.set('Cookie', sessionCookie);
+    return baseFetch(input, { ...init, headers });
+  };
+}
+
+function redirectedToSingleSignOn(response: Response): boolean {
+  if (response.type === 'opaqueredirect') return true;
+  return response.status >= 300 && response.status < 400;
+}
+
+/** The login location without its SAML request blob, for readable errors. */
+function redirectTarget(response: Response): string {
+  const location = response.headers.get('location');
+  if (!location) return 'unknown location';
+  try {
+    const url = new URL(location, instructorGradeArchiveUrl);
+    return `${url.origin}${url.pathname}`;
+  } catch {
+    return location;
+  }
+}
 
 const requiredHeaders = [
   'Subject',
@@ -215,7 +258,19 @@ export async function fetchRawInstructorGradeArchiveForSubject(
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body,
+    // Following the redirect would land on the Single Sign-On login page with
+    // a 200 status and no table; surface the authentication failure instead.
+    redirect: 'manual',
   });
+
+  if (redirectedToSingleSignOn(response)) {
+    throw new Error(
+      `Instructor Grade Archive redirected ${subject} to UCSD Single Sign-On` +
+        ` (${response.status} -> ${redirectTarget(response)});` +
+        ' the archive requires a current browser session cookie,' +
+        ' see docs/etl_refresh.md (Instructor Grade Archive session)',
+    );
+  }
 
   if (!response.ok) {
     throw new Error(

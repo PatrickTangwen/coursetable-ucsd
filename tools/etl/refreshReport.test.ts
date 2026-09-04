@@ -66,6 +66,10 @@ describe('buildRefreshReport', () => {
     await writeTerm(afterDirectory, 'SAME', [course('SAME:1', {})]);
 
     const report = await buildRefreshReport({
+      instructorGradeArchive: {
+        mode: 'reused',
+        source_timestamps: ['2026-08-31T11:00:06.771Z'],
+      },
       beforePublicDirectory: beforeDirectory,
       afterPublicDirectory: afterDirectory,
       generatedAt: '2026-08-05T12:00:00.000Z',
@@ -101,6 +105,9 @@ describe('buildRefreshReport', () => {
     });
 
     const markdown = renderRefreshReportMarkdown(report);
+    expect(markdown).toContain(
+      'Instructor Grade Archive: reused from prior runs fetched at 2026-08-31T11:00:06.771Z.',
+    );
     expect(markdown).toContain('| S126 | changed | 2 -> 2 | +1/-1 | 1 |');
     expect(markdown).toContain('| 3/1/0/0 |');
 
@@ -123,6 +130,10 @@ describe('buildRefreshReport', () => {
     await captureCatalogState(publicDirectory, beforeDirectory);
 
     const report = await buildRefreshReport({
+      instructorGradeArchive: {
+        mode: 'reused',
+        source_timestamps: ['2026-08-31T11:00:06.771Z'],
+      },
       beforePublicDirectory: beforeDirectory,
       afterPublicDirectory: publicDirectory,
       generatedAt: '2026-08-05T12:00:00.000Z',
