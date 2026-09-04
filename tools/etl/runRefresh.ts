@@ -36,11 +36,20 @@ import {
   writeRefreshReport,
   type EtlRefreshReport,
   type ManifestSummary,
+  type InstructorGradeArchiveProvenance,
 } from './refreshReport';
 import { withSpan } from './telemetry';
 import type { CatalogSnapshotConfig } from '../catalog-snapshot/catalogSnapshot';
+import { withInstructorGradeArchiveSession } from '../catalog-snapshot/instructorGradeArchive';
 import { runMultiTermSnapshotPipeline } from '../catalog-snapshot/multiTermPipeline';
-import type { PublishedSnapshotSourceLoaders } from '../catalog-snapshot/publishedSnapshotPipeline';
+import {
+  defaultSourceLoaders,
+  type PublishedSnapshotSourceLoaders,
+} from '../catalog-snapshot/publishedSnapshotPipeline';
+import {
+  loadReusableInstructorGradeArchive,
+  reusedInstructorGradeArchiveLoader,
+} from '../catalog-snapshot/reusedInstructorGradeArchive';
 import { readSupportedTermRegistry } from '../catalog-snapshot/supportedTermRegistry';
 import {
   discoverTermWindow,
@@ -59,10 +68,22 @@ import { convertClassplannerRunToTss } from '../classplanner-scraper/classplanne
 
 const defaultSupportedTermsPath = 'frontend/src/generated/supported-terms.json';
 
+export type InstructorGradeArchiveMode =
+  | { mode: 'live'; sessionCookie: string }
+  | { mode: 'reuse' };
+
 export type EtlRefreshOptions = {
   config: CatalogSnapshotConfig;
   /** Injectable for tests; every live source request goes through this. */
   fetch?: typeof fetch;
+  /**
+   * How the Instructor Grade Archive is sourced (ADR 0045). `live` fetches it
+   * with the operator's Single Sign-On cookie (attached to archive requests
+   * only); `reuse` serves each subject from the newest prior normalized run
+   * without touching the network. Omitted: the injected or default loaders
+   * fetch unauthenticated (tests).
+   */
+  instructorGradeArchive?: InstructorGradeArchiveMode;
   /** Explicit Term Window (skips live discovery); used by tests. */
   terms?: TermDescriptor[];
   candidateYears?: number[];
@@ -115,6 +136,52 @@ function runCommand(command: string, args: string[]): Promise<void> {
 async function defaultRunValidators(): Promise<void> {
   await runCommand('bun', ['run', 'validate:staging-deployment']);
   await runCommand('bun', ['run', 'validate:production-deployment']);
+}
+
+async function resolveInstructorGradeArchive(
+  options: EtlRefreshOptions,
+  generatedAt: string,
+): Promise<{
+  fetch: typeof fetch | undefined;
+  sourceLoaders: PublishedSnapshotSourceLoaders | undefined;
+  report: InstructorGradeArchiveProvenance;
+  description: string;
+}> {
+  const selected = options.instructorGradeArchive;
+  if (selected?.mode === 'reuse') {
+    const reusable = await loadReusableInstructorGradeArchive({
+      normalizedDirectory: options.config.paths.normalized_dir,
+      before: generatedAt,
+    });
+    return {
+      fetch: options.fetch,
+      sourceLoaders: {
+        ...(options.sourceLoaders ?? defaultSourceLoaders()),
+        instructorGradeArchive: reusedInstructorGradeArchiveLoader(reusable),
+      },
+      report: { mode: 'reused', source_timestamps: reusable.sourceTimestamps },
+      description:
+        `Instructor Grade Archive: reusing ${String(reusable.bySubject.size)} ` +
+        `subjects from ${reusable.runs.join(', ')}`,
+    };
+  }
+  if (selected?.mode === 'live') {
+    return {
+      fetch: withInstructorGradeArchiveSession(
+        selected.sessionCookie,
+        options.fetch,
+      ),
+      sourceLoaders: options.sourceLoaders,
+      report: { mode: 'live', source_timestamps: [generatedAt] },
+      description: 'Instructor Grade Archive: live fetch with operator session',
+    };
+  }
+  return {
+    fetch: options.fetch,
+    sourceLoaders: options.sourceLoaders,
+    report: { mode: 'live', source_timestamps: [generatedAt] },
+    description: 'Instructor Grade Archive: live fetch (unauthenticated)',
+  };
 }
 
 export async function runEtlRefresh(
@@ -184,7 +251,14 @@ export async function runEtlRefresh(
 
   const manifestSummaries: { [term: string]: ManifestSummary } = {};
 
-  // 3. Schedule of Classes multi-term refresh.
+  // 3. Schedule of Classes multi-term refresh. The Instructor Grade Archive
+  // is either fetched live behind the operator's session or reused from the
+  // newest prior normalized run (ADR 0045); the report records which.
+  const gradeArchive = await resolveInstructorGradeArchive(
+    options,
+    generatedAt,
+  );
+  log(gradeArchive.description);
   const socResult = await withSpan(
     'etl.soc_refresh',
     { 'etl.terms': scheduleOfClassesTerms.join(',') },
@@ -192,8 +266,8 @@ export async function runEtlRefresh(
       runMultiTermSnapshotPipeline(config, {
         terms: socDescriptors,
         generatedAt,
-        fetch: options.fetch,
-        sourceLoaders: options.sourceLoaders,
+        fetch: gradeArchive.fetch,
+        sourceLoaders: gradeArchive.sourceLoaders,
       }),
   );
   for (const { descriptor, result } of socResult.terms)
@@ -279,6 +353,7 @@ export async function runEtlRefresh(
       afterPublicDirectory: config.paths.public_catalog_dir,
       generatedAt,
       manifestSummaries,
+      instructorGradeArchive: gradeArchive.report,
     }),
   );
   const reportPaths = await writeRefreshReport(report, reportDirectory);

@@ -1,4 +1,11 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import {
+  access,
+  mkdir,
+  mkdtemp,
+  readFile,
+  rm,
+  writeFile,
+} from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -12,6 +19,10 @@ import {
   runPublishedSnapshotPipeline,
   type PublishedSnapshotSourceLoaders,
 } from './publishedSnapshotPipeline';
+import {
+  loadReusableInstructorGradeArchive,
+  reusedInstructorGradeArchiveLoader,
+} from './reusedInstructorGradeArchive';
 
 const generatedAt = '2026-06-19T12:00:00.000Z';
 
@@ -673,5 +684,100 @@ describe('Published Snapshot pipeline', () => {
       success: false,
       errors: ['excluded field $.courses[0].sections[0].raw.waitlist'],
     });
+  });
+  it('reuses prior Instructor Grade Archive artifacts without fetching or rewriting them', async () => {
+    const config = await makeTempConfig();
+    const priorRun = 'multi-2026-06-01T11:00:00.000Z-prior-FA26';
+    const priorDirectory = join(
+      config.paths.normalized_dir,
+      priorRun,
+      'instructor_grade_archive',
+    );
+    await mkdir(priorDirectory, { recursive: true });
+    const priorArtifacts: { [subject: string]: string } = {};
+    for (const subject of ['CSE', 'MATH']) {
+      const record = {
+        subject,
+        course: courseNumber(subject),
+        year: '2025',
+        quarter: 'FA',
+        title: `${subject} Catalog Title`,
+        instructor: `${subject} Instructor`,
+        gpa: subject === 'CSE' ? 3.5 : 3.75,
+        a: 50,
+        b: 30,
+        c: 10,
+        d: 5,
+        f: 1,
+        w: 4,
+        p: 0,
+        np: 0,
+        raw: {},
+      };
+      priorArtifacts[subject] = join(priorDirectory, `${subject}.json`);
+      await writeFile(priorArtifacts[subject], JSON.stringify([record]));
+    }
+    const reusable = await loadReusableInstructorGradeArchive({
+      normalizedDirectory: config.paths.normalized_dir,
+      before: generatedAt,
+    });
+
+    const result = await runPublishedSnapshotPipeline(config, {
+      runId: 'run-reused-grades',
+      generatedAt,
+      sourceLoaders: {
+        ...makeSourceLoaders(),
+        instructorGradeArchive: reusedInstructorGradeArchiveLoader(reusable),
+      },
+    });
+
+    const publishedSnapshot = JSON.parse(
+      await readFile(result.snapshotPath, 'utf-8'),
+    ) as CatalogSnapshot;
+    expect(publishedSnapshot.source_timestamps).toEqual({
+      schedule_of_classes: 'schedule timestamp CSE',
+      general_catalog: generatedAt,
+      instructor_grade_archive: '2026-06-01T11:00:00.000Z',
+    });
+    expect(
+      publishedSnapshot.courses.map((course) => course.archive_avg_gpa),
+    ).toEqual([3.5, 3.75]);
+
+    const gradeCells = result.manifest.cells.filter(
+      (cell) => cell.source === 'instructor_grade_archive',
+    );
+    expect(gradeCells).toEqual([
+      expect.objectContaining({
+        subject: 'CSE',
+        status: 'ok',
+        raw_artifacts: [],
+        normalized_artifact: priorArtifacts.CSE,
+      }),
+      expect.objectContaining({
+        subject: 'MATH',
+        status: 'ok',
+        raw_artifacts: [],
+        normalized_artifact: priorArtifacts.MATH,
+      }),
+    ]);
+    // Nothing is written for a reused source in the new run.
+    await expect(
+      access(
+        join(
+          config.paths.normalized_dir,
+          'run-reused-grades',
+          'instructor_grade_archive',
+        ),
+      ),
+    ).rejects.toThrow();
+    await expect(
+      access(
+        join(
+          config.paths.raw_dir,
+          'run-reused-grades',
+          'instructor_grade_archive',
+        ),
+      ),
+    ).rejects.toThrow();
   });
 });

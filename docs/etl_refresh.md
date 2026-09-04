@@ -105,6 +105,45 @@ The hosted alternative (Cloudflare Workers Cron + Workflows) stays deferred
 until `data/raw` and `data/normalized` are archived to R2; without that
 state a hosted runner cannot consolidate historical normalized metadata.
 
+## Instructor Grade Archive On Demand (2026-09-03, ADR 0045)
+
+Since early September 2026 `qa-as.ucsd.edu/Home/InstructorGradeArchive`
+redirects anonymous requests to UCSD Single Sign-On. The signed-in page and
+its table are unchanged, but a Single Sign-On session lasts about two hours,
+so an unattended run cannot fetch the archive. Schedule of Classes and General
+Catalog are unaffected.
+
+`run-refresh.mts --grade-archive <mode>` therefore has two modes:
+
+- **`reuse` (default, what the launchd schedule runs).** No archive request is
+  made. Each Configured Subject is served from the newest prior normalized run
+  under `data/normalized/` that holds `instructor_grade_archive/<SUBJECT>.json`.
+  The Import Manifest cell points at that artifact (so retention keeps the run,
+  ADR 0044), the snapshot's `source_timestamps.instructor_grade_archive` stays
+  the original fetch time, and the refresh report states which fetch dates the
+  grades come from. A subject that has never been fetched is a `failed` cell;
+  a clone with no prior run at all aborts with an instruction to run `live`.
+- **`live`.** Fetches the archive behind the operator's session cookie,
+  attached to requests for the archive host only. A redirect to Single Sign-On
+  fails the run with `Instructor Grade Archive redirected <subject> to UCSD
+Single Sign-On` instead of parsing the login page.
+
+Refresh the grades (roughly once per quarter, after grades post) with:
+
+```bash
+bun tools/etl/capture-grade-archive-session.mts   # opens Chrome; you sign in
+bun run etl:refresh:grades                         # live mode, same PR flow
+```
+
+The capture script opens a fresh Chrome window on the archive page; Single
+Sign-On and two-step login are done by the operator, never by tooling. Once
+the archive form loads it writes the browser's cookies for `qa-as.ucsd.edu`
+as one `Cookie` header line to `~/.coursetable-etl/grade-archive-session`
+(mode 600, outside the repository), proves the file with one archive query,
+and closes the window. `check-grade-archive-session.mts` re-proves an existing
+file. After a live refresh, commit and open the PR as for any manual run of
+`etl:refresh`; the next scheduled `reuse` runs carry the new grades forward.
+
 ## Post-Merge Protected Rollout (2026-08-10, ADR 0043)
 
 This section supersedes the earlier statement that deployment dispatch remains

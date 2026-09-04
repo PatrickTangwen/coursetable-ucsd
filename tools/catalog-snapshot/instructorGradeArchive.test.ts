@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  withInstructorGradeArchiveSession,
   fetchInstructorGradeArchiveForSubjects,
   fetchInstructorGradeArchiveForSubject,
   parseInstructorGradeArchiveHtml,
@@ -249,5 +250,65 @@ describe('Instructor Grade Archive fetcher', () => {
       'MATH',
       'MATH',
     ]);
+  });
+});
+
+describe('Instructor Grade Archive session', () => {
+  const htmlResponse = () =>
+    Promise.resolve(
+      new Response(cseFixture, {
+        status: 200,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' },
+      }),
+    );
+
+  it('attaches the session cookie to archive requests only', async () => {
+    const cookies: { url: string; cookie: string | null }[] = [];
+    const sessionFetch = withInstructorGradeArchiveSession(
+      '_shibsession_abc=def; ASP.NET_SessionId=123',
+      (url, init) => {
+        cookies.push({
+          url: requestUrlText(url),
+          cookie: new Headers(init?.headers).get('Cookie'),
+        });
+        return htmlResponse();
+      },
+    );
+
+    await fetchInstructorGradeArchiveForSubject('CSE', { fetch: sessionFetch });
+    await sessionFetch('https://act.ucsd.edu/scheduleOfClasses/x', {
+      headers: { Accept: 'text/html' },
+    });
+
+    expect(cookies).toEqual([
+      {
+        url: 'https://qa-as.ucsd.edu/Home/InstructorGradeArchive',
+        cookie: '_shibsession_abc=def; ASP.NET_SessionId=123',
+      },
+      { url: 'https://act.ucsd.edu/scheduleOfClasses/x', cookie: null },
+    ]);
+  });
+
+  it('reports a Single Sign-On redirect instead of parsing the login page', async () => {
+    let redirectMode: RequestRedirect | undefined = undefined;
+    await expect(
+      fetchInstructorGradeArchiveForSubject('CSE', {
+        fetch(_url, init) {
+          redirectMode = init?.redirect;
+          return Promise.resolve(
+            new Response(null, {
+              status: 302,
+              headers: {
+                Location:
+                  'https://a5.ucsd.edu/tritON/profile/SAML2/Redirect/SSO?SAMLRequest=x',
+              },
+            }),
+          );
+        },
+      }),
+    ).rejects.toThrow(
+      /redirected CSE to UCSD Single Sign-On \(302 -> https:\/\/a5\.ucsd\.edu/u,
+    );
+    expect(redirectMode).toBe('manual');
   });
 });

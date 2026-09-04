@@ -158,6 +158,11 @@ logs, or transient setup notes directly in ADRs.
   local raw/normalized runs only while the accepted baseline, refresh
   candidate, or an explicit parser-replay/audit pin reaches them, without
   changing the durable Published/Frozen Snapshot Term Archive.
+- `0045-instructor-grade-archive-as-on-demand-source.md`: scheduled refreshes
+  reuse the newest prior Instructor Grade Archive artifacts (the archive now
+  sits behind a two-hour Single Sign-On session); grades are refreshed on
+  demand in a `live` mode that sends the operator's session cookie to the
+  archive host only and fails explicitly on a login redirect.
 
 ## Editing Rule
 

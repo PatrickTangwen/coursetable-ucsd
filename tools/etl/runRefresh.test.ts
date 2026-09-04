@@ -326,6 +326,88 @@ describe('runEtlRefresh', () => {
     );
   }, 60_000);
 
+  it('reuses the newest prior Instructor Grade Archive run and keeps it reachable', async () => {
+    const config = await makeConfig();
+    const priorRun = 'multi-2026-07-01T11:00:00.000Z-prior-SP26';
+    const priorDirectory = join(
+      config.paths.normalized_dir,
+      priorRun,
+      'instructor_grade_archive',
+    );
+    await mkdir(priorDirectory, { recursive: true });
+    const priorArtifact = join(priorDirectory, 'CSE.json');
+    await writeFile(
+      priorArtifact,
+      JSON.stringify([
+        {
+          subject: 'CSE',
+          course: '101',
+          year: '2025',
+          quarter: 'FA',
+          title: 'CSE Catalog Title',
+          instructor: 'CSE Instructor',
+          gpa: 3.25,
+          a: 50,
+          b: 30,
+          c: 10,
+          d: 5,
+          f: 1,
+          w: 4,
+          p: 0,
+          np: 0,
+          raw: {},
+        },
+      ]),
+    );
+    const loaders = makeLoaders();
+    let archiveFetches = 0;
+    loaders.instructorGradeArchive = (subject, context) => {
+      archiveFetches += 1;
+      return makeLoaders().instructorGradeArchive(subject, context);
+    };
+
+    const result = await runEtlRefresh({
+      config,
+      generatedAt,
+      terms: [{ term: 'SP26', label: 'Spring 2026' }],
+      sourceLoaders: loaders,
+      instructorGradeArchive: { mode: 'reuse' },
+      fetch: makePlannerFetch({ plannerTermCode: 'FA26' }),
+      classplannerBaseUrl: plannerBaseUrl,
+      classplannerRequestDelayMs: 0,
+      supportedTermsPath: join(
+        config.paths.reports_dir,
+        'supported-terms.json',
+      ),
+      runValidators: () => Promise.resolve(),
+      log() {},
+    });
+
+    expect(archiveFetches).toBe(0);
+    expect(result.report.instructor_grade_archive).toEqual({
+      mode: 'reused',
+      source_timestamps: ['2026-07-01T11:00:00.000Z'],
+    });
+    await expect(
+      readFile(result.reportPaths.markdownPath, 'utf-8'),
+    ).resolves.toContain(
+      'Instructor Grade Archive: reused from prior runs fetched at 2026-07-01T11:00:00.000Z.',
+    );
+    const sp26 = JSON.parse(
+      await readFile(
+        join(config.paths.public_catalog_dir, 'SP26.json'),
+        'utf-8',
+      ),
+    ) as CatalogSnapshot;
+    expect(sp26.source_timestamps.instructor_grade_archive).toBe(
+      '2026-07-01T11:00:00.000Z',
+    );
+    expect(sp26.courses[0]?.archive_avg_gpa).toBe(3.25);
+    // The new manifest still reaches the prior run, so retention keeps it.
+    expect(result.retention.removedNormalizedRuns).toEqual([]);
+    await expect(access(priorArtifact)).resolves.toBeUndefined();
+  }, 60_000);
+
   it('aborts before mutating anything when a term is served by both sources', async () => {
     const config = await makeConfig();
     const validatorCalls: string[] = [];
