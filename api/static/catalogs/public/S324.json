@@ -1,6 +1,6 @@
 {
-  "run_id": "multi-2026-08-31T11:00:06.771Z-76f3bdcf-63ce-4d37-a8f5-cbe1c2a9a924-S324",
-  "generated_at": "2026-08-31T11:00:06.771Z",
+  "run_id": "multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-S324",
+  "generated_at": "2026-09-04T03:04:31.293Z",
   "active_planning_term": "S324",
   "term_label": "Special Summer Session 2024",
   "term_date_range": {
@@ -56,8 +56,8 @@
   ],
   "source_timestamps": {
     "schedule_of_classes": "11/05/2024, 04:24:00",
-    "general_catalog": "2026-08-31T11:00:06.771Z",
-    "instructor_grade_archive": "2026-08-31T11:00:06.771Z"
+    "general_catalog": "2026-09-04T03:04:31.293Z",
+    "instructor_grade_archive": "2026-09-04T03:04:31.293Z"
   },
   "courses": [
     {
@@ -104,7 +104,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "97",
@@ -142,7 +142,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "97",
@@ -180,7 +180,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "97",
@@ -218,7 +218,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "97",
@@ -273,7 +273,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -311,7 +311,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -349,7 +349,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -387,7 +387,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -425,7 +425,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -463,7 +463,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -501,7 +501,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -539,7 +539,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -577,7 +577,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -615,7 +615,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -653,7 +653,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -691,7 +691,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -729,7 +729,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -767,7 +767,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -805,7 +805,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -843,7 +843,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -881,7 +881,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -919,7 +919,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -957,7 +957,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -995,7 +995,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1033,7 +1033,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1071,7 +1071,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1109,7 +1109,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1147,7 +1147,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1185,7 +1185,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1223,7 +1223,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1261,7 +1261,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1299,7 +1299,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1337,7 +1337,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1375,7 +1375,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1413,7 +1413,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1451,7 +1451,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1489,7 +1489,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1527,7 +1527,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1565,7 +1565,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1603,7 +1603,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1641,7 +1641,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1679,7 +1679,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1717,7 +1717,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1755,7 +1755,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1793,7 +1793,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1831,7 +1831,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1869,7 +1869,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1907,7 +1907,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1945,7 +1945,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -1983,7 +1983,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -2021,7 +2021,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -2059,7 +2059,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -2097,7 +2097,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AIP",
             "raw_course_number": "197",
@@ -2152,7 +2152,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ANAR",
             "raw_course_number": "135S",
@@ -2212,7 +2212,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "AESE",
             "raw_course_number": "279B",
@@ -2506,7 +2506,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BENG",
             "raw_course_number": "196",
@@ -2544,7 +2544,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BENG",
             "raw_course_number": "196",
@@ -2582,7 +2582,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BENG",
             "raw_course_number": "196",
@@ -2637,7 +2637,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BENG",
             "raw_course_number": "295",
@@ -2692,7 +2692,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "197",
@@ -2730,7 +2730,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "197",
@@ -2768,7 +2768,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "197",
@@ -2806,7 +2806,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "197",
@@ -2861,7 +2861,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -2899,7 +2899,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -2937,7 +2937,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -2975,7 +2975,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3013,7 +3013,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3051,7 +3051,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3089,7 +3089,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3127,7 +3127,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3165,7 +3165,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3203,7 +3203,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3241,7 +3241,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3279,7 +3279,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3317,7 +3317,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3355,7 +3355,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3393,7 +3393,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3431,7 +3431,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3469,7 +3469,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3507,7 +3507,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3545,7 +3545,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3583,7 +3583,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3621,7 +3621,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3659,7 +3659,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3697,7 +3697,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3735,7 +3735,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3773,7 +3773,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3811,7 +3811,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "BISP",
             "raw_course_number": "199",
@@ -3866,7 +3866,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CHEM",
             "raw_course_number": "197",
@@ -3921,7 +3921,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CHEM",
             "raw_course_number": "199",
@@ -3959,7 +3959,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CHEM",
             "raw_course_number": "199",
@@ -3997,7 +3997,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CHEM",
             "raw_course_number": "199",
@@ -4035,7 +4035,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CHEM",
             "raw_course_number": "199",
@@ -4073,7 +4073,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CHEM",
             "raw_course_number": "199",
@@ -4111,7 +4111,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CHEM",
             "raw_course_number": "199",
@@ -4149,7 +4149,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CHEM",
             "raw_course_number": "199",
@@ -4204,7 +4204,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CCS",
             "raw_course_number": "197",
@@ -4276,7 +4276,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CLRE",
             "raw_course_number": "250",
@@ -4344,7 +4344,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CLRE",
             "raw_course_number": "251",
@@ -4412,7 +4412,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CLRE",
             "raw_course_number": "251",
@@ -4497,7 +4497,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CLRE",
             "raw_course_number": "252",
@@ -4569,7 +4569,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CLRE",
             "raw_course_number": "253",
@@ -4624,7 +4624,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CLRE",
             "raw_course_number": "253",
@@ -4694,7 +4694,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CLRE",
             "raw_course_number": "259",
@@ -4749,7 +4749,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CLRE",
             "raw_course_number": "260",
@@ -4804,7 +4804,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CLRE",
             "raw_course_number": "297",
@@ -4859,7 +4859,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "COGS",
             "raw_course_number": "197",
@@ -4897,7 +4897,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "COGS",
             "raw_course_number": "197",
@@ -4935,7 +4935,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "COGS",
             "raw_course_number": "197",
@@ -4973,7 +4973,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "COGS",
             "raw_course_number": "197",
@@ -5011,7 +5011,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "COGS",
             "raw_course_number": "197",
@@ -5066,7 +5066,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "COGS",
             "raw_course_number": "199",
@@ -5104,7 +5104,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "COGS",
             "raw_course_number": "199",
@@ -5159,7 +5159,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "COGS",
             "raw_course_number": "298",
@@ -5214,7 +5214,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "COMM",
             "raw_course_number": "199",
@@ -5252,7 +5252,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "COMM",
             "raw_course_number": "199",
@@ -5347,7 +5347,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CSS",
             "raw_course_number": "201S",
@@ -5442,7 +5442,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CSS",
             "raw_course_number": "202S",
@@ -6314,7 +6314,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CSE",
             "raw_course_number": "191",
@@ -6369,7 +6369,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CSE",
             "raw_course_number": "197",
@@ -6424,7 +6424,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CSE",
             "raw_course_number": "199",
@@ -6462,7 +6462,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CSE",
             "raw_course_number": "199",
@@ -6500,7 +6500,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CSE",
             "raw_course_number": "199",
@@ -6538,7 +6538,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CSE",
             "raw_course_number": "199",
@@ -6593,7 +6593,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CSE",
             "raw_course_number": "298",
@@ -6648,7 +6648,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CSE",
             "raw_course_number": "299",
@@ -6686,7 +6686,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CSE",
             "raw_course_number": "299",
@@ -6724,7 +6724,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CSE",
             "raw_course_number": "299",
@@ -6762,7 +6762,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CSE",
             "raw_course_number": "299",
@@ -6800,7 +6800,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CSE",
             "raw_course_number": "299",
@@ -6868,7 +6868,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CAT",
             "raw_course_number": "124RS",
@@ -6936,7 +6936,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "CAT",
             "raw_course_number": "125RS",
@@ -6991,7 +6991,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "DSC",
             "raw_course_number": "197",
@@ -7046,7 +7046,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "DSC",
             "raw_course_number": "297",
@@ -7238,7 +7238,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EAP",
             "raw_course_number": "100",
@@ -7909,7 +7909,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "115",
@@ -9239,7 +9239,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "117",
@@ -10129,7 +10129,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "125",
@@ -10476,7 +10476,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "128A",
@@ -10891,7 +10891,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "128B",
@@ -14007,7 +14007,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "139",
@@ -14045,7 +14045,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "139",
@@ -14104,7 +14104,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "201",
@@ -14190,7 +14190,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "203",
@@ -14261,7 +14261,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "204R",
@@ -14315,7 +14315,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "204R",
@@ -14373,7 +14373,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "206R",
@@ -14414,7 +14414,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "206R",
@@ -14473,7 +14473,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "250",
@@ -14528,7 +14528,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "281",
@@ -14583,7 +14583,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "284",
@@ -14655,7 +14655,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "286",
@@ -14723,7 +14723,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "289C",
@@ -14780,7 +14780,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "290",
@@ -14835,7 +14835,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "299",
@@ -14919,7 +14919,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "373",
@@ -15003,7 +15003,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "374",
@@ -15087,7 +15087,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "375",
@@ -15160,7 +15160,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "376",
@@ -15219,7 +15219,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "EDS",
             "raw_course_number": "385",
@@ -16342,7 +16342,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "45",
@@ -16989,7 +16989,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "100",
@@ -17040,7 +17040,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "100",
@@ -17926,7 +17926,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "111",
@@ -17981,7 +17981,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "197",
@@ -18019,7 +18019,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "197",
@@ -18074,7 +18074,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "199",
@@ -18112,7 +18112,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "199",
@@ -18150,7 +18150,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "199",
@@ -18188,7 +18188,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "199",
@@ -18243,7 +18243,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "298",
@@ -18281,7 +18281,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "298",
@@ -18336,7 +18336,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "299",
@@ -18374,7 +18374,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "299",
@@ -18412,7 +18412,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "299",
@@ -18450,7 +18450,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "299",
@@ -18488,7 +18488,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "299",
@@ -18526,7 +18526,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "299",
@@ -18564,7 +18564,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ECE",
             "raw_course_number": "299",
@@ -18619,7 +18619,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ETHN",
             "raw_course_number": "199",
@@ -18657,7 +18657,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "ETHN",
             "raw_course_number": "199",
@@ -18712,7 +18712,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "FMPH",
             "raw_course_number": "199",
@@ -18750,7 +18750,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "FMPH",
             "raw_course_number": "199",
@@ -18807,7 +18807,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "FMPH",
             "raw_course_number": "496B",
@@ -18862,7 +18862,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "FMPH",
             "raw_course_number": "498",
@@ -18900,7 +18900,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "FMPH",
             "raw_course_number": "498",
@@ -18938,7 +18938,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "FMPH",
             "raw_course_number": "498",
@@ -18993,7 +18993,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "FPM",
             "raw_course_number": "297",
@@ -19048,7 +19048,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "HITO",
             "raw_course_number": "199",
@@ -19172,7 +19172,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "HDS",
             "raw_course_number": "193",
@@ -19240,7 +19240,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "LIGM",
             "raw_course_number": "5A",
@@ -19308,7 +19308,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "LIGM",
             "raw_course_number": "5B",
@@ -19376,7 +19376,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "LIGM",
             "raw_course_number": "5C",
@@ -19444,7 +19444,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "LIIT",
             "raw_course_number": "5AS",
@@ -19512,7 +19512,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "LIIT",
             "raw_course_number": "5BS",
@@ -19580,7 +19580,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "LIIT",
             "raw_course_number": "5CS",
@@ -19670,7 +19670,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "LISP",
             "raw_course_number": "5A",
@@ -19760,7 +19760,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "LISP",
             "raw_course_number": "5B",
@@ -19851,7 +19851,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "LISP",
             "raw_course_number": "5C",
@@ -19906,7 +19906,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "LTEN",
             "raw_course_number": "199",
@@ -19974,7 +19974,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MMW",
             "raw_course_number": "12R",
@@ -20025,7 +20025,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MMW",
             "raw_course_number": "12R",
@@ -20093,7 +20093,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MMW",
             "raw_course_number": "13R",
@@ -20144,7 +20144,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MMW",
             "raw_course_number": "13R",
@@ -20195,7 +20195,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MMW",
             "raw_course_number": "13R",
@@ -20246,7 +20246,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MMW",
             "raw_course_number": "13R",
@@ -22219,7 +22219,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MATH",
             "raw_course_number": "10A",
@@ -22274,7 +22274,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MATH",
             "raw_course_number": "197",
@@ -22312,7 +22312,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MATH",
             "raw_course_number": "197",
@@ -22350,7 +22350,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MATH",
             "raw_course_number": "197",
@@ -22388,7 +22388,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MATH",
             "raw_course_number": "197",
@@ -22426,7 +22426,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MATH",
             "raw_course_number": "197",
@@ -22464,7 +22464,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MATH",
             "raw_course_number": "197",
@@ -22502,7 +22502,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MATH",
             "raw_course_number": "197",
@@ -22557,7 +22557,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MAE",
             "raw_course_number": "197",
@@ -22595,7 +22595,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MAE",
             "raw_course_number": "197",
@@ -22633,7 +22633,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MAE",
             "raw_course_number": "197",
@@ -22671,7 +22671,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MAE",
             "raw_course_number": "197",
@@ -22709,7 +22709,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MAE",
             "raw_course_number": "197",
@@ -22747,7 +22747,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MAE",
             "raw_course_number": "197",
@@ -22785,7 +22785,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MAE",
             "raw_course_number": "197",
@@ -22840,7 +22840,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MAE",
             "raw_course_number": "299",
@@ -22878,7 +22878,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MAE",
             "raw_course_number": "299",
@@ -22971,7 +22971,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MCWP",
             "raw_course_number": "40R",
@@ -23012,7 +23012,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MCWP",
             "raw_course_number": "40R",
@@ -23053,7 +23053,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MCWP",
             "raw_course_number": "40R",
@@ -23248,7 +23248,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MCWP",
             "raw_course_number": "50R",
@@ -23289,7 +23289,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MCWP",
             "raw_course_number": "50R",
@@ -23330,7 +23330,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MCWP",
             "raw_course_number": "50R",
@@ -23371,7 +23371,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MCWP",
             "raw_course_number": "50R",
@@ -23412,7 +23412,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MCWP",
             "raw_course_number": "50R",
@@ -23453,7 +23453,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MCWP",
             "raw_course_number": "50R",
@@ -23494,7 +23494,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MCWP",
             "raw_course_number": "50R",
@@ -23535,7 +23535,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MCWP",
             "raw_course_number": "50R",
@@ -23590,7 +23590,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "NEU",
             "raw_course_number": "199",
@@ -23645,7 +23645,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "NEU",
             "raw_course_number": "299",
@@ -23700,7 +23700,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "PEDS",
             "raw_course_number": "199",
@@ -23756,7 +23756,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "PHIL",
             "raw_course_number": "191A",
@@ -23811,7 +23811,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "PSY",
             "raw_course_number": "199",
@@ -23879,7 +23879,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "PSYC",
             "raw_course_number": "196A",
@@ -23934,7 +23934,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "PSYC",
             "raw_course_number": "199",
@@ -23972,7 +23972,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "PSYC",
             "raw_course_number": "199",
@@ -24010,7 +24010,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "PSYC",
             "raw_course_number": "199",
@@ -24048,7 +24048,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "PSYC",
             "raw_course_number": "199",
@@ -24107,7 +24107,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGTF",
             "raw_course_number": "490",
@@ -24162,7 +24162,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "199",
@@ -24200,7 +24200,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "199",
@@ -24238,7 +24238,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "199",
@@ -24276,7 +24276,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "199",
@@ -24314,7 +24314,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "199",
@@ -24369,7 +24369,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "402",
@@ -24407,7 +24407,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "402",
@@ -24445,7 +24445,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "402",
@@ -24500,7 +24500,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "406",
@@ -24538,7 +24538,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "406",
@@ -24593,7 +24593,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "409",
@@ -24650,7 +24650,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "417",
@@ -24722,7 +24722,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "421",
@@ -24779,7 +24779,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "433",
@@ -24834,7 +24834,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "439",
@@ -24906,7 +24906,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "446",
@@ -24978,7 +24978,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "449",
@@ -25050,7 +25050,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "453",
@@ -25107,7 +25107,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "489",
@@ -25147,7 +25147,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "489",
@@ -25219,7 +25219,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "491",
@@ -25291,7 +25291,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "495",
@@ -25346,7 +25346,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "497",
@@ -25401,7 +25401,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "499",
@@ -25439,7 +25439,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "499",
@@ -25477,7 +25477,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "499",
@@ -25515,7 +25515,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "499",
@@ -25553,7 +25553,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGT",
             "raw_course_number": "499",
@@ -25610,7 +25610,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGTA",
             "raw_course_number": "415",
@@ -25665,7 +25665,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGTA",
             "raw_course_number": "444",
@@ -25722,7 +25722,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "MGTA",
             "raw_course_number": "464",
@@ -25777,7 +25777,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "RMED",
             "raw_course_number": "296",
@@ -25880,7 +25880,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SIOC",
             "raw_course_number": "290S",
@@ -25996,7 +25996,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SIOC",
             "raw_course_number": "291S",
@@ -26051,7 +26051,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SIO",
             "raw_course_number": "199",
@@ -26089,7 +26089,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SIO",
             "raw_course_number": "199",
@@ -26127,7 +26127,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SIO",
             "raw_course_number": "199",
@@ -26165,7 +26165,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SIO",
             "raw_course_number": "199",
@@ -26203,7 +26203,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SIO",
             "raw_course_number": "199",
@@ -26241,7 +26241,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SIO",
             "raw_course_number": "199",
@@ -26317,7 +26317,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SIO",
             "raw_course_number": "295LS",
@@ -26393,7 +26393,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SIO",
             "raw_course_number": "295S",
@@ -26448,7 +26448,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SIO",
             "raw_course_number": "299",
@@ -26486,7 +26486,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SIO",
             "raw_course_number": "299",
@@ -26524,7 +26524,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SIO",
             "raw_course_number": "299",
@@ -26562,7 +26562,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SIO",
             "raw_course_number": "299",
@@ -26600,7 +26600,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SIO",
             "raw_course_number": "299",
@@ -26638,7 +26638,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SIO",
             "raw_course_number": "299",
@@ -26693,7 +26693,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SOCG",
             "raw_course_number": "299",
@@ -28023,7 +28023,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SOCI",
             "raw_course_number": "117",
@@ -28078,7 +28078,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SOCI",
             "raw_course_number": "199",
@@ -28116,7 +28116,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SOCI",
             "raw_course_number": "199",
@@ -28171,7 +28171,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SE",
             "raw_course_number": "197",
@@ -28226,7 +28226,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "SE",
             "raw_course_number": "199",
@@ -28283,7 +28283,7 @@
           "raw": {
             "source": "ucsd_schedule_of_classes",
             "source_url": "https://act.ucsd.edu/scheduleOfClasses/scheduleOfClassesStudentResult.htm",
-            "fetched_at": "2026-08-31T11:00:06.771Z",
+            "fetched_at": "2026-09-04T03:04:31.293Z",
             "raw_term": "S324",
             "raw_subject": "WES",
             "raw_course_number": "237B",
