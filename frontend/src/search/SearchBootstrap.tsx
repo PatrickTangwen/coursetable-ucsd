@@ -10,7 +10,7 @@ import * as Sentry from '@sentry/react';
 import debounce from 'lodash.debounce';
 import { buildEvaluator } from 'quist';
 import { useShallow } from 'zustand/react/shallow';
-import { hasCatalogResultCondition } from './catalogResultVisibility';
+import { hasCatalogSearchCondition } from './catalogSearchActivity';
 import { getCatalogConflictCourses } from './catalogWorksheetContext';
 import {
   coursePlanningQueryValue,
@@ -192,10 +192,10 @@ export function SearchBootstrap({
   const searchFilters = useStore((s) => s.searchFilters);
   const searchTimingStartMs = useStore((s) => s.searchTimingStartMs);
   const catalogTypeFilters = useStore((s) => s.catalogTypeFilters);
-  const catalogResultsEnabled = hasCatalogResultCondition(
-    searchFilters,
-    catalogTypeFilters,
-  );
+  const location = useLocation();
+  const catalogSearchActive =
+    location.pathname === '/catalog' ||
+    hasCatalogSearchCondition(searchFilters, catalogTypeFilters);
   const {
     worksheets,
     friends,
@@ -222,8 +222,10 @@ export function SearchBootstrap({
 
   const processedSeasons = useMemo(
     () =>
-      getSearchSeasonScope(searchFilters.selectSeasons, catalogResultsEnabled),
-    [catalogResultsEnabled, searchFilters.selectSeasons],
+      catalogSearchActive
+        ? getSearchSeasonScope(searchFilters.selectSeasons)
+        : [],
+    [catalogSearchActive, searchFilters.selectSeasons],
   );
   const {
     loading: coursesLoading,
@@ -343,7 +345,7 @@ export function SearchBootstrap({
   );
 
   const updateSearchData = useCallback(() => {
-    if (!catalogResultsEnabled) {
+    if (!catalogSearchActive) {
       setSearchData([]);
       return;
     }
@@ -355,7 +357,7 @@ export function SearchBootstrap({
     );
   }, [
     catalogSearchIndex,
-    catalogResultsEnabled,
+    catalogSearchActive,
     isConflicting,
     quistPredicate,
     searchFilters,
