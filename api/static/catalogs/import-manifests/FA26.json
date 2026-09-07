@@ -1,6 +1,6 @@
 {
-  "run_id": "schedule-2026-09-04T03:04:31.293Z",
-  "generated_at": "2026-09-04T03:04:31.293Z",
+  "run_id": "schedule-2026-09-07T11:00:07.905Z",
+  "generated_at": "2026-09-07T11:00:07.905Z",
   "active_planning_term": "FA26",
   "term_label": "Fall 2026",
   "configured_subjects": [
@@ -197,7 +197,7 @@
         "meetings": 8
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -214,7 +214,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -231,7 +231,7 @@
         "meetings": 12
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -248,7 +248,7 @@
         "meetings": 12
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -261,11 +261,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 10,
-        "sections": 12,
-        "meetings": 13
+        "sections": 13,
+        "meetings": 14
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -282,7 +282,7 @@
         "meetings": 18
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -299,7 +299,7 @@
         "meetings": 168
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -312,11 +312,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 15,
-        "sections": 17,
-        "meetings": 31
+        "sections": 18,
+        "meetings": 32
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -333,7 +333,7 @@
         "meetings": 22
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -350,7 +350,7 @@
         "meetings": 68
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -363,11 +363,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 40,
-        "sections": 212,
-        "meetings": 276
+        "sections": 215,
+        "meetings": 279
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -384,7 +384,7 @@
         "meetings": 265
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -401,7 +401,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -418,7 +418,7 @@
         "meetings": 5
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -435,7 +435,7 @@
         "meetings": 72
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -452,7 +452,7 @@
         "meetings": 83
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -469,7 +469,7 @@
         "meetings": 58
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -481,12 +481,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 9,
-        "sections": 95,
-        "meetings": 295
+        "courses": 10,
+        "sections": 96,
+        "meetings": 296
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -503,7 +503,7 @@
         "meetings": 118
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -515,12 +515,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 10,
-        "sections": 91,
-        "meetings": 95
+        "courses": 11,
+        "sections": 165,
+        "meetings": 169
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -537,7 +537,7 @@
         "meetings": 128
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -549,12 +549,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 6,
-        "sections": 22,
-        "meetings": 25
+        "courses": 7,
+        "sections": 31,
+        "meetings": 35
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -571,7 +571,7 @@
         "meetings": 74
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -588,7 +588,7 @@
         "meetings": 172
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -605,7 +605,7 @@
         "meetings": 71
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -622,7 +622,7 @@
         "meetings": 88
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -639,7 +639,7 @@
         "meetings": 27
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -656,7 +656,7 @@
         "meetings": 1066
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -673,7 +673,7 @@
         "meetings": 83
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -690,7 +690,7 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -707,7 +707,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -724,7 +724,7 @@
         "meetings": 17
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -741,7 +741,7 @@
         "meetings": 24
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -754,11 +754,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 47,
-        "sections": 198,
-        "meetings": 447
+        "sections": 202,
+        "meetings": 451
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -775,7 +775,7 @@
         "meetings": 136
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -792,7 +792,7 @@
         "meetings": 3
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -809,7 +809,7 @@
         "meetings": 523
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -826,7 +826,7 @@
         "meetings": 11
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -843,7 +843,7 @@
         "meetings": 8
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -860,7 +860,7 @@
         "meetings": 10
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -877,7 +877,7 @@
         "meetings": 131
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -890,11 +890,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 35,
-        "sections": 91,
-        "meetings": 166
+        "sections": 92,
+        "meetings": 167
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -911,7 +911,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -928,7 +928,7 @@
         "meetings": 10
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -941,11 +941,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 66,
-        "sections": 259,
-        "meetings": 489
+        "sections": 260,
+        "meetings": 490
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -962,7 +962,7 @@
         "meetings": 283
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -979,7 +979,7 @@
         "meetings": 106
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -992,11 +992,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 12,
-        "sections": 14,
-        "meetings": 16
+        "sections": 16,
+        "meetings": 18
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1013,7 +1013,7 @@
         "meetings": 8
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1030,7 +1030,7 @@
         "meetings": 20
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1047,7 +1047,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1064,7 +1064,7 @@
         "meetings": 17
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1077,11 +1077,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 25,
-        "sections": 71,
-        "meetings": 105
+        "sections": 72,
+        "meetings": 106
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1098,7 +1098,7 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1115,7 +1115,7 @@
         "meetings": 15
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1128,11 +1128,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 19,
-        "sections": 21,
-        "meetings": 24
+        "sections": 19,
+        "meetings": 22
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1149,7 +1149,7 @@
         "meetings": 28
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1166,7 +1166,7 @@
         "meetings": 10
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1183,7 +1183,7 @@
         "meetings": 10
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1200,7 +1200,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1217,7 +1217,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1234,7 +1234,7 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1251,7 +1251,7 @@
         "meetings": 5
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1268,7 +1268,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1280,12 +1280,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 8,
-        "sections": 15,
-        "meetings": 40
+        "courses": 9,
+        "sections": 16,
+        "meetings": 41
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1302,7 +1302,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1319,7 +1319,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1336,7 +1336,7 @@
         "meetings": 9
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1349,11 +1349,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 9,
-        "sections": 29,
-        "meetings": 29
+        "sections": 30,
+        "meetings": 30
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1370,7 +1370,7 @@
         "meetings": 8
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1387,7 +1387,7 @@
         "meetings": 84
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1404,7 +1404,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1421,7 +1421,7 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1438,7 +1438,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1455,7 +1455,7 @@
         "meetings": 26
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1472,7 +1472,7 @@
         "meetings": 9
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1489,7 +1489,7 @@
         "meetings": 139
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1506,7 +1506,7 @@
         "meetings": 26
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1523,7 +1523,7 @@
         "meetings": 108
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1540,7 +1540,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1553,11 +1553,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 8,
-        "sections": 19,
-        "meetings": 38
+        "sections": 20,
+        "meetings": 39
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1574,7 +1574,7 @@
         "meetings": 8
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1591,7 +1591,7 @@
         "meetings": 12
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1608,7 +1608,7 @@
         "meetings": 23
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1625,7 +1625,7 @@
         "meetings": 9
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1642,7 +1642,7 @@
         "meetings": 124
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1659,7 +1659,7 @@
         "meetings": 16
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1676,7 +1676,7 @@
         "meetings": 8
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1693,7 +1693,7 @@
         "meetings": 9
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1710,7 +1710,7 @@
         "meetings": 35
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1727,7 +1727,7 @@
         "meetings": 60
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1744,7 +1744,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1761,7 +1761,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1778,7 +1778,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1795,7 +1795,7 @@
         "meetings": 12
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1807,12 +1807,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 9,
-        "sections": 12,
-        "meetings": 16
+        "courses": 10,
+        "sections": 13,
+        "meetings": 17
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1829,7 +1829,7 @@
         "meetings": 7
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1842,11 +1842,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 12,
-        "sections": 21,
-        "meetings": 47
+        "sections": 22,
+        "meetings": 48
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1863,7 +1863,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1880,7 +1880,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1897,7 +1897,7 @@
         "meetings": 3
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1914,7 +1914,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1931,7 +1931,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1948,7 +1948,7 @@
         "meetings": 29
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1965,7 +1965,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1982,7 +1982,7 @@
         "meetings": 11
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -1999,7 +1999,7 @@
         "meetings": 21
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2016,7 +2016,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2033,7 +2033,7 @@
         "meetings": 20
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2046,11 +2046,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 14,
-        "sections": 22,
-        "meetings": 41
+        "sections": 23,
+        "meetings": 42
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2067,7 +2067,7 @@
         "meetings": 313
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2084,7 +2084,7 @@
         "meetings": 1367
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2101,7 +2101,7 @@
         "meetings": 73
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2118,7 +2118,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2135,7 +2135,7 @@
         "meetings": 43
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2148,11 +2148,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 45,
-        "sections": 52,
-        "meetings": 53
+        "sections": 59,
+        "meetings": 60
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2165,11 +2165,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 66,
-        "sections": 133,
-        "meetings": 214
+        "sections": 134,
+        "meetings": 215
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2186,7 +2186,7 @@
         "meetings": 15
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2203,7 +2203,7 @@
         "meetings": 15
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2220,7 +2220,7 @@
         "meetings": 13
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2237,7 +2237,7 @@
         "meetings": 97
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2254,7 +2254,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2271,7 +2271,7 @@
         "meetings": 295
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2288,7 +2288,7 @@
         "meetings": 84
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2305,7 +2305,7 @@
         "meetings": 7
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2322,7 +2322,7 @@
         "meetings": 65
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2335,11 +2335,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 8,
-        "sections": 10,
-        "meetings": 10
+        "sections": 18,
+        "meetings": 18
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2356,7 +2356,7 @@
         "meetings": 15
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2373,7 +2373,7 @@
         "meetings": 15
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2390,7 +2390,7 @@
         "meetings": 22
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2407,7 +2407,7 @@
         "meetings": 16
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2424,7 +2424,7 @@
         "meetings": 27
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2441,7 +2441,7 @@
         "meetings": 70
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2458,7 +2458,7 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2475,7 +2475,7 @@
         "meetings": 58
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2492,7 +2492,7 @@
         "meetings": 258
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2509,7 +2509,7 @@
         "meetings": 527
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2522,11 +2522,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 41,
-        "sections": 96,
-        "meetings": 179
+        "sections": 97,
+        "meetings": 180
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2543,7 +2543,7 @@
         "meetings": 19
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2555,12 +2555,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 49,
-        "sections": 151,
-        "meetings": 236
+        "courses": 50,
+        "sections": 158,
+        "meetings": 243
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2577,7 +2577,7 @@
         "meetings": 14
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2594,7 +2594,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2611,7 +2611,7 @@
         "meetings": 7
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2628,7 +2628,7 @@
         "meetings": 8
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2645,7 +2645,7 @@
         "meetings": 171
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2658,11 +2658,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 31,
-        "sections": 215,
-        "meetings": 293
+        "sections": 216,
+        "meetings": 294
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2676,10 +2676,10 @@
       "row_counts": {
         "courses": 11,
         "sections": 12,
-        "meetings": 20
+        "meetings": 21
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2696,7 +2696,7 @@
         "meetings": 26
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2708,12 +2708,12 @@
       "reason": null,
       "attempts": 1,
       "row_counts": {
-        "courses": 4,
-        "sections": 4,
-        "meetings": 8
+        "courses": 5,
+        "sections": 5,
+        "meetings": 10
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2730,7 +2730,7 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2743,11 +2743,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 8,
-        "sections": 16,
-        "meetings": 16
+        "sections": 19,
+        "meetings": 19
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2764,7 +2764,7 @@
         "meetings": 128
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2781,7 +2781,7 @@
         "meetings": 52
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2798,7 +2798,7 @@
         "meetings": 7
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2815,7 +2815,7 @@
         "meetings": 104
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2828,11 +2828,11 @@
       "attempts": 1,
       "row_counts": {
         "courses": 28,
-        "sections": 48,
-        "meetings": 48
+        "sections": 49,
+        "meetings": 49
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2849,7 +2849,7 @@
         "meetings": 95
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2866,7 +2866,7 @@
         "meetings": 25
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2883,7 +2883,7 @@
         "meetings": 20
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2900,7 +2900,7 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2917,7 +2917,7 @@
         "meetings": 4
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2934,7 +2934,7 @@
         "meetings": 39
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2951,7 +2951,7 @@
         "meetings": 59
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2968,7 +2968,7 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -2985,7 +2985,7 @@
         "meetings": 11
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3002,7 +3002,7 @@
         "meetings": 26
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3019,7 +3019,7 @@
         "meetings": 2
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3036,7 +3036,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3053,7 +3053,7 @@
         "meetings": 5
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3070,7 +3070,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3087,7 +3087,7 @@
         "meetings": 5
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3104,7 +3104,7 @@
         "meetings": 6
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3121,7 +3121,7 @@
         "meetings": 97
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3138,7 +3138,7 @@
         "meetings": 251
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3155,7 +3155,7 @@
         "meetings": 1
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3172,7 +3172,7 @@
         "meetings": 36
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3189,7 +3189,7 @@
         "meetings": 5
       },
       "raw_artifacts": [
-        "data/raw/classplanner/FA26/2026-09-04T04-10-44-855Z/tss/schedule.json"
+        "data/raw/classplanner/FA26/2026-09-07T12-18-26-570Z/tss/schedule.json"
       ],
       "normalized_artifact": null
     },
@@ -3204,7 +3204,7 @@
         "courses": 20
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/AAS.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/AAS.json"
     },
     {
       "term": "FA26",
@@ -3217,7 +3217,7 @@
         "courses": 5
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/AIP.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/AIP.json"
     },
     {
       "term": "FA26",
@@ -3230,7 +3230,7 @@
         "courses": 41
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/ANAR.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/ANAR.json"
     },
     {
       "term": "FA26",
@@ -3243,7 +3243,7 @@
         "courses": 33
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/ANBI.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/ANBI.json"
     },
     {
       "term": "FA26",
@@ -3269,7 +3269,7 @@
         "courses": 90
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/ANSC.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/ANSC.json"
     },
     {
       "term": "FA26",
@@ -3282,7 +3282,7 @@
         "courses": 135
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/ANTH.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/ANTH.json"
     },
     {
       "term": "FA26",
@@ -3295,7 +3295,7 @@
         "courses": 61
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/ASTR.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/ASTR.json"
     },
     {
       "term": "FA26",
@@ -3308,7 +3308,7 @@
         "courses": 15
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/AUD.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/AUD.json"
     },
     {
       "term": "FA26",
@@ -3321,7 +3321,7 @@
         "courses": 11
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/AWP.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/AWP.json"
     },
     {
       "term": "FA26",
@@ -3334,7 +3334,7 @@
         "courses": 116
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/BENG.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/BENG.json"
     },
     {
       "term": "FA26",
@@ -3347,7 +3347,7 @@
         "courses": 74
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/BGGN.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/BGGN.json"
     },
     {
       "term": "FA26",
@@ -3360,7 +3360,7 @@
         "courses": 5
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/BGJC.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/BGJC.json"
     },
     {
       "term": "FA26",
@@ -3373,7 +3373,7 @@
         "courses": 2
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/BGSE.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/BGSE.json"
     },
     {
       "term": "FA26",
@@ -3386,7 +3386,7 @@
         "courses": 8
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/BIBC.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/BIBC.json"
     },
     {
       "term": "FA26",
@@ -3399,7 +3399,7 @@
         "courses": 20
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/BICD.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/BICD.json"
     },
     {
       "term": "FA26",
@@ -3412,7 +3412,7 @@
         "courses": 28
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/BIEB.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/BIEB.json"
     },
     {
       "term": "FA26",
@@ -3425,7 +3425,7 @@
         "courses": 40
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/BILD.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/BILD.json"
     },
     {
       "term": "FA26",
@@ -3438,7 +3438,7 @@
         "courses": 29
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/BIMM.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/BIMM.json"
     },
     {
       "term": "FA26",
@@ -3451,7 +3451,7 @@
         "courses": 29
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/BIOM.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/BIOM.json"
     },
     {
       "term": "FA26",
@@ -3464,7 +3464,7 @@
         "courses": 28
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/BIPN.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/BIPN.json"
     },
     {
       "term": "FA26",
@@ -3477,7 +3477,7 @@
         "courses": 12
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/BISP.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/BISP.json"
     },
     {
       "term": "FA26",
@@ -3490,7 +3490,7 @@
         "courses": 10
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/BNFO.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/BNFO.json"
     },
     {
       "term": "FA26",
@@ -3503,7 +3503,7 @@
         "courses": 22
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/CAT.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/CAT.json"
     },
     {
       "term": "FA26",
@@ -3516,7 +3516,7 @@
         "courses": 3
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/CCE.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/CCE.json"
     },
     {
       "term": "FA26",
@@ -3529,7 +3529,7 @@
         "courses": 48
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/CENG.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/CENG.json"
     },
     {
       "term": "FA26",
@@ -3542,7 +3542,7 @@
         "courses": 48
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/CGS.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/CGS.json"
     },
     {
       "term": "FA26",
@@ -3555,7 +3555,7 @@
         "courses": 172
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/CHEM.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/CHEM.json"
     },
     {
       "term": "FA26",
@@ -3568,7 +3568,7 @@
         "courses": 47
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/CHIN.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/CHIN.json"
     },
     {
       "term": "FA26",
@@ -3581,7 +3581,7 @@
         "courses": 12
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/CLAS.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/CLAS.json"
     },
     {
       "term": "FA26",
@@ -3594,7 +3594,7 @@
         "courses": 5
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/CLIN.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/CLIN.json"
     },
     {
       "term": "FA26",
@@ -3607,7 +3607,7 @@
         "courses": 36
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/CLRE.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/CLRE.json"
     },
     {
       "term": "FA26",
@@ -3620,7 +3620,7 @@
         "courses": 59
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/COGR.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/COGR.json"
     },
     {
       "term": "FA26",
@@ -3633,7 +3633,7 @@
         "courses": 138
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/COGS.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/COGS.json"
     },
     {
       "term": "FA26",
@@ -3646,7 +3646,7 @@
         "courses": 161
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/COMM.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/COMM.json"
     },
     {
       "term": "FA26",
@@ -3672,7 +3672,7 @@
         "courses": 212
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/CSE.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/CSE.json"
     },
     {
       "term": "FA26",
@@ -3685,7 +3685,7 @@
         "courses": 11
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/CSS.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/CSS.json"
     },
     {
       "term": "FA26",
@@ -3724,7 +3724,7 @@
         "courses": 4
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/DOC.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/DOC.json"
     },
     {
       "term": "FA26",
@@ -3737,7 +3737,7 @@
         "courses": 89
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/DSC.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/DSC.json"
     },
     {
       "term": "FA26",
@@ -3750,7 +3750,7 @@
         "courses": 10
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/DSE.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/DSE.json"
     },
     {
       "term": "FA26",
@@ -3763,7 +3763,7 @@
         "courses": 17
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/DSGN.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/DSGN.json"
     },
     {
       "term": "FA26",
@@ -3776,7 +3776,7 @@
         "courses": 206
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/ECE.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/ECE.json"
     },
     {
       "term": "FA26",
@@ -3789,7 +3789,7 @@
         "courses": 181
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/ECON.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/ECON.json"
     },
     {
       "term": "FA26",
@@ -3802,7 +3802,7 @@
         "courses": 192
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/EDS.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/EDS.json"
     },
     {
       "term": "FA26",
@@ -3828,7 +3828,7 @@
         "courses": 15
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/ENG.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/ENG.json"
     },
     {
       "term": "FA26",
@@ -3841,7 +3841,7 @@
         "courses": 18
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/ENVR.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/ENVR.json"
     },
     {
       "term": "FA26",
@@ -3854,7 +3854,7 @@
         "courses": 11
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/ERC.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/ERC.json"
     },
     {
       "term": "FA26",
@@ -3867,7 +3867,7 @@
         "courses": 10
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/ESYS.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/ESYS.json"
     },
     {
       "term": "FA26",
@@ -3880,7 +3880,7 @@
         "courses": 164
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/ETHN.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/ETHN.json"
     },
     {
       "term": "FA26",
@@ -3893,7 +3893,7 @@
         "courses": 1
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/ETIM.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/ETIM.json"
     },
     {
       "term": "FA26",
@@ -3906,7 +3906,7 @@
         "courses": 13
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/FILM.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/FILM.json"
     },
     {
       "term": "FA26",
@@ -3919,7 +3919,7 @@
         "courses": 25
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/FPM.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/FPM.json"
     },
     {
       "term": "FA26",
@@ -3932,7 +3932,7 @@
         "courses": 66
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-FA25/general_catalog/GLBH.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-FA25/general_catalog/GLBH.json"
     },
     {
       "term": "FA26",
@@ -4023,7 +4023,7 @@
         "courses": 12
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/GSS.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/GSS.json"
     },
     {
       "term": "FA26",
@@ -4036,7 +4036,7 @@
         "courses": 24
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/HDS.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/HDS.json"
     },
     {
       "term": "FA26",
@@ -4049,7 +4049,7 @@
         "courses": 11
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/HIAF.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/HIAF.json"
     },
     {
       "term": "FA26",
@@ -4062,7 +4062,7 @@
         "courses": 50
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/HIEA.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/HIEA.json"
     },
     {
       "term": "FA26",
@@ -4075,7 +4075,7 @@
         "courses": 104
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/HIEU.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/HIEU.json"
     },
     {
       "term": "FA26",
@@ -4088,7 +4088,7 @@
         "courses": 82
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/HIGR.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/HIGR.json"
     },
     {
       "term": "FA26",
@@ -4101,7 +4101,7 @@
         "courses": 43
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/HILA.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/HILA.json"
     },
     {
       "term": "FA26",
@@ -4114,7 +4114,7 @@
         "courses": 23
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/HILD.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/HILD.json"
     },
     {
       "term": "FA26",
@@ -4127,7 +4127,7 @@
         "courses": 38
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/HINE.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/HINE.json"
     },
     {
       "term": "FA26",
@@ -4140,7 +4140,7 @@
         "courses": 11
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/HISA.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/HISA.json"
     },
     {
       "term": "FA26",
@@ -4153,7 +4153,7 @@
         "courses": 42
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/HISC.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/HISC.json"
     },
     {
       "term": "FA26",
@@ -4166,7 +4166,7 @@
         "courses": 51
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/HITO.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/HITO.json"
     },
     {
       "term": "FA26",
@@ -4179,7 +4179,7 @@
         "courses": 96
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/HIUS.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/HIUS.json"
     },
     {
       "term": "FA26",
@@ -4192,7 +4192,7 @@
         "courses": 17
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/HUM.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/HUM.json"
     },
     {
       "term": "FA26",
@@ -4205,7 +4205,7 @@
         "courses": 8
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/INTL.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/INTL.json"
     },
     {
       "term": "FA26",
@@ -4218,7 +4218,7 @@
         "courses": 23
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/JAPN.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/JAPN.json"
     },
     {
       "term": "FA26",
@@ -4231,7 +4231,7 @@
         "courses": 16
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/JWSP.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/JWSP.json"
     },
     {
       "term": "FA26",
@@ -4244,7 +4244,7 @@
         "courses": 20
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LATI.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LATI.json"
     },
     {
       "term": "FA26",
@@ -4257,7 +4257,7 @@
         "courses": 11
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LIAB.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LIAB.json"
     },
     {
       "term": "FA26",
@@ -4270,7 +4270,7 @@
         "courses": 1
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LIDS.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LIDS.json"
     },
     {
       "term": "FA26",
@@ -4283,7 +4283,7 @@
         "courses": 10
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LIFR.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LIFR.json"
     },
     {
       "term": "FA26",
@@ -4296,7 +4296,7 @@
         "courses": 10
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LIGM.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LIGM.json"
     },
     {
       "term": "FA26",
@@ -4309,7 +4309,7 @@
         "courses": 107
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LIGN.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LIGN.json"
     },
     {
       "term": "FA26",
@@ -4322,7 +4322,7 @@
         "courses": 56
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LIHL.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LIHL.json"
     },
     {
       "term": "FA26",
@@ -4335,7 +4335,7 @@
         "courses": 12
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LIIT.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LIIT.json"
     },
     {
       "term": "FA26",
@@ -4348,7 +4348,7 @@
         "courses": 11
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LIPO.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LIPO.json"
     },
     {
       "term": "FA26",
@@ -4361,7 +4361,7 @@
         "courses": 11
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LISL.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LISL.json"
     },
     {
       "term": "FA26",
@@ -4374,7 +4374,7 @@
         "courses": 11
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LISP.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LISP.json"
     },
     {
       "term": "FA26",
@@ -4387,7 +4387,7 @@
         "courses": 3
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTAF.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTAF.json"
     },
     {
       "term": "FA26",
@@ -4400,7 +4400,7 @@
         "courses": 11
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTAM.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTAM.json"
     },
     {
       "term": "FA26",
@@ -4413,7 +4413,7 @@
         "courses": 1
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-SP25/general_catalog/LTCH.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-SP25/general_catalog/LTCH.json"
     },
     {
       "term": "FA26",
@@ -4426,7 +4426,7 @@
         "courses": 10
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTCO.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTCO.json"
     },
     {
       "term": "FA26",
@@ -4439,7 +4439,7 @@
         "courses": 39
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTCS.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTCS.json"
     },
     {
       "term": "FA26",
@@ -4452,7 +4452,7 @@
         "courses": 23
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTEA.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTEA.json"
     },
     {
       "term": "FA26",
@@ -4465,7 +4465,7 @@
         "courses": 82
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTEN.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTEN.json"
     },
     {
       "term": "FA26",
@@ -4478,7 +4478,7 @@
         "courses": 17
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTEU.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTEU.json"
     },
     {
       "term": "FA26",
@@ -4491,7 +4491,7 @@
         "courses": 20
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTFR.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTFR.json"
     },
     {
       "term": "FA26",
@@ -4504,7 +4504,7 @@
         "courses": 10
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTGK.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTGK.json"
     },
     {
       "term": "FA26",
@@ -4517,7 +4517,7 @@
         "courses": 13
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTGM.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTGM.json"
     },
     {
       "term": "FA26",
@@ -4530,7 +4530,7 @@
         "courses": 13
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTIT.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTIT.json"
     },
     {
       "term": "FA26",
@@ -4543,7 +4543,7 @@
         "courses": 11
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTKO.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTKO.json"
     },
     {
       "term": "FA26",
@@ -4556,7 +4556,7 @@
         "courses": 10
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTLA.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTLA.json"
     },
     {
       "term": "FA26",
@@ -4569,7 +4569,7 @@
         "courses": 15
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTRU.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTRU.json"
     },
     {
       "term": "FA26",
@@ -4582,7 +4582,7 @@
         "courses": 50
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTSP.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTSP.json"
     },
     {
       "term": "FA26",
@@ -4595,7 +4595,7 @@
         "courses": 13
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTTH.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTTH.json"
     },
     {
       "term": "FA26",
@@ -4608,7 +4608,7 @@
         "courses": 55
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTWL.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTWL.json"
     },
     {
       "term": "FA26",
@@ -4621,7 +4621,7 @@
         "courses": 45
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/LTWR.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/LTWR.json"
     },
     {
       "term": "FA26",
@@ -4634,7 +4634,7 @@
         "courses": 188
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/MAE.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/MAE.json"
     },
     {
       "term": "FA26",
@@ -4647,7 +4647,7 @@
         "courses": 238
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/MATH.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/MATH.json"
     },
     {
       "term": "FA26",
@@ -4660,7 +4660,7 @@
         "courses": 25
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/MATS.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/MATS.json"
     },
     {
       "term": "FA26",
@@ -4686,7 +4686,7 @@
         "courses": 8
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/MCWP.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/MCWP.json"
     },
     {
       "term": "FA26",
@@ -4712,7 +4712,7 @@
         "courses": 210
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/MGT.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/MGT.json"
     },
     {
       "term": "FA26",
@@ -4725,7 +4725,7 @@
         "courses": 26
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/MGTA.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/MGTA.json"
     },
     {
       "term": "FA26",
@@ -4738,7 +4738,7 @@
         "courses": 32
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/MGTF.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/MGTF.json"
     },
     {
       "term": "FA26",
@@ -4751,7 +4751,7 @@
         "courses": 20
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/MGTP.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/MGTP.json"
     },
     {
       "term": "FA26",
@@ -4764,7 +4764,7 @@
         "courses": 16
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/MMW.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/MMW.json"
     },
     {
       "term": "FA26",
@@ -4777,7 +4777,7 @@
         "courses": 9
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/MSED.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/MSED.json"
     },
     {
       "term": "FA26",
@@ -4790,7 +4790,7 @@
         "courses": 151
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/MUS.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/MUS.json"
     },
     {
       "term": "FA26",
@@ -4803,7 +4803,7 @@
         "courses": 93
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/NANO.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/NANO.json"
     },
     {
       "term": "FA26",
@@ -4816,7 +4816,7 @@
         "courses": 19
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/NEU.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/NEU.json"
     },
     {
       "term": "FA26",
@@ -4829,7 +4829,7 @@
         "courses": 9
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/NEUG.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/NEUG.json"
     },
     {
       "term": "FA26",
@@ -4881,7 +4881,7 @@
         "courses": 65
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/PAE.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/PAE.json"
     },
     {
       "term": "FA26",
@@ -4920,7 +4920,7 @@
         "courses": 98
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/PH.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/PH.json"
     },
     {
       "term": "FA26",
@@ -4946,7 +4946,7 @@
         "courses": 19
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/PHB.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/PHB.json"
     },
     {
       "term": "FA26",
@@ -4959,7 +4959,7 @@
         "courses": 149
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/PHIL.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/PHIL.json"
     },
     {
       "term": "FA26",
@@ -4972,7 +4972,7 @@
         "courses": 141
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/PHYS.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/PHYS.json"
     },
     {
       "term": "FA26",
@@ -4985,7 +4985,7 @@
         "courses": 311
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/POLI.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/POLI.json"
     },
     {
       "term": "FA26",
@@ -5011,7 +5011,7 @@
         "courses": 178
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/PSYC.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/PSYC.json"
     },
     {
       "term": "FA26",
@@ -5037,7 +5037,7 @@
         "courses": 39
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/RELI.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/RELI.json"
     },
     {
       "term": "FA26",
@@ -5050,7 +5050,7 @@
         "courses": 9
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/REV.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/REV.json"
     },
     {
       "term": "FA26",
@@ -5076,7 +5076,7 @@
         "courses": 128
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/SE.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/SE.json"
     },
     {
       "term": "FA26",
@@ -5089,7 +5089,7 @@
         "courses": 121
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/SIO.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/SIO.json"
     },
     {
       "term": "FA26",
@@ -5102,7 +5102,7 @@
         "courses": 40
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/SIOB.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/SIOB.json"
     },
     {
       "term": "FA26",
@@ -5115,7 +5115,7 @@
         "courses": 64
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/SIOC.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/SIOC.json"
     },
     {
       "term": "FA26",
@@ -5128,7 +5128,7 @@
         "courses": 53
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/SIOG.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/SIOG.json"
     },
     {
       "term": "FA26",
@@ -5154,7 +5154,7 @@
         "courses": 53
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/SOCG.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/SOCG.json"
     },
     {
       "term": "FA26",
@@ -5167,7 +5167,7 @@
         "courses": 146
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/SOCI.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/SOCI.json"
     },
     {
       "term": "FA26",
@@ -5232,7 +5232,7 @@
         "courses": 12
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/SYN.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/SYN.json"
     },
     {
       "term": "FA26",
@@ -5245,7 +5245,7 @@
         "courses": 18
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/TDAC.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/TDAC.json"
     },
     {
       "term": "FA26",
@@ -5258,7 +5258,7 @@
         "courses": 15
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/TDDE.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/TDDE.json"
     },
     {
       "term": "FA26",
@@ -5271,7 +5271,7 @@
         "courses": 4
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/TDDM.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/TDDM.json"
     },
     {
       "term": "FA26",
@@ -5284,7 +5284,7 @@
         "courses": 6
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/TDDR.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/TDDR.json"
     },
     {
       "term": "FA26",
@@ -5297,7 +5297,7 @@
         "courses": 27
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/TDGE.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/TDGE.json"
     },
     {
       "term": "FA26",
@@ -5310,7 +5310,7 @@
         "courses": 93
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/TDGR.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/TDGR.json"
     },
     {
       "term": "FA26",
@@ -5323,7 +5323,7 @@
         "courses": 4
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/TDHD.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/TDHD.json"
     },
     {
       "term": "FA26",
@@ -5336,7 +5336,7 @@
         "courses": 20
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/TDHT.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/TDHT.json"
     },
     {
       "term": "FA26",
@@ -5349,7 +5349,7 @@
         "courses": 24
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/TDMV.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/TDMV.json"
     },
     {
       "term": "FA26",
@@ -5362,7 +5362,7 @@
         "courses": 5
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/TDPF.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/TDPF.json"
     },
     {
       "term": "FA26",
@@ -5375,7 +5375,7 @@
         "courses": 3
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/TDPR.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/TDPR.json"
     },
     {
       "term": "FA26",
@@ -5388,7 +5388,7 @@
         "courses": 5
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/TDPW.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/TDPW.json"
     },
     {
       "term": "FA26",
@@ -5401,7 +5401,7 @@
         "courses": 4
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI25/general_catalog/TDTR.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI25/general_catalog/TDTR.json"
     },
     {
       "term": "FA26",
@@ -5414,7 +5414,7 @@
         "courses": 8
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/TMC.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/TMC.json"
     },
     {
       "term": "FA26",
@@ -5440,7 +5440,7 @@
         "courses": 106
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/USP.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/USP.json"
     },
     {
       "term": "FA26",
@@ -5453,7 +5453,7 @@
         "courses": 257
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/VIS.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/VIS.json"
     },
     {
       "term": "FA26",
@@ -5466,7 +5466,7 @@
         "courses": 3
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/WARR.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/WARR.json"
     },
     {
       "term": "FA26",
@@ -5479,7 +5479,7 @@
         "courses": 6
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/WCWP.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/WCWP.json"
     },
     {
       "term": "FA26",
@@ -5492,7 +5492,7 @@
         "courses": 9
       },
       "raw_artifacts": [],
-      "normalized_artifact": "data/normalized/multi-2026-09-04T03:04:31.293Z-7a1c92f6-4205-4065-a432-62ad89616b9b-WI26/general_catalog/WES.json"
+      "normalized_artifact": "data/normalized/multi-2026-09-07T11:00:07.905Z-f155665b-da5a-4494-ada1-09b1f6cf0bbe-WI26/general_catalog/WES.json"
     },
     {
       "term": "FA26",
