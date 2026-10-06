@@ -50,16 +50,23 @@ const outputPath = required('GITHUB_OUTPUT');
 if (!/^[a-f\d]{40}$/u.test(commit))
   throw new Error('DEPLOY_COMMIT must be a full lowercase commit SHA');
 
-const summaries = JSON.parse(
+// Match the authoritative PR records, not the commit association index, which
+// can return no PRs even for a confirmed merge. Include every page for reruns.
+const pages = JSON.parse(
   await execute('gh', [
     'api',
+    '--paginate',
+    '--slurp',
     '-H',
     'Accept: application/vnd.github+json',
-    `repos/${repository}/commits/${commit}/pulls`,
+    `repos/${repository}/pulls?state=closed&base=main&sort=updated&direction=desc&per_page=100`,
   ]),
-) as PullRequestSummary[];
-const summary = findScheduledRefreshPullRequest(summaries, commit);
+) as PullRequestSummary[][];
+const summary = findScheduledRefreshPullRequest(pages.flat(), commit);
 if (!summary) {
+  console.log(
+    `Skipping scheduled refresh deployment: no merged data-refresh PR targets main with merge commit ${commit}.`,
+  );
   await appendFile(outputPath, 'eligible=false\n');
   process.exit(0);
 }
@@ -89,3 +96,4 @@ if (unexpectedFiles.length > 0) {
 }
 
 await appendFile(outputPath, `commit=${commit}\neligible=true\n`);
+console.log(`Qualified scheduled refresh PR #${summary.number} at ${commit}.`);
