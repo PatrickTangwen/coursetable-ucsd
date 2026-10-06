@@ -98,3 +98,25 @@ This signal does not replace refresh qualification, green CI, the exact
 Staging-accepted commit check, hosted smoke, or durable accepted evidence. It
 only carries the repository owner's already-established scheduled-refresh
 authorization across the reusable workflow boundary.
+
+## Refresh PR Discovery Correction (2026-10-05)
+
+PR #208 was merged into `main`, but the commit-to-PR association endpoint
+returned an empty list for its merge commit. The qualification job therefore
+reported success with `eligible=false`, skipping both deployment environments
+after CI passed. Workflow success alone did not prove that deployment occurred.
+
+Qualification now reads all pages of closed PRs targeting `main` and matches
+the exact `merge_commit_sha`, merged state, and `data-refresh/` source branch.
+It then fetches the full PR details to verify the owner merge and checks the
+local first-parent diff against the existing generated-artifact allowlist.
+This replaces association-index discovery; it does not guess PR numbers from
+commit messages or limit matching to a recent time window. API failures still
+fail the job. Both qualification and a legitimate no-match skip are logged.
+
+Staging acceptance, protected-environment approvals, Production login
+authorization, and the same-commit requirement remain unchanged. Subprocess
+regression tests exercise an empty commit-association response, a match on a
+later PR page, a no-match skip, API failure, owner rejection, and file rejection.
+A read-only replay against PR #208 qualified its exact merge commit; it did
+not deploy either environment.
